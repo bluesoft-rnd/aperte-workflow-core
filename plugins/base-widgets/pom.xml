@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>plugins</artifactId>
+        <groupId>org.aperteworkflow</groupId>
+        <version>0.1</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>base-widgets</artifactId>
+    <version>0.1</version>
+    <packaging>bundle</packaging>
+    <name>base-widgets</name>
+
+
+     <repositories>
+        <repository>
+            <id>vaadin-snapshots</id>
+            <url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>vaadin-addons</id>
+            <url>http://maven.vaadin.com/vaadin-addons</url>
+        </repository>
+    </repositories>
+    <dependencies>        
+
+
+        <dependency>
+            <groupId>org.aperteworkflow</groupId>
+            <artifactId>processtool-interface</artifactId>
+            <version>0.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.aperteworkflow</groupId>
+            <artifactId>base-gui</artifactId>
+            <version>0.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>3.0.5.RELEASE</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.aperteworkflow</groupId>
+            <artifactId>xml-utils</artifactId>
+            <version>0.1</version>
+        </dependency>
+         <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin</artifactId>
+            <version>${vaadin.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <useDefaultManifestFile>true</useDefaultManifestFile>
+                </configuration>
+
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <version>2.1.0</version>
+                <configuration>
+                    <instructions>
+                        <Export-Package>
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets,pl.net.bluesoft.rnd.processtool.ui.buttons
+                        </Export-Package>
+                        <Import-Package>
+                            pl.net.bluesoft.rnd.util.i18n,javassist.util.proxy,org.hibernate.proxy,org.osgi.framework,pl.net.bluesoft.rnd.processtool.plugins.osgi,pl.net.bluesoft.rnd.processtool.plugins,pl.net.bluesoft.rnd.processtool.model,javax.persistence,pl.net.bluesoft.rnd.processtool.ui.widgets,com.vaadin.data,com.vaadin.ui,com.vaadin,pl.net.bluesoft.rnd.processtool.ui.widgets.impl,*
+                        </Import-Package>
+                        <Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>
+                        <Bundle-SymbolicName>pl.net.bluesoft.rnd.processtool.ui.widgets</Bundle-SymbolicName>
+                        <Bundle-Version>0.1</Bundle-Version>
+                        <Embed-Directory>lib</Embed-Directory>
+                        <Embed-Transitive>true</Embed-Transitive>
+                        <ProcessTool-Widget-Enhancement>pl.net.bluesoft.rnd.processtool.ui.basewidgets.FileUploadWidget,pl.net.bluesoft.rnd.processtool.ui.basewidgets.LocaleCaptureWidget,pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessHistoryWidget,pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessCommentsWidget,pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDataBlockWidget,pl.net.bluesoft.rnd.processtool.ui.basewidgets.LatestProcessCommentsWidget,pl.net.bluesoft.rnd.processtool.ui.basewidgets.TabSheetWidget,pl.net.bluesoft.rnd.processtool.ui.basewidgets.VerticalLayoutWidget</ProcessTool-Widget-Enhancement>
+                        <ProcessTool-Button-Enhancement>pl.net.bluesoft.rnd.processtool.ui.buttons.StandardValidatingButton,pl.net.bluesoft.rnd.processtool.ui.buttons.CommentEnabledStandardValidatingButton</ProcessTool-Button-Enhancement>
+                        <ProcessTool-I18N-Property>basewidgets-messages</ProcessTool-I18N-Property>
+                    </instructions>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+    
+
+</project>

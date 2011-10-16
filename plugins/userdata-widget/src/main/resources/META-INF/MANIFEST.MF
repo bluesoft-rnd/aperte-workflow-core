@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: pl.net.bluesoft.rnd.pt.ext.userdata.Activator
+Bundle-Version: 1
+Bundle-Name: Service listener example
+Bundle-Description: A bundle that displays messages at startup and when service events occur
+Import-Package: pl.net.bluesoft.rnd.util.i18n,javassist.util.proxy,org.hibernate.proxy,org.osgi.framework,pl.net.bluesoft.rnd.processtool.bpm.plugins.osgi,pl.net.bluesoft.rnd.processtool.model,javax.persistence,pl.net.bluesoft.rnd.processtool.ui.widgets,com.vaadin.data,com.vaadin.ui,com.vaadin,pl.net.bluesoft.rnd.processtool.ui.widgets.impl
+Export-Package: pl.net.bluesoft.rnd.pt.ext.userdata.model,pl.net.bluesoft.rnd.pt.ext.userdata.widget

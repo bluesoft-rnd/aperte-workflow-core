@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>plugins</artifactId>
+        <groupId>org.aperteworkflow</groupId>
+        <version>0.1</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>mule-esb-plugin</artifactId>
+    <version>0.1</version>
+    <packaging>bundle</packaging>
+    <name>mule-esb-plugin</name>
+    <properties>
+        <mule.version>3.2.0</mule.version>
+    </properties>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>${hibernate.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.aperteworkflow</groupId>
+            <artifactId>processtool-interface</artifactId>
+            <version>0.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mule</groupId>
+            <artifactId>mule-core</artifactId>
+            <version>${mule.version}</version>
+        </dependency>
+        <!-- Xml configuration -->
+        <dependency>
+            <groupId>org.mule.modules</groupId>
+            <artifactId>mule-module-spring-config</artifactId>
+            <version>${mule.version}</version>
+        </dependency>
+
+        <!-- Mule Transports -->
+        <dependency>
+            <groupId>org.mule.transports</groupId>
+            <artifactId>mule-transport-file</artifactId>
+            <version>${mule.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mule.transports</groupId>
+            <artifactId>mule-transport-http</artifactId>
+            <version>${mule.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mule.transports</groupId>
+            <artifactId>mule-transport-jdbc</artifactId>
+            <version>${mule.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mule.transports</groupId>
+            <artifactId>mule-transport-jms</artifactId>
+            <version>${mule.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mule.transports</groupId>
+            <artifactId>mule-transport-vm</artifactId>
+            <version>${mule.version}</version>
+        </dependency>
+
+        <!-- Mule Modules -->
+        <dependency>
+            <groupId>org.mule.modules</groupId>
+            <artifactId>mule-module-client</artifactId>
+            <version>${mule.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mule.modules</groupId>
+            <artifactId>mule-module-cxf</artifactId>
+            <version>${mule.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.sun.xml.bind</groupId>
+                    <artifactId>jaxb-xjc</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.mule.modules</groupId>
+            <artifactId>mule-module-management</artifactId>
+            <version>${mule.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mule.modules</groupId>
+            <artifactId>mule-module-scripting</artifactId>
+            <version>${mule.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mule.modules</groupId>
+            <artifactId>mule-module-sxc</artifactId>
+            <version>${mule.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.sun.xml.bind</groupId>
+                    <artifactId>jaxb-xjc</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.mule.modules</groupId>
+            <artifactId>mule-module-xml</artifactId>
+            <version>${mule.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mule.modules</groupId>
+            <artifactId>mule-module-twitter</artifactId>
+            <version>2.0</version>
+        </dependency>
+        <!--<dependency>-->
+        <!--<groupId>org.mule.ibeans</groupId>-->
+        <!--<artifactId>ibeans-contrib</artifactId>-->
+        <!--<version>1.0</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+        <!--<groupId>org.ibeans</groupId>-->
+        <!--<artifactId>ibeans-support</artifactId>-->
+        <!--<version>1.2</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+        <!--<groupId>org.mule.modules</groupId>-->
+        <!--<artifactId>mule-module-ibeans</artifactId>-->
+        <!--<version>${mule.version}</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+        <!--<groupId>org.mule.ibeans</groupId>-->
+        <!--<artifactId>twitter-ibean</artifactId>-->
+        <!--<version>1.1</version>-->
+        <!--</dependency>-->
+        <!-- for testing -->
+        <dependency>
+            <groupId>org.mule.tests</groupId>
+            <artifactId>mule-tests-functional</artifactId>
+            <version>${mule.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>mockobjects</groupId>
+            <artifactId>mockobjects-core</artifactId>
+            <version>0.09</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8.1</version>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <repositories>
+        <!--<repository>-->
+        <!--<id>ibeans-repo</id>-->
+        <!--<name>iBeans Repository</name>-->
+        <!--<url>http://repository.ibeans.muleforge.org</url>-->
+        <!--<layout>default</layout>-->
+        <!--</repository>-->
+        <repository>
+            <id>muleforge-repo</id>
+            <name>MuleForge Repository</name>
+            <url>http://repository.muleforge.org</url>
+            <layout>default</layout>
+        </repository>
+        <!--<repository>-->
+        <!--<id>mulesoft-repo</id>-->
+        <!--<name>mulesoft Repository</name>-->
+        <!--<url>http://repository.mulesoft.org</url>-->
+        <!--<layout>default</layout>-->
+        <!--</repository>-->
+        <repository>
+            <id>mulesoft.releases</id>
+            <name>Muleforge Releases Repository</name>
+            <url>https://repository.mulesoft.org/releases/</url>
+        </repository>
+        <repository>
+            <id>codehaus-repo</id>
+            <name>Codehaus Repository</name>
+            <url>http://dist.codehaus.org/mule/dependencies/maven2</url>
+            <layout>default</layout>
+        </repository>
+    </repositories>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <useDefaultManifestFile>true</useDefaultManifestFile>
+                </configuration>
+
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <version>2.1.0</version>
+                <configuration>
+                    <instructions>
+                        <Export-Package>
+                            pl.net.bluesoft.rnd.awf.mule,org.mule.config.spring,org.mule.context.notification
+                        </Export-Package>
+                        <Import-Package>
+                            org.apache.commons.collections.comparators;version=!,
+                            org.w3c.dom,
+                            *;resolution:=optional
+                        </Import-Package>
+                        <Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>
+                        <Bundle-SymbolicName>pl.net.bluesoft.rnd.awf.mule</Bundle-SymbolicName>
+                        <Bundle-Version>0.1</Bundle-Version>
+                        <Embed-Directory>lib</Embed-Directory>
+                        <Embed-Transitive>true</Embed-Transitive>
+                        <Bundle-Activator>pl.net.bluesoft.rnd.awf.mule.MulePluginActivator</Bundle-Activator>
+                        <SPI-Consumer>*</SPI-Consumer>
+                        <SPI-Provider>*</SPI-Provider>
+                        <!--<ProcessTool-Step-Enhancement>pl.net.bluesoft.rnd.awf.mule.step.MuleStep</ProcessTool-Step-Enhancement>-->
+                    </instructions>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+
+
+</project>

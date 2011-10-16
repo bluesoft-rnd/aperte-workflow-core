@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list>
+    <config.ProcessQueueConfig name="REQUEST_QUEUE" description="Submissions">
+        <rights>
+            <config.ProcessQueueRight roleName=".*" browseAllowed="true"/>
+        </rights>
+    </config.ProcessQueueConfig>
+
+    <config.ProcessQueueConfig name="ACCEPT_QUEUE" description="Final acceptance">
+        <rights>
+            <config.ProcessQueueRight roleName=".*" browseAllowed="true"/>
+        </rights>
+    </config.ProcessQueueConfig>
+
+</list>

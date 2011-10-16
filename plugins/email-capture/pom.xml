@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>plugins</artifactId>
+        <groupId>org.aperteworkflow</groupId>
+        <version>0.1</version>
+    </parent>
+
+    <groupId>org.aperteworkflow</groupId>
+    <artifactId>email-capture</artifactId>
+    <version>0.1</version>
+    <name>email-capture</name>
+
+    <packaging>bundle</packaging>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.aperteworkflow</groupId>
+            <artifactId>processtool-interface</artifactId>
+            <version>0.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+             <artifactId>hibernate-core</artifactId>
+            <version>${hibernate.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <artifactId>cmis-interface</artifactId>
+            <groupId>org.aperteworkflow</groupId>
+            <version>0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+            <version>1.4.3</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <useDefaultManifestFile>true</useDefaultManifestFile>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <version>2.1.0</version>
+                <configuration>
+                    <instructions>
+                        <Export-Package>                            
+                        </Export-Package>
+                        <Import-Package>
+                            javax.mail;version=!,
+                            javax.mail.internet;version=!,
+                            javax.mail.search;version=!,
+                            *;resolution:=optional,
+                            pl.net.bluesoft.rnd.util.i18n,javassist.util.proxy,org.hibernate.proxy,org.osgi.framework,pl.net.bluesoft.rnd.processtool.plugins,pl.net.bluesoft.rnd.processtool.plugins.osgi,pl.net.bluesoft.rnd.processtool.model,javax.persistence,org.hibernate
+                        </Import-Package>
+                        <Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>
+                        <Bundle-Activator>pl.net.bluesoft.rnd.pt.ext.emailcapture.Activator</Bundle-Activator>
+                        <Bundle-SymbolicName>pl.net.bluesoft.rnd.pt.ext.emailcapture</Bundle-SymbolicName>
+                        <Bundle-Version>0.1</Bundle-Version>
+                        <Embed-Directory>lib</Embed-Directory>
+                        <Embed-Transitive>true</Embed-Transitive>
+                        <!--
+                        this needs to be done programmatically on Activator init
+                        <ProcessTool-Model-Enhancement>pl.net.bluesoft.rnd.pt.ext.emailcapture.model.EmailCheckerConfiguration,pl.net.bluesoft.rnd.pt.ext.emailcapture.model.EmailCheckerRuleConfiguration</ProcessTool-Model-Enhancement>-->
+                    </instructions>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+
+</project>

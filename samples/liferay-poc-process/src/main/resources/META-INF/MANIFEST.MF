@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: pl.net.bluesoft.rnd.pt.ext.liferayprocess
+Bundle-Version: 1
+Bundle-Name: Liferay Europe Symposium 2011 PoC process
+Bundle-Description: Liferay Europe Symposium 2011 PoC process
+Import-Package: org.osgi.framework
+ProcessTool-Process-Deployment: pl.net.bluesoft.rnd.pt.ext.liferayprocess

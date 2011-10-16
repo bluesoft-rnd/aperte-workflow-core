@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: pl.net.bluesoft.awf.sample.mulestep
+Bundle-Version: 1
+Bundle-Name: pl.net.bluesoft.awf.sample.mulestep
+Bundle-Description: pl.net.bluesoft.awf.sample.mulestep
+Import-Package: org.osgi.framework,org.mule.config.spring,org.mule.context.notification,com.sun.org.apache.xerces.internal.jaxp,com.sun.org.apache.xerces.internal.parsers,com.sun.org.apache.xerces.internal.impl.dv.dtd,com.sun.org.apache.xerces.internal.impl.dv.xs,org.w3c.dom,org.apache.commons.logging.impl
+Mule-Config-Files: /sample-mule-service.xml

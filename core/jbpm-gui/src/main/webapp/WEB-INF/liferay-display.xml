@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<display>
+	<category name="Aperte Workflow">
+		<portlet id="ProcessTool Tasks"/>
+		<portlet id="ProcessTool Dictionaries"/>
+		<portlet id="ProcessTool Queues"/>
+		<portlet id="ProcessTool Activities"/>
+		<!--<portlet id="Processtoolportlets Application portlet"/>-->
+	</category>
+</display>

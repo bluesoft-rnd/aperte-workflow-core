@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>aperteworkflow-core</artifactId>
+        <groupId>org.aperteworkflow</groupId>
+        <version>0.1</version>
+    </parent>
+
+    <name>plugins</name>
+    <description>Aperte Workflow OSGi Plugins</description>
+
+    <packaging>pom</packaging>
+    <artifactId>plugins</artifactId>
+    <version>0.1</version>
+
+    <modules>
+        <module>base-widgets</module>
+        <module>bpm-notifications</module>
+        <module>cmis-widget</module>
+        <module>drools-step</module>
+        <module>email-capture</module>
+        <module>files-capture</module>
+        <module>process-deadlines</module>
+        <module>report-step</module>
+        <module>userdata-widget</module>
+        <module>mule-esb-plugin</module>
+    </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <version>1.4.0</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+</project>

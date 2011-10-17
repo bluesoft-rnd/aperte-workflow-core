@@ -22,18 +22,20 @@ import java.util.logging.Level;
 
 import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 
-/**
- * @author tlipski@bluesoft.net.pl
- */
 public class PluginHelper {
+    public enum State {
+        STOPPED, INITIALIZING, ACTIVE
+    }
+
+    private State state = State.STOPPED;
     private Felix felix;
 
-    private Map<String, Long> fileTimes = new HashMap<String, Long>();
+    private Map<String, Long> fileTimes;
     private ScheduledExecutorService executor;
 
     private static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(PluginHelper.class.getName());
 
-    void processBundleExtensions(final Bundle bundle, int eventType, final ProcessToolContextFactory ctx) throws ClassNotFoundException {
+    synchronized private void processBundleExtensions(final Bundle bundle, int eventType, final ProcessToolContextFactory ctx) throws ClassNotFoundException {
 
         if (ctx == null) {
             LOGGER.severe("No default process tool context registered! - skipping process tool context-based processing of this OSGI bundle");
@@ -101,8 +103,7 @@ public class PluginHelper {
         if (hasText(i18nproperties)) {
             String[] properties = i18nproperties.replaceAll("\\s*", "").split(",");
             for (final String propertyFileName : properties) {
-                String providerId = bundle.getBundleId() + "/" + propertyFileName;
-
+                String providerId = bundle.getBundleId() + File.separator + propertyFileName;
                 if (eventType == Bundle.ACTIVE) {
                     toolRegistry.registerI18NProvider(new PropertiesBasedI18NProvider(new PropertyLoader() {
                         @Override
@@ -124,10 +125,10 @@ public class PluginHelper {
         if (hasText(processProperties)) {
             String[] properties = processProperties.replaceAll("\\s*", "").split(",");
             for (String processPackage : properties) {
-                String providerId = bundle.getBundleId() + "/" + processPackage.replace(".", "/") + "/messages";
+                String providerId = bundle.getBundleId() + File.separator + processPackage.replace(".", File.separator) + File.separator + "messages";
                 if (eventType == Bundle.ACTIVE) {
                     try {
-                        String basepath = "/" + processPackage.replace(".", "/") + "/";
+                        String basepath = File.separator + processPackage.replace(".", File.separator) + File.separator;
                         InputStream imageStream = null;
                         if (bundle.getResource(basepath + "processdefinition.png") != null) {
                             imageStream = bundle.getResource(basepath + "processdefinition.png").openStream();
@@ -148,7 +149,7 @@ public class PluginHelper {
                                 }
                                 return cl.openStream();
                             }
-                        }, "/" + processPackage.replace(".", "/") + "/messages"), providerId);
+                        }, File.separator + processPackage.replace(".", File.separator) + File.separator + "messages"), providerId);
                         URL dictUrl = bundle.getResource(basepath + "process-dictionaries.xml");
                         if (dictUrl != null) {
                             toolRegistry.registerDictionaries(dictUrl.openStream());
@@ -165,13 +166,16 @@ public class PluginHelper {
         }
     }
 
-    public synchronized void initializePluginSystem(final String pluginsDir,
+    public synchronized void initializePluginSystem(String pluginsDir,
                                                     final ProcessToolRegistry registry) throws BundleException {
+        pluginsDir = pluginsDir.replace('/', File.separatorChar);
+        state = State.INITIALIZING;
         LOGGER.fine("initializePluginSystem.start!");
         initializeFelix(pluginsDir, registry);
         LOGGER.fine("initializeCheckerThread!");
         initCheckerThread(pluginsDir);
         LOGGER.fine("initializePluginSystem.end!");
+        state = State.ACTIVE;
     }
 
     private void initializeFelix(String pluginsDir, final ProcessToolRegistry registry) throws BundleException {
@@ -180,7 +184,7 @@ public class PluginHelper {
             felix = null;
         }
 
-        Map<String, Object> configMap = new HashMap();
+        Map<String, Object> configMap = new HashMap<String, Object>();
         ArrayList<BundleActivator> activators = new ArrayList<BundleActivator>();
         activators.add(new BundleActivator() {
             public void start(BundleContext context) throws Exception {
@@ -199,9 +203,9 @@ public class PluginHelper {
             BundleListener listener = new BundleListener() {
                 public void bundleChanged(BundleEvent event) {
                     try {
-                        int state = event.getType();
-                        if (state == BundleEvent.STARTED || state == BundleEvent.STOPPED) { //minimalize the number of bundle deployments in Aperte Workflow
-                            processBundleExtensions(event.getBundle(), event.getBundle().getState(),
+                        if (((BundleEvent.STARTED | BundleEvent.STOPPED) & event.getType()) != 0) {
+                            processBundleExtensions(event.getBundle(),
+                                    event.getBundle().getState(),
                                     registry.getProcessToolContextFactory());
                         }
                     }
@@ -225,6 +229,7 @@ public class PluginHelper {
         });
 
         LOGGER.fine("initializePluginSystem.middle!");
+
         configMap.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA,
                 "pl.net.bluesoft.rnd.processtool.plugins.osgi," +
                         "pl.net.bluesoft.rnd.processtool.plugins," +
@@ -257,6 +262,7 @@ public class PluginHelper {
         configMap.put(FelixConstants.SYSTEMBUNDLE_ACTIVATORS_PROP, activators);
         configMap.put(FelixConstants.LOG_LEVEL_PROP, "4");
         configMap.put(FelixConstants.SERVICE_URLHANDLERS_PROP, true);
+        configMap.put(FelixConstants.FRAMEWORK_BUNDLE_PARENT, FelixConstants.FRAMEWORK_BUNDLE_PARENT_FRAMEWORK);
         configMap.put(FelixConstants.FRAMEWORK_STORAGE_CLEAN, FelixConstants.FRAMEWORK_STORAGE_CLEAN_ONFIRSTINIT);
         configMap.put("felix.auto.deploy.action", "install,update,start");
         configMap.put(FelixConstants.LOG_LOGGER_PROP, new Logger() {
@@ -274,55 +280,91 @@ public class PluginHelper {
     }
 
     private void initCheckerThread(final String pluginsDir) {
+        fileTimes = new HashMap<String, Long>();
         LOGGER.info("Starting OSGi checker thread");
         if (executor != null && !executor.isShutdown()) {
             executor.shutdown();
         }
         executor = Executors.newScheduledThreadPool(2);
-        Runnable runnable = new Runnable() {
+        executor.scheduleAtFixedRate(new Runnable() {
             public void run() {
-                if (felix == null) {
-                    LOGGER.warning("Felix not initialized yet");
-                    return;
-                }
-                File f = new File(pluginsDir);
-                if (f == null || !f.exists()) {
-                    LOGGER.warning("Plugins dir not found: " + pluginsDir);
-                    return;
-                }
-                String[] list = f.list();
-                Arrays.sort(list);
-                for (String filename : list) {
-                    File subFile = new File(f.getAbsolutePath() + File.separator + filename);
-                    String path = subFile.getAbsolutePath();
-                    if (!subFile.isDirectory() && path.matches(".*jar$")) {
-                        Long aLong = fileTimes.get(path);
-                        if (aLong == null || aLong < subFile.lastModified()) {
-                            aLong = null;
+                synchronized (PluginHelper.class) {
+                    executor.schedule(new Runnable() {
+                        @Override
+                        public void run() {
+                            scheduleBundleInstall(pluginsDir);
                         }
-                        if (aLong == null) {
-                            try {
-                                LOGGER.warning("installing: " + path);
-                                Bundle bundle = felix.getBundleContext().installBundle("file://" + path, new FileInputStream(path));
-                                bundle.update(new FileInputStream(path));
-                                LOGGER.warning("installed: " + path);
-                                bundle.start();
-                                LOGGER.warning("started: " + path);
-                                fileTimes.put(path, subFile.lastModified());
-                            }
-                            catch (Exception e) {
-                                LOGGER.warning("blocking " + path);
-                                LOGGER.warning(e.getMessage());
-                                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                                fileTimes.put(path, subFile.lastModified());
-                            }
-                        }
-                    }
+                    }, 0, TimeUnit.SECONDS);
                 }
             }
-        };
-        executor.scheduleAtFixedRate(runnable, 3, 3, TimeUnit.SECONDS);
+        }, 5, 5, TimeUnit.SECONDS);
         LOGGER.info("Started OSGi checker thread");
+    }
+
+    private void scheduleBundleInstall(String pluginsDir) {
+        if (felix == null) {
+            LOGGER.warning("Felix not initialized yet");
+            return;
+        }
+        File f = new File(pluginsDir);
+        if (!f.exists()) {
+            LOGGER.warning("Plugins dir not found: " + pluginsDir);
+            return;
+        }
+        String[] list = f.list();
+        Arrays.sort(list);
+        Set<String> visitedPaths = new HashSet<String>();
+        List<String> installableBundlePaths = new ArrayList<String>();
+        for (String filename : list) {
+            File subFile = new File(f.getAbsolutePath() + File.separator + filename);
+            String path = subFile.getAbsolutePath();
+            if (!subFile.isDirectory() && path.matches(".*jar$")) {
+                Long lastModified = fileTimes.get(path);
+                if (lastModified == null || lastModified < subFile.lastModified()) {
+                    installableBundlePaths.add(path);
+                    fileTimes.put(path, subFile.lastModified());
+                }
+                visitedPaths.add(path);
+            }
+        }
+        Set<String> fileTimesKeys = new HashSet<String>(fileTimes.keySet());
+        fileTimesKeys.removeAll(visitedPaths);
+        for (String path : fileTimesKeys) {
+            fileTimes.remove(path);
+        }
+
+        boolean installed = true;
+        while (!installableBundlePaths.isEmpty() && installed) {
+            installed = false;
+            for (Iterator<String> it = installableBundlePaths.iterator(); it.hasNext(); ) {
+                if (installBundle(it.next())) {
+                    it.remove();
+                    installed = true;
+                }
+            }
+        }
+        if (!installableBundlePaths.isEmpty()) {
+            LOGGER.warning("UNABLE TO INSTALL BUNDLES: " + installableBundlePaths.toString());
+        }
+
+    }
+
+    synchronized private boolean installBundle(String path) {
+        boolean result = false;
+        try {
+            LOGGER.warning("INSTALLING: " + path);
+            Bundle bundle = felix.getBundleContext().installBundle("file://" + path, new FileInputStream(path));
+            bundle.update(new FileInputStream(path));
+            LOGGER.warning("INSTALLED: " + path);
+            bundle.start();
+            LOGGER.warning("STARTED: " + path);
+            result = true;
+        }
+        catch (Exception e) {
+            LOGGER.warning("BLOCKING: " + path);
+            LOGGER.log(Level.WARNING, e.getMessage(), e);
+        }
+        return result;
     }
 
     public String getSystemPackages(String basedir) {
@@ -346,12 +388,13 @@ public class PluginHelper {
             }
         }
         catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error occured while reading " + basedir + File.separatorChar + "packages.export", e);
+            LOGGER.log(Level.SEVERE, "Error occurred while reading " + basedir + File.separatorChar + "packages.export", e);
         }
         return "";
     }
 
     public synchronized void stopPluginSystem() throws BundleException {
+        state = State.STOPPED;
         if (executor != null) {
             if (!executor.isShutdown()) {
                 executor.shutdown();
@@ -362,5 +405,9 @@ public class PluginHelper {
             felix.stop();
             felix = null;
         }
+    }
+
+    public State getState() {
+        return state;
     }
 }

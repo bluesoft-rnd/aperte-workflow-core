@@ -1,12 +1,14 @@
 package pl.net.bluesoft.rnd.processtool.plugins;
 
 import org.osgi.framework.BundleException;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.plugins.osgi.PluginHelper;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.util.logging.Logger;
 
@@ -53,9 +55,9 @@ public class PluginServlet extends HttpServlet {
 
                 pluginHelper.initializePluginSystem(
                         nvl(getServletConfig().getInitParameter("osgi-plugins-directory"),
-                                getServletContext().getRealPath("/WEB-INF/osgi")),
+                                ProcessToolContext.Util.getHomePath() + File.separator + "osgi-plugins"),
                         nvl(getServletConfig().getInitParameter("osgi-storage-directory"),
-                                getServletContext().getRealPath("/WEB-INF/felix-cache")),
+                                ProcessToolContext.Util.getHomePath()  + File.separator +  "felix-cache"),
                         ptcf);
             }
         } catch (Exception e) {

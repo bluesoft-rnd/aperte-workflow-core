@@ -29,7 +29,6 @@
     <orderEntry type="library" name="Maven: org.apache.chemistry.opencmis:chemistry-opencmis-test-util:0.2.0-incubating" level="project" />
     <orderEntry type="library" name="Maven: net.sf.jopt-simple:jopt-simple:3.2" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.8.2" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: com.liferay.portal:portal-service:6.0.6" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: postgresql:postgresql:8.4-702.jdbc4" level="project" />
   </component>
 </module>

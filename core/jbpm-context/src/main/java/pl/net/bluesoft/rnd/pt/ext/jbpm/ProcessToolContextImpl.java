@@ -17,6 +17,9 @@ import pl.net.bluesoft.util.eventbus.EventBusManager;
 
 import java.util.List;
 
+import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
+import static pl.net.bluesoft.util.lang.Lang.coalesce;
+
 /**
  * Context replacement for Spring library
  * 
@@ -158,8 +161,7 @@ public class ProcessToolContextImpl implements ProcessToolContext {
 		return ((ProcessToolSetting) list.get(0)).getValue();
 	}
 
-
-	public ProcessToolContextFactory getFactory() {
+    public ProcessToolContextFactory getFactory() {
 		return factory;
 	}
 

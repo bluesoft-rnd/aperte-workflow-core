@@ -18,7 +18,7 @@
         <module>cmis-interface</module>
         <module>xml-utils</module>
         <module>template-utils</module>
-        <module>poutils</module>
+        <module>aperte-utils</module>
     </modules>
 
 </project>

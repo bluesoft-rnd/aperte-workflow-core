@@ -10,6 +10,8 @@ import pl.net.bluesoft.util.eventbus.EventBusManager;
 import java.util.HashMap;
 import java.util.Map;
 
+import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
+
 /**
  * @author tlipski@bluesoft.net.pl
  */
@@ -50,6 +52,19 @@ public interface ProcessToolContext {
 		public static synchronized void removeProcessToolContextForThread(ProcessToolContext ctx) {
 			CONTEXT_THREAD_HOLDER.remove(Thread.currentThread());
 		}
+
+        /**
+         * The default implementation checks for several system properties, than defaults to current working directory.
+         * The home directory is used to establish location of osgi-plugins, felix cache and other directories.
+         */
+        public static String getHomePath() {
+            return nvl(
+                    System.getProperty("aperte.workflow.home"),
+                    System.getProperty("liferay.home"),
+                    System.getProperty("catalina.home"),
+                    ""
+            );
+        }
 	}
 
 }

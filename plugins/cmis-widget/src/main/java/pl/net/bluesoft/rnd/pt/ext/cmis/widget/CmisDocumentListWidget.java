@@ -155,13 +155,10 @@ public class CmisDocumentListWidget extends BaseProcessToolWidget implements Pro
 					name = name.replaceFirst("__POPUP_ALWAYS__", "");
 				}
 				
-				System.out.println("Nazwa pliku: " + name);
 				if(hideMatching != null && !"".equals(hideMatching) && name.matches(".*"+hideMatching+".*")){
-					System.out.println("Odfiltrowano: " + name);
 					continue;
 				}
-				System.out.println("Nieodfiltrowano: " + name);
-				
+
 				final Document doc = (Document) co;
 				HorizontalLayout hl = new HorizontalLayout();
 				hl.setWidth("100%");

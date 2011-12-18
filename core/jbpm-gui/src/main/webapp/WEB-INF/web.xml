@@ -290,14 +290,16 @@
     <servlet>
         <servlet-name>OSGIServlet</servlet-name>
         <servlet-class>pl.net.bluesoft.rnd.processtool.plugins.PluginServlet</servlet-class>
-        <init-param>
+<!--
+        The default should be guessed basing on: aperte.workflow.home/liferay.home/catalina.home/ etc.
+<init-param>
             <param-name>osgi-plugins-directory</param-name>
             <param-value>${aperte.workflow.home}/osgi-plugins</param-value>
         </init-param>
         <init-param>
             <param-name>osgi-storage-directory</param-name>
             <param-value>${aperte.workflow.home}/felix-cache</param-value>
-        </init-param>
+         </init-param> -->
         <load-on-startup>1</load-on-startup>
     </servlet>
 

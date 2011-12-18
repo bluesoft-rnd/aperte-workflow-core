@@ -85,7 +85,7 @@
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
-            <artifactId>poutils</artifactId>
+            <artifactId>aperte-utils</artifactId>
             <version>0.1</version>
         </dependency>
     </dependencies>

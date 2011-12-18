@@ -234,68 +234,6 @@ public class PluginHelper {
      */
     private void putPackageConfig(String pluginsDir, Map<String, Object> configMap) {
         StringBuilder sb = new StringBuilder();
-        sb.append("javax.persistence,");
-        sb.append("javax.crypto,");
-        sb.append("javax.crypto.spec,");
-        sb.append("javax.mail,");
-        sb.append("javax.mail.internet,");
-        sb.append("javax.net,");
-        sb.append("javax.net.ssl,");
-        sb.append("javax.security.auth.callback,");
-        sb.append("javax.servlet,");
-        sb.append("javax.servlet.http,");
-        sb.append("javax.swing,");
-        sb.append("javax.swing.border,");
-        sb.append("javax.swing.event,");
-        sb.append("javax.swing.table,");
-        sb.append("javax.swing.text,");
-        sb.append("javax.swing.tree,");
-        sb.append("javax.xml.parsers,");
-
-        sb.append("bsh,");
-
-        sb.append("com.vaadin.data,");
-        sb.append("com.vaadin.ui,");
-        sb.append("com.vaadin,");
-        sb.append("com.vaadin.data.util,");
-
-        sb.append("javassist.util.proxy,");
-
-        sb.append("pl.net.bluesoft.rnd.processtool,");
-        sb.append("pl.net.bluesoft.rnd.processtool.plugins.osgi,");
-        sb.append("pl.net.bluesoft.rnd.processtool.plugins,");
-        sb.append("pl.net.bluesoft.rnd.processtool.model,");
-        sb.append("pl.net.bluesoft.rnd.processtool.model.config,");
-        sb.append("pl.net.bluesoft.rnd.processtool.model.processdata,");
-        sb.append("pl.net.bluesoft.rnd.processtool.bpm,");
-        sb.append("pl.net.bluesoft.rnd.processtool.steps,");
-        sb.append("pl.net.bluesoft.rnd.processtool.ui.widgets,");
-        sb.append("pl.net.bluesoft.rnd.processtool.ui.widgets.impl,");
-        sb.append("pl.net.bluesoft.rnd.util.i18n,");
-        sb.append("pl.net.bluesoft.rnd.util.xml,");
-        sb.append("pl.net.bluesoft.rnd.util.xml.jaxb,");
-        sb.append("pl.net.bluesoft.rnd.util.xml.validation,");
-
-        sb.append("org.apache.commons.collections.comparators,");
-        sb.append("org.apache.commons.collections.keyvalue,");
-        sb.append("org.apache.commons.collections.list,");
-        sb.append("org.apache.commons.collections.set,");
-        sb.append("org.apache.log,");
-        sb.append("org.apache.log4j,");
-        sb.append("org.apache.soap,");
-        sb.append("org.apache.soap.rpc,");
-        sb.append("org.apache.soap.transport,");
-        sb.append("org.apache.soap.util,");
-        sb.append("org.apache.soap.util.net,");
-
-        sb.append("org.hibernate,");
-        sb.append("org.hibernate.proxy,");
-
-        sb.append("org.w3c.dom,");
-
-        sb.append("org.xml.sax,");
-        sb.append("org.xml.sax.helpers,");
-
         sb.append(getSystemPackages(pluginsDir));
 
         configMap.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, sb.toString());

@@ -17,6 +17,7 @@ import org.mule.config.spring.SpringXmlConfigurationBuilder;
 import org.mule.context.DefaultMuleContextBuilder;
 import org.mule.context.DefaultMuleContextFactory;
 import org.mule.util.ClassUtils;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 
 /**
  * Created by IntelliJ IDEA.
@@ -62,8 +63,7 @@ public class MulePluginManager {
             muleConfiguration.setContainerMode(true);
             muleConfiguration.setShutdownTimeout(3);
 
-            // TODO maybe a different way to set the working directory from outside of the plugin code?
-            muleConfiguration.setWorkingDirectory(System.getProperty("aperte.workflow.home") + File.separator + ".mule");
+            muleConfiguration.setWorkingDirectory(ProcessToolContext.Util.getHomePath() + File.separator + ".mule");
 
             MuleContextBuilder muleContextBuilder = new DefaultMuleContextBuilder();
             muleContextBuilder.setMuleConfiguration(muleConfiguration);

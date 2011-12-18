@@ -12,8 +12,7 @@
         <config.ProcessStateConfiguration description="Provide submission details" name="ENTER_SUBMISSION">
             <commentary>
                 <![CDATA[
-                        Usually, this information is extracted from an email sent to Symposium
-                        mailbox. However, it is possible to enter submission details manually.
+                        It is possible to enter submission details manually.
                 ]]>
             </commentary>
             <widgets>
@@ -42,33 +41,36 @@
                                         </config.ProcessStateWidgetAttribute>
                                     </attributes>
                                 </config.ProcessStateWidget>
-                                <config.ProcessStateWidget className="CmisDocumentList" priority="20">
-                                    <permissions>
-                                        <config.ProcessStateWidgetPermission priviledgeName="EDIT" roleName=".*"/>
-                                    </permissions>
-                                    <attributes>
-                                        <config.ProcessStateWidgetAttribute name="repositoryAtomUrl"
-                                                                            value="http://localhost:8080/nuxeo/atom/cmis"/>
-                                        <config.ProcessStateWidgetAttribute name="repositoryId" value="default"/>
-                                        <config.ProcessStateWidgetAttribute name="repositoryUser"
-                                                                            value="Administrator"/>
-                                        <config.ProcessStateWidgetAttribute name="repositoryPassword"
-                                                                            value="Administrator"/>
-                                        <config.ProcessStateWidgetAttribute name="rootFolderPath"
-                                                                            value="/lr/submissions"/>
-                                        <config.ProcessStateWidgetAttribute name="subFolder" value="incoming"/>
-                                        <config.ProcessStateWidgetAttribute name="newFolderPrefix" value=""/>
-                                        <config.ProcessStateWidgetAttribute name="caption"
-                                                                            value="Submission documents"/>
-                                        <config.ProcessStateWidgetAttribute name="required" value="false"/>
-                                        <config.ProcessStateWidgetAttribute name="comment">
-                                            <value>
-                                                Any documents about the submission should be uploaded here.
-                                            </value>
-                                        </config.ProcessStateWidgetAttribute>
 
-                                    </attributes>
-                                </config.ProcessStateWidget>
+                                <!-- uncomment this to connect to CMIS repository -->
+
+                                <!--<config.ProcessStateWidget className="CmisDocumentList" priority="20">-->
+                                    <!--<permissions>-->
+                                        <!--<config.ProcessStateWidgetPermission priviledgeName="EDIT" roleName=".*"/>-->
+                                    <!--</permissions>-->
+                                    <!--<attributes>-->
+                                        <!--<config.ProcessStateWidgetAttribute name="repositoryAtomUrl"-->
+                                                                            <!--value="http://localhost:8080/nuxeo/atom/cmis"/>-->
+                                        <!--<config.ProcessStateWidgetAttribute name="repositoryId" value="default"/>-->
+                                        <!--<config.ProcessStateWidgetAttribute name="repositoryUser"-->
+                                                                            <!--value="Administrator"/>-->
+                                        <!--<config.ProcessStateWidgetAttribute name="repositoryPassword"-->
+                                                                            <!--value="Administrator"/>-->
+                                        <!--<config.ProcessStateWidgetAttribute name="rootFolderPath"-->
+                                                                            <!--value="/lr/submissions"/>-->
+                                        <!--<config.ProcessStateWidgetAttribute name="subFolder" value="incoming"/>-->
+                                        <!--<config.ProcessStateWidgetAttribute name="newFolderPrefix" value=""/>-->
+                                        <!--<config.ProcessStateWidgetAttribute name="caption"-->
+                                                                            <!--value="Submission documents"/>-->
+                                        <!--<config.ProcessStateWidgetAttribute name="required" value="false"/>-->
+                                        <!--<config.ProcessStateWidgetAttribute name="comment">-->
+                                            <!--<value>-->
+                                                <!--Any documents about the submission should be uploaded here.-->
+                                            <!--</value>-->
+                                        <!--</config.ProcessStateWidgetAttribute>-->
+<!---->
+                                    <!--</attributes>-->
+                                <!--</config.ProcessStateWidget>-->
                             </children>
                         </config.ProcessStateWidget>
                         <config.ProcessStateWidget className="VerticalLayout" priority="5">
@@ -149,36 +151,37 @@
     <input caption="Submitter's email" bind="email_from" width="100%"/>
     <input caption="Submission subject" bind="email_subject" width="100%"/>
     <text caption="Submission agenda" bind="email_body" width="100%"/>
-    <input caption="Twitter id:" bind="twitter_login" width="100%" />
+    <input caption="Twitter id" bind="twitter_login" width="100%" />
 
 </widgetsDefinition>]]>
                                     </value>
                                 </config.ProcessStateWidgetAttribute>
                             </attributes>
                         </config.ProcessStateWidget>
-                        <config.ProcessStateWidget className="CmisDocumentList" priority="20">
-                            <permissions>
-                                <config.ProcessStateWidgetPermission priviledgeName="VIEW" roleName=".*"/>
-                            </permissions>
-                            <attributes>
-                                <config.ProcessStateWidgetAttribute name="repositoryAtomUrl"
-                                                                    value="http://localhost:8080/nuxeo/atom/cmis"/>
-                                <config.ProcessStateWidgetAttribute name="repositoryId" value="default"/>
-                                <config.ProcessStateWidgetAttribute name="repositoryUser" value="Administrator"/>
-                                <config.ProcessStateWidgetAttribute name="repositoryPassword" value="Administrator"/>
-                                <config.ProcessStateWidgetAttribute name="rootFolderPath" value="/lr/submissions"/>
-                                <config.ProcessStateWidgetAttribute name="subFolder" value="incoming"/>
-                                <config.ProcessStateWidgetAttribute name="newFolderPrefix" value=""/>
-                                <config.ProcessStateWidgetAttribute name="caption" value="Submission documents"/>
-                                <config.ProcessStateWidgetAttribute name="required" value="false"/>
-                                <config.ProcessStateWidgetAttribute name="comment">
-                                    <value>
-                                        Any documents about the submission should be uploaded here.
-                                    </value>
-                                </config.ProcessStateWidgetAttribute>
+                        <!-- uncomment this to connect to CMIS repository -->
+                        <!--<config.ProcessStateWidget className="CmisDocumentList" priority="20">-->
+                            <!--<permissions>-->
+                                <!--<config.ProcessStateWidgetPermission priviledgeName="VIEW" roleName=".*"/>-->
+                            <!--</permissions>-->
+                            <!--<attributes>-->
+                                <!--<config.ProcessStateWidgetAttribute name="repositoryAtomUrl"-->
+                                                                    <!--value="http://localhost:8080/nuxeo/atom/cmis"/>-->
+                                <!--<config.ProcessStateWidgetAttribute name="repositoryId" value="default"/>-->
+                                <!--<config.ProcessStateWidgetAttribute name="repositoryUser" value="Administrator"/>-->
+                                <!--<config.ProcessStateWidgetAttribute name="repositoryPassword" value="Administrator"/>-->
+                                <!--<config.ProcessStateWidgetAttribute name="rootFolderPath" value="/lr/submissions"/>-->
+                                <!--<config.ProcessStateWidgetAttribute name="subFolder" value="incoming"/>-->
+                                <!--<config.ProcessStateWidgetAttribute name="newFolderPrefix" value=""/>-->
+                                <!--<config.ProcessStateWidgetAttribute name="caption" value="Submission documents"/>-->
+                                <!--<config.ProcessStateWidgetAttribute name="required" value="false"/>-->
+                                <!--<config.ProcessStateWidgetAttribute name="comment">-->
+                                    <!--<value>-->
+                                        <!--Any documents about the submission should be uploaded here.-->
+                                    <!--</value>-->
+                                <!--</config.ProcessStateWidgetAttribute>-->
 
-                            </attributes>
-                        </config.ProcessStateWidget>
+                            <!--</attributes>-->
+                        <!--</config.ProcessStateWidget>-->
                         <config.ProcessStateWidget className="ProcessHistory" priority="98">
                             <permissions>
                                 <config.ProcessStateWidgetPermission priviledgeName="VIEW" roleName=".*"/>
@@ -259,29 +262,31 @@
                                 </config.ProcessStateWidgetAttribute>
                             </attributes>
                         </config.ProcessStateWidget>
-                        <config.ProcessStateWidget className="CmisDocumentList" priority="20">
-                            <permissions>
-                                <config.ProcessStateWidgetPermission priviledgeName="EDIT" roleName=".*"/>
-                            </permissions>
-                            <attributes>
-                                <config.ProcessStateWidgetAttribute name="repositoryAtomUrl"
-                                                                    value="http://localhost:8080/nuxeo/atom/cmis"/>
-                                <config.ProcessStateWidgetAttribute name="repositoryId" value="default"/>
-                                <config.ProcessStateWidgetAttribute name="repositoryUser" value="Administrator"/>
-                                <config.ProcessStateWidgetAttribute name="repositoryPassword" value="Administrator"/>
-                                <config.ProcessStateWidgetAttribute name="rootFolderPath" value="/lr/submissions"/>
-                                <config.ProcessStateWidgetAttribute name="subFolder" value="incoming"/>
-                                <config.ProcessStateWidgetAttribute name="newFolderPrefix" value=""/>
-                                <config.ProcessStateWidgetAttribute name="caption" value="Submission documents"/>
-                                <config.ProcessStateWidgetAttribute name="required" value="false"/>
-                                <config.ProcessStateWidgetAttribute name="comment">
-                                    <value>
-                                        Any documents about the submission should be uploaded here.
-                                    </value>
-                                </config.ProcessStateWidgetAttribute>
+                        <!-- uncomment this to connect to CMIS repository -->
 
-                            </attributes>
-                        </config.ProcessStateWidget>
+                        <!--<config.ProcessStateWidget className="CmisDocumentList" priority="20">-->
+                            <!--<permissions>-->
+                                <!--<config.ProcessStateWidgetPermission priviledgeName="EDIT" roleName=".*"/>-->
+                            <!--</permissions>-->
+                            <!--<attributes>-->
+                                <!--<config.ProcessStateWidgetAttribute name="repositoryAtomUrl"-->
+                                                                    <!--value="http://localhost:8080/nuxeo/atom/cmis"/>-->
+                                <!--<config.ProcessStateWidgetAttribute name="repositoryId" value="default"/>-->
+                                <!--<config.ProcessStateWidgetAttribute name="repositoryUser" value="Administrator"/>-->
+                                <!--<config.ProcessStateWidgetAttribute name="repositoryPassword" value="Administrator"/>-->
+                                <!--<config.ProcessStateWidgetAttribute name="rootFolderPath" value="/lr/submissions"/>-->
+                                <!--<config.ProcessStateWidgetAttribute name="subFolder" value="incoming"/>-->
+                                <!--<config.ProcessStateWidgetAttribute name="newFolderPrefix" value=""/>-->
+                                <!--<config.ProcessStateWidgetAttribute name="caption" value="Submission documents"/>-->
+                                <!--<config.ProcessStateWidgetAttribute name="required" value="false"/>-->
+                                <!--<config.ProcessStateWidgetAttribute name="comment">-->
+                                    <!--<value>-->
+                                        <!--Any documents about the submission should be uploaded here.-->
+                                    <!--</value>-->
+                                <!--</config.ProcessStateWidgetAttribute>-->
+
+                            <!--</attributes>-->
+                        <!--</config.ProcessStateWidget>-->
                         <config.ProcessStateWidget className="ProcessHistory" priority="98">
                             <permissions>
                                 <config.ProcessStateWidgetPermission priviledgeName="VIEW" roleName=".*"/>
@@ -359,33 +364,35 @@
                                 </config.ProcessStateWidgetAttribute>
                             </attributes>
                         </config.ProcessStateWidget>
-                        <config.ProcessStateWidget className="CmisDocumentList" priority="20">
-                            <permissions>
-                                <config.ProcessStateWidgetPermission priviledgeName="VIEW" roleName=".*"/>
-                            </permissions>
-                            <attributes>
-                                <config.ProcessStateWidgetAttribute name="repositoryAtomUrl"
-                                                                    value="http://localhost:8080/nuxeo/atom/cmis"/>
-                                <config.ProcessStateWidgetAttribute name="repositoryId" value="default"/>
-                                <config.ProcessStateWidgetAttribute name="repositoryUser"
-                                                                    value="Administrator"/>
-                                <config.ProcessStateWidgetAttribute name="repositoryPassword"
-                                                                    value="Administrator"/>
-                                <config.ProcessStateWidgetAttribute name="rootFolderPath"
-                                                                    value="/lr/submissions"/>
-                                <config.ProcessStateWidgetAttribute name="subFolder" value="incoming"/>
-                                <config.ProcessStateWidgetAttribute name="newFolderPrefix" value=""/>
-                                <config.ProcessStateWidgetAttribute name="caption"
-                                                                    value="Submission documents"/>
-                                <config.ProcessStateWidgetAttribute name="required" value="false"/>
-                                <config.ProcessStateWidgetAttribute name="comment">
-                                    <value>
-                                        Any documents about the submission should be uploaded here.
-                                    </value>
-                                </config.ProcessStateWidgetAttribute>
+                        <!-- uncomment this to connect to CMIS repository -->
 
-                            </attributes>
-                        </config.ProcessStateWidget>
+                        <!--<config.ProcessStateWidget className="CmisDocumentList" priority="20">-->
+                            <!--<permissions>-->
+                                <!--<config.ProcessStateWidgetPermission priviledgeName="VIEW" roleName=".*"/>-->
+                            <!--</permissions>-->
+                            <!--<attributes>-->
+                                <!--<config.ProcessStateWidgetAttribute name="repositoryAtomUrl"-->
+                                                                    <!--value="http://localhost:8080/nuxeo/atom/cmis"/>-->
+                                <!--<config.ProcessStateWidgetAttribute name="repositoryId" value="default"/>-->
+                                <!--<config.ProcessStateWidgetAttribute name="repositoryUser"-->
+                                                                    <!--value="Administrator"/>-->
+                                <!--<config.ProcessStateWidgetAttribute name="repositoryPassword"-->
+                                                                    <!--value="Administrator"/>-->
+                                <!--<config.ProcessStateWidgetAttribute name="rootFolderPath"-->
+                                                                    <!--value="/lr/submissions"/>-->
+                                <!--<config.ProcessStateWidgetAttribute name="subFolder" value="incoming"/>-->
+                                <!--<config.ProcessStateWidgetAttribute name="newFolderPrefix" value=""/>-->
+                                <!--<config.ProcessStateWidgetAttribute name="caption"-->
+                                                                    <!--value="Submission documents"/>-->
+                                <!--<config.ProcessStateWidgetAttribute name="required" value="false"/>-->
+                                <!--<config.ProcessStateWidgetAttribute name="comment">-->
+                                    <!--<value>-->
+                                        <!--Any documents about the submission should be uploaded here.-->
+                                    <!--</value>-->
+                                <!--</config.ProcessStateWidgetAttribute>-->
+
+                            <!--</attributes>-->
+                        <!--</config.ProcessStateWidget>-->
                         <config.ProcessStateWidget className="ProcessHistory" priority="98">
                             <permissions>
                                 <config.ProcessStateWidgetPermission priviledgeName="VIEW" roleName=".*"/>

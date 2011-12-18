@@ -9,8 +9,9 @@
       http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/3.2/mule-scripting.xsd
       http://www.mulesoft.org/schema/mule/twitter http://www.mulesoft.org/schema/mule/twitter/2.0/mule-twitter.xsd
       ">
-    <twitter:config consumerKey="jsDnKHmdwCPA0S0BwPTEw" consumerSecret="JERjgHL6GaShmGCDKb3qIAAMOolmSpxzdTuAWSgsED4"
-            accessToken="389630861-vuaedtvj1YoUdyMouZ6AGypivijwZUbWxiqGehQc" accessTokenSecret="UpDx0hmueYEIBtqzrCXbziBsADtreLu3ApmeVpEnbI"/>
+    <!-- you need to supply your own configuration and uncomment <twitter:update-status tag below -->
+    <!--<twitter:config consumerKey="XXX" consumerSecret="XXX"-->
+            <!--accessToken="XXX" accessTokenSecret="XXX"/>-->
 
     <flow name="twitter3" >
         <inbound-endpoint address="vm://twitter"/>
@@ -31,7 +32,13 @@
 
                 </script:script>
             </script:component>
-            <twitter:update-status status="#[groovy:payload]" />
+            <!-- uncomment this once configured -->
+            <!--<twitter:update-status status="#[groovy:payload]" />-->
+            <script:component>
+                <script:script engine="groovy">
+                    System.out.println("uncomment twitter tag in sample-mule-service.xml to send tweets");
+                </script:script>
+            </script:component>
         </processor-chain>
     </flow>
 </mule>

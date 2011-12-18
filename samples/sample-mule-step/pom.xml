@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>sample-mule-step</artifactId>
-    <name>Aperte Workflow Sample Mule step</name>
+    <name>sample-mule-step</name>
 
     <dependencies>
         <dependency>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>plugins</artifactId>
+        <groupId>org.aperteworkflow</groupId>
+        <version>0.1</version>
+    </parent>
+
+    <groupId>org.aperteworkflow</groupId>
+    <artifactId>doclist-widget</artifactId>
+    <version>0.1</version>
+    <name>doclist-widget</name>
+
+    <packaging>bundle</packaging>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.aperteworkflow</groupId>
+            <artifactId>processtool-interface</artifactId>
+            <version>0.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin</artifactId>
+            <version>${vaadin.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <!--<dependency>-->
+            <!--<artifactId>cmis-interface</artifactId>-->
+            <!--<groupId>org.aperteworkflow</groupId>-->
+            <!--<version>0.1</version>-->
+        <!--</dependency>-->
+        <dependency>
+            <artifactId>junit</artifactId>
+            <groupId>junit</groupId>
+            <version>4.8.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.liferay.portal</groupId>
+            <artifactId>portal-service</artifactId>
+            <version>${liferay.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <useDefaultManifestFile>true</useDefaultManifestFile>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <version>2.1.0</version>
+                <configuration>
+                    <instructions>
+                        <Export-Package>
+                            org.aperteworkflow.widgets.doclist
+                        </Export-Package>
+                        <Import-Package>
+                            pl.net.bluesoft.rnd.util.i18n,javassist.util.proxy,org.hibernate.proxy,org.osgi.framework,pl.net.bluesoft.rnd.processtool.plugins,pl.net.bluesoft.rnd.processtool.plugins.osgi,pl.net.bluesoft.rnd.processtool.model,javax.persistence,pl.net.bluesoft.rnd.processtool.ui.widgets,com.vaadin.data,com.vaadin.ui,com.vaadin,pl.net.bluesoft.rnd.processtool.ui.widgets.impl,org.hibernate,*
+                        </Import-Package>
+                        <Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>
+                        <Bundle-SymbolicName>pl.net.bluesoft.rnd.pt.ext.cmis</Bundle-SymbolicName>
+                        <Bundle-Version>0.1</Bundle-Version>
+                        <Embed-Directory>lib</Embed-Directory>
+                        <Embed-Transitive>true</Embed-Transitive>
+                        <ProcessTool-Widget-Enhancement>pl.net.bluesoft.rnd.pt.ext.cmis.widget.CmisDocumentListWidget</ProcessTool-Widget-Enhancement>
+                        <ProcessTool-I18N-Property>cmis-messages</ProcessTool-I18N-Property>
+                    </instructions>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+
+</project>

@@ -28,6 +28,7 @@
         <module>report-step</module>
         <module>userdata-widget</module>
         <module>mule-esb-plugin</module>
+        <module>doclist-widget</module>
     </modules>
 
     <dependencies>

@@ -15,10 +15,11 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jbpm.version>4.2</jbpm.version>
         <spring.version>3.0.5.RELEASE</spring.version>
-        <vaadin.version>6.7.0</vaadin.version>
+        <vaadin.version>6.7.3</vaadin.version>
         <hibernate.version>3.6.6.Final</hibernate.version>
         <postgres.version>8.4-702.jdbc4</postgres.version>
         <junit.version>4.8.2</junit.version>
+        <liferay.version>6.0.6</liferay.version>
     </properties>
 
     <modules>

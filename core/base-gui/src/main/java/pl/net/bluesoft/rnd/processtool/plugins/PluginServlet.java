@@ -17,63 +17,65 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
  */
 public class PluginServlet extends HttpServlet {
 
-	static PluginHelper pluginHelper;
+    static PluginHelper pluginHelper;
 
-	private static Logger LOGGER = Logger.getLogger(PluginServlet.class.getName());
+    private static Logger LOGGER = Logger.getLogger(PluginServlet.class.getName());
 
-	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		if (pluginHelper != null) {
-			try {
-				pluginHelper.stopPluginSystem();
-				pluginHelper = null;
-			} catch (BundleException e) {
-				LOGGER.throwing("Exception while osgi stop", e.getMessage(), e);
-			}
-		}
-		initPluginHelper();
-	}
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        if (pluginHelper != null) {
+            try {
+                pluginHelper.stopPluginSystem();
+                pluginHelper = null;
+            } catch (BundleException e) {
+                LOGGER.throwing("Exception while osgi stop", e.getMessage(), e);
+            }
+        }
+        initPluginHelper();
+    }
 
-	@Override
-	public void init() throws ServletException {
-		LOGGER.info("init");
+    @Override
+    public void init() throws ServletException {
+        LOGGER.info("init");
 
-		initPluginHelper();
-		LOGGER.info("initout");
+        initPluginHelper();
+        LOGGER.info("initout");
 
-	}
+    }
 
-	private void initPluginHelper() throws ServletException {
-		try {
-			if (pluginHelper == null) {
-				pluginHelper = new PluginHelper();
+    private void initPluginHelper() throws ServletException {
+        try {
+            if (pluginHelper == null) {
+                pluginHelper = new PluginHelper();
 
-				ProcessToolRegistry ptcf = (ProcessToolRegistry) getServletContext()
-						.getAttribute(ProcessToolRegistry.class.getName());
+                ProcessToolRegistry ptcf = (ProcessToolRegistry) getServletContext()
+                        .getAttribute(ProcessToolRegistry.class.getName());
 
-				pluginHelper.initializePluginSystem(
-						nvl(getServletConfig().getInitParameter("osgi-plugins-directory"),
-							getServletConfig().getServletContext().getRealPath("/WEB-INF/osgi")),
-						ptcf);
-			}
-		} catch (Exception e) {
-			pluginHelper = null;
-			LOGGER.throwing("Exception while osgi init", e.getMessage(), e);
-			throw new ServletException(e);
-		}
-	}
+                pluginHelper.initializePluginSystem(
+                        nvl(getServletConfig().getInitParameter("osgi-plugins-directory"),
+                                getServletContext().getRealPath("/WEB-INF/osgi")),
+                        nvl(getServletConfig().getInitParameter("osgi-storage-directory"),
+                                getServletContext().getRealPath("/WEB-INF/felix-cache")),
+                        ptcf);
+            }
+        } catch (Exception e) {
+            pluginHelper = null;
+            LOGGER.throwing("Exception while osgi init", e.getMessage(), e);
+            throw new ServletException(e);
+        }
+    }
 
-	@Override
-	public void destroy() {
-		LOGGER.info("destroy");
-		super.destroy();
-		if (pluginHelper != null) {
-			try {
-				pluginHelper.stopPluginSystem();
-				pluginHelper = null;
-			} catch (BundleException e) {
-				LOGGER.throwing("Exception while osgi stop", e.getMessage(), e);				
-			}
-		}
-	}
+    @Override
+    public void destroy() {
+        LOGGER.info("destroy");
+        super.destroy();
+        if (pluginHelper != null) {
+            try {
+                pluginHelper.stopPluginSystem();
+                pluginHelper = null;
+            } catch (BundleException e) {
+                LOGGER.throwing("Exception while osgi stop", e.getMessage(), e);
+            }
+        }
+    }
 }

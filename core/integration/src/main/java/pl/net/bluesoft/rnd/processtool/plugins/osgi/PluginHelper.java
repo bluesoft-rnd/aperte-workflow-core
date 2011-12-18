@@ -1,26 +1,42 @@
 package pl.net.bluesoft.rnd.processtool.plugins.osgi;
 
-import org.apache.felix.framework.Felix;
-import org.apache.felix.framework.Logger;
-import org.apache.felix.framework.util.FelixConstants;
-import org.osgi.framework.*;
-import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
-import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
-import pl.net.bluesoft.rnd.util.i18n.impl.PropertiesBasedI18NProvider;
-import pl.net.bluesoft.rnd.util.i18n.impl.PropertyLoader;
+import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
-import static pl.net.bluesoft.util.lang.StringUtil.hasText;
+import org.apache.felix.framework.Felix;
+import org.apache.felix.framework.Logger;
+import org.apache.felix.framework.util.FelixConstants;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleEvent;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.BundleListener;
+import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceReference;
+
+import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.rnd.util.i18n.impl.PropertiesBasedI18NProvider;
+import pl.net.bluesoft.rnd.util.i18n.impl.PropertyLoader;
 
 public class PluginHelper {
     public enum State {
@@ -36,11 +52,11 @@ public class PluginHelper {
     private static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(PluginHelper.class.getName());
 
     synchronized private void processBundleExtensions(final Bundle bundle, int eventType, final ProcessToolContextFactory ctx) throws ClassNotFoundException {
-
         if (ctx == null) {
             LOGGER.severe("No default process tool context registered! - skipping process tool context-based processing of this OSGI bundle");
             return;
         }
+
         String hibernateClasses = (String) bundle.getHeaders().get("ProcessTool-Model-Enhancement");
         String widgetClasses = (String) bundle.getHeaders().get("ProcessTool-Widget-Enhancement");
         String buttonClasses = (String) bundle.getHeaders().get("ProcessTool-Button-Enhancement");
@@ -124,11 +140,15 @@ public class PluginHelper {
 
         if (hasText(processProperties)) {
             String[] properties = processProperties.replaceAll("\\s*", "").split(",");
+            // Don't use File.separator here, we are dealing with the 
+            // content inside bundle not on the file system 
+            final String sep = "/";
             for (String processPackage : properties) {
-                String providerId = bundle.getBundleId() + File.separator + processPackage.replace(".", File.separator) + File.separator + "messages";
+                String providerId = bundle.getBundleId() + sep + processPackage.replace(".", sep) + sep + "messages";
                 if (eventType == Bundle.ACTIVE) {
                     try {
-                        String basepath = File.separator + processPackage.replace(".", File.separator) + File.separator;
+
+                        String basepath = sep + processPackage.replace(".", sep) + sep;
                         InputStream imageStream = null;
                         if (bundle.getResource(basepath + "processdefinition.png") != null) {
                             imageStream = bundle.getResource(basepath + "processdefinition.png").openStream();
@@ -149,7 +169,7 @@ public class PluginHelper {
                                 }
                                 return cl.openStream();
                             }
-                        }, File.separator + processPackage.replace(".", File.separator) + File.separator + "messages"), providerId);
+                        }, sep + processPackage.replace(".", sep) + sep + "messages"), providerId);
                         URL dictUrl = bundle.getResource(basepath + "process-dictionaries.xml");
                         if (dictUrl != null) {
                             toolRegistry.registerDictionaries(dictUrl.openStream());
@@ -166,32 +186,160 @@ public class PluginHelper {
         }
     }
 
-    public synchronized void initializePluginSystem(String pluginsDir,
-                                                    final ProcessToolRegistry registry) throws BundleException {
+    public synchronized void initializePluginSystem(String pluginsDir, String storageDir, ProcessToolRegistry registry)
+            throws BundleException {
         pluginsDir = pluginsDir.replace('/', File.separatorChar);
         state = State.INITIALIZING;
         LOGGER.fine("initializePluginSystem.start!");
-        initializeFelix(pluginsDir, registry);
+        initializeFelix(pluginsDir, storageDir, registry);
         LOGGER.fine("initializeCheckerThread!");
         initCheckerThread(pluginsDir);
         LOGGER.fine("initializePluginSystem.end!");
         state = State.ACTIVE;
     }
 
-    private void initializeFelix(String pluginsDir, final ProcessToolRegistry registry) throws BundleException {
+    private void initializeFelix(String pluginsDir, String storageDir, final ProcessToolRegistry registry) throws BundleException {
         if (felix != null) {
             felix.stop();
             felix = null;
         }
 
         Map<String, Object> configMap = new HashMap<String, Object>();
+        putBasicConfig(configMap);
+        putStorageConfig(storageDir, configMap);
+        putPackageConfig(pluginsDir, configMap);
+        putActivatorConfig(registry, configMap);
+
+        felix = new Felix(configMap);
+        felix.init();
+        felix.start();
+    }
+
+    /**
+     * Sets Felix storage properties
+     *
+     * @param storageDir
+     * @param configMap
+     */
+    private void putStorageConfig(String storageDir, Map<String, Object> configMap) {
+        configMap.put(FelixConstants.FRAMEWORK_STORAGE, storageDir);
+        configMap.put(FelixConstants.FRAMEWORK_STORAGE_CLEAN, FelixConstants.FRAMEWORK_STORAGE_CLEAN_ONFIRSTINIT);
+    }
+
+    /**
+     * Sets {@link Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA} property
+     *
+     * @param pluginsDir
+     * @param configMap
+     */
+    private void putPackageConfig(String pluginsDir, Map<String, Object> configMap) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("javax.persistence,");
+        sb.append("javax.crypto,");
+        sb.append("javax.crypto.spec,");
+        sb.append("javax.mail,");
+        sb.append("javax.mail.internet,");
+        sb.append("javax.net,");
+        sb.append("javax.net.ssl,");
+        sb.append("javax.security.auth.callback,");
+        sb.append("javax.servlet,");
+        sb.append("javax.servlet.http,");
+        sb.append("javax.swing,");
+        sb.append("javax.swing.border,");
+        sb.append("javax.swing.event,");
+        sb.append("javax.swing.table,");
+        sb.append("javax.swing.text,");
+        sb.append("javax.swing.tree,");
+        sb.append("javax.xml.parsers,");
+
+        sb.append("bsh,");
+
+        sb.append("com.vaadin.data,");
+        sb.append("com.vaadin.ui,");
+        sb.append("com.vaadin,");
+        sb.append("com.vaadin.data.util,");
+
+        sb.append("javassist.util.proxy,");
+
+        sb.append("pl.net.bluesoft.rnd.processtool,");
+        sb.append("pl.net.bluesoft.rnd.processtool.plugins.osgi,");
+        sb.append("pl.net.bluesoft.rnd.processtool.plugins,");
+        sb.append("pl.net.bluesoft.rnd.processtool.model,");
+        sb.append("pl.net.bluesoft.rnd.processtool.model.config,");
+        sb.append("pl.net.bluesoft.rnd.processtool.model.processdata,");
+        sb.append("pl.net.bluesoft.rnd.processtool.bpm,");
+        sb.append("pl.net.bluesoft.rnd.processtool.steps,");
+        sb.append("pl.net.bluesoft.rnd.processtool.ui.widgets,");
+        sb.append("pl.net.bluesoft.rnd.processtool.ui.widgets.impl,");
+        sb.append("pl.net.bluesoft.rnd.util.i18n,");
+        sb.append("pl.net.bluesoft.rnd.util.xml,");
+        sb.append("pl.net.bluesoft.rnd.util.xml.jaxb,");
+        sb.append("pl.net.bluesoft.rnd.util.xml.validation,");
+
+        sb.append("org.apache.commons.collections.comparators,");
+        sb.append("org.apache.commons.collections.keyvalue,");
+        sb.append("org.apache.commons.collections.list,");
+        sb.append("org.apache.commons.collections.set,");
+        sb.append("org.apache.log,");
+        sb.append("org.apache.log4j,");
+        sb.append("org.apache.soap,");
+        sb.append("org.apache.soap.rpc,");
+        sb.append("org.apache.soap.transport,");
+        sb.append("org.apache.soap.util,");
+        sb.append("org.apache.soap.util.net,");
+
+        sb.append("org.hibernate,");
+        sb.append("org.hibernate.proxy,");
+
+        sb.append("org.w3c.dom,");
+
+        sb.append("org.xml.sax,");
+        sb.append("org.xml.sax.helpers,");
+
+        sb.append(getSystemPackages(pluginsDir));
+
+        configMap.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, sb.toString());
+    }
+
+    /**
+     * Sets basic Felix properties
+     *
+     * @param configMap
+     */
+    private void putBasicConfig(Map<String, Object> configMap) {
+        configMap.put(FelixConstants.LOG_LEVEL_PROP, "4");
+        configMap.put(FelixConstants.LOG_LOGGER_PROP, new Logger() {
+            @Override
+            protected void doLog(Bundle bundle, ServiceReference sr, int level,
+                                 String msg, Throwable throwable) {
+                if (throwable != null) {
+                    LOGGER.log(Level.SEVERE, "Felix: " + msg + ", Throwable: " + throwable.getMessage(), throwable);
+                } else {
+                    LOGGER.log(Level.WARNING, "Felix: " + msg);
+                }
+            }
+        });
+
+        configMap.put(FelixConstants.SERVICE_URLHANDLERS_PROP, true);
+        configMap.put(FelixConstants.FRAMEWORK_BUNDLE_PARENT, FelixConstants.FRAMEWORK_BUNDLE_PARENT_FRAMEWORK);
+        configMap.put("felix.auto.deploy.action", "install,update,start");
+    }
+
+    /**
+     * Sets {@link FelixConstants.SYSTEMBUNDLE_ACTIVATORS_PROP} property
+     *
+     * @param registry
+     * @param configMap
+     */
+    private void putActivatorConfig(final ProcessToolRegistry registry, Map<String, Object> configMap) {
         ArrayList<BundleActivator> activators = new ArrayList<BundleActivator>();
         activators.add(new BundleActivator() {
             public void start(BundleContext context) throws Exception {
                 if (registry != null) {
-                    context.registerService(ProcessToolRegistry.class.getName(),
+                    context.registerService(
+                            ProcessToolRegistry.class.getName(),
                             registry,
-                            new Hashtable());
+                            new Hashtable<Object, Object>());
                 }
             }
 
@@ -204,12 +352,12 @@ public class PluginHelper {
                 public void bundleChanged(BundleEvent event) {
                     try {
                         if (((BundleEvent.STARTED | BundleEvent.STOPPED) & event.getType()) != 0) {
-                            processBundleExtensions(event.getBundle(),
+                            processBundleExtensions(
+                                    event.getBundle(),
                                     event.getBundle().getState(),
                                     registry.getProcessToolContextFactory());
                         }
-                    }
-                    catch (ClassNotFoundException e) {
+                    } catch (ClassNotFoundException e) {
                         LOGGER.log(Level.SEVERE, "Exception processing bundle", e);
                         throw new RuntimeException(e);
                     }
@@ -228,55 +376,7 @@ public class PluginHelper {
             }
         });
 
-        LOGGER.fine("initializePluginSystem.middle!");
-
-        configMap.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA,
-                "pl.net.bluesoft.rnd.processtool.plugins.osgi," +
-                        "pl.net.bluesoft.rnd.processtool.plugins," +
-                        "pl.net.bluesoft.rnd.processtool.model," +
-                        "pl.net.bluesoft.rnd.processtool.model.config," +
-                        "pl.net.bluesoft.rnd.processtool.model.processdata," +
-                        "pl.net.bluesoft.rnd.processtool.bpm," +
-                        "pl.net.bluesoft.rnd.processtool.ui.widgets," +
-                        "pl.net.bluesoft.rnd.processtool," +
-                        "pl.net.bluesoft.rnd.processtool.steps," +
-                        "pl.net.bluesoft.rnd.processtool.ui.widgets," +
-                        "pl.net.bluesoft.rnd.util.i18n," +
-                        "javax.persistence," +
-                        "com.vaadin.data," +
-                        "com.vaadin.ui," +
-                        "com.vaadin," +
-                        "com.vaadin.data.util," +
-                        "org.hibernate.proxy," +
-                        "org.hibernate," +
-                        "javassist.util.proxy," +
-                        "bsh," +
-                        "pl.net.bluesoft.rnd.util.i18n," +
-                        "pl.net.bluesoft.rnd.util.xml," +
-                        "pl.net.bluesoft.rnd.util.xml.jaxb," +
-                        "pl.net.bluesoft.rnd.util.xml.validation," +
-                        "javax.crypto,javax.crypto.spec,javax.mail,javax.mail.internet,javax.net,javax.net.ssl,javax.security.auth.callback,javax.servlet,javax.servlet.http,javax.swing,javax.swing.border,javax.swing.event,javax.swing.table,javax.swing.text,javax.swing.tree,javax.xml.parsers,org.apache.commons.collections.comparators,org.apache.commons.collections.keyvalue,org.apache.commons.collections.list,org.apache.commons.collections.set,org.apache.log,org.apache.log4j,org.apache.soap,org.apache.soap.rpc,org.apache.soap.transport,org.apache.soap.util,org.apache.soap.util.net,org.w3c.dom,org.xml.sax,org.xml.sax.helpers" +
-                        "pl.net.bluesoft.rnd.processtool.ui.widgets," +
-                        "pl.net.bluesoft.rnd.processtool.ui.widgets.impl," + getSystemPackages(pluginsDir)
-        );
         configMap.put(FelixConstants.SYSTEMBUNDLE_ACTIVATORS_PROP, activators);
-        configMap.put(FelixConstants.LOG_LEVEL_PROP, "4");
-        configMap.put(FelixConstants.SERVICE_URLHANDLERS_PROP, true);
-        configMap.put(FelixConstants.FRAMEWORK_BUNDLE_PARENT, FelixConstants.FRAMEWORK_BUNDLE_PARENT_FRAMEWORK);
-        configMap.put(FelixConstants.FRAMEWORK_STORAGE_CLEAN, FelixConstants.FRAMEWORK_STORAGE_CLEAN_ONFIRSTINIT);
-        configMap.put("felix.auto.deploy.action", "install,update,start");
-        configMap.put(FelixConstants.LOG_LOGGER_PROP, new Logger() {
-            @Override
-            protected void doLog(Bundle bundle, ServiceReference sr, int level, String msg, Throwable throwable) {
-                LOGGER.warning("Felix: " + msg);
-                if (throwable != null) {
-                    LOGGER.log(Level.SEVERE, throwable.getMessage(), throwable);
-                }
-            }
-        });
-        felix = new Felix(configMap);
-        felix.init();
-        felix.start();
     }
 
     private void initCheckerThread(final String pluginsDir) {
@@ -352,8 +452,13 @@ public class PluginHelper {
     synchronized private boolean installBundle(String path) {
         boolean result = false;
         try {
+            // Create the location using new URL object. That way path is formatted
+            // and Felix is getting proper URL which prevents MalformedUrlException
+            // on Windows
+            String location = new URL("file://" + path).toString();
+
             LOGGER.warning("INSTALLING: " + path);
-            Bundle bundle = felix.getBundleContext().installBundle("file://" + path, new FileInputStream(path));
+            Bundle bundle = felix.getBundleContext().installBundle(location, new FileInputStream(path));
             bundle.update(new FileInputStream(path));
             LOGGER.warning("INSTALLED: " + path);
             bundle.start();

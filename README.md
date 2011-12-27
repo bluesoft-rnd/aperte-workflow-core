@@ -12,6 +12,8 @@ Instead of building Aperte Workflow from source, you can download installation p
 
 For a complete installation guide, tutorials and documentation, please visit the [Aperte Workflow Wiki](https://github.com/bluesoft-rnd/aperte-workflow-core/wiki).
 
+Issues should be reported to GitHub project Issue Tracker: [https://github.com/bluesoft-rnd/aperte-workflow-core/issues](https://github.com/bluesoft-rnd/aperte-workflow-core/issues).
+
 Key features
 ------------
 

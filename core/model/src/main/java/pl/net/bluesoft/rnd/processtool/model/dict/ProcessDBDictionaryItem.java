@@ -13,7 +13,9 @@ public class ProcessDBDictionaryItem extends PersistentEntity implements Process
     @JoinColumn(name = "dict_id")
     private ProcessDBDictionary dictionary;
 
+    @Column(name = "_key")
     private String key;
+    @Column(name = "_value")
     private String value;
     private String valueType;
     @Column(length = 2048)

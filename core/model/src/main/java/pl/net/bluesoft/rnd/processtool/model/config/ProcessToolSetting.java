@@ -3,13 +3,16 @@ package pl.net.bluesoft.rnd.processtool.model.config;
 
 import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
 @Entity
 @Table(name="pt_setting")
 public class ProcessToolSetting extends PersistentEntity {
+    @Column(name="_key")
 	private String key;
+    @Column(name="_value")
 	private String value;
 	private String description;
 

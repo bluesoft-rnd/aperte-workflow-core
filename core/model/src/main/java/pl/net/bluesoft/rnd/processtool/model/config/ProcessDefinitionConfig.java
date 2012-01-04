@@ -22,6 +22,7 @@ public class ProcessDefinitionConfig extends PersistentEntity implements Seriali
 	private String description;
 	private String bpmDefinitionKey;
 
+    @Column(name="comment_")
 	private String comment;
 
 	@ManyToOne

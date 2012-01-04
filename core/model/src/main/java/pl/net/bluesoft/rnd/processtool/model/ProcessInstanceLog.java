@@ -25,7 +25,9 @@ public class ProcessInstanceLog extends PersistentEntity implements Comparable {
 	private String eventI18NKey;
 
 	@Lob
-    @Type(type = "org.hibernate.type.MaterializedClobType")
+//    @Type(type = "org.hibernate.type.MaterializedClobType")
+    @Type(type = "org.hibernate.type.StringClobType")
+    @Column(length = Integer.MAX_VALUE)
 	private String additionalInfo;
 
 	private String logValue;

@@ -5,14 +5,15 @@
         processName="liferaysymposium">
     <comment>
         <![CDATA[
-                Liferay Symposium Workflow submission acceptance process.
+                Liferay Symposium Workflow submission acceptance example process.
         ]]>
     </comment>
     <states>
         <config.ProcessStateConfiguration description="Provide submission details" name="ENTER_SUBMISSION">
             <commentary>
                 <![CDATA[
-                        It is possible to enter submission details manually.
+                        It is possible to enter submission details manually.<br/>
+                        Please configure CMIS widget to achieve document upload feature.
                 ]]>
             </commentary>
             <widgets>

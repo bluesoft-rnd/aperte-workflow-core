@@ -7,15 +7,15 @@ import java.io.Serializable;
 import java.util.*;
 
 @Entity
-@Table(name = "pt_dictionary_item")
+@Table(name = "pt_dict_item")
 public class ProcessDBDictionaryItem extends PersistentEntity implements ProcessDictionaryItem<String, String> {
     @ManyToOne
     @JoinColumn(name = "dict_id")
     private ProcessDBDictionary dictionary;
 
-    @Column(name = "_key")
+    @Column(name = "key_")
     private String key;
-    @Column(name = "_value")
+    @Column(name = "value_")
     private String value;
     private String valueType;
     @Column(length = 2048)

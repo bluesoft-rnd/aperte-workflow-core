@@ -7,12 +7,15 @@
     </start>
 
     <end g="1068,195,48,48" name="end1"/>
+
+
     <task g="461,179,202,52" name="REVIEW_SUBMISSION" swimlane="REVIEW">
         <transition g="696,240:-11,-2" name="to UPDATE_REQUIRED" to="UPDATE_REQUIRED"/>
         <transition g="737,317:-54,-22" name="REJECT" to="end1"/>
         <transition g="554,80:-91,-22" name="to ACCEPTED" to="ACCEPTED"/>
     </task>
-    <task candidate-groups="ACCEPT_QUEUE" g="710,51,146,52" name="ACCEPTED">
+
+    <task candidate-groups="ACCEPT_QUEUE" g="710,51,146,53" name="ACCEPTED">
         <transition g="864,130:-163,-22" name="to UPDATE_REQUIRED" to="UPDATE_REQUIRED"/>
         <transition g="-54,-22" name="ACCEPT" to="publishToTwitter"/>
     </task>

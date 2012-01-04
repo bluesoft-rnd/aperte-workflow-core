@@ -11,7 +11,7 @@ import javax.persistence.*;
 @Table(name="pt_process_instance_attr")
 @Inheritance(strategy=InheritanceType.JOINED)
 public class ProcessInstanceAttribute extends PersistentEntity {
-    @Column(name="_key")
+    @Column(name="key_")
 	private String key;
 
 	@ManyToOne

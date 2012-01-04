@@ -10,9 +10,9 @@ import javax.persistence.Table;
 @Entity
 @Table(name="pt_setting")
 public class ProcessToolSetting extends PersistentEntity {
-    @Column(name="_key")
+    @Column(name="key_")
 	private String key;
-    @Column(name="_value")
+    @Column(name="value_")
 	private String value;
 	private String description;
 

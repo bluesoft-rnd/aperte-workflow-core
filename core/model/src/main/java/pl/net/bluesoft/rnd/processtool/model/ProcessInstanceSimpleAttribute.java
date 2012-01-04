@@ -1,5 +1,6 @@
 package pl.net.bluesoft.rnd.processtool.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
@@ -13,6 +14,7 @@ import javax.persistence.Table;
 @Table(name="pt_process_instance_s_attr")
 public class ProcessInstanceSimpleAttribute extends ProcessInstanceAttribute implements BpmVariable{
 
+    @Column(name="value_")
 	private String value;
 
 	private String bpmVariableName;

@@ -17,7 +17,8 @@ public class ProcessStateActionAttribute extends PersistentEntity {
 	
 	private String name;
     @Lob
-    @Type(type = "org.hibernate.type.MaterializedClobType")
+//    @Type(type = "org.hibernate.type.MaterializedClobType")
+    @Type(type = "org.hibernate.type.StringClobType")
     @Column(length = Integer.MAX_VALUE)
 	private String value;
 

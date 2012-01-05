@@ -6,7 +6,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "pt_dictionary_item_ext")
+@Table(name = "pt_dictitem_ext")
 public class ProcessDBDictionaryItemExtension extends PersistentEntity implements ProcessDictionaryItemExtension<String> {
     @ManyToOne
     @JoinColumn(name = "item_id")

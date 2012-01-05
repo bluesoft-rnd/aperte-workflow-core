@@ -16,9 +16,10 @@ public class ProcessComment extends PersistentEntity {
 	@Column(name ="comment_name")
     private String comment;
 
-    @Column(name = "comment_body")
+    @Column(name = "comment_body", length = Integer.MAX_VALUE)
 	@Lob
-    @Type(type = "org.hibernate.type.MaterializedClobType")
+//    @Type(type = "org.hibernate.type.MaterializedClobType")
+    @Type(type = "org.hibernate.type.StringClobType")
     private String body;
 
 	@ManyToOne(cascade = {})

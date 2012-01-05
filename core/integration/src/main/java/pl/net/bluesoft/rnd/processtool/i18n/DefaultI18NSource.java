@@ -23,8 +23,6 @@ public class DefaultI18NSource implements I18NSource {
 		this.locale = locale;
 	}
 
-
-
 	@Override
 	public String getMessage(String key) {
 		return getMessage(key, key);
@@ -54,4 +52,33 @@ public class DefaultI18NSource implements I18NSource {
 		}
 		return defaultValue;
 	}
+
+    public String getMessage(String key, Collection<I18NProvider> i18NProviders) {
+        return getMessage(key, key, i18NProviders);
+    }
+
+    public String getMessage(String key, String defaultValue, Collection<I18NProvider> i18NProviders) {
+        if(i18NProviders == null || key == null)
+            return defaultValue;
+        //1st run - full localization e.g. _pl_PL
+        for (I18NProvider i18NProvider : i18NProviders) {
+            if (!i18NProvider.hasFullyLocalizedMessage(key, locale)) continue;
+            String m = i18NProvider.getMessage(key, locale);
+            if (m != null) return m;
+        }
+
+        //2nd run - only country e.g. _pl
+        for (I18NProvider i18NProvider : i18NProviders) {
+            if (!i18NProvider.hasLocalizedMessage(key, locale)) continue;
+            String m = i18NProvider.getMessage(key, locale);
+            if (m != null) return m;
+        }
+
+        //3rd run - with default values
+        for (I18NProvider i18NProvider : i18NProviders) {
+            String m = i18NProvider.getMessage(key, locale);
+            if (m != null) return m;
+        }
+        return defaultValue;
+    }
 }

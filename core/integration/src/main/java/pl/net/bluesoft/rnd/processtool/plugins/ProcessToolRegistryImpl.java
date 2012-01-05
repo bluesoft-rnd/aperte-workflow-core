@@ -27,10 +27,7 @@ import pl.net.bluesoft.util.lang.StringUtil;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -40,6 +37,7 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 
 	private Logger logger = Logger.getLogger(ProcessToolRegistryImpl.class.getName());
 
+    private final List<ProcessToolServiceBridge> SERVICE_BRIDGE_REGISTRY = new LinkedList<ProcessToolServiceBridge>();
 	private final Map<String, Class<? extends ProcessToolWidget>> WIDGET_REGISTRY = new HashMap();
 	private final Map<String, Class<? extends ProcessToolActionButton>> BUTTON_REGISTRY = new HashMap();
 	private SessionFactory sessionFactory;
@@ -409,5 +407,67 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
             throw new RuntimeException("No process tool context factory implementation registered");
         }
         processToolContextFactory.deployOrUpdateProcessDefinition(jpdlStream, processToolConfigStream, queueConfigStream, imageStream, logoStream);
+    }
+
+    @Override
+    public void addServiceLoader(ProcessToolServiceBridge serviceBridge) {
+        if (serviceBridge != null) {
+            SERVICE_BRIDGE_REGISTRY.add(serviceBridge);
+            logger.warning("Registered service bridge: " + serviceBridge.getClass().getName());
+        }
+    }
+
+    @Override
+    public void removeServiceLoader(ProcessToolServiceBridge serviceBridge) {
+        if (serviceBridge != null) {
+            SERVICE_BRIDGE_REGISTRY.remove(serviceBridge);
+            logger.warning("Removed service bridge: " + serviceBridge.getClass().getName());
+        }
+    }
+
+    @Override
+    public void removeRegisteredService(Class<?> serviceClass) {
+        boolean result = false;
+        for (ProcessToolServiceBridge bridge : SERVICE_BRIDGE_REGISTRY) {
+            if (result = bridge.removeService(serviceClass)) {
+                break;
+            }
+        }
+        logger.warning((result ? "Succeeded to" : "Failed to") + " remove registered service: " + serviceClass.getName());
+    }
+
+    @Override
+    public <T> void registerService(Class<T> serviceClass, T instance, Properties properties) {
+        boolean result = false;
+        for (ProcessToolServiceBridge bridge : SERVICE_BRIDGE_REGISTRY) {
+            if (result = bridge.registerService(serviceClass, instance, properties)) {
+                break;
+            }
+        }
+        logger.warning((result ? "Succeeded to" : "Failed to") + " register service: " + serviceClass.getName());
+    }
+
+    @Override
+    public <T> T getRegisteredService(Class<T> serviceClass) {
+        Object service = null;
+        for (ProcessToolServiceBridge bridge : SERVICE_BRIDGE_REGISTRY) {
+            service = bridge.loadService(serviceClass);
+            if (service != null) {
+                break;
+            }
+        }
+        if (service == null) {
+            throw new NoSuchServiceException("Service " + serviceClass.getName() + " not found!");
+        }
+        return (T) service;
+    }
+
+    public synchronized List<PluginMetadata> getInstalledPlugins() throws ClassNotFoundException {
+        for (ProcessToolServiceBridge bridge : SERVICE_BRIDGE_REGISTRY) {
+            List<PluginMetadata> list = bridge.getInstalledPlugins();
+            if (list != null)
+                return list;
+        }
+        return new ArrayList<PluginMetadata>();
     }
 }

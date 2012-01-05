@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app
+  id="WebApp_ID" version="2.4"
+  xmlns="http://java.sun.com/xml/ns/j2ee" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
+     http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+
+  <servlet>
+    <servlet-name>step_editor</servlet-name>
+    <servlet-class>
+        com.vaadin.terminal.gwt.server.ApplicationServlet
+    </servlet-class>
+    <init-param>
+      <param-name>application</param-name>
+      <param-value>pl.net.bluesoft.rnd.pt.ext.stepeditor.StepEditorApplication</param-value>
+    </init-param>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>queue_editor</servlet-name>
+    <servlet-class>
+        com.vaadin.terminal.gwt.server.ApplicationServlet
+    </servlet-class>
+    <init-param>
+      <param-name>application</param-name>
+      <param-value>pl.net.bluesoft.rnd.pt.ext.queueeditor.QueueEditorApplication</param-value>
+    </init-param>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>step_editor</servlet-name>
+    <url-pattern>/*</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>queue_editor</servlet-name>
+    <url-pattern>/*</url-pattern>
+  </servlet-mapping>
+</web-app>

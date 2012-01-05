@@ -16,6 +16,8 @@ import pl.net.bluesoft.util.eventbus.EventBusManager;
 
 import java.io.InputStream;
 import java.util.Collection;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -105,5 +107,17 @@ public interface ProcessToolRegistry {
 	void removeClassLoader(String name);
 
 	EventBusManager getEventBusManager();
+
+    List<PluginMetadata> getInstalledPlugins() throws ClassNotFoundException;
+
+    void addServiceLoader(ProcessToolServiceBridge serviceBridge);
+
+    void removeServiceLoader(ProcessToolServiceBridge serviceBridge);
+
+    void removeRegisteredService(Class<?> serviceClass);
+
+    <T> void registerService(Class<T> serviceClass, T instance, Properties properties);
+
+    <T> T getRegisteredService(Class<T> serviceClass);
 
 }

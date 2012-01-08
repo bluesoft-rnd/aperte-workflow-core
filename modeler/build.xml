@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--suppress AntResolveInspection -->
+<project name="Aperte Workflow Modeler - main build ant script" default="buildall">
+    <target name="initialize">
+        <mkdir dir="${signavio_core_dir}"/>
+        <mkdir dir="${download_dir}"/>
+    </target>
+
+    <target name="download-resources">
+        <!-- download signavio -->
+        <get src="${signavio_core_dist_url}" dest="${download_dir}/${signavio_core_dist_file}"/>
+    </target>
+
+    <target name="process-resources">
+        <!-- unzip signavio -->
+        <unzip src="${download_dir}/${signavio_core_dist_file}" dest="${signavio_core_dir}"/>
+
+        <!-- apply local diff -->
+        <copy todir="${signavio_core_dir}" overwrite="true">
+            <fileset dir="${aperte_dir}">
+                <include name="**/*"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="compile">
+        <!-- invoke signavio target -->
+        <ant antfile="build.xml" target="build-all-in-one-war" dir="${signavio_core_dir}" inheritall="false" />
+
+        <!-- copy the war created by signavio -->
+        <move todir="target/*">
+               <fileset dir="${signavio_core_dir}/${target}">
+                   <include name="*.war"/>
+               </fileset>
+        </move>
+    </target>
+
+    <target name="buildall" depends="initialize, download-resources, process-resources, compile">
+        <!-- do everything -->
+	</target>
+
+</project>

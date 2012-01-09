@@ -10,6 +10,15 @@
         <mkdir dir="${download_dir}"/>
     </target>
 
+    <target name="verify-resources">
+        <checksum file="${signavio_core_dist_local}" algorithm="MD5" verifyProperty="is_signavio_core_dist_checksum_valid" property="${signavio_core_dist_checksum}"/>
+
+        <condition property="checksum_error">
+            <equals arg1="${is_signavio_core_dist_checksum_valid}" arg2="false"/>
+        </condition>
+        <fail if="checksum_error">Checksum error, please verify downloaded resources</fail>
+    </target>
+
     <target name="download-resources" unless="is_signavio_core_dist_available">
         <!-- download signavio -->
         <get src="${signavio_core_dist_url}" dest="${signavio_core_dist_local}" retries="3"/>
@@ -39,7 +48,7 @@
         </move>
     </target>
 
-    <target name="buildall" depends="initialize, download-resources, process-resources, compile">
+    <target name="buildall" depends="initialize, download-resources, verify-resources, process-resources, compile">
         <!-- do everything -->
         <echo>buildall finished</echo>
 	</target>

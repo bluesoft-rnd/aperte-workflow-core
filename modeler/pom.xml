@@ -42,7 +42,7 @@
                                 <!-- download_dir is not inside target_dir to prevent maven clean:clean from removing downloaded resources -->
                                 <property name="download_dir" value="${basedir}/download"/>
                                 <property name="signavio_core_dist_file" value="signavio-core-components-20120105.zip"/>
-                                <property name="signavio_core_dist_url" value="http://sourceforge.net/projects/aperteworkflow/files/${signavio_core_dist_file}/download"/>
+                                <property name="signavio_core_dist_url" value="https://github.com/downloads/kdowbecki/aperte-workflow-core/${signavio_core_dist_file}"/>
                                 <property name="signavio_core_dist_checksum" value="f8fc3821a6d8a8db37ee6889f7f8c7d3"/>
                                 <property name="signavio_core_dir" value="${target_dir}/signavio-core" />
 

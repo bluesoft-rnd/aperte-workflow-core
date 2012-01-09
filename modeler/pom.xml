@@ -37,12 +37,13 @@
                                 <property name="target" value="target" />
 
                                 <!-- aperte  build properties -->
-                                <property name="work_dir" value="target"/>
-                                <property name="aperte_dir" value="diff" />
-                                <property name="download_dir" value="${work_dir}/download" />
+                                <property name="target_dir" value="${basedir}/target"/>
+                                <property name="aperte_dir" value="${basedir}/diff" />
+                                <!-- download dir is not inside target_dir to prevent maven clean:clean from removing the resource -->
+                                <property name="download_dir" value="${basedir}/download" />
                                 <property name="signavio_core_dist_file" value="signavio-core-components-20120105.zip"/>
-                                <property name="signavio_core_dist_url" value="file://D:/Workspace/intellij_github/${core-dist-file}"/>
-                                <property name="signavio_core_dir" value="${work_dir}/signavio-core" />
+                                <property name="signavio_core_dist_url" value="http://sourceforge.net/projects/aperteworkflow/files/${signavio_core_dist_file}/download" dest="${download_dir}"/>
+                                <property name="signavio_core_dir" value="${target_dir}/signavio-core" />
 
                                 <!-- invoke the main aperte ant script -->
                                 <ant antfile="${basedir}/build.xml">

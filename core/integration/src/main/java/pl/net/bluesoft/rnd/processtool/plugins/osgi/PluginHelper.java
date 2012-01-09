@@ -1,42 +1,27 @@
 package pl.net.bluesoft.rnd.processtool.plugins.osgi;
 
-import static pl.net.bluesoft.util.lang.StringUtil.hasText;
+import org.apache.felix.framework.Felix;
+import org.apache.felix.framework.Logger;
+import org.apache.felix.framework.util.FelixConstants;
+import org.osgi.framework.*;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolServiceBridge;
+import pl.net.bluesoft.rnd.util.i18n.impl.PropertiesBasedI18NProvider;
+import pl.net.bluesoft.rnd.util.i18n.impl.PropertyLoader;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
-import org.apache.felix.framework.Felix;
-import org.apache.felix.framework.Logger;
-import org.apache.felix.framework.util.FelixConstants;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleEvent;
-import org.osgi.framework.BundleException;
-import org.osgi.framework.BundleListener;
-import org.osgi.framework.Constants;
-import org.osgi.framework.ServiceReference;
-
-import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
-import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
-import pl.net.bluesoft.rnd.util.i18n.impl.PropertiesBasedI18NProvider;
-import pl.net.bluesoft.rnd.util.i18n.impl.PropertyLoader;
+import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 
 public class PluginHelper {
     public enum State {
@@ -210,6 +195,7 @@ public class PluginHelper {
         putPackageConfig(pluginsDir, configMap);
         putActivatorConfig(registry, configMap);
 
+
         felix = new Felix(configMap);
         felix.init();
         felix.start();
@@ -227,7 +213,7 @@ public class PluginHelper {
     }
 
     /**
-     * Sets {@link Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA} property
+     * Sets {@link Constants#FRAMEWORK_SYSTEMPACKAGES_EXTRA} property
      *
      * @param pluginsDir
      * @param configMap
@@ -264,7 +250,7 @@ public class PluginHelper {
     }
 
     /**
-     * Sets {@link FelixConstants.SYSTEMBUNDLE_ACTIVATORS_PROP} property
+     * Sets {@link FelixConstants#SYSTEMBUNDLE_ACTIVATORS_PROP} property
      *
      * @param registry
      * @param configMap
@@ -272,16 +258,20 @@ public class PluginHelper {
     private void putActivatorConfig(final ProcessToolRegistry registry, Map<String, Object> configMap) {
         ArrayList<BundleActivator> activators = new ArrayList<BundleActivator>();
         activators.add(new BundleActivator() {
+            private ProcessToolServiceBridge serviceBridge;
+
+            @Override
             public void start(BundleContext context) throws Exception {
                 if (registry != null) {
-                    context.registerService(
-                            ProcessToolRegistry.class.getName(),
-                            registry,
-                            new Hashtable<Object, Object>());
+                    serviceBridge = new FelixServiceBridge(felix);
+                    registry.addServiceLoader(serviceBridge);
+                    context.registerService(ProcessToolRegistry.class.getName(), registry, new Hashtable());
                 }
             }
 
+            @Override
             public void stop(BundleContext context) throws Exception {
+                registry.removeServiceLoader(serviceBridge);
             }
         });
 

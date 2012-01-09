@@ -34,7 +34,7 @@
                                 <property name="api" value="api" />
                                 <property name="war" value="${artifactId}"/>
                                 <property name="version" value="${version}"/>
-                                <property name="target" value="${basedir}/target"/>
+                                <property name="target" value="target"/>
 
                                 <!-- aperte  build properties -->
                                 <property name="target_dir" value="${basedir}/target"/>

@@ -305,7 +305,9 @@ public class AperteHandler extends BasisHandler {
     }
 
     private  String getDataFromServer() throws IOException {
-    	String stepListUrl = Platform.getInstance().getPlatformProperties().getAperteStepListUrl();
+    	String stepListUrl = Platform.getInstance().getPlatformProperties().getServerName() + 
+		                     Platform.getInstance().getPlatformProperties().getJbpmGuiUrl() + 
+		                     Platform.getInstance().getPlatformProperties().getAperteStepListUrl();
         try {
         	URL url = new URL(stepListUrl);
 	        URLConnection conn = url.openConnection();

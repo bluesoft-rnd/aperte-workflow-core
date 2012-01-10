@@ -10,8 +10,8 @@
 	Signavio.Core.Version = "${version}";
 			</echo>
 		<echo file="build/aperteLinks.js">
-		   var APERTE_STEP_EDITOR_URL = "${aperteStepEditorUrl}";
-		   var APERTE_QUEUE_EDITOR_URL = "${aperteQueueEditorUrl}";
+		   var APERTE_STEP_EDITOR_URL = "${jbpmGuiUrl}${aperteStepEditorUrl}";
+		   var APERTE_QUEUE_EDITOR_URL = "${jbpmGuiUrl}${aperteQueueEditorUrl}";
 		</echo>
 	</target>
 
@@ -42,6 +42,7 @@
 			aperteQueueEditorUrl = ${aperteQueueEditorUrl}
 			aperteStepListUrl = ${aperteStepListUrl}
             aperteOsgiPluginsDir = ${aperteOsgiPluginsDir}
+			jbpmGuiUrl = ${jbpmGuiUrl}
 		</echo>
 	</target>
 

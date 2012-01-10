@@ -24,9 +24,9 @@ import java.util.Properties;
  */
 public interface ProcessToolRegistry {
 
-	void registerModelExtension(Class<?> cls);
+	boolean registerModelExtension(Class<?>... cls);
 
-	void unregisterModelExtension(Class<?> cls);
+	boolean unregisterModelExtension(Class<?>... cls);
 
 	void commitModelExtensions();
 

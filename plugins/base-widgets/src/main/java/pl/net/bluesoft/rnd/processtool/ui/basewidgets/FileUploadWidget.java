@@ -7,6 +7,8 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Upload.*;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttachmentAttribute;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.ChildrenAllowed;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.util.lang.StringUtil;
 
@@ -17,6 +19,8 @@ import java.io.OutputStream;
 import java.util.Iterator;
 
 @AliasName(name="FileUpload")
+@AperteDoc(humanNameKey="widget.file_upload.name", descriptionKey="widget.file_upload.description")
+@ChildrenAllowed(false)
 public class FileUploadWidget extends CustomComponent implements StartedListener, FailedListener, SucceededListener,
         ProgressListener, FinishedListener, Receiver, Property {
     public static final String UPLOAD_CANCEL = "fileupload.cancel";

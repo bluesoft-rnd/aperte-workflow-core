@@ -26,8 +26,8 @@ import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceSimpleAttribute;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
-import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItem;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionary;
+import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItem;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.WidgetDefinitionLoader;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.XmlConstants;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.jaxb.*;
@@ -35,7 +35,10 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.ChildrenAllowed;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
+import pl.net.bluesoft.rnd.pt.ext.stepeditor.user.CustomConfigurator;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 
@@ -51,6 +54,9 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 
 @AliasName(name = "ProcessData")
+@AperteDoc(humanNameKey="widget.process_data_block.name", descriptionKey="widget.process_data_block.description")
+@ChildrenAllowed(false)
+@CustomConfigurator(ProcessDataBlockFieldFactory.class)
 public class ProcessDataBlockWidget extends BaseProcessToolWidget implements ProcessToolDataWidget, ProcessToolVaadinWidget {
     private static final Logger logger = Logger.getLogger(ProcessDataBlockWidget.class.getName());
     private static final Resolver resolver = new DefaultResolver();

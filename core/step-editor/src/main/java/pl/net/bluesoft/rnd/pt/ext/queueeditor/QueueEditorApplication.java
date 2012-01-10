@@ -1,21 +1,6 @@
 package pl.net.bluesoft.rnd.pt.ext.queueeditor;
 
 
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
-
-import org.apache.commons.lang.StringUtils;
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
-
-import pl.net.bluesoft.rnd.pt.ext.stepeditor.JavaScriptHelper;
-import pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages;
-
 import com.vaadin.Application;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -25,6 +10,19 @@ import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import org.apache.commons.lang.StringUtils;
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
+import pl.net.bluesoft.rnd.pt.ext.stepeditor.JavaScriptHelper;
+import pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages;
+
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 
 public class QueueEditorApplication extends Application implements ParameterHandler, ClickListener, ValueChangeListener {

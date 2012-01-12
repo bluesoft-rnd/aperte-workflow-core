@@ -122,7 +122,11 @@ public class BPMN2_0XMLModelType extends SignavioModelType {
 			if(parentPath != "") {
 				parentPath += File.separator;
 			}
-			return FileSystemUtil.renameFile(parentPath + File.separator + oldName + ".bpmn20.xml", parentPath + File.separator + newName + ".bpmn20.xml");
+			//FileSystemUtil.renameFile(parentPath + File.separator + oldName + ".bpmn20.xml", parentPath + File.separator + newName + ".bpmn20.xml");
+			boolean b1 = FileSystemUtil.renameFile(parentPath + File.separator + oldName + ".jpdl", parentPath + File.separator + newName + ".jpdl");
+			boolean b2 = FileSystemUtil.renameFile(parentPath + File.separator + oldName + ".queues-config.xml", parentPath + File.separator + newName + ".queues-config.xml");
+			boolean b3 = FileSystemUtil.renameFile(parentPath + File.separator + oldName + ".processtool-config.xml", parentPath + File.separator + newName + ".processtool-config.xml");
+			return b1 && b2 && b3;
 		} else {
 			return false;
 		}
@@ -131,6 +135,9 @@ public class BPMN2_0XMLModelType extends SignavioModelType {
 	@Override
 	public void deleteFile(String parentPath, String name) {
 		super.deleteFile(parentPath, name);
-		FileSystemUtil.deleteFileOrDirectory(parentPath + File.separator + name + ".bpmn20.xml");
+		//FileSystemUtil.deleteFileOrDirectory(parentPath + File.separator + name + ".bpmn20.xml");
+		FileSystemUtil.deleteFileOrDirectory(parentPath + File.separator + name + ".jpdl");
+		FileSystemUtil.deleteFileOrDirectory(parentPath + File.separator + name + ".queues-config.xml");
+		FileSystemUtil.deleteFileOrDirectory(parentPath + File.separator + name + ".processtool-config.xml");
 	}
 }

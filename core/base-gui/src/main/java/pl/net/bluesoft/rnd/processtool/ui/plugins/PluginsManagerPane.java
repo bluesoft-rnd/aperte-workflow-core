@@ -66,14 +66,16 @@ public class PluginsManagerPane extends VerticalLayout {
 
         bundleList.setSpacing(true);
 
-        addComponent(horizontalLayout(
-                styled(new Label(getLocalizedMessage("plugins.console.title")), "h2"),
+        addComponent(width(horizontalLayout(
                 refreshIcon(application, new HasRefreshButton() {
                     @Override
                     public void refreshData() {
                         displayBundleList();
                     }
-                })));
+                }),
+                styled(new Label(getLocalizedMessage("plugins.console.title")), "h2")),
+                null));
+
         addComponent(bundleList);
         displayBundleList();
 

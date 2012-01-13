@@ -8,4 +8,7 @@
 		<portlet id="ProcessTool Activities"/>
 		<!--<portlet id="Processtoolportlets Application portlet"/>-->
 	</category>
+    <category name="category.hidden">
+        <portlet id="Aperte Workflow Plugin Manager"/>
+    </category>
 </display>

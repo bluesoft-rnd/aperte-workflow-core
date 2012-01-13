@@ -105,5 +105,9 @@ public interface ProcessToolRegistry {
 	void removeClassLoader(String name);
 
 	EventBusManager getEventBusManager();
+    
+    PluginManager getPluginManager();
+
+    void setPluginManager(PluginManager pluginManager);
 
 }

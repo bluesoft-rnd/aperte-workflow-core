@@ -3,7 +3,9 @@ package pl.net.bluesoft.rnd.util.vaadin;
 import com.vaadin.terminal.gwt.server.ApplicationPortlet2;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
+import pl.net.bluesoft.rnd.processtool.i18n.DefaultI18NSource;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import javax.portlet.PortletException;
 import javax.portlet.PortletRequest;
@@ -48,7 +50,13 @@ public class ProcessToolVaadinApplicationPortlet2 extends ApplicationPortlet2 {
 					ProcessToolContext.Util.setProcessToolContextForThread(ctx);
 					try {
 //						request.setAttribute(ProcessToolContextImpl.class.getName(), ctx);
-						ProcessToolVaadinApplicationPortlet2.super.handleRequest(request, response);
+                        try {
+                            VaadinUtility.setThreadI18nSource(new DefaultI18NSource(request.getLocale()));
+						    ProcessToolVaadinApplicationPortlet2.super.handleRequest(request, response);
+                        }
+                        finally {
+                            VaadinUtility.setThreadI18nSource(null);
+                        }
 					} catch (Exception e) {
 						throw new RuntimeException(e);
 					} finally {

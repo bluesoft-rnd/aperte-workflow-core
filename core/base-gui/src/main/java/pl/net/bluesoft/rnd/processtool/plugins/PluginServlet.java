@@ -50,7 +50,7 @@ public class PluginServlet extends HttpServlet {
             if (pluginHelper == null) {
                 pluginHelper = new PluginHelper();
 
-                ProcessToolRegistry ptcf = (ProcessToolRegistry) getServletContext()
+                ProcessToolRegistry processToolRegistry = (ProcessToolRegistry) getServletContext()
                         .getAttribute(ProcessToolRegistry.class.getName());
 
                 pluginHelper.initializePluginSystem(
@@ -58,7 +58,7 @@ public class PluginServlet extends HttpServlet {
                                 ProcessToolContext.Util.getHomePath() + File.separator + "osgi-plugins"),
                         nvl(getServletConfig().getInitParameter("osgi-storage-directory"),
                                 ProcessToolContext.Util.getHomePath()  + File.separator +  "felix-cache"),
-                        ptcf);
+                        processToolRegistry);
             }
         } catch (Exception e) {
             pluginHelper = null;

@@ -2,20 +2,9 @@ package pl.net.bluesoft.rnd.processtool.plugins.osgi;
 
 import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -34,11 +23,14 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
+import pl.net.bluesoft.rnd.processtool.plugins.PluginInformation;
+import pl.net.bluesoft.rnd.processtool.plugins.PluginManager;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.util.i18n.impl.PropertiesBasedI18NProvider;
 import pl.net.bluesoft.rnd.util.i18n.impl.PropertyLoader;
 
-public class PluginHelper {
+public class PluginHelper implements PluginManager {
+
     public enum State {
         STOPPED, INITIALIZING, ACTIVE
     }
@@ -47,6 +39,8 @@ public class PluginHelper {
     private Felix felix;
 
     private Map<String, Long> fileTimes;
+    private Map<Long, String> bundleFiles;
+    private String pluginsDir;
     private ScheduledExecutorService executor;
 
     private static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(PluginHelper.class.getName());
@@ -71,8 +65,7 @@ public class PluginHelper {
             for (String cls : classes) {
                 if (eventType == Bundle.ACTIVE) {
                     toolRegistry.registerModelExtension(bundle.loadClass(cls));
-                }
-                else {
+                } else {
                     toolRegistry.unregisterModelExtension(bundle.loadClass(cls));
                 }
                 hasModelChanges = true;
@@ -86,8 +79,7 @@ public class PluginHelper {
             for (String cls : classes) {
                 if (eventType == Bundle.ACTIVE) {
                     toolRegistry.registerWidget(bundle.loadClass(cls));
-                }
-                else {
+                } else {
                     toolRegistry.unregisterWidget(bundle.loadClass(cls));
                 }
             }
@@ -97,8 +89,7 @@ public class PluginHelper {
             for (String cls : classes) {
                 if (eventType == Bundle.ACTIVE) {
                     toolRegistry.registerButton(bundle.loadClass(cls));
-                }
-                else {
+                } else {
                     toolRegistry.unregisterButton(bundle.loadClass(cls));
                 }
             }
@@ -109,8 +100,7 @@ public class PluginHelper {
             for (String cls : classes) {
                 if (eventType == Bundle.ACTIVE) {
                     toolRegistry.registerStep(bundle.loadClass(cls));
-                }
-                else {
+                } else {
                     toolRegistry.unregisterStep(bundle.loadClass(cls));
                 }
             }
@@ -131,8 +121,7 @@ public class PluginHelper {
                             return cl.openStream();
                         }
                     }, propertyFileName), providerId);
-                }
-                else {
+                } else {
                     toolRegistry.unregisterI18NProvider(providerId);
                 }
             }
@@ -174,12 +163,10 @@ public class PluginHelper {
                         if (dictUrl != null) {
                             toolRegistry.registerDictionaries(dictUrl.openStream());
                         }
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     }
-                }
-                else { //ignore
+                } else { //ignore
                     toolRegistry.unregisterI18NProvider(providerId);
                 }
             }
@@ -188,17 +175,18 @@ public class PluginHelper {
 
     public synchronized void initializePluginSystem(String pluginsDir, String storageDir, ProcessToolRegistry registry)
             throws BundleException {
-        pluginsDir = pluginsDir.replace('/', File.separatorChar);
+        this.pluginsDir =  pluginsDir.replace('/', File.separatorChar);
+        registry.setPluginManager(this);
         state = State.INITIALIZING;
         LOGGER.fine("initializePluginSystem.start!");
-        initializeFelix(pluginsDir, storageDir, registry);
+        initializeFelix(storageDir, registry);
         LOGGER.fine("initializeCheckerThread!");
-        initCheckerThread(pluginsDir);
+        initCheckerThread();
         LOGGER.fine("initializePluginSystem.end!");
         state = State.ACTIVE;
     }
 
-    private void initializeFelix(String pluginsDir, String storageDir, final ProcessToolRegistry registry) throws BundleException {
+    private void initializeFelix(String storageDir, final ProcessToolRegistry registry) throws BundleException {
         if (felix != null) {
             felix.stop();
             felix = null;
@@ -207,7 +195,7 @@ public class PluginHelper {
         Map<String, Object> configMap = new HashMap<String, Object>();
         putBasicConfig(configMap);
         putStorageConfig(storageDir, configMap);
-        putPackageConfig(pluginsDir, configMap);
+        putPackageConfig(configMap);
         putActivatorConfig(registry, configMap);
 
         felix = new Felix(configMap);
@@ -229,12 +217,11 @@ public class PluginHelper {
     /**
      * Sets {@link Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA} property
      *
-     * @param pluginsDir
      * @param configMap
      */
-    private void putPackageConfig(String pluginsDir, Map<String, Object> configMap) {
+    private void putPackageConfig(Map<String, Object> configMap) {
         StringBuilder sb = new StringBuilder();
-        sb.append(getSystemPackages(pluginsDir));
+        sb.append(getSystemPackages());
 
         configMap.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, sb.toString());
     }
@@ -317,8 +304,10 @@ public class PluginHelper {
         configMap.put(FelixConstants.SYSTEMBUNDLE_ACTIVATORS_PROP, activators);
     }
 
-    private void initCheckerThread(final String pluginsDir) {
+    private void initCheckerThread() {
         fileTimes = new HashMap<String, Long>();
+        bundleFiles = new HashMap<Long, String>();
+        
         LOGGER.info("Starting OSGi checker thread");
         if (executor != null && !executor.isShutdown()) {
             executor.shutdown();
@@ -330,7 +319,7 @@ public class PluginHelper {
                     executor.schedule(new Runnable() {
                         @Override
                         public void run() {
-                            scheduleBundleInstall(pluginsDir);
+                            checkAndInstallBundles();
                         }
                     }, 0, TimeUnit.SECONDS);
                 }
@@ -339,7 +328,7 @@ public class PluginHelper {
         LOGGER.info("Started OSGi checker thread");
     }
 
-    private void scheduleBundleInstall(String pluginsDir) {
+    synchronized private void checkAndInstallBundles() {
         if (felix == null) {
             LOGGER.warning("Felix not initialized yet");
             return;
@@ -375,44 +364,42 @@ public class PluginHelper {
         while (!installableBundlePaths.isEmpty() && installed) {
             installed = false;
             for (Iterator<String> it = installableBundlePaths.iterator(); it.hasNext(); ) {
-                if (installBundle(it.next())) {
+                String next = it.next();
+                try {
+                    installBundle(next);
                     it.remove();
                     installed = true;
+                }
+                catch (Exception e) {
+                    LOGGER.warning("BLOCKING: " + next);
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 }
             }
         }
         if (!installableBundlePaths.isEmpty()) {
-            LOGGER.warning("UNABLE TO INSTALL BUNDLES: " + installableBundlePaths.toString());
+            LOGGER.log(Level.SEVERE, "FAILED TO INSTALL BUNDLES: " + installableBundlePaths.toString());
         }
 
     }
 
-    synchronized private boolean installBundle(String path) {
-        boolean result = false;
-        try {
-            // Create the location using new URL object. That way path is formatted
-            // and Felix is getting proper URL which prevents MalformedUrlException
-            // on Windows
-            String location = new URL("file://" + path).toString();
+    synchronized private void installBundle(String path) throws Exception {
+        // Create the location using new URL object. That way path is formatted
+        // and Felix is getting proper URL which prevents MalformedUrlException
+        // on Windows
+        String location = new URL("file://" + path).toString();
 
-            LOGGER.warning("INSTALLING: " + path);
-            Bundle bundle = felix.getBundleContext().installBundle(location, new FileInputStream(path));
-            bundle.update(new FileInputStream(path));
-            LOGGER.warning("INSTALLED: " + path);
-            bundle.start();
-            LOGGER.warning("STARTED: " + path);
-            result = true;
-        }
-        catch (Exception e) {
-            LOGGER.warning("BLOCKING: " + path);
-            LOGGER.log(Level.WARNING, e.getMessage(), e);
-        }
-        return result;
+        LOGGER.warning("INSTALLING: " + path);
+        Bundle bundle = felix.getBundleContext().installBundle(location, new FileInputStream(path));
+        bundleFiles.put(bundle.getBundleId(), path);
+        bundle.update(new FileInputStream(path));
+        LOGGER.warning("INSTALLED: " + path);
+        bundle.start();
+        LOGGER.warning("STARTED: " + path);
     }
 
-    public String getSystemPackages(String basedir) {
+    public String getSystemPackages() {
         try {
-            FileInputStream fis = new FileInputStream(basedir + File.separatorChar + "packages.export");
+            FileInputStream fis = new FileInputStream(pluginsDir + File.separatorChar + "packages.export");
             try {
                 int c = 0;
                 StringBuffer sb = new StringBuffer();
@@ -423,15 +410,13 @@ public class PluginHelper {
                     sb.append((char) c);
                 }
                 return sb.toString().replaceAll("\\s*", "");
-            }
-            finally {
+            } finally {
                 if (fis != null) {
                     fis.close();
                 }
             }
-        }
-        catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error occurred while reading " + basedir + File.separatorChar + "packages.export", e);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error occurred while reading " + pluginsDir + File.separatorChar + "packages.export", e);
         }
         return "";
     }
@@ -453,4 +438,151 @@ public class PluginHelper {
     public State getState() {
         return state;
     }
+
+
+    public static class PluginManagementException extends RuntimeException {
+        public PluginManagementException() {
+            super();    //To change body of overridden methods use File | Settings | File Templates.
+        }
+
+        public PluginManagementException(String message) {
+            super(message);    //To change body of overridden methods use File | Settings | File Templates.
+        }
+
+        public PluginManagementException(String message, Throwable cause) {
+            super(message, cause);    //To change body of overridden methods use File | Settings | File Templates.
+        }
+
+        public PluginManagementException(Throwable cause) {
+            super(cause);    //To change body of overridden methods use File | Settings | File Templates.
+        }
+    }
+
+    @Override
+    public void registerPlugin(String filename, InputStream is) {
+        File fileRef = null;
+        try {
+            //create temp file
+            File tempFile = fileRef = File.createTempFile(filename, Long.toString(System.nanoTime()));            
+            tempFile.setReadable(true, true);
+            tempFile.setWritable(true, true);
+            
+            is.reset();
+            FileOutputStream fos = new FileOutputStream(tempFile);
+            byte[] buf = new byte[1024];
+            int len = 0;
+            while ((len = is.read(buf)) >= 0) {
+                fos.write(buf, 0, len);
+            }
+            fos.flush();
+            fos.close();
+
+            File dest = new File(pluginsDir, filename);
+            if (!tempFile.renameTo(dest)) {
+                throw new IOException("Failed to rename " + tempFile.getAbsolutePath() + " to " + dest.getAbsolutePath() +
+                        ", as File.renameTo returns only boolean, the reason is unknown.");
+            } else {
+                LOGGER.warning("Renamed " + tempFile.getAbsolutePath() + " to " + dest.getAbsolutePath());
+            }
+            fileRef = dest;
+            LOGGER.warning("Installing bundle: " + dest.getAbsolutePath());
+            installBundle(dest.getAbsolutePath());
+            fileTimes.put(dest.getAbsolutePath(), dest.lastModified());
+            fileRef = null;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Failed to deploy plugin " + filename, e);
+            throw new PluginManagementException(e);
+        } finally {
+            if (fileRef != null) {
+                LOGGER.warning("trying to remove leftover file " + fileRef.getAbsolutePath());
+                fileRef.delete();
+            }
+        }
+
+
+    }
+
+    @Override
+    public Collection<PluginInformation> getRegisteredPlugins() {
+        Bundle[] bundles = felix.getBundleContext().getBundles();
+        Set<PluginInformation> plugins = new HashSet<PluginInformation>(bundles.length);
+        for (Bundle bundle : bundles) {
+            PluginInformation info = new PluginInformation();
+            Dictionary headers = bundle.getHeaders();
+            info.setDescription((String) headers.get(Constants.BUNDLE_DESCRIPTION));
+            info.setDocumentationUrl((String) headers.get(Constants.BUNDLE_DOCURL));
+            info.setSymbolicName(bundle.getSymbolicName());
+            info.setName((String) headers.get(Constants.BUNDLE_NAME));
+            info.setHomepageUrl((String) headers.get(Constants.BUNDLE_UPDATELOCATION));
+            info.setId(bundle.getBundleId());
+            info.setStatus(bundle.getState());
+            info.setStatusDescription("osgi.plugin.status." + getStatusDescription(bundle.getState()));
+            info.setCanEnable(bundle.getBundleId() > 0 && bundle.getState() == Bundle.RESOLVED);
+            info.setCanDisable(bundle.getBundleId() > 0 && bundle.getState() == Bundle.ACTIVE);
+            info.setCanUninstall(bundle.getBundleId() > 0 && (bundle.getState() == Bundle.RESOLVED || bundle.getState() == Bundle.INSTALLED));
+            info.setVersion(bundle.getVersion().toString());
+            plugins.add(info);
+        }
+        return plugins;
+    }
+
+    @Override
+    public void enablePlugin(PluginInformation pi) {
+        try {
+            felix.getBundleContext().getBundle(pi.getId()).start();
+            LOGGER.warning("Started bundle " + pi.getName());
+        } catch (BundleException e) {
+            LOGGER.log(Level.SEVERE, "Failed to start plugin " + pi.getName(), e);
+            throw new PluginManagementException(e);
+        }
+    }
+
+    @Override
+    public void disablePlugin(PluginInformation pi) {
+        try {
+            felix.getBundleContext().getBundle(pi.getId()).stop();
+            LOGGER.warning("Stopped bundle " + pi.getName());
+
+        } catch (BundleException e) {
+            LOGGER.log(Level.SEVERE, "Failed to stop plugin " + pi.getName(), e);
+            throw new PluginManagementException(e);
+        }
+    }
+
+    @Override
+    public void uninstallPlugin(PluginInformation pi) {
+        try {
+            String file = bundleFiles.get(pi.getId());
+            File f = new File(file);
+            felix.getBundleContext().getBundle(pi.getId()).uninstall();
+            if (!f.delete()) {
+                throw new PluginManagementException("Failed to remove file: " + file);
+            } else {
+                LOGGER.warning("Uninstalled bundle " + pi.getName() + ", removed file: " + file);
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Failed to uninstall plugin " + pi.getName(), e);
+            throw new PluginManagementException(e);
+        }
+
+    }
+
+    private String getStatusDescription(int state) {
+        switch (state) {
+            case Bundle.ACTIVE:
+                return "active";
+            case Bundle.INSTALLED:
+                return "installed";
+            case Bundle.RESOLVED:
+                return "resolved";
+            case Bundle.STARTING:
+                return "starting";
+            case Bundle.STOPPING:
+                return "stopping";
+            case Bundle.UNINSTALLED:
+                return "uninstalled";
+        }
+        return String.valueOf(state);
+    }
+
 }

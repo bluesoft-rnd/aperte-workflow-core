@@ -171,7 +171,7 @@ public abstract class ProcessListPane extends VerticalLayout implements HasRefre
 //        hl2.setComponentAlignment(prevButton, Alignment.MIDDLE_LEFT);
 //
 //        Label rangeLabel = new Label((offset + 1) + "-" + Math.min(offset + limit, processInstances.size()) + " z " + processInstances.size());
-//        rangeLabel.addStyleName("tti-range-label");
+//        rangeLabel.styled("tti-range-label");
 //        hl2.addComponent(rangeLabel);
 //        hl2.setComponentAlignment(rangeLabel, Alignment.MIDDLE_LEFT);
 //

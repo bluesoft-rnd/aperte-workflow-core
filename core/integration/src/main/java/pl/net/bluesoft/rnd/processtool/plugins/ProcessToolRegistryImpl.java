@@ -44,8 +44,9 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	private final Map<String, Class<? extends ProcessToolActionButton>> BUTTON_REGISTRY = new HashMap();
 	private SessionFactory sessionFactory;
 	private EventBusManager eventBusManager = new EventBusManager();
+    private PluginManager pluginManager;
 
-	public synchronized void unregisterWidget(String name) {
+    public synchronized void unregisterWidget(String name) {
 		WIDGET_REGISTRY.remove(name);
 	}
 
@@ -118,7 +119,18 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 		return eventBusManager;
 	}
 
-	public synchronized void addAnnotatedClass(Class cls) {
+    @Override
+    public PluginManager getPluginManager() {
+        return pluginManager;
+    }
+
+    @Override
+    public void setPluginManager(PluginManager pluginManager) {
+        this.pluginManager = pluginManager;
+    }
+
+
+    public synchronized void addAnnotatedClass(Class cls) {
 		annotatedClasses.put(cls.getName(), cls);
 	}
 

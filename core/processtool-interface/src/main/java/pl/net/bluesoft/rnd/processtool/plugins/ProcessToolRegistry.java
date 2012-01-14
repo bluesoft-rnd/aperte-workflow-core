@@ -107,12 +107,16 @@ public interface ProcessToolRegistry {
 	void removeClassLoader(String name);
 
 	EventBusManager getEventBusManager();
+    
+    PluginManager getPluginManager();
 
-    List<PluginMetadata> getInstalledPlugins() throws ClassNotFoundException;
+    void setPluginManager(PluginManager pluginManager);
 
     void addServiceLoader(ProcessToolServiceBridge serviceBridge);
 
     void removeServiceLoader(ProcessToolServiceBridge serviceBridge);
+    
+    List<ProcessToolServiceBridge> getServiceLoaders();
 
     void removeRegisteredService(Class<?> serviceClass);
 

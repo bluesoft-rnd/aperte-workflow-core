@@ -241,7 +241,7 @@ public class ProcessDataPane extends VerticalLayout {
         masterLayout.setMargin(new MarginInfo(false, true, false, true));
 
         /*Button saveButton = new Button(i18NSource.getMessage("button.save.process.data"));
-       saveButton.addStyleName("default");
+       saveButton.styled("default");
        saveButton.addListener(new Button.ClickListener() {
 
            @Override

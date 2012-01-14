@@ -5,18 +5,28 @@ import pl.net.bluesoft.rnd.util.i18n.I18NProvider;
 import java.net.URL;
 import java.util.List;
 
-public interface PluginMetadata {
+public interface PluginMetadata extends Comparable<PluginMetadata> {
 
-	public String getBundleLocation();
-	public String getBundleName();
-	public List<Class<?>> getStepClasses();
-	public List<Class<?>> getWidgetClasses();
-	public List<I18NProvider> getI18NProviders();
-	public String getHumanNameKey();
-	public String getDescriptionKey();
-	public List<URL> getIconResources();
-	public String getImplementationBuild();
-	public int getState();
-	public long getLastModifiedAt();
+	String getBundleLocation();
+	List<Class<?>> getStepClasses();
+	List<Class<?>> getWidgetClasses();
+	List<I18NProvider> getI18NProviders();
+	String getHumanNameKey();
+	String getDescriptionKey();
+	List<URL> getIconResources();
+	String getImplementationBuild();
+	long getLastModifiedAt();
 
+    long getId();
+    String getName();
+    String getSymbolicName();
+    String getVersion();
+    String getDocumentationUrl();
+    String getHomepageUrl();
+    String getDescription();
+    long getState();
+    String getStateDescription();
+    boolean isCanEnable();
+    boolean isCanDisable();
+    boolean isCanUninstall();
 }

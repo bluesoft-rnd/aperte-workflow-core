@@ -5,16 +5,12 @@ import org.apache.felix.framework.Logger;
 import org.apache.felix.framework.util.FelixConstants;
 import org.osgi.framework.*;
 import pl.net.bluesoft.rnd.poutils.cquery.func.F;
-import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
-import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolServiceBridge;
+import pl.net.bluesoft.rnd.processtool.plugins.*;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.util.i18n.impl.PropertiesBasedI18NProvider;
 import pl.net.bluesoft.rnd.util.i18n.impl.PropertyLoader;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -29,7 +25,7 @@ import static pl.net.bluesoft.rnd.poutils.cquery.CQuery.from;
 import static pl.net.bluesoft.rnd.processtool.plugins.osgi.OSGiBundleHelper.*;
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
-public class PluginHelper {
+public class PluginHelper implements PluginManager {
 
     private static class BundleInfo {
         private Long lastModified;
@@ -181,6 +177,7 @@ public class PluginHelper {
     private ScheduledExecutorService executor;
     private ProcessToolRegistry registry;
     private Map<String, BundleInfo> bundleInfos;
+    private String pluginsDir;
 
     private static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(PluginHelper.class.getName());
 
@@ -341,17 +338,17 @@ public class PluginHelper {
 
     public synchronized void initializePluginSystem(String pluginsDir, String storageDir, ProcessToolRegistry registry)
             throws BundleException {
-        pluginsDir = pluginsDir.replace('/', File.separatorChar);
+        this.pluginsDir = pluginsDir.replace('/', File.separatorChar);
         state = State.INITIALIZING;
         LOGGER.fine("initializePluginSystem.start!");
-        initializeFelix(pluginsDir, storageDir, registry);
+        initializeFelix(storageDir, registry);
         LOGGER.fine("initializeCheckerThread!");
-        initCheckerThread(pluginsDir);
+        initCheckerThread();
         LOGGER.fine("initializePluginSystem.end!");
         state = State.ACTIVE;
     }
 
-    private void initializeFelix(String pluginsDir, String storageDir, final ProcessToolRegistry registry) throws BundleException {
+    private void initializeFelix(String storageDir, final ProcessToolRegistry registry) throws BundleException {
         if (felix != null) {
             felix.stop();
             felix = null;
@@ -441,7 +438,7 @@ public class PluginHelper {
         configMap.put(FelixConstants.SYSTEMBUNDLE_ACTIVATORS_PROP, activators);
     }
 
-    private void initCheckerThread(final String pluginsDir) {
+    private void initCheckerThread() {
         bundleInfos = new HashMap<String, BundleInfo>();
         LOGGER.info("Starting OSGi checker thread");
         if (executor != null && !executor.isShutdown()) {
@@ -505,8 +502,7 @@ public class PluginHelper {
     private void installBundles(List<String> installableBundlePaths, String pluginsDir, boolean depedencyWiseInstall) {
         if (!depedencyWiseInstall) {
             installBundles(installableBundlePaths);
-        }
-        else {
+        } else {
             dependencyWiseInstallBundles(installableBundlePaths, pluginsDir);
         }
     }
@@ -523,7 +519,7 @@ public class PluginHelper {
         for (String filename : list) {
             File subFile = new File(f.getAbsolutePath() + File.separator + filename);
             String path = subFile.getAbsolutePath();
-            if (!subFile.isDirectory() && path.matches(".*jar$")) {
+            if (!subFile.isDirectory() && path.matches(".*jar$")) {                          // TODO additional check for time modification
                 Long lastModified = getBundleInfo(path).getLastModified();
                 if (lastModified == null || lastModified < subFile.lastModified()) {
                     installableBundlePaths.add(path);
@@ -605,7 +601,7 @@ public class PluginHelper {
         }
     }
 
-    private Bundle installBundle(String path) {
+    private synchronized Bundle installBundle(String path) {
         Bundle bundle;
         long start = new Date().getTime();
         try {
@@ -781,6 +777,102 @@ public class PluginHelper {
         failedDeps.clear();
         failedDeps.addAll(toLoad);
         return result;
+    }
+
+    @Override
+    public void registerPlugin(String filename, InputStream is) {
+        File fileRef = null;
+        try {
+            //create temp file
+            File tempFile = fileRef = File.createTempFile(filename, Long.toString(System.nanoTime()));
+            tempFile.setReadable(true, true);
+            tempFile.setWritable(true, true);
+
+            is.reset();
+            FileOutputStream fos = new FileOutputStream(tempFile);
+            byte[] buf = new byte[1024];
+            int len = 0;
+            while ((len = is.read(buf)) >= 0) {
+                fos.write(buf, 0, len);
+            }
+            fos.flush();
+            fos.close();
+
+            File dest = new File(pluginsDir, filename);
+            if (!tempFile.renameTo(dest)) {
+                throw new IOException("Failed to rename " + tempFile.getAbsolutePath() + " to " + dest.getAbsolutePath() +
+                        ", as File.renameTo returns only boolean, the reason is unknown.");
+            } else {
+                LOGGER.warning("Renamed " + tempFile.getAbsolutePath() + " to " + dest.getAbsolutePath());
+            }
+            fileRef = dest;
+            LOGGER.warning("Installing bundle: " + dest.getAbsolutePath());
+            installBundle(dest.getAbsolutePath());
+//            fileTimes.put(dest.getAbsolutePath(), dest.lastModified());       //TODO was removed in modeler branch
+            fileRef = null;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Failed to deploy plugin " + filename, e);
+            throw new PluginManagementException(e);
+        } finally {
+            if (fileRef != null) {
+                LOGGER.warning("trying to remove leftover file " + fileRef.getAbsolutePath());
+                fileRef.delete();
+            }
+        }
+    }
+
+    @Override
+    public Collection<PluginMetadata> getRegisteredPlugins() {
+        List<ProcessToolServiceBridge> serviceLoaders = registry.getServiceLoaders();
+        List<PluginMetadata> registeredPlugins = new ArrayList<PluginMetadata>();
+        for (ProcessToolServiceBridge serviceBridge : serviceLoaders) {
+            try {
+                registeredPlugins.addAll(serviceBridge.getInstalledPlugins());
+            } catch (ClassNotFoundException e) {
+                LOGGER.log(Level.SEVERE, "Failed to get registered plugins");
+                throw new PluginManagementException(e);
+            }
+        }
+        return registeredPlugins;
+    }
+
+    @Override
+    public void enablePlugin(PluginMetadata pluginMetadata) {
+        try {
+            felix.getBundleContext().getBundle(pluginMetadata.getId()).start();
+            LOGGER.warning("Started bundle " + pluginMetadata.getName());
+        } catch (BundleException e) {
+            LOGGER.log(Level.SEVERE, "Failed to start plugin " + pluginMetadata.getName(), e);
+            throw new PluginManagementException(e);
+        }
+    }
+
+    @Override
+    public void disablePlugin(PluginMetadata pluginMetadata) {
+        try {
+            felix.getBundleContext().getBundle(pluginMetadata.getId()).stop();
+            LOGGER.warning("Stopped bundle " + pluginMetadata.getName());
+        } catch (BundleException e) {
+            LOGGER.log(Level.SEVERE, "Failed to stop plugin " + pluginMetadata.getName(), e);
+            throw new PluginManagementException(e);
+        }
+    }
+
+    @Override
+    public void uninstallPlugin(PluginMetadata pluginMetadata) {
+        try {
+            String file = pluginMetadata.getBundleLocation();
+            File f = new File(file);
+            felix.getBundleContext().getBundle(pluginMetadata.getId()).uninstall();
+            if (!f.delete()) {
+                throw new PluginManagementException("Failed to remove file: " + file);
+            } else {
+                LOGGER.warning("Uninstalled bundle " + pluginMetadata.getName() + ", removed file: " + file);
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Failed to uninstall plugin " + pluginMetadata.getName(), e);
+            throw new PluginManagementException(e);
+        }
     }
 
 }

@@ -79,6 +79,10 @@
                         <Bundle-Version>0.1</Bundle-Version>
                         <Embed-Directory>lib</Embed-Directory>
                         <Embed-Transitive>true</Embed-Transitive>
+                        <Bundle-Description>This bundle provides basic CMIS document list widget. It uses Apache Chemistry library.</Bundle-Description>
+                        <Bundle-Name>Cmis Widget</Bundle-Name>
+                        <Bundle-UpdateLocation>http://www.aperteworkflow.org/</Bundle-UpdateLocation>
+                        <Bundle-DocURL>https://github.com/bluesoft-rnd/aperte-workflow-core/wiki/CMIS-Widget-Plugin</Bundle-DocURL>
                         <ProcessTool-Widget-Enhancement>pl.net.bluesoft.rnd.pt.ext.cmis.widget.CmisDocumentListWidget</ProcessTool-Widget-Enhancement>
                         <ProcessTool-I18N-Property>cmis-messages</ProcessTool-I18N-Property>
                     </instructions>

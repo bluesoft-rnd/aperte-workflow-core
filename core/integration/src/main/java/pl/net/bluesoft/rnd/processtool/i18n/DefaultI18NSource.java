@@ -4,6 +4,7 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.util.i18n.I18NProvider;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Locale;
 
@@ -14,8 +15,14 @@ public class DefaultI18NSource implements I18NSource {
 
 	private Locale locale;
 
+    public DefaultI18NSource() {
+    }
 
-	public Locale getLocale() {
+    public DefaultI18NSource(Locale locale) {
+        this.locale = locale;
+    }
+
+    public Locale getLocale() {
 		return locale;
 	}
 
@@ -30,7 +37,7 @@ public class DefaultI18NSource implements I18NSource {
 
 	@Override
 	public String getMessage(String key, String defaultValue) {
-		Collection<I18NProvider> i18NProviders = ProcessToolContext.Util.getProcessToolContextFromThread().getRegistry().getI18NProviders();
+		Collection<I18NProvider> i18NProviders = new ArrayList(ProcessToolContext.Util.getProcessToolContextFromThread().getRegistry().getI18NProviders());
 		//1st run - full localization e.g. _pl_PL
 		for (I18NProvider i18NProvider : i18NProviders) {
 			if (!i18NProvider.hasFullyLocalizedMessage(key, locale)) continue;

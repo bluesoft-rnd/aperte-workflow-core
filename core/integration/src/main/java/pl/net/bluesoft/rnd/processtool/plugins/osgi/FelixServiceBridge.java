@@ -85,11 +85,20 @@ public class FelixServiceBridge implements ProcessToolServiceBridge {
 			OSGiBundleHelper headerHelper = new OSGiBundleHelper(bundle);
 			BundleMetadata bm = headerHelper.getBundleMetadata();
 
+            bm.setId(bundle.getBundleId());
+            bm.setState(bundle.getState());
+            bm.setStateDescription("osgi.plugin.status." + getStatusDescription(bundle.getState()));
+            bm.setSymbolicName(bundle.getSymbolicName());
+            bm.setCanEnable(bundle.getBundleId() > 0 && bundle.getState() == Bundle.RESOLVED);
+            bm.setCanDisable(bundle.getBundleId() > 0 && bundle.getState() == Bundle.ACTIVE);
+            bm.setCanUninstall(bundle.getBundleId() > 0 && (bundle.getState() == Bundle.RESOLVED || bundle.getState() == Bundle.INSTALLED));
+            bm.setVersion(bundle.getVersion().toString());
+
 			if (headerHelper.hasHeaderValues(HUMAN_NAME)) {
 				bm.setHumanNameKey(headerHelper.getHeaderValues(HUMAN_NAME)[0]);
 			}
-			if (headerHelper.hasHeaderValues(DESCRIPTION)) {
-				bm.setDescriptionKey(headerHelper.getHeaderValues(DESCRIPTION)[0]);
+			if (headerHelper.hasHeaderValues(DESCRIPTION_KEY)) {
+				bm.setDescriptionKey(headerHelper.getHeaderValues(DESCRIPTION_KEY)[0]);
 			}
 			if (headerHelper.hasHeaderValues(IMPLEMENTATION_BUILD)) {
 				bm.setImplementationBuild(headerHelper.getHeaderValues(IMPLEMENTATION_BUILD)[0]);
@@ -132,8 +141,37 @@ public class FelixServiceBridge implements ProcessToolServiceBridge {
 					}
 				}
 			}
+            if (headerHelper.hasHeaderValues(DESCRIPTION)) {
+                bm.setDescription(headerHelper.getHeaderValues(DESCRIPTION)[0]);
+            }
+            if (headerHelper.hasHeaderValues(DOCUMENTATION_URL)) {
+                bm.setDocumentationUrl(headerHelper.getHeaderValues(DOCUMENTATION_URL)[0]);
+            }
+            if (headerHelper.hasHeaderValues(HOMEPAGE_URL)) {
+                bm.setHomepageUrl(headerHelper.getHeaderValues(HOMEPAGE_URL)[0]);
+            }
+
 			metadata.add(bm);
 		}
 		return metadata;
 	}
+
+    private String getStatusDescription(int state) {
+        switch (state) {
+            case Bundle.ACTIVE:
+                return "active";
+            case Bundle.INSTALLED:
+                return "installed";
+            case Bundle.RESOLVED:
+                return "resolved";
+            case Bundle.STARTING:
+                return "starting";
+            case Bundle.STOPPING:
+                return "stopping";
+            case Bundle.UNINSTALLED:
+                return "uninstalled";
+            default:
+                return String.valueOf(state);
+        }
+    }
 }

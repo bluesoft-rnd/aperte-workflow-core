@@ -10,7 +10,6 @@ import com.vaadin.terminal.Sizeable;
 import com.vaadin.terminal.gwt.server.WebApplicationContext;
 import com.vaadin.ui.*;
 import org.apache.commons.lang.StringUtils;
-
 import pl.net.bluesoft.rnd.processtool.plugins.PluginMetadata;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
@@ -19,7 +18,7 @@ import pl.net.bluesoft.rnd.pt.ext.stepeditor.user.UserStepEditorWindow;
 import pl.net.bluesoft.util.lang.Classes;
 
 import javax.servlet.ServletContext;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 
 public class StepEditorApplication extends Application implements ParameterHandler {
@@ -108,18 +107,15 @@ public class StepEditorApplication extends Application implements ParameterHandl
         stepList.setItemCaption("User", "User");
         
 		ProcessToolRegistry reg = getRegistry(this);
-		
-		try {
-			List<PluginMetadata> metadata = reg.getInstalledPlugins();
-			for (PluginMetadata bm : metadata) {
-				for (Class<?> step : bm.getStepClasses()) {
-					AliasName a = Classes.getClassAnnotation(step, AliasName.class);
-					stepList.addItem(a.name());
-					stepList.setItemCaption(a.name(), a.name());
-				}
-			}
-		} catch (ClassNotFoundException e) {
-		}
+
+        Collection<PluginMetadata> metadata = reg.getPluginManager().getRegisteredPlugins();
+        for (PluginMetadata bm : metadata) {
+            for (Class<?> step : bm.getStepClasses()) {
+                AliasName a = Classes.getClassAnnotation(step, AliasName.class);
+                stepList.addItem(a.name());
+                stepList.setItemCaption(a.name(), a.name());
+            }
+        }
 		
 		stepList.setValue(stepName);
 		

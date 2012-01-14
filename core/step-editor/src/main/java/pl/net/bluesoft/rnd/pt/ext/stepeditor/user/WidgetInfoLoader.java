@@ -1,15 +1,9 @@
 package pl.net.bluesoft.rnd.pt.ext.stepeditor.user;
 
-import java.lang.reflect.Field;
-import java.util.*;
-
-import javax.servlet.ServletContext;
-
+import com.vaadin.Application;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang.StringUtils;
-
-
 import pl.net.bluesoft.rnd.processtool.i18n.DefaultI18NSource;
 import pl.net.bluesoft.rnd.processtool.plugins.PluginMetadata;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
@@ -18,9 +12,8 @@ import pl.net.bluesoft.rnd.pt.ext.stepeditor.StepEditorApplication;
 import pl.net.bluesoft.rnd.util.i18n.I18NProvider;
 import pl.net.bluesoft.util.lang.Classes;
 
-import com.vaadin.Application;
-import com.vaadin.service.ApplicationContext;
-import com.vaadin.terminal.gwt.server.WebApplicationContext;
+import java.lang.reflect.Field;
+import java.util.*;
 
 public class WidgetInfoLoader {
 
@@ -113,14 +106,14 @@ public class WidgetInfoLoader {
 		Map<BundleItem, Collection<WidgetItem>> availableWidgets = new HashMap<BundleItem, Collection<WidgetItem>>();
 
 		
-		for (PluginMetadata bundle : reg.getInstalledPlugins()) {
+		for (PluginMetadata bundle : reg.getPluginManager().getRegisteredPlugins()) {
 			if (bundle.getWidgetClasses().size() > 0) {
 
 				String bundleName;
 				if (StringUtils.isNotEmpty(bundle.getHumanNameKey()))
 					bundleName = i18NSource.getMessage(bundle.getHumanNameKey(), bundle.getI18NProviders());
 				else
-					bundleName = bundle.getBundleName();
+					bundleName = bundle.getName();
 
 				String bundleDescription = null;
 				if (StringUtils.isNotEmpty(bundle.getDescriptionKey()))

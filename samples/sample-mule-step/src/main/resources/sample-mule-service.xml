@@ -9,7 +9,7 @@
       http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/3.2/mule-scripting.xsd
       http://www.mulesoft.org/schema/mule/twitter http://www.mulesoft.org/schema/mule/twitter/2.0/mule-twitter.xsd
       ">
-    <!-- you need to supply your own configuration and uncomment <twitter:update-status tag below -->
+    <!-- you need to supply your own configuration and uncomment <twitter:update-state tag below -->
     <!--<twitter:config consumerKey="XXX" consumerSecret="XXX"-->
             <!--accessToken="XXX" accessTokenSecret="XXX"/>-->
 
@@ -33,7 +33,7 @@
                 </script:script>
             </script:component>
             <!-- uncomment this once configured -->
-            <!--<twitter:update-status status="#[groovy:payload]" />-->
+            <!--<twitter:update-state state="#[groovy:payload]" />-->
             <script:component>
                 <script:script engine="groovy">
                     System.out.println("uncomment twitter tag in sample-mule-service.xml to send tweets");

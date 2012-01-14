@@ -1,24 +1,21 @@
 package pl.net.bluesoft.rnd.processtool.plugins;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.lang.reflect.Field;
-import java.util.*;
-import java.util.logging.Logger;
+import com.thoughtworks.xstream.XStream;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.SerializationConfig.Feature;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
+import pl.net.bluesoft.util.lang.Classes;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.SerializationConfig.Feature;
-
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
-import pl.net.bluesoft.util.lang.Classes;
-
-import com.thoughtworks.xstream.XStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.lang.reflect.Field;
+import java.util.*;
+import java.util.logging.Logger;
 
 public class StepExposureServlet extends HttpServlet {
 	public enum Format {
@@ -41,33 +38,30 @@ public class StepExposureServlet extends HttpServlet {
 
 		List<Map<String, Object>> steps = new LinkedList<Map<String, Object>>();
 
-		try {
-			List<PluginMetadata> metadata = reg.getInstalledPlugins();
-			for (PluginMetadata bm : metadata) {
-				for (Class<?> step : bm.getStepClasses()) {
-					Map<String, Object> map = new HashMap<String, Object>();
+        Collection<PluginMetadata> metadata = reg.getPluginManager().getRegisteredPlugins();
+        for (PluginMetadata bm : metadata) {
+            for (Class<?> step : bm.getStepClasses()) {
+                Map<String, Object> map = new HashMap<String, Object>();
 
-					AliasName a = Classes.getClassAnnotation(step, AliasName.class);
-					map.put(NAME, a.name());
+                AliasName a = Classes.getClassAnnotation(step, AliasName.class);
+                map.put(NAME, a.name());
 
-					List<Field> fields = Classes.getFieldsWithAnnotation(step, AutoWiredProperty.class);
-					List<Map<String, Object>> parameters = new ArrayList<Map<String, Object>>(fields.size());
-					if (fields != null) {
-						for (Field field : fields) {
-							Map<String, Object> parameter = new HashMap<String, Object>();
-							parameter.put(NAME, field.getName());
-							parameter.put(TYPE, field.getType());
-							AutoWiredProperty awp = field.getAnnotation(AutoWiredProperty.class);
-							parameter.put(REQUIRED, awp != null ? awp.required() : false);
-							parameters.add(parameter);
-						}
-					}
-					map.put(PARAMETERS, parameters);
-					steps.add(map);
-				}
-			}
-		} catch (ClassNotFoundException e) {
-		}
+                List<Field> fields = Classes.getFieldsWithAnnotation(step, AutoWiredProperty.class);
+                List<Map<String, Object>> parameters = new ArrayList<Map<String, Object>>(fields.size());
+                if (fields != null) {
+                    for (Field field : fields) {
+                        Map<String, Object> parameter = new HashMap<String, Object>();
+                        parameter.put(NAME, field.getName());
+                        parameter.put(TYPE, field.getType());
+                        AutoWiredProperty awp = field.getAnnotation(AutoWiredProperty.class);
+                        parameter.put(REQUIRED, awp != null ? awp.required() : false);
+                        parameters.add(parameter);
+                    }
+                }
+                map.put(PARAMETERS, parameters);
+                steps.add(map);
+            }
+        }
 
 		PrintWriter out = resp.getWriter();
 		String formatString = req.getParameter("format");

@@ -101,7 +101,6 @@
 		<portlet-name>ProcessTool User Substitutions</portlet-name>
 		<display-name>Aperte Workflow User Substitutions</display-name>
         <portlet-class>pl.net.bluesoft.rnd.util.vaadin.ProcessToolVaadinApplicationPortlet2</portlet-class>
-
 		<init-param>
 			<name>application</name>
 			<value>pl.net.bluesoft.rnd.processtool.portlets.substitutions.ProcessToolSubstitutionsPortletApplication</value>
@@ -117,6 +116,28 @@
 		<portlet-info>
 			<title>Aperte Workflow User Substitutions</title>
 			<short-title>User Substitutions</short-title>
+		</portlet-info>
+	</portlet>
+
+    <portlet>
+		<portlet-name>Aperte Workflow Plugin Manager</portlet-name>
+		<display-name>Aperte Workflow Plugin Manager</display-name>
+        <portlet-class>pl.net.bluesoft.rnd.util.vaadin.ProcessToolVaadinApplicationPortlet2</portlet-class>
+		<init-param>
+			<name>application</name>
+			<value>pl.net.bluesoft.rnd.processtool.portlets.plugins.PluginsManagerPortlet</value>
+		</init-param>
+        <init-param>
+            <name>widgetset</name>
+            <value>com.vaadin.portal.gwt.PortalDefaultWidgetSet</value>
+        </init-param>
+		<supports>
+			<mime-type>text/html</mime-type>
+			<portlet-mode>view</portlet-mode>
+		</supports>
+		<portlet-info>
+			<title>Aperte Workflow Plugin Manager</title>
+			<short-title>Plugin Manager</short-title>
 		</portlet-info>
 	</portlet>
 

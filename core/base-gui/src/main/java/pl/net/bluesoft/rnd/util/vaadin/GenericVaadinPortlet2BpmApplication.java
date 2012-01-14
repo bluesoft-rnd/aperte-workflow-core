@@ -18,6 +18,7 @@ import javax.portlet.RenderResponse;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
 
+import com.vaadin.terminal.Terminal;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.i18n.DefaultI18NSource;
@@ -68,6 +69,12 @@ public abstract class GenericVaadinPortlet2BpmApplication extends Application im
 		} else {
 			mainWindow.addComponent(new Label(getMessage("please.use.from.a.portlet")));
 		}
+        setErrorHandler(new Terminal.ErrorListener() {
+            @Override
+            public void terminalError(Terminal.ErrorEvent errorEvent) {
+                onThrowable(errorEvent.getThrowable());
+            }
+        });
 	}
 
 	@Override
@@ -156,7 +163,7 @@ public abstract class GenericVaadinPortlet2BpmApplication extends Application im
 	}
 
     @Override
-    public void onException(Exception e) {
+    public void onThrowable(Throwable e) {
         logger.log(Level.SEVERE, e.getMessage(), e);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

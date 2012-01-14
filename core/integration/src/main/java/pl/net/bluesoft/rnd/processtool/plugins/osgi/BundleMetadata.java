@@ -8,8 +8,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class BundleMetadata implements PluginMetadata {
+
 	private String				bundleLocation;
-	private String				bundleName;
 	private String				humanNameKey;
 	private String				descriptionKey;
 	private String				implementationBuild;
@@ -17,15 +17,27 @@ public class BundleMetadata implements PluginMetadata {
 	private List<Class<?>>		stepClasses		= new LinkedList<Class<?>>();
 	private List<URL>			iconResources	= new LinkedList<URL>();
 	private List<I18NProvider>	i18NProviders	= new LinkedList<I18NProvider>();
-	private int state;
-	private long lastModifiedAt;
 
-	public BundleMetadata() {
+    private long id;
+    private String name;
+    private String description;
+	private long state;
+    private String stateDescription;
+	private long lastModifiedAt;
+    private boolean canUninstall;
+    private boolean canDisable;
+    private boolean canEnable;
+    private String homepageUrl;
+    private String version;
+    private String documentationUrl;
+    private String symbolicName;
+
+    public BundleMetadata() {
 	}
 
-	public BundleMetadata(String bundleLocation, String bundleName, long lastModifiedAt, int state) {
+	public BundleMetadata(String bundleLocation, String name, long lastModifiedAt, long state) {
 		this.bundleLocation = bundleLocation;
-		this.bundleName = bundleName;
+		this.name = name;
 		this.lastModifiedAt = lastModifiedAt;
 		this.state = state;
 	}
@@ -38,12 +50,27 @@ public class BundleMetadata implements PluginMetadata {
 		this.bundleLocation = bundleLocation;
 	}
 
-	public String getBundleName() {
-		return bundleName;
+	public String getName() {
+		return name;
 	}
 
-	public void setBundleName(String bundleName) {
-		this.bundleName = bundleName;
+    @Override
+    public String getVersion() {
+        return version;
+    }
+
+    @Override
+    public String getDocumentationUrl() {
+        return documentationUrl; 
+    }
+
+    @Override
+    public String getHomepageUrl() {
+        return homepageUrl;
+    }
+
+    public void setName(String name) {
+		this.name = name;
 	}
 
 	public List<Class<?>> getStepClasses() {
@@ -118,19 +145,96 @@ public class BundleMetadata implements PluginMetadata {
 		this.implementationBuild = implementationBuild;
 	}
 
-	public int getState() {
-		return state;
-	}
+    public long getState() {
+        return state;
+    }
 
-	public void setState(int state) {
-		this.state = state;
-	}
+    public void setState(int state) {
+        this.state = state;
+    }
 
-	public long getLastModifiedAt() {
+    public String getStateDescription() {
+        return stateDescription;
+    }
+
+    public void setStateDescription(String stateDescription) {
+        this.stateDescription = stateDescription;
+    }
+
+    public long getLastModifiedAt() {
 		return lastModifiedAt;
 	}
 
 	public void setLastModifiedAt(long lastModifiedAt) {
 		this.lastModifiedAt = lastModifiedAt;
 	}
+
+    public long getId() {
+        return id;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public boolean isCanUninstall() {
+        return canUninstall;
+    }
+
+    public void setCanUninstall(boolean canUninstall) {
+        this.canUninstall = canUninstall;
+    }
+
+    public boolean isCanEnable() {
+        return canEnable;
+    }
+
+    public void setCanEnable(boolean canEnable) {
+        this.canEnable = canEnable;
+    }
+
+    public boolean isCanDisable() {
+        return canDisable;
+    }
+
+    public void setCanDisable(boolean canDisable) {
+        this.canDisable = canDisable;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public void setStatus(long status) {
+        this.state = status;
+    }
+
+    public void setHomepageUrl(String homepageUrl) {
+        this.homepageUrl = homepageUrl;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public void setDocumentationUrl(String documentationUrl) {
+        this.documentationUrl = documentationUrl;
+    }
+
+    public void setSymbolicName(String symbolicName) {
+        this.symbolicName = symbolicName;
+    }
+
+    public String getSymbolicName() {
+        return symbolicName;
+    }
+
+    @Override
+    public int compareTo(PluginMetadata o) {
+        return Long.valueOf(getId()).compareTo(Long.valueOf(o.getId()));
+    }
 }

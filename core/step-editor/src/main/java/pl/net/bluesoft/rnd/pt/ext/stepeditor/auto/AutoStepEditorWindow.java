@@ -1,15 +1,12 @@
 package pl.net.bluesoft.rnd.pt.ext.stepeditor.auto;
 
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.vaadin.terminal.Sizeable;
+import com.vaadin.ui.*;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
-
 import pl.net.bluesoft.rnd.processtool.plugins.PluginMetadata;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
@@ -20,10 +17,12 @@ import pl.net.bluesoft.rnd.pt.ext.stepeditor.StepEditorApplication;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.TaskConfig;
 import pl.net.bluesoft.util.lang.Classes;
 
-import com.vaadin.terminal.Sizeable;
-import com.vaadin.ui.*;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class AutoStepEditorWindow extends AbstractStepEditorWindow implements ClickListener {
 
@@ -168,40 +167,33 @@ public class AutoStepEditorWindow extends AbstractStepEditorWindow implements Cl
 
 	
 	private StepDefinition getStepDefinition(String stepName) {
-		
 		ProcessToolRegistry reg = StepEditorApplication.getRegistry(application);
-		
-		try {
-			List<PluginMetadata> metadata = reg.getInstalledPlugins();
-			for (PluginMetadata bm : metadata) {
-				for (Class<?> step : bm.getStepClasses()) {
-					
+        Collection<PluginMetadata> metadata = reg.getPluginManager().getRegisteredPlugins();
+        for (PluginMetadata bm : metadata) {
+            for (Class<?> step : bm.getStepClasses()) {
+                AliasName a = Classes.getClassAnnotation(step, AliasName.class);
+                if (stepName.equals(a.name())) {
 
-					AliasName a = Classes.getClassAnnotation(step, AliasName.class);
-					if (stepName.equals(a.name())) {
-					
-					  StepDefinition stepDef = new StepDefinition();
-					  stepDef.setName(a.name());
-					
-					  List<Field> fields = Classes.getFieldsWithAnnotation(step, AutoWiredProperty.class);
-					
-					  if (fields != null) {
-						for (Field field : fields) {
-							StepParameter param = new StepParameter();
-							param.setName(field.getName());
-							param.setType(field.getType());
-							
-							AutoWiredProperty awp = field.getAnnotation(AutoWiredProperty.class);
-							param.setRequired(awp != null ? awp.required() : false);
-							stepDef.addParameter(param);
-						}
-					  }
-					  return stepDef;
-					}
-				}
-			}
-		} catch (ClassNotFoundException e) {
-		}
+                  StepDefinition stepDef = new StepDefinition();
+                  stepDef.setName(a.name());
+
+                  List<Field> fields = Classes.getFieldsWithAnnotation(step, AutoWiredProperty.class);
+
+                  if (fields != null) {
+                    for (Field field : fields) {
+                        StepParameter param = new StepParameter();
+                        param.setName(field.getName());
+                        param.setType(field.getType());
+
+                        AutoWiredProperty awp = field.getAnnotation(AutoWiredProperty.class);
+                        param.setRequired(awp != null ? awp.required() : false);
+                        stepDef.addParameter(param);
+                    }
+                  }
+                  return stepDef;
+                }
+            }
+        }
 
 		return null;
 	}

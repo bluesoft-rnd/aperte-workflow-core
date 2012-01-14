@@ -43,6 +43,7 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	private final Map<String, Class<? extends ProcessToolActionButton>> BUTTON_REGISTRY = new HashMap();
 	private SessionFactory sessionFactory;
 	private EventBusManager eventBusManager = new EventBusManager();
+    private PluginManager pluginManager;
 
 	public synchronized void unregisterWidget(String name) {
 		WIDGET_REGISTRY.remove(name);
@@ -116,6 +117,16 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	public EventBusManager getEventBusManager() {
 		return eventBusManager;
 	}
+
+    @Override
+    public PluginManager getPluginManager() {
+        return pluginManager;
+    }
+
+    @Override
+    public void setPluginManager(PluginManager pluginManager) {
+        this.pluginManager = pluginManager;
+    }
 
     public synchronized boolean addAnnotatedClass(Class<?>... classes) {
         boolean needUpdate = false;
@@ -450,6 +461,11 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
     }
 
     @Override
+    public List<ProcessToolServiceBridge> getServiceLoaders() {
+        return SERVICE_BRIDGE_REGISTRY;
+    }
+
+    @Override
     public void removeRegisteredService(Class<?> serviceClass) {
         boolean result = false;
         for (ProcessToolServiceBridge bridge : SERVICE_BRIDGE_REGISTRY) {
@@ -486,12 +502,5 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
         return (T) service;
     }
 
-    public synchronized List<PluginMetadata> getInstalledPlugins() throws ClassNotFoundException {
-        for (ProcessToolServiceBridge bridge : SERVICE_BRIDGE_REGISTRY) {
-            List<PluginMetadata> list = bridge.getInstalledPlugins();
-            if (list != null)
-                return list;
-        }
-        return new ArrayList<PluginMetadata>();
-    }
+
 }

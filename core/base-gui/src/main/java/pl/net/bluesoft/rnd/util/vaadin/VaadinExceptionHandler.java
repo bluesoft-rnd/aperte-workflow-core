@@ -1,8 +1,5 @@
 package pl.net.bluesoft.rnd.util.vaadin;
 
-import com.vaadin.Application;
-import pl.net.bluesoft.util.lang.Lambda;
-
 /**
  * Created by IntelliJ IDEA.
  * User: tomek
@@ -15,7 +12,7 @@ public interface VaadinExceptionHandler {
     class Util {
         public static void onException(Object handler, Exception e) {
             if (handler instanceof VaadinExceptionHandler) {
-                ((VaadinExceptionHandler)handler).onException(e);
+                ((VaadinExceptionHandler)handler).onThrowable(e);
             } else {
                 if (e instanceof RuntimeException) {
                     throw (RuntimeException)e;
@@ -35,5 +32,5 @@ public interface VaadinExceptionHandler {
         }
     }
 
-    void onException(Exception e);
+    void onThrowable(Throwable e);
 }

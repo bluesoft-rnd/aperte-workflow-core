@@ -10,6 +10,7 @@ import com.vaadin.ui.*;
 import com.vaadin.ui.Table.ColumnGenerator;
 import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.themes.BaseTheme;
+import com.vaadin.ui.themes.Reindeer;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
@@ -30,36 +31,50 @@ import static pl.net.bluesoft.rnd.util.vaadin.VaadinExceptionHandler.Util.withEr
 public class VaadinUtility {
 
 
-	public static ProcessToolContextFactory getProcessToolContext(ApplicationContext applicationContext) {
-		ProcessToolRegistry factory = null;
-		if (applicationContext instanceof PortletApplicationContext2) {
-			PortletApplicationContext2 portletCtx = (PortletApplicationContext2) applicationContext;
-			factory = (ProcessToolRegistry) portletCtx.getPortletConfig()
-					.getPortletContext()
-					.getAttribute(ProcessToolRegistry.class.getName());
+    public static final ThreadLocal<I18NSource> i18nSource = new ThreadLocal<I18NSource>();
 
-		}
-		return factory.getProcessToolContextFactory();
-	}
+    public static void setThreadI18nSource(I18NSource source) {
+        i18nSource.set(source);
+    }
 
-	public static HorizontalLayout horizontalLayout(String width, com.vaadin.ui.Component... components) {
-		HorizontalLayout hl = new HorizontalLayout();
-		hl.setWidth(width);
-		for (com.vaadin.ui.Component c : components) {
-			hl.addComponent(c);
-		}
-		return hl;
-	}
+    public static I18NSource getThreadI18nSource() {
+        return i18nSource.get();
+    }
 
-	public static VerticalLayout verticalLayout(com.vaadin.ui.Component... components) {
-		VerticalLayout vl = new VerticalLayout();
-		vl.setSpacing(true);
-		vl.setWidth("100%");
-		for (com.vaadin.ui.Component c : components) {
-			vl.addComponent(c);
-		}
-		return vl;
-	}
+    public static String getLocalizedMessage(String key) {
+        return getThreadI18nSource().getMessage(key);
+    }
+
+    public static ProcessToolContextFactory getProcessToolContext(ApplicationContext applicationContext) {
+        ProcessToolRegistry factory = null;
+        if (applicationContext instanceof PortletApplicationContext2) {
+            PortletApplicationContext2 portletCtx = (PortletApplicationContext2) applicationContext;
+            factory = (ProcessToolRegistry) portletCtx.getPortletConfig()
+                    .getPortletContext()
+                    .getAttribute(ProcessToolRegistry.class.getName());
+
+        }
+        return factory.getProcessToolContextFactory();
+    }
+
+    public static HorizontalLayout horizontalLayout(String width, com.vaadin.ui.Component... components) {
+        HorizontalLayout hl = new HorizontalLayout();
+        hl.setWidth(width);
+        for (com.vaadin.ui.Component c : components) {
+            hl.addComponent(c);
+        }
+        return hl;
+    }
+
+    public static VerticalLayout verticalLayout(com.vaadin.ui.Component... components) {
+        VerticalLayout vl = new VerticalLayout();
+        vl.setSpacing(true);
+        vl.setWidth("100%");
+        for (com.vaadin.ui.Component c : components) {
+            vl.addComponent(c);
+        }
+        return vl;
+    }
 
     public static Select select(String caption, Container container, String itemCaptionPropertyId) {
         Select select = new Select(caption);
@@ -73,32 +88,32 @@ public class VaadinUtility {
         return select;
     }
 
-	public static Panel panel(String title, com.vaadin.ui.Component... components) {
-		Panel p = new Panel();
-		p.setWidth("100%");
-		p.setCaption(title);
-		for (com.vaadin.ui.Component c : components) {
-			p.addComponent(c);
-		}
-		return p;
-	}
+    public static Panel panel(String title, com.vaadin.ui.Component... components) {
+        Panel p = new Panel();
+        p.setWidth("100%");
+        p.setCaption(title);
+        for (com.vaadin.ui.Component c : components) {
+            p.addComponent(c);
+        }
+        return p;
+    }
 
-	public static Label label(String message, int width) {
-		Label l = new Label(message);
-		l.setWidth(width +"px");
-		return l;
-	}
+    public static Label label(String message, int width) {
+        Label l = new Label(message);
+        l.setWidth(width + "px");
+        return l;
+    }
 
-	public static HorizontalLayout horizontalLayout(com.vaadin.ui.Component c1, com.vaadin.ui.Component c2) {
-		HorizontalLayout hl = new HorizontalLayout();
-		hl.setWidth("100%");
+    public static HorizontalLayout horizontalLayout(com.vaadin.ui.Component c1, com.vaadin.ui.Component c2) {
+        HorizontalLayout hl = new HorizontalLayout();
+        hl.setWidth("100%");
         hl.setSpacing(true);
         hl.addComponent(c1);
         hl.addComponent(c2);
         hl.setComponentAlignment(c2, Alignment.TOP_RIGHT);
         hl.setExpandRatio(c1, 1.0f);
-		return hl;
-	}
+        return hl;
+    }
 
     public static HorizontalLayout horizontalLayout(Alignment alignment, com.vaadin.ui.Component... components) {
         HorizontalLayout hl = new HorizontalLayout();
@@ -111,8 +126,7 @@ public class VaadinUtility {
             }
             if (alignment.isRight()) {
                 hl.setExpandRatio(hl.getComponent(0), 1.0f);
-            }
-            else if (alignment.isLeft()) {
+            } else if (alignment.isLeft()) {
                 hl.setExpandRatio(hl.getComponent(hl.getComponentCount() - 1), 1.0f);
             }
         }
@@ -126,7 +140,7 @@ public class VaadinUtility {
     }
 
     public static LocalizedPagedTable pagedTable(final Container container, String[] visibleViewColumns, String[] columnViewHeaders,
-                                                       Map<String, ColumnGenerator> customViewColumns, ItemClickListener itemClickListener) {
+                                                 Map<String, ColumnGenerator> customViewColumns, ItemClickListener itemClickListener) {
         LocalizedPagedTable table = new LocalizedPagedTable();
         table.setSizeFull();
         table.setPageLength(10);
@@ -250,5 +264,22 @@ public class VaadinUtility {
         }
         errorMessage += "</ul>";
         return errorMessage;
+    }
+
+    public static <T extends Component> T styled(T c, String style) {
+        c.addStyleName(style);
+        return c;
+    }
+
+    public static Button linkButton(String caption, final Runnable onClick) {
+        Button b = new Button(caption);
+        b.setStyleName(Reindeer.BUTTON_LINK);
+        b.addListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent event) {
+                onClick.run();
+            }
+        });
+        return b;
     }
 }

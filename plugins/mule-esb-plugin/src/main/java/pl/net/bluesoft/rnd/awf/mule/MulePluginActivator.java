@@ -107,12 +107,14 @@ public class MulePluginActivator implements BundleActivator {
                                                         Class aClass = bundle.loadClass(s);
                                                         if (aClass != null) return aClass;
                                                     } catch (Exception e) {
-                                                        e.printStackTrace();
+                                                        //ignore
+//                                                        e.printStackTrace();
                                                     }
                                                     try {
                                                         return MulePluginActivator.class.getClassLoader().loadClass(s);
                                                     } catch (Exception e) {
-                                                        e.printStackTrace();
+                                                        //ignore
+//                                                        e.printStackTrace();
                                                     }
                                                     return super.loadClass(s);    //To change body of overridden methods use File | Settings | File Templates.
                                                 }

@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<web-app xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="WebApp_ID"
+        <!--  xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"-->
+<web-app id="AperteWorkflowGui"
          version="2.4"
-         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
-    <display-name>ptp</display-name>
+         >
+    <display-name>AperteWorkflowGui</display-name>
     <context-param>
         <description>Vaadin production mode</description>
         <param-name>productionMode</param-name>
@@ -356,50 +358,10 @@
         <url-pattern>/osgi</url-pattern>
     </servlet-mapping>
 
-    <welcome-file-list>
-        <welcome-file>index.html</welcome-file>
-        <welcome-file>index.htm</welcome-file>
-        <welcome-file>index.jsp</welcome-file>
-        <welcome-file>default.html</welcome-file>
-        <welcome-file>default.htm</welcome-file>
-        <welcome-file>default.jsp</welcome-file>
-    </welcome-file-list>
-    <jsp-config>
-        <taglib>
-            <taglib-uri>http://liferay.com/tld/aui</taglib-uri>
-            <taglib-location>/WEB-INF/tld/liferay-aui.tld</taglib-location>
-        </taglib>
-        <taglib>
-            <taglib-uri>http://java.sun.com/portlet_2_0</taglib-uri>
-            <taglib-location>/WEB-INF/tld/liferay-portlet.tld</taglib-location>
-        </taglib>
-        <taglib>
-            <taglib-uri>http://liferay.com/tld/portlet</taglib-uri>
-            <taglib-location>/WEB-INF/tld/liferay-portlet-ext.tld</taglib-location>
-        </taglib>
-        <taglib>
-            <taglib-uri>http://liferay.com/tld/security</taglib-uri>
-            <taglib-location>/WEB-INF/tld/liferay-security.tld</taglib-location>
-        </taglib>
-        <taglib>
-            <taglib-uri>http://liferay.com/tld/theme</taglib-uri>
-            <taglib-location>/WEB-INF/tld/liferay-theme.tld</taglib-location>
-        </taglib>
-        <taglib>
-            <taglib-uri>http://liferay.com/tld/ui</taglib-uri>
-            <taglib-location>/WEB-INF/tld/liferay-ui.tld</taglib-location>
-        </taglib>
-        <taglib>
-            <taglib-uri>http://liferay.com/tld/util</taglib-uri>
-            <taglib-location>/WEB-INF/tld/liferay-util.tld</taglib-location>
-        </taglib>
-    </jsp-config>
-
     <resource-ref>
-        <description>postgreSQL Datasource example</description>
+        <description>Aperte Workflow Datasource Reference</description>
         <res-ref-name>jdbc/aperte-workflow-ds</res-ref-name>
         <res-type>javax.sql.DataSource</res-type>
         <res-auth>Container</res-auth>
     </resource-ref>
-
 </web-app>

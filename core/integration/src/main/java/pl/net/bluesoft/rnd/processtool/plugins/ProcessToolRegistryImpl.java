@@ -25,11 +25,15 @@ import pl.net.bluesoft.util.eventbus.EventBusManager;
 import pl.net.bluesoft.util.lang.FormatUtil;
 import pl.net.bluesoft.util.lang.StringUtil;
 
+import javax.naming.InitialContext;
+import javax.transaction.UserTransaction;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.logging.Logger;
+
+import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -44,6 +48,7 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	private SessionFactory sessionFactory;
 	private EventBusManager eventBusManager = new EventBusManager();
     private PluginManager pluginManager;
+    private boolean jta;
 
 	public synchronized void unregisterWidget(String name) {
 		WIDGET_REGISTRY.remove(name);
@@ -161,6 +166,13 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 
 	public void buildSessionFactory() {
 
+        UserTransaction ut;
+        try {
+            ut = (UserTransaction) new InitialContext().lookup("java:comp/UserTransaction");
+        } catch (Exception e) {
+            ut = null;
+        }
+
         Configuration configuration = new Configuration().configure();
 		for (Class cls : annotatedClasses.values()) {
 			configuration.addAnnotatedClass(cls);
@@ -173,16 +185,49 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 			}
 		}
 
-		/*cfg.setProperty("hibernate.connection.autocommit", "false");
-		cfg.setProperty("hibernate.hbm2ddl.auto", "none");
-		cfg.setProperty("hibernate.hbm2ddl", "none");
-		cfg.setProperty("hibernate.jdbc.batch_size", "50");
-		cfg.setProperty("hibernate.show_sql", "true");
-		cfg.setProperty("hibernate.use_outer_join", "true");
-		cfg.setProperty("hibernate.cglib.use_reflection_optimizer", "true");*/
+        String managerLookupClassName=null;
+        if (ut != null && !"true".equalsIgnoreCase(System.getProperty("org.aperteworkflow.nojta"))) { //try to autodetect JTA settings
+            logger.warning("UserTransaction found, attempting to autoconfigure Hibernate to use JTA");
+            //<property name="h</property>
+            managerLookupClassName = System.getProperty("org.aperteworkflow.hibernate.transaction.manager_lookup_class");
+            if (managerLookupClassName == null) {
+                try {
+                    Class.forName("bitronix.tm.BitronixTransactionManager").getName();
+                    managerLookupClassName = "org.hibernate.transaction.BTMTransactionManagerLookup";
+                    logger.warning("Found class bitronix.tm.BitronixTransactionManager, Bitronix TM detected!");
+                } catch (ClassNotFoundException e) {
+                    //nothing, go on.
+                }
+            }
+            if (managerLookupClassName == null) {
+                if (System.getProperty("jboss.home.dir") != null) {
+                    logger.warning("Found JBoss AS environment, using JBoss Arjuna TM");
+                    managerLookupClassName = "org.hibernate.transaction.BTMTransactionManagerLookup";
+                }
+            }
+            logger.warning("Configured hibernate.transaction.manager_lookup_class to " + managerLookupClassName);
+        }
+        if (managerLookupClassName != null) {
+            configuration.setProperty("hibernate.transaction.factory_class",
+                    nvl(System.getProperty("org.aperteworkflow.hibernate.transaction.factory_class"),
+                            "org.hibernate.transaction.JTATransactionFactory"));
+            configuration.setProperty("hibernate.transaction.manager_lookup_class", managerLookupClassName);
+            configuration.setProperty("current_session_context_class", "jta");
+            jta = true;
+        } else {
+            logger.warning("UserTransaction or factory class not found, attempting to autoconfigure Hibernate to use per-Thread session context");
+            configuration.setProperty("current_session_context_class", "thread");
+        }
 
+        if (jta) {
+            try {
+                ut.begin();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
 
-		ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
 		try {
 			Thread.currentThread().setContextClassLoader(new ExtClassLoader(cl));
 			sessionFactory = configuration.buildSessionFactory();
@@ -193,7 +238,15 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 		if (processToolContextFactory != null) {
 			processToolContextFactory.updateSessionFactory(sessionFactory);
 		}
-	}
+
+        if (jta) {
+            try {
+                ut.commit();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
 
 	public <T extends ProcessToolWidget> T makeWidget(Class<? extends ProcessToolWidget> aClass) throws IllegalAccessException, InstantiationException {
 		return (T) aClass.newInstance();
@@ -503,4 +556,8 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
     }
 
 
+    @Override
+    public boolean isJta() {
+        return jta;
+    }
 }

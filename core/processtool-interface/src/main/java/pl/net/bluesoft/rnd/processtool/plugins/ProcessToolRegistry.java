@@ -124,4 +124,6 @@ public interface ProcessToolRegistry {
 
     <T> T getRegisteredService(Class<T> serviceClass);
 
+    boolean isJta();
+
 }

@@ -282,4 +282,9 @@ public class VaadinUtility {
         });
         return b;
     }
+    
+    public static <T extends Component> T width(T c, String width) {
+        c.setWidth(width);
+        return c;
+    }
 }

@@ -32,7 +32,7 @@
 
                                 <!-- signavio build properties -->
                                 <property name="api" value="api" />
-                                <property name="war" value="${artifactId}"/>
+                                <property name="war" value="${artifactId}-${version}"/>
                                 <property name="version" value="${version}"/>
                                 <property name="target" value="target"/>
 

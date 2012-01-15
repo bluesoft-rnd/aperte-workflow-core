@@ -316,7 +316,7 @@
     </servlet-mapping>
 
     <resource-ref>
-        <description>postgreSQL Datasource example</description>
+        <description>Aperte Workflow Datasource Reference</description>
         <res-ref-name>jdbc/aperte-workflow-ds</res-ref-name>
         <res-type>javax.sql.DataSource</res-type>
         <res-auth>Container</res-auth>

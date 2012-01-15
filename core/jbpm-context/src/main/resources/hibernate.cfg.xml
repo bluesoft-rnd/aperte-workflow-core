@@ -11,6 +11,7 @@
         <!--<property name="hibernate.connection.username">jbpm</property>-->
         <!--<property name="hibernate.connection.password">jbpm</property>-->
         <property name="hibernate.connection.datasource">java:comp/env/jdbc/aperte-workflow-ds</property>
+        <!--<property name="connection.release_mode">after_statement</property>-->
         <property name="hibernate.hbm2ddl.auto">update</property>
         <property name="hibernate.format_sql">true</property>
         <property name="hibernate.use_outer_join">true</property>
@@ -26,9 +27,12 @@
         <!--<property name="hibernate.show_sql">true</property>-->
 
         <!--<property name="hibernate.transaction.manager_lookup_class">org.hibernate.transaction.JBossTransactionManagerLookup</property>-->
-        <!--<property name="hibernate.transaction.factory_class">org.hibernate.ejb.transaction.JoinableCMTTransactionFactory</property>-->
 
-        <property name="current_session_context_class">thread</property>
+        <!-- moved these settings to ProcessToolRegistryImpl.java -->
+        <!--<property name="hibernate.transaction.manager_lookup_class">org.hibernate.transaction.BTMTransactionManagerLookup</property>-->
+        <!--<property name="hibernate.transaction.factory_class">org.hibernate.transaction.JTATransactionFactory</property>-->
+        <!--<property name="current_session_context_class">jta</property>-->
+
         <mapping resource="jbpm.repository.hbm.xml"/>
         <mapping resource="jbpm.execution.hbm.xml"/>
         <mapping resource="jbpm.history.hbm.xml"/>

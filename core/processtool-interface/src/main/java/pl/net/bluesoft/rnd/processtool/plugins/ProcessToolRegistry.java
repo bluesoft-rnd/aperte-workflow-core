@@ -110,4 +110,6 @@ public interface ProcessToolRegistry {
 
     void setPluginManager(PluginManager pluginManager);
 
+    boolean isJta();
+
 }

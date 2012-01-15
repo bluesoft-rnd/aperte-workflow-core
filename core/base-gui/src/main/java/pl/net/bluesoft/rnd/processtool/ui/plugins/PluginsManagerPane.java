@@ -12,6 +12,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -83,36 +84,36 @@ public class PluginsManagerPane extends VerticalLayout {
         List<PluginMetadata> registeredPlugins = new ArrayList<PluginMetadata>(pluginManager.getRegisteredPlugins());
         Collections.sort(registeredPlugins);
 
-        for (final PluginMetadata pi : registeredPlugins) {
+        for (final PluginMetadata metadata : registeredPlugins) {
             HorizontalLayout buttonLayout = new HorizontalLayout();
             buttonLayout.setSpacing(true);
 
-            if (pi.isCanEnable()) {
+            if (metadata.isCanEnable()) {
                 buttonLayout.addComponent(linkButton(getLocalizedMessage("plugins.console.enable"), new Runnable() {
                     @Override
                     public void run() {
-                        ProcessToolContext.Util.getProcessToolContextFromThread().getRegistry().getPluginManager().enablePlugin(pi);
+                        ProcessToolContext.Util.getProcessToolContextFromThread().getRegistry().getPluginManager().enablePlugin(metadata);
                         getApplication().getMainWindow().showNotification(getLocalizedMessage("plugins.console.enable.success"));
                         displayBundleList();
                     }
                 }));
             }
-            if (pi.isCanDisable()) {
+            if (metadata.isCanDisable()) {
                 buttonLayout.addComponent(linkButton(getLocalizedMessage("plugins.console.disable"), new Runnable() {
                     @Override
                     public void run() {
-                        ProcessToolContext.Util.getProcessToolContextFromThread().getRegistry().getPluginManager().disablePlugin(pi);
+                        ProcessToolContext.Util.getProcessToolContextFromThread().getRegistry().getPluginManager().disablePlugin(metadata);
                         getApplication().getMainWindow().showNotification(getLocalizedMessage("plugins.console.disable.success"));
                         displayBundleList();
 
                     }
                 }));
             }
-            if (pi.isCanUninstall()) {
+            if (metadata.isCanUninstall()) {
                 buttonLayout.addComponent(linkButton(getLocalizedMessage("plugins.console.uninstall"), new Runnable() {
                     @Override
                     public void run() {
-                        ProcessToolContext.Util.getProcessToolContextFromThread().getRegistry().getPluginManager().uninstallPlugin(pi);
+                        ProcessToolContext.Util.getProcessToolContextFromThread().getRegistry().getPluginManager().uninstallPlugin(metadata);
                         getApplication().getMainWindow().showNotification(getLocalizedMessage("plugins.console.uninstall.success"));
                         displayBundleList();
                     }
@@ -122,23 +123,23 @@ public class PluginsManagerPane extends VerticalLayout {
 //            for (int i =0; i < buttonLayout.getComponentCount(); i++) {
 //                buttonLayout.setComponentAlignment(buttonLayout.getComponent(i), Alignment.BOTTOM_LEFT);
 //            }
-            if (pi.getHomepageUrl() != null) {
-                Link c = new Link(getLocalizedMessage("plugins.console.plugin.homepage"), new ExternalResource(pi.getHomepageUrl()));
+            if (metadata.getHomepageUrl() != null) {
+                Link c = new Link(getLocalizedMessage("plugins.console.plugin.homepage"), new ExternalResource( metadata.getHomepageUrl()));
                 c.setTargetName("_blank");
                 buttonLayout.addComponent(c);
             }
-            if (pi.getDocumentationUrl() != null) {
+            if (metadata.getDocumentationUrl() != null) {
                 Link c = new Link(getLocalizedMessage("plugins.console.plugin.documentation"),
-                        new ExternalResource(pi.getDocumentationUrl()));
+                        new ExternalResource( metadata.getDocumentationUrl()));
                 c.setTargetName("_blank");
                 buttonLayout.addComponent(c);
             }
             bundleList.addComponent(verticalLayout(
-                    styled(new Label(pi.getId() + ": " + pi.getName() + " (" + pi.getVersion() + ")"), "h2"),
+                    styled(new Label(metadata.getId() + ": " + metadata.getName() + " (" + metadata.getVersion() + ")"), "h2"),
                     styled(new Label(getLocalizedMessage("plugins.console.status") +
                             " " +
-                            getLocalizedMessage(pi.getStateDescription())), "small"),
-                    new Label(pi.getDescription()),
+                            getLocalizedMessage(metadata.getStateDescription())), "small"),
+                    new Label(metadata.getDescription()),
                     buttonLayout
             ));
         }

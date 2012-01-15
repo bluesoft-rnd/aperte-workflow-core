@@ -339,6 +339,9 @@ public class PluginHelper implements PluginManager {
     public synchronized void initializePluginSystem(String pluginsDir, String storageDir, ProcessToolRegistry registry)
             throws BundleException {
         this.pluginsDir = pluginsDir.replace('/', File.separatorChar);
+        this.registry = registry;
+        registry.setPluginManager(this);
+
         state = State.INITIALIZING;
         LOGGER.fine("initializePluginSystem.start!");
         initializeFelix(storageDir, registry);

@@ -43,7 +43,7 @@ ORYX.Plugins.QueueEditor = Clazz.extend({
 			'name': ORYX.I18N.QueueEditor.queueEditor,
 			'functionality': this.runQueueEditor.bind(this),
 			'group': ORYX.I18N.QueueEditor.group,
-			'icon': ORYX.PATH + "images/disk.png",
+			'icon': ORYX.PATH + "images/queue_editor.png",
 			'description': ORYX.I18N.QueueEditor.desc,
 			'index': 1,
 			'minShape': 0,

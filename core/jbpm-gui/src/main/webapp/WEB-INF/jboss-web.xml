@@ -16,11 +16,11 @@
         <res-type>javax.sql.DataSource</res-type>
         <jndi-name>java:jdbc/aperte-workflow-ds</jndi-name>
     </resource-ref>
-    <resource-ref>
-        <res-ref-name>comp/UserTransaction</res-ref-name>
-        <res-type>javax.transaction.UserTransaction</res-type>
-        <jndi-name>java:comp/UserTransaction</jndi-name>
-    </resource-ref>
+    <!--<resource-ref>-->
+        <!--<res-ref-name>comp/UserTransaction</res-ref-name>-->
+        <!--<res-type>javax.transaction.UserTransaction</res-type>-->
+        <!--<jndi-name>java:comp/UserTransaction</jndi-name>-->
+    <!--</resource-ref>-->
 
 
 </jboss-web>

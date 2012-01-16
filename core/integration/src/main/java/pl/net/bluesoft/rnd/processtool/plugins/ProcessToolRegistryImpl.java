@@ -252,6 +252,7 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
                             "org.hibernate.transaction.JTATransactionFactory"));
             configuration.setProperty("hibernate.transaction.manager_lookup_class", managerLookupClassName);
             configuration.setProperty("current_session_context_class", "jta");
+            configuration.setProperty("jta.UserTransaction", "UserTransaction");
             jta = true;
         } else {
             logger.warning("UserTransaction or factory class not found, attempting to autoconfigure Hibernate to use per-Thread session context");

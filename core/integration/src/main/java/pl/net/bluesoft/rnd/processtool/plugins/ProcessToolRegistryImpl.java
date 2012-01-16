@@ -25,7 +25,8 @@ import pl.net.bluesoft.util.eventbus.EventBusManager;
 import pl.net.bluesoft.util.lang.StringUtil;
 
 import javax.naming.InitialContext;
-import javax.transaction.UserTransaction;
+import javax.naming.NamingException;
+import javax.transaction.*;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,7 +43,7 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
  */
 public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 
-	private Logger logger = Logger.getLogger(ProcessToolRegistryImpl.class.getName());
+	private static Logger logger = Logger.getLogger(ProcessToolRegistryImpl.class.getName());
 
 	private final Map<String, Class<? extends ProcessToolWidget>> WIDGET_REGISTRY = new HashMap();
 	private final Map<String, Class<? extends ProcessToolActionButton>> BUTTON_REGISTRY = new HashMap();
@@ -153,13 +154,63 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	  	hibernateResources.remove(name);
 	}
 
+    public static class UserTransactionAdapter implements UserTransaction {
+
+        private TransactionManager tm;
+
+        public UserTransactionAdapter(TransactionManager tm) {
+            this.tm = tm;
+        }
+
+        public void setTransactionTimeout(int timeout) throws SystemException {
+            tm.setTransactionTimeout(timeout);
+        }
+
+        public void begin() throws NotSupportedException, SystemException {
+            logger.warning("UserTransactionAdapter.begin, status=" + tm.getStatus() + ", " + tm.getTransaction());
+            tm.begin();
+        }
+
+        public void commit()
+                throws RollbackException, HeuristicMixedException, HeuristicRollbackException,
+                SecurityException, SystemException {
+            tm.commit();
+        }
+
+        public void rollback() throws SecurityException, SystemException {
+            tm.rollback();
+        }
+
+        public void setRollbackOnly() throws SystemException {
+            tm.setRollbackOnly();
+        }
+
+        public int getStatus() throws SystemException {
+            return tm.getStatus();
+        }
+    }
+
 	public void buildSessionFactory() {
 
-        UserTransaction ut;
+        jta = false;
+        UserTransaction ut=null;
         try {
             ut = (UserTransaction) new InitialContext().lookup("java:comp/UserTransaction");
         } catch (Exception e) {
-            ut = null;
+            try {
+                logger.warning("Looking for TM...");
+                TransactionManager tm = (TransactionManager) new InitialContext().lookup("java:/TransactionManager");
+                logger.warning("Found TM :" + tm + " ? " + (tm instanceof UserTransaction));
+                if (tm instanceof  UserTransaction) {
+                    ut = (UserTransaction) tm;
+                } else {
+                    ut = new UserTransactionAdapter(tm);
+                }
+//                ut = tm.getTransaction().;
+//                ut = (UserTransaction) new InitialContext().lookup("java:jboss/UserTransaction");
+            } catch (NamingException e1) {
+                e1.printStackTrace();
+            }
         }
 
         Configuration configuration = new Configuration().configure();
@@ -177,7 +228,6 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
         String managerLookupClassName=null;
         if (ut != null && !"true".equalsIgnoreCase(System.getProperty("org.aperteworkflow.nojta"))) { //try to autodetect JTA settings
             logger.warning("UserTransaction found, attempting to autoconfigure Hibernate to use JTA");
-            //<property name="h</property>
             managerLookupClassName = System.getProperty("org.aperteworkflow.hibernate.transaction.manager_lookup_class");
             if (managerLookupClassName == null) {
                 try {
@@ -191,7 +241,7 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
             if (managerLookupClassName == null) {
                 if (System.getProperty("jboss.home.dir") != null) {
                     logger.warning("Found JBoss AS environment, using JBoss Arjuna TM");
-                    managerLookupClassName = "org.hibernate.transaction.BTMTransactionManagerLookup";
+                    managerLookupClassName = "org.hibernate.transaction.JBossTransactionManagerLookup";
                 }
             }
             logger.warning("Configured hibernate.transaction.manager_lookup_class to " + managerLookupClassName);
@@ -208,13 +258,13 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
             configuration.setProperty("current_session_context_class", "thread");
         }
 
-        if (jta) {
-            try {
-                ut.begin();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
+//        if (jta && ut != null) {
+//            try {
+//                ut.begin();
+//            } catch (Exception e) {
+//                throw new RuntimeException(e);
+//            }
+//        }
 
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
 		try {
@@ -228,13 +278,13 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 			processToolContextFactory.updateSessionFactory(sessionFactory);
 		}
 
-        if (jta) {
-            try {
-                ut.commit();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
+//        if (jta && ut != null) {
+//            try {
+//                ut.commit();
+//            } catch (Exception e) {
+//                throw new RuntimeException(e);
+//            }
+//        }
     }
 
 	public <T extends ProcessToolWidget> T makeWidget(Class<? extends ProcessToolWidget> aClass) throws IllegalAccessException, InstantiationException {

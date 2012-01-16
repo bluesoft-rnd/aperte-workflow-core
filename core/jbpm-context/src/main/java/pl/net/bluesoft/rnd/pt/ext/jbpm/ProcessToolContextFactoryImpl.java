@@ -14,7 +14,8 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 
 import javax.naming.InitialContext;
-import javax.transaction.UserTransaction;
+import javax.naming.NamingException;
+import javax.transaction.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -30,7 +31,7 @@ import java.util.logging.Logger;
  */
 public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory {
 
-    private Logger logger = Logger.getLogger(ProcessToolContextFactoryImpl.class.getName());
+    private static Logger logger = Logger.getLogger(ProcessToolContextFactoryImpl.class.getName());
     private Configuration configuration;
     private ProcessToolRegistry registry;
 
@@ -79,11 +80,64 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory 
 
     }
 
+    public static class UserTransactionAdapter implements UserTransaction {
+
+        private TransactionManager tm;
+
+        public UserTransactionAdapter(TransactionManager tm) {
+            this.tm = tm;
+        }
+
+        public void setTransactionTimeout(int timeout) throws SystemException {
+            tm.setTransactionTimeout(timeout);
+        }
+
+        public void begin() throws NotSupportedException, SystemException {
+            logger.warning("UserTransactionAdapter.begin, status=" + tm.getStatus() + ", " + tm.getTransaction());
+            tm.begin();
+        }
+
+        public void commit()
+                throws RollbackException, HeuristicMixedException, HeuristicRollbackException,
+                SecurityException, SystemException {
+            tm.commit();
+        }
+
+        public void rollback() throws SecurityException, SystemException {
+            tm.rollback();
+        }
+
+        public void setRollbackOnly() throws SystemException {
+            tm.setRollbackOnly();
+        }
+
+        public int getStatus() throws SystemException {
+            return tm.getStatus();
+        }
+    }
 
     public void withProcessToolContextJta(ProcessToolContextCallback callback) {
         try {
-            UserTransaction ut = (UserTransaction) new InitialContext().lookup("java:comp/UserTransaction");
-            ut.begin();
+            UserTransaction ut=null;
+            try {
+                ut = (UserTransaction) new InitialContext().lookup("java:comp/UserTransaction");
+            } catch (Exception e) {
+                try {
+                    logger.warning("Looking for TM...");
+                    TransactionManager tm = (TransactionManager) new InitialContext().lookup("java:/TransactionManager");
+                    logger.warning("Found TM :" + tm + " ? " + (tm instanceof UserTransaction));
+                    if (tm instanceof  UserTransaction) {
+                        ut = (UserTransaction) tm;
+                    } else {
+                        ut = new UserTransactionAdapter(tm);
+                    }
+                } catch (NamingException e1) {
+                    e1.printStackTrace();
+                }
+            }
+            
+            
+//            ut.begin();
             Session session = registry.getSessionFactory().getCurrentSession();
             try {
                 ProcessEngine pi = getProcessEngine();

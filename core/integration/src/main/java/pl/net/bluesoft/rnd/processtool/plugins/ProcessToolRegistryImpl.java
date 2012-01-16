@@ -159,7 +159,6 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
         jta = false;
         boolean startJtaTransaction = true;
         UserTransaction ut=null;
-//        String userTransactionJndiName=null;
         try {
             ut = (UserTransaction) new InitialContext().lookup("java:comp/UserTransaction");
         } catch (Exception e) {
@@ -212,10 +211,6 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
                             "org.hibernate.transaction.JTATransactionFactory"));
             configuration.setProperty("hibernate.transaction.manager_lookup_class", managerLookupClassName);
             configuration.setProperty("current_session_context_class", "jta");
-//            if (userTransactionJndiName != null) {
-//                logger.warning("Setting hibernate jta.UserTransaction to" + userTransactionJndiName);
-//                configuration.setProperty("jta.UserTransaction", userTransactionJndiName);
-//            }
             jta = true;
         } else {
             logger.warning("UserTransaction or factory class not found, attempting to autoconfigure Hibernate to use per-Thread session context");
@@ -257,7 +252,7 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 
 	private final Map<String, I18NProvider> registeredI18NProviders = new HashMap();
 
-	{   //init default provider, regardless of OSGi stuff
+    {   //init default provider, regardless of OSGi stuff
 		final ClassLoader classloader = getClass().getClassLoader();
 		registeredI18NProviders.put("", new PropertiesBasedI18NProvider(new PropertyLoader() {
 			@Override

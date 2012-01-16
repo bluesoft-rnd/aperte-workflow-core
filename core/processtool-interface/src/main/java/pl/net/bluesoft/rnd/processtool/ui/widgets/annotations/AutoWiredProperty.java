@@ -11,4 +11,5 @@ import java.lang.annotation.*;
 public @interface AutoWiredProperty {
 	public static final String DEFAULT = "!";
     String name() default DEFAULT;
+    boolean required() default false;
 }

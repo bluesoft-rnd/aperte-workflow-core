@@ -24,7 +24,7 @@
         <dependency>
             <groupId>org.apache.chemistry.opencmis</groupId>
             <artifactId>chemistry-opencmis-client-impl</artifactId>
-            <version>0.2.0-incubating</version>
+            <version>0.6.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.sun.xml.ws</groupId>

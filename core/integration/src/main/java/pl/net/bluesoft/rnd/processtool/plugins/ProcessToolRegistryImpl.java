@@ -22,6 +22,7 @@ import pl.net.bluesoft.rnd.util.i18n.I18NProvider;
 import pl.net.bluesoft.rnd.util.i18n.impl.PropertiesBasedI18NProvider;
 import pl.net.bluesoft.rnd.util.i18n.impl.PropertyLoader;
 import pl.net.bluesoft.util.eventbus.EventBusManager;
+import pl.net.bluesoft.util.lang.FormatUtil;
 import pl.net.bluesoft.util.lang.StringUtil;
 
 import javax.naming.InitialContext;
@@ -29,10 +30,7 @@ import javax.transaction.UserTransaction;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
@@ -44,6 +42,7 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 
 	private Logger logger = Logger.getLogger(ProcessToolRegistryImpl.class.getName());
 
+    private final List<ProcessToolServiceBridge> SERVICE_BRIDGE_REGISTRY = new LinkedList<ProcessToolServiceBridge>();
 	private final Map<String, Class<? extends ProcessToolWidget>> WIDGET_REGISTRY = new HashMap();
 	private final Map<String, Class<? extends ProcessToolActionButton>> BUTTON_REGISTRY = new HashMap();
 	private SessionFactory sessionFactory;
@@ -51,7 +50,7 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
     private PluginManager pluginManager;
     private boolean jta;
 
-    public synchronized void unregisterWidget(String name) {
+	public synchronized void unregisterWidget(String name) {
 		WIDGET_REGISTRY.remove(name);
 	}
 
@@ -134,16 +133,28 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
         this.pluginManager = pluginManager;
     }
 
-    @Override
-    public boolean isJta() {
-        return jta;        
-    }
-
-
-    public synchronized void addAnnotatedClass(Class cls) {
-		annotatedClasses.put(cls.getName(), cls);
+    public synchronized boolean addAnnotatedClass(Class<?>... classes) {
+        boolean needUpdate = false;
+        for (Class cls : classes) {
+            Class annotatedClass = annotatedClasses.get(cls.getName());
+            if (annotatedClass == null || !annotatedClass.equals(cls)) {
+                needUpdate = true;
+                annotatedClasses.put(cls.getName(), cls);
+            }
+        }
+        return needUpdate;
 	}
 
+    public synchronized boolean removeAnnotatedClass(Class... classes) {
+        boolean needUpdate = false;
+        for (Class cls : classes) {
+            if (annotatedClasses.containsKey(cls.getName())) {
+                needUpdate = true;
+                annotatedClasses.remove(cls.getName());
+            }
+        }
+        return needUpdate;
+    }
 
 	public synchronized void addHibernateResource(String name, byte[] resource) {
 	  	hibernateResources.put(name, resource);
@@ -302,9 +313,9 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	ProcessToolContextFactory processToolContextFactory;
 
 	@Override
-	public void registerModelExtension(Class<?> cls) {
-		addAnnotatedClass(cls);
-        logger.info("Registered model extension: " + cls.getName());
+	public boolean registerModelExtension(Class<?>... cls) {
+        logger.warning("Registered model extensions: " + FormatUtil.joinClassNames(cls));
+		return addAnnotatedClass(cls);
 	}
 
 	@Override
@@ -334,9 +345,10 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	}
 
     @Override
-	public void unregisterModelExtension(Class<?> cls) {
+	public boolean unregisterModelExtension(Class<?>... cls) {
+        logger.warning("Unregistered model extensions: " + FormatUtil.joinClassNames(cls));
+        return removeAnnotatedClass(cls);
 	}
-
 
 	@Override
 	public void registerWidget(Class<?> cls) {
@@ -433,6 +445,10 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 
     @Override
     public void registerDictionaries(InputStream dictionariesStream) {
+        if (dictionariesStream == null) {
+            return;
+        }
+
         ProcessDictionaries dictionaries = (ProcessDictionaries) DictionaryLoader.getInstance().unmarshall(dictionariesStream);
         String processBpmKey = dictionaries.getProcessBpmDefinitionKey();
         if (!StringUtil.hasText(processBpmKey)) {
@@ -473,11 +489,75 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
     public void deployOrUpdateProcessDefinition(InputStream jpdlStream,
                                                 InputStream processToolConfigStream,
                                                 InputStream queueConfigStream,
-                                                InputStream logoStream,
-	                                            InputStream imageStream) {
+                                                InputStream imageStream,
+                                                InputStream logoStream) {
         if (processToolContextFactory == null) {
             throw new RuntimeException("No process tool context factory implementation registered");
         }
         processToolContextFactory.deployOrUpdateProcessDefinition(jpdlStream, processToolConfigStream, queueConfigStream, imageStream, logoStream);
+    }
+
+    @Override
+    public void addServiceLoader(ProcessToolServiceBridge serviceBridge) {
+        if (serviceBridge != null) {
+            SERVICE_BRIDGE_REGISTRY.add(serviceBridge);
+            logger.warning("Registered service bridge: " + serviceBridge.getClass().getName());
+        }
+    }
+
+    @Override
+    public void removeServiceLoader(ProcessToolServiceBridge serviceBridge) {
+        if (serviceBridge != null) {
+            SERVICE_BRIDGE_REGISTRY.remove(serviceBridge);
+            logger.warning("Removed service bridge: " + serviceBridge.getClass().getName());
+        }
+    }
+
+    @Override
+    public List<ProcessToolServiceBridge> getServiceLoaders() {
+        return SERVICE_BRIDGE_REGISTRY;
+    }
+
+    @Override
+    public void removeRegisteredService(Class<?> serviceClass) {
+        boolean result = false;
+        for (ProcessToolServiceBridge bridge : SERVICE_BRIDGE_REGISTRY) {
+            if (result = bridge.removeService(serviceClass)) {
+                break;
+            }
+        }
+        logger.warning((result ? "Succeeded to" : "Failed to") + " remove registered service: " + serviceClass.getName());
+    }
+
+    @Override
+    public <T> void registerService(Class<T> serviceClass, T instance, Properties properties) {
+        boolean result = false;
+        for (ProcessToolServiceBridge bridge : SERVICE_BRIDGE_REGISTRY) {
+            if (result = bridge.registerService(serviceClass, instance, properties)) {
+                break;
+            }
+        }
+        logger.warning((result ? "Succeeded to" : "Failed to") + " register service: " + serviceClass.getName());
+    }
+
+    @Override
+    public <T> T getRegisteredService(Class<T> serviceClass) {
+        Object service = null;
+        for (ProcessToolServiceBridge bridge : SERVICE_BRIDGE_REGISTRY) {
+            service = bridge.loadService(serviceClass);
+            if (service != null) {
+                break;
+            }
+        }
+        if (service == null) {
+            throw new NoSuchServiceException("Service " + serviceClass.getName() + " not found!");
+        }
+        return (T) service;
+    }
+
+
+    @Override
+    public boolean isJta() {
+        return jta;
     }
 }

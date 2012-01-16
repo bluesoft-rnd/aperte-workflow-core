@@ -1,0 +1,172 @@
+{
+	"title" : "Aperte Core Elements",
+	"title_de":"Aperte Core Elements",
+	"namespace":"http://oryx-editor.org/stencilsets/extensions/bpmn2.0basicsubset#",
+	"description":"A basic subset of BPMN 2.0 containing only task, sequence flow, start event, end event, parallel gateway and data-based XOR.",
+	"extends":"http://b3mn.org/stencilset/bpmn2.0#",
+	"stencils":[],
+	"properties":[
+        {
+            "roles": [
+				"Task"
+			],
+			"properties": [
+				{
+					"id":"aperte-conf",
+					"type":"String",
+					"title":"Aperte Configuration",
+					"description":"Extended configuration for aperte reports",
+					"readonly":false,
+					"optional":true
+				} ,
+                {
+					"id":"aperte-urlmap",
+					"type":"String",
+					"title":"Aperte function list",
+					"description":"Extended configuration for aperte reports",
+					"readonly":false,
+					"optional":false,
+                    "value": "{\"User\":\"http://dreihund:19080/jbpm-gui-0.2/step_editor\"}"
+				} ,
+				{
+					"id":"tasktype",
+					"type":"Choice",
+					"title":"Tasktype",
+					"title_de":"Tasktyp",
+					"value":"None",
+					"description":"Defines the tasks type which is shown in the left upper corner of the task.",
+					"description_de":"Definiert den Aufgabentyp, der in der linken oberen Ecke der Task angezeigt wird.",
+					"readonly":false,
+					"optional":false,
+					"refToView":"",
+					"items":[
+						{
+							"id":"c1",
+							"title":"None",
+							"title_de":"Kein Typ",
+							"value":"None",
+							"refToView":"none"
+						},
+						{
+							"id":"c2",
+							"title":"Send",
+							"title_de":"Sendend",
+							"value":"Send",
+							"icon" : "activity/list/type.send.png",
+							"refToView":"sendTask"
+						},
+						{
+							"id":"c3",
+							"title":"Receive",
+							"title_de":"Empfangend",
+							"value":"Receive",
+							"icon" : "activity/list/type.receive.png",
+							"refToView":"receiveTask"
+						},
+						{
+							"id":"c4",
+							"title":"User",
+							"title_de":"Benutzer",
+							"value":"User",
+							"icon" : "activity/list/type.user.png",
+							"refToView":"userTask"
+						},
+						{
+							"id":"c5",
+							"title":"Manual",
+							"title_de":"Manuell",
+							"value":"Manual",
+							"icon" : "activity/list/type.manual.png",
+							"refToView":"manualTask"
+						},
+						{
+							"id":"c6",
+							"title":"Service",
+							"title_de":"Service",
+							"value":"Service",
+							"icon" : "activity/list/type.service.png",
+							"refToView":"serviceTask"
+						},
+						{
+							"id":"c7",
+							"title":"Business Rule",
+							"title_de":"Geschäftsregel",
+							"value":"Business Rule",
+							"icon" : "activity/list/type.business.rule.png",
+							"refToView":"businessRuleTask"
+						},
+						{
+							"id":"c8",
+							"title":"Script",
+							"title_de":"Skript",
+							"value":"Script",
+							"icon" : "activity/list/type.script.png",
+							"refToView":"scriptTask"
+						}
+				    ]
+                }
+			]
+		}],
+	"rules": {
+		"connectionRules": [],
+        "cardinalityRules": [],
+		"containmentRules": []
+	},
+	"removestencils": [
+		"ITSystem",
+		"EventSubprocess",
+		"CollapsedEventSubprocess",
+		"Subprocess",
+		"DataStore",
+		"Message",
+		"StartErrorEvent",
+		"StartCompensationEvent",
+		"StartParallelMultipleEvent",
+		"StartEscalationEvent",
+		"IntermediateParallelMultipleEventCatching",
+		"IntermediateEscalationEvent",
+		"EndEscalationEvent",
+		"IntermediateEscalationEventThrowing",
+		"EventbasedGateway",
+		"InclusiveGateway",
+		"ComplexGateway",
+		"CollapsedPool",
+		"processparticipant",
+		"Group",
+		"TextAnnotation",
+		"DataObject",
+		"StartConditionalEvent",
+		"StartSignalEvent",
+		"StartMultipleEvent",
+		"IntermediateEvent",
+		"IntermediateMessageEventCatching",
+		"IntermediateMessageEventThrowing",
+		"IntermediateTimerEvent",
+		"IntermediateErrorEvent",
+		"IntermediateCancelEvent",
+		"IntermediateCompensationEventCatching",
+		"IntermediateCompensationEventThrowing",
+		"IntermediateConditionalEvent",
+		"IntermediateSignalEventCatching",
+		"IntermediateSignalEventThrowing",
+		"IntermediateMultipleEventCatching",
+		"IntermediateMultipleEventThrowing",
+		"IntermediateLinkEventCatching",
+		"IntermediateLinkEventThrowing",
+		"EndMessageEvent",
+		"EndErrorEvent",
+		"EndCancelEvent",
+		"EndCompensationEvent",
+		"EndSignalEvent",
+		"EndMultipleEvent",
+		"EndTerminateEvent",
+		"Association_Undirected",
+		"Association_Unidirectional",
+		"Association_Bidirectional",
+		"CollapsedSubprocess",
+		"StartTimerEvent",
+		"MessageFlow",
+		"StartMessageEvent",		
+	],
+	"removeproperties": []
+}

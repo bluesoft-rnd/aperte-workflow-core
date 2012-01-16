@@ -9,7 +9,9 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.ChildrenAllowed;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
 import pl.net.bluesoft.util.lang.FormatUtil;
 
@@ -18,8 +20,12 @@ import java.util.*;
 import static pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessHistoryWidget.label;
 
 @AliasName(name = "LatestComments")
+@AperteDoc(humanNameKey="widget.latest_process_comments.name", descriptionKey="widget.latest_process_comments.description")
+@ChildrenAllowed(false)
 public class LatestProcessCommentsWidget extends BaseProcessToolWidget implements ProcessToolVaadinWidget, ProcessToolDataWidget {
-    @AutoWiredProperty
+
+    @AutoWiredProperty(required = false)
+    @AperteDoc(humanNameKey="widget.latest_process_comments.property.displayed_comments.name", descriptionKey="widget.latest_process_comments.property.displayed_comments.description")
     private int displayedComments = 1;
 
     private BeanItemContainer<ProcessComment> bic = new BeanItemContainer<ProcessComment>(ProcessComment.class);

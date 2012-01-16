@@ -1,34 +1,9 @@
 package pl.net.bluesoft.rnd.processtool.editor.platform.ext;
 
-
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.Date;
-import java.util.jar.Attributes;
-import java.util.jar.JarEntry;
-import java.util.jar.JarOutputStream;
-import java.util.jar.Manifest;
-
-import javax.servlet.ServletContext;
-
-import org.apache.batik.transcoder.TranscoderException;
-import org.apache.batik.transcoder.TranscoderInput;
-import org.apache.batik.transcoder.TranscoderOutput;
-import org.apache.batik.transcoder.image.PNGTranscoder;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import com.signavio.platform.annotations.HandlerConfiguration;
 import com.signavio.platform.annotations.HandlerMethodActivation;
 import com.signavio.platform.core.Platform;
+import com.signavio.platform.core.PlatformProperties;
 import com.signavio.platform.exceptions.RequestException;
 import com.signavio.platform.handler.BasisHandler;
 import com.signavio.platform.security.business.FsAccessToken;
@@ -38,6 +13,20 @@ import com.signavio.warehouse.model.business.ModelTypeFileExtension;
 import com.signavio.warehouse.model.business.ModelTypeManager;
 import com.signavio.warehouse.model.business.modeltype.SignavioModelType;
 import com.signavio.warehouse.revision.business.RepresentationType;
+import org.apache.batik.transcoder.TranscoderException;
+import org.apache.batik.transcoder.TranscoderInput;
+import org.apache.batik.transcoder.TranscoderOutput;
+import org.apache.batik.transcoder.image.PNGTranscoder;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import javax.servlet.ServletContext;
+import java.io.*;
+import java.util.Date;
+import java.util.jar.Attributes;
+import java.util.jar.JarEntry;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
 
 @HandlerConfiguration(uri = "/deploy", rel="deploy")
 public class DeployHandler extends BasisHandler {
@@ -45,7 +34,6 @@ public class DeployHandler extends BasisHandler {
 	public DeployHandler(ServletContext servletContext) {
 		super(servletContext);
 	}
-	
 
 	private Manifest getManifest(String bundleName, String bundleDescription, String processToolDeployment) {
 		Manifest mf = new Manifest();
@@ -92,21 +80,23 @@ public class DeployHandler extends BasisHandler {
 	private void addEntry(String entryName, JarOutputStream target, InputStream in) throws IOException {
 		BufferedInputStream bin = null;
 		try {  
-		  JarEntry entry = new JarEntry(entryName);
-		  entry.setTime(new Date().getTime());
-		  target.putNextEntry(entry);
-		  bin = new BufferedInputStream(in);
-		  byte[] buffer = new byte[1024];
-		  while (true) {
-			int count = in.read(buffer);
-			if (count == -1)
-				break;
-			target.write(buffer, 0, count);
-		  }
-		  target.closeEntry();
-	      bin.close();
+            JarEntry entry = new JarEntry(entryName);
+            entry.setTime(new Date().getTime());
+            target.putNextEntry(entry);
+            bin = new BufferedInputStream(in);
+            byte[] buffer = new byte[1024];
+            while (true) {
+            int count = in.read(buffer);
+            if (count == -1)
+                break;
+            target.write(buffer, 0, count);
+            }
+            target.closeEntry();
+            bin.close();
 		} finally {
-			if (bin != null) bin.close();
+			if (bin != null) {
+                bin.close();
+            }
 		}
 	}
 	
@@ -116,57 +106,59 @@ public class DeployHandler extends BasisHandler {
 		JSONObject jsonParams = (JSONObject) params;
 		
 		try {
-		  String name = jsonParams.getString("name");
-		  String parentId = jsonParams.getString("parent");
-		  parentId = parentId.replace("/directory/", "");
-		  FsDirectory parent = FsSecurityManager.getInstance().loadObject(FsDirectory.class, parentId, token);
-		  String signavioXMLExtension = SignavioModelType.class.getAnnotation(ModelTypeFileExtension.class).fileExtension();
-		  String fileName = name + signavioXMLExtension;
-		  String fileNameWithPath = parent.getPath() + File.separator + fileName;
-		  
-		  byte [] jsonData = ModelTypeManager.getInstance().getModelType(signavioXMLExtension).getRepresentationInfoFromModelFile(RepresentationType.JSON, fileNameWithPath);
-		  byte [] svgData = ModelTypeManager.getInstance().getModelType(signavioXMLExtension).getRepresentationInfoFromModelFile(RepresentationType.SVG, fileNameWithPath);
-		  String jsonRep = new String(jsonData, "utf-8");
-		  JSONObject jsonObj = new JSONObject(jsonRep);
+            String name = jsonParams.getString("name");
+            String parentId = jsonParams.getString("parent");
+            parentId = parentId.replace("/directory/", "");
+            FsDirectory parent = FsSecurityManager.getInstance().loadObject(FsDirectory.class, parentId, token);
+            String signavioXMLExtension = SignavioModelType.class.getAnnotation(ModelTypeFileExtension.class).fileExtension();
+            String fileName = name + signavioXMLExtension;
+            String fileNameWithPath = parent.getPath() + File.separator + fileName;
 
-	      //MANIFEST
-		  String processFileName = jsonObj.getJSONObject("properties").optString("aperte-process-filename");
-		  String processVersion = jsonObj.getJSONObject("properties").optString("aperte-process-version");
-	      
-	      String bundleDesc = jsonObj.getJSONObject("properties").optString("mf-bundle-description");
-		  String bundleName = jsonObj.getJSONObject("properties").optString("mf-bundle-name");
-		  String processToolDeployment = jsonObj.getJSONObject("properties").optString("mf-processtool-deployment");
-		  
-		  if (isEmpty(bundleDesc) || isEmpty(bundleName)
-		   || isEmpty(processToolDeployment) || isEmpty(processFileName) || isEmpty(processVersion)) {
-			  throw new RequestException("Diagram attributes: Aperte process filename, Aperte process version number, Manifest: Bundle-Name, Manifest: Bundle-Description, Manifest: ProcessTool-Process-Deployment must not be empty.");
-		  }
-		  Manifest mf = getManifest(bundleName, bundleDesc, processToolDeployment);
-		  
-		  // generacja PNG na podstawie SVG
-		  byte[] png = svg2png(svgData);
-		  
-		  // utworzenie temp'a z jar'em
-		  File tempJar = File.createTempFile("jar", null, new File(parent.getPath()));
-		  JarOutputStream target = new JarOutputStream(new FileOutputStream(tempJar), mf);
-	      addPackageDirs(processToolDeployment, target);
-	      
-	      String processDir = processToolDeployment.replace('.','/') + '/';
-	      
-	      // podegranie PNG i xmli
-	      addEntry(processDir + "processdefinition.png", target, new ByteArrayInputStream(png));
-	      addEntry(processDir + "processdefinition.jpdl.xml", target, new FileInputStream(parent.getPath() + File.separator + name + ".jpdl"));
-	      addEntry(processDir + "processtool-config.xml", target, new FileInputStream(parent.getPath() + File.separator + name + ".processtool-config.xml"));
-	      addEntry(processDir + "queues-config.xml", target, new FileInputStream(parent.getPath() + File.separator + name + ".queues-config.xml"));
-	      
-	      // koniec jarowania
-	      target.close();
-	      
-     	   // skopiowanie do osgi-plugins
-	      String osgiPluginsDir = Platform.getInstance().getPlatformProperties().getAperteOsgiPluginsDir(); 
-	      copy(tempJar, new File(osgiPluginsDir + File.separator + processFileName + "-" + processVersion + ".jar"));
-	      // usuniecie tempa
-	      tempJar.delete();
+            byte [] jsonData = ModelTypeManager.getInstance().getModelType(signavioXMLExtension).getRepresentationInfoFromModelFile(RepresentationType.JSON, fileNameWithPath);
+            byte [] svgData = ModelTypeManager.getInstance().getModelType(signavioXMLExtension).getRepresentationInfoFromModelFile(RepresentationType.SVG, fileNameWithPath);
+            String jsonRep = new String(jsonData, "utf-8");
+            JSONObject jsonObj = new JSONObject(jsonRep);
+
+            // MANIFEST
+            String processFileName = jsonObj.getJSONObject("properties").optString("aperte-process-filename");
+            String processVersion = jsonObj.getJSONObject("properties").optString("aperte-process-version");
+
+            String bundleDesc = jsonObj.getJSONObject("properties").optString("mf-bundle-description");
+            String bundleName = jsonObj.getJSONObject("properties").optString("mf-bundle-name");
+            String processToolDeployment = jsonObj.getJSONObject("properties").optString("mf-processtool-deployment");
+
+            if (isEmpty(bundleDesc) || isEmpty(bundleName)
+            || isEmpty(processToolDeployment) || isEmpty(processFileName) || isEmpty(processVersion)) {
+              throw new RequestException("Diagram attributes: Aperte process filename, Aperte process version number, Manifest: Bundle-Name, Manifest: Bundle-Description, Manifest: ProcessTool-Process-Deployment must not be empty.");
+            }
+            Manifest mf = getManifest(bundleName, bundleDesc, processToolDeployment);
+
+            // convert SVG to PNG format
+            byte[] png = svg2png(svgData);
+
+            // create new temporary JAR
+            File tempJar = File.createTempFile("jar", null, new File(parent.getPath()));
+            JarOutputStream target = new JarOutputStream(new FileOutputStream(tempJar), mf);
+            addPackageDirs(processToolDeployment, target);
+
+            String processDir = processToolDeployment.replace('.','/') + '/';
+
+            // adding PNG and XML files
+            addEntry(processDir + "processdefinition.png", target, new ByteArrayInputStream(png));
+            addEntry(processDir + "processdefinition.jpdl.xml", target, new FileInputStream(parent.getPath() + File.separator + name + ".jpdl"));
+            addEntry(processDir + "processtool-config.xml", target, new FileInputStream(parent.getPath() + File.separator + name + ".processtool-config.xml"));
+            addEntry(processDir + "queues-config.xml", target, new FileInputStream(parent.getPath() + File.separator + name + ".queues-config.xml"));
+
+            // close the JAR
+            target.close();
+
+            // copy to osgi-plugins
+            PlatformProperties props =  Platform.getInstance().getPlatformProperties();
+            String osgiPluginsDir = props.getAperteOsgiPluginsDir();
+            copy(tempJar, new File(osgiPluginsDir + File.separator + processFileName + "-" + processVersion + ".jar"));
+
+            // delete temporary directory
+            tempJar.delete();
 		  
 		} catch (JSONException e) {
 			throw new RequestException("JSONException", e);
@@ -177,10 +169,8 @@ public class DeployHandler extends BasisHandler {
 		} catch (IOException e) {
 			throw new RequestException("Error while creating JAR file", e);
 		}
-		
-		
+
 		return "OK";
-	
 	}
 	
     private boolean isEmpty(String s) {

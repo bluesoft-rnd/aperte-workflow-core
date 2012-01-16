@@ -13,6 +13,15 @@
     <artifactId>modeler</artifactId>
     <packaging>pom</packaging>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+            <version>1.9.0</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>
@@ -21,8 +30,8 @@
                 <version>1.7</version>
                 <executions>
                     <execution>
-                        <id>compile</id>
-                        <phase>compile</phase>
+                        <id>package</id>
+                        <phase>package</phase>
                         <configuration>
                             <target>
                                 <property name="compile_classpath" refid="maven.compile.classpath"/>
@@ -91,5 +100,6 @@
             </build>
         </profile>
     </profiles>
+
 
 </project>

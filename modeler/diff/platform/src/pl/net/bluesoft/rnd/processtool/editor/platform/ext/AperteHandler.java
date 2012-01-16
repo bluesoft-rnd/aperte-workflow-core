@@ -3,26 +3,25 @@
  */
 package pl.net.bluesoft.rnd.processtool.editor.platform.ext;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
-
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.signavio.platform.annotations.HandlerConfiguration;
+import com.signavio.platform.core.Platform;
+import com.signavio.platform.core.PlatformProperties;
+import com.signavio.platform.handler.BasisHandler;
+import com.signavio.platform.security.business.FsAccessToken;
+import com.signavio.platform.security.business.FsSecureBusinessObject;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.signavio.platform.annotations.HandlerConfiguration;
-import com.signavio.platform.core.Platform;
-import com.signavio.platform.handler.BasisHandler;
-import com.signavio.platform.security.business.FsAccessToken;
-import com.signavio.platform.security.business.FsSecureBusinessObject;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
 
 
 @HandlerConfiguration(uri = "/aperte_definitions", rel="aperte")
@@ -305,9 +304,8 @@ public class AperteHandler extends BasisHandler {
     }
 
     private  String getDataFromServer() throws IOException {
-    	String stepListUrl = Platform.getInstance().getPlatformProperties().getServerName() + 
-		                     Platform.getInstance().getPlatformProperties().getJbpmGuiUrl() + 
-		                     Platform.getInstance().getPlatformProperties().getAperteStepListUrl();
+        PlatformProperties props = Platform.getInstance().getPlatformProperties();
+    	String stepListUrl = props.getServerName() + props.getJbpmGuiUrl() + props.getAperteStepListUrl();
         try {
         	URL url = new URL(stepListUrl);
 	        URLConnection conn = url.openConnection();

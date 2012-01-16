@@ -80,60 +80,15 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory 
 
     }
 
-    public static class UserTransactionAdapter implements UserTransaction {
-
-        private TransactionManager tm;
-
-        public UserTransactionAdapter(TransactionManager tm) {
-            this.tm = tm;
-        }
-
-        public void setTransactionTimeout(int timeout) throws SystemException {
-            tm.setTransactionTimeout(timeout);
-        }
-
-        public void begin() throws NotSupportedException, SystemException {
-            logger.warning("UserTransactionAdapter.begin, status=" + tm.getStatus() + ", " + tm.getTransaction());
-            tm.begin();
-        }
-
-        public void commit()
-                throws RollbackException, HeuristicMixedException, HeuristicRollbackException,
-                SecurityException, SystemException {
-            tm.commit();
-        }
-
-        public void rollback() throws SecurityException, SystemException {
-            tm.rollback();
-        }
-
-        public void setRollbackOnly() throws SystemException {
-            tm.setRollbackOnly();
-        }
-
-        public int getStatus() throws SystemException {
-            return tm.getStatus();
-        }
-    }
-
     public void withProcessToolContextJta(ProcessToolContextCallback callback) {
         try {
             UserTransaction ut=null;
             try {
                 ut = (UserTransaction) new InitialContext().lookup("java:comp/UserTransaction");
             } catch (Exception e) {
-                try {
-                    logger.warning("Looking for TM...");
-                    TransactionManager tm = (TransactionManager) new InitialContext().lookup("java:/TransactionManager");
-                    logger.warning("Found TM :" + tm + " ? " + (tm instanceof UserTransaction));
-                    if (tm instanceof  UserTransaction) {
-                        ut = (UserTransaction) tm;
-                    } else {
-                        ut = new UserTransactionAdapter(tm);
-                    }
-                } catch (NamingException e1) {
-                    e1.printStackTrace();
-                }
+                //it should work on jboss regardless. But it does not..
+                logger.warning("java:comp/UserTransaction not found, looking for UserTransaction");
+                ut = (UserTransaction) new InitialContext().lookup("UserTransaction");
             }
             
             

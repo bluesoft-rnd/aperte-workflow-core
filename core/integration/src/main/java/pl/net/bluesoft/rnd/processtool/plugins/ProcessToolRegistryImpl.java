@@ -154,62 +154,20 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	  	hibernateResources.remove(name);
 	}
 
-    public static class UserTransactionAdapter implements UserTransaction {
-
-        private TransactionManager tm;
-
-        public UserTransactionAdapter(TransactionManager tm) {
-            this.tm = tm;
-        }
-
-        public void setTransactionTimeout(int timeout) throws SystemException {
-            tm.setTransactionTimeout(timeout);
-        }
-
-        public void begin() throws NotSupportedException, SystemException {
-            logger.warning("UserTransactionAdapter.begin, status=" + tm.getStatus() + ", " + tm.getTransaction());
-            tm.begin();
-        }
-
-        public void commit()
-                throws RollbackException, HeuristicMixedException, HeuristicRollbackException,
-                SecurityException, SystemException {
-            tm.commit();
-        }
-
-        public void rollback() throws SecurityException, SystemException {
-            tm.rollback();
-        }
-
-        public void setRollbackOnly() throws SystemException {
-            tm.setRollbackOnly();
-        }
-
-        public int getStatus() throws SystemException {
-            return tm.getStatus();
-        }
-    }
-
 	public void buildSessionFactory() {
 
         jta = false;
         UserTransaction ut=null;
+//        String userTransactionJndiName=null;
         try {
             ut = (UserTransaction) new InitialContext().lookup("java:comp/UserTransaction");
         } catch (Exception e) {
+            logger.warning("java:comp/UserTransaction not found, looking for UserTransaction");
             try {
-                logger.warning("Looking for TM...");
-                TransactionManager tm = (TransactionManager) new InitialContext().lookup("java:/TransactionManager");
-                logger.warning("Found TM :" + tm + " ? " + (tm instanceof UserTransaction));
-                if (tm instanceof  UserTransaction) {
-                    ut = (UserTransaction) tm;
-                } else {
-                    ut = new UserTransactionAdapter(tm);
-                }
-//                ut = tm.getTransaction().;
-//                ut = (UserTransaction) new InitialContext().lookup("java:jboss/UserTransaction");
-            } catch (NamingException e1) {
-                e1.printStackTrace();
+                ut = (UserTransaction) new InitialContext().lookup("UserTransaction");
+            }
+            catch (Exception e1) {
+                logger.warning("UserTransaction not found in JNDI, JTA not available!");
             }
         }
 
@@ -252,20 +210,15 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
                             "org.hibernate.transaction.JTATransactionFactory"));
             configuration.setProperty("hibernate.transaction.manager_lookup_class", managerLookupClassName);
             configuration.setProperty("current_session_context_class", "jta");
-            configuration.setProperty("jta.UserTransaction", "UserTransaction");
+//            if (userTransactionJndiName != null) {
+//                logger.warning("Setting hibernate jta.UserTransaction to" + userTransactionJndiName);
+//                configuration.setProperty("jta.UserTransaction", userTransactionJndiName);
+//            }
             jta = true;
         } else {
             logger.warning("UserTransaction or factory class not found, attempting to autoconfigure Hibernate to use per-Thread session context");
             configuration.setProperty("current_session_context_class", "thread");
         }
-
-//        if (jta && ut != null) {
-//            try {
-//                ut.begin();
-//            } catch (Exception e) {
-//                throw new RuntimeException(e);
-//            }
-//        }
 
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
 		try {
@@ -278,14 +231,6 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 		if (processToolContextFactory != null) {
 			processToolContextFactory.updateSessionFactory(sessionFactory);
 		}
-
-//        if (jta && ut != null) {
-//            try {
-//                ut.commit();
-//            } catch (Exception e) {
-//                throw new RuntimeException(e);
-//            }
-//        }
     }
 
 	public <T extends ProcessToolWidget> T makeWidget(Class<? extends ProcessToolWidget> aClass) throws IllegalAccessException, InstantiationException {

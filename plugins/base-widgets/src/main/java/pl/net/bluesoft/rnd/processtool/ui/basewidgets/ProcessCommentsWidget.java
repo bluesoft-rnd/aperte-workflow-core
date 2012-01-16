@@ -15,7 +15,9 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.ChildrenAllowed;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
 import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.util.lang.FormatUtil;
@@ -30,12 +32,14 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
  * @author tlipski@bluesoft.net.pl
  */
 @AliasName(name = "ProcessComments")
-
+@AperteDoc(humanNameKey="widget.process_comments.name", descriptionKey="widget.process_comments.description")
+@ChildrenAllowed(false)
 public class ProcessCommentsWidget extends BaseProcessToolWidget implements ProcessToolVaadinWidget, ProcessToolDataWidget {
 
 	private BeanItemContainer<ProcessComment> bic = new BeanItemContainer<ProcessComment>(ProcessComment.class);
 
-	@AutoWiredProperty
+    @AutoWiredProperty(required = false)
+    @AperteDoc(humanNameKey="widget.process_comments.property.table.name", descriptionKey="widget.process_comments.property.table.description")
 	private Boolean table;
 
 	private String processState = null;

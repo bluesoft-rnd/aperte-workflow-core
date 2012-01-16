@@ -25,6 +25,7 @@
         <module>core</module>
         <module>plugins</module>
         <module>utils</module>
+        <module>modeler</module>
         <module>samples</module>
     </modules>
 
@@ -32,7 +33,7 @@
         <dependency>
             <groupId>pl.net.bluesoft</groupId>
             <artifactId>util</artifactId>
-            <version>1.1-SNAPSHOT</version>
+            <version>1.3</version>
         </dependency>
         <dependency>
             <groupId>commons-beanutils</groupId>
@@ -94,7 +95,7 @@
         <repository>
             <id>jboss-repository</id>
             <name>JBoss Repository</name>
-            <url>http://repository.jboss.com/maven2/</url>
+            <url>http://repository.jboss.com/</url>
             <layout>default</layout>
         </repository>
         <repository>

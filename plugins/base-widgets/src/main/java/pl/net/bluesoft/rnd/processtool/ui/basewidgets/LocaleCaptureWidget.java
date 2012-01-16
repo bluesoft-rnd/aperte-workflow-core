@@ -7,7 +7,9 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.ChildrenAllowed;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
 
 import java.util.Collection;
@@ -19,9 +21,12 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
  * @author tlipski@bluesoft.net.pl
  */
 @AliasName(name="LocaleCapture")
+@ChildrenAllowed(false)
+@AperteDoc(humanNameKey="widget.locale_capture.name", descriptionKey="widget.locale_capture.description", icon="locale.png")
 public class LocaleCaptureWidget extends BaseProcessToolWidget implements ProcessToolVaadinWidget, ProcessToolDataWidget {
 
-	@AutoWiredProperty
+    @AutoWiredProperty(required=false)
+    @AperteDoc(humanNameKey="widget.locale_capture.property.local_key.name", descriptionKey="widget.locale_capture.property.local_key.description")
 	private String localeKey = "java.util.Locale";
 
 	private Label lbl = new Label();

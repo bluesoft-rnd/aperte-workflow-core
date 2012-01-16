@@ -1,0 +1,23 @@
+{
+	"extensions": [		
+		{
+			"title" : "Core Elements",
+			"title_de":"Kernelemente",
+			"namespace" : "http://oryx-editor.org/stencilsets/extensions/bpmn2.0basicsubset#",
+			"description":"A basic subset of BPMN 2.0 containing only task, sequence flow, start event, end event, parallel gateway and data-based XOR.",
+			"definition":"../../../p/aperte_definitions",
+			"extends":"http://b3mn.org/stencilset/bpmn2.0#"
+		}
+	],
+	"perspectives": [
+		{
+			"title":"BPMN (Core Elements)",
+			"title_de":"BPMN (Kernelemente)",
+			"namespace" : "http://oryx-editor.org/stencilsets/perspectives/beginnerbpmn2#",
+			"description":"BPMN for beginners. Features a basic subset of the standard for a quick start.",
+			"description_de":"BPMN für Einsteiger mit einer sinnvoll eingeschänkten Menge an Modellierungs-Elementen für den einfacheren Einstieg.",
+			"stencilset" : "http://b3mn.org/stencilset/bpmn2.0#",
+			"extensions" : ["http://oryx-editor.org/stencilsets/extensions/bpmn2.0basicsubset#"]
+		},		
+	]
+}

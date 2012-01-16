@@ -16,15 +16,17 @@ import pl.net.bluesoft.util.eventbus.EventBusManager;
 
 import java.io.InputStream;
 import java.util.Collection;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * @author tlipski@bluesoft.net.pl
  */
 public interface ProcessToolRegistry {
 
-	void registerModelExtension(Class<?> cls);
+	boolean registerModelExtension(Class<?>... cls);
 
-	void unregisterModelExtension(Class<?> cls);
+	boolean unregisterModelExtension(Class<?>... cls);
 
 	void commitModelExtensions();
 
@@ -109,6 +111,18 @@ public interface ProcessToolRegistry {
     PluginManager getPluginManager();
 
     void setPluginManager(PluginManager pluginManager);
+
+    void addServiceLoader(ProcessToolServiceBridge serviceBridge);
+
+    void removeServiceLoader(ProcessToolServiceBridge serviceBridge);
+    
+    List<ProcessToolServiceBridge> getServiceLoaders();
+
+    void removeRegisteredService(Class<?> serviceClass);
+
+    <T> void registerService(Class<T> serviceClass, T instance, Properties properties);
+
+    <T> T getRegisteredService(Class<T> serviceClass);
 
     boolean isJta();
 

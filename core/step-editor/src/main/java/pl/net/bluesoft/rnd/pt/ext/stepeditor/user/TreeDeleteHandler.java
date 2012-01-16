@@ -1,0 +1,44 @@
+package pl.net.bluesoft.rnd.pt.ext.stepeditor.user;
+
+import java.util.logging.Logger;
+
+
+import com.vaadin.event.DataBoundTransferable;
+import com.vaadin.event.dd.DragAndDropEvent;
+import com.vaadin.event.dd.DropHandler;
+import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
+import com.vaadin.event.dd.acceptcriteria.And;
+import com.vaadin.event.dd.acceptcriteria.SourceIs;
+import com.vaadin.ui.AbstractSelect.AcceptItem;
+import com.vaadin.ui.Tree.TargetItemAllowsChildren;
+import com.vaadin.ui.Tree;
+
+final class TreeDeleteHandler implements DropHandler {
+
+	private static final long		serialVersionUID	= -1252687997956419353L;
+
+	private transient Logger		logger				= Logger.getLogger(TreeDeleteHandler.class.getName());
+
+	private UserStepEditorWindow	stepEditorWindow;
+
+	private Tree	stepTree;
+
+	public TreeDeleteHandler(UserStepEditorWindow stepEditorWindow, Tree stepTree) {
+		this.stepEditorWindow = stepEditorWindow;
+		this.stepTree = stepTree;
+	}
+
+	public void drop(DragAndDropEvent dropEvent) {
+		// criteria verify that this is safe
+		DataBoundTransferable t = (DataBoundTransferable) dropEvent.getTransferable();
+		
+		Object sourceItemId = t.getItemId();
+
+		stepEditorWindow.deleteTreeItem(sourceItemId);
+	}
+
+	public AcceptCriterion getAcceptCriterion() {
+		return new And(new SourceIs(stepTree), AcceptItem.ALL);
+	}
+
+}

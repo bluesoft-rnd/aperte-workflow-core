@@ -8,8 +8,10 @@ import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.ChildrenAllowed;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
 
 import java.text.SimpleDateFormat;
@@ -25,9 +27,12 @@ import static pl.net.bluesoft.util.lang.StringUtil.hasText;
  * @author tlipski@bluesoft.net.pl
  */
 @AliasName(name = "ProcessHistory")
+@AperteDoc(humanNameKey="widget.process_history.name", descriptionKey="widget.process_history.description")
+@ChildrenAllowed(false)
 public class ProcessHistoryWidget extends BaseProcessToolWidget implements ProcessToolDataWidget, ProcessToolVaadinWidget {
 
-	@AutoWiredProperty
+    @AutoWiredProperty(required = false)
+    @AperteDoc(humanNameKey="widget.process_history.property.table.name", descriptionKey="widget.process_history.property.table.description")
 	private Boolean table;
 
 	private List<ProcessLogInfo> logInfos = new ArrayList<ProcessLogInfo>();

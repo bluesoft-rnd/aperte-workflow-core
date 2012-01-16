@@ -157,6 +157,7 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	public void buildSessionFactory() {
 
         jta = false;
+        boolean startJtaTransaction = true;
         UserTransaction ut=null;
 //        String userTransactionJndiName=null;
         try {
@@ -200,6 +201,7 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
                 if (System.getProperty("jboss.home.dir") != null) {
                     logger.warning("Found JBoss AS environment, using JBoss Arjuna TM");
                     managerLookupClassName = "org.hibernate.transaction.JBossTransactionManagerLookup";
+                    startJtaTransaction = false; //hibernate forces autocommit on transaction update, which throws exception on jboss.
                 }
             }
             logger.warning("Configured hibernate.transaction.manager_lookup_class to " + managerLookupClassName);
@@ -220,6 +222,13 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
             configuration.setProperty("current_session_context_class", "thread");
         }
 
+        if (startJtaTransaction && ut != null && jta) { //needed for tomcat/bitronix
+            try {
+                ut.begin();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
 		try {
 			Thread.currentThread().setContextClassLoader(new ExtClassLoader(cl));
@@ -231,6 +240,14 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 		if (processToolContextFactory != null) {
 			processToolContextFactory.updateSessionFactory(sessionFactory);
 		}
+        if (startJtaTransaction && ut != null && jta) { //needed for tomcat/bitronix
+            try {
+                ut.commit();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
     }
 
 	public <T extends ProcessToolWidget> T makeWidget(Class<? extends ProcessToolWidget> aClass) throws IllegalAccessException, InstantiationException {

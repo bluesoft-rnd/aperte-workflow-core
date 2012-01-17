@@ -79,7 +79,9 @@ public class EditorHandler extends BasisHandler {
 	@Override
 	@HandlerMethodActivation
     public <T extends FsSecureBusinessObject> void doGet(HttpServletRequest req, HttpServletResponse res, FsAccessToken token, T sbo) {
-  		
+  		// obtain token used by Aperte
+        final String aperteToken = (String) req.getSession().getAttribute("aperteToken");
+        
 		//check for firefox
 		if(!isSupported(req)) {
 			//show firefox page
@@ -131,7 +133,7 @@ public class EditorHandler extends BasisHandler {
 							//set location 
 							res.setHeader("location", req.getRequestURL() + "?id=" + id);
 							//print xhtml site
-							sendEditorXHTML(res, model.getName(), account);
+							sendEditorXHTML(res, model.getName(), account, aperteToken);
 						} 
 //						else if (sbo instanceof ModelRevision) {
 //							//check, if sbo is a model revision
@@ -160,7 +162,7 @@ public class EditorHandler extends BasisHandler {
 						res.setHeader("location", req.getRequestURL() + "?id=" + id);
 						
 //						try {
-							sendEditorXHTML(res, "New Process", account);
+							sendEditorXHTML(res, "New Process", account, aperteToken);
 							//req.getRequestDispatcher("/WEB-INF/jsp/editor.jsp").include(req, res);
 //						} catch (ServletException e1) {
 //							throw new RequestException("servletException", e1);
@@ -206,7 +208,7 @@ public class EditorHandler extends BasisHandler {
 	
     
 	
-	private void sendEditorXHTML(HttpServletResponse res, String title, FsAccount account) {
+	private void sendEditorXHTML(HttpServletResponse res, String title, FsAccount account, String aperteToken) {
 
   		String languageCode = account.getAccountInfo().getLanguageCode();
   		String countryCode = account.getAccountInfo().getCountryCode();
@@ -214,14 +216,14 @@ public class EditorHandler extends BasisHandler {
   		res.setStatus(200);
 		res.setContentType("application/xhtml+xml");
 		try {
-			res.getWriter().print(getEditorXHTML(title, languageCode, countryCode));
+			res.getWriter().print(getEditorXHTML(title, languageCode, countryCode, aperteToken));
 		} catch (IOException e) {
 
 		}
 	}
     
     
-    private String getEditorXHTML(String title, String languageCode, String countryCode) {
+    private String getEditorXHTML(String title, String languageCode, String countryCode, String aperteToken) {
     	
     	String libsUri = Platform.getInstance().getPlatformProperties().getLibsUri();
     	String explorerUri = Platform.getInstance().getPlatformProperties().getExplorerUri();
@@ -258,7 +260,7 @@ public class EditorHandler extends BasisHandler {
       	  	+ "xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n"
       	  	+ "xmlns:atom=\"http://b3mn.org/2007/atom+xhtml\">\n"
       	  	+ "<head profile=\"http://purl.org/NET/erdf/profile\">\n"
-      	  	+ "<title>" + title + " - Signavio</title>\n"
+      	  	+ "<title>" + title + " - Signavio - kutasza wersion</title>\n"
       	  	
       	  	+ "<!-- libraries -->\n"
     	  	+ "<script src=\"" + libsUri + "/prototype-1.5.1.js\" type=\"text/javascript\" />\n"
@@ -294,6 +296,12 @@ public class EditorHandler extends BasisHandler {
       	  	+ "<link rel=\"schema.b3mn\" href=\"http://b3mn.org\" />\n"
       	  	+ "<link rel=\"schema.oryx\" href=\"http://oryx-editor.org/\" />\n"
       	  	+ "<link rel=\"schema.raziel\" href=\"http://raziel.org/\" />\n"
+
+            + "<!-- aperte -->\n"
+            + "<script type='text/javascript'>"
+            + "var aperteToken = " + aperteToken + ";"
+            + "</script>\n"
+                  
       	  	+ "</head>\n"
       	  	
       	  	+ "<body style=\"overflow:hidden;\">\n" 

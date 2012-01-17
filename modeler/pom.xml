@@ -13,15 +13,6 @@
     <artifactId>modeler</artifactId>
     <packaging>pom</packaging>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-mapper-asl</artifactId>
-            <version>1.9.0</version>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -41,8 +32,8 @@
 
                                 <!-- signavio build properties -->
                                 <property name="api" value="api" />
-                                <property name="war" value="${artifactId}-${version}"/>
-                                <property name="version" value="${version}"/>
+                                <property name="war" value="${project.artifactId}-${project.version}"/>
+                                <property name="version" value="${project.version}"/>
                                 <property name="target" value="target"/>
 
                                 <!-- aperte  build properties -->

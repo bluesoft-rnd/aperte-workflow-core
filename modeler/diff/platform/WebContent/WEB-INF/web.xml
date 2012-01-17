@@ -59,6 +59,11 @@
 		<filter-class>com.signavio.platform.filters.ParseParametersFilter</filter-class>
 	</filter>
 
+    <filter>
+        <filter-name>AperteTokenFilter</filter-name>
+        <filter-class>pl.net.bluesoft.rnd.processtool.editor.platform.filter.AperteTokenFilter</filter-class>
+    </filter>
+
 	<!--FILTER MAPPING-->
 
 	<filter-mapping>
@@ -95,6 +100,13 @@
             /p/*
         </url-pattern>
 	</filter-mapping>
+
+    <filter-mapping>
+        <filter-name>AperteTokenFilter</filter-name>
+        <url-pattern>
+            /p/*
+        </url-pattern>
+    </filter-mapping>
 
 	<!--SERVLETS-->
 	<servlet>

@@ -24,16 +24,15 @@
  */
 package com.signavio.platform.core.impl;
 
+import com.signavio.platform.core.PlatformProperties;
+import com.signavio.platform.exceptions.InitializationException;
+
+import javax.servlet.ServletContext;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
-
-import javax.servlet.ServletContext;
-
-import com.signavio.platform.core.PlatformProperties;
-import com.signavio.platform.exceptions.InitializationException;
 
 /**
  * Read the properties from the web.xml file
@@ -68,13 +67,17 @@ public class FsPlatformPropertiesImpl implements PlatformProperties {
 		}
 		
 		String tempRootDirectoryPath = props.getProperty("fileSystemRootDirectory");
-		System.out.println("ROOT: " +tempRootDirectoryPath );
-		if (tempRootDirectoryPath.endsWith(File.separator)) {
-			rootDirectoryPath = tempRootDirectoryPath.substring(0, tempRootDirectoryPath.length()-1);
-		} else {
-			rootDirectoryPath = tempRootDirectoryPath;
-		}
-		
+        if (tempRootDirectoryPath != null && !tempRootDirectoryPath.trim().isEmpty()) {
+            if (tempRootDirectoryPath.endsWith(File.separator)) {
+                rootDirectoryPath = tempRootDirectoryPath.substring(0, tempRootDirectoryPath.length()-1);
+            } else {
+                rootDirectoryPath = tempRootDirectoryPath;
+            }
+        } else {
+            // TODO figure out how to import maven dependencies from rest of modules so getHome() won't be duplicated
+            rootDirectoryPath = getHomePath() + File.separator + "modeler-repo";
+        }
+
 		serverName = props.getProperty("host");
 		platformUri = context.getContextPath() + "/p";
 		explorerUri = context.getContextPath() + "/explorer";
@@ -87,6 +90,25 @@ public class FsPlatformPropertiesImpl implements PlatformProperties {
 		aperteOsgiPluginsDir = props.getProperty("aperteOsgiPluginsDir");
 		jbpmGuiUrl = props.getProperty("jbpmGuiUrl");
 	}
+
+    public static String getHomePath() {
+        String homePath = System.getProperty("aperte.workflow.home");
+        if (homePath != null) {
+            return homePath;
+        }
+        
+        homePath = System.getProperty("liferay.home");
+        if (homePath != null) {
+            return homePath;
+        }
+
+        homePath = System.getProperty("catalina.home");
+        if (homePath != null) {
+            return homePath;
+        }
+
+        return "";
+    }
 	
 	/* (non-Javadoc)
 	 * @see com.signavio.platform.core.impl.PlatformProperties#getServerName()

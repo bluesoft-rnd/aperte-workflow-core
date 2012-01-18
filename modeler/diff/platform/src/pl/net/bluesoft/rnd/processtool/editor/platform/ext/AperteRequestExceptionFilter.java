@@ -88,15 +88,17 @@ public class AperteRequestExceptionFilter implements Filter {
                 if (re.getErrorCode() != null) {
                     builder.append(StringUtil.formatString(messages.getMessage(re.getErrorCode()), re.getParams()));
                 } else {
-                    builder.append("Unknown error code (" + re.getClass().getName() + ")");
+                    builder.append("Unknown error code (" + re.getClass().getName() + ").s");
                 }
             } else {
                 // handle unknown object
                 // make sure to remove the content signavio is adding to the message
-                builder.append(removeSignavioExceptionMessage(t.getLocalizedMessage()));
+                builder.append(removeSignavioExceptionPrefix(t.getLocalizedMessage()));
             }
 
-            builder.append('.');
+            if (builder.lastIndexOf(".") != builder.length() - 1) {
+                builder.append('.');
+            }
             
             if (t.getCause() != null) {
                 builder.append(' ');
@@ -105,7 +107,12 @@ public class AperteRequestExceptionFilter implements Filter {
         }
     }
     
-    private String removeSignavioExceptionMessage(String message) {
+    private String handleMessage(String message) {
+        
+        return message;
+    }
+    
+    private String removeSignavioExceptionPrefix(String message) {
         if (message.startsWith(SIGNAVIO_REQUEST_EXPECTION_PREFIX)) {
             return message.substring(SIGNAVIO_REQUEST_EXPECTION_PREFIX.length());
         } else {

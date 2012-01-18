@@ -1,15 +1,25 @@
 package pl.net.bluesoft.rnd.processtool.editor.platform.filter;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
+
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
-import java.util.Random;
+
+import org.apache.log4j.Logger;
+
+import com.signavio.platform.core.Platform;
+import com.signavio.platform.core.PlatformProperties;
 
 public class AperteTokenFilter implements Filter {
 
     private static final String APERTE_TOKEN_ATTRIBUTE_NAME = "aperteToken";
+    private static final Logger logger = Logger.getLogger(AperteTokenFilter.class);
     
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -26,8 +36,7 @@ public class AperteTokenFilter implements Filter {
 
         HttpSession session = req.getSession();
         if (session.getAttribute(APERTE_TOKEN_ATTRIBUTE_NAME) == null) {
-            // get token from Aperte Token Servlet
-            session.setAttribute("aperteToken", Integer.toString(new Random().nextInt()));
+            session.setAttribute(APERTE_TOKEN_ATTRIBUTE_NAME, getAperteToken());
         }
 
         // do forward
@@ -39,4 +48,24 @@ public class AperteTokenFilter implements Filter {
        // destroy http client
     }
 
+    private String getAperteToken() {
+    	 PlatformProperties props = Platform.getInstance().getPlatformProperties();
+     	 String tokenUrl = props.getServerName() + props.getJbpmGuiUrl() + "/token?9d20dc34-6f15-4650-a8e6-cb6292e7a729=8ab24b1f-1229-34fe-ae94-a359b31e821c";
+         try {
+         	URL url = new URL(tokenUrl);
+ 	        URLConnection conn = url.openConnection();
+ 	        BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+ 	        StringBuffer sb = new StringBuffer();
+ 	        String line;
+ 	        while ((line = rd.readLine()) != null)
+ 	        {
+ 	            sb.append(line);
+ 	        }
+ 	        rd.close();
+ 	        return sb.toString();
+         } catch (IOException e) {
+         	logger.error("Error reading data from " + tokenUrl, e);
+         	return null;
+         }
+    }
 }

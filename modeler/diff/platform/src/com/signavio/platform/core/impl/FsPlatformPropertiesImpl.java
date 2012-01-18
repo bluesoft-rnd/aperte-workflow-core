@@ -87,7 +87,18 @@ public class FsPlatformPropertiesImpl implements PlatformProperties {
 		aperteStepEditorUrl = props.getProperty("aperteStepEditorUrl");
 		aperteQueueEditorUrl = props.getProperty("aperteQueueEditorUrl");
 		aperteStepListUrl = props.getProperty("aperteStepListUrl");
-		aperteOsgiPluginsDir = props.getProperty("aperteOsgiPluginsDir");
+		
+		String tempAperteOsgiPluginsDir = props.getProperty("aperteOsgiPluginsDir");
+		if (tempAperteOsgiPluginsDir != null && !tempAperteOsgiPluginsDir.trim().isEmpty()) {
+			if (tempAperteOsgiPluginsDir.endsWith(File.separator)) {
+			  aperteOsgiPluginsDir = tempAperteOsgiPluginsDir.substring(0, tempAperteOsgiPluginsDir.length()-1);
+			} else {
+			  aperteOsgiPluginsDir = tempAperteOsgiPluginsDir;
+			}
+		} else {
+			// TODO figure out how to import maven dependencies from rest of modules so getHome() won't be duplicated
+            aperteOsgiPluginsDir = getHomePath() + File.separator + "osgi-plugins";
+		}
 		jbpmGuiUrl = props.getProperty("jbpmGuiUrl");
 	}
 

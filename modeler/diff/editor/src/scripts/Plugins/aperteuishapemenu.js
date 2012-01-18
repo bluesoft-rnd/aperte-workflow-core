@@ -191,8 +191,12 @@ ORYX.Plugins.AperteUiShapeMenuPlugin = ORYX.Plugins.ShapeMenuPlugin.extend({
 						inputType:'text',
 						fieldLabel:'stepname',
 						value: stepname
-					})
-				  ]
+					}),
+					new Ext.form.Hidden({id:'aperteToken',
+                        name:'aperteToken',
+                        value: aperteToken
+                    })
+            ]
 		});
  
 		form.getForm().el.dom.action = form.url;

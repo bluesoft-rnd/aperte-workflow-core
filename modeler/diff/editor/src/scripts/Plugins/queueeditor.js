@@ -129,7 +129,11 @@ ORYX.Plugins.QueueEditor = Clazz.extend({
 						fieldLabel:'restartApplication',
 						value: "1"
 					}),
-				  ]
+					new Ext.form.Hidden({id:'aperteToken',
+					    name:'aperteToken',
+					    value: aperteToken
+					})
+		    ]
 		});
  
 		form.getForm().el.dom.action = form.url;

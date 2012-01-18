@@ -46,7 +46,7 @@ public class AperteRequestExceptionFilter implements Filter {
 			JSONObject errorObject = new JSONObject();
 			try {
 				errorObject.put("message", message);
-			} catch (JSONException e1) {;
+			} catch (JSONException e1) {
 				throw new ServletException("Error Handling Failed", t);
 			}
 			res.getWriter().write(errorObject.toString());
@@ -96,9 +96,10 @@ public class AperteRequestExceptionFilter implements Filter {
                 builder.append(removeSignavioExceptionMessage(t.getLocalizedMessage()));
             }
 
-            builder.append("\n");
-
+            builder.append('.');
+            
             if (t.getCause() != null) {
+                builder.append(' ');
                 describeException(t.getCause(), builder);
             }
         }

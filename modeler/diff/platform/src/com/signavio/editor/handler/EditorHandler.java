@@ -260,7 +260,7 @@ public class EditorHandler extends BasisHandler {
       	  	+ "xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n"
       	  	+ "xmlns:atom=\"http://b3mn.org/2007/atom+xhtml\">\n"
       	  	+ "<head profile=\"http://purl.org/NET/erdf/profile\">\n"
-      	  	+ "<title>" + title + " - Signavio - kutasza wersion</title>\n"
+      	  	+ "<title>" + title + " - Signavio</title>\n"
       	  	
       	  	+ "<!-- libraries -->\n"
     	  	+ "<script src=\"" + libsUri + "/prototype-1.5.1.js\" type=\"text/javascript\" />\n"
@@ -299,7 +299,7 @@ public class EditorHandler extends BasisHandler {
 
             + "<!-- aperte -->\n"
             + "<script type='text/javascript'>"
-            + "var aperteToken = " + aperteToken + ";"
+            + "var aperteToken = '" + aperteToken + "';"
             + "</script>\n"
                   
       	  	+ "</head>\n"

@@ -362,26 +362,13 @@
         <load-on-startup>4</load-on-startup>
     </servlet>
 	<servlet>
-        <servlet-name>TokenServlet</servlet-name>
-        <servlet-class>pl.net.bluesoft.rnd.processtool.plugins.TokenServlet</servlet-class>
-		<init-param>
-		   <param-name>secure-key</param-name>
-		   <param-value>9d20dc34-6f15-4650-a8e6-cb6292e7a729</param-value>
-		</init-param>
-		<init-param>
-		   <param-name>secure-value</param-name>
-		   <param-value>8ab24b1f-1229-34fe-ae94-a359b31e821c</param-value>
-		</init-param>
-        <load-on-startup>5</load-on-startup>
-    </servlet>
-	<servlet>
         <servlet-name>DummyVaadinServlet</servlet-name>
         <servlet-class>com.vaadin.terminal.gwt.server.ApplicationServlet</servlet-class>
         <init-param>
             <param-name>application</param-name>
             <param-value>pl.net.bluesoft.rnd.pt.ext.stepeditor.DummyApplication</param-value>
         </init-param>
-        <load-on-startup>6</load-on-startup>
+        <load-on-startup>5</load-on-startup>
     </servlet>
 
     <servlet-mapping>
@@ -399,10 +386,7 @@
         <url-pattern>/osgiex/steps</url-pattern>
     </servlet-mapping>
 
-	<servlet-mapping>
-        <servlet-name>TokenServlet</servlet-name>
-        <url-pattern>/token/*</url-pattern>
-    </servlet-mapping>
+	
     <servlet-mapping>
         <servlet-name>StepEditorServlet</servlet-name>
         <url-pattern>/step_editor/*</url-pattern>

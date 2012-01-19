@@ -46,7 +46,6 @@ public class GenerateTokenServlet extends HttpServlet {
             }
         } else if (req.getParameter("token") != null && req.getParameter("returl") == null) {
             resp.setContentType("text/plain");
-            //iterate through map and remove expired tokens
             TokenInfo ti = tokenMap.get(req.getParameter("token"));
             if (ti != null && ti.getUserLogin() != null) {
                 resp.getWriter().print(ti.getUserLogin());

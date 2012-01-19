@@ -269,10 +269,11 @@
         <filter-name>Minifier Filter - JSP</filter-name>
         <url-pattern>*.jsp</url-pattern>
     </filter-mapping>
-	<filter-mapping>
-        <filter-name>PermissionFilter</filter-name>
-        <url-pattern>/osgiex/steps</url-pattern>
-    </filter-mapping>
+    <!-- we don't have to protect this information for now -->
+	<!--<filter-mapping>-->
+        <!--<filter-name>PermissionFilter</filter-name>-->
+        <!--<url-pattern>/osgiex/steps</url-pattern>-->
+    <!--</filter-mapping>-->
 	<filter-mapping>
         <filter-name>PermissionFilter</filter-name>
         <url-pattern>/step_editor/*</url-pattern>
@@ -397,6 +398,7 @@
         <servlet-name>OSGIStepExposureServlet</servlet-name>
         <url-pattern>/osgiex/steps</url-pattern>
     </servlet-mapping>
+
 	<servlet-mapping>
         <servlet-name>TokenServlet</servlet-name>
         <url-pattern>/token/*</url-pattern>

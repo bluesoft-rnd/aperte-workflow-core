@@ -71,7 +71,8 @@ public class WidgetInfoLoader {
 			Collection<Property<?>> properties = CollectionUtils.collect(fields, new FieldTransformer());
 			Collection<Property<?>> permissions = getPropertiesList(p);
 
-			return new WidgetItem(a.name(), docMap.get("name"), docMap.get("description"), docMap.get("icon"), properties, permissions, childrenAllowed, configurator,
+			return new WidgetItem(a.name(), docMap.get("name"), docMap.get("description"),
+                    docMap.get("icon"), properties, permissions, childrenAllowed, configurator,
 					bundle);
 		}
 		

@@ -286,6 +286,11 @@
         <filter-name>PermissionFilter</filter-name>
         <url-pattern>/osgi</url-pattern>
     </filter-mapping>
+	<filter-mapping>
+        <filter-name>PermissionFilter</filter-name>
+        <url-pattern>/g_token</url-pattern>
+    </filter-mapping>
+
     <listener>
         <listener-class>com.liferay.portal.kernel.servlet.SerializableSessionAttributeListener</listener-class>
     </listener>
@@ -308,6 +313,11 @@
             <param-value>com.vaadin.terminal.gwt.server.ApplicationPortlet2</param-value>
         </init-param>
         <load-on-startup>0</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>GenerateTokenServlet</servlet-name>
+        <servlet-class>org.aperteworkflow.gui.auth.GenerateTokenServlet</servlet-class>
     </servlet>
 
     <servlet>
@@ -372,8 +382,17 @@
         </init-param>
         <load-on-startup>6</load-on-startup>
     </servlet>
-	
-	
+
+    <servlet-mapping>
+        <servlet-name>GenerateTokenServlet</servlet-name>
+        <url-pattern>/g_token</url-pattern>
+    </servlet-mapping>
+
+	 <servlet-mapping>
+        <servlet-name>GenerateTokenServlet</servlet-name>
+        <url-pattern>/v_token</url-pattern>
+    </servlet-mapping>
+
     <servlet-mapping>
         <servlet-name>OSGIStepExposureServlet</servlet-name>
         <url-pattern>/osgiex/steps</url-pattern>

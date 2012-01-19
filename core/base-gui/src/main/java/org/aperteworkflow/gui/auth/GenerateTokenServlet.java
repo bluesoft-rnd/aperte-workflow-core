@@ -1,9 +1,7 @@
 package org.aperteworkflow.gui.auth;
 
-import com.sun.org.apache.xerces.internal.impl.dv.util.HexBin;
 import pl.net.bluesoft.rnd.processtool.plugins.PermissionFilter;
 import pl.net.bluesoft.rnd.processtool.plugins.TokenInfo;
-import pl.net.bluesoft.rnd.processtool.plugins.TokenServlet;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;

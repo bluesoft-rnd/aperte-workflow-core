@@ -25,7 +25,6 @@
         <module>core</module>
         <module>plugins</module>
         <module>utils</module>
-        <module>modeler</module>
         <module>samples</module>
     </modules>
 

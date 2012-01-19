@@ -1,24 +1,6 @@
 package pl.net.bluesoft.rnd.pt.ext.stepeditor.user;
 
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import org.apache.commons.lang.StringUtils;
-import org.vaadin.dialogs.ConfirmDialog;
-
-import pl.net.bluesoft.rnd.pt.ext.stepeditor.AbstractStepEditorWindow;
-import pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages;
-import pl.net.bluesoft.rnd.pt.ext.stepeditor.StepEditorApplication;
-import pl.net.bluesoft.rnd.pt.ext.stepeditor.user.JSONHandler.ParsingFailedException;
-import pl.net.bluesoft.rnd.pt.ext.stepeditor.user.JSONHandler.WidgetNotFoundException;
-
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -34,28 +16,41 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Tree.TreeDragMode;
 import com.vaadin.ui.Window.Notification;
+import org.apache.commons.lang.StringUtils;
+import org.vaadin.dialogs.ConfirmDialog;
+import pl.net.bluesoft.rnd.pt.ext.stepeditor.AbstractStepEditorWindow;
+import pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages;
+import pl.net.bluesoft.rnd.pt.ext.stepeditor.StepEditorApplication;
+import pl.net.bluesoft.rnd.pt.ext.stepeditor.user.JSONHandler.ParsingFailedException;
+import pl.net.bluesoft.rnd.pt.ext.stepeditor.user.JSONHandler.WidgetNotFoundException;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class UserStepEditorWindow extends AbstractStepEditorWindow implements Handler, ValueChangeListener, ClickListener {
 
 	private static final long		serialVersionUID	= 2136349026207825108L;
-	private transient Logger		logger				= Logger.getLogger(UserStepEditorWindow.class.getName());
+	private static final Logger		logger				= Logger.getLogger(UserStepEditorWindow.class.getName());
 
 	private HierarchicalContainer	stepTreeContainer;
 	private Tree					stepTree;
 	private Tree					availableTree;
 
 	private WidgetItemInStep		rootItem;
-
-	private TextField				nameField;
-	private TextArea				commentField;
+    
 	private TextField               assigneeField;
 	private TextField               candidateGroupsField;
 	private TextField               swimlaneField;
 	private Label					description;
 	
 	private Button					saveButton;
-	//private Button					closeButton;
-	private Button					removeFromStepTreeBtn;
+	private Button                  removeFromStepTreeButton;
 	private boolean					saved;
 	
 	private WidgetFormWindow		paramPanel;
@@ -64,13 +59,8 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 	private static final Action[]	ACTIONS				= new Action[] { ACTION_DELETE };
 	private static final Action[]	COMMON_ACTIONS		= new Action[] {};
 
-	
-	
-	// private static final String FEED_FUNCTION =
-	// "window.opener.editorGetData();";
-
-	public UserStepEditorWindow(StepEditorApplication application, String jsonConfig, String url, String stepName) {
-		super(application, jsonConfig, url, stepName);
+	public UserStepEditorWindow(StepEditorApplication application, String jsonConfig, String url, String stepName, String stepType) {
+		super(application, jsonConfig, url, stepName, stepType);
 	}
 	
 	public ComponentContainer init() {
@@ -85,9 +75,19 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 		
 		return comp;
 	}
-	
-    public Label getHeaderLabel() {
-		return new Label(Messages.getString("userStep.label"));
+
+    @Override
+    public Component getHeader() {
+    	Label headerLabel = new Label();
+        headerLabel.setContentMode(Label.CONTENT_XHTML);
+
+        if (stepName != null && !stepName.isEmpty()) {
+            headerLabel.setValue(Messages.getString("userStep.stepName", stepName));
+        } else {
+            headerLabel.setValue(Messages.getString("userStep.noStepName"));
+        }
+
+        return headerLabel;
     }
 	
 	private ComponentContainer buildLayout() {
@@ -95,129 +95,114 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 		// getMainWindow().addListener(this);
 
 		saveButton = new Button(Messages.getString("button.save"), this);
-		//closeButton = new Button(Messages.getString("button.close"), this);
-		removeFromStepTreeBtn = new Button(Messages.getString("form.delete"), this);
-		
-		nameField = new TextField(Messages.getString("field.name"));
-		nameField.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-		nameField.setNullRepresentation("");
-		commentField = new TextArea(Messages.getString("field.commentary"));
-		commentField.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-		commentField.setNullRepresentation("");
+		removeFromStepTreeButton = new Button(Messages.getString("form.delete"), this);
+
 		assigneeField = new TextField(Messages.getString("field.assignee"));
-		assigneeField.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-		assigneeField .setNullRepresentation("");
+        assigneeField.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+		assigneeField.setNullRepresentation("");
 		candidateGroupsField = new TextField(Messages.getString("field.candidateGroups"));
-		candidateGroupsField.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+        candidateGroupsField.setWidth(100, Sizeable.UNITS_PERCENTAGE);
 		candidateGroupsField .setNullRepresentation("");
 		swimlaneField = new TextField(Messages.getString("field.swimlane"));
-		swimlaneField.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-		swimlaneField .setNullRepresentation("");
+        swimlaneField.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+		swimlaneField.setNullRepresentation("");
 
 		availableTree = new Tree(Messages.getString("availableTree.title"), getAvailableItems());
-		availableTree.setItemCaptionMode(Tree.ITEM_CAPTION_MODE_PROPERTY);
-		availableTree.setItemCaptionPropertyId("name");
-		availableTree.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-		availableTree.setDragMode(TreeDragMode.NODE);
+        availableTree.setItemCaptionMode(Tree.ITEM_CAPTION_MODE_PROPERTY);
+        availableTree.setItemCaptionPropertyId("name");
+        availableTree.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+        availableTree.setDragMode(TreeDragMode.NODE);
 		availableTree.setSelectable(true);
-		availableTree.setItemIconPropertyId("icon");
-		availableTree.addListener((ValueChangeListener) this);
+        availableTree.setItemIconPropertyId("icon");
+        availableTree.addListener((ValueChangeListener) this);
 		availableTree.setImmediate(true);
 
 		stepTree = new Tree(Messages.getString("stepTree.title"), getCurrentStep());
-		stepTree.setItemCaptionMode(Tree.ITEM_CAPTION_MODE_PROPERTY);
-		stepTree.setItemCaptionPropertyId("name");
-		stepTree.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-		// stepTree.setSizeFull();
+        stepTree.setItemCaptionMode(Tree.ITEM_CAPTION_MODE_PROPERTY);
+        stepTree.setItemCaptionPropertyId("name");
+        stepTree.setWidth(100, Sizeable.UNITS_PERCENTAGE);
 		stepTree.setDragMode(TreeDragMode.NODE);
 		stepTree.addActionHandler(this);
-		stepTree.addListener((ValueChangeListener) this);
+        stepTree.addListener((ValueChangeListener) this);
 		stepTree.setItemIconPropertyId("icon");
 		stepTree.setSelectable(true);
 		stepTree.setImmediate(true);
-		stepTree.setItemDescriptionGenerator(new PropertiesDescriptionGenerator());
-		stepTree.expandItemsRecursively(rootItem);
+        stepTree.setItemDescriptionGenerator(new PropertiesDescriptionGenerator());
+        stepTree.expandItemsRecursively(rootItem);
 
 		availableTree.setDropHandler(new TreeDeleteHandler(this, stepTree));
 		stepTree.setDropHandler(new TreeDropHandler(stepTree, availableTree));
 
 		description = new Label(Messages.getString("availableTree.description.prompt"));
-		description.setContentMode(Label.CONTENT_XHTML);
+        description.setContentMode(Label.CONTENT_XHTML);
 		description.setSizeFull();
 
-		
+        removeFromStepTreeButton.setEnabled(stepTree.getValue() != null);
+        paramPanel = new WidgetFormWindow();
 
-		VerticalLayout vlr = new VerticalLayout();
-		vlr.setSpacing(true);
-		vlr.setMargin(true);
-		vlr.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-		// vlr.setSizeFull();
-		vlr.addComponent(availableTree);
-		vlr.addComponent(description);
+		VerticalLayout widgetPaletteLayout = new VerticalLayout();
+        widgetPaletteLayout.setSpacing(true);
+        widgetPaletteLayout.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+		widgetPaletteLayout.addComponent(availableTree);
+        widgetPaletteLayout.addComponent(description);
 
-		HorizontalLayout hll = new HorizontalLayout();
-		hll.addComponent(saveButton);
-		//hll.addComponent(closeButton);
+		VerticalLayout attributeLayout = new VerticalLayout();
+        attributeLayout.setSizeUndefined();
+		attributeLayout.setWidth(245, Sizeable.UNITS_PIXELS);
+        attributeLayout.addComponent(assigneeField);
+        attributeLayout.addComponent(candidateGroupsField);
+        attributeLayout.addComponent(swimlaneField);
 
-		VerticalLayout vll = new VerticalLayout();
-		vll.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-		// vll.setSizeFull();
-		vll.addComponent(hll);
-		vll.addComponent(nameField);
-		vll.addComponent(commentField);
-		vll.addComponent(assigneeField);
-		vll.addComponent(candidateGroupsField);
-		vll.addComponent(swimlaneField);
-		vll.addComponent(stepTree);
-		vll.addComponent(removeFromStepTreeBtn);
-				
-		vll.setExpandRatio(hll, 0);
-		vll.setExpandRatio(nameField, 0);
-		vll.setExpandRatio(commentField, 0);
-		vll.setExpandRatio(assigneeField, 0);
-		vll.setExpandRatio(candidateGroupsField, 0);
-		vll.setExpandRatio(swimlaneField, 0);
-		vll.setExpandRatio(stepTree, 9);
-		vll.setExpandRatio(removeFromStepTreeBtn, 0);
+        VerticalLayout stepLayout = new VerticalLayout();
+        stepLayout.setWidth(245, Sizeable.UNITS_PIXELS);
+        stepLayout.addComponent(stepTree);
+        stepLayout.addComponent(removeFromStepTreeButton);
 
-		
+        GridLayout mainLayout = new GridLayout(6, 3);
+        mainLayout.setSizeFull();
+        mainLayout.setSpacing(true);
+        mainLayout.addComponent(saveButton, 0, 0);
+        mainLayout.addComponent(attributeLayout, 0, 1, 1, 1);
+        mainLayout.addComponent(stepLayout, 2, 1, 3, 1);
+        mainLayout.addComponent(widgetPaletteLayout, 4, 1, 5, 2);
+        mainLayout.addComponent(paramPanel, 0, 2, 3, 2);
 
-		HorizontalLayout hl = new HorizontalLayout();
-		hl.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-		// hl.setSizeFull();
-		hl.setSpacing(true);
-		hl.setMargin(true);
+        mainLayout.setComponentAlignment(widgetPaletteLayout, Alignment.TOP_LEFT);
+        mainLayout.setComponentAlignment(stepLayout, Alignment.TOP_LEFT);
+        mainLayout.setComponentAlignment(paramPanel, Alignment.TOP_LEFT);
 
-		hl.addComponent(vll);
-		hl.addComponent(vlr);
-		removeFromStepTreeBtn.setEnabled(stepTree.getValue() != null);
-		
-		VerticalLayout vl = new VerticalLayout();
-		vl.addComponent(hl);
-		paramPanel = new WidgetFormWindow();
-		vl.addComponent(paramPanel);
-		return vl;
+        mainLayout.setColumnExpandRatio(0, 0);
+        mainLayout.setColumnExpandRatio(1, 0);
+        mainLayout.setColumnExpandRatio(2, 0);
+        mainLayout.setColumnExpandRatio(3, 0);
+        mainLayout.setColumnExpandRatio(4, 0);
+        mainLayout.setColumnExpandRatio(5, 1);
+        mainLayout.setRowExpandRatio(0, 0);
+        mainLayout.setRowExpandRatio(1, 0);
+        mainLayout.setRowExpandRatio(2, 1);
+
+        return mainLayout;
 	}
 
 	public void deleteTreeItem(final Object widget) {
-		ConfirmDialog.show(	application.getMainWindow(),
-							Messages.getString("dialog.delete.title"),
-							Messages.getString("dialog.delete.question"),
-							Messages.getString("dialog.delete.confirm"),
-							Messages.getString("dialog.delete.cancel"),
-							new ConfirmDialog.Listener() {
+		ConfirmDialog.show(application.getMainWindow(),
+                Messages.getString("dialog.delete.title"),
+                Messages.getString("dialog.delete.question"),
+                Messages.getString("dialog.delete.confirm"),
+                Messages.getString("dialog.delete.cancel"),
+                new ConfirmDialog.Listener() {
+                    public void onClose(ConfirmDialog dialog) {
+                        if (dialog.isConfirmed()) {
+                            HierarchicalContainer hc = (HierarchicalContainer) stepTree.getContainerDataSource();
+                            hc.removeItemRecursively(widget);
+                            showParams(null);
+                            removeFromStepTreeButton.setEnabled(false);
+                        } else {
 
-								public void onClose(ConfirmDialog dialog) {
-									if (dialog.isConfirmed()) {
-										HierarchicalContainer hc = (HierarchicalContainer) stepTree.getContainerDataSource();
-										hc.removeItemRecursively(widget);
-										showParams(null);
-										removeFromStepTreeBtn.setEnabled(false);
-									} else {
-
-									}
-								}
-							});
+                        }
+                    }
+                }
+        );
 	}
 
 	@Override
@@ -233,12 +218,10 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 		HierarchicalContainer hc = getAvailableTreeContainer();
 
 		Map<BundleItem, Collection<WidgetItem>> availableWidgets = new HashMap<BundleItem, Collection<WidgetItem>>();
-
 		try {
 			availableWidgets = WidgetInfoLoader.loadAvailableWidgets(application);
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-			description.setValue(e.getLocalizedMessage() + ": " + e.getStackTrace());
+            logger.log(Level.SEVERE, "Error loading available widgets", e);
 		}
 
 		for (Entry<BundleItem, Collection<WidgetItem>> entry : availableWidgets.entrySet()) {
@@ -317,18 +300,13 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 		}
 	}
 
-	
-
-	
 	private void loadJSONConfig() {
 		try {
 			Map<String, String> map = JSONHandler.loadConfig(stepTreeContainer, rootItem, jsonConfig);
 			if (stepTree != null) {
 				stepTree.expandItemsRecursively(rootItem);
 			}
-			
-			nameField.setValue(map.get(JSONHandler.NAME));
-			commentField.setValue(map.get(JSONHandler.COMMENTARY));
+
 			assigneeField.setValue(map.get(JSONHandler.ASSIGNEE));
 			swimlaneField.setValue(map.get(JSONHandler.SWIMLANE));
 			candidateGroupsField.setValue(map.get(JSONHandler.CANDIDATE_GROUPS));
@@ -340,12 +318,12 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 			//jsonConfig = dumpTreeToJSON();
 
 		} catch (WidgetNotFoundException e) {
-			e.printStackTrace();
-			application.getMainWindow().showNotification(	Messages.getString("error.config_not_loaded.title"),
+			logger.log(Level.SEVERE, "Widget not found", e);
+			application.getMainWindow().showNotification(Messages.getString("error.config_not_loaded.title"),
 												Messages.getString("error.config_not_loaded.widget_not_found.body", e.getWidgetItemName()),
 												Notification.TYPE_ERROR_MESSAGE);
 		} catch (ParsingFailedException e) {
-			e.printStackTrace();
+            logger.log(Level.SEVERE, "Parsing failed found", e);
 			application.getMainWindow().showNotification(	Messages.getString("error.config_not_loaded.title"),
 												Messages.getString("error.config_not_loaded.unexpected_error.body", e.getLocalizedMessage()),
 												Notification.TYPE_ERROR_MESSAGE);
@@ -380,7 +358,7 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 			// closeWindow();
 		//} else if (event.getComponent() == closeButton) {
 		//	closeWindow();
-		} else if (event.getComponent() == removeFromStepTreeBtn) {
+		} else if (event.getComponent() == removeFromStepTreeButton) {
 			if (stepTree.getValue() != null) {
 			  WidgetItemInStep widget = (WidgetItemInStep) stepTree.getValue();
 			  deleteTreeItem(widget);
@@ -404,7 +382,7 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 	}*/
 	
 	private String dumpTreeToJSON() {
-		return JSONHandler.dumpTreeToJSON(stepTree, rootItem, nameField.getValue(), commentField.getValue(), assigneeField.getValue(), candidateGroupsField.getValue(), swimlaneField.getValue(), stepName);
+		return JSONHandler.dumpTreeToJSON(stepTree, rootItem, assigneeField.getValue(), candidateGroupsField.getValue(), swimlaneField.getValue(), stepType);
 	}
 
 	// @Override
@@ -419,12 +397,12 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 	//private boolean is_saved() {
 		//String tmpJSONConfig = dumpTreeToJSON();
 		//return tmpJSONConfig.equals(jsonConfig);
-	//}
+    //}
 
-	@Override
-	public void valueChange(ValueChangeEvent event) {
+    @Override
+    public void valueChange(ValueChangeEvent event) {
 		
-		removeFromStepTreeBtn.setEnabled(stepTree.getValue() != null && stepTree.getValue() != rootItem);
+		removeFromStepTreeButton.setEnabled(stepTree.getValue() != null && stepTree.getValue() != rootItem);
 		
 		if (event.getProperty() == stepTree) {
 			if (stepTree.getValue() == null || stepTree.getValue() == rootItem) {

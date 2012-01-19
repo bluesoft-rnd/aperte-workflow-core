@@ -23,12 +23,13 @@ import java.util.Map;
 
 public class StepEditorApplication extends Application implements ParameterHandler {
 
-	private static final long		serialVersionUID	= 2136349026207825108L;
-	private static final String     TASKTYPE_USER       = "User";
+	private static final long		serialVersionUID	= 2136349026207825108L;;
+    private static final String     TASKTYPE_USER       = "User";
 
 	private Window					mainWindow;
 	private JavaScriptHelper		jsHelper;
     private String					url;
+    private String                  stepName;
 
 	public Window getMainWindow() {
 		return mainWindow;
@@ -40,64 +41,72 @@ public class StepEditorApplication extends Application implements ParameterHandl
 
 	@Override
 	public void handleParameters(Map<String, String[]> parameters) {
-		String stepName = null, jsonConfig = null;
+        if (parameters == null || parameters.size() == 0) {
+            // No parameters to handle, we are not interested in such a request
+            // it may be a request for static resource e.g. <servlet>/APP/323/root.gif
+            return;
+        }
+
+		String stepType = getStringParameterByName("stepType", parameters);
+        if (stepType == null) {
+            // No stepType in request, we have nothing to refresh
+            return;
+        }
+
+        String jsonConfig = getStringParameterByName("stepConfig", parameters);
+        stepName = getStringParameterByName("stepName", parameters);
+        url = getStringParameterByName("callbackUrl", parameters);
 		
-		String[] stepNames = parameters.get("stepname");
-		if (stepNames != null && stepNames.length > 0 && !StringUtils.isEmpty(stepNames[0])) {
-			stepName = stepNames[0];
-		}
-		
-		String[] stepConfig = parameters.get("step_config");
-		if (stepConfig != null && stepConfig.length > 0 && !StringUtils.isEmpty(stepConfig[0])) {
-			jsonConfig = stepConfig[0];
-		}
-		
-		String[] urls = parameters.get("callback_url");
-		if (urls != null && urls.length > 0 && !StringUtils.isEmpty(urls[0])) {
-			url = urls[0];
-		}
-		
-		refresh(stepName, jsonConfig);
-		
+		refresh(stepName, stepType, jsonConfig);
 	}
 
-	private void refresh(String stepName, String jsonConfig) {
+    private String getStringParameterByName(String paramterName, Map<String, String[]> paramterMap) {
+        String[] value = paramterMap.get(paramterName);
+        if (value != null && value.length > 0 && !StringUtils.isEmpty(value[0])) {
+            return value[0];
+        }
+        return null;
+    }
+    
+	private void refresh(String stepName, String stepType, String jsonConfig) {
 		AbstractStepEditorWindow stepEditorWindow;
-		if (TASKTYPE_USER.equals(stepName)) {
-			stepEditorWindow = new UserStepEditorWindow(this,jsonConfig,url,stepName);
+		if (TASKTYPE_USER.equals(stepType)) {
+			stepEditorWindow = new UserStepEditorWindow(this, jsonConfig, url, stepName, stepType);
 		} else {
-			stepEditorWindow = new AutoStepEditorWindow(this,jsonConfig,url,stepName);
+			stepEditorWindow = new AutoStepEditorWindow(this, jsonConfig, url, stepName, stepType);
 		}
 		
 		ComponentContainer window = stepEditorWindow.init();
-		ComponentContainer header = buildHeader(stepEditorWindow, stepName);
+		ComponentContainer header = buildHeader(stepEditorWindow, stepType);
 		refreshWindow(header, window);
 	}
 	
-	private ComponentContainer buildHeader(AbstractStepEditorWindow sew, String stepName) {
-		Label title = sew.getHeaderLabel();
-		
-		VerticalLayout header = new VerticalLayout();
-		header.setSpacing(true);
-		header.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-		header.addComponent(title);
-		header.setExpandRatio(title, 0);
-		Select stepList = prepareStepList(stepName);
-		header.addComponent(stepList);
-		header.setExpandRatio(stepList, 0);
-		
-		return header;
+	private ComponentContainer buildHeader(AbstractStepEditorWindow sew, String stepType) {
+		Component header = sew.getHeader();
+        Select stepList = prepareStepList(stepType);
+
+		HorizontalLayout headerLayout = new HorizontalLayout();
+		headerLayout.setSpacing(true);
+        headerLayout.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+        headerLayout.addComponent(header);
+		headerLayout.addComponent(stepList);
+        headerLayout.setExpandRatio(header, 1);
+        headerLayout.setExpandRatio(stepList, 0);
+        headerLayout.setComponentAlignment(stepList, Alignment.TOP_RIGHT);
+
+		return headerLayout;
 	}
 	
 	private void refreshWindow(ComponentContainer header, ComponentContainer windowContainer) {
 		mainWindow.removeAllComponents();
 		VerticalLayout main = new VerticalLayout();
+        main.setMargin(true);
 		main.addComponent(header);
 		main.addComponent(windowContainer);
 		mainWindow.setContent(main);
 	}
 	
-	private Select prepareStepList(String stepName) {
+	private Select prepareStepList(String stepType) {
 		final Select stepList = new Select();
 		stepList.setNullSelectionAllowed(false);
         stepList.setImmediate(true);
@@ -117,13 +126,13 @@ public class StepEditorApplication extends Application implements ParameterHandl
             }
         }
 		
-		stepList.setValue(stepName);
+		stepList.setValue(stepType);
 		
 		stepList.addListener(new Property.ValueChangeListener() {
             @Override
             public void valueChange(ValueChangeEvent event) {
-            	String sn = (String)stepList.getValue();
-            	refresh(sn, null);
+            	String sn = (String) stepList.getValue();
+            	refresh(stepName, sn, null);
             }
         });
 		
@@ -132,14 +141,14 @@ public class StepEditorApplication extends Application implements ParameterHandl
 	
 	@Override
 	public void init() {
-
 		mainWindow = new Window(Messages.getString("application.title"));
-		jsHelper = new JavaScriptHelper(mainWindow);
-		jsHelper.preventWindowClosing();
 		mainWindow.addParameterHandler(this);
+
+        jsHelper = new JavaScriptHelper(mainWindow);
+        jsHelper.preventWindowClosing();
+
 		setMainWindow(mainWindow);
 	}
-
 	
 	public static ProcessToolRegistry getRegistry(Application application) {
 		ApplicationContext ctx = application.getContext();

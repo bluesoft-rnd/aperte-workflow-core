@@ -1,23 +1,21 @@
 package pl.net.bluesoft.rnd.pt.ext.stepeditor.user;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
+import com.vaadin.data.Item;
+import com.vaadin.data.util.HierarchicalContainer;
+import com.vaadin.ui.Tree;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
-
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.TaskConfig;
 
-import com.vaadin.data.Item;
-import com.vaadin.data.util.HierarchicalContainer;
-import com.vaadin.ui.Tree;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class JSONHandler {
 
@@ -26,7 +24,7 @@ public class JSONHandler {
 	private static final String PERMISSIONS = "permissions";
 	private static final String CHILDREN = "children";
 	public static final String NAME = "name";
-	public static final String COMMENTARY = "commentary";
+	//public static final String COMMENTARY = "commentary";
 	public static final String ASSIGNEE = "assignee";
 	public static final String SWIMLANE = "swimlane";
 	public static final String CANDIDATE_GROUPS = "candidate_groups";
@@ -56,12 +54,12 @@ public class JSONHandler {
 			analyzeChildren(map, hc, rootItem);
 			
 			HashMap<String, String> resultMap = new HashMap<String, String>();
-			if(map.containsKey(NAME)){
-				resultMap.put(NAME, map.get(NAME).toString());
-			}
-			if(map.containsKey(COMMENTARY)){
-				resultMap.put(COMMENTARY, map.get(COMMENTARY).toString());
-			}
+//			if(map.containsKey(NAME)){
+//				resultMap.put(NAME, map.get(NAME).toString());
+//			}
+//			if(map.containsKey(COMMENTARY)){
+//				resultMap.put(COMMENTARY, map.get(COMMENTARY).toString());
+//			}
 			if(map.containsKey(ASSIGNEE)){
 				resultMap.put(ASSIGNEE, map.get(ASSIGNEE).toString());
 			}
@@ -170,13 +168,13 @@ public class JSONHandler {
 		return map;
 	}
 
-	protected static String dumpTreeToJSON(Tree tree, WidgetItemInStep rootItem, Object name, Object commentary, Object assignee, Object candidateGroups, Object swimlane, String stepName) {
+	protected static String dumpTreeToJSON(Tree tree, WidgetItemInStep rootItem, Object assignee, Object candidateGroups, Object swimlane, String stepName) {
 		TaskConfig tc = new TaskConfig();
 		tc.setTaskName(stepName);
 		
 		Map<String, Object> treeMap = collectNode(tree, rootItem);
-		treeMap.put(NAME, name);
-		treeMap.put(COMMENTARY, commentary);
+//		treeMap.put(NAME, name);
+//		treeMap.put(COMMENTARY, commentary);
 		treeMap.put(ASSIGNEE, assignee);
 		treeMap.put(CANDIDATE_GROUPS, candidateGroups);
 		treeMap.put(SWIMLANE, swimlane);

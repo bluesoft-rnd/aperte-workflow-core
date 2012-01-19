@@ -3,6 +3,7 @@ package pl.net.bluesoft.rnd.processtool.plugins;
 import com.thoughtworks.xstream.XStream;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig.Feature;
+import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 import pl.net.bluesoft.util.lang.Classes;
@@ -38,29 +39,26 @@ public class StepExposureServlet extends HttpServlet {
 
 		List<Map<String, Object>> steps = new LinkedList<Map<String, Object>>();
 
-        Collection<PluginMetadata> metadata = reg.getPluginManager().getRegisteredPlugins();
-        for (PluginMetadata bm : metadata) {
-            for (Class<?> step : bm.getStepClasses()) {
-                Map<String, Object> map = new HashMap<String, Object>();
-
-                AliasName a = Classes.getClassAnnotation(step, AliasName.class);
-                map.put(NAME, a.name());
-
-                List<Field> fields = Classes.getFieldsWithAnnotation(step, AutoWiredProperty.class);
-                List<Map<String, Object>> parameters = new ArrayList<Map<String, Object>>(fields.size());
-                if (fields != null) {
-                    for (Field field : fields) {
-                        Map<String, Object> parameter = new HashMap<String, Object>();
-                        parameter.put(NAME, field.getName());
-                        parameter.put(TYPE, field.getType());
-                        AutoWiredProperty awp = field.getAnnotation(AutoWiredProperty.class);
-                        parameter.put(REQUIRED, awp != null ? awp.required() : false);
-                        parameters.add(parameter);
-                    }
+        Map<String,ProcessToolProcessStep> availableSteps = reg.getAvailableSteps();
+        for (ProcessToolProcessStep stepInstance : availableSteps.values()) {
+            Map<String, Object> map = new HashMap<String, Object>();
+            Class stepClass = stepInstance.getClass();
+            AliasName a = Classes.getClassAnnotation(stepClass, AliasName.class);
+            map.put(NAME, a.name());
+            List<Field> fields = Classes.getFieldsWithAnnotation(stepClass, AutoWiredProperty.class);
+            List<Map<String, Object>> parameters = new ArrayList<Map<String, Object>>(fields.size());
+            if (fields != null) {
+                for (Field field : fields) {
+                    Map<String, Object> parameter = new HashMap<String, Object>();
+                    parameter.put(NAME, field.getName());
+                    parameter.put(TYPE, field.getType());
+                    AutoWiredProperty awp = field.getAnnotation(AutoWiredProperty.class);
+                    parameter.put(REQUIRED, awp != null && awp.required());
+                    parameters.add(parameter);
                 }
-                map.put(PARAMETERS, parameters);
-                steps.add(map);
             }
+            map.put(PARAMETERS, parameters);
+            steps.add(map);
         }
 
 		PrintWriter out = resp.getWriter();

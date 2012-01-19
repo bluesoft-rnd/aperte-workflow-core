@@ -12,6 +12,7 @@ import com.vaadin.ui.*;
 import org.apache.commons.lang.StringUtils;
 import pl.net.bluesoft.rnd.processtool.plugins.PluginMetadata;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.auto.AutoStepEditorWindow;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.user.UserStepEditorWindow;
@@ -117,15 +118,13 @@ public class StepEditorApplication extends Application implements ParameterHandl
         
 		ProcessToolRegistry reg = getRegistry(this);
 
-        Collection<PluginMetadata> metadata = reg.getPluginManager().getRegisteredPlugins();
-        for (PluginMetadata bm : metadata) {
-            for (Class<?> step : bm.getStepClasses()) {
-                AliasName a = Classes.getClassAnnotation(step, AliasName.class);
-                stepList.addItem(a.name());
-                stepList.setItemCaption(a.name(), a.name());
-            }
+        Map<String,ProcessToolProcessStep> availableSteps = reg.getAvailableSteps();
+        for (ProcessToolProcessStep stepInstance : availableSteps.values()) {
+            Class stepClass = stepInstance.getClass();
+            AliasName a = Classes.getClassAnnotation(stepClass, AliasName.class);
+            stepList.addItem(a.name());
+            stepList.setItemCaption(a.name(), a.name());
         }
-		
 		stepList.setValue(stepType);
 		
 		stepList.addListener(new Property.ValueChangeListener() {

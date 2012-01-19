@@ -9,6 +9,7 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import pl.net.bluesoft.rnd.processtool.plugins.PluginMetadata;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.AbstractStepEditorWindow;
@@ -182,32 +183,32 @@ public class AutoStepEditorWindow extends AbstractStepEditorWindow implements Cl
 	
 	private StepDefinition getStepDefinition(String stepName) {
 		ProcessToolRegistry reg = StepEditorApplication.getRegistry(application);
-        Collection<PluginMetadata> metadata = reg.getPluginManager().getRegisteredPlugins();
-        for (PluginMetadata bm : metadata) {
-            for (Class<?> step : bm.getStepClasses()) {
-                AliasName a = Classes.getClassAnnotation(step, AliasName.class);
-                if (stepName.equals(a.name())) {
+        Map<String,ProcessToolProcessStep> availableSteps = reg.getAvailableSteps();
+        for (ProcessToolProcessStep stepInstance : availableSteps.values()) {
+            Class stepClass = stepInstance.getClass();
+            AliasName a = Classes.getClassAnnotation(stepClass, AliasName.class);
+            if (stepName.equals(a.name())) {
 
-                  StepDefinition stepDef = new StepDefinition();
-                  stepDef.setName(a.name());
+              StepDefinition stepDef = new StepDefinition();
+              stepDef.setName(a.name());
 
-                  List<Field> fields = Classes.getFieldsWithAnnotation(step, AutoWiredProperty.class);
+              List<Field> fields = Classes.getFieldsWithAnnotation(stepClass, AutoWiredProperty.class);
 
-                  if (fields != null) {
-                    for (Field field : fields) {
-                        StepParameter param = new StepParameter();
-                        param.setName(field.getName());
-                        param.setType(field.getType());
+              if (fields != null) {
+                for (Field field : fields) {
+                    StepParameter param = new StepParameter();
+                    param.setName(field.getName());
+                    param.setType(field.getType());
 
-                        AutoWiredProperty awp = field.getAnnotation(AutoWiredProperty.class);
-                        param.setRequired(awp != null ? awp.required() : false);
-                        stepDef.addParameter(param);
-                    }
-                  }
-                  return stepDef;
+                    AutoWiredProperty awp = field.getAnnotation(AutoWiredProperty.class);
+                    param.setRequired(awp != null && awp.required());
+                    stepDef.addParameter(param);
                 }
+              }
+              return stepDef;
             }
         }
+//        }
 
 		return null;
 	}

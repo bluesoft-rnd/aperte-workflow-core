@@ -13,6 +13,7 @@ import pl.net.bluesoft.rnd.util.i18n.I18NProvider;
 import pl.net.bluesoft.util.lang.Classes;
 
 import java.lang.reflect.Field;
+import java.net.URL;
 import java.util.*;
 
 public class WidgetInfoLoader {
@@ -96,8 +97,8 @@ public class WidgetInfoLoader {
 	private static DefaultI18NSource	i18NSource = new DefaultI18NSource();
 	private static Collection<I18NProvider>	i18NProviders;
 
-	public static Map<BundleItem, Collection<WidgetItem>> loadAvailableWidgets(Application application) throws ClassNotFoundException {
-		
+	public static Map<BundleItem, Collection<WidgetItem>> loadAvailableWidgets(Application application)
+            throws ClassNotFoundException {
 		
 		ProcessToolRegistry reg = StepEditorApplication.getRegistry(application);
 
@@ -106,30 +107,18 @@ public class WidgetInfoLoader {
 
 		Map<BundleItem, Collection<WidgetItem>> availableWidgets = new HashMap<BundleItem, Collection<WidgetItem>>();
 
-		
-		for (PluginMetadata bundle : reg.getPluginManager().getRegisteredPlugins()) {
-			if (bundle.getWidgetClasses().size() > 0) {
+        //TODO grouping based on annotations, not plugins. Or think about connection between widget and providing mechanism. But to do so only for GUI would seem like an overhead
+        BundleItem bundleItem = new BundleItem("Widgets", "Widgets",
+                new ArrayList<I18NProvider>(),
+                new ArrayList<URL>());
 
-				String bundleName;
-				if (StringUtils.isNotEmpty(bundle.getHumanNameKey()))
-					bundleName = i18NSource.getMessage(bundle.getHumanNameKey(), bundle.getI18NProviders());
-				else
-					bundleName = bundle.getName();
+        Collection widgets = CollectionUtils.collect(new HashSet(reg.getAvailableWidgets().values()),
+                                new WidgetTransformer(bundleItem));
+        while (widgets.remove(null));
 
-				String bundleDescription = null;
-				if (StringUtils.isNotEmpty(bundle.getDescriptionKey()))
-					bundleDescription = i18NSource.getMessage(bundle.getDescriptionKey(), bundle.getI18NProviders());
-
-				BundleItem bundleItem = new BundleItem(bundleName, bundleDescription, bundle.getI18NProviders(), bundle.getIconResources());
-
-				Collection widgets = CollectionUtils.collect(bundle.getWidgetClasses(), new WidgetTransformer(bundleItem));
-				while (widgets.remove(null));
-
-				if (widgets.size() > 0) {
-					availableWidgets.put(bundleItem, widgets);
-				}
-			}
-		}
+        if (widgets.size() > 0) {
+            availableWidgets.put(bundleItem, widgets);
+        }
 
 		return availableWidgets;
 	}

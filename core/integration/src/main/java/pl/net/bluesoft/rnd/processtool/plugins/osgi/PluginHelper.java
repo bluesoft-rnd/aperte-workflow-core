@@ -773,7 +773,7 @@ public class PluginHelper implements PluginManager {
                     break;
                 }
             }
-            if (!loaded) { // cykl albo brakuje zaleznosci
+            if (!loaded) {
                 break;
             }
         }

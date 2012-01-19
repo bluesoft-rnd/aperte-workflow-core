@@ -17,6 +17,7 @@ import pl.net.bluesoft.util.eventbus.EventBusManager;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -45,6 +46,8 @@ public interface ProcessToolRegistry {
     void unregisterStep(String name);
 
 	void unregisterStep(Class<? extends ProcessToolProcessStep> cls);
+
+    Map<String,ProcessToolProcessStep> getAvailableSteps();
 
 	ProcessToolProcessStep getStep(String name);
 
@@ -126,4 +129,7 @@ public interface ProcessToolRegistry {
 
     boolean isJta();
 
+    Map<String, Class<? extends ProcessToolWidget>> getAvailableWidgets();
+
+    Map<String,Class<? extends ProcessToolActionButton>> getAvailableButtons();
 }

@@ -350,6 +350,12 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
         return removeAnnotatedClass(cls);
 	}
 
+    @Override
+    public Map<String, Class<? extends ProcessToolWidget>> getAvailableWidgets() {
+        return new HashMap(WIDGET_REGISTRY);
+    }
+    
+    
 	@Override
 	public void registerWidget(Class<?> cls) {
 		registerWidget(cls.getName(), (Class<? extends ProcessToolWidget>) cls);
@@ -390,6 +396,11 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
             logger.info("Unregistered button alias: " + annotation.name() + " -> " + cls.getName());
 		}
 	}
+
+    @Override
+    public Map<String,Class<? extends ProcessToolActionButton>> getAvailableButtons() {
+        return new HashMap<String, Class<? extends ProcessToolActionButton>>(BUTTON_REGISTRY);
+    }
 
 	private final Map<String, Func<? extends ProcessToolProcessStep>> STEP_REGISTRY = new HashMap<String, Func<? extends ProcessToolProcessStep>>();
 
@@ -436,6 +447,14 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
             unregisterStep(annotation.name());
         }
 	}
+
+    public Map<String,ProcessToolProcessStep> getAvailableSteps() {
+        Map<String,ProcessToolProcessStep> steps = new HashMap<String,ProcessToolProcessStep>();
+        for (Map.Entry<String, Func<? extends ProcessToolProcessStep>> e : STEP_REGISTRY.entrySet()) {
+            steps.put(e.getKey(), e.getValue().invoke());
+        }
+        return steps;
+    }
 
 	public ProcessToolProcessStep getStep(String name) {
         Func<? extends ProcessToolProcessStep> func = STEP_REGISTRY.get(name);

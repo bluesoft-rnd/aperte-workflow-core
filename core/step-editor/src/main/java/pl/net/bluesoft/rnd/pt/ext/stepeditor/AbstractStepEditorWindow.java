@@ -1,7 +1,7 @@
 package pl.net.bluesoft.rnd.pt.ext.stepeditor;
 
+import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
-import com.vaadin.ui.Label;
 
 
 public abstract class AbstractStepEditorWindow {
@@ -9,17 +9,20 @@ public abstract class AbstractStepEditorWindow {
 	protected StepEditorApplication application;
 	protected String jsonConfig;
 	protected String url;
-	protected String stepName;
+	protected String stepType;
+    protected String stepName;
 	
-	public AbstractStepEditorWindow(StepEditorApplication application, String jsonConfig, String url, String stepName) {
+	public AbstractStepEditorWindow(StepEditorApplication application, String jsonConfig, String url, String stepName, String stepType) {
 		this.application = application;
 		this.jsonConfig = jsonConfig;
 		this.url = url;
-		this.stepName = stepName;
+		this.stepType = stepType;
+        this.stepName = stepName;
 	}
 	
 	public abstract ComponentContainer init();
-	public abstract Label getHeaderLabel();
+
+	public abstract Component getHeader();
 
 	public String getJsonConfig() {
 		return jsonConfig;
@@ -37,14 +40,19 @@ public abstract class AbstractStepEditorWindow {
 		this.url = url;
 	}
 
-	public String getStepName() {
-		return stepName;
+	public String getStepType() {
+		return stepType;
 	}
 
-	public void setStepName(String stepName) {
-		this.stepName = stepName;
+	public void setStepType(String stepType) {
+		this.stepType = stepType;
 	}
-	
-	
-	
+
+    public String getStepName() {
+        return stepName;
+    }
+
+    public void setStepName(String stepName) {
+        this.stepName = stepName;
+    }
 }

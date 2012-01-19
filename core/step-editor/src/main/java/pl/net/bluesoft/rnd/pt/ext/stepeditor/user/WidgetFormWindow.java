@@ -1,15 +1,14 @@
 package pl.net.bluesoft.rnd.pt.ext.stepeditor.user;
 
-import java.util.Locale;
-
+import com.vaadin.terminal.Sizeable;
+import com.vaadin.ui.*;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages;
 
-import com.vaadin.ui.*;
+import java.util.Locale;
 
 public class WidgetFormWindow extends Panel  {
 
 	private static final long serialVersionUID = -916309904329553267L;
-	
 
 	public WidgetFormWindow() {
 		super();
@@ -26,7 +25,7 @@ public class WidgetFormWindow extends Panel  {
 			mainLayout.setMargin(true);
 			mainLayout.setSpacing(true);
 			mainLayout.setSizeUndefined();
-			mainLayout.setWidth(800, UNITS_PIXELS);
+            mainLayout.setWidth(100, Sizeable.UNITS_PERCENTAGE);
 		    mainLayout.addComponent(propertiesLayout);
 		    mainLayout.addComponent(permissionsLayout);
 		    setLayout(mainLayout);
@@ -57,15 +56,12 @@ public class WidgetFormWindow extends Panel  {
 		VerticalLayout layout = (VerticalLayout) getContent();
 		layout.setMargin(true);
 		layout.setSpacing(true);
-		layout.setSizeUndefined();
-		layout.setWidth(800, UNITS_PIXELS);
 		
 		if (widget == null) {
-		  setCaption("");
-		  return;
-		}
-		else {
-		  setCaption(widget.getWidgetItem().getName());
+		    setCaption("");
+		    return;
+		} else {
+		    setCaption(widget.getWidgetItem().getName());
 		}
 
 		layout.removeAllComponents();

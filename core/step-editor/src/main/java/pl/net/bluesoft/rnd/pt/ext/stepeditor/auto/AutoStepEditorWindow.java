@@ -26,28 +26,42 @@ import java.util.Map;
 
 public class AutoStepEditorWindow extends AbstractStepEditorWindow implements ClickListener {
 
-	private StepDefinition stepDef;
-	
     private static final long		serialVersionUID	= 2136349026207825108L;
 	
 	private Button					saveButton = new Button(Messages.getString("jse.button.save"), this);
 
-	private Map<String,TextField>         textParams = new HashMap<String,TextField>();
-	
-	public AutoStepEditorWindow(StepEditorApplication application, String jsonConfig, String url, String stepName) {
-		super(application, jsonConfig, url, stepName);
+	private Map<String,TextField>   textParams = new HashMap<String,TextField>();
+
+    private StepDefinition          stepDef;
+
+    public AutoStepEditorWindow(StepEditorApplication application, String jsonConfig, String url, String stepName, String stepType) {
+		super(application, jsonConfig, url, stepName, stepType);
 	}
-	
-    public Label getHeaderLabel() {
-    	Label title = null;
-		if (stepDef == null)
-			title = new Label(Messages.getString("jse.stepdef.notfound",stepName));
-		else if (stepDef.getParameters().isEmpty())
-			title = new Label(Messages.getString("jse.params.notfound",stepDef.getName()));
-		else
-			title = new Label(Messages.getString("jse.title", stepDef.getName())); 
-		
-		return title;
+
+    public Component getHeader() {
+        VerticalLayout layout = new VerticalLayout();
+        
+        Label stepNameLabel = new Label();
+        stepNameLabel.setContentMode(Label.CONTENT_XHTML);
+        if (stepName == null) {
+            stepNameLabel.setValue(Messages.getString("jse.noStepName"));
+        } else {
+            stepNameLabel.setValue(Messages.getString("jse.stepName", stepName));
+        }
+
+        Label definitionLabel = new Label();
+        definitionLabel.setContentMode(Label.CONTENT_XHTML);
+        if (stepDef == null) {
+            definitionLabel.setValue(Messages.getString("jse.stepdef.notfound", stepDef.getName()));
+        } else if (stepDef.getParameters().isEmpty()) {
+            definitionLabel.setValue(Messages.getString("jse.params.notfound", stepDef.getName()));
+        } else {
+            definitionLabel.setValue(Messages.getString("jse.definition", stepDef.getName()));
+        }
+        
+        layout.addComponent(stepNameLabel);
+        layout.addComponent(definitionLabel);
+		return layout;
     }
 	
 	private ComponentContainer buildLayout(Map<String,String> loadedMap) {
@@ -93,8 +107,8 @@ public class AutoStepEditorWindow extends AbstractStepEditorWindow implements Cl
     	   loadedMap = getLoadedJsonData(jsonConfig);
     	}
     	
-    	if (stepName != null && stepName.trim().length() > 0) {
-    		stepDef = getStepDefinition(stepName);
+    	if (stepType != null && stepType.trim().length() > 0) {
+    		stepDef = getStepDefinition(stepType);
     	}
     	
 		return buildLayout(loadedMap);

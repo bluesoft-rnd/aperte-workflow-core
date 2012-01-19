@@ -2,34 +2,23 @@ package pl.net.bluesoft.rnd.processtool.plugins;
 
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.model.Company;
 import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.util.PortalUtil;
 
-import java.io.IOException;
-import java.net.Authenticator;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * This servlet authorizes user by screen name using Liferay API. Of course no SSO (CAS for example) is available at this
- * moment. Still, if such need arises, SSO could also be implemented.
- * <p/>
+ * <p>
+ * This servlet authorizes user by screen name using Liferay API. Of course no SSO (CAS for example) is available
+ * at this moment. Still, if such need arises, SSO could also be implemented.
+ * </p>
  * We use basic authentication, therefore use of SSL is required in production environment.
  */
 public class PermissionFilter implements Filter {
@@ -40,7 +29,8 @@ public class PermissionFilter implements Filter {
 
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
 

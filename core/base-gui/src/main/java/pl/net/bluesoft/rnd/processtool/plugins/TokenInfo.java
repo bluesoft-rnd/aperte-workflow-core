@@ -5,10 +5,29 @@ import java.util.Date;
 public class TokenInfo {
    
 	private String token;
+    private String userLogin;
 	private Date creationDate;
 	private int validityTime; //in minutes
-	
-	public String getToken() {
+
+    public TokenInfo() {
+    }
+
+    public TokenInfo(String token, String userLogin, Date creationDate, int validityTime) {
+        this.token = token;
+        this.userLogin = userLogin;
+        this.creationDate = creationDate;
+        this.validityTime = validityTime;
+    }
+
+    public String getUserLogin() {
+        return userLogin;
+    }
+
+    public void setUserLogin(String userLogin) {
+        this.userLogin = userLogin;
+    }
+
+    public String getToken() {
 		return token;
 	}
 	public void setToken(String token) {

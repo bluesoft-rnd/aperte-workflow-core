@@ -40,9 +40,15 @@ public class StepExposureServlet extends HttpServlet {
 		List<Map<String, Object>> steps = new LinkedList<Map<String, Object>>();
 
         Map<String,ProcessToolProcessStep> availableSteps = reg.getAvailableSteps();
+        Set<Class> classes = new HashSet<Class>();
+                
         for (ProcessToolProcessStep stepInstance : availableSteps.values()) {
-            Map<String, Object> map = new HashMap<String, Object>();
             Class stepClass = stepInstance.getClass();
+            classes.add(stepClass);
+        }
+
+        for (Class stepClass : classes) {
+            Map<String, Object> map = new HashMap<String, Object>();
             AliasName a = Classes.getClassAnnotation(stepClass, AliasName.class);
             map.put(NAME, a.name());
             List<Field> fields = Classes.getFieldsWithAnnotation(stepClass, AutoWiredProperty.class);

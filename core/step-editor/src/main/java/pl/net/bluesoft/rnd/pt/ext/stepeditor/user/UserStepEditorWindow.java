@@ -119,6 +119,8 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
         availableTree.addListener((ValueChangeListener) this);
 		availableTree.setImmediate(true);
 
+        availableTreeHintLabel = new Label(Messages.getString("availableTree.hint"));
+        
 		stepTree = new Tree(Messages.getString("stepTree.title"), getCurrentStep());
         stepTree.setItemCaptionMode(Tree.ITEM_CAPTION_MODE_PROPERTY);
         stepTree.setItemCaptionPropertyId("name");
@@ -132,7 +134,7 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
         stepTree.setItemDescriptionGenerator(new PropertiesDescriptionGenerator());
         stepTree.expandItemsRecursively(rootItem);
 
-        stepTreeHintLabel = new Label();
+        stepTreeHintLabel = new Label(Messages.getString("stepTree.hint"));
         
 		availableTree.setDropHandler(new TreeDeleteHandler(this, stepTree));
 		stepTree.setDropHandler(new TreeDropHandler(stepTree, availableTree));
@@ -144,11 +146,12 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
         removeFromStepTreeButton.setEnabled(stepTree.getValue() != null);
         paramPanel = new WidgetFormWindow();
 
-		VerticalLayout widgetPaletteLayout = new VerticalLayout();
-        widgetPaletteLayout.setSpacing(true);
-        widgetPaletteLayout.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-		widgetPaletteLayout.addComponent(availableTree);
-        widgetPaletteLayout.addComponent(description);
+		VerticalLayout availableWidgetsLayout = new VerticalLayout();
+        availableWidgetsLayout.setSpacing(true);
+        availableWidgetsLayout.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+        availableWidgetsLayout.addComponent(availableTree);
+        availableWidgetsLayout.addComponent(description);
+        availableWidgetsLayout.addComponent(availableTreeHintLabel);
 
 		VerticalLayout attributeLayout = new VerticalLayout();
         attributeLayout.setSizeUndefined();
@@ -161,6 +164,7 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
         stepLayout.setWidth(245, Sizeable.UNITS_PIXELS);
         stepLayout.addComponent(stepTree);
         stepLayout.addComponent(removeFromStepTreeButton);
+        stepLayout.addComponent(stepTreeHintLabel);
 
         GridLayout mainLayout = new GridLayout(6, 3);
         mainLayout.setSizeFull();
@@ -168,10 +172,10 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
         mainLayout.addComponent(saveButton, 0, 0);
         mainLayout.addComponent(attributeLayout, 0, 1, 1, 1);
         mainLayout.addComponent(stepLayout, 2, 1, 3, 1);
-        mainLayout.addComponent(widgetPaletteLayout, 4, 1, 5, 2);
+        mainLayout.addComponent(availableWidgetsLayout, 4, 1, 5, 2);
         mainLayout.addComponent(paramPanel, 0, 2, 3, 2);
 
-        mainLayout.setComponentAlignment(widgetPaletteLayout, Alignment.TOP_LEFT);
+        mainLayout.setComponentAlignment(availableWidgetsLayout, Alignment.TOP_LEFT);
         mainLayout.setComponentAlignment(stepLayout, Alignment.TOP_LEFT);
         mainLayout.setComponentAlignment(paramPanel, Alignment.TOP_LEFT);
 

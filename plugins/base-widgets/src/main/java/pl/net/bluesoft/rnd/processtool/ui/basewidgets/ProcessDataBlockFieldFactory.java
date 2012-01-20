@@ -10,6 +10,10 @@ public class ProcessDataBlockFieldFactory extends WidgetConfigFormFieldFactory {
 
 	@Override
 	public Field createField(Property<?> property) {
-		return super.createField(property, TextArea.class);
+        if (property.getPropertyType().equals(Property.PropertyType.PROPERTY)) {
+		    return super.createField(property, TextArea.class);
+        }
+
+        return super.createField(property);
 	}
 }

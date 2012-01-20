@@ -14,10 +14,7 @@ import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComments;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.ChildrenAllowed;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.*;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
 import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.util.lang.FormatUtil;
@@ -34,6 +31,12 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 @AliasName(name = "ProcessComments")
 @AperteDoc(humanNameKey="widget.process_comments.name", descriptionKey="widget.process_comments.description")
 @ChildrenAllowed(false)
+@PermissionsUsed({
+        @Permission(key="ADD", desc="widget.process_comments.permission.desc.ADD"),
+        @Permission(key="EDIT", desc="widget.process_comments.permission.desc.EDIT"),
+        @Permission(key="EDIT_ALL", desc="widget.process_comments.permission.desc.EDIT_ALL"),
+        @Permission(key="VIEW", desc="widget.process_comments.permission.desc.VIEW")
+})
 public class ProcessCommentsWidget extends BaseProcessToolWidget implements ProcessToolVaadinWidget, ProcessToolDataWidget {
 
 	private BeanItemContainer<ProcessComment> bic = new BeanItemContainer<ProcessComment>(ProcessComment.class);

@@ -5,14 +5,12 @@ import com.vaadin.ui.*;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages;
 
 import java.util.Locale;
+import java.util.logging.Logger;
 
 public class WidgetFormWindow extends Panel  {
 
 	private static final long serialVersionUID = -916309904329553267L;
-
-	public WidgetFormWindow() {
-		super();
-	}
+    private static final Logger logger = Logger.getLogger(WidgetFormWindow.class.getName());
 
 	public class WidgetForm extends Form {
 		
@@ -42,6 +40,7 @@ public class WidgetFormWindow extends Panel  {
 				propertiesLayout.addComponent(field);
 				break;
 			default:
+                logger.severe("Unexpected property type: " + p.getPropertyType());
 				break;
 			}
         }
@@ -49,23 +48,22 @@ public class WidgetFormWindow extends Panel  {
 		public void addToPermissionsLayout(Component c) {
 			permissionsLayout.addComponent(c);
 		}
+        
+        public void addToPropertiesLayout(Component c) {
+            propertiesLayout.addComponent(c);
+        }
 	}
 	
 	public void loadWidget(final WidgetItemInStep widget, Locale locale) {
 		removeAllComponents();
-		VerticalLayout layout = (VerticalLayout) getContent();
-		layout.setMargin(true);
-		layout.setSpacing(true);
-		
 		if (widget == null) {
 		    setCaption("");
 		    return;
-		} else {
-		    setCaption(widget.getWidgetItem().getName());
-		}
+        }
 
-		layout.removeAllComponents();
-		
+        setCaption(widget.getWidgetItem().getName());
+
+        VerticalLayout layout = (VerticalLayout) getContent();
 		layout.addComponent(new Label(widget.getWidgetItem().getDescription()));
 
 		WidgetForm form = new WidgetForm();
@@ -73,13 +71,16 @@ public class WidgetFormWindow extends Panel  {
 		if ((widget.getProperties() == null || widget.getProperties().size() == 0) && (widget.getPermissions() == null || widget.getPermissions().size() == 0)) {
 			layout.addComponent(new Label(Messages.getString("form.no.parameters.defined")));
 		} else {
-			form.setCaption(Messages.getString("form.parameters"));
 			form.setImmediate(true);
-			if (widget.hasPermissions()) {
-			   form.addToPermissionsLayout(new Label(Messages.getString("form.permissions")));
-			}
-			WidgetConfigFormFieldFactory fieldFactory = null;
 
+            if (widget.hasProperties()) {
+                form.addToPropertiesLayout(new Label("<b>" + Messages.getString("form.properties") + "</b>", Label.CONTENT_XHTML));
+            }
+			if (widget.hasPermissions()) {
+			    form.addToPermissionsLayout(new Label("<b>" + Messages.getString("form.permissions") + "</b>", Label.CONTENT_XHTML));
+			}
+
+			WidgetConfigFormFieldFactory fieldFactory = null;
 			if (widget.getWidgetItem().getConfigurator() != null) {
 				try {
 					fieldFactory = widget.getWidgetItem().getConfigurator().newInstance();

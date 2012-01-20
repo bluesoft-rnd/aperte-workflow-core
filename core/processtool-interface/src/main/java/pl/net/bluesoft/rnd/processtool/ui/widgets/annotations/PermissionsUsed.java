@@ -8,8 +8,8 @@ import java.lang.annotation.*;
 public @interface PermissionsUsed {
 
     Permission[] value() default {
-        @Permission(key="EDIT",desc="permission.desc.EDIT"),
-        @Permission(key="VIEW",desc="permission.desc.VIEW")
+        @Permission(key="EDIT",desc="widget.permission.desc.EDIT"),
+        @Permission(key="VIEW",desc="widget.permission.desc.VIEW")
     };
 }
 

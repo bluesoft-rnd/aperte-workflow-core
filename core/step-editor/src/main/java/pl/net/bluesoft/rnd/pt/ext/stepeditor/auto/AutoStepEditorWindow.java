@@ -7,7 +7,6 @@ import com.vaadin.ui.Button.ClickListener;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
-import pl.net.bluesoft.rnd.processtool.plugins.PluginMetadata;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
@@ -20,7 +19,6 @@ import pl.net.bluesoft.util.lang.Classes;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,15 +43,15 @@ public class AutoStepEditorWindow extends AbstractStepEditorWindow implements Cl
         Label stepNameLabel = new Label();
         stepNameLabel.setContentMode(Label.CONTENT_XHTML);
         if (stepName == null) {
-            stepNameLabel.setValue(Messages.getString("jse.noStepName"));
+            stepNameLabel.setValue("<h2>" + Messages.getString("jse.noStepName") + "</h2>");
         } else {
-            stepNameLabel.setValue(Messages.getString("jse.stepName", stepName));
+            stepNameLabel.setValue("<h2>" + Messages.getString("jse.stepName", stepName) + "</h2>");
         }
 
         Label definitionLabel = new Label();
         definitionLabel.setContentMode(Label.CONTENT_XHTML);
         if (stepDef == null) {
-            definitionLabel.setValue(Messages.getString("jse.stepdef.notfound", stepDef.getName()));
+            definitionLabel.setValue(Messages.getString("jse.stepdef.notfound"));
         } else if (stepDef.getParameters().isEmpty()) {
             definitionLabel.setValue(Messages.getString("jse.params.notfound", stepDef.getName()));
         } else {

@@ -40,7 +40,9 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 
 	private HierarchicalContainer	stepTreeContainer;
 	private Tree					stepTree;
+    private Label                   stepTreeHintLabel;
 	private Tree					availableTree;
+    private Label                   availableTreeHintLabel;
 
 	private WidgetItemInStep		rootItem;
     
@@ -82,9 +84,9 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
         headerLabel.setContentMode(Label.CONTENT_XHTML);
 
         if (stepName != null && !stepName.isEmpty()) {
-            headerLabel.setValue(Messages.getString("userStep.stepName", stepName));
+            headerLabel.setValue("<h2>" + Messages.getString("userStep.stepName", stepName) + "</h2>");
         } else {
-            headerLabel.setValue(Messages.getString("userStep.noStepName"));
+            headerLabel.setValue("<h2>" + Messages.getString("userStep.noStepName") + "</h2>");
         }
 
         return headerLabel;
@@ -130,6 +132,8 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
         stepTree.setItemDescriptionGenerator(new PropertiesDescriptionGenerator());
         stepTree.expandItemsRecursively(rootItem);
 
+        stepTreeHintLabel = new Label();
+        
 		availableTree.setDropHandler(new TreeDeleteHandler(this, stepTree));
 		stepTree.setDropHandler(new TreeDropHandler(stepTree, availableTree));
 

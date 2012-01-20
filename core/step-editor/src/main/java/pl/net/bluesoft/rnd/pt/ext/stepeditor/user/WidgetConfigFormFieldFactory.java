@@ -1,20 +1,23 @@
 package pl.net.bluesoft.rnd.pt.ext.stepeditor.user;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.MissingResourceException;
-
-import pl.net.bluesoft.rnd.processtool.i18n.DefaultI18NSource;
-import pl.net.bluesoft.rnd.util.i18n.I18NProvider;
-
 import com.vaadin.data.validator.IntegerValidator;
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.DefaultFieldFactory;
 import com.vaadin.ui.Field;
+import pl.net.bluesoft.rnd.processtool.i18n.DefaultI18NSource;
+import pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages;
+import pl.net.bluesoft.rnd.util.i18n.I18NProvider;
+
+import java.util.List;
+import java.util.Locale;
+import java.util.MissingResourceException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class WidgetConfigFormFieldFactory extends DefaultFieldFactory {
 	private static final long	serialVersionUID	= 1840386215211557588L;
+    private static final Logger logger              = Logger.getLogger(WidgetConfigFormFieldFactory.class.getName());
 
 	private DefaultI18NSource	i18NSource			= new DefaultI18NSource();	;
 
@@ -37,6 +40,10 @@ public class WidgetConfigFormFieldFactory extends DefaultFieldFactory {
 		if (field instanceof AbstractTextField) {
 			AbstractTextField textField = (AbstractTextField) field;
 			textField.setNullRepresentation("");
+
+            if (Property.PropertyType.PERMISSION.equals(property.getPropertyType())) {
+                textField.setInputPrompt(Messages.getString("form.permissions.roles"));
+            }
 		}
 
 		field.setRequired(property.isRequired());
@@ -54,9 +61,9 @@ public class WidgetConfigFormFieldFactory extends DefaultFieldFactory {
 			try {
 				field = klass.newInstance();
 			} catch (InstantiationException e) {
-				e.printStackTrace();
+				logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
 			} catch (IllegalAccessException e) {
-				e.printStackTrace();
+                logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
 			}
 		}
 		if (field == null) {

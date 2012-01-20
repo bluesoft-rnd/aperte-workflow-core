@@ -5,7 +5,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang.StringUtils;
 import pl.net.bluesoft.rnd.processtool.i18n.DefaultI18NSource;
-import pl.net.bluesoft.rnd.processtool.plugins.PluginMetadata;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.*;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.StepEditorApplication;
@@ -18,7 +17,7 @@ import java.util.*;
 
 public class WidgetInfoLoader {
 
-	private static final String PERMISSION_DESC_PREFIX = "permission.desc.";
+	private static final String PERMISSION_DESC_PREFIX = "widget.permission.desc.";
 	
 	private static final class FieldTransformer implements Transformer {
 		@Override
@@ -37,7 +36,7 @@ public class WidgetInfoLoader {
 		}
 	}
 	
-	
+
 
 	private static final class WidgetTransformer implements Transformer {
 		private BundleItem	bundle;

@@ -1,8 +1,13 @@
 package pl.net.bluesoft.rnd.processtool.ui.widgets.annotations;
 
+import java.lang.annotation.*;
+
 /**
  * Annotation used to group separate widgets into a group
  */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+@Inherited
 public @interface WidgetGroup {
 
     /**

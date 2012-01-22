@@ -12,6 +12,7 @@ import pl.net.bluesoft.rnd.pt.ext.stepeditor.StepEditorApplication;
 import pl.net.bluesoft.rnd.util.i18n.I18NProvider;
 import pl.net.bluesoft.util.lang.Classes;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.*;
@@ -97,8 +98,7 @@ public class WidgetInfoLoader {
 
 	public static Map<BundleItem, Collection<WidgetItem>> loadAvailableWidgets(Application application)
             throws ClassNotFoundException {
-		ProcessToolRegistry reg = StepEditorApplication.getRegistry(application);
-
+		ProcessToolRegistry reg = StepEditorApplication.getRegistry();
 		i18NSource.setLocale(application.getLocale());
 		i18NProviders = reg.getI18NProviders();
 
@@ -109,9 +109,21 @@ public class WidgetInfoLoader {
             return  availableWidgets;
         }
 
+        // Widgets are available in registry by both @AliasName and their class name
+        // we don't want to present each step twice so we exclude duplicates. Do note
+        // that java.lang.Class does not override hashCode() and equals() so we use it's name
+        Map<String, Class<? extends ProcessToolWidget>> viewableWidgets = new HashMap<String, Class<? extends ProcessToolWidget>>();
+        for (Class<? extends ProcessToolWidget> widgetClass : registeredWidgets.values()) {
+            WidgetGroup widgetGroup = Classes.getClassAnnotation(widgetClass, WidgetGroup.class);
+            Annotation[] a = widgetClass.getAnnotations();
+            
+            
+            viewableWidgets.put(widgetClass.getName(), widgetClass);
+        }
+
         // Create sorted structure of widgets by processing their annotations
         Map<String, List<Class<? extends ProcessToolWidget>>> sortedWidgets = new HashMap<String, List<Class<? extends ProcessToolWidget>>>();
-        for (Class<? extends ProcessToolWidget> widgetClass : registeredWidgets.values()) {
+        for (Class<? extends ProcessToolWidget> widgetClass : viewableWidgets.values()) {
             String widgetGroupName = "unsorted";
             
             WidgetGroup widgetGroup = Classes.getClassAnnotation(widgetClass, WidgetGroup.class);

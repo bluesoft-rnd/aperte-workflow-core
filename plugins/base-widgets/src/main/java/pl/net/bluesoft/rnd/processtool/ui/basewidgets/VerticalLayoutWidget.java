@@ -6,6 +6,7 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.ChildrenAllowed;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.WidgetGroup;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
 
 import java.io.ByteArrayOutputStream;
@@ -23,9 +24,10 @@ import static com.vaadin.ui.Label.CONTENT_XHTML;
 @AliasName(name = "VerticalLayout")
 @AperteDoc(humanNameKey="widget.vertical_layout.name", descriptionKey="widget.vertical_layout.description")
 @ChildrenAllowed(true)
+@WidgetGroup("basic-widgets")
 public class VerticalLayoutWidget extends BaseProcessToolWidget implements ProcessToolVaadinWidget {
 
-    private Logger logger = Logger.getLogger(VerticalLayout.class.getName());
+    private static final Logger logger = Logger.getLogger(VerticalLayout.class.getName());
 
     VerticalLayout vl = new VerticalLayout();
 

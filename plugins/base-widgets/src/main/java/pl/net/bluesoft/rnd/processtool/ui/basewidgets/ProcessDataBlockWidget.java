@@ -58,7 +58,7 @@ import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 @PermissionsUsed({
         @Permission(key="EDIT")
 })
-@WidgetGroup("basic-widget")
+@WidgetGroup("basic-widgets")
 public class ProcessDataBlockWidget extends BaseProcessToolWidget implements ProcessToolDataWidget, ProcessToolVaadinWidget {
     private static final Logger logger = Logger.getLogger(ProcessDataBlockWidget.class.getName());
     private static final Resolver resolver = new DefaultResolver();

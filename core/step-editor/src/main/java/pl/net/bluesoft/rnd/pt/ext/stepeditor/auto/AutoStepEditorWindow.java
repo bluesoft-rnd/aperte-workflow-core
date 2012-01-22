@@ -180,7 +180,7 @@ public class AutoStepEditorWindow extends AbstractStepEditorWindow implements Cl
 
 	
 	private StepDefinition getStepDefinition(String stepName) {
-		ProcessToolRegistry reg = StepEditorApplication.getRegistry(application);
+		ProcessToolRegistry reg = StepEditorApplication.getRegistry();
         Map<String,ProcessToolProcessStep> availableSteps = reg.getAvailableSteps();
         for (ProcessToolProcessStep stepInstance : availableSteps.values()) {
             Class stepClass = stepInstance.getClass();
@@ -206,7 +206,6 @@ public class AutoStepEditorWindow extends AbstractStepEditorWindow implements Cl
               return stepDef;
             }
         }
-//        }
 
 		return null;
 	}

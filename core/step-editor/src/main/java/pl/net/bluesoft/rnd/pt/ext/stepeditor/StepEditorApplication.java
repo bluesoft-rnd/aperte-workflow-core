@@ -16,15 +16,17 @@ import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.auto.AutoStepEditorWindow;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.user.UserStepEditorWindow;
+import pl.net.bluesoft.rnd.pt.ext.vaadin.AbstractEditorApplication;
+import pl.net.bluesoft.rnd.pt.ext.vaadin.VaadinThemeConstants;
 import pl.net.bluesoft.util.lang.Classes;
 
 import javax.servlet.ServletContext;
 import java.util.Collection;
 import java.util.Map;
 
-public class StepEditorApplication extends Application implements ParameterHandler {
+public class StepEditorApplication extends AbstractEditorApplication implements ParameterHandler {
 
-	private static final long		serialVersionUID	= 2136349026207825108L;;
+	private static final long		serialVersionUID	= 2136349026207825108L;
     private static final String     TASKTYPE_USER       = "User";
 
 	private Window					mainWindow;
@@ -116,7 +118,7 @@ public class StepEditorApplication extends Application implements ParameterHandl
         stepList.addItem("User");
         stepList.setItemCaption("User", "User");
         
-		ProcessToolRegistry reg = getRegistry(this);
+		ProcessToolRegistry reg = getRegistry();
 
         Map<String,ProcessToolProcessStep> availableSteps = reg.getAvailableSteps();
         for (ProcessToolProcessStep stepInstance : availableSteps.values()) {
@@ -148,11 +150,5 @@ public class StepEditorApplication extends Application implements ParameterHandl
 
 		setMainWindow(mainWindow);
 	}
-	
-	public static ProcessToolRegistry getRegistry(Application application) {
-		ApplicationContext ctx = application.getContext();
-		WebApplicationContext webCtx = (WebApplicationContext) ctx;
-		ServletContext sc = webCtx.getHttpSession().getServletContext();
-		return (ProcessToolRegistry) sc.getAttribute(ProcessToolRegistry.class.getName());
-	}	
+
 }

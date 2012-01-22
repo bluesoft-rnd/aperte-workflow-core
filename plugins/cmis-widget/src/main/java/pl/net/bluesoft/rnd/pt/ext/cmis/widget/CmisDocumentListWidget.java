@@ -24,6 +24,7 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.WidgetGroup;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
 import pl.net.bluesoft.rnd.pt.utils.cmis.CmisAtomSessionFacade;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
@@ -37,6 +38,7 @@ import java.util.*;
  * @author tlipski@bluesoft.net.pl
  */
 @AliasName(name = "CmisDocumentList")
+@WidgetGroup("cmis-widget")
 public class CmisDocumentListWidget extends BaseProcessToolWidget implements ProcessToolDataWidget,
 		ProcessToolVaadinWidget {
 

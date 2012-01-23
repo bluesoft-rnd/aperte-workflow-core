@@ -12,7 +12,6 @@ import pl.net.bluesoft.rnd.pt.ext.stepeditor.StepEditorApplication;
 import pl.net.bluesoft.rnd.util.i18n.I18NProvider;
 import pl.net.bluesoft.util.lang.Classes;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.*;
@@ -67,7 +66,7 @@ public class WidgetInfoLoader {
 
 			List<Field> fields = Classes.getFieldsWithAnnotation(widgetClass, AutoWiredProperty.class);
 			Collection<Property<?>> properties = CollectionUtils.collect(fields, new FieldTransformer());
-			Collection<Property<?>> permissions = getPropertiesList(p);
+            Collection<Property<?>> permissions = getPropertiesList(p);
 
 			return new WidgetItem(a.name(), docMap.get("name"), docMap.get("description"),
                     docMap.get("icon"), properties, permissions, childrenAllowed, configurator,
@@ -114,10 +113,6 @@ public class WidgetInfoLoader {
         // that java.lang.Class does not override hashCode() and equals() so we use it's name
         Map<String, Class<? extends ProcessToolWidget>> viewableWidgets = new HashMap<String, Class<? extends ProcessToolWidget>>();
         for (Class<? extends ProcessToolWidget> widgetClass : registeredWidgets.values()) {
-            WidgetGroup widgetGroup = Classes.getClassAnnotation(widgetClass, WidgetGroup.class);
-            Annotation[] a = widgetClass.getAnnotations();
-            
-            
             viewableWidgets.put(widgetClass.getName(), widgetClass);
         }
 

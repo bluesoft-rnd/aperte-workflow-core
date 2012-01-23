@@ -97,7 +97,7 @@
                         <Bundle-Version>0.1</Bundle-Version>
                         <Embed-Directory>lib</Embed-Directory>
                         <Embed-Transitive>true</Embed-Transitive>
-                        <ProcessTool-Widget-Enhancement>pl.net.bluesoft.rnd.processtool.ui.basewidgets.FileUploadWidget,pl.net.bluesoft.rnd.processtool.ui.basewidgets.LocaleCaptureWidget,pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessHistoryWidget,pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessCommentsWidget,pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDataBlockWidget,pl.net.bluesoft.rnd.processtool.ui.basewidgets.LatestProcessCommentsWidget,pl.net.bluesoft.rnd.processtool.ui.basewidgets.TabSheetWidget,pl.net.bluesoft.rnd.processtool.ui.basewidgets.VerticalLayoutWidget</ProcessTool-Widget-Enhancement>
+                        <ProcessTool-Widget-Enhancement>pl.net.bluesoft.rnd.processtool.ui.basewidgets.LocaleCaptureWidget,pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessHistoryWidget,pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessCommentsWidget,pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDataBlockWidget,pl.net.bluesoft.rnd.processtool.ui.basewidgets.LatestProcessCommentsWidget,pl.net.bluesoft.rnd.processtool.ui.basewidgets.TabSheetWidget,pl.net.bluesoft.rnd.processtool.ui.basewidgets.VerticalLayoutWidget</ProcessTool-Widget-Enhancement>
                         <ProcessTool-Button-Enhancement>pl.net.bluesoft.rnd.processtool.ui.buttons.StandardValidatingButton,pl.net.bluesoft.rnd.processtool.ui.buttons.CommentEnabledStandardValidatingButton</ProcessTool-Button-Enhancement>
                         <ProcessTool-I18N-Property>basewidgets-messages</ProcessTool-I18N-Property>
                     </instructions>

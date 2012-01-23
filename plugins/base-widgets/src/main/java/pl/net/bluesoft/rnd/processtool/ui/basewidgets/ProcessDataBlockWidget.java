@@ -80,6 +80,12 @@ public class ProcessDataBlockWidget extends BaseProcessToolWidget implements Pro
     @AperteDoc(humanNameKey="widget.process_data_block.property.widgetsDefinition.name", descriptionKey="widget.process_data_block.property.widgetsDefinition.description")
     private String widgetsDefinition;
 
+    @AutoWiredProperty
+    private String caption;
+
+    @AutoWiredProperty
+    private String comment;
+
     public void setDefinitionLoader(WidgetDefinitionLoader definitionLoader) {
         this.definitionLoader = definitionLoader;
     }
@@ -198,7 +204,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolWidget implements Pro
 		                    ((ProcessInstanceSimpleAttribute) attribute).setValue(component.getValue().toString());
 	                    }
                     } else {
-                        if (component instanceof FileUploadWidget) {
+                        if (component instanceof FileUploadComponent) {
                             ProcessInstanceAttachmentAttribute attachment = (ProcessInstanceAttachmentAttribute) component.getValue();
                             attachment.setProcessState(processInstance.getState());
                             attachment.setProcessInstance(processInstance);
@@ -372,7 +378,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolWidget implements Pro
     }
 
     private AbstractComponent createFileUploadField(UploadWidgetElement element) {
-        FileUploadWidget upload = new FileUploadWidget(i18NSource);
+        FileUploadComponent upload = new FileUploadComponent(i18NSource);
         return upload;
     }
 
@@ -700,4 +706,27 @@ public class ProcessDataBlockWidget extends BaseProcessToolWidget implements Pro
         }
     }
 
+    public String getCaption() {
+        return caption;
+    }
+
+    public void setCaption(String caption) {
+        this.caption = caption;
+    }
+
+    public String getWidgetsDefinition() {
+        return widgetsDefinition;
+    }
+
+    public void setWidgetsDefinition(String widgetsDefinition) {
+        this.widgetsDefinition = widgetsDefinition;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
 }

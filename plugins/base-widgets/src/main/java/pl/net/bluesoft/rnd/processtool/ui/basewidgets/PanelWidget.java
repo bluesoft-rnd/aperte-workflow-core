@@ -19,12 +19,25 @@ public class PanelWidget extends BaseProcessToolWidget implements ProcessToolVaa
 	@AutoWiredProperty
 	private String caption;
 
+    @AutoWiredProperty
+    private String comment;
+
 	Panel panel = new Panel();
 	
 	@Override
 	public Component render() {
 		return panel;
 	}
+
+    @Override
+    public void addChild(ProcessToolWidget child) {
+        if (!(child instanceof ProcessToolVaadinWidget)) {
+            throw new IllegalArgumentException("child is not instance of " + ProcessToolVaadinWidget.class.getName());
+        }
+        ProcessToolVaadinWidget vChild = (ProcessToolVaadinWidget) child;
+        Component component = vChild.render();
+        panel.addComponent(component);
+    }
 
 	public String getCaption() {
 		return caption;
@@ -34,13 +47,12 @@ public class PanelWidget extends BaseProcessToolWidget implements ProcessToolVaa
 		this.caption = caption;
 	}
 
-	@Override
-	public void addChild(ProcessToolWidget child) {
-		if (!(child instanceof ProcessToolVaadinWidget)) {
-			throw new IllegalArgumentException("child is not instance of " + ProcessToolVaadinWidget.class.getName());
-		}
-		ProcessToolVaadinWidget vChild = (ProcessToolVaadinWidget) child;
-		Component component = vChild.render();
-		panel.addComponent(component);
-	}
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
 }

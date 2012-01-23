@@ -370,6 +370,11 @@
         </init-param>
         <load-on-startup>5</load-on-startup>
     </servlet>
+	<servlet>
+        <servlet-name>ButtonExposureServlet</servlet-name>
+        <servlet-class>pl.net.bluesoft.rnd.processtool.plugins.ButtonExposureServlet</servlet-class>
+        <load-on-startup>6</load-on-startup>
+    </servlet>
 
     <servlet-mapping>
         <servlet-name>GenerateTokenServlet</servlet-name>
@@ -384,6 +389,11 @@
     <servlet-mapping>
         <servlet-name>OSGIStepExposureServlet</servlet-name>
         <url-pattern>/osgiex/steps</url-pattern>
+    </servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>ButtonExposureServlet</servlet-name>
+        <url-pattern>/osgiex/buttons</url-pattern>
     </servlet-mapping>
 
 	

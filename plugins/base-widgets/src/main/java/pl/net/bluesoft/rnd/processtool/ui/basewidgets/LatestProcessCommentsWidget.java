@@ -19,12 +19,12 @@ import static pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessHistoryWidge
 @AliasName(name = "LatestComments")
 @AperteDoc(humanNameKey="widget.latest_process_comments.name", descriptionKey="widget.latest_process_comments.description")
 @ChildrenAllowed(false)
-@WidgetGroup("basic-widgets")
+@WidgetGroup("base-widgets")
 public class LatestProcessCommentsWidget extends BaseProcessToolWidget implements ProcessToolVaadinWidget, ProcessToolDataWidget {
 
     @AutoWiredProperty(required = false)
     @AperteDoc(humanNameKey="widget.latest_process_comments.property.displayed_comments.name", descriptionKey="widget.latest_process_comments.property.displayed_comments.description")
-    private int displayedComments = 1;
+    private Integer displayedComments = 1;
 
     private BeanItemContainer<ProcessComment> bic = new BeanItemContainer<ProcessComment>(ProcessComment.class);
 
@@ -114,11 +114,11 @@ public class LatestProcessCommentsWidget extends BaseProcessToolWidget implement
         throw new IllegalArgumentException("children are not supported in this widget");
     }
 
-    public int getDisplayedComments() {
+    public Integer getDisplayedComments() {
         return displayedComments;
     }
 
-    public void setDisplayedComments(int displayedComments) {
+    public void setDisplayedComments(Integer displayedComments) {
         this.displayedComments = displayedComments;
     }
 }

@@ -13,7 +13,7 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
  * @author tlipski@bluesoft.net.pl
  */
 @AliasName(name="CaptionPanel")
-@WidgetGroup("basic-widgets")
+@WidgetGroup("base-widgets")
 public class PanelWidget extends BaseProcessToolWidget implements ProcessToolVaadinWidget {
 
 	@AutoWiredProperty

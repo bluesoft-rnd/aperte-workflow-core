@@ -26,7 +26,7 @@ import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 @AliasName(name = "ProcessHistory")
 @AperteDoc(humanNameKey="widget.process_history.name", descriptionKey="widget.process_history.description")
 @ChildrenAllowed(false)
-@WidgetGroup("basic-widgets")
+@WidgetGroup("base-widgets")
 public class ProcessHistoryWidget extends BaseProcessToolWidget implements ProcessToolDataWidget, ProcessToolVaadinWidget {
 
     @AutoWiredProperty(required = false)

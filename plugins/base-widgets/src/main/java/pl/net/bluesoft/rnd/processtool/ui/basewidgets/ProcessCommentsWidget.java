@@ -37,7 +37,7 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
         @Permission(key="EDIT_ALL", desc="widget.process_comments.permission.desc.EDIT_ALL"),
         @Permission(key="VIEW", desc="widget.process_comments.permission.desc.VIEW")
 })
-@WidgetGroup("basic-widgets")
+@WidgetGroup("base-widgets")
 public class ProcessCommentsWidget extends BaseProcessToolWidget implements ProcessToolVaadinWidget, ProcessToolDataWidget {
 
 	private BeanItemContainer<ProcessComment> bic = new BeanItemContainer<ProcessComment>(ProcessComment.class);

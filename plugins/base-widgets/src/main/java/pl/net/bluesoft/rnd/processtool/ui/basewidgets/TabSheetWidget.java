@@ -22,7 +22,7 @@ import static com.vaadin.ui.Label.CONTENT_XHTML;
 @AliasName(name = "TabSheet")
 @AperteDoc(humanNameKey="widget.tab_sheet.name", descriptionKey="widget.tab_sheet.description")
 @ChildrenAllowed(true)
-@WidgetGroup("basic-widgets")
+@WidgetGroup("base-widgets")
 public class TabSheetWidget extends BaseProcessToolWidget implements ProcessToolVaadinWidget {
 
 	private static final Logger logger = Logger.getLogger(TabSheetWidget.class.getName());
@@ -46,7 +46,6 @@ public class TabSheetWidget extends BaseProcessToolWidget implements ProcessTool
 			component = vChild.render();
 		} catch (Exception e) {
 			logger.log(Level.SEVERE, e.getMessage(), e);
-            logger.log(Level.SEVERE, e.getMessage(), e);
             Panel p = new Panel();
             VerticalLayout vl = new VerticalLayout();
             vl.addComponent(new Label(getMessage("process.data.widget.exception-occurred")));

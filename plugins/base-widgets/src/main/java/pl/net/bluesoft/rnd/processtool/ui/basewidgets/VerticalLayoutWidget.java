@@ -24,7 +24,7 @@ import static com.vaadin.ui.Label.CONTENT_XHTML;
 @AliasName(name = "VerticalLayout")
 @AperteDoc(humanNameKey="widget.vertical_layout.name", descriptionKey="widget.vertical_layout.description")
 @ChildrenAllowed(true)
-@WidgetGroup("basic-widgets")
+@WidgetGroup("base-widgets")
 public class VerticalLayoutWidget extends BaseProcessToolWidget implements ProcessToolVaadinWidget {
 
     private static final Logger logger = Logger.getLogger(VerticalLayout.class.getName());

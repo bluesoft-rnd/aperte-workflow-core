@@ -26,7 +26,8 @@ import pl.net.bluesoft.util.lang.FormatUtil;
 import pl.net.bluesoft.util.lang.StringUtil;
 
 import javax.naming.InitialContext;
-import javax.transaction.UserTransaction;
+import javax.naming.NamingException;
+import javax.transaction.*;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,7 +41,7 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
  */
 public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 
-	private Logger logger = Logger.getLogger(ProcessToolRegistryImpl.class.getName());
+	private static Logger logger = Logger.getLogger(ProcessToolRegistryImpl.class.getName());
 
     private final List<ProcessToolServiceBridge> SERVICE_BRIDGE_REGISTRY = new LinkedList<ProcessToolServiceBridge>();
 	private final Map<String, Class<? extends ProcessToolWidget>> WIDGET_REGISTRY = new HashMap();
@@ -166,11 +167,19 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 
 	public void buildSessionFactory() {
 
-        UserTransaction ut;
+        jta = false;
+        boolean startJtaTransaction = true;
+        UserTransaction ut=null;
         try {
             ut = (UserTransaction) new InitialContext().lookup("java:comp/UserTransaction");
         } catch (Exception e) {
-            ut = null;
+            logger.warning("java:comp/UserTransaction not found, looking for UserTransaction");
+            try {
+                ut = (UserTransaction) new InitialContext().lookup("UserTransaction");
+            }
+            catch (Exception e1) {
+                logger.warning("UserTransaction not found in JNDI, JTA not available!");
+            }
         }
 
         Configuration configuration = new Configuration().configure();
@@ -188,7 +197,6 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
         String managerLookupClassName=null;
         if (ut != null && !"true".equalsIgnoreCase(System.getProperty("org.aperteworkflow.nojta"))) { //try to autodetect JTA settings
             logger.warning("UserTransaction found, attempting to autoconfigure Hibernate to use JTA");
-            //<property name="h</property>
             managerLookupClassName = System.getProperty("org.aperteworkflow.hibernate.transaction.manager_lookup_class");
             if (managerLookupClassName == null) {
                 try {
@@ -202,7 +210,8 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
             if (managerLookupClassName == null) {
                 if (System.getProperty("jboss.home.dir") != null) {
                     logger.warning("Found JBoss AS environment, using JBoss Arjuna TM");
-                    managerLookupClassName = "org.hibernate.transaction.BTMTransactionManagerLookup";
+                    managerLookupClassName = "org.hibernate.transaction.JBossTransactionManagerLookup";
+                    startJtaTransaction = false; //hibernate forces autocommit on transaction update, which throws exception on jboss.
                 }
             }
             logger.warning("Configured hibernate.transaction.manager_lookup_class to " + managerLookupClassName);
@@ -219,14 +228,13 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
             configuration.setProperty("current_session_context_class", "thread");
         }
 
-        if (jta) {
+        if (startJtaTransaction && ut != null && jta) { //needed for tomcat/bitronix
             try {
                 ut.begin();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
-
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
 		try {
 			Thread.currentThread().setContextClassLoader(new ExtClassLoader(cl));
@@ -238,14 +246,14 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 		if (processToolContextFactory != null) {
 			processToolContextFactory.updateSessionFactory(sessionFactory);
 		}
-
-        if (jta) {
+        if (startJtaTransaction && ut != null && jta) { //needed for tomcat/bitronix
             try {
                 ut.commit();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
+
     }
 
 	public <T extends ProcessToolWidget> T makeWidget(Class<? extends ProcessToolWidget> aClass) throws IllegalAccessException, InstantiationException {
@@ -255,7 +263,7 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 
 	private final Map<String, I18NProvider> registeredI18NProviders = new HashMap();
 
-	{   //init default provider, regardless of OSGi stuff
+    {   //init default provider, regardless of OSGi stuff
 		final ClassLoader classloader = getClass().getClassLoader();
 		registeredI18NProviders.put("", new PropertiesBasedI18NProvider(new PropertyLoader() {
 			@Override

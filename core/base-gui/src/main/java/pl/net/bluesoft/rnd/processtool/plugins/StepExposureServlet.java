@@ -52,7 +52,7 @@ public class StepExposureServlet extends HttpServlet {
             AliasName a = Classes.getClassAnnotation(stepClass, AliasName.class);
             map.put(NAME, a.name());
             List<Field> fields = Classes.getFieldsWithAnnotation(stepClass, AutoWiredProperty.class);
-            List<Map<String, Object>> parameters = new ArrayList<Map<String, Object>>(fields.size());
+            List<Map<String, Object>> parameters = new ArrayList<Map<String, Object>>();
             if (fields != null) {
                 for (Field field : fields) {
                     Map<String, Object> parameter = new HashMap<String, Object>();

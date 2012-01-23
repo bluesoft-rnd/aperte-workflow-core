@@ -75,7 +75,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolWidget implements Pro
     private ProcessInstance processInstance;
 
     @AutoWiredProperty(required=true)
-    @AutoWiredPropertyConfigurator(fieldClass = RichTextArea.class)
+    @AutoWiredPropertyConfigurator(fieldClass = TextArea.class)
     @AperteDoc(humanNameKey="widget.process_data_block.property.widgetsDefinition.name", descriptionKey="widget.process_data_block.property.widgetsDefinition.description")
     private String widgetsDefinition;
 
@@ -83,6 +83,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolWidget implements Pro
     private String caption;
 
     @AutoWiredProperty
+    @AutoWiredPropertyConfigurator(fieldClass = RichTextArea.class)
     private String comment;
 
     public void setDefinitionLoader(WidgetDefinitionLoader definitionLoader) {

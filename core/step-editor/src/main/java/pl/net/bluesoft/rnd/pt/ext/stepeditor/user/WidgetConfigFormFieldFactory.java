@@ -1,6 +1,7 @@
 package pl.net.bluesoft.rnd.pt.ext.stepeditor.user;
 
 import com.vaadin.data.validator.IntegerValidator;
+import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.DefaultFieldFactory;
@@ -54,6 +55,7 @@ public class WidgetConfigFormFieldFactory extends DefaultFieldFactory {
 		if (property.getPropertyFieldClass() != null) {
             try {
                 field = property.getPropertyFieldClass().newInstance();
+
             } catch (InstantiationException e) {
                 logger.log(Level.WARNING, "Failed to create field using class from property", e);
             } catch (IllegalAccessException e) {
@@ -64,7 +66,8 @@ public class WidgetConfigFormFieldFactory extends DefaultFieldFactory {
 			field = createFieldByPropertyType(property.getType());
 		}
 		field.setPropertyDataSource(property);
-		field.setCaption(createCaptionByPropertyId(property.getName()));
+        field.setCaption(createCaptionByPropertyId(property.getName()));
+        field.setWidth(100, Sizeable.UNITS_PERCENTAGE);
 		return field;
 	}
 

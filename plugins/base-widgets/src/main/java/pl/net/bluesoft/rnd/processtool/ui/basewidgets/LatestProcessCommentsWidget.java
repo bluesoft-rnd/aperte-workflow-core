@@ -30,6 +30,7 @@ public class LatestProcessCommentsWidget extends BaseProcessToolWidget implement
     private String caption;
 
     @AutoWiredProperty
+    @AutoWiredPropertyConfigurator(fieldClass = RichTextArea.class)
     private String comment;
 
     private BeanItemContainer<ProcessComment> bic = new BeanItemContainer<ProcessComment>(ProcessComment.class);

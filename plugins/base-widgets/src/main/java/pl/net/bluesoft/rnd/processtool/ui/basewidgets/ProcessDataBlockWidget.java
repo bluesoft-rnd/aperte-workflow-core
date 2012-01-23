@@ -34,13 +34,12 @@ import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.jaxb.*;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.ChildrenAllowed;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.*;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.user.CustomConfigurator;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
+import pl.net.bluesoft.util.lang.StringUtil;
 
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
@@ -57,11 +56,15 @@ import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 @AperteDoc(humanNameKey="widget.process_data_block.name", descriptionKey="widget.process_data_block.description")
 @ChildrenAllowed(false)
 @CustomConfigurator(ProcessDataBlockFieldFactory.class)
+@PermissionsUsed({
+        @Permission(key="EDIT")
+})
+@WidgetGroup("base-widgets")
 public class ProcessDataBlockWidget extends BaseProcessToolWidget implements ProcessToolDataWidget, ProcessToolVaadinWidget {
     private static final Logger logger = Logger.getLogger(ProcessDataBlockWidget.class.getName());
     private static final Resolver resolver = new DefaultResolver();
 
-    public static final String ATTRIBUTE_WIDGETS_DEFINITION = "widgetsDefinition";
+    public static final String ATTRIBUTE_WIDGETS_DEFINITION = "widgetsDefinitionElement";
 
     private WidgetDefinitionLoader definitionLoader = WidgetDefinitionLoader.getInstance();
 
@@ -70,8 +73,18 @@ public class ProcessDataBlockWidget extends BaseProcessToolWidget implements Pro
     private Map<Property, WidgetElement> boundProperties = new HashMap<Property, WidgetElement>();
     private Map<AbstractSelect, WidgetElement> dictContainers = new HashMap<AbstractSelect, WidgetElement>();
     private Map<String, ProcessInstanceAttribute> processAttributes = new HashMap<String, ProcessInstanceAttribute>();
-    private WidgetsDefinitionElement widgetsDefinition;
+    private WidgetsDefinitionElement widgetsDefinitionElement;
     private ProcessInstance processInstance;
+
+    @AutoWiredProperty(required=true)
+    @AperteDoc(humanNameKey="widget.process_data_block.property.widgetsDefinition.name", descriptionKey="widget.process_data_block.property.widgetsDefinition.description")
+    private String widgetsDefinition;
+
+    @AutoWiredProperty
+    private String caption;
+
+    @AutoWiredProperty
+    private String comment;
 
     public void setDefinitionLoader(WidgetDefinitionLoader definitionLoader) {
         this.definitionLoader = definitionLoader;
@@ -191,7 +204,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolWidget implements Pro
 		                    ((ProcessInstanceSimpleAttribute) attribute).setValue(component.getValue().toString());
 	                    }
                     } else {
-                        if (component instanceof FileUploadWidget) {
+                        if (component instanceof FileUploadComponent) {
                             ProcessInstanceAttachmentAttribute attachment = (ProcessInstanceAttachmentAttribute) component.getValue();
                             attachment.setProcessState(processInstance.getState());
                             attachment.setProcessInstance(processInstance);
@@ -210,9 +223,13 @@ public class ProcessDataBlockWidget extends BaseProcessToolWidget implements Pro
     public void loadData(final ProcessInstance processInstance) {
         boundProperties.clear();
         dictContainers.clear();
-        if (getAttributeValue(ATTRIBUTE_WIDGETS_DEFINITION) != null) {
-            widgetsDefinition = (WidgetsDefinitionElement) definitionLoader.unmarshall(getAttributeValue(ATTRIBUTE_WIDGETS_DEFINITION));
+//        if (getAttributeValue(ATTRIBUTE_WIDGETS_DEFINITION) != null) {
+//            widgetsDefinitionElement = (WidgetsDefinitionElement) definitionLoader.unmarshall(getAttributeValue(ATTRIBUTE_WIDGETS_DEFINITION));
+//        }
+        if (StringUtil.hasText(widgetsDefinition)) {
+            widgetsDefinitionElement = (WidgetsDefinitionElement) definitionLoader.unmarshall(widgetsDefinition);
         }
+
         this.processInstance = processInstance;
         processAttributes.clear();
         for (ProcessInstanceAttribute attribute : processInstance.getProcessAttributes()) {
@@ -287,7 +304,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolWidget implements Pro
 
     @Override
     public Component render() {
-        return widgetsDefinition != null ? renderInternal() : new Label(getMessage("processdata.block.nothing.to.render"));
+        return widgetsDefinitionElement != null ? renderInternal() : new Label(getMessage("processdata.block.nothing.to.render"));
     }
 
     private void logException(String message, Exception e) {
@@ -298,16 +315,16 @@ public class ProcessDataBlockWidget extends BaseProcessToolWidget implements Pro
     private Component renderInternal() {
         ComponentContainer mainPanel = null;
         try {
-            mainPanel = !hasText(widgetsDefinition.getClassName()) ? new VerticalLayout()
-                    : (ComponentContainer) getClass().getClassLoader().loadClass(widgetsDefinition.getClassName()).newInstance();
+            mainPanel = !hasText(widgetsDefinitionElement.getClassName()) ? new VerticalLayout()
+                    : (ComponentContainer) getClass().getClassLoader().loadClass(widgetsDefinitionElement.getClassName()).newInstance();
         } catch (Exception e) {
-            logException(getMessage("processdata.block.error.load.class").replaceFirst("%s", widgetsDefinition.getClassName()), e);
+            logException(getMessage("processdata.block.error.load.class").replaceFirst("%s", widgetsDefinitionElement.getClassName()), e);
         }
 
-        setupWidget(widgetsDefinition, mainPanel);
+        setupWidget(widgetsDefinitionElement, mainPanel);
 
-        for (WidgetElement we : widgetsDefinition.getWidgets()) {
-            processWidgetElement(widgetsDefinition, we, mainPanel);
+        for (WidgetElement we : widgetsDefinitionElement.getWidgets()) {
+            processWidgetElement(widgetsDefinitionElement, we, mainPanel);
         }
 
         loadDictionaries();
@@ -361,7 +378,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolWidget implements Pro
     }
 
     private AbstractComponent createFileUploadField(UploadWidgetElement element) {
-        FileUploadWidget upload = new FileUploadWidget(i18NSource);
+        FileUploadComponent upload = new FileUploadComponent(i18NSource);
         return upload;
     }
 
@@ -689,4 +706,27 @@ public class ProcessDataBlockWidget extends BaseProcessToolWidget implements Pro
         }
     }
 
+    public String getCaption() {
+        return caption;
+    }
+
+    public void setCaption(String caption) {
+        this.caption = caption;
+    }
+
+    public String getWidgetsDefinition() {
+        return widgetsDefinition;
+    }
+
+    public void setWidgetsDefinition(String widgetsDefinition) {
+        this.widgetsDefinition = widgetsDefinition;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
 }

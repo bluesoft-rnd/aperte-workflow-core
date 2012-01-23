@@ -1,30 +1,25 @@
 package pl.net.bluesoft.rnd.pt.ext.stepeditor;
 
 
-import com.vaadin.Application;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.service.ApplicationContext;
 import com.vaadin.terminal.ParameterHandler;
 import com.vaadin.terminal.Sizeable;
-import com.vaadin.terminal.gwt.server.WebApplicationContext;
 import com.vaadin.ui.*;
 import org.apache.commons.lang.StringUtils;
-import pl.net.bluesoft.rnd.processtool.plugins.PluginMetadata;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.auto.AutoStepEditorWindow;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.user.UserStepEditorWindow;
+import pl.net.bluesoft.rnd.pt.ext.vaadin.GenericEditorApplication;
 import pl.net.bluesoft.util.lang.Classes;
 
-import javax.servlet.ServletContext;
-import java.util.Collection;
 import java.util.Map;
 
-public class StepEditorApplication extends Application implements ParameterHandler {
+public class StepEditorApplication extends GenericEditorApplication implements ParameterHandler {
 
-	private static final long		serialVersionUID	= 2136349026207825108L;;
+	private static final long		serialVersionUID	= 2136349026207825108L;
     private static final String     TASKTYPE_USER       = "User";
 
 	private Window					mainWindow;
@@ -116,7 +111,7 @@ public class StepEditorApplication extends Application implements ParameterHandl
         stepList.addItem("User");
         stepList.setItemCaption("User", "User");
         
-		ProcessToolRegistry reg = getRegistry(this);
+		ProcessToolRegistry reg = getRegistry();
 
         Map<String,ProcessToolProcessStep> availableSteps = reg.getAvailableSteps();
         for (ProcessToolProcessStep stepInstance : availableSteps.values()) {
@@ -148,11 +143,5 @@ public class StepEditorApplication extends Application implements ParameterHandl
 
 		setMainWindow(mainWindow);
 	}
-	
-	public static ProcessToolRegistry getRegistry(Application application) {
-		ApplicationContext ctx = application.getContext();
-		WebApplicationContext webCtx = (WebApplicationContext) ctx;
-		ServletContext sc = webCtx.getHttpSession().getServletContext();
-		return (ProcessToolRegistry) sc.getAttribute(ProcessToolRegistry.class.getName());
-	}	
+
 }

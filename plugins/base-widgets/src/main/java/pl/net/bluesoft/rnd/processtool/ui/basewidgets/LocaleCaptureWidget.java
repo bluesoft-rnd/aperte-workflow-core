@@ -6,10 +6,7 @@ import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.ChildrenAllowed;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.*;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
 
 import java.util.Collection;
@@ -23,11 +20,18 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 @AliasName(name="LocaleCapture")
 @ChildrenAllowed(false)
 @AperteDoc(humanNameKey="widget.locale_capture.name", descriptionKey="widget.locale_capture.description", icon="locale.png")
+@WidgetGroup("base-widgets")
 public class LocaleCaptureWidget extends BaseProcessToolWidget implements ProcessToolVaadinWidget, ProcessToolDataWidget {
 
     @AutoWiredProperty(required=false)
     @AperteDoc(humanNameKey="widget.locale_capture.property.local_key.name", descriptionKey="widget.locale_capture.property.local_key.description")
 	private String localeKey = "java.util.Locale";
+
+    @AutoWiredProperty
+    private String caption;
+
+    @AutoWiredProperty
+    private String comment;
 
 	private Label lbl = new Label();
 
@@ -65,4 +69,20 @@ public class LocaleCaptureWidget extends BaseProcessToolWidget implements Proces
 	public void setLocaleKey(String localeKey) {
 		this.localeKey = localeKey;
 	}
+
+    public String getCaption() {
+        return caption;
+    }
+
+    public void setCaption(String caption) {
+        this.caption = caption;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
 }

@@ -9,6 +9,7 @@ import com.liferay.portal.service.UserServiceUtil;
 import com.liferay.portal.util.PortalUtil;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.WidgetGroup;
 
 import javax.portlet.PortletRequest;
 import java.util.Collection;
@@ -18,6 +19,7 @@ import java.util.HashSet;
  * @author tlipski@bluesoft.net.pl
  */
 @AliasName(name="LiferayUserData")
+@WidgetGroup("userdata-widget")
 public class LiferayUserDataWidget extends UserDataWidget {
 
 	@AutoWiredProperty

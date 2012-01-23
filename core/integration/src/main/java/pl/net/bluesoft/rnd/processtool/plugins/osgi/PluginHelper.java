@@ -522,7 +522,7 @@ public class PluginHelper implements PluginManager {
         for (String filename : list) {
             File subFile = new File(f.getAbsolutePath() + File.separator + filename);
             String path = subFile.getAbsolutePath();
-            if (!subFile.isDirectory() && path.matches(".*jar$")) {                          // TODO additional check for time modification
+            if (!subFile.isDirectory() && path.matches(".*jar$")) {
                 Long lastModified = getBundleInfo(path).getLastModified();
                 if (lastModified == null || lastModified < subFile.lastModified()) {
                     installableBundlePaths.add(path);
@@ -811,7 +811,6 @@ public class PluginHelper implements PluginManager {
             fileRef = dest;
             LOGGER.warning("Installing bundle: " + dest.getAbsolutePath());
             installBundle(dest.getAbsolutePath());
-//            fileTimes.put(dest.getAbsolutePath(), dest.lastModified());       //TODO was removed in modeler branch
             fileRef = null;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Failed to deploy plugin " + filename, e);

@@ -8,10 +8,7 @@ import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.ChildrenAllowed;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.*;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
 
 import java.text.SimpleDateFormat;
@@ -29,11 +26,18 @@ import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 @AliasName(name = "ProcessHistory")
 @AperteDoc(humanNameKey="widget.process_history.name", descriptionKey="widget.process_history.description")
 @ChildrenAllowed(false)
+@WidgetGroup("base-widgets")
 public class ProcessHistoryWidget extends BaseProcessToolWidget implements ProcessToolDataWidget, ProcessToolVaadinWidget {
 
     @AutoWiredProperty(required = false)
     @AperteDoc(humanNameKey="widget.process_history.property.table.name", descriptionKey="widget.process_history.property.table.description")
 	private Boolean table;
+
+    @AutoWiredProperty
+    private String caption;
+
+    @AutoWiredProperty
+    private String comment;
 
 	private List<ProcessLogInfo> logInfos = new ArrayList<ProcessLogInfo>();
 
@@ -205,4 +209,20 @@ public class ProcessHistoryWidget extends BaseProcessToolWidget implements Proce
 	public void setTable(Boolean table) {
 		this.table = table;
 	}
+
+    public String getCaption() {
+        return caption;
+    }
+
+    public void setCaption(String caption) {
+        this.caption = caption;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
 }

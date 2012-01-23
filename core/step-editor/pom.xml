@@ -80,7 +80,14 @@
 			<groupId>org.aperteworkflow</groupId>
 			<artifactId>integration</artifactId>
 			<version>0.1</version>
+            <scope>provided</scope>
 		</dependency>
+        <dependency>
+            <groupId>org.aperteworkflow</groupId>
+            <artifactId>base-gui</artifactId>
+            <version>0.1</version>
+            <scope>provided</scope>
+        </dependency>
 	</dependencies>
 
 	<repositories>

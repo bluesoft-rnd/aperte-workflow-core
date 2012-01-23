@@ -1,6 +1,7 @@
 package pl.net.bluesoft.rnd.pt.ext.stepeditor.user;
 
 import com.vaadin.data.util.ObjectProperty;
+import com.vaadin.ui.Field;
 
 import java.io.Serializable;
 
@@ -17,22 +18,16 @@ public class Property<T> extends ObjectProperty<T> implements Serializable, Clon
 	private String[] allowedValues;
 	private String propertyId;
 	private boolean required;
-	private PropertyType propertyType;  
+	private PropertyType propertyType;
+    private Class<? extends Field> propertyField;
 
-	public Property(PropertyType propertyType, String propertyId, String name, String description,
-                    Class<T> type, String[] allowedValues, boolean required, T value) {
-		super(value, type);
-		this.propertyType = propertyType;
-		this.propertyId = propertyId;
-		this.name = name;
-		this.description = description;
-		this.allowedValues = allowedValues;
-		this.required = required;
-	}
-
-	public Property() {
-		super(null);
-	}
+    public Property(Class<T> type) {
+        this(null, type);
+    }
+    
+    public Property(T value, Class<T> type) {
+        super(value, type);
+    }
 
     @Override
     public int compareTo(Property<?> other) {
@@ -106,4 +101,11 @@ public class Property<T> extends ObjectProperty<T> implements Serializable, Clon
 		this.propertyType = propertyType;
 	}
 
+    public Class<? extends Field> getPropertyFieldClass() {
+        return propertyField;
+    }
+
+    public void setPropertyFieldClass(Class<? extends Field> propertyField) {
+        this.propertyField = propertyField;
+    }
 }

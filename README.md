@@ -2,9 +2,11 @@ Aperte Workflow
 -----------------
 
 Aperte Workflow is a compilation of well-known, stable and mature frameworks into a complete BPM solution developed by
-[BlueSoft sp. z o.o.](http://www.bluesoft.net.pl/) - Polish independent software vendor.
+[BlueSoft sp. z o.o.](http://www.bluesoft.net.pl/) - Polish independent software vendor. Project home page is available
+at [http://www.aperteworkflow.org/](http://www.aperteworkflow.org/).
 
-If you want to see Aperte Workflow in action, there is a live demo available at [https://demo.aperteworkflow.org](https://demo.aperteworkflow.org). 
+If you want to see Aperte Workflow in action, 
+there is a live demo available at [https://demo.aperteworkflow.org](https://demo.aperteworkflow.org). 
 
 Installation bundle
 -------------------
@@ -43,7 +45,7 @@ Open Source technologies, guarantees the stability and maturity of the solution 
 it allows the users of these technologies to quickly adapt to and use the framework.
 
 For more information, please visit 
-[http://www.bluesoft.net.pl/en/products/open_source/aperte_workflow](http://www.bluesoft.net.pl/en/products/open_source/aperte_workflow)
+[http://www.aperteworkflow.org/](http://www.aperteworkflow.org/)
 
 You can also see the Aperte Workflow in action: [https://demo.aperteworkflow.org](https://demo.aperteworkflow.org).
 

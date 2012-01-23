@@ -2,7 +2,6 @@ package pl.net.bluesoft.rnd.pt.ext.vaadin;
 
 
 import com.vaadin.Application;
-import com.vaadin.service.ApplicationContext;
 import com.vaadin.terminal.gwt.server.HttpServletRequestListener;
 import com.vaadin.terminal.gwt.server.WebApplicationContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
@@ -19,10 +18,14 @@ import javax.servlet.http.HttpServletResponse;
  * Basic class for editor application which provides integration with rest of
  * the Aperte Workflow infrastructure
  */
-public abstract class AbstractEditorApplication extends Application implements HttpServletRequestListener {
+public class GenericEditorApplication extends Application implements HttpServletRequestListener {
 
     private static ThreadLocal<Application> application = new ThreadLocal<Application>();
 
+    /**
+     * Get current application object associated with this thread of execution
+     * @return current application
+     */
     public static Application getApplication() {
         return application.get();
     }

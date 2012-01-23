@@ -42,7 +42,6 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 	private Tree					stepTree;
     private Label                   stepTreeHintLabel;
 	private Tree					availableTree;
-    private Label                   availableTreeHintLabel;
 
 	private WidgetItemInStep		rootItem;
     
@@ -66,7 +65,7 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 	}
 	
 	public ComponentContainer init() {
-		
+
 		ComponentContainer comp = buildLayout();
 		
 		if (jsonConfig != null && jsonConfig.trim().length() > 0) {
@@ -93,9 +92,6 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
     }
 	
 	private ComponentContainer buildLayout() {
-		// setTheme("CHAMELEON");
-		// getMainWindow().addListener(this);
-
 		saveButton = new Button(Messages.getString("button.save"), this);
 		removeFromStepTreeButton = new Button(Messages.getString("form.delete"), this);
 
@@ -118,8 +114,6 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
         availableTree.setItemIconPropertyId("icon");
         availableTree.addListener((ValueChangeListener) this);
 		availableTree.setImmediate(true);
-
-        availableTreeHintLabel = new Label(Messages.getString("availableTree.hint"));
         
 		stepTree = new Tree(Messages.getString("stepTree.title"), getCurrentStep());
         stepTree.setItemCaptionMode(Tree.ITEM_CAPTION_MODE_PROPERTY);
@@ -151,17 +145,17 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
         availableWidgetsLayout.setWidth(100, Sizeable.UNITS_PERCENTAGE);
         availableWidgetsLayout.addComponent(availableTree);
         availableWidgetsLayout.addComponent(description);
-        availableWidgetsLayout.addComponent(availableTreeHintLabel);
 
 		VerticalLayout attributeLayout = new VerticalLayout();
-        attributeLayout.setSizeUndefined();
 		attributeLayout.setWidth(245, Sizeable.UNITS_PIXELS);
+        attributeLayout.setSpacing(true);
         attributeLayout.addComponent(assigneeField);
         attributeLayout.addComponent(candidateGroupsField);
         attributeLayout.addComponent(swimlaneField);
 
         VerticalLayout stepLayout = new VerticalLayout();
         stepLayout.setWidth(245, Sizeable.UNITS_PIXELS);
+        stepLayout.setSpacing(true);
         stepLayout.addComponent(stepTree);
         stepLayout.addComponent(removeFromStepTreeButton);
         stepLayout.addComponent(stepTreeHintLabel);

@@ -1,12 +1,15 @@
 package pl.net.bluesoft.rnd.pt.ext.stepeditor.user;
 
-import java.io.Serializable;
-
 import com.vaadin.data.util.ObjectProperty;
 
-public class Property<T> extends ObjectProperty<T> implements Serializable, Cloneable {
+import java.io.Serializable;
 
-	public enum PropertyType {PROPERTY, PERMISSION};
+public class Property<T> extends ObjectProperty<T> implements Serializable, Cloneable, Comparable<Property<T>> {
+
+    public enum PropertyType {
+        PROPERTY,
+        PERMISSION
+    }
 	
 	private static final long serialVersionUID = -6913191546296165712L;
 	private String name;
@@ -16,7 +19,8 @@ public class Property<T> extends ObjectProperty<T> implements Serializable, Clon
 	private boolean required;
 	private PropertyType propertyType;  
 
-	public Property(PropertyType propertyType, String propertyId, String name, String description, Class<T> type, String[] allowedValues, boolean required, T value) {
+	public Property(PropertyType propertyType, String propertyId, String name, String description,
+                    Class<T> type, String[] allowedValues, boolean required, T value) {
 		super(value, type);
 		this.propertyType = propertyType;
 		this.propertyId = propertyId;
@@ -30,7 +34,26 @@ public class Property<T> extends ObjectProperty<T> implements Serializable, Clon
 		super(null);
 	}
 
-	@Override
+    @Override
+    public int compareTo(Property<T> other) {
+        if (other == null) {
+            // Null shall be first, always
+            return 0;
+        }
+
+        // Handle possible null names
+        if (name == null) {
+            return other.name == null ? 0 : 1;
+        }
+        if (other.name == null) {
+            return 1;
+        }
+
+        // Compare name literals
+        return name.compareTo(other.name);
+    }
+
+    @Override
 	protected Object clone() throws CloneNotSupportedException {
 		return super.clone();
 	}

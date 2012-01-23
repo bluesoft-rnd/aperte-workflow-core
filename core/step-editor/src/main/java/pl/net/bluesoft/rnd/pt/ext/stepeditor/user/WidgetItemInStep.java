@@ -3,15 +3,18 @@ package pl.net.bluesoft.rnd.pt.ext.stepeditor.user;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class WidgetItemInStep implements Serializable {
 	private static final long serialVersionUID = -4319558996871289010L;
+    private static final Logger logger = Logger.getLogger(WidgetItemInStep.class.getName());
+
 	private WidgetItem widgetItem;
 	private List<Property<?>> properties = new LinkedList<Property<?>>();
 	private List<Property<?>> permissions = new LinkedList<Property<?>>();
 
 	public WidgetItemInStep(WidgetItem widgetItem, List<Property<?>> properties, List<Property<?>> permissions) {
-		super();
 		this.widgetItem = widgetItem;
 		this.properties = properties;
 		this.permissions = permissions;
@@ -28,7 +31,7 @@ public class WidgetItemInStep implements Serializable {
 					// should never happen
 					// if happens, we just log the exception and skip property
 					// that failed
-					e.printStackTrace();
+					logger.log(Level.SEVERE, "Clone not supported for property", e);
 				}
 			}
 		}
@@ -40,7 +43,7 @@ public class WidgetItemInStep implements Serializable {
 					// should never happen
 					// if happens, we just log the exception and skip property
 					// that failed
-					e.printStackTrace();
+                    logger.log(Level.SEVERE, "Clone not supported for property", e);
 				}
 			}
 		}

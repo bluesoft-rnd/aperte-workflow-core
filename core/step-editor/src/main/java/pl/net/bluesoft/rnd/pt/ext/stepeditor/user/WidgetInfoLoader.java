@@ -5,8 +5,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang.StringUtils;
 import pl.net.bluesoft.rnd.processtool.i18n.DefaultI18NSource;
-import pl.net.bluesoft.rnd.processtool.plugins.PluginMetadata;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.*;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.StepEditorApplication;
 import pl.net.bluesoft.rnd.util.i18n.I18NProvider;
@@ -18,8 +18,6 @@ import java.util.*;
 
 public class WidgetInfoLoader {
 
-	private static final String PERMISSION_DESC_PREFIX = "permission.desc.";
-	
 	private static final class FieldTransformer implements Transformer {
 		@Override
 		public Object transform(Object arg0) {
@@ -35,9 +33,7 @@ public class WidgetInfoLoader {
 
 			return new Property(Property.PropertyType.PROPERTY, field.getName(), docMap.get("name"), docMap.get("description"), field.getType(), null, awp.required(), null);
 		}
-	}
-	
-	
+    }
 
 	private static final class WidgetTransformer implements Transformer {
 		private BundleItem	bundle;
@@ -70,7 +66,7 @@ public class WidgetInfoLoader {
 
 			List<Field> fields = Classes.getFieldsWithAnnotation(widgetClass, AutoWiredProperty.class);
 			Collection<Property<?>> properties = CollectionUtils.collect(fields, new FieldTransformer());
-			Collection<Property<?>> permissions = getPropertiesList(p);
+            Collection<Property<?>> permissions = getPropertiesList(p);
 
 			return new WidgetItem(a.name(), docMap.get("name"), docMap.get("description"),
                     docMap.get("icon"), properties, permissions, childrenAllowed, configurator,
@@ -92,38 +88,73 @@ public class WidgetInfoLoader {
 		}
 	}
 
-	
-	
-	private static DefaultI18NSource	i18NSource = new DefaultI18NSource();
-	private static Collection<I18NProvider>	i18NProviders;
+    private static final String PERMISSION_DESC_PREFIX = "widget.permission.desc.";
+    private static final String BUNDLE_DESC_PREFIX = "widget.bundle.desc.";
+
+    private static DefaultI18NSource i18NSource = new DefaultI18NSource();
+    private static Collection<I18NProvider>	i18NProviders;
+
 
 	public static Map<BundleItem, Collection<WidgetItem>> loadAvailableWidgets(Application application)
             throws ClassNotFoundException {
-		
-		ProcessToolRegistry reg = StepEditorApplication.getRegistry(application);
-
+		ProcessToolRegistry reg = StepEditorApplication.getRegistry();
 		i18NSource.setLocale(application.getLocale());
 		i18NProviders = reg.getI18NProviders();
 
 		Map<BundleItem, Collection<WidgetItem>> availableWidgets = new HashMap<BundleItem, Collection<WidgetItem>>();
 
-        //TODO grouping based on annotations, not plugins. Or think about connection between widget and providing mechanism. But to do so only for GUI would seem like an overhead
-        BundleItem bundleItem = new BundleItem("Widgets", "Widgets",
-                new ArrayList<I18NProvider>(),
-                new ArrayList<URL>());
+        Map<String, Class<? extends ProcessToolWidget>> registeredWidgets = reg.getAvailableWidgets();
+        if (registeredWidgets == null || registeredWidgets.size() == 0) {
+            return  availableWidgets;
+        }
 
-        Collection widgets = CollectionUtils.collect(new HashSet(reg.getAvailableWidgets().values()),
-                                new WidgetTransformer(bundleItem));
-        while (widgets.remove(null));
+        // Widgets are available in registry by both @AliasName and their class name
+        // we don't want to present each step twice so we exclude duplicates. Do note
+        // that java.lang.Class does not override hashCode() and equals() so we use it's name
+        Map<String, Class<? extends ProcessToolWidget>> viewableWidgets = new HashMap<String, Class<? extends ProcessToolWidget>>();
+        for (Class<? extends ProcessToolWidget> widgetClass : registeredWidgets.values()) {
+            viewableWidgets.put(widgetClass.getName(), widgetClass);
+        }
 
-        if (widgets.size() > 0) {
-            availableWidgets.put(bundleItem, widgets);
+        // Create sorted structure of widgets by processing their annotations
+        Map<String, List<Class<? extends ProcessToolWidget>>> sortedWidgets = new HashMap<String, List<Class<? extends ProcessToolWidget>>>();
+        for (Class<? extends ProcessToolWidget> widgetClass : viewableWidgets.values()) {
+            String widgetGroupName = "unsorted";
+            
+            WidgetGroup widgetGroup = Classes.getClassAnnotation(widgetClass, WidgetGroup.class);
+            if (widgetGroup != null) {
+                widgetGroupName = widgetGroup.value();
+            }
+
+            List<Class<? extends ProcessToolWidget>> widgetGroupItems = sortedWidgets.get(widgetGroupName);
+            if (widgetGroupItems == null) {
+                widgetGroupItems = new ArrayList<Class<? extends ProcessToolWidget>>();
+                sortedWidgets.put(widgetGroupName, widgetGroupItems);
+            }
+
+            widgetGroupItems.add(widgetClass);
+        }
+
+        // Process the sorted structure to final form
+        for (String bundleName : sortedWidgets.keySet()) {
+            String bundleDescriptionKey = BUNDLE_DESC_PREFIX + bundleName;
+
+            BundleItem bundleItem = new BundleItem(
+                    bundleName,
+                    i18NSource.getMessage(bundleDescriptionKey),
+                    new ArrayList<I18NProvider>(),
+                    new ArrayList<URL>()
+            );
+
+            Collection widgets = CollectionUtils.collect(sortedWidgets.get(bundleName), new WidgetTransformer(bundleItem));
+            while (widgets.remove(null));
+            if (widgets.size() > 0) {
+                availableWidgets.put(bundleItem, widgets);
+            }
         }
 
 		return availableWidgets;
 	}
-
-	
 
 	protected static Map<String, String> getDocumentation(Object object) {
 		AperteDoc doc = null;

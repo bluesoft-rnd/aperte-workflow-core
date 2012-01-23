@@ -3,9 +3,7 @@ package pl.net.bluesoft.rnd.processtool.ui.basewidgets;
 import com.vaadin.ui.*;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.ChildrenAllowed;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.*;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
 
 import java.io.ByteArrayOutputStream;
@@ -21,10 +19,17 @@ import static com.vaadin.ui.Label.CONTENT_XHTML;
 @AliasName(name = "TabSheet")
 @AperteDoc(humanNameKey="widget.tab_sheet.name", descriptionKey="widget.tab_sheet.description")
 @ChildrenAllowed(true)
+@WidgetGroup("base-widgets")
 public class TabSheetWidget extends BaseProcessToolWidget implements ProcessToolVaadinWidget {
 
-	private Logger logger = Logger.getLogger(TabSheetWidget.class.getName());
+	private static final Logger logger = Logger.getLogger(TabSheetWidget.class.getName());
 	private TabSheet ts = new TabSheet();
+
+    @AutoWiredProperty
+    private String caption;
+
+    @AutoWiredProperty
+    private String comment;
 
 	@Override
 	public Component render() {
@@ -44,7 +49,6 @@ public class TabSheetWidget extends BaseProcessToolWidget implements ProcessTool
 			component = vChild.render();
 		} catch (Exception e) {
 			logger.log(Level.SEVERE, e.getMessage(), e);
-            logger.log(Level.SEVERE, e.getMessage(), e);
             Panel p = new Panel();
             VerticalLayout vl = new VerticalLayout();
             vl.addComponent(new Label(getMessage("process.data.widget.exception-occurred")));
@@ -63,5 +67,19 @@ public class TabSheetWidget extends BaseProcessToolWidget implements ProcessTool
 
 	}
 
+    public String getCaption() {
+        return caption;
+    }
 
+    public void setCaption(String caption) {
+        this.caption = caption;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
 }

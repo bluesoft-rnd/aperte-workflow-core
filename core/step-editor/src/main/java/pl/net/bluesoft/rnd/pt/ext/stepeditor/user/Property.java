@@ -4,7 +4,7 @@ import com.vaadin.data.util.ObjectProperty;
 
 import java.io.Serializable;
 
-public class Property<T> extends ObjectProperty<T> implements Serializable, Cloneable, Comparable<Property<T>> {
+public class Property<T> extends ObjectProperty<T> implements Serializable, Cloneable, Comparable<Property<?>> {
 
     public enum PropertyType {
         PROPERTY,
@@ -35,22 +35,22 @@ public class Property<T> extends ObjectProperty<T> implements Serializable, Clon
 	}
 
     @Override
-    public int compareTo(Property<T> other) {
+    public int compareTo(Property<?> other) {
         if (other == null) {
-            // Null shall be first, always
+            // Null object shall be first, always
             return 0;
         }
 
-        // Handle possible null names
-        if (name == null) {
-            return other.name == null ? 0 : 1;
+        // Handle possible null values
+        if (propertyId == null) {
+            return other.propertyId == null ? 0 : 1;
         }
-        if (other.name == null) {
+        if (other.propertyId == null) {
             return 1;
         }
 
         // Compare name literals
-        return name.compareTo(other.name);
+        return propertyId.compareTo(other.propertyId);
     }
 
     @Override

@@ -64,26 +64,42 @@ public class WidgetInfoLoader {
 			if (Boolean.valueOf(docMap.get("internal")))
 				return null;
 
-			List<Field> fields = Classes.getFieldsWithAnnotation(widgetClass, AutoWiredProperty.class);
-			Collection<Property<?>> properties = CollectionUtils.collect(fields, new FieldTransformer());
-            Collection<Property<?>> permissions = getPropertiesList(p);
+            List<Property<?>> properties = getProperties(widgetClass);
+            List<Property<?>> permissions = getPermissions(p);
 
 			return new WidgetItem(a.name(), docMap.get("name"), docMap.get("description"),
                     docMap.get("icon"), properties, permissions, childrenAllowed, configurator,
 					bundle);
-		}
-		
-		private Collection<Property<?>> getPropertiesList(PermissionsUsed p) {
-			Collection<Property<?>> permissions = new ArrayList<Property<?>>();
-			
-			if (p == null || p.value() == null)
+        }
+
+        private List<Property<?>> getProperties(Class<?> widgetClass) {
+            List<Property<?>> properties = new ArrayList<Property<?>>();
+            
+            List<Field> fields = Classes.getFieldsWithAnnotation(widgetClass, AutoWiredProperty.class);
+            if (fields == null || fields.isEmpty()) {
+                return properties;
+            }
+            
+            properties.addAll(CollectionUtils.collect(fields, new FieldTransformer()));
+            Collections.sort(properties);
+
+            return properties;
+        }
+        
+		private List<Property<?>> getPermissions(PermissionsUsed permissionsUsed) {
+			List<Property<?>> permissions = new ArrayList<Property<?>>();
+			if (permissionsUsed == null || permissionsUsed.value() == null) {
 				return permissions;
-			
-			for (Permission perm : p.value()) {
-			  String permDesc = StringUtils.isEmpty(perm.desc()) ? PERMISSION_DESC_PREFIX + perm.key() : perm.desc();
-			  permDesc = i18NSource.getMessage(permDesc, i18NProviders);
-			  permissions.add(new Property(Property.PropertyType.PERMISSION, perm.key(), permDesc + " (" + perm.key() + ")", null, String.class, null, false, null));
+            }
+
+			for (Permission perm : permissionsUsed.value()) {
+			    String permDesc = StringUtils.isEmpty(perm.desc()) ? PERMISSION_DESC_PREFIX + perm.key() : perm.desc();
+			    permDesc = i18NSource.getMessage(permDesc, i18NProviders);
+			    permissions.add(new Property(Property.PropertyType.PERMISSION, perm.key(), permDesc + " (" + perm.key() + ")", null, String.class, null, false, null));
 			}
+
+            Collections.sort(permissions);
+
 			return permissions;
 		}
 	}

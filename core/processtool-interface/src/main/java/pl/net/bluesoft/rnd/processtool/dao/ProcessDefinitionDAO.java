@@ -6,6 +6,7 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -22,4 +23,10 @@ public interface ProcessDefinitionDAO {
 
 	void updateOrCreateProcessDefinitionConfig(ProcessDefinitionConfig cfg);
 	void updateOrCreateQueueConfigs(ProcessQueueConfig[] cfgs);
+
+    Collection<ProcessDefinitionConfig> getLatestConfigurations();
+    void setConfigurationEnabled(ProcessDefinitionConfig cfg, boolean enabled);
+
+
+    Collection<ProcessDefinitionConfig> getConfigurationVersions(ProcessDefinitionConfig cfg);
 }

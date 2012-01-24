@@ -140,5 +140,26 @@
 			<short-title>Plugin Manager</short-title>
 		</portlet-info>
 	</portlet>
+    <portlet>
+		<portlet-name>Aperte Workflow Process Definition Manager</portlet-name>
+		<display-name>Aperte Workflow Process Definitions</display-name>
+        <portlet-class>pl.net.bluesoft.rnd.util.vaadin.ProcessToolVaadinApplicationPortlet2</portlet-class>
+		<init-param>
+			<name>application</name>
+			<value>org.aperteworkflow.portlets.ProcessDefinitionManagerPortlet</value>
+		</init-param>
+        <init-param>
+            <name>widgetset</name>
+            <value>com.vaadin.portal.gwt.PortalDefaultWidgetSet</value>
+        </init-param>
+		<supports>
+			<mime-type>text/html</mime-type>
+			<portlet-mode>view</portlet-mode>
+		</supports>
+		<portlet-info>
+			<title>Aperte Workflow Process Definitions</title>
+			<short-title>Process Definition Manager</short-title>
+		</portlet-info>
+	</portlet>
 
 </portlet-app>

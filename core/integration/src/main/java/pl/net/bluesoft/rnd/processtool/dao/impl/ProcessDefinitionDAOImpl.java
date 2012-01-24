@@ -27,7 +27,9 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 
 	public Collection<ProcessDefinitionConfig> getActiveConfigurations() {		
 		return session.createCriteria(ProcessDefinitionConfig.class)
-						.add(Restrictions.eq("latest", Boolean.TRUE)).list();
+						.add(Restrictions.eq("latest", Boolean.TRUE))
+						.add(Restrictions.or(Restrictions.eq("enabled", Boolean.TRUE), Restrictions.isNull("enabled")))
+                .list();
 	}
 
 	@Override
@@ -73,6 +75,10 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 			cleanupWidgetsTree(state.getWidgets(), null, new HashSet<ProcessStateWidget>());
 		}
 
+        for (ProcessDefinitionPermission permission : cfg.getPermissions()) {
+            permission.setDefinition(cfg);
+        }
+
 		List<ProcessDefinitionConfig> lst = session.createCriteria(ProcessDefinitionConfig.class)
 						.add(Restrictions.eq("latest", true))
 						.add(Restrictions.eq("bpmDefinitionKey", cfg.getBpmDefinitionKey())).list();
@@ -109,6 +115,7 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 			if (!newMap.containsKey(name)) return false;
 			if (!compareStates(oldMap.get(name), newMap.get(name))) return false;
 		}
+        if (!comparePermissions(cfg.getPermissions(), c.getPermissions())) return false;
 
 		return true;
 
@@ -223,4 +230,26 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 			session.save(q);
 		}
 	}
+
+    @Override
+    public Collection<ProcessDefinitionConfig> getLatestConfigurations() {
+        return session.createCriteria(ProcessDefinitionConfig.class)
+        						.add(Restrictions.eq("latest", Boolean.TRUE))
+                        .list();
+    }
+
+    @Override
+    public Collection<ProcessDefinitionConfig> getConfigurationVersions(ProcessDefinitionConfig cfg) {
+        return session.createCriteria(ProcessDefinitionConfig.class)
+        						.add(Restrictions.eq("bpmDefinitionKey", cfg.getBpmDefinitionKey()))
+                        .list();
+    }
+
+    @Override
+    public void setConfigurationEnabled(ProcessDefinitionConfig cfg, boolean enabled) {
+
+        cfg = (ProcessDefinitionConfig) session.get(ProcessDefinitionConfig.class, cfg.getId());
+        cfg.setEnabled(enabled);
+        session.save(cfg);
+    }
 }

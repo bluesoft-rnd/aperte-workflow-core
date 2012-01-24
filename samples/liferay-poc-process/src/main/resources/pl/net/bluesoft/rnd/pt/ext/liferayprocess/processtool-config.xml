@@ -8,6 +8,12 @@
                 Liferay Symposium Workflow submission acceptance example process.
         ]]>
     </comment>
+    <permissions>
+        <!--
+            RUN is the only process-level permission supported at this moment
+        -->
+        <config.ProcessDefinitionPermission priviledgeName="RUN" roleName="Power User"/>
+    </permissions>
     <states>
         <config.ProcessStateConfiguration description="Provide submission details" name="ENTER_SUBMISSION">
             <commentary>

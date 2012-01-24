@@ -51,6 +51,9 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
                                                  String description,
                                                  String keyword,
                                                  String source) {
+        if (!config.getEnabled()) {
+            throw new IllegalArgumentException("Process definition has been disabled!");
+        }
         ProcessInstance pi = new ProcessInstance();
 	    pi.setDefinition(config);
 	    pi.setCreator(user);
@@ -183,7 +186,21 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
                                                             ProcessToolContext ctx, ProcessInstance pi);
 
     public Collection<ProcessDefinitionConfig> getAvailableConfigurations(ProcessToolContext ctx) {
-        return ctx.getProcessDefinitionDAO().getActiveConfigurations();
+        Collection<ProcessDefinitionConfig> activeConfigurations = ctx.getProcessDefinitionDAO().getActiveConfigurations();
+        List<ProcessDefinitionConfig> res = new ArrayList<ProcessDefinitionConfig>();
+        for (ProcessDefinitionConfig cfg : activeConfigurations) {
+            if (cfg.getPermissions().isEmpty()) {
+                res.add(cfg);
+            }
+            for (ProcessDefinitionPermission permission : cfg.getPermissions()) {
+                String roleName = permission.getRoleName();
+                if ("RUN".equals(permission.getPriviledgeName()) && roleName != null && hasMatchingRole(roleName)) {
+                    res.add(cfg);
+                    break;
+                }
+            }
+        }
+        return res;
     }
 
     protected Collection<ProcessQueue> getUserQueuesFromConfig(ProcessToolContext ctx) {

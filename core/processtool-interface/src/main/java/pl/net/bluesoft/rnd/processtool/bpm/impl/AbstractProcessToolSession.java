@@ -51,6 +51,9 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
                                                  String description,
                                                  String keyword,
                                                  String source) {
+        if (!config.getEnabled()) {
+            throw new IllegalArgumentException("Process definition has been disabled!");
+        }
         ProcessInstance pi = new ProcessInstance();
 	    pi.setDefinition(config);
 	    pi.setCreator(user);

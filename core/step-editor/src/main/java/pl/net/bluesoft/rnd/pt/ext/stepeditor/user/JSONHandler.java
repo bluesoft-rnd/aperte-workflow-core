@@ -3,6 +3,7 @@ package pl.net.bluesoft.rnd.pt.ext.stepeditor.user;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.HierarchicalContainer;
 import com.vaadin.ui.Tree;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.codehaus.jackson.JsonGenerationException;
@@ -104,7 +105,7 @@ public class JSONHandler {
 			for (String key : properties.keySet()) {
 				for (Property<?> property : item.getProperties()) {
 					if (property.getPropertyId().equals(key)) {
-						property.setValue(properties.get(key));
+						property.setValue(new String(Base64.decodeBase64(properties.get(key).toString())));
 					}
 				}
 			}
@@ -137,7 +138,8 @@ public class JSONHandler {
 		if (widgetItemInStep.hasProperties()) {
 			for (Property<?> property : widgetItemInStep.getProperties()) {
 				if (property.getValue() != null) {
-					propertiesMap.put(property.getPropertyId(), property.getValue());
+                    String encoded = Base64.encodeBase64URLSafeString(property.getValue().toString().getBytes());
+					propertiesMap.put(property.getPropertyId(), encoded);
                 }
 			}
 		}

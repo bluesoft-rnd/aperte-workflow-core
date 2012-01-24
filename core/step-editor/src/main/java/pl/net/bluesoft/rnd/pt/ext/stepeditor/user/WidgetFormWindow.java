@@ -14,17 +14,19 @@ public class WidgetFormWindow extends Panel  {
 
 	public class WidgetForm extends Form {
 		
-		private Layout propertiesLayout;
-		private Layout permissionsLayout;
+		private VerticalLayout propertiesLayout;
+		private VerticalLayout permissionsLayout;
 		
 		public WidgetForm() {
 			super();
 
             permissionsLayout = new VerticalLayout();
             permissionsLayout.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+            permissionsLayout.setSpacing(true);
 
             propertiesLayout = new VerticalLayout();
             propertiesLayout.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+            propertiesLayout.setSpacing(true);
 
 			HorizontalLayout mainLayout = new HorizontalLayout();
 			mainLayout.setMargin(true);

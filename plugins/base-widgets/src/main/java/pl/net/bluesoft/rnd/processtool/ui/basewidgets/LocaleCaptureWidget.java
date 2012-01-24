@@ -2,6 +2,7 @@ package pl.net.bluesoft.rnd.processtool.ui.basewidgets;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.RichTextArea;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinWidget;
@@ -31,6 +32,7 @@ public class LocaleCaptureWidget extends BaseProcessToolWidget implements Proces
     private String caption;
 
     @AutoWiredProperty
+    @AutoWiredPropertyConfigurator(fieldClass = RichTextArea.class)
     private String comment;
 
 	private Label lbl = new Label();

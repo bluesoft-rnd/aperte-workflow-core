@@ -36,7 +36,6 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.*;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
-import pl.net.bluesoft.rnd.pt.ext.stepeditor.user.CustomConfigurator;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.util.lang.StringUtil;
@@ -55,7 +54,6 @@ import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 @AliasName(name = "ProcessData")
 @AperteDoc(humanNameKey="widget.process_data_block.name", descriptionKey="widget.process_data_block.description")
 @ChildrenAllowed(false)
-@CustomConfigurator(ProcessDataBlockFieldFactory.class)
 @PermissionsUsed({
         @Permission(key="EDIT")
 })
@@ -77,6 +75,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolWidget implements Pro
     private ProcessInstance processInstance;
 
     @AutoWiredProperty(required=true)
+    @AutoWiredPropertyConfigurator(fieldClass = TextArea.class)
     @AperteDoc(humanNameKey="widget.process_data_block.property.widgetsDefinition.name", descriptionKey="widget.process_data_block.property.widgetsDefinition.description")
     private String widgetsDefinition;
 
@@ -84,6 +83,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolWidget implements Pro
     private String caption;
 
     @AutoWiredProperty
+    @AutoWiredPropertyConfigurator(fieldClass = RichTextArea.class)
     private String comment;
 
     public void setDefinitionLoader(WidgetDefinitionLoader definitionLoader) {

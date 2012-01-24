@@ -166,8 +166,8 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
         mainLayout.addComponent(saveButton, 0, 0);
         mainLayout.addComponent(attributeLayout, 0, 1, 1, 1);
         mainLayout.addComponent(stepLayout, 2, 1, 3, 1);
-        mainLayout.addComponent(availableWidgetsLayout, 4, 1, 5, 2);
-        mainLayout.addComponent(paramPanel, 0, 2, 3, 2);
+        mainLayout.addComponent(availableWidgetsLayout, 4, 1, 5, 1);
+        mainLayout.addComponent(paramPanel, 0, 2, 5, 2);
 
         mainLayout.setComponentAlignment(availableWidgetsLayout, Alignment.TOP_LEFT);
         mainLayout.setComponentAlignment(stepLayout, Alignment.TOP_LEFT);

@@ -50,6 +50,7 @@ public class ProcessCommentsWidget extends BaseProcessToolWidget implements Proc
     private String caption;
 
     @AutoWiredProperty
+    @AutoWiredPropertyConfigurator(fieldClass = RichTextArea.class)
     private String comment;
 
 	private String processState = null;

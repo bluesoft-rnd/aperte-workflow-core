@@ -20,30 +20,30 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class GenericEditorApplication extends Application implements HttpServletRequestListener {
 
-    private static ThreadLocal<Application> application = new ThreadLocal<Application>();
+    private static ThreadLocal<GenericEditorApplication> current = new ThreadLocal<GenericEditorApplication>();
 
     /**
      * Get current application object associated with this thread of execution
      * @return current application
      */
-    public static Application getApplication() {
-        return application.get();
+    public static GenericEditorApplication getCurrent() {
+        return current.get();
     }
 
     public static ProcessToolRegistry getRegistry() {
-        WebApplicationContext webCtx = (WebApplicationContext) getApplication().getContext();
+        WebApplicationContext webCtx = (WebApplicationContext) getCurrent().getContext();
         ServletContext sc = webCtx.getHttpSession().getServletContext();
         return (ProcessToolRegistry) sc.getAttribute(ProcessToolRegistry.class.getName());
     }
 
     @Override
     public void init() {
-        application.set(this);
+        current.set(this);
     }
 
     @Override
     public void onRequestStart(final HttpServletRequest request, HttpServletResponse response) {
-        application.set(this);
+        current.set(this);
 
         // Setting ProcessToolContext was taken from ProcessToolVaadinApplicationPortlet2
         // to preserve functionality used in portlet based Vaadin applications
@@ -73,7 +73,7 @@ public class GenericEditorApplication extends Application implements HttpServlet
             ProcessToolContext.Util.removeProcessToolContextForThread(ctx);
         }
 
-        application.remove();
+        current.remove();
     }
 
 }

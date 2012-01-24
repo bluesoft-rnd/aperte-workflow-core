@@ -1,7 +1,6 @@
 package pl.net.bluesoft.rnd.pt.ext.queueeditor;
 
 
-import com.vaadin.Application;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -17,6 +16,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.JavaScriptHelper;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages;
+import pl.net.bluesoft.rnd.pt.ext.vaadin.GenericEditorApplication;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -25,7 +25,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 
-public class QueueEditorApplication extends Application implements ParameterHandler, ClickListener, ValueChangeListener {
+public class QueueEditorApplication extends GenericEditorApplication implements ParameterHandler, ClickListener, ValueChangeListener {
 
 	private static final long		serialVersionUID	= 2136349026207825109L;
 	
@@ -155,6 +155,8 @@ public class QueueEditorApplication extends Application implements ParameterHand
 	
 	@Override
 	public void init() {
+        super.init();
+        
 		mainWindow = new Window(Messages.getString("application.title"));
 		jsHelper = new JavaScriptHelper(mainWindow);
 		jsHelper.preventWindowClosing();

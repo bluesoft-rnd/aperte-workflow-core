@@ -135,6 +135,8 @@ public class StepEditorApplication extends GenericEditorApplication implements P
 	
 	@Override
 	public void init() {
+        super.init();
+        
 		mainWindow = new Window(Messages.getString("application.title"));
 		mainWindow.addParameterHandler(this);
 

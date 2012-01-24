@@ -29,6 +29,7 @@ public class TabSheetWidget extends BaseProcessToolWidget implements ProcessTool
     private String caption;
 
     @AutoWiredProperty
+    @AutoWiredPropertyConfigurator(fieldClass = RichTextArea.class)
     private String comment;
 
 	@Override

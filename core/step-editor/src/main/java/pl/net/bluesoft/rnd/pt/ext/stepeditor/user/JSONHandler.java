@@ -16,15 +16,19 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class JSONHandler {
 
+    private static final Logger logger = Logger.getLogger(JSONHandler.class.getName());
+    
 	private static final String WIDGET_ID = "widgetId";
 	private static final String PROPERTIES = "properties";
 	private static final String PERMISSIONS = "permissions";
 	private static final String CHILDREN = "children";
-	public static final String NAME = "name";
-	//public static final String COMMENTARY = "commentary";
+	private static final String NAME = "name";
+
 	public static final String ASSIGNEE = "assignee";
 	public static final String SWIMLANE = "swimlane";
 	public static final String CANDIDATE_GROUPS = "candidate_groups";
@@ -54,12 +58,6 @@ public class JSONHandler {
 			analyzeChildren(map, hc, rootItem);
 			
 			HashMap<String, String> resultMap = new HashMap<String, String>();
-//			if(map.containsKey(NAME)){
-//				resultMap.put(NAME, map.get(NAME).toString());
-//			}
-//			if(map.containsKey(COMMENTARY)){
-//				resultMap.put(COMMENTARY, map.get(COMMENTARY).toString());
-//			}
 			if(map.containsKey(ASSIGNEE)){
 				resultMap.put(ASSIGNEE, map.get(ASSIGNEE).toString());
 			}
@@ -72,13 +70,13 @@ public class JSONHandler {
 			return resultMap;
 
 		} catch (JsonParseException e) {
-			e.printStackTrace();
+			logger.log(Level.SEVERE, "Error loading configuration", e);
 			throw new ParsingFailedException(e);
 		} catch (JsonMappingException e) {
-			e.printStackTrace();
+            logger.log(Level.SEVERE, "Error loading configuration", e);
 			throw new ParsingFailedException(e);
 		} catch (IOException e) {
-			e.printStackTrace();
+            logger.log(Level.SEVERE, "Error loading configuration", e);
 			throw new ParsingFailedException(e);
 		}
 	}
@@ -138,15 +136,17 @@ public class JSONHandler {
 		Map<String, Object> propertiesMap = new HashMap<String, Object>();
 		if (widgetItemInStep.hasProperties()) {
 			for (Property<?> property : widgetItemInStep.getProperties()) {
-				if (property.getValue() != null)
+				if (property.getValue() != null) {
 					propertiesMap.put(property.getPropertyId(), property.getValue());
+                }
 			}
 		}
 		Map<String, Object> permissionsMap = new HashMap<String, Object>();
 		if (widgetItemInStep.hasPermissions()) {
 			for (Property<?> perm : widgetItemInStep.getPermissions()) {
-				if (perm.getValue() != null)
+				if (perm.getValue() != null) {
 					permissionsMap.put(perm.getPropertyId(), perm.getValue());
+                }
 			}
 		}
 
@@ -173,8 +173,6 @@ public class JSONHandler {
 		tc.setTaskName(stepName);
 		
 		Map<String, Object> treeMap = collectNode(tree, rootItem);
-//		treeMap.put(NAME, name);
-//		treeMap.put(COMMENTARY, commentary);
 		treeMap.put(ASSIGNEE, assignee);
 		treeMap.put(CANDIDATE_GROUPS, candidateGroups);
 		treeMap.put(SWIMLANE, swimlane);
@@ -184,11 +182,11 @@ public class JSONHandler {
 		try {
 			return mapper.writeValueAsString(tc);
 		} catch (JsonGenerationException e) {
-			e.printStackTrace();
+            logger.log(Level.SEVERE, "Error dumping tree", e);
 		} catch (JsonMappingException e) {
-			e.printStackTrace();
+            logger.log(Level.SEVERE, "Error dumping tree", e);
 		} catch (IOException e) {
-			e.printStackTrace();
+            logger.log(Level.SEVERE, "Error dumping tree", e);
 		}
 		return Messages.getString("dump.failed");
 	}

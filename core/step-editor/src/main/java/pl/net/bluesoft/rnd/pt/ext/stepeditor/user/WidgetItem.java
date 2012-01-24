@@ -13,7 +13,7 @@ public class WidgetItem implements Serializable {
 	private Collection<Property<?>>							properties;
 	private Collection<Property<?>>							permissions;
 	private Boolean											childrenAllowed;
-	private Class<? extends WidgetConfigFormFieldFactory>	configurator;
+	private Class<? extends WidgetConfigFormFieldFactory>	configurator; // TODO to remove, was replaced by @AutowiredPropertyConfigurator
 	private String											icon;
 	private BundleItem										bundle;
 	private static Map<String, WidgetItem>					widgetSet			= new HashMap<String, WidgetItem>();

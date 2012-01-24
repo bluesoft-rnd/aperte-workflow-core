@@ -1,8 +1,5 @@
 package pl.net.bluesoft.rnd.pt.ext.stepeditor.user;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.vaadin.data.Item;
 import com.vaadin.event.DataBoundTransferable;
 import com.vaadin.event.dd.DragAndDropEvent;
@@ -14,15 +11,12 @@ import com.vaadin.event.dd.acceptcriteria.SourceIs;
 import com.vaadin.ui.AbstractSelect.AbstractSelectTargetDetails;
 import com.vaadin.ui.AbstractSelect.AcceptItem;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.Table;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.Tree.TargetItemAllowsChildren;
 
 final class TreeDropHandler implements DropHandler {
 
 	private static final long serialVersionUID = -1252687997956419353L;
-
-	private transient Logger logger = Logger.getLogger(TreeDropHandler.class.getName());
 
 	private Tree stepTree;
 	private Tree availableTree;
@@ -44,7 +38,7 @@ final class TreeDropHandler implements DropHandler {
 
 		if (sourceComponent == availableTree && sourceItemId instanceof WidgetItem && targetItemId != null) {
 			WidgetItem widgetItem = (WidgetItem) sourceItemId;
-			// copy item from table to category'
+			// copy item from table to category
 			final WidgetItemInStep itemId = new WidgetItemInStep(widgetItem);
 			Item newItem = stepTree.addItem(itemId);
 			newItem.getItemProperty("name").setValue(widgetItem.getName());

@@ -112,4 +112,5 @@ public interface ProcessToolRegistry {
 
     boolean isJta();
 
+    <T> T lookupService(String name);
 }

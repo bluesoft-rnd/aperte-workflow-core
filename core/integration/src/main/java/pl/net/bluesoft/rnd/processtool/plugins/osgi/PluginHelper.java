@@ -26,6 +26,7 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.plugins.PluginInformation;
 import pl.net.bluesoft.rnd.processtool.plugins.PluginManager;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistryImpl;
 import pl.net.bluesoft.rnd.util.i18n.impl.PropertiesBasedI18NProvider;
 import pl.net.bluesoft.rnd.util.i18n.impl.PropertyLoader;
 
@@ -173,7 +174,7 @@ public class PluginHelper implements PluginManager {
         }
     }
 
-    public synchronized void initializePluginSystem(String pluginsDir, String storageDir, ProcessToolRegistry registry)
+    public synchronized void initializePluginSystem(String pluginsDir, String storageDir, ProcessToolRegistryImpl registry)
             throws BundleException {
         this.pluginsDir =  pluginsDir.replace('/', File.separatorChar);
         registry.setPluginManager(this);
@@ -186,7 +187,7 @@ public class PluginHelper implements PluginManager {
         state = State.ACTIVE;
     }
 
-    private void initializeFelix(String storageDir, final ProcessToolRegistry registry) throws BundleException {
+    private void initializeFelix(String storageDir, final ProcessToolRegistryImpl registry) throws BundleException {
         if (felix != null) {
             felix.stop();
             felix = null;
@@ -256,11 +257,12 @@ public class PluginHelper implements PluginManager {
      * @param registry
      * @param configMap
      */
-    private void putActivatorConfig(final ProcessToolRegistry registry, Map<String, Object> configMap) {
+    private void putActivatorConfig(final ProcessToolRegistryImpl registry, Map<String, Object> configMap) {
         ArrayList<BundleActivator> activators = new ArrayList<BundleActivator>();
         activators.add(new BundleActivator() {
             public void start(BundleContext context) throws Exception {
                 if (registry != null) {
+                    registry.setOsgiBundleContext(context);
                     context.registerService(
                             ProcessToolRegistry.class.getName(),
                             registry,

@@ -4,6 +4,8 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.dao.*;
@@ -51,6 +53,7 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	private EventBusManager eventBusManager = new EventBusManager();
     private PluginManager pluginManager;
     private boolean jta;
+    private BundleContext bundleContext;
 
     public synchronized void unregisterWidget(String name) {
 		WIDGET_REGISTRY.remove(name);
@@ -90,7 +93,12 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	public ClassLoader getModelAwareClassLoader(ClassLoader parent) {
 		return new ExtClassLoader(parent);
 	}
-	private class ExtClassLoader extends ClassLoader {
+
+    public void setOsgiBundleContext(BundleContext context) {
+        this.bundleContext = context;
+    }
+
+    private class ExtClassLoader extends ClassLoader {
 		private ExtClassLoader(ClassLoader parent) {
 			super(parent);
 		}
@@ -138,6 +146,13 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
     @Override
     public boolean isJta() {
         return jta;        
+    }
+
+    @Override
+    public <T> T lookupService(String name) {
+        ServiceReference serviceReference = bundleContext.getServiceReference(name);
+        if (serviceReference == null) return null;
+        return (T) bundleContext.getService(serviceReference);
     }
 
 

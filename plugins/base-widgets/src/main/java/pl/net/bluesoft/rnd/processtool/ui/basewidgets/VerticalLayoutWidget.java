@@ -29,6 +29,7 @@ public class VerticalLayoutWidget extends BaseProcessToolWidget implements Proce
     private String caption;
 
     @AutoWiredProperty
+    @AutoWiredPropertyConfigurator(fieldClass = RichTextArea.class)
     private String comment;
 
     VerticalLayout vl = new VerticalLayout();

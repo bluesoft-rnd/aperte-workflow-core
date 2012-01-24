@@ -2,10 +2,12 @@ package pl.net.bluesoft.rnd.processtool.ui.basewidgets;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Panel;
+import com.vaadin.ui.RichTextArea;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredPropertyConfigurator;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.WidgetGroup;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
 
@@ -20,6 +22,7 @@ public class PanelWidget extends BaseProcessToolWidget implements ProcessToolVaa
 	private String caption;
 
     @AutoWiredProperty
+    @AutoWiredPropertyConfigurator(fieldClass = RichTextArea.class)
     private String comment;
 
 	Panel panel = new Panel();

@@ -20,18 +20,32 @@ public class WidgetInfoLoader {
 
 	private static final class FieldTransformer implements Transformer {
 		@Override
-		public Object transform(Object arg0) {
-			Field field = (Field) arg0;
+		public Object transform(Object o) {
+			Field field = (Field) o;
 
 			AutoWiredProperty awp = field.getAnnotation(AutoWiredProperty.class);
+            AutoWiredPropertyConfigurator awpConfigurator = field.getAnnotation(AutoWiredPropertyConfigurator.class);
 
-			Map<String, String> docMap = getDocumentation(arg0);
+			Map<String, String> docMap = getDocumentation(o);
 			if (!docMap.containsKey("name"))
 				docMap.put("name", field.getName());
 			if (!docMap.containsKey("description"))
 				docMap.put("description", field.getName());
 
-			return new Property(Property.PropertyType.PROPERTY, field.getName(), docMap.get("name"), docMap.get("description"), field.getType(), null, awp.required(), null);
+            Property property = new Property(null, field.getType());
+            property.setPropertyType(Property.PropertyType.PROPERTY);
+            property.setPropertyId(field.getName());
+            property.setName(docMap.get("name"));
+            property.setDescription(docMap.get("description"));
+            
+            if (awp != null) {
+                property.setRequired(awp.required());
+            }
+            if (awpConfigurator != null) {
+                property.setPropertyFieldClass(awpConfigurator.fieldClass());
+            }
+
+			return property;
 		}
     }
 
@@ -46,12 +60,7 @@ public class WidgetInfoLoader {
 		public Object transform(Object widgetClassObj) {
 			final Class<?> widgetClass = (Class<?>) widgetClassObj;
 			AliasName a = Classes.getClassAnnotation(widgetClass, AliasName.class);
-			
 			PermissionsUsed p = Classes.getClassAnnotation(widgetClass, PermissionsUsed.class);
-			
-			CustomConfigurator cc = widgetClass.getAnnotation(CustomConfigurator.class);
-			Class<? extends WidgetConfigFormFieldFactory> configurator = cc == null ? null : cc.value();
-
 			ChildrenAllowed ca = widgetClass.getAnnotation(ChildrenAllowed.class);
 			boolean childrenAllowed = ca == null ? false : ca.value();
 
@@ -64,26 +73,49 @@ public class WidgetInfoLoader {
 			if (Boolean.valueOf(docMap.get("internal")))
 				return null;
 
-			List<Field> fields = Classes.getFieldsWithAnnotation(widgetClass, AutoWiredProperty.class);
-			Collection<Property<?>> properties = CollectionUtils.collect(fields, new FieldTransformer());
-            Collection<Property<?>> permissions = getPropertiesList(p);
+            List<Property<?>> properties = getProperties(widgetClass);
+            List<Property<?>> permissions = getPermissions(p);
 
 			return new WidgetItem(a.name(), docMap.get("name"), docMap.get("description"),
-                    docMap.get("icon"), properties, permissions, childrenAllowed, configurator,
+                    docMap.get("icon"), properties, permissions, childrenAllowed, null,
 					bundle);
-		}
-		
-		private Collection<Property<?>> getPropertiesList(PermissionsUsed p) {
-			Collection<Property<?>> permissions = new ArrayList<Property<?>>();
-			
-			if (p == null || p.value() == null)
+        }
+
+        private List<Property<?>> getProperties(Class<?> widgetClass) {
+            List<Property<?>> properties = new ArrayList<Property<?>>();
+            
+            List<Field> fields = Classes.getFieldsWithAnnotation(widgetClass, AutoWiredProperty.class);
+            if (fields == null || fields.isEmpty()) {
+                return properties;
+            }
+            
+            properties.addAll(CollectionUtils.collect(fields, new FieldTransformer()));
+            Collections.sort(properties);
+
+            return properties;
+        }
+        
+		private List<Property<?>> getPermissions(PermissionsUsed permissionsUsed) {
+			List<Property<?>> permissions = new ArrayList<Property<?>>();
+			if (permissionsUsed == null || permissionsUsed.value() == null) {
 				return permissions;
-			
-			for (Permission perm : p.value()) {
-			  String permDesc = StringUtils.isEmpty(perm.desc()) ? PERMISSION_DESC_PREFIX + perm.key() : perm.desc();
-			  permDesc = i18NSource.getMessage(permDesc, i18NProviders);
-			  permissions.add(new Property(Property.PropertyType.PERMISSION, perm.key(), permDesc + " (" + perm.key() + ")", null, String.class, null, false, null));
+            }
+
+			for (Permission perm : permissionsUsed.value()) {
+			    String permDesc = StringUtils.isEmpty(perm.desc()) ? PERMISSION_DESC_PREFIX + perm.key() : perm.desc();
+			    permDesc = i18NSource.getMessage(permDesc, i18NProviders);
+                
+                Property property = new Property(null, String.class);
+                property.setPropertyType(Property.PropertyType.PERMISSION);
+                property.setPropertyId(perm.key());
+                property.setName(permDesc + " (" + perm.key() + ")");
+                property.setRequired(false);
+
+			    permissions.add(property);
 			}
+
+            Collections.sort(permissions);
+
 			return permissions;
 		}
 	}

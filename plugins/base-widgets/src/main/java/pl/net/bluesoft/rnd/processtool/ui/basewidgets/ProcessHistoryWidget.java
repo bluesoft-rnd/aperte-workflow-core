@@ -37,6 +37,7 @@ public class ProcessHistoryWidget extends BaseProcessToolWidget implements Proce
     private String caption;
 
     @AutoWiredProperty
+    @AutoWiredPropertyConfigurator(fieldClass = RichTextArea.class)
     private String comment;
 
 	private List<ProcessLogInfo> logInfos = new ArrayList<ProcessLogInfo>();

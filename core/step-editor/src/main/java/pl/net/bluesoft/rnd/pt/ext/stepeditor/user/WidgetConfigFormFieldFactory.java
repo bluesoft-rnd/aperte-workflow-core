@@ -1,10 +1,8 @@
 package pl.net.bluesoft.rnd.pt.ext.stepeditor.user;
 
 import com.vaadin.data.validator.IntegerValidator;
-import com.vaadin.ui.AbstractField;
-import com.vaadin.ui.AbstractTextField;
-import com.vaadin.ui.DefaultFieldFactory;
-import com.vaadin.ui.Field;
+import com.vaadin.terminal.Sizeable;
+import com.vaadin.ui.*;
 import pl.net.bluesoft.rnd.processtool.i18n.DefaultI18NSource;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages;
 import pl.net.bluesoft.rnd.util.i18n.I18NProvider;
@@ -19,58 +17,63 @@ public class WidgetConfigFormFieldFactory extends DefaultFieldFactory {
 	private static final long	serialVersionUID	= 1840386215211557588L;
     private static final Logger logger              = Logger.getLogger(WidgetConfigFormFieldFactory.class.getName());
 
-	private DefaultI18NSource	i18NSource			= new DefaultI18NSource();	;
-
+	private DefaultI18NSource	i18NSource			= new DefaultI18NSource();
 	private List<I18NProvider>	i18NProviders;
 	private Locale				locale;
 
-	protected Field createField(Property<?> property, Class<? extends Field> klass) {
-		Field field = createBaseField(property, klass);
-		field.setDescription(property.getDescription());
+	public Field createField(Property<?> property) {
+        Field field = createBaseField(property);
 
-		if (property.getType() == Integer.class) {
-			field.addValidator(new IntegerValidator("is.not.an.integer"));
-		}
+        if (property.getType() == Integer.class) {
+            field.addValidator(new IntegerValidator("is.not.an.integer"));
+        }
 
-		if (field instanceof AbstractField) {
-			AbstractField abstractField = (AbstractField) field;
-			abstractField.setImmediate(true);
-		}
+        if (field instanceof AbstractField) {
+            AbstractField abstractField = (AbstractField) field;
+            abstractField.setImmediate(true);
+        }
 
-		if (field instanceof AbstractTextField) {
-			AbstractTextField textField = (AbstractTextField) field;
-			textField.setNullRepresentation("");
+        if (field instanceof AbstractTextField) {
+            AbstractTextField textField = (AbstractTextField) field;
+            textField.setNullRepresentation("");
 
             if (Property.PropertyType.PERMISSION.equals(property.getPropertyType())) {
                 textField.setInputPrompt(Messages.getString("form.permissions.roles"));
             }
-		}
+        }
 
-		field.setRequired(property.isRequired());
+        if (field instanceof RichTextArea) {
+            // RichTextArea does not extend AbstractTextField like TextArea or TextField
+            RichTextArea textArea = (RichTextArea) field;
+            textArea.setNullRepresentation("");
+        }
 
-		return field;
+        return field;
 	}
 
-	public Field createField(Property<?> property) {
-		return createField(property, null);
-	}
-
-	protected Field createBaseField(Property<?> property, Class<? extends Field> klass) {
+	protected Field createBaseField(Property<?> property) {
 		Field field = null;
-		if (klass != null) {
-			try {
-				field = klass.newInstance();
-			} catch (InstantiationException e) {
-				logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
-			} catch (IllegalAccessException e) {
-                logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
-			}
-		}
+		if (property.getPropertyFieldClass() != null) {
+            try {
+                field = property.getPropertyFieldClass().newInstance();
+
+            } catch (InstantiationException e) {
+                logger.log(Level.WARNING, "Failed to create field using class from property", e);
+            } catch (IllegalAccessException e) {
+                logger.log(Level.WARNING, "Failed to create field using class from property", e);
+            }
+        }
+
 		if (field == null) {
 			field = createFieldByPropertyType(property.getType());
 		}
+
 		field.setPropertyDataSource(property);
-		field.setCaption(createCaptionByPropertyId(property.getName()));
+        field.setCaption(createCaptionByPropertyId(property.getName()));
+        field.setDescription(property.getDescription());
+        field.setRequired(property.isRequired());
+        field.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+
 		return field;
 	}
 
@@ -103,5 +106,4 @@ public class WidgetConfigFormFieldFactory extends DefaultFieldFactory {
 		this.locale = locale;
 		i18NSource.setLocale(locale);
 	}
-
 }

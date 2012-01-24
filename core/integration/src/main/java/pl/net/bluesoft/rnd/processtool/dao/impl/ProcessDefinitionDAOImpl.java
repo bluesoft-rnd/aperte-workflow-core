@@ -27,7 +27,9 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 
 	public Collection<ProcessDefinitionConfig> getActiveConfigurations() {		
 		return session.createCriteria(ProcessDefinitionConfig.class)
-						.add(Restrictions.eq("latest", Boolean.TRUE)).list();
+						.add(Restrictions.eq("latest", Boolean.TRUE))
+						.add(Restrictions.eq("enabled", Boolean.TRUE))
+                .list();
 	}
 
 	@Override
@@ -223,4 +225,26 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 			session.save(q);
 		}
 	}
+
+    @Override
+    public Collection<ProcessDefinitionConfig> getLatestConfigurations() {
+        return session.createCriteria(ProcessDefinitionConfig.class)
+        						.add(Restrictions.eq("latest", Boolean.TRUE))
+                        .list();
+    }
+
+    @Override
+    public Collection<ProcessDefinitionConfig> getConfigurationVersions(ProcessDefinitionConfig cfg) {
+        return session.createCriteria(ProcessDefinitionConfig.class)
+        						.add(Restrictions.eq("bpmDefinitionKey", cfg.getBpmDefinitionKey()))
+                        .list();
+    }
+
+    @Override
+    public void setConfigurationEnabled(ProcessDefinitionConfig cfg, boolean enabled) {
+
+        cfg = (ProcessDefinitionConfig) session.get(ProcessDefinitionConfig.class, cfg.getId());
+        cfg.setEnabled(enabled);
+        session.save(cfg);
+    }
 }

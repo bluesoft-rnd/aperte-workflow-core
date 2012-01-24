@@ -50,7 +50,10 @@ public class PluginsManagerPane extends VerticalLayout {
                         pluginManager.registerPlugin(filename,
                                 new ByteArrayInputStream(bytes));
                         displayBundleList();
-                        getApplication().getMainWindow().showNotification(getLocalizedMessage("plugins.console.upload.success"));
+                        String msg = getLocalizedMessage("plugins.console.upload.success");
+                        Window.Notification n = new Window.Notification(msg);
+                        n.setDelayMsec(-1);
+                        getApplication().getMainWindow().showNotification(n);
                     }
                 };
             }
@@ -96,7 +99,10 @@ public class PluginsManagerPane extends VerticalLayout {
                     @Override
                     public void run() {
                         ProcessToolContext.Util.getProcessToolContextFromThread().getRegistry().getPluginManager().enablePlugin(pi);
-                        getApplication().getMainWindow().showNotification(getLocalizedMessage("plugins.console.enable.success"));
+                        String msg = getLocalizedMessage("plugins.console.enable.success");
+                        Window.Notification n = new Window.Notification(msg);
+                        n.setDelayMsec(-1);
+                        getApplication().getMainWindow().showNotification(n);
                         displayBundleList();
                     }
                 }));
@@ -106,7 +112,10 @@ public class PluginsManagerPane extends VerticalLayout {
                     @Override
                     public void run() {
                         ProcessToolContext.Util.getProcessToolContextFromThread().getRegistry().getPluginManager().disablePlugin(pi);
-                        getApplication().getMainWindow().showNotification(getLocalizedMessage("plugins.console.disable.success"));
+                        String msg = getLocalizedMessage("plugins.console.disable.success");
+                        Window.Notification n = new Window.Notification(msg);
+                        n.setDelayMsec(-1);
+                        getApplication().getMainWindow().showNotification(n);
                         displayBundleList();
 
                     }
@@ -117,7 +126,10 @@ public class PluginsManagerPane extends VerticalLayout {
                     @Override
                     public void run() {
                         ProcessToolContext.Util.getProcessToolContextFromThread().getRegistry().getPluginManager().uninstallPlugin(pi);
-                        getApplication().getMainWindow().showNotification(getLocalizedMessage("plugins.console.uninstall.success"));
+                        String msg = getLocalizedMessage("plugins.console.uninstall.success");
+                        Window.Notification n = new Window.Notification(msg);
+                        n.setDelayMsec(-1);
+                        getApplication().getMainWindow().showNotification(n);
                         displayBundleList();
                     }
                 }));

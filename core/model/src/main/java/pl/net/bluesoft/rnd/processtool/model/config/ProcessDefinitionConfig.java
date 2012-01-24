@@ -7,6 +7,7 @@ import pl.net.bluesoft.rnd.processtool.model.UserData;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
@@ -36,6 +37,10 @@ public class ProcessDefinitionConfig extends PersistentEntity implements Seriali
 	@OneToMany(cascade = {CascadeType.ALL})
 	@JoinColumn(name="definition_id")
 	private Set<ProcessStateConfiguration> states;
+
+	@OneToMany(cascade = {CascadeType.ALL})
+	@JoinColumn(name="definition_id")
+	private Set<ProcessDefinitionPermission> permissions = new HashSet<ProcessDefinitionPermission>();
 
     @Lob
     private byte[] processLogo;
@@ -135,5 +140,16 @@ public class ProcessDefinitionConfig extends PersistentEntity implements Seriali
             res = nvl(o.getId(), Long.MIN_VALUE).compareTo(nvl(getId(), Long.MIN_VALUE));
         }
         return res;
+    }
+
+    public Set<ProcessDefinitionPermission> getPermissions() {
+        if (permissions == null) {
+            permissions = new HashSet<ProcessDefinitionPermission>();
+        }
+        return permissions;
+    }
+
+    public void setPermissions(Set<ProcessDefinitionPermission> permissions) {
+        this.permissions = permissions;
     }
 }

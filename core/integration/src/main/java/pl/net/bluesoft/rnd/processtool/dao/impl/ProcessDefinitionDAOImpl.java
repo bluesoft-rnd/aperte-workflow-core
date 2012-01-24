@@ -28,7 +28,7 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 	public Collection<ProcessDefinitionConfig> getActiveConfigurations() {		
 		return session.createCriteria(ProcessDefinitionConfig.class)
 						.add(Restrictions.eq("latest", Boolean.TRUE))
-						.add(Restrictions.eq("enabled", Boolean.TRUE))
+						.add(Restrictions.or(Restrictions.eq("enabled", Boolean.TRUE), Restrictions.isNull("enabled")))
                 .list();
 	}
 
@@ -75,6 +75,10 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 			cleanupWidgetsTree(state.getWidgets(), null, new HashSet<ProcessStateWidget>());
 		}
 
+        for (ProcessDefinitionPermission permission : cfg.getPermissions()) {
+            permission.setDefinition(cfg);
+        }
+
 		List<ProcessDefinitionConfig> lst = session.createCriteria(ProcessDefinitionConfig.class)
 						.add(Restrictions.eq("latest", true))
 						.add(Restrictions.eq("bpmDefinitionKey", cfg.getBpmDefinitionKey())).list();
@@ -111,6 +115,7 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 			if (!newMap.containsKey(name)) return false;
 			if (!compareStates(oldMap.get(name), newMap.get(name))) return false;
 		}
+        if (!comparePermissions(cfg.getPermissions(), c.getPermissions())) return false;
 
 		return true;
 

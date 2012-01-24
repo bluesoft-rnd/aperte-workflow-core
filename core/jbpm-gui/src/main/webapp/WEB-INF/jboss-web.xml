@@ -16,4 +16,5 @@
         <res-type>javax.sql.DataSource</res-type>
         <jndi-name>java:jdbc/aperte-workflow-ds</jndi-name>
     </resource-ref>
+
 </jboss-web>

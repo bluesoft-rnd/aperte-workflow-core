@@ -103,44 +103,6 @@ public class FelixServiceBridge implements ProcessToolServiceBridge {
 			if (headerHelper.hasHeaderValues(IMPLEMENTATION_BUILD)) {
 				bm.setImplementationBuild(headerHelper.getHeaderValues(IMPLEMENTATION_BUILD)[0]);
 			}
-			if (headerHelper.hasHeaderValues(WIDGET_ENHANCEMENT)) {
-				for (String className : headerHelper.getHeaderValues(WIDGET_ENHANCEMENT)) {
-					bm.addWidgetClass(bundle.loadClass(className));
-				}
-			}
-			if (headerHelper.hasHeaderValues(STEP_ENHANCEMENT)) {
-				for (String className : headerHelper.getHeaderValues(STEP_ENHANCEMENT)) {
-					bm.addStepClass(bundle.loadClass(className));
-				}
-			}
-			if (headerHelper.hasHeaderValues(I18N_PROPERTY)) {
-				for (String property : headerHelper.getHeaderValues(I18N_PROPERTY)) {
-					PropertiesBasedI18NProvider provider = new PropertiesBasedI18NProvider(new PropertyLoader() {
-						@Override
-						public InputStream loadProperty(String path) throws IOException {
-							return getBundleResourceStream(bundle, path);
-						}
-					}, property);
-					if (provider != null) {
-						bm.addI18NProvider(provider);
-					}
-				}
-			}
-			if (headerHelper.hasHeaderValues(ICON_RESOURCES)) {
-				String[] resources = headerHelper.getHeaderValues(ICON_RESOURCES);
-				for (String pack : resources) {
-					String basePath = File.separator + pack.replace(".", File.separator);
-					if (!basePath.endsWith(File.separator)) {
-						basePath += File.separator;
-					}
-					Enumeration<URL> urls = bundle.findEntries(basePath, null, true);
-					if (urls != null) {
-						while (urls.hasMoreElements()) {
-							bm.addIconResource(urls.nextElement());// .substring(basePath.length()));
-						}
-					}
-				}
-			}
             if (headerHelper.hasHeaderValues(DESCRIPTION)) {
                 bm.setDescription(headerHelper.getHeaderValues(DESCRIPTION)[0]);
             }
@@ -149,6 +111,45 @@ public class FelixServiceBridge implements ProcessToolServiceBridge {
             }
             if (headerHelper.hasHeaderValues(HOMEPAGE_URL)) {
                 bm.setHomepageUrl(headerHelper.getHeaderValues(HOMEPAGE_URL)[0]);
+            }
+
+            if (bundle.getState() == Bundle.ACTIVE) {
+                if (headerHelper.hasHeaderValues(WIDGET_ENHANCEMENT)) {
+                    for (String className : headerHelper.getHeaderValues(WIDGET_ENHANCEMENT)) {
+                        bm.addWidgetClass(bundle.loadClass(className));
+                    }
+                }
+                if (headerHelper.hasHeaderValues(STEP_ENHANCEMENT)) {
+                    for (String className : headerHelper.getHeaderValues(STEP_ENHANCEMENT)) {
+                        bm.addStepClass(bundle.loadClass(className));
+                    }
+                }
+                if (headerHelper.hasHeaderValues(I18N_PROPERTY)) {
+                    for (String property : headerHelper.getHeaderValues(I18N_PROPERTY)) {
+                        PropertiesBasedI18NProvider provider = new PropertiesBasedI18NProvider(new PropertyLoader() {
+                            @Override
+                            public InputStream loadProperty(String path) throws IOException {
+                                return getBundleResourceStream(bundle, path);
+                            }
+                        }, property);
+                        bm.addI18NProvider(provider);
+                    }
+                }
+                if (headerHelper.hasHeaderValues(ICON_RESOURCES)) {
+                    String[] resources = headerHelper.getHeaderValues(ICON_RESOURCES);
+                    for (String pack : resources) {
+                        String basePath = File.separator + pack.replace(".", File.separator);
+                        if (!basePath.endsWith(File.separator)) {
+                            basePath += File.separator;
+                        }
+                        Enumeration<URL> urls = bundle.findEntries(basePath, null, true);
+                        if (urls != null) {
+                            while (urls.hasMoreElements()) {
+                                bm.addIconResource(urls.nextElement());// .substring(basePath.length()));
+                            }
+                        }
+                    }
+                }
             }
 
 			metadata.add(bm);

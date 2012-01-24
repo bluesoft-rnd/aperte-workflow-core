@@ -14,7 +14,8 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 
 import javax.naming.InitialContext;
-import javax.transaction.UserTransaction;
+import javax.naming.NamingException;
+import javax.transaction.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -30,7 +31,7 @@ import java.util.logging.Logger;
  */
 public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory {
 
-    private Logger logger = Logger.getLogger(ProcessToolContextFactoryImpl.class.getName());
+    private static Logger logger = Logger.getLogger(ProcessToolContextFactoryImpl.class.getName());
     private Configuration configuration;
     private ProcessToolRegistry registry;
 
@@ -79,10 +80,18 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory 
 
     }
 
-
     public void withProcessToolContextJta(ProcessToolContextCallback callback) {
         try {
-            UserTransaction ut = (UserTransaction) new InitialContext().lookup("java:comp/UserTransaction");
+            UserTransaction ut=null;
+            try {
+                ut = (UserTransaction) new InitialContext().lookup("java:comp/UserTransaction");
+            } catch (Exception e) {
+                //it should work on jboss regardless. But it does not..
+                logger.warning("java:comp/UserTransaction not found, looking for UserTransaction");
+                ut = (UserTransaction) new InitialContext().lookup("UserTransaction");
+            }
+            
+            
             ut.begin();
             Session session = registry.getSessionFactory().getCurrentSession();
             try {

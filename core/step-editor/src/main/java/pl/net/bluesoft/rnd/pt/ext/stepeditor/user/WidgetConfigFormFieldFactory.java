@@ -2,10 +2,7 @@ package pl.net.bluesoft.rnd.pt.ext.stepeditor.user;
 
 import com.vaadin.data.validator.IntegerValidator;
 import com.vaadin.terminal.Sizeable;
-import com.vaadin.ui.AbstractField;
-import com.vaadin.ui.AbstractTextField;
-import com.vaadin.ui.DefaultFieldFactory;
-import com.vaadin.ui.Field;
+import com.vaadin.ui.*;
 import pl.net.bluesoft.rnd.processtool.i18n.DefaultI18NSource;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages;
 import pl.net.bluesoft.rnd.util.i18n.I18NProvider;
@@ -26,8 +23,6 @@ public class WidgetConfigFormFieldFactory extends DefaultFieldFactory {
 
 	public Field createField(Property<?> property) {
         Field field = createBaseField(property);
-        field.setRequired(property.isRequired());
-        field.setDescription(property.getDescription());
 
         if (property.getType() == Integer.class) {
             field.addValidator(new IntegerValidator("is.not.an.integer"));
@@ -47,6 +42,12 @@ public class WidgetConfigFormFieldFactory extends DefaultFieldFactory {
             }
         }
 
+        if (field instanceof RichTextArea) {
+            // RichTextArea does not extend AbstractTextField like TextArea or TextField
+            RichTextArea textArea = (RichTextArea) field;
+            textArea.setNullRepresentation("");
+        }
+
         return field;
 	}
 
@@ -62,12 +63,17 @@ public class WidgetConfigFormFieldFactory extends DefaultFieldFactory {
                 logger.log(Level.WARNING, "Failed to create field using class from property", e);
             }
         }
+
 		if (field == null) {
 			field = createFieldByPropertyType(property.getType());
 		}
+
 		field.setPropertyDataSource(property);
         field.setCaption(createCaptionByPropertyId(property.getName()));
+        field.setDescription(property.getDescription());
+        field.setRequired(property.isRequired());
         field.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+
 		return field;
 	}
 
@@ -100,5 +106,4 @@ public class WidgetConfigFormFieldFactory extends DefaultFieldFactory {
 		this.locale = locale;
 		i18NSource.setLocale(locale);
 	}
-
 }

@@ -58,7 +58,7 @@ public class PluginServlet extends HttpServlet {
                                 ProcessToolContext.Util.getHomePath() + File.separator + "osgi-plugins"),
                         nvl(getServletConfig().getInitParameter("osgi-storage-directory"),
                                 ProcessToolContext.Util.getHomePath()  + File.separator +  "felix-cache"),
-                        processToolRegistry);
+                        (ProcessToolRegistryImpl) processToolRegistry);
             }
         } catch (Exception e) {
             pluginHelper = null;

@@ -9,7 +9,6 @@ import pl.net.bluesoft.rnd.util.vaadin.GenericVaadinPortlet2BpmApplication;
 public class PluginsManagerPortlet extends GenericVaadinPortlet2BpmApplication {
     @Override
     protected void initializePortlet() {
-
     }
 
     @Override

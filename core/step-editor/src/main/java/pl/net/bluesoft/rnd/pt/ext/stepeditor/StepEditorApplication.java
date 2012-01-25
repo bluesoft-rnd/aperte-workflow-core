@@ -56,15 +56,7 @@ public class StepEditorApplication extends GenericEditorApplication implements P
 		refresh(stepName, stepType, jsonConfig);
 	}
 
-    private String getStringParameterByName(String paramterName, Map<String, String[]> paramterMap) {
-        String[] value = paramterMap.get(paramterName);
-        if (value != null && value.length > 0 && !StringUtils.isEmpty(value[0])) {
-            return value[0];
-        }
-        return null;
-    }
-    
-	private void refresh(String stepName, String stepType, String jsonConfig) {
+    private void refresh(String stepName, String stepType, String jsonConfig) {
 		AbstractStepEditorWindow stepEditorWindow;
 		if (TASKTYPE_USER.equals(stepType)) {
 			stepEditorWindow = new UserStepEditorWindow(this, jsonConfig, url, stepName, stepType);

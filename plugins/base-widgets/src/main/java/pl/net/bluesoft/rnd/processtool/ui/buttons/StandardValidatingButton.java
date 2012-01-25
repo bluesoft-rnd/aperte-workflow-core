@@ -38,10 +38,10 @@ public class StandardValidatingButton implements ProcessToolVaadinActionButton {
 	protected String description;
 
 	@AutoWiredProperty
-	protected boolean skipSaving;
+	protected Boolean skipSaving = false;
 
 	@AutoWiredProperty
-	protected boolean autoHide = false;
+	protected Boolean autoHide = false;
 
 	@AutoWiredProperty
 	protected String bpmAction;

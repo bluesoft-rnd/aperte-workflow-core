@@ -12,6 +12,7 @@ import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComments;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolActionCallback;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 
 import java.util.*;
@@ -25,6 +26,9 @@ public class CommentEnabledStandardValidatingButton extends StandardValidatingBu
 
 	private ProcessComment pc;
 
+	@AutoWiredProperty
+	protected String testProperty;
+	
 	@Override
 	public void onButtonPress(final ProcessInstance processInstance,
 	                          final ProcessToolContext ctx,

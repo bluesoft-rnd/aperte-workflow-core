@@ -1,11 +1,10 @@
 package pl.net.bluesoft.rnd.pt.ext.vaadin;
 
 
-import java.util.Map;
-
 import com.vaadin.Application;
 import com.vaadin.terminal.gwt.server.HttpServletRequestListener;
 import com.vaadin.terminal.gwt.server.WebApplicationContext;
+import org.apache.commons.lang.StringUtils;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.i18n.DefaultI18NSource;
@@ -15,8 +14,7 @@ import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang.StringUtils;
+import java.util.Map;
 
 /**
  * Basic class for editor application which provides integration with rest of
@@ -34,6 +32,10 @@ public class GenericEditorApplication extends Application implements HttpServlet
         return current.get();
     }
 
+    /**
+     * Get current {@link ProcessToolRegistry}
+     * @return current registry
+     */
     public static ProcessToolRegistry getRegistry() {
         WebApplicationContext webCtx = (WebApplicationContext) getCurrent().getContext();
         ServletContext sc = webCtx.getHttpSession().getServletContext();

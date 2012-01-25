@@ -174,7 +174,7 @@ public class AutoStepEditorWindow extends AbstractStepEditorWindow implements Cl
 			application.getMainWindow().showNotification(msg);
 		} else {
 		  String json = getJsonToSave();
-		  application.getJsHelper().postAndRedirect(url, json);
+		  application.getJsHelper().postAndRedirectStep(url, json);
 		}
 	}
 

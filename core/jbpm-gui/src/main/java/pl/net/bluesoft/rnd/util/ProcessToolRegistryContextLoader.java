@@ -50,12 +50,12 @@ public class ProcessToolRegistryContextLoader implements ServletContextListener 
 		sce.getServletContext().removeAttribute(ProcessToolRegistry.class.getName());
 	}
 
-	private byte[] slurp(InputStream is) throws IOException {
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		int c=0;
-		while ((c = is.read()) > 0) {
-			baos.write(c);
-		}
-		return baos.toByteArray();
-	}
+//	private byte[] slurp(InputStream is) throws IOException {
+//		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//		int c=0;
+//		while ((c = is.read()) > 0) {
+//			baos.write(c);
+//		}
+//		return baos.toByteArray();
+//	}
 }

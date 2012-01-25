@@ -13,7 +13,7 @@ public class TestPluginHelper {
 
     @Test
     public void testScanner() throws BundleException, IOException {
-        new PluginHelper().initializePluginSystem("osgi", "felix-cache", new ProcessToolRegistryImpl());
+        new PluginHelper().initialize("osgi", "felix-cache", "lucene", new ProcessToolRegistryImpl());
         if (System.getProperty("test.osgi.wait") != null) {
             while (true) try {
                 Thread.sleep(Long.MAX_VALUE);

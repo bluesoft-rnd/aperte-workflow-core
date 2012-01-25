@@ -49,6 +49,15 @@
         <control-panel-entry-category>portal</control-panel-entry-category>
         <control-panel-entry-weight>0.6</control-panel-entry-weight>
     </portlet>
+    <portlet>
+        <!-- Matches definition in portlet.xml. -->
+        <!-- Note: Must not be the same as servlet name. -->
+        <portlet-name>Aperte Workflow Process Instance Manager</portlet-name>
+        <instanceable>false</instanceable>
+        <ajaxable>false</ajaxable>
+        <control-panel-entry-category>portal</control-panel-entry-category>
+        <control-panel-entry-weight>0.7</control-panel-entry-weight>
+    </portlet>
 
     <!--<portlet>-->
     <!--Matches definition in portlet.xml. -->

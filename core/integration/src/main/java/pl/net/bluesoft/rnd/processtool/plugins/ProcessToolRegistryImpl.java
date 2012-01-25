@@ -1,5 +1,6 @@
 package pl.net.bluesoft.rnd.processtool.plugins;
 
+import org.aperteworkflow.search.SearchProvider;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -52,6 +53,8 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	private SessionFactory sessionFactory;
 	private EventBusManager eventBusManager = new EventBusManager();
     private PluginManager pluginManager;
+    private SearchProvider searchProvider;
+
     private boolean jta;
     private BundleContext bundleContext;
 
@@ -304,7 +307,7 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 
     @Override
 	public ProcessInstanceDAO getProcessInstanceDAO(Session hibernateSession) {
-		return new ProcessInstanceDAOImpl(hibernateSession);
+		return new ProcessInstanceDAOImpl(hibernateSession, searchProvider);
 	}
 
 	@Override
@@ -502,5 +505,13 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
             throw new RuntimeException("No process tool context factory implementation registered");
         }
         processToolContextFactory.deployOrUpdateProcessDefinition(jpdlStream, processToolConfigStream, queueConfigStream, imageStream, logoStream);
+    }
+
+    public SearchProvider getSearchProvider() {
+        return searchProvider;
+    }
+
+    public void setSearchProvider(SearchProvider searchProvider) {
+        this.searchProvider = searchProvider;
     }
 }

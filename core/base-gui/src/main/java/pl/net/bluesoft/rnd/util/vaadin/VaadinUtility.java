@@ -103,6 +103,11 @@ public class VaadinUtility {
         l.setWidth(width + "px");
         return l;
     }
+    public static Label htmlLabel(String message, int width) {
+        Label l = new Label(message, Label.CONTENT_XHTML);
+        l.setWidth(width + "px");
+        return l;
+    }
 
     public static HorizontalLayout horizontalLayout(com.vaadin.ui.Component c1, com.vaadin.ui.Component c2) {
         HorizontalLayout hl = new HorizontalLayout();

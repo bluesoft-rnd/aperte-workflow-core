@@ -18,7 +18,7 @@ public class LdapUserDataWidget extends UserDataWidget {
 	@AutoWiredProperty
 	public String ip;
 	@AutoWiredProperty
-	public int port = 389;
+	public Integer port = 389;
 	@AutoWiredProperty
 	public String loginDN;
 	@AutoWiredProperty

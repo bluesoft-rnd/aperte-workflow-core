@@ -25,6 +25,13 @@ import static pl.net.bluesoft.rnd.poutils.cquery.CQuery.from;
 import static pl.net.bluesoft.rnd.processtool.plugins.osgi.OSGiBundleHelper.*;
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
+import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
+import pl.net.bluesoft.rnd.processtool.plugins.PluginManager;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistryImpl;
+import pl.net.bluesoft.rnd.util.i18n.impl.PropertiesBasedI18NProvider;
+import pl.net.bluesoft.rnd.util.i18n.impl.PropertyLoader;
+
 public class PluginHelper implements PluginManager {
 
     private static class BundleInfo {
@@ -336,7 +343,7 @@ public class PluginHelper implements PluginManager {
         }
     }
 
-    public synchronized void initializePluginSystem(String pluginsDir, String storageDir, ProcessToolRegistry registry)
+    public synchronized void initializePluginSystem(String pluginsDir, String storageDir, ProcessToolRegistryImpl registry)
             throws BundleException {
         this.pluginsDir = pluginsDir.replace('/', File.separatorChar);
         this.registry = registry;
@@ -351,7 +358,7 @@ public class PluginHelper implements PluginManager {
         state = State.ACTIVE;
     }
 
-    private void initializeFelix(String storageDir, final ProcessToolRegistry registry) throws BundleException {
+    private void initializeFelix(String storageDir, final ProcessToolRegistryImpl registry) throws BundleException {
         if (felix != null) {
             felix.stop();
             felix = null;
@@ -418,7 +425,7 @@ public class PluginHelper implements PluginManager {
      * @param registry
      * @param configMap
      */
-    private void putActivatorConfig(final ProcessToolRegistry registry, Map<String, Object> configMap) {
+    private void putActivatorConfig(final ProcessToolRegistryImpl registry, Map<String, Object> configMap) {
         ArrayList<BundleActivator> activators = new ArrayList<BundleActivator>();
         activators.add(new BundleActivator() {
             private ProcessToolServiceBridge serviceBridge;
@@ -426,6 +433,7 @@ public class PluginHelper implements PluginManager {
             @Override
             public void start(BundleContext context) throws Exception {
                 if (registry != null) {
+                    registry.setOsgiBundleContext(context);                    
                     serviceBridge = new FelixServiceBridge(felix);
                     registry.addServiceLoader(serviceBridge);
                     context.registerService(ProcessToolRegistry.class.getName(), registry, new Hashtable());

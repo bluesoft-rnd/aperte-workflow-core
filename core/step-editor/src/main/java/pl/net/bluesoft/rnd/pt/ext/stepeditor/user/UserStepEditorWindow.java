@@ -338,7 +338,7 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 		stepTreeContainer.addContainerProperty("icon", Resource.class, getResource("icon.widget.default"));
 
 		final WidgetItem widgetItem = new WidgetItem("ROOT", Messages.getString("stepTree.root.name"), Messages.getString("stepTree.root.description"), null,
-				null, null, true, null, null);
+				null, null, true, null);
 		rootItem = new WidgetItemInStep(widgetItem, null, null);
 		Item item = stepTreeContainer.addItem(rootItem);
 		item.getItemProperty("name").setValue(widgetItem.getName());

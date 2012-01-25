@@ -25,6 +25,7 @@ public class JSONHandler {
     private static final Logger logger = Logger.getLogger(JSONHandler.class.getName());
     
 	private static final String WIDGET_ID = "widgetId";
+    private static final String PRIORITY = "priority";
 	private static final String PROPERTIES = "properties";
 	private static final String PERMISSIONS = "permissions";
 	private static final String CHILDREN = "children";
@@ -130,7 +131,7 @@ public class JSONHandler {
 		return item;
 	}
 
-	static Map<String, Object> collectNode(final Tree tree, Object node) {
+	static Map<String, Object> collectNode(final Tree tree, Object node, Integer priority) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		final WidgetItemInStep widgetItemInStep = (WidgetItemInStep) node;
 
@@ -153,6 +154,8 @@ public class JSONHandler {
 		}
 
 		map.put(WIDGET_ID, widgetItemInStep.getWidgetItem().getWidgetId());
+        map.put(PRIORITY, priority);
+
 		if (!propertiesMap.isEmpty())
 			map.put(PROPERTIES, propertiesMap);
 		if (!permissionsMap.isEmpty())
@@ -160,9 +163,12 @@ public class JSONHandler {
 
 		if (tree.hasChildren(node)) {
 			map.put(CHILDREN, CollectionUtils.collect(tree.getChildren(node), new Transformer() {
+                private Integer priorityCounter = 1;
+                
 				@Override
 				public Object transform(Object node) {
-					return collectNode(tree, node);
+                    priorityCounter++;
+					return collectNode(tree, node, priorityCounter);
 				}
 			}));
 		}
@@ -174,7 +180,7 @@ public class JSONHandler {
 		TaskConfig tc = new TaskConfig();
 		tc.setTaskName(stepName);
 		
-		Map<String, Object> treeMap = collectNode(tree, rootItem);
+		Map<String, Object> treeMap = collectNode(tree, rootItem, 1);
 		treeMap.put(ASSIGNEE, assignee);
 		treeMap.put(CANDIDATE_GROUPS, candidateGroups);
 		treeMap.put(SWIMLANE, swimlane);

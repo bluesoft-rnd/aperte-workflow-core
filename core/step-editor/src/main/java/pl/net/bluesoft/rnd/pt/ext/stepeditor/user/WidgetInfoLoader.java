@@ -77,7 +77,7 @@ public class WidgetInfoLoader {
             List<Property<?>> permissions = getPermissions(p);
 
 			return new WidgetItem(a.name(), docMap.get("name"), docMap.get("description"),
-                    docMap.get("icon"), properties, permissions, childrenAllowed, null,
+                    docMap.get("icon"), properties, permissions, childrenAllowed,
 					bundle);
         }
 

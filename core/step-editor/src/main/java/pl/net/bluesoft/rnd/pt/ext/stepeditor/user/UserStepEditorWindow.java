@@ -370,7 +370,7 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 
 	private void save() {
 		//jsonConfig = dumpTreeToJSON();
-		application.getJsHelper().postAndRedirect(url, dumpTreeToJSON());
+		application.getJsHelper().postAndRedirectStep(url, dumpTreeToJSON());
 
 	}
 

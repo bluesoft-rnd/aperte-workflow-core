@@ -54,9 +54,6 @@ import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 @AliasName(name = "ProcessData")
 @AperteDoc(humanNameKey="widget.process_data_block.name", descriptionKey="widget.process_data_block.description")
 @ChildrenAllowed(false)
-@PermissionsUsed({
-        @Permission(key="EDIT")
-})
 @WidgetGroup("base-widgets")
 public class ProcessDataBlockWidget extends BaseProcessToolWidget implements ProcessToolDataWidget, ProcessToolVaadinWidget {
     private static final Logger logger = Logger.getLogger(ProcessDataBlockWidget.class.getName());
@@ -223,9 +220,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolWidget implements Pro
     public void loadData(final ProcessInstance processInstance) {
         boundProperties.clear();
         dictContainers.clear();
-//        if (getAttributeValue(ATTRIBUTE_WIDGETS_DEFINITION) != null) {
-//            widgetsDefinitionElement = (WidgetsDefinitionElement) definitionLoader.unmarshall(getAttributeValue(ATTRIBUTE_WIDGETS_DEFINITION));
-//        }
+
         if (StringUtil.hasText(widgetsDefinition)) {
             widgetsDefinitionElement = (WidgetsDefinitionElement) definitionLoader.unmarshall(widgetsDefinition);
         }

@@ -4,20 +4,23 @@ import com.vaadin.Application;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang.StringUtils;
-import pl.net.bluesoft.rnd.processtool.i18n.DefaultI18NSource;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.*;
-import pl.net.bluesoft.rnd.pt.ext.stepeditor.StepEditorApplication;
+import pl.net.bluesoft.rnd.pt.ext.vaadin.GenericEditorApplication;
 import pl.net.bluesoft.rnd.util.i18n.I18NProvider;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.util.lang.Classes;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.*;
 
 public class WidgetInfoLoader {
-
+    
 	private static final class FieldTransformer implements Transformer {
 		@Override
 		public Object transform(Object o) {
@@ -59,14 +62,15 @@ public class WidgetInfoLoader {
 		@Override
 		public Object transform(Object widgetClassObj) {
 			final Class<?> widgetClass = (Class<?>) widgetClassObj;
-			AliasName a = Classes.getClassAnnotation(widgetClass, AliasName.class);
-			PermissionsUsed p = Classes.getClassAnnotation(widgetClass, PermissionsUsed.class);
+			AliasName aliasName = Classes.getClassAnnotation(widgetClass, AliasName.class);
+			PermissionsUsed permissionsUsed = Classes.getClassAnnotation(widgetClass, PermissionsUsed.class);
+
 			ChildrenAllowed ca = widgetClass.getAnnotation(ChildrenAllowed.class);
 			boolean childrenAllowed = ca == null ? false : ca.value();
 
 			Map<String, String> docMap = getDocumentation(widgetClass);
 			if (!docMap.containsKey("name"))
-				docMap.put("name", a.name());
+				docMap.put("name", aliasName.name());
 			if (!docMap.containsKey("description"))
 				docMap.put("description", widgetClass.getName());
 
@@ -74,10 +78,10 @@ public class WidgetInfoLoader {
 				return null;
 
             List<Property<?>> properties = getProperties(widgetClass);
-            List<Property<?>> permissions = getPermissions(p);
+            List<Property<?>> permissions = getPermissions(permissionsUsed);
 
-			return new WidgetItem(a.name(), docMap.get("name"), docMap.get("description"),
-                    docMap.get("icon"), properties, permissions, childrenAllowed, null,
+			return new WidgetItem(aliasName.name(), docMap.get("name"), docMap.get("description"),
+                    docMap.get("icon"), properties, permissions, childrenAllowed,
 					bundle);
         }
 
@@ -96,42 +100,75 @@ public class WidgetInfoLoader {
         }
         
 		private List<Property<?>> getPermissions(PermissionsUsed permissionsUsed) {
-			List<Property<?>> permissions = new ArrayList<Property<?>>();
-			if (permissionsUsed == null || permissionsUsed.value() == null) {
-				return permissions;
+            List<Property<?>> permissions = new ArrayList<Property<?>>();
+
+            Set<Permission> perms = null;
+            if (permissionsUsed == null) {
+                // only use default permissions when widget does not provide own annotation
+                perms = DEFAULT_PERMISSIONS;
+            } else {
+                Permission[] usedPermissions = permissionsUsed.value();
+                if (usedPermissions != null && usedPermissions.length > 0) {
+                    perms = new HashSet<Permission>();
+                    perms.addAll(Arrays.asList(usedPermissions));
+                }
             }
 
-			for (Permission perm : permissionsUsed.value()) {
-			    String permDesc = StringUtils.isEmpty(perm.desc()) ? PERMISSION_DESC_PREFIX + perm.key() : perm.desc();
-			    permDesc = i18NSource.getMessage(permDesc, i18NProviders);
-                
-                Property property = new Property(null, String.class);
-                property.setPropertyType(Property.PropertyType.PERMISSION);
-                property.setPropertyId(perm.key());
-                property.setName(permDesc + " (" + perm.key() + ")");
-                property.setRequired(false);
+            if (perms != null) {
+                I18NSource i18NSource = VaadinUtility.getThreadI18nSource();
+                for (Permission perm : perms) {
+                    String permDesc = StringUtils.isEmpty(perm.desc()) ? PERMISSION_DESC_PREFIX + perm.key() : perm.desc();
+                    permDesc = i18NSource.getMessage(permDesc);
 
-			    permissions.add(property);
-			}
+                    Property property = new Property(null, String.class);
+                    property.setPropertyType(Property.PropertyType.PERMISSION);
+                    property.setPropertyId(perm.key());
+                    property.setName(permDesc + " (" + perm.key() + ")");
+                    property.setRequired(false);
 
-            Collections.sort(permissions);
+                    permissions.add(property);
+                }
+
+                Collections.sort(permissions);
+            }
 
 			return permissions;
 		}
 	}
 
-    private static final String PERMISSION_DESC_PREFIX = "widget.permission.desc.";
-    private static final String BUNDLE_DESC_PREFIX = "widget.bundle.desc.";
+    private static final String PERMISSION_DESC_PREFIX;
+    private static final String BUNDLE_DESC_PREFIX;
+    private static Set<Permission> DEFAULT_PERMISSIONS;
 
-    private static DefaultI18NSource i18NSource = new DefaultI18NSource();
-    private static Collection<I18NProvider>	i18NProviders;
+    static {
+        PERMISSION_DESC_PREFIX = "widget.permission.desc.";
+        BUNDLE_DESC_PREFIX = "widget.bundle.desc.";
 
+        DEFAULT_PERMISSIONS = new HashSet<Permission>();
+        Permission[] dp = (Permission[]) getDefaultValue(PermissionsUsed.class);
+        if (dp != null) {
+            DEFAULT_PERMISSIONS.addAll(Arrays.asList(dp));
+        }
+    }
+    
+    // TODO consider moving to Classes in bluesoft-util
+    private static Object getDefaultValue(Class<? extends Annotation> annotationType) {
+        return getDefaultValue(annotationType, "value");
+    }
+
+    private static Object getDefaultValue(Class<? extends Annotation> annotationType, String attributeName) {
+        try {
+            Method method = annotationType.getDeclaredMethod(attributeName, new Class[0]);
+            return method.getDefaultValue();
+        } catch (Exception ex) {
+            return null;
+        }
+    }
 
 	public static Map<BundleItem, Collection<WidgetItem>> loadAvailableWidgets(Application application)
             throws ClassNotFoundException {
-		ProcessToolRegistry reg = StepEditorApplication.getRegistry();
-		i18NSource.setLocale(application.getLocale());
-		i18NProviders = reg.getI18NProviders();
+		ProcessToolRegistry reg = GenericEditorApplication.getRegistry();
+        I18NSource i18NSource = VaadinUtility.getThreadI18nSource();
 
 		Map<BundleItem, Collection<WidgetItem>> availableWidgets = new HashMap<BundleItem, Collection<WidgetItem>>();
 
@@ -188,7 +225,7 @@ public class WidgetInfoLoader {
 		return availableWidgets;
 	}
 
-	protected static Map<String, String> getDocumentation(Object object) {
+	private static Map<String, String> getDocumentation(Object object) {
 		AperteDoc doc = null;
 		if (object instanceof Class) {
 			doc = Classes.getClassAnnotation((Class<?>) object, AperteDoc.class);
@@ -196,10 +233,11 @@ public class WidgetInfoLoader {
 			doc = ((Field) object).getAnnotation(AperteDoc.class);
 		}
 
+        I18NSource i18NSource = VaadinUtility.getThreadI18nSource();
 		Map<String, String> docMap = new HashMap<String, String>();
 		if (doc != null) {
-			docMap.put("name", i18NSource.getMessage(doc.humanNameKey(), i18NProviders));
-			docMap.put("description", i18NSource.getMessage(doc.descriptionKey(), i18NProviders));
+			docMap.put("name", i18NSource.getMessage(doc.humanNameKey()));
+			docMap.put("description", i18NSource.getMessage(doc.descriptionKey()));
 			docMap.put("icon", doc.icon());
 			docMap.put("internal", doc.internal() ? Boolean.TRUE.toString() : Boolean.FALSE.toString());
 		} else {

@@ -88,23 +88,7 @@ public class WidgetFormWindow extends Panel  {
 			    form.addToPermissionsLayout(new Label("<b>" + Messages.getString("form.permissions") + "</b>", Label.CONTENT_XHTML));
 			}
 
-			WidgetConfigFormFieldFactory fieldFactory = null;
-			if (widget.getWidgetItem().getConfigurator() != null) {
-				try {
-					fieldFactory = widget.getWidgetItem().getConfigurator().newInstance();
-					if(fieldFactory != null){
-						fieldFactory.setI18NProviders(widget.getWidgetItem().getBundle().getI18NProviders());
-						fieldFactory.setLocale(locale);
-					}
-				} catch (InstantiationException e) {
-				} catch (IllegalAccessException e) {
-				}
-			}
-
-			if (fieldFactory == null) {
-				fieldFactory = new WidgetConfigFormFieldFactory();
-			}
-
+            WidgetConfigFormFieldFactory fieldFactory = new WidgetConfigFormFieldFactory();
 			for (Property<?> property : widget.getProperties()) {
 				final Field field = fieldFactory.createField(property);
 				form.addField(property, field);

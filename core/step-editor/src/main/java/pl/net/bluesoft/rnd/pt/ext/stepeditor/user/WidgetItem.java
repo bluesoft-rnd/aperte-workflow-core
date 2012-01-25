@@ -7,19 +7,18 @@ import java.util.Map;
 
 public class WidgetItem implements Serializable {
 	private static final long								serialVersionUID	= -8907544816596058014L;
+    private static Map<String, WidgetItem>					widgetSet			= new HashMap<String, WidgetItem>();
+
 	private String											widgetId;
 	private String											name;
 	private String											description;
 	private Collection<Property<?>>							properties;
 	private Collection<Property<?>>							permissions;
 	private Boolean											childrenAllowed;
-	private Class<? extends WidgetConfigFormFieldFactory>	configurator; // TODO to remove, was replaced by @AutowiredPropertyConfigurator
 	private String											icon;
 	private BundleItem										bundle;
-	private static Map<String, WidgetItem>					widgetSet			= new HashMap<String, WidgetItem>();
 
-	public WidgetItem(String widgetId, String name, String description, String icon, Collection<Property<?>> properties, Collection<Property<?>> permissions, Boolean childrenAllowed,
-			Class<? extends WidgetConfigFormFieldFactory> configurator, BundleItem bundle) {
+	public WidgetItem(String widgetId, String name, String description, String icon, Collection<Property<?>> properties, Collection<Property<?>> permissions, Boolean childrenAllowed, BundleItem bundle) {
 		super();
 		this.widgetId = widgetId;
 		this.name = name;
@@ -27,7 +26,6 @@ public class WidgetItem implements Serializable {
 		this.properties = properties;
 		this.permissions = permissions;
 		this.childrenAllowed = childrenAllowed;
-		this.configurator = configurator;
 		this.icon = icon;
 		this.bundle = bundle;
 		storeInWidgetset();
@@ -87,14 +85,6 @@ public class WidgetItem implements Serializable {
 
 	public void setWidgetId(String widgetId) {
 		this.widgetId = widgetId;
-	}
-
-	public Class<? extends WidgetConfigFormFieldFactory> getConfigurator() {
-		return configurator;
-	}
-
-	public void setConfigurator(Class<? extends WidgetConfigFormFieldFactory> configurator) {
-		this.configurator = configurator;
 	}
 
 	public String getIcon() {

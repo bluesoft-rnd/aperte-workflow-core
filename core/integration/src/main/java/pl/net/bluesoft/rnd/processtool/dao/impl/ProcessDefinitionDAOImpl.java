@@ -10,6 +10,8 @@ import pl.net.bluesoft.rnd.processtool.model.config.*;
 import java.util.*;
 import java.util.logging.Logger;
 
+import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
+
 /**
  * @author tlipski@bluesoft.net.pl
  */
@@ -180,7 +182,7 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 	}
 
 	private boolean compareActions(ProcessStateAction newAction, ProcessStateAction oldAction) {
-		return newAction.getDescription().equals(oldAction.getDescription()) &&
+		return nvl(newAction.getDescription(),"").equals(nvl(oldAction.getDescription(), "")) &&
 				comparePermissions(newAction.getPermissions(), oldAction.getPermissions());
 
 	}

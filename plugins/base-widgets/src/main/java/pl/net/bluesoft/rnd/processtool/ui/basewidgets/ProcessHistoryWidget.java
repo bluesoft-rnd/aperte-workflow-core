@@ -62,27 +62,33 @@ public class ProcessHistoryWidget extends BaseProcessToolWidget implements Proce
 		List<ProcessInstanceLog> processLogs = new ArrayList(processInstance.getProcessLogs());
 		Collections.sort(processLogs);
 		for (ProcessInstanceLog pl : processLogs) {
-			ProcessLogInfo plInfo = new ProcessLogInfo();
-            String userDescription = pl.getUser() != null ? nvl(pl.getUser().getRealName(), pl.getUser().getLogin()) : "";
-            if (pl.getUserSubstitute() != null) {
-                String substituteDescription = nvl(pl.getUserSubstitute().getRealName(), pl.getUserSubstitute().getLogin());
-                plInfo.userDescription = substituteDescription + "(" + getMessage("awf.basewidgets.process-history.substituting") + " " + userDescription  + ")";
-            }
-            else {
-			    plInfo.userDescription = userDescription;
-            }
-			plInfo.entryDescription = nvl(pl.getAdditionalInfo(), pl.getLogValue());
-			plInfo.actionDescription = i18NSource.getMessage(pl.getEventI18NKey());
-			if (hasText(plInfo.getEntryDescription())) {
-				plInfo.actionDescription = plInfo.actionDescription + " - " + getMessage(plInfo.entryDescription);
-			}
-			plInfo.performDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(pl.getEntryDate().getTime());
-			plInfo.stateDescription = pl.getState() != null ? nvl(pl.getState().getDescription(), pl.getState().getName()) : "";
+            ProcessLogInfo plInfo = getProcessLogInfo(pl);
 			logInfos.add(plInfo);
 		}
 	}
 
-	public class ProcessLogInfo {
+    //TODO refactor & reuse common code with ProcessInstanceAdminManagerPane
+    private ProcessLogInfo getProcessLogInfo(ProcessInstanceLog pl) {
+        ProcessLogInfo plInfo = new ProcessLogInfo();
+        String userDescription = pl.getUser() != null ? nvl(pl.getUser().getRealName(), pl.getUser().getLogin()) : "";
+        if (pl.getUserSubstitute() != null) {
+            String substituteDescription = nvl(pl.getUserSubstitute().getRealName(), pl.getUserSubstitute().getLogin());
+            plInfo.userDescription = substituteDescription + "(" + getMessage("awf.basewidgets.process-history.substituting") + " " + userDescription  + ")";
+        }
+        else {
+            plInfo.userDescription = userDescription;
+        }
+        plInfo.entryDescription = nvl(pl.getAdditionalInfo(), pl.getLogValue());
+        plInfo.actionDescription = i18NSource.getMessage(pl.getEventI18NKey());
+        if (hasText(plInfo.getEntryDescription())) {
+            plInfo.actionDescription = plInfo.actionDescription + " - " + getMessage(plInfo.entryDescription);
+        }
+        plInfo.performDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(pl.getEntryDate().getTime());
+        plInfo.stateDescription = pl.getState() != null ? nvl(pl.getState().getDescription(), pl.getState().getName()) : "";
+        return plInfo;
+    }
+
+    public class ProcessLogInfo {
 		public String userDescription;
 		public String actionDescription;
 		public String entryDescription;

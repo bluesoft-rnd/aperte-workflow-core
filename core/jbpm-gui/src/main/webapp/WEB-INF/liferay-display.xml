@@ -11,5 +11,6 @@
     <category name="category.hidden">
         <portlet id="Aperte Workflow Plugin Manager"/>
         <portlet id="Aperte Workflow Process Definition Manager"/>
+        <portlet id="Aperte Workflow Process Instance Manager"/>
     </category>
 </display>

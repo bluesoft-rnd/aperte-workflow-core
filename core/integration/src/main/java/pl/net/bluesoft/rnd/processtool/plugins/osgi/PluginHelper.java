@@ -25,6 +25,34 @@ import static pl.net.bluesoft.rnd.poutils.cquery.CQuery.from;
 import static pl.net.bluesoft.rnd.processtool.plugins.osgi.OSGiBundleHelper.*;
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
+import org.apache.felix.framework.Felix;
+import org.apache.felix.framework.Logger;
+import org.apache.felix.framework.util.FelixConstants;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.Fieldable;
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.search.*;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.util.Version;
+import org.aperteworkflow.search.ProcessInstanceSearchAttribute;
+import org.aperteworkflow.search.ProcessInstanceSearchData;
+import org.aperteworkflow.search.SearchProvider;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleEvent;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.BundleListener;
+import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceReference;
+
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.plugins.PluginManager;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
@@ -32,8 +60,14 @@ import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistryImpl;
 import pl.net.bluesoft.rnd.util.i18n.impl.PropertiesBasedI18NProvider;
 import pl.net.bluesoft.rnd.util.i18n.impl.PropertyLoader;
 
-public class PluginHelper implements PluginManager {
+public class PluginHelper implements PluginManager, SearchProvider {
+    private String luceneDir;
+    private Directory index;
+    private IndexSearcher indexSearcher;
+    private IndexReader indexReader;
 
+    
+    
     private static class BundleInfo {
         private Long lastModified;
         private Long installDuration;
@@ -343,20 +377,27 @@ public class PluginHelper implements PluginManager {
         }
     }
 
-    public synchronized void initializePluginSystem(String pluginsDir, String storageDir, ProcessToolRegistryImpl registry)
+    public synchronized void initialize(String pluginsDir, 
+                                        String storageDir, 
+                                        String luceneDir,
+                                        ProcessToolRegistryImpl registry)
             throws BundleException {
-        this.pluginsDir = pluginsDir.replace('/', File.separatorChar);
+        this.pluginsDir =  pluginsDir.replace('/', File.separatorChar);
+        this.luceneDir = luceneDir.replace('/', File.separatorChar);
         this.registry = registry;
+        
         registry.setPluginManager(this);
-
+        registry.setSearchProvider(this);
         state = State.INITIALIZING;
-        LOGGER.fine("initializePluginSystem.start!");
+        LOGGER.fine("initialize.start!");
         initializeFelix(storageDir, registry);
         LOGGER.fine("initializeCheckerThread!");
         initCheckerThread();
-        LOGGER.fine("initializePluginSystem.end!");
+        LOGGER.fine("initializeSearchService!");
+        initializeSearchService();
+        LOGGER.fine("initialize.end!");
         state = State.ACTIVE;
-    }
+    }      
 
     private void initializeFelix(String storageDir, final ProcessToolRegistryImpl registry) throws BundleException {
         if (felix != null) {
@@ -885,4 +926,102 @@ public class PluginHelper implements PluginManager {
         }
     }
 
+    
+    private void initializeSearchService() {
+        try {
+            index = FSDirectory.open(new File(luceneDir));
+            indexReader = IndexReader.open(index);
+            indexSearcher = new IndexSearcher(indexReader);
+
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void updateIndex(ProcessInstanceSearchData processInstanceSearchData) {
+        Document doc = new Document();
+        doc.add(new Field("AWF__ID",
+                String.valueOf(processInstanceSearchData.getProcessInstanceId()), 
+                Field.Store.YES,Field.Index.NOT_ANALYZED));
+        doc.add(new Field("AWF__TYPE", "PROCESS_INSTANCE", Field.Store.YES, Field.Index.NOT_ANALYZED));
+        for (ProcessInstanceSearchAttribute attr : processInstanceSearchData.getSearchAttributes()) {
+            if (attr.getValue() != null && !attr.getValue().trim().isEmpty()) {
+                Field field = new Field(attr.getName(),
+                        attr.getValue(),
+                        Field.Store.NO,
+                        attr.isKeyword() ? Field.Index.NOT_ANALYZED : Field.Index.ANALYZED);
+                doc.add(field);
+            }
+        }
+        updateIndex(doc);
+    }
+
+    @Override
+    public List<Long> searchProcesses(String query, int offset, int limit) {
+        List<Document> results = search(query, offset, limit);
+        List<Long> res = new ArrayList<Long>(results.size());
+        for (Document doc : results) {
+            res.add(Long.parseLong(doc.getFieldable("AWF__ID").stringValue()));
+        }
+        return res;
+    }
+    
+    public List<Document> search(String query, int offset, int limit) {
+        try {
+            LOGGER.info("Parsing lucene search query: " + query);
+            QueryParser qp = new QueryParser(Version.LUCENE_35, "all", new StandardAnalyzer(Version.LUCENE_35));
+            Query q = qp.parse(query);
+            BooleanQuery bq = new BooleanQuery();
+            bq.add(q, BooleanClause.Occur.MUST);
+            bq.add(new TermQuery(new Term("AWF__TYPE", "PROCESS_INSTANCE")),
+                    BooleanClause.Occur.MUST);
+            LOGGER.info("Searching lucene index with query: " + bq.toString());            
+            TopDocs search = indexSearcher.search(q, offset + limit);
+            List<Document> results = new ArrayList<Document>(limit);
+            LOGGER.info("Total result count for query: " + bq.toString() + " is " + search.totalHits);
+            for (int i = offset; i < offset+limit && i < search.totalHits; i++) {
+                ScoreDoc scoreDoc = search.scoreDocs[i];
+                results.add(indexSearcher.doc(scoreDoc.doc));
+            }
+            return results;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new RuntimeException(e);
+            
+        }
+    }
+    public synchronized void updateIndex(Document... docs) {
+        try {
+            //how awesome to force programmer to hardcode library version with no reasonable default
+            IndexWriterConfig cfg = new IndexWriterConfig(Version.LUCENE_35, new StandardAnalyzer(Version.LUCENE_35));
+            IndexWriter indexWriter = new IndexWriter(index, cfg);
+            for (Document doc : docs) {
+                LOGGER.info("Updating index for document: " + doc.getFieldable("AWF__ID"));
+                indexWriter.deleteDocuments(new Term("AWF__ID", doc.getFieldable("AWF__ID").stringValue()));
+                StringBuffer all = new StringBuffer();
+                for (Fieldable f : doc.getFields()) {
+                    all.append(f.stringValue());
+                    all.append(' ');
+                }
+                LOGGER.fine("Updated field all for "+ doc.getFieldable("AWF__ID") + " with value: " + all);
+                doc.add(new Field("all", all.toString(), Field.Store.NO, Field.Index.ANALYZED));
+            }
+            indexWriter.addDocuments(Arrays.asList(docs));
+            LOGGER.info("reindexing Lucene...");
+            indexWriter.commit();
+            indexWriter.close();
+            LOGGER.info("reindexing Lucene... DONE!");
+
+            
+            indexReader = IndexReader.open(index);
+            indexSearcher = new IndexSearcher(indexReader);
+            LOGGER.info("reopened Lucene index handles");
+
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+    }
 }

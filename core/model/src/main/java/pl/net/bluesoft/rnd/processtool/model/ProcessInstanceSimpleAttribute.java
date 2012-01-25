@@ -1,8 +1,13 @@
 package pl.net.bluesoft.rnd.processtool.model;
 
+import org.aperteworkflow.search.ProcessInstanceSearchAttribute;
+import org.aperteworkflow.search.Searchable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * Simple attribute with String value.
@@ -12,7 +17,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name="pt_process_instance_s_attr")
-public class ProcessInstanceSimpleAttribute extends ProcessInstanceAttribute implements BpmVariable{
+public class ProcessInstanceSimpleAttribute extends ProcessInstanceAttribute implements BpmVariable, Searchable {
 
     @Column(name="value_")
 	private String value;
@@ -52,5 +57,13 @@ public class ProcessInstanceSimpleAttribute extends ProcessInstanceAttribute imp
     @Override
     public String toString() {
         return value;
+    }
+
+    @Override
+    public Collection<ProcessInstanceSearchAttribute> getAttributes() {
+        return Arrays.asList(
+                new ProcessInstanceSearchAttribute(getKey(), value, false),
+                new ProcessInstanceSearchAttribute(getBpmVariableName(), value, false)
+        );
     }
 }

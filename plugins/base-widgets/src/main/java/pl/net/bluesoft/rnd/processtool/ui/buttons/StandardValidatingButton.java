@@ -42,9 +42,11 @@ public class StandardValidatingButton implements ProcessToolVaadinActionButton {
 
 	@AutoWiredProperty
 	protected Boolean autoHide = false;
-
+	
 	@AutoWiredProperty
-	protected String bpmAction;
+	protected Integer priority;
+
+	
 	protected ProcessStateAction definition;
 	protected Application application;
 	protected I18NSource i18NSource;
@@ -184,14 +186,6 @@ public class StandardValidatingButton implements ProcessToolVaadinActionButton {
 
 	public void setSkipSaving(boolean skipSaving) {
 		this.skipSaving = skipSaving;
-	}
-
-	public String getBpmAction() {
-		return bpmAction;
-	}
-
-	public void setBpmAction(String bpmAction) {
-		this.bpmAction = bpmAction;
 	}
 
 	@Override

@@ -1,6 +1,8 @@
 package pl.net.bluesoft.rnd.pt.ext.vaadin;
 
 
+import java.util.Map;
+
 import com.vaadin.Application;
 import com.vaadin.terminal.gwt.server.HttpServletRequestListener;
 import com.vaadin.terminal.gwt.server.WebApplicationContext;
@@ -13,6 +15,8 @@ import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Basic class for editor application which provides integration with rest of
@@ -74,6 +78,14 @@ public class GenericEditorApplication extends Application implements HttpServlet
         }
 
         current.remove();
+    }
+    
+    protected String getStringParameterByName(String paramterName, Map<String, String[]> paramterMap) {
+        String[] value = paramterMap.get(paramterName);
+        if (value != null && value.length > 0 && !StringUtils.isEmpty(value[0])) {
+            return value[0];
+        }
+        return null;
     }
 
 }

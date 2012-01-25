@@ -51,6 +51,12 @@ public class QueueEditorApplication extends GenericEditorApplication implements 
 	
 	@Override
 	public void handleParameters(Map<String, String[]> parameters) {
+		if (parameters == null || parameters.size() == 0) {
+            // No parameters to handle, we are not interested in such a request
+            // it may be a request for static resource e.g. <servlet>/APP/323/root.gif
+            return;
+        }
+
 		String[] urls = parameters.get("callback_url");
 		if (urls != null && urls.length > 0 && !StringUtils.isEmpty(urls[0])) {
 			url = urls[0];

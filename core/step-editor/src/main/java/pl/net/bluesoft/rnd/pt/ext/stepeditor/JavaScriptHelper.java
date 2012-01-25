@@ -58,7 +58,7 @@ public class JavaScriptHelper {
 		System.out.println(MessageFormat.format(CALLBACK_FUNCTION, ("{\"step_editor\":" + jsonConfig + "}").replaceAll("\"", "\\\\\"")));
 		window.executeJavaScript(MessageFormat.format(CALLBACK_FUNCTION, ("{\"step_editor\":" + jsonConfig + "}").replaceAll("\"", "\\\\\"")));
 	}
-	public void postAndRedirect(String url, String jsonConfig) {
+	public void postAndRedirectStep(String url, String jsonConfig) {
 		window.executeJavaScript(CLOSE_ALLOW_FUNCTION);
 		System.out.println(MessageFormat.format(CALL_POST_TO_URL_FUNCTION, url, ("{\"step_editor\": \"" + jsonConfig.replaceAll("\"", "\\\\\"") + "\"}")));
 		window.executeJavaScript(MessageFormat.format(CALL_POST_TO_URL_FUNCTION, url, ("{\"step_editor\": \"" + jsonConfig.replaceAll("\"", "\\\\\"") + "\"}")));
@@ -67,6 +67,11 @@ public class JavaScriptHelper {
 		window.executeJavaScript(CLOSE_ALLOW_FUNCTION);
 		System.out.println(MessageFormat.format(CALL_POST_TO_URL_FUNCTION, url, ("{\"queue_editor\": \"" + jsonConfig.replaceAll("\"", "\\\\\"") + "\"}")));
 		window.executeJavaScript(MessageFormat.format(CALL_POST_TO_URL_FUNCTION, url, ("{\"queue_editor\": \"" + jsonConfig.replaceAll("\"", "\\\\\"") + "\"}")));
+	}
+	public void postAndRedirectAction(String url, String jsonConfig) {
+		window.executeJavaScript(CLOSE_ALLOW_FUNCTION);
+		System.out.println(MessageFormat.format(CALL_POST_TO_URL_FUNCTION, url, ("{\"action_editor\": \"" + jsonConfig.replaceAll("\"", "\\\\\"") + "\"}")));
+		window.executeJavaScript(MessageFormat.format(CALL_POST_TO_URL_FUNCTION, url, ("{\"action_editor\": \"" + jsonConfig.replaceAll("\"", "\\\\\"") + "\"}")));
 	}
 
 }

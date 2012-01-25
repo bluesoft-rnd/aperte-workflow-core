@@ -27,6 +27,17 @@
       <param-value>pl.net.bluesoft.rnd.pt.ext.queueeditor.QueueEditorApplication</param-value>
     </init-param>
   </servlet>
+  
+  <servlet>
+    <servlet-name>action_editor</servlet-name>
+    <servlet-class>
+        com.vaadin.terminal.gwt.server.ApplicationServlet
+    </servlet-class>
+    <init-param>
+      <param-name>application</param-name>
+      <param-value>pl.net.bluesoft.rnd.pt.ext.actioneditor.ActionEditorApplication</param-value>
+    </init-param>
+  </servlet>
 
   <servlet-mapping>
     <servlet-name>step_editor</servlet-name>
@@ -35,6 +46,11 @@
   
   <servlet-mapping>
     <servlet-name>queue_editor</servlet-name>
+    <url-pattern>/*</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>action_editor</servlet-name>
     <url-pattern>/*</url-pattern>
   </servlet-mapping>
 </web-app>

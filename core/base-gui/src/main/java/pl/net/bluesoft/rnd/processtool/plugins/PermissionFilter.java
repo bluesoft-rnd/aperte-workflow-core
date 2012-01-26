@@ -2,6 +2,9 @@ package pl.net.bluesoft.rnd.processtool.plugins;
 
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.model.Role;
+import com.liferay.portal.model.User;
+import com.liferay.portal.service.RoleLocalServiceUtil;
 import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.util.PortalUtil;
 
@@ -10,7 +13,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,6 +33,8 @@ public class PermissionFilter implements Filter {
 
     public static final String AUTHORIZED = "Aperte_Authorized";
 
+    private static final Collection<String> ROLE_NAMES = Arrays.asList("ADMINISTRATOR", "MODELER_USER");
+    
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -55,9 +63,24 @@ public class PermissionFilter implements Filter {
                         new HashMap(),
                         new HashMap()) == 1) {
                     logger.info("Successfully authorized user: " + username);
-                    session.setAttribute(AUTHORIZED, username);
-                    chain.doFilter(request, response);
-                    return;
+                    User userByScreenName = UserLocalServiceUtil.getUserByScreenName(PortalUtil.getDefaultCompanyId(), username);
+                    List<Role> roles = userByScreenName.getRoles();
+                    boolean found = false;
+                    for (Role role : roles) {
+                        if (!role.isTeam() && ROLE_NAMES.contains(role.getName().toUpperCase())) {
+                            found = true;
+                            logger.info("Matched role " + role.getName() + " for user " + username);
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        logger.info("User " + username + " has insufficient priviledges.");                        
+                    } else {
+                        session.setAttribute(AUTHORIZED, username);
+                        chain.doFilter(request, response);
+                        return;                        
+                    }
+
                 } else {
                     logger.warning("Failed to authorize user: " + username);                    
                 }

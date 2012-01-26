@@ -1,13 +1,21 @@
 package pl.net.bluesoft.rnd.pt.ext.processeditor.tab.other;
 
-import com.vaadin.ui.Component;
+import com.vaadin.ui.Embedded;
 import com.vaadin.ui.VerticalLayout;
-import pl.net.bluesoft.rnd.pt.ext.processeditor.tab.AbstractTab;
 
-public class OtherTab extends AbstractTab {
+public class OtherTab extends VerticalLayout {
 
-    @Override
-    public Component getContent() {
-        return new VerticalLayout();
+    private ProcessLogoUploader logoUploader;
+
+    private Embedded logo;
+
+    public OtherTab() {
+        logoUploader = new ProcessLogoUploader();
+        
+        addComponent(logoUploader);
+    }
+    
+    public void setProcessDir(String dir) {
+        logoUploader.setProcessDir(dir);
     }
 }

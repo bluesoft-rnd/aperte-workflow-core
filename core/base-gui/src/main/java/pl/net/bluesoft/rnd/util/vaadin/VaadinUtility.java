@@ -22,15 +22,17 @@ import java.util.Collection;
 import java.util.Map;
 
 import static com.vaadin.ui.Window.Notification.POSITION_CENTERED;
+import static com.vaadin.ui.Window.Notification.TYPE_ERROR_MESSAGE;
 import static com.vaadin.ui.Window.Notification.TYPE_HUMANIZED_MESSAGE;
 import static pl.net.bluesoft.rnd.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
 
 /**
  * @author tlipski@bluesoft.net.pl
  */
-public class VaadinUtility {
+public class
+        VaadinUtility {
 
-
+    private static final ThreadLocal<Application> application = new ThreadLocal<Application>();
     public static final ThreadLocal<I18NSource> i18nSource = new ThreadLocal<I18NSource>();
 
     public static void setThreadI18nSource(I18NSource source) {
@@ -39,6 +41,14 @@ public class VaadinUtility {
 
     public static I18NSource getThreadI18nSource() {
         return i18nSource.get();
+    }
+
+    public static void setThreadApplication(Application app) {
+        application.set(app);
+    }
+    
+    public static Application getThreadApplication() {
+        return application.get();
     }
 
     public static String getLocalizedMessage(String key) {
@@ -199,6 +209,14 @@ public class VaadinUtility {
                 Notification.TYPE_ERROR_MESSAGE);
         notification.setStyleName("invalid");
         application.getMainWindow().showNotification(notification);
+    }
+    
+    public static void errorNotification(String message) {
+        Notification notification = new Notification(getThreadI18nSource().getMessage("notification.error"),
+                "<br/><b>" + message + "</b>", TYPE_ERROR_MESSAGE);
+        notification.setPosition(POSITION_CENTERED);
+        notification.setStyleName("error");
+        getThreadApplication().getMainWindow().showNotification(notification);
     }
 
     public static Button addIcon(Application application) {

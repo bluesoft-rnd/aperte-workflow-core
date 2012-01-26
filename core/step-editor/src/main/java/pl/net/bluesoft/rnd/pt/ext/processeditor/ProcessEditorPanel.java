@@ -28,8 +28,8 @@ public class ProcessEditorPanel extends VerticalLayout {
 
         tabSheet = new TabSheet();
         tabSheet.setSizeFull();
-        tabSheet.addTab(new QueueTab().init(), messages.getMessage("processeditor.queues"));
-        tabSheet.addTab(new OtherTab().init(), messages.getMessage("processeditor.other"));
+        tabSheet.addTab(new QueueTab(), messages.getMessage("processeditor.queues"));
+        tabSheet.addTab(new OtherTab(), messages.getMessage("processeditor.other"));
 
     }
 

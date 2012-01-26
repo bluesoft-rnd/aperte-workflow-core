@@ -51,6 +51,9 @@ public class GenericEditorApplication extends Application implements HttpServlet
     public void onRequestStart(final HttpServletRequest request, HttpServletResponse response) {
         current.set(this);
 
+        VaadinUtility.setThreadApplication(this);
+        VaadinUtility.setThreadI18nSource(new DefaultI18NSource(request.getLocale()));
+
         // Setting ProcessToolContext was taken from ProcessToolVaadinApplicationPortlet2
         // to preserve functionality used in portlet based Vaadin applications
         ServletContext servletContext = request.getSession().getServletContext();
@@ -62,7 +65,7 @@ public class GenericEditorApplication extends Application implements HttpServlet
                 @Override
                 public void withContext(ProcessToolContext ctx) {
                     ProcessToolContext.Util.setProcessToolContextForThread(ctx);
-                    VaadinUtility.setThreadI18nSource(new DefaultI18NSource(request.getLocale()));
+
                 }
             });
         } finally {
@@ -72,12 +75,13 @@ public class GenericEditorApplication extends Application implements HttpServlet
 
     @Override
     public void onRequestEnd(HttpServletRequest request, HttpServletResponse response) {
-        VaadinUtility.setThreadI18nSource(null);
-
         ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
         if (ctx != null) {
             ProcessToolContext.Util.removeProcessToolContextForThread(ctx);
         }
+
+        VaadinUtility.setThreadI18nSource(null);
+        VaadinUtility.setThreadApplication(null);
 
         current.remove();
     }

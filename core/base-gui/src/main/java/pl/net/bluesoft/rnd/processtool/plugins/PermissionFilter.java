@@ -2,8 +2,10 @@ package pl.net.bluesoft.rnd.processtool.plugins;
 
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.model.CompanyConstants;
 import com.liferay.portal.model.Role;
 import com.liferay.portal.model.User;
+import com.liferay.portal.security.auth.Authenticator;
 import com.liferay.portal.service.RoleLocalServiceUtil;
 import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.util.PortalUtil;
@@ -57,11 +59,7 @@ public class PermissionFilter implements Filter {
             String password = userpassDecoded.split(":")[1];
             logger.info("Attempting to authorize user: " + username);
             try {
-                if (UserLocalServiceUtil.authenticateByScreenName(PortalUtil.getDefaultCompanyId(),
-                        username,
-                        password,
-                        new HashMap(),
-                        new HashMap()) == 1) {
+                if (authenticateUser(username, password) >= Authenticator.SUCCESS) {
                     logger.info("Successfully authorized user: " + username);
                     User userByScreenName = UserLocalServiceUtil.getUserByScreenName(PortalUtil.getDefaultCompanyId(), username);
                     List<Role> roles = userByScreenName.getRoles();
@@ -95,6 +93,12 @@ public class PermissionFilter implements Filter {
         //if we are here, then authentication has failed or no username/password has been supplied
         res.setHeader("WWW-Authenticate", "Basic realm=\"Aperte Modeler\"");
         res.setStatus(401);
+    }
+
+    private int authenticateUser(String username, String password) throws PortalException, SystemException {
+        return (int)UserLocalServiceUtil.authenticateForBasic(PortalUtil.getDefaultCompanyId(),
+                CompanyConstants.AUTH_TYPE_SN,
+                username, password);
     }
 
     @Override

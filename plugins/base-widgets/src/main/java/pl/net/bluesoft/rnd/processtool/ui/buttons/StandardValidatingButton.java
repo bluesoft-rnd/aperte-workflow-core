@@ -205,4 +205,28 @@ public class StandardValidatingButton implements ProcessToolVaadinActionButton {
 	public void setLoggedUser(UserData loggedUser) {
 		this.loggedUser = loggedUser;
 	}
+
+    public Boolean getSkipSaving() {
+        return skipSaving;
+    }
+
+    public void setSkipSaving(Boolean skipSaving) {
+        this.skipSaving = skipSaving;
+    }
+
+    public Boolean getAutoHide() {
+        return autoHide;
+    }
+
+    public void setAutoHide(Boolean autoHide) {
+        this.autoHide = autoHide;
+    }
+
+    public Integer getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Integer priority) {
+        this.priority = priority;
+    }
 }

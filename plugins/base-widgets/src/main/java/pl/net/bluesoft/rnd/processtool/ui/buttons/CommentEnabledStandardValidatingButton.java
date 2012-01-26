@@ -173,4 +173,11 @@ public class CommentEnabledStandardValidatingButton extends StandardValidatingBu
 	}
 
 
+    public String getTestProperty() {
+        return testProperty;
+    }
+
+    public void setTestProperty(String testProperty) {
+        this.testProperty = testProperty;
+    }
 }

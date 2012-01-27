@@ -7,6 +7,11 @@ import com.vaadin.ui.*;
 public class PermissionWrapperForm extends Form implements FormFieldFactory {
 
     public PermissionWrapperForm() {
+        this(new PermissionWrapper());
+    }
+
+    public PermissionWrapperForm(PermissionWrapper permissionWrapper) {
+        setItemDataSource(new BeanItem<PermissionWrapper>(permissionWrapper));
         setFormFieldFactory(this);
     }
 
@@ -16,8 +21,8 @@ public class PermissionWrapperForm extends Form implements FormFieldFactory {
         PermissionWrapper permissionWrapper = beanItem.getBean();
 
         Field field = DefaultFieldFactory.get().createField(item, propertyId, uiContext);
-        if ("privilagedName".equals(propertyId)) {
-            field.setEnabled(permissionWrapper.isPrivilagedNameEditable());
+        if ("priviledgeName".equals(propertyId)) {
+            field.setEnabled(permissionWrapper.isPriviledgeNameEditable());
         }
 
         return field;

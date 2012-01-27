@@ -4,19 +4,26 @@ import pl.net.bluesoft.rnd.processtool.model.config.AbstractPermission;
 
 public class PermissionWrapper extends AbstractPermission {
 
-    private boolean privilagedNameEditable;
+    private boolean priviledgeNameEditable;
+
+    public PermissionWrapper() {
+    }
+
+    public PermissionWrapper(PermissionDefinition permissionDefinition) {
+        setPriviledgeName(permissionDefinition.getKey());
+    }
 
     public PermissionWrapper(AbstractPermission abstractPermission) {
         setPriviledgeName(abstractPermission.getPriviledgeName());
         setRoleName(abstractPermission.getRoleName());
     }
 
-    public boolean isPrivilagedNameEditable() {
-        return privilagedNameEditable;
+    public boolean isPriviledgeNameEditable() {
+        return priviledgeNameEditable;
     }
 
-    public void setPrivilagedNameEditable(boolean privilagedNameEditable) {
-        this.privilagedNameEditable = privilagedNameEditable;
+    public void setPriviledgeNameEditable(boolean priviledgeNameEditable) {
+        this.priviledgeNameEditable = priviledgeNameEditable;
     }
 
 

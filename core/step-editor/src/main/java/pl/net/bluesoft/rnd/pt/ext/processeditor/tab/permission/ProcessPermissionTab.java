@@ -12,9 +12,18 @@ public class ProcessPermissionTab extends VerticalLayout implements PermissionPr
 
     private PermissionPanel permissionPanel;
 
+    public ProcessPermissionTab() {
+        initComponent();
+    }
+
+    private void initComponent() {
+        permissionPanel = new PermissionPanel();
+
+    }
+
     @Override
     public Collection<AbstractPermission> getPermissions() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     @Override

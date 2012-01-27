@@ -1,6 +1,7 @@
 package org.aperteworkflow.ui.processadmin;
 
 import com.vaadin.Application;
+import com.vaadin.data.Property;
 import com.vaadin.event.FieldEvents;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.BaseTheme;
@@ -14,6 +15,8 @@ import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.*;
 import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.getLocalizedMessage;
@@ -26,12 +29,17 @@ import static pl.net.bluesoft.util.lang.StringUtil.hasText;
  */
 public class ProcessInstanceAdminManagerPane extends VerticalLayout implements VaadinUtility.HasRefreshButton {
 
+    private Logger logger = Logger.getLogger(ProcessInstanceAdminManagerPane.class.getName());
+    
     TextField searchField = new TextField(getLocalizedMessage("processinstances.search.prompt"));
+    CheckBox onlyActive = new CheckBox(getLocalizedMessage("processinstances.search.onlyActive"));
     VerticalLayout searchResults = new VerticalLayout();
+
     int offset = 0;
     int limit = 10;
     int cnt = 0;
     String filter = null;
+    Label errorLbl = new Label();
 
     public ProcessInstanceAdminManagerPane(Application application) {
         setWidth("100%");
@@ -44,11 +52,21 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements V
 
         addComponent(new Label(getLocalizedMessage("processinstances.console.info"), Label.CONTENT_XHTML));
 
+        onlyActive.setValue(true);
+        onlyActive.setImmediate(true);
+        onlyActive.addListener(new Property.ValueChangeListener() {
+            @Override
+            public void valueChange(Property.ValueChangeEvent event) {
+                offset = 0;
+                refreshData();
+            }
+        });
         searchField.setWidth("100%");
         searchField.setTextChangeTimeout(500);
         searchField.addListener(new FieldEvents.TextChangeListener() {
             @Override
             public void textChange(FieldEvents.TextChangeEvent textChangeEvent) {
+                offset = 0;
                 filter = textChangeEvent.getText();
                 refreshData();
             }
@@ -56,6 +74,9 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements V
         searchResults.setWidth("100%");
 
         addComponent(searchField);
+        addComponent(onlyActive);
+        addComponent(errorLbl);
+        
         addComponent(searchResults);
 
 
@@ -78,7 +99,7 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements V
         });
         hl.addComponent(prevButton);
 
-        hl.addComponent(new Label((offset + 1) + "-" + Math.min(offset + limit, cnt)));
+        hl.addComponent(new Label((offset + 1) + "-" + Math.min(offset + limit, offset+cnt)));
         Button nextButton = new Button(getLocalizedMessage("processinstances.console.tasks.next"));
         nextButton.setStyleName(BaseTheme.BUTTON_LINK);
         nextButton.setEnabled(limit < cnt);
@@ -86,7 +107,7 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements V
             @Override
             public void buttonClick(Button.ClickEvent event) {
                 offset += limit;
-                if (offset > cnt - 1) offset = cnt - 1;
+//                if (offset > cnt - 1) offset = cnt - 1;
                 refreshData();
             }
         });
@@ -97,17 +118,39 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements V
 
     @Override
     public void refreshData() {
-        Collection<ProcessInstance> processInstances = ProcessToolContext.Util.getProcessToolContextFromThread().getProcessInstanceDAO()
-                .searchProcesses(filter, offset, limit + 1);
-        cnt = processInstances.size();
         searchResults.removeAllComponents();
+        cnt = 0;
+        try {
+            if (filter == null || filter.trim().isEmpty()) {
+                errorLbl.setVisible(true);
+                errorLbl.setValue(getLocalizedMessage("processinstances.console.noresults"));
+                return;
+            }
+            List<ProcessInstance> processInstances = new ArrayList<ProcessInstance>(ProcessToolContext.Util.getProcessToolContextFromThread().getProcessInstanceDAO()
+                    .searchProcesses(filter, offset, limit + 1, (Boolean) onlyActive.getValue(), null));
+            cnt = processInstances.size();
+            if (processInstances.size() > limit) {
+                processInstances = processInstances.subList(0, limit);
+            }
+            if (cnt == 0) {
+                errorLbl.setVisible(true);
+                errorLbl.setValue(getLocalizedMessage("processinstances.console.noresults"));
+            } else {
+                errorLbl.setVisible(false);
+                Component navi = getNavigation();
+                searchResults.addComponent(navi);
+                searchResults.setComponentAlignment(navi, Alignment.TOP_RIGHT);
 
-        Component navi = getNavigation();
-        searchResults.addComponent(navi);
-        searchResults.setComponentAlignment(navi, Alignment.TOP_RIGHT);
-
-        for (ProcessInstance pi : processInstances) {
-            searchResults.addComponent(getProcessInstancePane(pi));
+                for (ProcessInstance pi : processInstances) {
+                    searchResults.addComponent(getProcessInstancePane(pi));
+                }
+            }
+        }
+        catch (Exception e) {
+            logger.log(Level.SEVERE, e.getMessage(), e);
+            errorLbl.setVisible(true);
+            errorLbl.setValue(getLocalizedMessage("processinstances.console.failed") + " " + e.getClass().getName() 
+                    + ": " + e.getMessage());
         }
 
 

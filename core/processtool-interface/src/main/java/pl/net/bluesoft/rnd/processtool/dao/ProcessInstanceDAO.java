@@ -21,7 +21,7 @@ public interface ProcessInstanceDAO {
 	Map<String,ProcessInstance> getProcessInstanceByInternalIdMap(List<String> internalId);
 	void deleteProcessInstance(ProcessInstance instance);
 	UserData findOrCreateUser(UserData ud);
-	List<ProcessInstance> getRecentProcesses(UserData userData, Calendar minDate);
+	List<ProcessInstance> getRecentProcesses(UserData userData, Calendar minDate, String filter, int offset, int limit);
 
-    Collection<ProcessInstance> searchProcesses(String filter, int offset, int i);
+    Collection<ProcessInstance> searchProcesses(String filter, int offset, int limit, boolean onlyRunning, String assignee, String... queues);
 }

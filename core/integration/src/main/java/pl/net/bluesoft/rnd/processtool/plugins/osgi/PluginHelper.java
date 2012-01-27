@@ -61,10 +61,17 @@ import pl.net.bluesoft.rnd.util.i18n.impl.PropertiesBasedI18NProvider;
 import pl.net.bluesoft.rnd.util.i18n.impl.PropertyLoader;
 
 public class PluginHelper implements PluginManager, SearchProvider {
+
+    public static final String AWF__ID = "__AWF__ID";
+    public static final String AWF__TYPE = "__AWF__TYPE";
+    public static final String PROCESS_INSTANCE = "PROCESS_INSTANCE";
     private String luceneDir;
     private Directory index;
     private IndexSearcher indexSearcher;
     private IndexReader indexReader;
+    private static final String AWF_RUNNING = "__AWF__running";
+    private static final String AWF__ASSIGNEE = "__AWF__assignee";
+    private static final String AWF__QUEUE = "__AWF__queue";
 
     
     
@@ -942,15 +949,15 @@ public class PluginHelper implements PluginManager, SearchProvider {
     @Override
     public void updateIndex(ProcessInstanceSearchData processInstanceSearchData) {
         Document doc = new Document();
-        doc.add(new Field("AWF__ID",
+        doc.add(new Field(AWF__ID,
                 String.valueOf(processInstanceSearchData.getProcessInstanceId()), 
                 Field.Store.YES,Field.Index.NOT_ANALYZED));
-        doc.add(new Field("AWF__TYPE", "PROCESS_INSTANCE", Field.Store.YES, Field.Index.NOT_ANALYZED));
+        doc.add(new Field(AWF__TYPE, PROCESS_INSTANCE, Field.Store.YES, Field.Index.NOT_ANALYZED));
         for (ProcessInstanceSearchAttribute attr : processInstanceSearchData.getSearchAttributes()) {
             if (attr.getValue() != null && !attr.getValue().trim().isEmpty()) {
                 Field field = new Field(attr.getName(),
                         attr.getValue(),
-                        Field.Store.NO,
+                        Field.Store.YES,
                         attr.isKeyword() ? Field.Index.NOT_ANALYZED : Field.Index.ANALYZED);
                 doc.add(field);
             }
@@ -959,26 +966,56 @@ public class PluginHelper implements PluginManager, SearchProvider {
     }
 
     @Override
-    public List<Long> searchProcesses(String query, int offset, int limit) {
-        List<Document> results = search(query, offset, limit);
+    public List<Long> searchProcesses(String query, int offset, int limit, boolean onlyRunning, String assignee, String... queues) {
+
+        List<Document> results;
+        List<TermQuery> addQueries = new ArrayList<TermQuery>();
+        if (assignee != null) {
+            addQueries.add(new TermQuery(new Term(AWF__ASSIGNEE, assignee)));            
+        }
+        if (queues != null) for (String queue : queues) {
+            addQueries.add(new TermQuery(new Term(AWF__QUEUE, queue)));
+        }
+        if (onlyRunning) {
+            addQueries.add(new TermQuery(new Term(AWF_RUNNING, String.valueOf(true))));
+        }
+
+        results = search(query, 0, 1000, addQueries.toArray(new TermQuery[addQueries.size()]));
+        //always check 1000 first results - larger limit means no sense and Lucene provides the results
+        //with no sort guarantees (the same result can appear on two pages)
+
         List<Long> res = new ArrayList<Long>(results.size());
         for (Document doc : results) {
-            res.add(Long.parseLong(doc.getFieldable("AWF__ID").stringValue()));
+            Fieldable fieldable = doc.getFieldable(AWF__ID);
+            if (fieldable != null) {
+                String s = fieldable.stringValue();
+                if (s != null) {
+                    res.add(Long.parseLong(s));
+                }
+            }
         }
-        return res;
+        Collections.sort(res);
+        Collections.reverse(res);
+        return res.subList(offset, Math.min(offset+limit, res.size()));
+//        return res;
     }
     
-    public List<Document> search(String query, int offset, int limit) {
+    public List<Document> search(String query, int offset, int limit, Query... addQueries) {
         try {
             LOGGER.info("Parsing lucene search query: " + query);
             QueryParser qp = new QueryParser(Version.LUCENE_35, "all", new StandardAnalyzer(Version.LUCENE_35));
+//            qp.setDefaultOperator(QueryParser.Operator.AND);
             Query q = qp.parse(query);
             BooleanQuery bq = new BooleanQuery();
-            bq.add(q, BooleanClause.Occur.MUST);
-            bq.add(new TermQuery(new Term("AWF__TYPE", "PROCESS_INSTANCE")),
+            bq.add(new TermQuery(new Term(AWF__TYPE, PROCESS_INSTANCE)),
                     BooleanClause.Occur.MUST);
-            LOGGER.info("Searching lucene index with query: " + bq.toString());            
-            TopDocs search = indexSearcher.search(q, offset + limit);
+            for (Query qq : addQueries) {
+                bq.add(qq, BooleanClause.Occur.MUST);
+            }
+            bq.add(q, BooleanClause.Occur.MUST);
+            
+            LOGGER.info("Searching lucene index with query: " + bq.toString());
+            TopDocs search = indexSearcher.search(bq, offset + limit);
             List<Document> results = new ArrayList<Document>(limit);
             LOGGER.info("Total result count for query: " + bq.toString() + " is " + search.totalHits);
             for (int i = offset; i < offset+limit && i < search.totalHits; i++) {
@@ -998,14 +1035,14 @@ public class PluginHelper implements PluginManager, SearchProvider {
             IndexWriterConfig cfg = new IndexWriterConfig(Version.LUCENE_35, new StandardAnalyzer(Version.LUCENE_35));
             IndexWriter indexWriter = new IndexWriter(index, cfg);
             for (Document doc : docs) {
-                LOGGER.info("Updating index for document: " + doc.getFieldable("AWF__ID"));
-                indexWriter.deleteDocuments(new Term("AWF__ID", doc.getFieldable("AWF__ID").stringValue()));
-                StringBuffer all = new StringBuffer();
+                LOGGER.info("Updating index for document: " + doc.getFieldable(AWF__ID));
+                indexWriter.deleteDocuments(new Term(AWF__ID, doc.getFieldable(AWF__ID).stringValue()));
+                StringBuilder all = new StringBuilder();
                 for (Fieldable f : doc.getFields()) {
                     all.append(f.stringValue());
                     all.append(' ');
                 }
-                LOGGER.fine("Updated field all for "+ doc.getFieldable("AWF__ID") + " with value: " + all);
+                LOGGER.fine("Updated field all for "+ doc.getFieldable(AWF__ID) + " with value: " + all);
                 doc.add(new Field("all", all.toString(), Field.Store.NO, Field.Index.ANALYZED));
             }
             indexWriter.addDocuments(Arrays.asList(docs));
@@ -1013,7 +1050,6 @@ public class PluginHelper implements PluginManager, SearchProvider {
             indexWriter.commit();
             indexWriter.close();
             LOGGER.info("reindexing Lucene... DONE!");
-
             
             indexReader = IndexReader.open(index);
             indexSearcher = new IndexSearcher(indexReader);

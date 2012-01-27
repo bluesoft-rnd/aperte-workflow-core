@@ -76,14 +76,6 @@ public class QueueListPane extends ProcessListPane {
 						if (processInstance != null) {
 							getApplication().getMainWindow().showNotification(getMessage("process-tool.task.assigned"),
 							                                                  Window.Notification.TYPE_HUMANIZED_MESSAGE);
-//							Window w = new Window(tti.internalId);
-//							w.setContent(new ProcessDataPane(getApplication(),
-//							                                 activityMainPane.getBpmSession(),
-//							                                 activityMainPane.getI18NSource(),
-//							                                 tti.processInstance, w));
-//							w.center();
-//							getWindow().addWindow(w);
-//							w.focus();
 							displayProcessData(pi);
 
 
@@ -110,8 +102,14 @@ public class QueueListPane extends ProcessListPane {
         activityMainPane.displayProcessData(processInstance);        
     }
 
-	protected List<ProcessInstance> getProcessInstances() {
+	protected List<ProcessInstance> getProcessInstances(String filterExpression, int offset, int limit) {
 		if (q == null) return new ArrayList();
-		return new ArrayList(getBpmSession().getQueueContents(q, 0, 1000, ProcessToolContext.Util.getProcessToolContextFromThread()));
+        if (filterExpression == null || filterExpression.trim().isEmpty()) {
+            return new ArrayList(getBpmSession().getQueueContents(q, offset, limit,
+                    ProcessToolContext.Util.getProcessToolContextFromThread()));
+        } else {
+            return new ArrayList<ProcessInstance>(ProcessToolContext.Util.getProcessToolContextFromThread().getProcessInstanceDAO()
+                                .searchProcesses(filterExpression, offset, limit, true, null, q.getName()));
+        }
 	}
 }

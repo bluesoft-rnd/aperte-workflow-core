@@ -23,6 +23,7 @@ import java.util.*;
 import static org.hibernate.criterion.Restrictions.eq;
 import static org.hibernate.criterion.Restrictions.in;
 import static pl.net.bluesoft.util.lang.FormatUtil.formatShortDate;
+import static pl.net.bluesoft.util.lang.FormatUtil.join;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -93,9 +94,28 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
         }
         for (ProcessInstanceAttribute attr : processInstance.getProcessAttributes()) {
             if (attr instanceof Searchable) {
-                searchData.addSearchAttributes(((Searchable) attr).getAttributes());
+                Collection<ProcessInstanceSearchAttribute> attributes = ((Searchable) attr).getAttributes();
+                for (ProcessInstanceSearchAttribute pisa : attributes) {
+                    if (pisa.getName().startsWith("__AWF__")) { //no cheating please!
+                        String newName = pisa.getName().replace("__AWF__", "");
+                        logger.severe("Renaming process provided attribute " + pisa.getName() + " to " + newName +
+                                " as it may clash with internal search attributes. PLEASE CORRECT PROCESS DEFINITION.");
+                        pisa.setName(newName);
+                    }
+                }
+                searchData.addSearchAttributes(attributes);
             }
         }
+        for (String assignee : processInstance.getAssignees()) {
+            searchData.addSearchAttribute("__AWF__assignee", assignee, true);
+            logger.info("__AWF__assignee: "+ assignee);
+        }
+        for (String queue : processInstance.getTaskQueues()) {
+            searchData.addSearchAttribute("__AWF__queue", queue, true);
+            logger.info("__AWF__queue: "+ queue);
+        }
+        searchData.addSearchAttribute("__AWF__running", String.valueOf(processInstance.getRunning()), true);
+
         logger.warning("Prepare data for Lucene index update for" + processInstance + " took "
                 + (System.currentTimeMillis()-time) + " ms");
         time = System.currentTimeMillis();
@@ -178,7 +198,8 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
 	}
 
 	@Override
-	public List<ProcessInstance> getRecentProcesses(UserData userData, Calendar minDate) {
+	public List<ProcessInstance> getRecentProcesses(UserData userData, Calendar minDate, 
+                                                    String filter, int offset, int limit) {
 		List<Long> list = session.createCriteria(ProcessInstance.class)
 				.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
 				.setProjection(Projections.distinct(Projections.property("id")))
@@ -191,13 +212,24 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
                         Restrictions.eq("u.id", userData.getId()),
                         Restrictions.eq("us.id", userData.getId())))
 				.setMaxResults(100).list();
-
-		return getProcessInstancesByIds(list);
+        if (filter != null && !filter.trim().isEmpty()) {
+            String query = "+__AWF__ID:(" + join(list, " ")+") +(" + filter + ")";
+            return new ArrayList<ProcessInstance>(searchProcesses(query, offset, limit, false, null));
+        } else {
+		    return getProcessInstancesByIds(list);
+        }
 	}
 
     @Override
-    public Collection<ProcessInstance> searchProcesses(String filter, int offset, int limit) {
-        List<Long> processIds = searchProvider.searchProcesses(filter, offset, limit);
-        return getProcessInstancesByIds(processIds);
+    public Collection<ProcessInstance> searchProcesses(String filter, int offset, int limit, boolean onlyRunning, String assignee, String... queues) {
+        List<Long> processIds = searchProvider.searchProcesses(filter, offset, limit, onlyRunning, assignee, queues);
+        List<ProcessInstance> processInstancesByIds = getProcessInstancesByIds(processIds);
+        Collections.sort(processInstancesByIds, new Comparator<ProcessInstance>() {
+            @Override
+            public int compare(ProcessInstance o1, ProcessInstance o2) {
+                return o2.getId().compareTo(o1.getId());
+            }
+        });
+        return processInstancesByIds;
     }
 }

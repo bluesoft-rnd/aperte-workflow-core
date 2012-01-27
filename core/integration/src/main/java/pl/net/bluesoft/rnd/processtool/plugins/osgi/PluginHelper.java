@@ -1,5 +1,6 @@
 package pl.net.bluesoft.rnd.processtool.plugins.osgi;
 
+import static pl.net.bluesoft.util.lang.FormatUtil.join;
 import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 
 import java.io.*;
@@ -50,6 +51,8 @@ public class PluginHelper implements PluginManager, SearchProvider {
 
     public static final String AWF__ID = "__AWF__ID";
     public static final String AWF__TYPE = "__AWF__TYPE";
+    public static final String AWF__ROLE = "__AWF__ROLE";
+
     public static final String PROCESS_INSTANCE = "PROCESS_INSTANCE";
     private String luceneDir;
     private Directory index;
@@ -645,7 +648,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
         for (ProcessInstanceSearchAttribute attr : processInstanceSearchData.getSearchAttributes()) {
             if (attr.getValue() != null && !attr.getValue().trim().isEmpty()) {
                 Field field = new Field(attr.getName(),
-                        attr.getValue(),
+                        attr.isKeyword() ? attr.getValue().toLowerCase() : attr.getValue(),
                         Field.Store.YES,
                         attr.isKeyword() ? Field.Index.NOT_ANALYZED : Field.Index.ANALYZED);
                 doc.add(field);
@@ -655,10 +658,12 @@ public class PluginHelper implements PluginManager, SearchProvider {
     }
 
     @Override
-    public List<Long> searchProcesses(String query, int offset, int limit, boolean onlyRunning, String assignee, String... queues) {
+    public List<Long> searchProcesses(String query, int offset, int limit, boolean onlyRunning,
+                                      String[] userRoles,
+                                      String assignee, String... queues) {
 
         List<Document> results;
-        List<TermQuery> addQueries = new ArrayList<TermQuery>();
+        List<Query> addQueries = new ArrayList<Query>();
         if (assignee != null) {
             addQueries.add(new TermQuery(new Term(AWF__ASSIGNEE, assignee)));            
         }
@@ -669,7 +674,22 @@ public class PluginHelper implements PluginManager, SearchProvider {
             addQueries.add(new TermQuery(new Term(AWF_RUNNING, String.valueOf(true))));
         }
 
-        results = search(query, 0, 1000, addQueries.toArray(new TermQuery[addQueries.size()]));
+        if (userRoles != null) {
+//            Set<String> roleNames = new HashSet<String>();
+            BooleanQuery bq = new BooleanQuery();
+            bq.add(new TermQuery(new Term(AWF__ROLE, "__AWF__ROLE_ALL".toLowerCase())), BooleanClause.Occur.SHOULD);
+//            addQueries.add(new TermQuery(new Term(AWF__ROLE, "__AWF__ROLE_ALL".toLowerCase())));
+            for (String roleName : userRoles) {
+//                roleNames.add(roleName.replace(' ', '_').toLowerCase());
+//                addQueries.add(new TermQuery(new Term(AWF__ROLE, roleName.replace(' ', '_').toLowerCase())));
+                bq.add(new TermQuery(new Term(AWF__ROLE, roleName.replace(' ', '_').toLowerCase())),
+                        BooleanClause.Occur.SHOULD);
+            }
+            addQueries.add(bq);
+//            addQueries.add(new TermQuery(new Term(AWF__ROLE, "(" + join(roleNames, " ") + ")")));
+//            query = "+(" + query + ") +" +new TermQuery(new Term(AWF__ROLE, "(" + join(roleNames, " ") + ")"));
+        }
+        results = search(query, 0, 1000, addQueries.toArray(new Query[addQueries.size()]));
         //always check 1000 first results - larger limit means no sense and Lucene provides the results
         //with no sort guarantees (the same result can appear on two pages)
 
@@ -693,11 +713,9 @@ public class PluginHelper implements PluginManager, SearchProvider {
         try {
             LOGGER.info("Parsing lucene search query: " + query);
             QueryParser qp = new QueryParser(Version.LUCENE_35, "all", new StandardAnalyzer(Version.LUCENE_35));
-//            qp.setDefaultOperator(QueryParser.Operator.AND);
             Query q = qp.parse(query);
             BooleanQuery bq = new BooleanQuery();
-            bq.add(new TermQuery(new Term(AWF__TYPE, PROCESS_INSTANCE)),
-                    BooleanClause.Occur.MUST);
+            bq.add(new TermQuery(new Term(AWF__TYPE, PROCESS_INSTANCE)), BooleanClause.Occur.MUST);
             for (Query qq : addQueries) {
                 bq.add(qq, BooleanClause.Occur.MUST);
             }
@@ -705,6 +723,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
             
             LOGGER.info("Searching lucene index with query: " + bq.toString());
             TopDocs search = indexSearcher.search(bq, offset + limit);
+
             List<Document> results = new ArrayList<Document>(limit);
             LOGGER.info("Total result count for query: " + bq.toString() + " is " + search.totalHits);
             for (int i = offset; i < offset+limit && i < search.totalHits; i++) {

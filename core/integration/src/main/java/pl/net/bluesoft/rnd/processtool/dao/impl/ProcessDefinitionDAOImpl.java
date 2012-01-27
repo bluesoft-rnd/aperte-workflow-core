@@ -143,6 +143,9 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 
 		Set<ProcessStateWidget> newWidgets = newState.getWidgets();
 		Set<ProcessStateWidget> oldWidgets = oldState.getWidgets();
+
+        if (!comparePermissions(oldState.getPermissions(), newState.getPermissions())) return false;
+
 		return compareWidgets(newWidgets, oldWidgets);
 
 

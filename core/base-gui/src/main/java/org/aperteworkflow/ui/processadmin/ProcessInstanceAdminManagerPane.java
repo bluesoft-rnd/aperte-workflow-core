@@ -127,7 +127,7 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements V
                 return;
             }
             List<ProcessInstance> processInstances = new ArrayList<ProcessInstance>(ProcessToolContext.Util.getProcessToolContextFromThread().getProcessInstanceDAO()
-                    .searchProcesses(filter, offset, limit + 1, (Boolean) onlyActive.getValue(), null));
+                    .searchProcesses(filter, offset, limit + 1, (Boolean) onlyActive.getValue(), null, null));
             cnt = processInstances.size();
             if (processInstances.size() > limit) {
                 processInstances = processInstances.subList(0, limit);

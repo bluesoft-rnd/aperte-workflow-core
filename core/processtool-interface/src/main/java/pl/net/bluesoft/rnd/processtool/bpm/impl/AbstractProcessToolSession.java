@@ -249,4 +249,9 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
         }
         return false;
     }
+
+    @Override
+    public Collection<String> getRoleNames() {
+        return roleNames;
+    }
 }

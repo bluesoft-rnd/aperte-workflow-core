@@ -5,9 +5,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.BaseTheme;
-
 import pl.net.bluesoft.rnd.poutils.DateUtil;
-import pl.net.bluesoft.rnd.poutils.cquery.Selectors;
 import pl.net.bluesoft.rnd.poutils.cquery.func.F;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent;
@@ -16,14 +14,12 @@ import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.UserSubstitution;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
-import pl.net.bluesoft.rnd.util.liferay.LiferayBridge;
 import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.HasRefreshButton;
 import pl.net.bluesoft.util.eventbus.EventListener;
 
 import java.util.*;
 
 import static pl.net.bluesoft.rnd.poutils.cquery.CQuery.from;
-import static pl.net.bluesoft.rnd.poutils.cquery.Selectors.identity;
 import static pl.net.bluesoft.rnd.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
 import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.horizontalLayout;
 import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.refreshIcon;

@@ -109,6 +109,10 @@ public class VaadinUtility {
         return l;
     }
 
+    public static Label htmlLabel(String message) {
+        return new Label(message, Label.CONTENT_XHTML);
+    }
+
     public static HorizontalLayout horizontalLayout(com.vaadin.ui.Component c1, com.vaadin.ui.Component c2) {
         HorizontalLayout hl = new HorizontalLayout();
         hl.setWidth("100%");
@@ -277,8 +281,13 @@ public class VaadinUtility {
     }
 
     public static Button linkButton(String caption, final Runnable onClick) {
-        Button b = new Button(caption);
+        Button b = button(caption, onClick);
         b.setStyleName(Reindeer.BUTTON_LINK);
+        return b;
+    }
+    
+    public static Button button(String caption, final Runnable onClick) {
+        Button b = new Button(caption);
         b.addListener(new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent event) {

@@ -50,6 +50,7 @@
         <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueRight"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessStatePermission"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidgetAttribute"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessStateActionAttribute"/>

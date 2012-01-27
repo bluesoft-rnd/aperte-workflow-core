@@ -64,4 +64,6 @@ public interface ProcessToolBpmSession {
     List<String> getOutgoingTransitionNames(String internalId, ProcessToolContext ctx);
         
     ProcessToolBpmSession createSession(UserData user, Collection<String> roleNames, ProcessToolContext ctx);
+
+    Collection<String> getRoleNames();
 }

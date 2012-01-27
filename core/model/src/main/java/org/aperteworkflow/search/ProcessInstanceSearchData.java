@@ -40,6 +40,12 @@ public class ProcessInstanceSearchData {
             addSearchAttribute(new ProcessInstanceSearchAttribute(attr[0], attr[1]));
         }
     }
+    public void addSearchAttribute(String name, String value) {
+        addSearchAttribute(new ProcessInstanceSearchAttribute(name, value));
+    }
+    public void addSearchAttribute(String name, String value, boolean keyword) {
+        addSearchAttribute(new ProcessInstanceSearchAttribute(name, value, keyword));
+    }
     public void addSearchAttribute(ProcessInstanceSearchAttribute... searchAttributes) {
         Collections.addAll(this.searchAttributes, searchAttributes);
     }

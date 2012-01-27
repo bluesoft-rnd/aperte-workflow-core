@@ -7,9 +7,11 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
+
 /**
  * Entity representing process instance data. It should be persisted in appropriate database.
- * Custom processes can reference/extend this class.
+ * Custom processes can reference this class.
  *
  * @author tlipski@bluesoft.net.pl
  */
@@ -26,6 +28,12 @@ public class ProcessInstance extends PersistentEntity {
 
 	@Transient
 	private String taskId;
+    @Transient
+    private String[] assignees;
+    @Transient
+    private String[] taskQueues;
+    
+    private Boolean running;
 
 	private Date createDate;
 
@@ -234,4 +242,27 @@ public class ProcessInstance extends PersistentEntity {
     }
 
 
+    public String[] getAssignees() {
+        return nvl(assignees, new String[] { });
+    }
+
+    public void setAssignees(String... assignees) {
+        this.assignees = assignees;
+    }
+
+    public String[] getTaskQueues() {
+        return nvl(taskQueues, new String[] { });
+    }
+
+    public void setTaskQueues(String... taskQueues) {
+        this.taskQueues = taskQueues;
+    }
+
+    public Boolean getRunning() {
+        return nvl(running,true);
+    }
+
+    public void setRunning(Boolean running) {
+        this.running = running;
+    }
 }

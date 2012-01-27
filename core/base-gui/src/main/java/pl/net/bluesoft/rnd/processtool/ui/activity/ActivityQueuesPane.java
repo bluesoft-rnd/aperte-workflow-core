@@ -72,9 +72,11 @@ public class ActivityQueuesPane extends Panel implements HasRefreshButton {
                 processToolContextFromThread,
                 null
         ));
+//        this feature will be replaced by process search ability
 		taskList.addComponent(createRecentTasksButton(user, processToolContextFromThread));
 
-		final List<ProcessQueue> userAvailableQueues = new ArrayList(bpmSession.getUserAvailableQueues(processToolContextFromThread));
+		final List<ProcessQueue> userAvailableQueues =
+                new ArrayList<ProcessQueue>(bpmSession.getUserAvailableQueues(processToolContextFromThread));
 
         Collections.sort(userAvailableQueues, new Comparator<ProcessQueue>() {
 			public int compare(ProcessQueue o1, ProcessQueue o2) {
@@ -85,6 +87,8 @@ public class ActivityQueuesPane extends Panel implements HasRefreshButton {
 		for (ProcessQueue q : userAvailableQueues) {
 			taskList.addComponent(createQueueButton(q, bpmSession, null));
 		}
+/*
+        user substitutions require more analysis
 
         List<UserData> substitutedUsers = getSubstitutedUsers(user, new Date());
         Map<UserData, ProcessToolBpmSession> substitutedUserToSession = from(substitutedUsers)
@@ -130,7 +134,7 @@ public class ActivityQueuesPane extends Panel implements HasRefreshButton {
                     map.get(queueName).get(0).bpmSession,
                     map.get(queueName).get(0).user
             ));
-		}                   
+		}   */
 	}
 
     private static class QueueUserSession {
@@ -166,7 +170,7 @@ public class ActivityQueuesPane extends Panel implements HasRefreshButton {
         final Calendar minDate = Calendar.getInstance();
 		minDate.add(Calendar.DAY_OF_YEAR, -5);
 		List<ProcessInstance> recentProcesses = ctx.getProcessInstanceDAO()
-				.getRecentProcesses(user, minDate);
+				.getRecentProcesses(user, minDate, null, 0, 100);
 		Button b = new Button(getMessage("activity.recent.tasks") + " (" + recentProcesses.size() + ")");
 		b.setStyleName(BaseTheme.BUTTON_LINK);
 		b.setEnabled(recentProcesses.size() > 0);

@@ -13,5 +13,5 @@ import java.util.List;
 public interface SearchProvider {
 
     void updateIndex(ProcessInstanceSearchData processInstanceSearchData);
-    List<Long> searchProcesses(String query, int offset, int limit);
+    List<Long> searchProcesses(String query, int offset, int limit, boolean onlyRunning, String assignee, String... queues);
 }

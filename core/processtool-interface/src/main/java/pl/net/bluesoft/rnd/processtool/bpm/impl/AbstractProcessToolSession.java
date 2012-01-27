@@ -179,7 +179,6 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
     @Override
     public void saveProcessInstance(ProcessInstance processInstance, ProcessToolContext ctx) {
         ctx.getProcessInstanceDAO().saveProcessInstance(processInstance);
-
     }
 
     protected abstract ProcessInstance startProcessInstance(ProcessDefinitionConfig config, String externalKey,

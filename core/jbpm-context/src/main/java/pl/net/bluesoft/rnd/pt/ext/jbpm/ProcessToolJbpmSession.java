@@ -1,12 +1,11 @@
 package pl.net.bluesoft.rnd.pt.ext.jbpm;
 
 import org.hibernate.Query;
-import org.jbpm.api.ExecutionService;
-import org.jbpm.api.IdentityService;
-import org.jbpm.api.ProcessEngine;
+import org.jbpm.api.*;
 import org.jbpm.api.cmd.Command;
 import org.jbpm.api.cmd.Environment;
 import org.jbpm.api.identity.User;
+import org.jbpm.api.task.Participation;
 import org.jbpm.api.task.Task;
 import org.jbpm.pvm.internal.model.ExecutionImpl;
 import org.jbpm.pvm.internal.model.Transition;
@@ -20,6 +19,7 @@ import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.bpm.exception.ProcessToolSecurityException;
 import pl.net.bluesoft.rnd.processtool.bpm.impl.AbstractProcessToolSession;
 import pl.net.bluesoft.rnd.processtool.model.*;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
@@ -41,8 +41,6 @@ import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 public class ProcessToolJbpmSession extends AbstractProcessToolSession {
 
 	protected Logger log = Logger.getLogger(ProcessToolJbpmSession.class.getName());
-
-//	private ProcessEngine processEngine;// = new Configuration().buildProcessEngine();
 
 	public ProcessToolJbpmSession(UserData user, Collection<String> roleNames, ProcessToolContext ctx) {
 		super(user, roleNames);
@@ -177,6 +175,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
 		List<Task> taskList = getProcessEngine(ctx).getTaskService().createTaskQuery()
 				.notSuspended()
 				.assignee(user.getLogin())
+                .orderDesc("executionId")
 				.page(offset, limit).list();
 
 		List<String> ids = keyFilter("executionId", taskList);
@@ -334,6 +333,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
 		log.setAdditionalInfo(pq.getDescription());
 		pi2.addProcessLog(log);
 
+        fillProcessAssignmentData(processEngine, pi2, ctx);
 		ctx.getProcessInstanceDAO().saveProcessInstance(pi2);
 
 		eventBusManager.publish(new BpmEvent(BpmEvent.Type.ASSIGN_PROCESS,
@@ -345,6 +345,25 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
 
 		return pi2;
 	}
+
+    private void fillProcessAssignmentData(final ProcessEngine processEngine, final ProcessInstance pi, ProcessToolContext ctx) {
+        Set<String> assignees = new HashSet<String>();
+        Set<String> queues = new HashSet<String>();       
+        TaskService taskService = processEngine.getTaskService();
+        for (Task t : findProcessTasks(pi, ctx, false)) {
+            if (t.getAssignee() != null) {
+                assignees.add(t.getAssignee());
+            } else { //some optimization could be possible
+                for (Participation participation : taskService.getTaskParticipations(t.getId())) {
+                    if ("candidate".equals(participation.getType())) {
+                        queues.add(participation.getGroupId());
+                    }
+                }
+            }
+        }
+        pi.setAssignees(assignees.toArray(new String[assignees.size()]));
+        pi.setTaskQueues(queues.toArray(new String[queues.size()]));
+    }
 
 	@Override()
 	public Collection<BpmTask> getTaskList(ProcessInstance pi, final ProcessToolContext ctx) {
@@ -404,7 +423,11 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
 		return getProcessEngine(ctx).execute(cmd);
 	}
 
-	private List<Task> findProcessTasks(final ProcessInstance processInstance, ProcessToolContext ctx) {
+    private List<Task> findProcessTasks(final ProcessInstance processInstance, ProcessToolContext ctx) {
+        return findProcessTasks(processInstance, ctx, true);
+    }
+	private List<Task> findProcessTasks(final ProcessInstance processInstance, ProcessToolContext ctx,
+                                        final boolean mustHaveAssignee) {
 		Command<List<Task>> cmd = new Command<List<Task>>() {
 			@Override
 			public List<Task> execute(Environment environment) throws Exception {
@@ -428,7 +451,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
 						hql.append(TaskImpl.class.getName());
 						hql.append(" as task ");
 						hql.append("where executionId in (:executionId) ");
-						hql.append("and task.assignee is not null ");
+						if (mustHaveAssignee) hql.append("and task.assignee is not null ");
 
 						return hql.toString();
 
@@ -514,8 +537,10 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
 		processInstance.addProcessLog(log);
 		ctx.getProcessInstanceDAO().saveProcessInstance(processInstance);
 
-		getProcessEngine(ctx).getTaskService().completeTask(task.getId(), action.getBpmName());
+        ProcessEngine processEngine = getProcessEngine(ctx);
+        processEngine.getTaskService().completeTask(task.getId(), action.getBpmName());
 		String s = getProcessState(processInstance, ctx);
+        fillProcessAssignmentData(processEngine, processInstance, ctx);
 		if (s != null) {
 			processInstance.setState(s);
 			ctx.getProcessInstanceDAO().saveProcessInstance(processInstance);
@@ -525,7 +550,20 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
 			ctx.getEventBusManager().publish(new BpmEvent(BpmEvent.Type.SIGNAL_PROCESS,
 			                                              processInstance,
 			                                              user));
-		}
+		} else {
+            if (processInstance.getRunning() && !isProcessRunning(processInstance.getInternalId(), ctx)) {
+                processInstance.setRunning(false);
+                ctx.getProcessInstanceDAO().saveProcessInstance(processInstance);
+                eventBusManager.publish(new BpmEvent(BpmEvent.Type.END_PROCESS,
+                			                                     processInstance,
+                			                                     user));
+                ctx.getEventBusManager().publish(new BpmEvent(BpmEvent.Type.END_PROCESS,
+                                                              processInstance,
+                                                              user));
+
+            }
+
+        }
 		return processInstance;
 	}
 
@@ -544,7 +582,8 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
 	                                               String externalKey,
 	                                               ProcessToolContext ctx,
 	                                               ProcessInstance pi) {
-		final ExecutionService execService = getProcessEngine(ctx).getExecutionService();
+        ProcessEngine processEngine = getProcessEngine(ctx);
+        final ExecutionService execService = processEngine.getExecutionService();
 		Map vars = new HashMap();
 		vars.put("processInstanceId", String.valueOf(pi.getId()));
 		vars.put("initiator", user.getLogin());
@@ -561,7 +600,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
 		                                                                              vars,
 		                                                                              externalKey);
 		pi.setInternalId(instance.getId());
-
+        fillProcessAssignmentData(processEngine, pi, ctx);
 		return pi;
 	}
 

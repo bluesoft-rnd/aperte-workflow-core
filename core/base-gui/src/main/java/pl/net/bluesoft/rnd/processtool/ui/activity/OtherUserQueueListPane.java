@@ -17,7 +17,7 @@ public class OtherUserQueueListPane extends QueueListPane {
     private ProcessToolBpmSession bmpSession;
 
     public OtherUserQueueListPane(ActivityMainPane activityMainPane, String title, ProcessQueue q, UserData userData) {
-		super(activityMainPane, title, q, false); // konstruktor tego czegos robi mnostwo rzeczy bazujacych na tym ze podklasa jest w pelnizainicjowana!!!
+		super(activityMainPane, title, q, false);
 		this.userData = userData;
         init(title);
 	}

@@ -103,6 +103,7 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
 
     public ProcessStateConfiguration getProcessStateConfiguration(ProcessInstance pi, ProcessToolContext ctx) {
         ProcessStateConfiguration configuration = ctx.getProcessDefinitionDAO().getProcessStateConfiguration(pi);
+        if (configuration == null) return null;
         ProcessStateConfiguration res = new ProcessStateConfiguration();
         res.setDescription(configuration.getDescription());
         res.setCommentary(configuration.getCommentary());

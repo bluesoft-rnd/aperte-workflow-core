@@ -66,6 +66,7 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements V
                 refreshData();
             }
         });
+        searchField.focus();
         searchField.setWidth("100%");
         searchField.setTextChangeTimeout(500);
         searchField.addListener(new FieldEvents.TextChangeListener() {
@@ -211,41 +212,29 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements V
         vl.addComponent(history);
 
         List<BpmTask> taskList = 
-                new ArrayList<BpmTask>(bpmSession.getTaskList(pi, ProcessToolContext.Util.getProcessToolContextFromThread()));
+                new ArrayList<BpmTask>(bpmSession.getTaskList(pi,
+                        ProcessToolContext.Util.getProcessToolContextFromThread(),
+                        false));
         for (final BpmTask task : taskList) {
-            vl.addComponent(
-                  hl(
-                          width(new Label(getLocalizedMessage("processinstances.console.entry.state") + " " +
-                                  task.getTaskName() + ", " + task.getInternalTaskId()),
-                                  "50%"),
-                          width(new Label(getLocalizedMessage("processinstances.console.entry.owner") + " " + 
-                                  (task.getOwner() != null ? task.getOwner().getLogin() : "NIL")),
-                                  "50%")
-                  ));
+            vl.addComponent(getTaskStateComponent(pi, task));
             ProcessStateConfiguration cfg = bpmSession.getProcessStateConfiguration(pi, ProcessToolContext.Util.getProcessToolContextFromThread());
             if (cfg != null && !cfg.getActions().isEmpty()) {
                 vl.addComponent(new Label(getLocalizedMessage("processinstances.console.entry.available-actions")));
                 HorizontalLayout hl = new HorizontalLayout();
                 hl.setSpacing(true);
                 for (final ProcessStateAction psa : cfg.getActions()) {
-                    hl.addComponent(linkButton(getLocalizedMessage(nvl(psa.getLabel(), psa.getBpmName())),
-                            confirmable(getApplication(), getLocalizedMessage("processinstances.console.force-action.confirm.title"),
-                                    getLocalizedMessage(nvl(psa.getDescription(), psa.getLabel(), psa.getBpmName())),
-                                    new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            bpmSession.adminCompleteTask(pi, task, psa);
-                                            refreshData();
-                                            Window.Notification n = new Window.Notification(getLocalizedMessage("processinstances.console.force-action.success"));
-                                            n.setDelayMsec(-1);
-                                            getApplication().getMainWindow().showNotification(n);
-                                        }
-                                    })));
+                    hl.addComponent(getActionForceButton(pi, task, psa));
                 }
                 vl.addComponent(hl);
             }
         }
-        vl.addComponent(linkButton(getLocalizedMessage("processinstances.console.cancel-process"),
+        vl.addComponent(getCancelProcessButton(pi));
+      
+        return vl;
+    }
+
+    private Button getCancelProcessButton(final ProcessInstance pi) {
+        Button button = linkButton(getLocalizedMessage("processinstances.console.cancel-process"),
                 confirmable(getApplication(),
                         getLocalizedMessage("processinstances.console.cancel-process.confirm.title"),
                         getLocalizedMessage("processinstances.console.cancel-process.confirm.message"),
@@ -256,12 +245,122 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements V
                                 refreshData();
                                 Window.Notification n =
                                         new Window.Notification(getLocalizedMessage("processinstances.console.cancel-process.success"));
-                                n.setDelayMsec(-1);
+                                n.setDelayMsec(5000);
                                 getApplication().getMainWindow().showNotification(n);
                             }
-                        })));
-      
-        return vl;
+                        }));
+        button.setEnabled(pi.getRunning());
+        return button;
+    }
+
+    private Button getActionForceButton(final ProcessInstance pi, final BpmTask task, final ProcessStateAction psa) {
+        return linkButton(getLocalizedMessage(nvl(psa.getLabel(), psa.getBpmName())),
+                confirmable(getApplication(), getLocalizedMessage("processinstances.console.force-action.confirm.title"),
+                        getLocalizedMessage(nvl(psa.getDescription(), psa.getLabel(), psa.getBpmName())),
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                bpmSession.adminCompleteTask(pi, task, psa);
+                                refreshData();
+                                Window.Notification n = new Window.Notification(getLocalizedMessage("processinstances.console.force-action.success"));
+                                n.setDelayMsec(5000);
+                                getApplication().getMainWindow().showNotification(n);
+                            }
+                        }));
+    }
+
+    private HorizontalLayout getTaskStateComponent(final ProcessInstance pi, final BpmTask task) {
+        HorizontalLayout hl = hl(new Label(getLocalizedMessage("processinstances.console.entry.state") + " " +
+                task.getTaskName() + ", " + task.getInternalTaskId()));
+
+        if (task.getOwner() != null)
+            hl.addComponent(new Label(getLocalizedMessage("processinstances.console.entry.owner") + " " +
+                    (task.getOwner() != null ? task.getOwner().getLogin() : "NIL")));
+        else
+            hl.addComponent(new Label(getLocalizedMessage("processinstances.console.entry.no-owner")));
+
+        hl.setSizeUndefined();
+        hl.addComponent(linkButton(getLocalizedMessage("processinstances.console.entry.change-owner"), new Runnable() {
+            @Override
+            public void run() {
+                Window w = new Window(getLocalizedMessage("processinstances.console.entry.change-owner.title"));
+                w.setModal(true);
+                w.setWidth("400px");
+                w.center();
+                w.setContent(new UserSearchComponent(task, pi, w));
+                getApplication().getMainWindow().addWindow(w);
+
+            }
+        }));
+        if (task.getOwner() != null) {
+            hl.addComponent(linkButton(getLocalizedMessage("processinstances.console.entry.remove-owner"),
+                    confirmable(getApplication(),
+                            getLocalizedMessage("processinstances.console.remove-owner.confirm.title"),
+                            getLocalizedMessage("processinstances.console.remove-owner.confirm.message"),
+                    new Runnable() {
+                @Override
+                public void run() {
+                    bpmSession.adminReassignProcessTask(pi, task, null);
+                    refreshData();
+                    Window.Notification n =
+                            new Window.Notification(getLocalizedMessage("processinstances.console.remove-owner.success"));
+                    n.setDelayMsec(5000);
+                    getApplication().getMainWindow().showNotification(n);
+                }
+            })));
+        }
+        return hl;
+    }
+
+    private class UserSearchComponent extends VerticalLayout {
+
+
+        private TextField smallSearchField = new TextField();
+        private CssLayout results = new CssLayout();
+        private String filter;
+
+        public UserSearchComponent(final BpmTask task, final ProcessInstance pi, final Window w) {
+
+            setWidth("100%");
+            setSpacing(true);
+            addComponent(styled(new Label(getLocalizedMessage("processinstances.console.entry.change-owner.title")), "h2"));
+            addComponent(styled(new Label(getLocalizedMessage("processinstances.console.entry.change-owner.info")), "h2"));
+
+            addComponent(smallSearchField);
+            addComponent(results);
+            smallSearchField.setImmediate(true);
+            smallSearchField.setWidth("100%");
+            smallSearchField.setTextChangeTimeout(500);
+            smallSearchField.focus();
+            smallSearchField.addListener(new FieldEvents.TextChangeListener() {
+                @Override
+                public void textChange(FieldEvents.TextChangeEvent textChangeEvent) {
+                    filter = textChangeEvent.getText();
+                    results.removeAllComponents();
+                    List<String> availableLogins = bpmSession.getAvailableLogins(filter.trim());
+                    for (final String login : availableLogins) {
+                        results.addComponent(linkButton(login,
+                                confirmable(getApplication(),
+                                        getLocalizedMessage("processinstances.console.change-owner.confirm.title"),
+                                        getLocalizedMessage("processinstances.console.change-owner.confirm.message"),
+                                        new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                bpmSession.adminReassignProcessTask(pi, task, login);
+                                                Window mainWindow = getApplication().getMainWindow();
+                                                mainWindow.removeWindow(w);
+                                                refreshData();
+                                                Window.Notification n =
+                                                        new Window.Notification(getLocalizedMessage("processinstances.console.change-owner.success"));
+                                                n.setDelayMsec(5000);
+                                                mainWindow.showNotification(n);
+                                            }
+                                        })));
+                    }
+                }
+            });
+
+        }
     }
 
     public class ProcessLogInfo {

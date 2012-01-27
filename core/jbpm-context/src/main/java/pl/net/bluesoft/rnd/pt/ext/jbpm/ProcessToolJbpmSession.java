@@ -7,6 +7,7 @@ import org.jbpm.api.cmd.Environment;
 import org.jbpm.api.identity.User;
 import org.jbpm.api.task.Participation;
 import org.jbpm.api.task.Task;
+import org.jbpm.pvm.internal.identity.impl.UserImpl;
 import org.jbpm.pvm.internal.model.ExecutionImpl;
 import org.jbpm.pvm.internal.model.Transition;
 import org.jbpm.pvm.internal.query.AbstractQuery;
@@ -367,7 +368,12 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
 
 	@Override()
 	public Collection<BpmTask> getTaskList(ProcessInstance pi, final ProcessToolContext ctx) {
-		return new Mapcar<Task, BpmTask>(findProcessTasks(pi, ctx)) {
+        return getTaskList(pi, ctx, true);
+    }
+
+	@Override()
+	public Collection<BpmTask> getTaskList(ProcessInstance pi, final ProcessToolContext ctx, final boolean mustHaveAssignee) {
+		return new Mapcar<Task, BpmTask>(findProcessTasks(pi, ctx, mustHaveAssignee)) {
 			@Override
 			public BpmTask lambda(Task x) {
 				BpmTask t = new BpmTask();
@@ -638,10 +644,10 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
             log.severe("User: " + user.getLogin() + " has not reassigned task " + bpmTask.getInternalTaskId() + " for process: " + pi.getInternalId() + " as the user is the same: " + userLogin);            
             return;
         }
+        //this call should also take care of swimlanes
         ts.assignTask(bpmTask.getInternalTaskId(), userLogin);
         fillProcessAssignmentData(processEngine, pi, ctx);
-        pi.setRunning(false);
-        pi.setState(null);
+        log.info("Process.running:" + pi.getRunning());
         ctx.getProcessInstanceDAO().saveProcessInstance(pi);
         log.severe("User: " + user.getLogin() + " has reassigned task " + bpmTask.getInternalTaskId() + " for process: " + pi.getInternalId() + " to user: " + userLogin);
 
@@ -652,6 +658,48 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
         log.severe("User: " + user.getLogin() + " attempting to complete task " + bpmTask.getInternalTaskId() + " for process: " + pi.getInternalId() + " to outcome: " + action);
         performAction(action, pi, ProcessToolContext.Util.getProcessToolContextFromThread(), bpmTask);
         log.severe("User: " + user.getLogin() + " has completed task " + bpmTask.getInternalTaskId() + " for process: " + pi.getInternalId() + " to outcome: " + action);
+
+    }
+    
+    public List<String> getAvailableLogins(final String filter) {
+        Command<List<User>> cmd = new Command<List<User>>() {
+            @Override
+            public List<User> execute(Environment environment) throws Exception {
+                AbstractQuery q = new AbstractQuery() {
+                    @Override
+                    protected void applyPage(Query query) {
+                        query.setFirstResult(0);
+                        query.setFetchSize(20);
+                    }
+
+                    @Override
+                    protected void applyParameters(Query query) {
+                        query.setParameter("filter", "%" + filter + "%");
+                    }
+
+                    @Override
+                    public String hql() {
+                        StringBuilder hql = new StringBuilder();
+                        hql.append("select user ");
+                        hql.append("from ");
+                        hql.append(UserImpl.class.getName());
+                        hql.append(" as user ");
+                        hql.append("where id like :filter ");
+
+                        return hql.toString();
+
+                    }
+                };
+                return (List<User>) q.execute(environment);
+            }
+        };
+        List<User> users = getProcessEngine(ProcessToolContext.Util.getProcessToolContextFromThread()).execute(cmd);
+        List<String> res = new ArrayList<String>();
+        for (User u : users) {
+            res.add(u.getId());
+        }
+        Collections.sort(res);
+        return res;
 
     }
 }

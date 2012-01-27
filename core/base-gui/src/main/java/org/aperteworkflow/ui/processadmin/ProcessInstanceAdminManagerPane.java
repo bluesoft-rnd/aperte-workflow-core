@@ -32,6 +32,7 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements V
     int limit = 10;
     int cnt = 0;
     String filter = null;
+    Label errorLbl = new Label();
 
     public ProcessInstanceAdminManagerPane(Application application) {
         setWidth("100%");
@@ -56,6 +57,8 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements V
         searchResults.setWidth("100%");
 
         addComponent(searchField);
+        addComponent(errorLbl);
+        
         addComponent(searchResults);
 
 
@@ -97,17 +100,34 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements V
 
     @Override
     public void refreshData() {
-        Collection<ProcessInstance> processInstances = ProcessToolContext.Util.getProcessToolContextFromThread().getProcessInstanceDAO()
-                .searchProcesses(filter, offset, limit + 1);
-        cnt = processInstances.size();
         searchResults.removeAllComponents();
+        cnt = 0;
+        try {
+            if (filter == null || filter.trim().isEmpty()) {
+                errorLbl.setVisible(true);
+                errorLbl.setValue(getLocalizedMessage("processinstances.console.noresults"));
+                return;
+            }
+            Collection<ProcessInstance> processInstances = ProcessToolContext.Util.getProcessToolContextFromThread().getProcessInstanceDAO()
+                    .searchProcesses(filter, offset, limit + 1);
+            cnt = processInstances.size();
+            if (cnt == 0) {
+                errorLbl.setVisible(true);
+                errorLbl.setValue(getLocalizedMessage("processinstances.console.noresults"));
+            } else {
+                errorLbl.setVisible(false);
+                Component navi = getNavigation();
+                searchResults.addComponent(navi);
+                searchResults.setComponentAlignment(navi, Alignment.TOP_RIGHT);
 
-        Component navi = getNavigation();
-        searchResults.addComponent(navi);
-        searchResults.setComponentAlignment(navi, Alignment.TOP_RIGHT);
-
-        for (ProcessInstance pi : processInstances) {
-            searchResults.addComponent(getProcessInstancePane(pi));
+                for (ProcessInstance pi : processInstances) {
+                    searchResults.addComponent(getProcessInstancePane(pi));
+                }
+            }
+        }
+        catch (Exception e) {
+            errorLbl.setVisible(true);
+            errorLbl.setValue(getLocalizedMessage("processinstances.console.failed") + " " + e.getMessage());
         }
 
 

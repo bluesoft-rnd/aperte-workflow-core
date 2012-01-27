@@ -7,10 +7,13 @@ import com.vaadin.ui.*;
 import com.vaadin.ui.themes.BaseTheme;
 import com.vaadin.ui.themes.Reindeer;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.bpm.BpmTask;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 
 import java.text.SimpleDateFormat;
@@ -40,8 +43,10 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements V
     int cnt = 0;
     String filter = null;
     Label errorLbl = new Label();
+    private ProcessToolBpmSession bpmSession;
 
-    public ProcessInstanceAdminManagerPane(Application application) {
+    public ProcessInstanceAdminManagerPane(Application application, ProcessToolBpmSession session) {
+        this.bpmSession = session;
         setWidth("100%");
         setSpacing(true);
 
@@ -205,6 +210,57 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements V
 
         vl.addComponent(history);
 
+        List<BpmTask> taskList = 
+                new ArrayList<BpmTask>(bpmSession.getTaskList(pi, ProcessToolContext.Util.getProcessToolContextFromThread()));
+        for (final BpmTask task : taskList) {
+            vl.addComponent(
+                  hl(
+                          width(new Label(getLocalizedMessage("processinstances.console.entry.state") + " " +
+                                  task.getTaskName() + ", " + task.getInternalTaskId()),
+                                  "50%"),
+                          width(new Label(getLocalizedMessage("processinstances.console.entry.owner") + " " + 
+                                  (task.getOwner() != null ? task.getOwner().getLogin() : "NIL")),
+                                  "50%")
+                  ));
+            ProcessStateConfiguration cfg = bpmSession.getProcessStateConfiguration(pi, ProcessToolContext.Util.getProcessToolContextFromThread());
+            if (cfg != null && !cfg.getActions().isEmpty()) {
+                vl.addComponent(new Label(getLocalizedMessage("processinstances.console.entry.available-actions")));
+                HorizontalLayout hl = new HorizontalLayout();
+                hl.setSpacing(true);
+                for (final ProcessStateAction psa : cfg.getActions()) {
+                    hl.addComponent(linkButton(getLocalizedMessage(nvl(psa.getLabel(), psa.getBpmName())),
+                            confirmable(getApplication(), getLocalizedMessage("processinstances.console.force-action.confirm.title"),
+                                    getLocalizedMessage(nvl(psa.getDescription(), psa.getLabel(), psa.getBpmName())),
+                                    new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            bpmSession.adminCompleteTask(pi, task, psa);
+                                            refreshData();
+                                            Window.Notification n = new Window.Notification(getLocalizedMessage("processinstances.console.force-action.success"));
+                                            n.setDelayMsec(-1);
+                                            getApplication().getMainWindow().showNotification(n);
+                                        }
+                                    })));
+                }
+                vl.addComponent(hl);
+            }
+        }
+        vl.addComponent(linkButton(getLocalizedMessage("processinstances.console.cancel-process"),
+                confirmable(getApplication(),
+                        getLocalizedMessage("processinstances.console.cancel-process.confirm.title"),
+                        getLocalizedMessage("processinstances.console.cancel-process.confirm.message"),
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                bpmSession.adminCancelProcessInstance(pi);
+                                refreshData();
+                                Window.Notification n =
+                                        new Window.Notification(getLocalizedMessage("processinstances.console.cancel-process.success"));
+                                n.setDelayMsec(-1);
+                                getApplication().getMainWindow().showNotification(n);
+                            }
+                        })));
+      
         return vl;
     }
 
@@ -255,26 +311,26 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements V
             this.performDate = performDate;
         }
     }
+
     private ProcessLogInfo getProcessLogInfo(ProcessInstanceLog pl) {
-           ProcessLogInfo plInfo = new ProcessLogInfo();
-           String userDescription = pl.getUser() != null ? nvl(pl.getUser().getRealName(), pl.getUser().getLogin()) : "";
-           if (pl.getUserSubstitute() != null) {
-               String substituteDescription = nvl(pl.getUserSubstitute().getRealName(), pl.getUserSubstitute().getLogin());
-               plInfo.userDescription = substituteDescription + "(" +
-                       getLocalizedMessage("processinstances.console.history.substituting") + " " + userDescription  + ")";
-           }
-           else {
-               plInfo.userDescription = userDescription;
-           }
-           plInfo.entryDescription = nvl(pl.getAdditionalInfo(), pl.getLogValue());
-           plInfo.actionDescription = getLocalizedMessage(pl.getEventI18NKey());
-           if (hasText(plInfo.getEntryDescription())) {
-               plInfo.actionDescription = plInfo.actionDescription + " - " + getLocalizedMessage(plInfo.entryDescription);
-           }
-           plInfo.performDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(pl.getEntryDate().getTime());
-           plInfo.stateDescription = pl.getState() != null ? nvl(pl.getState().getDescription(), pl.getState().getName()) : "";
-           return plInfo;
-       }
+        ProcessLogInfo plInfo = new ProcessLogInfo();
+        String userDescription = pl.getUser() != null ? nvl(pl.getUser().getRealName(), pl.getUser().getLogin()) : "";
+        if (pl.getUserSubstitute() != null) {
+            String substituteDescription = nvl(pl.getUserSubstitute().getRealName(), pl.getUserSubstitute().getLogin());
+            plInfo.userDescription = substituteDescription + "(" +
+                    getLocalizedMessage("processinstances.console.history.substituting") + " " + userDescription + ")";
+        } else {
+            plInfo.userDescription = userDescription;
+        }
+        plInfo.entryDescription = nvl(pl.getAdditionalInfo(), pl.getLogValue());
+        plInfo.actionDescription = getLocalizedMessage(pl.getEventI18NKey());
+        if (hasText(plInfo.getEntryDescription())) {
+            plInfo.actionDescription = plInfo.actionDescription + " - " + getLocalizedMessage(plInfo.entryDescription);
+        }
+        plInfo.performDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(pl.getEntryDate().getTime());
+        plInfo.stateDescription = pl.getState() != null ? nvl(pl.getState().getDescription(), pl.getState().getName()) : "";
+        return plInfo;
+    }
 
     private ComponentContainer getHistoryPane(ProcessInstance pi) {
         //refresh

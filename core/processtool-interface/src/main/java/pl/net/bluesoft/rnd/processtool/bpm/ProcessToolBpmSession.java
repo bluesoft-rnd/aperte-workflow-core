@@ -66,4 +66,11 @@ public interface ProcessToolBpmSession {
     ProcessToolBpmSession createSession(UserData user, Collection<String> roleNames, ProcessToolContext ctx);
 
     Collection<String> getRoleNames();
+
+    void adminCancelProcessInstance(ProcessInstance pi);
+
+    void adminReassignProcessTask(ProcessInstance pi, BpmTask bpmTask, String userLogin);
+
+    void adminCompleteTask(ProcessInstance pi, BpmTask bpmTask, ProcessStateAction action);
+
 }

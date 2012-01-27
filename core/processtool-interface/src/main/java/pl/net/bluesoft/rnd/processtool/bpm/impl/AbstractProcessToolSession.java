@@ -2,6 +2,7 @@ package pl.net.bluesoft.rnd.processtool.bpm.impl;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent;
+import pl.net.bluesoft.rnd.processtool.bpm.BpmTask;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog;
@@ -254,4 +255,5 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
     public Collection<String> getRoleNames() {
         return roleNames;
     }
+
 }

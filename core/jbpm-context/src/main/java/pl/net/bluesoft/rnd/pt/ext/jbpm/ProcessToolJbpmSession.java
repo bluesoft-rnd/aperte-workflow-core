@@ -522,52 +522,51 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
 
 
 	private ProcessInstance performAction(ProcessStateAction action, ProcessInstance processInstance, ProcessToolContext ctx, Task task) {
-		ProcessStateConfiguration state = ctx.getProcessDefinitionDAO().getProcessStateConfiguration(processInstance);
-		processInstance = getProcessData(processInstance.getInternalId(), ctx);
+        processInstance = getProcessData(processInstance.getInternalId(), ctx);
 
-		ProcessInstanceLog log = new ProcessInstanceLog();
-		log.setLogType(ProcessInstanceLog.LOG_TYPE_PERFORM_ACTION);
-		log.setState(state);
-		log.setEntryDate(Calendar.getInstance());
-		log.setEventI18NKey("process.log.action-performed");
-		log.setLogValue(action.getBpmName());
-		log.setAdditionalInfo(nvl(action.getLabel(), action.getDescription(), action.getBpmName()));
-		log.setUser(ctx.getProcessInstanceDAO().findOrCreateUser(user));
-        log.setUserSubstitute(substitutingUser != null ? ctx.getProcessInstanceDAO().findOrCreateUser(substitutingUser) : null);
-		processInstance.addProcessLog(log);
+        addActionLogEntry(action, processInstance, ctx);
 		ctx.getProcessInstanceDAO().saveProcessInstance(processInstance);
-
         ProcessEngine processEngine = getProcessEngine(ctx);
+
         processEngine.getTaskService().completeTask(task.getId(), action.getBpmName());
+        
 		String s = getProcessState(processInstance, ctx);
         fillProcessAssignmentData(processEngine, processInstance, ctx);
-		if (s != null) {
-			processInstance.setState(s);
-			ctx.getProcessInstanceDAO().saveProcessInstance(processInstance);
-			eventBusManager.publish(new BpmEvent(BpmEvent.Type.SIGNAL_PROCESS,
-			                                     processInstance,
-			                                     user));
-			ctx.getEventBusManager().publish(new BpmEvent(BpmEvent.Type.SIGNAL_PROCESS,
-			                                              processInstance,
-			                                              user));
-		} else {
-            if (processInstance.getRunning() && !isProcessRunning(processInstance.getInternalId(), ctx)) {
-                processInstance.setRunning(false);
-                ctx.getProcessInstanceDAO().saveProcessInstance(processInstance);
-                eventBusManager.publish(new BpmEvent(BpmEvent.Type.END_PROCESS,
-                			                                     processInstance,
-                			                                     user));
-                ctx.getEventBusManager().publish(new BpmEvent(BpmEvent.Type.END_PROCESS,
-                                                              processInstance,
-                                                              user));
-
-            }
-
+        processInstance.setState(s);
+        if (s == null && processInstance.getRunning() && !isProcessRunning(processInstance.getInternalId(), ctx)) {
+            processInstance.setRunning(false);
         }
+        ctx.getProcessInstanceDAO().saveProcessInstance(processInstance);
+        publishEvents(processInstance, processInstance.getRunning() ? BpmEvent.Type.SIGNAL_PROCESS : BpmEvent.Type.END_PROCESS);                
+        
 		return processInstance;
 	}
 
-	@Override
+    private void publishEvents(ProcessInstance processInstance, BpmEvent.Type signalProcess) {
+        eventBusManager.publish(new BpmEvent(signalProcess,
+                                             processInstance,
+                                             user));
+        ProcessToolContext.Util.getProcessToolContextFromThread().getEventBusManager().publish(new BpmEvent(signalProcess,
+                                                      processInstance,
+                                                      user));
+    }
+
+    private void addActionLogEntry(ProcessStateAction action, ProcessInstance processInstance, ProcessToolContext ctx) {
+        ProcessStateConfiguration state = ctx.getProcessDefinitionDAO().getProcessStateConfiguration(processInstance);
+
+        ProcessInstanceLog log = new ProcessInstanceLog();
+        log.setLogType(ProcessInstanceLog.LOG_TYPE_PERFORM_ACTION);
+        log.setState(state);
+        log.setEntryDate(Calendar.getInstance());
+        log.setEventI18NKey("process.log.action-performed");
+        log.setLogValue(action.getBpmName());
+        log.setAdditionalInfo(nvl(action.getLabel(), action.getDescription(), action.getBpmName()));
+        log.setUser(ctx.getProcessInstanceDAO().findOrCreateUser(user));
+        log.setUserSubstitute(substitutingUser != null ? ctx.getProcessInstanceDAO().findOrCreateUser(substitutingUser) : null);
+        processInstance.addProcessLog(log);
+    }
+
+    @Override
 	public boolean isProcessRunning(String internalId, ProcessToolContext ctx) {
 
 		if (internalId == null) return false;
@@ -609,5 +608,50 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
         ProcessToolJbpmSession session = new ProcessToolJbpmSession(user, roleNames, ctx);
         session.substitutingUser = this.user;
         return session;
+    }
+
+    @Override
+    public void adminCancelProcessInstance(ProcessInstance pi) {
+        log.severe("User: " + user.getLogin() + " attempting to cancel process: " + pi.getInternalId());
+        ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
+        pi = getProcessData(pi.getInternalId(), ctx);
+        ProcessEngine processEngine = getProcessEngine(ctx);
+        processEngine.getExecutionService().endProcessInstance(pi.getInternalId(), "admin-cancelled");
+        fillProcessAssignmentData(processEngine, pi, ctx);
+        pi.setRunning(false);
+        pi.setState(null);
+        ctx.getProcessInstanceDAO().saveProcessInstance(pi);
+        log.severe("User: " + user.getLogin() + " has cancelled process: " + pi.getInternalId());
+
+    }
+
+    @Override
+    public void adminReassignProcessTask(ProcessInstance pi, BpmTask bpmTask, String userLogin) {
+        log.severe("User: " + user.getLogin() + " attempting to reassign task " + bpmTask.getInternalTaskId() + " for process: " + pi.getInternalId() + " to user: " + userLogin);
+
+        ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
+        pi = getProcessData(pi.getInternalId(), ctx);
+        ProcessEngine processEngine = getProcessEngine(ctx);
+        TaskService ts = processEngine.getTaskService();
+        Task task = ts.getTask(bpmTask.getInternalTaskId());
+        if (nvl(userLogin,"").equals(nvl(task.getAssignee(),""))) {
+            log.severe("User: " + user.getLogin() + " has not reassigned task " + bpmTask.getInternalTaskId() + " for process: " + pi.getInternalId() + " as the user is the same: " + userLogin);            
+            return;
+        }
+        ts.assignTask(bpmTask.getInternalTaskId(), userLogin);
+        fillProcessAssignmentData(processEngine, pi, ctx);
+        pi.setRunning(false);
+        pi.setState(null);
+        ctx.getProcessInstanceDAO().saveProcessInstance(pi);
+        log.severe("User: " + user.getLogin() + " has reassigned task " + bpmTask.getInternalTaskId() + " for process: " + pi.getInternalId() + " to user: " + userLogin);
+
+    }
+
+    @Override
+    public void adminCompleteTask(ProcessInstance pi, BpmTask bpmTask, ProcessStateAction action) {
+        log.severe("User: " + user.getLogin() + " attempting to complete task " + bpmTask.getInternalTaskId() + " for process: " + pi.getInternalId() + " to outcome: " + action);
+        performAction(action, pi, ProcessToolContext.Util.getProcessToolContextFromThread(), bpmTask);
+        log.severe("User: " + user.getLogin() + " has completed task " + bpmTask.getInternalTaskId() + " for process: " + pi.getInternalId() + " to outcome: " + action);
+
     }
 }

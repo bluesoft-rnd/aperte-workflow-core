@@ -57,6 +57,7 @@ public class ProcessEditorApplication extends GenericEditorApplication implement
         mainWindow.removeAllComponents();
 
         processEditorPanel = new ProcessEditorPanel();
+        processEditorPanel.setProcessDir("/opt/aperte/aperteworkflow-bundle/modeler-repo");
         mainWindow.addComponent(processEditorPanel);
     }
 

@@ -4,6 +4,9 @@ import com.vaadin.data.Item;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.ui.*;
 
+import static pl.net.bluesoft.rnd.pt.ext.widget.permission.PermissionWrapper.PROPERTY_PRIVILEDGE_NAME;
+import static pl.net.bluesoft.rnd.pt.ext.widget.permission.PermissionWrapper.PROPERTY_ROLE_NAME;
+
 public class PermissionWrapperForm extends Form implements FormFieldFactory {
 
     public PermissionWrapperForm() {
@@ -13,6 +16,12 @@ public class PermissionWrapperForm extends Form implements FormFieldFactory {
     public PermissionWrapperForm(PermissionWrapper permissionWrapper) {
         setItemDataSource(new BeanItem<PermissionWrapper>(permissionWrapper));
         setFormFieldFactory(this);
+        setImmediate(true);
+        setWriteThrough(true);
+        setVisibleItemProperties(new Object[] {
+                PROPERTY_PRIVILEDGE_NAME,
+                PROPERTY_ROLE_NAME
+        });
     }
 
     @Override
@@ -21,8 +30,15 @@ public class PermissionWrapperForm extends Form implements FormFieldFactory {
         PermissionWrapper permissionWrapper = beanItem.getBean();
 
         Field field = DefaultFieldFactory.get().createField(item, propertyId, uiContext);
-        if ("priviledgeName".equals(propertyId)) {
+        field.setWriteThrough(true);
+
+        if (PROPERTY_PRIVILEDGE_NAME.equals(propertyId)) {
             field.setEnabled(permissionWrapper.isPriviledgeNameEditable());
+        }
+
+        if (field instanceof AbstractTextField) {
+            AbstractTextField textField = (AbstractTextField) field;
+            textField.setNullRepresentation("");
         }
 
         return field;

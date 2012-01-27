@@ -9,11 +9,15 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.i18n.DefaultI18NSource;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.rnd.util.i18n.impl.PropertiesBasedI18NProvider;
+import pl.net.bluesoft.rnd.util.i18n.impl.PropertyLoader;
 import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 
 /**
@@ -61,11 +65,24 @@ public class GenericEditorApplication extends Application implements HttpServlet
         Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
         try {
             ProcessToolRegistry registry = (ProcessToolRegistry) servletContext.getAttribute(ProcessToolRegistry.class.getName());
+
+            final String providerId = "step-editor";
+            if (!registry.hasI18NProvider(providerId)) {
+                registry.registerI18NProvider(
+                        new PropertiesBasedI18NProvider(new PropertyLoader() {
+                            @Override
+                            public InputStream loadProperty(String path) throws IOException {
+                                return getClass().getClassLoader().getResourceAsStream(path);
+                            }
+                        }, providerId + "-messages"),
+                        providerId
+                );
+            }
+
             registry.withProcessToolContext(new ProcessToolContextCallback() {
                 @Override
                 public void withContext(ProcessToolContext ctx) {
                     ProcessToolContext.Util.setProcessToolContextForThread(ctx);
-
                 }
             });
         } finally {

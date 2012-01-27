@@ -6,6 +6,7 @@ import pl.net.bluesoft.rnd.pt.ext.widget.permission.PermissionDefinition;
 import pl.net.bluesoft.rnd.pt.ext.widget.permission.PermissionPanel;
 import pl.net.bluesoft.rnd.pt.ext.widget.permission.PermissionProvider;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 public class ProcessPermissionTab extends VerticalLayout implements PermissionProvider {
@@ -18,7 +19,10 @@ public class ProcessPermissionTab extends VerticalLayout implements PermissionPr
 
     private void initComponent() {
         permissionPanel = new PermissionPanel();
+        permissionPanel.setPermissionProvider(this);
+        permissionPanel.loadData();
 
+        addComponent(permissionPanel);
     }
 
     @Override
@@ -28,7 +32,20 @@ public class ProcessPermissionTab extends VerticalLayout implements PermissionPr
 
     @Override
     public Collection<PermissionDefinition> getPermissionDefinitions() {
-        return null;
+        Collection<PermissionDefinition> definitions = new ArrayList<PermissionDefinition>();
+
+        PermissionDefinition pd = new PermissionDefinition();
+        pd.setKey("EDIT");
+        pd.setDescription("aaaa");
+
+        definitions.add(pd);
+        
+        pd = new PermissionDefinition();
+        pd.setKey("VIEW");
+
+        definitions.add(pd);
+        
+        return definitions;
     }
 
     @Override

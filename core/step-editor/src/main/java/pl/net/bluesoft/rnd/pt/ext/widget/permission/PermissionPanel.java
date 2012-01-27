@@ -2,38 +2,46 @@ package pl.net.bluesoft.rnd.pt.ext.widget.permission;
 
 
 import com.vaadin.data.util.BeanItem;
-import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.event.ItemClickEvent;
+import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.MenuBar;
-import com.vaadin.ui.Table;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.Reindeer;
 import pl.net.bluesoft.rnd.processtool.model.config.AbstractPermission;
 import pl.net.bluesoft.rnd.pt.ext.vaadin.DataHandler;
+import pl.net.bluesoft.rnd.pt.ext.vaadin.HorizontalBox;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
-public class PermissionPanel extends VerticalLayout implements DataHandler {
+/**
+ * Component used for editing list of {@link AbstractPermission}
+ */
+public class PermissionPanel extends GridLayout implements DataHandler {
 
     /**
-     * Remove single permission from the list
+     * Command to remove single permission from the list
      */
     private class RemovePermissionCommand implements MenuBar.Command {
         @Override
         public void menuSelected(MenuBar.MenuItem selectedItem) {
-            Object o = permissionTable.getValue();
+            PermissionWrapper wrapper = (PermissionWrapper) permissionTable.getValue();
+            unregisterPermissionWrapper(wrapper);
+            loadPermissionForm(null);
+            removeMenuItem.setEnabled(false);
         }
     }
 
     /**
-     * Add a new permission
+     * Command to add new single permission to the list
      */
     private class AddPermissionCommand implements MenuBar.Command {
 
         private PermissionDefinition definition;
 
         private AddPermissionCommand() {
-
         }
 
         private AddPermissionCommand(PermissionDefinition definition) {
@@ -42,33 +50,35 @@ public class PermissionPanel extends VerticalLayout implements DataHandler {
 
         @Override
         public void menuSelected(MenuBar.MenuItem selectedItem) {
-            if (definition == null) {
-                permissionTableContainer.addBean(new PermissionWrapper());
-            } else {
-                permissionTableContainer.addBean(new PermissionWrapper());
-            }
+            PermissionWrapper wrapper = new PermissionWrapper(definition);
+            wrapper.setPriviledgeNameEditable(permissionProvider.isNewDefinitionAllowed());
+            registerPermissionWrapper(wrapper);
         }
     }
 
-    private class PermissionTableColumnGenerator implements Table.ColumnGenerator {
+    /**
+     * Listener allowing to react for permission selection change
+     */
+    private class SelectPermissionListener implements ItemClickEvent.ItemClickListener {
         @Override
-        public Object generateCell(Table source, Object itemId, Object columnId) {
-            BeanItem<PermissionWrapper> beanItem = (BeanItem<PermissionWrapper>) itemId;
+        public void itemClick(ItemClickEvent event) {
+            removeMenuItem.setEnabled(true);
+            BeanItem<PermissionWrapper> beanItem = (BeanItem<PermissionWrapper>) event.getItem();
             PermissionWrapper wrapper = beanItem.getBean();
-            wrapper.setPriviledgeNameEditable(permissionProvider.isNewDefinitionAllowed());
-            PermissionWrapperForm form = new PermissionWrapperForm(wrapper);
-            return form;
+            loadPermissionForm(wrapper);
         }
     }
 
     private MenuBar menuBar;
     private MenuBar.MenuItem addMenuItem;
     private MenuBar.MenuItem removeMenuItem;
-    private Table permissionTable;
-    private BeanItemContainer<PermissionWrapper> permissionTableContainer;
+    private PermissionWrapperTable permissionTable;
+    private Map<PermissionWrapper, PermissionWrapperForm> permissionFormMap;
+    private PermissionWrapperForm permissionForm;
     private PermissionProvider permissionProvider;
     
     public PermissionPanel() {
+        super(3, 2);
         initComponent();
         initLayout();
     }
@@ -76,17 +86,29 @@ public class PermissionPanel extends VerticalLayout implements DataHandler {
     private void initComponent() {
         I18NSource messages = VaadinUtility.getThreadI18nSource();
 
-        menuBar = new MenuBar();
-        permissionTable = new Table();
-        permissionTable.addGeneratedColumn("foo", new PermissionTableColumnGenerator());
+        permissionTable = new PermissionWrapperTable();
+        permissionTable.addStyleName(Reindeer.TABLE_BORDERLESS);
+        permissionTable.setWidth("100%");
+        permissionTable.addListener(new SelectPermissionListener());
 
+        permissionFormMap = new HashMap<PermissionWrapper, PermissionWrapperForm>();
+        
+        menuBar = new MenuBar();
+        menuBar.setWidth("100%");
         addMenuItem = menuBar.addItem(messages.getMessage("permission.add"), null);
-        removeMenuItem = menuBar.addItem(messages.getMessage("permission.remove"), null);
+        removeMenuItem = menuBar.addItem(messages.getMessage("permission.remove"), new RemovePermissionCommand());
+        removeMenuItem.setEnabled(false);
     }
 
     private void initLayout() {
-        addComponent(menuBar);
-        addComponent(permissionTable);
+        setWidth("100%");
+        setColumnExpandRatio(0, 0.2f);
+        setColumnExpandRatio(1, 0);
+        setColumnExpandRatio(2, 0.8f);
+
+        addComponent(menuBar, 0, 0, 2, 0);
+        addComponent(new HorizontalBox("20px"), 1, 1);
+        addComponent(permissionTable, 0, 1);
     }
 
     public PermissionProvider getPermissionProvider() {
@@ -113,13 +135,39 @@ public class PermissionPanel extends VerticalLayout implements DataHandler {
             addMenuItem.addItem(messages.getMessage("permission.new"), new AddPermissionCommand());
         }
 
-        permissionTableContainer.removeAllItems();
+        permissionTable.getDataSourceContainer().removeAllItems();
         if (permissionProvider.getPermissions() != null) {
             for (AbstractPermission abstractPermission : permissionProvider.getPermissions()) {
                 PermissionWrapper wrapper = new PermissionWrapper(abstractPermission);
                 wrapper.setPriviledgeNameEditable(permissionProvider.isNewDefinitionAllowed());
-                permissionTableContainer.addBean(wrapper);
+                registerPermissionWrapper(wrapper);
             }
+        }
+    }
+    
+    private void registerPermissionWrapper(PermissionWrapper wrapper) {
+        permissionTable.getDataSourceContainer().addBean(wrapper);
+        permissionFormMap.put(wrapper, new PermissionWrapperForm(wrapper));
+    }
+    
+    private void unregisterPermissionWrapper(PermissionWrapper wrapper) {
+        permissionTable.getDataSourceContainer().removeItem(wrapper);
+        permissionFormMap.remove(wrapper);
+    }
+
+    private void loadPermissionForm(PermissionWrapper wrapper) {
+        if (permissionForm != null) {
+            removeComponent(permissionForm);
+            permissionForm = null;
+        }
+
+        if (wrapper != null) {
+            permissionForm = permissionFormMap.get(wrapper);
+            if (permissionForm == null) {
+                permissionForm = new PermissionWrapperForm(wrapper);
+                permissionFormMap.put(wrapper, permissionForm);
+            }
+            addComponent(permissionForm, 2, 1);
         }
     }
 

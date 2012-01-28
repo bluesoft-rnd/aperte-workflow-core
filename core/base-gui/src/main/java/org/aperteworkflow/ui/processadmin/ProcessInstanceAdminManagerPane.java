@@ -222,7 +222,18 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements V
                 vl.addComponent(new Label(getLocalizedMessage("processinstances.console.entry.available-actions")));
                 HorizontalLayout hl = new HorizontalLayout();
                 hl.setSpacing(true);
-                for (final ProcessStateAction psa : cfg.getActions()) {
+                List<ProcessStateAction> actions = new ArrayList<ProcessStateAction>(cfg.getActions());
+                Collections.sort(actions, new Comparator<ProcessStateAction>() {
+                    @Override
+                    public int compare(ProcessStateAction o1, ProcessStateAction o2) {
+                        int res = nvl(o1.getPriority(), 0).compareTo(nvl(o2.getPriority(), 0));
+                        if (res == 0) 
+                            res = o1.getId().compareTo(o2.getId());
+                        return res;
+                    }
+                });
+                
+                for (final ProcessStateAction psa : actions) {
                     hl.addComponent(getActionForceButton(pi, task, psa));
                 }
                 vl.addComponent(hl);

@@ -2,6 +2,7 @@ package pl.net.bluesoft.rnd.processtool.bpm.impl;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent;
+import pl.net.bluesoft.rnd.processtool.bpm.BpmTask;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog;
@@ -102,6 +103,7 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
 
     public ProcessStateConfiguration getProcessStateConfiguration(ProcessInstance pi, ProcessToolContext ctx) {
         ProcessStateConfiguration configuration = ctx.getProcessDefinitionDAO().getProcessStateConfiguration(pi);
+        if (configuration == null) return null;
         ProcessStateConfiguration res = new ProcessStateConfiguration();
         res.setDescription(configuration.getDescription());
         res.setCommentary(configuration.getCommentary());
@@ -249,4 +251,10 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
         }
         return false;
     }
+
+    @Override
+    public Collection<String> getRoleNames() {
+        return roleNames;
+    }
+
 }

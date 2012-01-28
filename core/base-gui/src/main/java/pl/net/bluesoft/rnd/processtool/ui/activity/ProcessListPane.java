@@ -101,6 +101,7 @@ public abstract class ProcessListPane extends VerticalLayout implements HasRefre
     }
 
     public void refreshData() {
+//        searchField.focus();
         dataPane.setSpacing(getDataPaneUsesSpacing());
         dataPane.setMargin(true);
         dataPane.setWidth("100%");

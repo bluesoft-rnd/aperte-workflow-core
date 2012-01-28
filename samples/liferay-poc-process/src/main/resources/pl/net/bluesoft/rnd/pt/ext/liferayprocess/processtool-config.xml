@@ -13,6 +13,7 @@
             RUN is the only process-level permission supported at this moment
         -->
         <config.ProcessDefinitionPermission priviledgeName="RUN" roleName="Power User"/>
+        <config.ProcessDefinitionPermission priviledgeName="SEARCH" roleName="Power User"/>
     </permissions>
     <states>
         <config.ProcessStateConfiguration description="Provide submission details" name="ENTER_SUBMISSION">
@@ -22,6 +23,9 @@
                         Please configure CMIS widget to achieve document upload feature.
                 ]]>
             </commentary>
+            <permissions>
+                <config.ProcessStatePermission priviledgeName="SEARCH" roleName=".*"/>
+            </permissions>
             <widgets>
                 <config.ProcessStateWidget className="TabSheet">
                     <children>

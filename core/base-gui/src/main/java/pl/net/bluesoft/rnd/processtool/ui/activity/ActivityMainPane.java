@@ -24,6 +24,8 @@ public class ActivityMainPane extends HorizontalLayout {
 	private I18NSource i18NSource;
 	private ProcessToolBpmSession bpmSession;
 	private Component currentlyDisplayed = null;
+    
+    private TextField searchField = new TextField();
 
 	public ActivityMainPane(Application application, I18NSource i18NSource, ProcessToolBpmSession bpmSession) {
 		this.application = application;
@@ -43,9 +45,25 @@ public class ActivityMainPane extends HorizontalLayout {
 
 	private void initGui() {
 		removeAllComponents();
-		VerticalLayout c = verticalLayout(panel(i18NSource.getMessage("activity.new-process.title"),
+        searchField.setInputPrompt(getLocalizedMessage("activity.search"));
+        searchField.setWidth("100%");
+		VerticalLayout c = verticalLayout(panel(getLocalizedMessage("activity.new-process.title"),
 		                                        new NewProcessExtendedPane(bpmSession, i18NSource, this)),
-		                                  new ActivityQueuesPane(this));
+		                                  new ActivityQueuesPane(this),
+                panel(getLocalizedMessage("activity.search.title"),
+                        verticalLayout(
+                                htmlLabel(getLocalizedMessage("activity.search.info")),
+                                searchField,
+                                button(getLocalizedMessage("activity.search.caption"), new Runnable() {
+
+                                    @Override
+                                    public void run() {
+                                        String text = (String) searchField.getValue();
+                                        if (text != null && !text.trim().isEmpty()) {
+                                            displaySearchResults(text.trim());
+                                        }
+                                    }
+                                }))));
 		c.setWidth("300");
 //		setSplitPosition(310, Sizeable.UNITS_PIXELS);
 		addComponent(c);
@@ -64,6 +82,11 @@ public class ActivityMainPane extends HorizontalLayout {
 		return bpmSession;
 	}
 
+    public void displaySearchResults(String query) {
+        SearchResultsPane toDisplay = new SearchResultsPane(query, this);
+        toDisplay.refreshData();
+        show(toDisplay);
+    }
 	public void displayMyTasksPane() {
 		MyProcessesListPane toDisplay = new MyProcessesListPane(this, i18NSource.getMessage("activity.my.tasks"));
 		toDisplay.refreshData();

@@ -28,6 +28,11 @@ public class ProcessStateConfiguration extends PersistentEntity {
 	@JoinColumn(name="state_id")
 	private Set<ProcessStateAction> actions = new HashSet();
 
+    
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name="state_id")
+    private Set<ProcessStatePermission> permissions = new HashSet();
+
 	@ManyToOne
 	@JoinColumn(name="definition_id")
 	private ProcessDefinitionConfig definition;
@@ -78,5 +83,12 @@ public class ProcessStateConfiguration extends PersistentEntity {
 
 	public void setActions(Set<ProcessStateAction> actions) {
 		this.actions = actions;
+	}
+	public Set<ProcessStatePermission> getPermissions() {
+		return permissions != null ? permissions : (permissions = new HashSet<ProcessStatePermission>());
+	}
+
+	public void setPermissions(Set<ProcessStatePermission> permissions) {
+		this.permissions = permissions;
 	}
 }

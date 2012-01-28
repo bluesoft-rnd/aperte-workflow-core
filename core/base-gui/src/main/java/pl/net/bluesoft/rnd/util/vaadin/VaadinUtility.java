@@ -11,6 +11,7 @@ import com.vaadin.ui.Table.ColumnGenerator;
 import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.themes.BaseTheme;
 import com.vaadin.ui.themes.Reindeer;
+import org.vaadin.dialogs.ConfirmDialog;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
@@ -18,6 +19,7 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.vaadin.ui.LocalizedPagedTable;
 
+import java.lang.String;
 import java.util.Collection;
 import java.util.Map;
 
@@ -107,6 +109,20 @@ public class VaadinUtility {
         Label l = new Label(message, Label.CONTENT_XHTML);
         l.setWidth(width + "px");
         return l;
+    }
+
+    public static Label htmlLabel(String message) {
+        return new Label(message, Label.CONTENT_XHTML);
+    }
+
+    public static HorizontalLayout hl(com.vaadin.ui.Component... components) {
+        HorizontalLayout hl = new HorizontalLayout();
+        hl.setWidth("100%");
+        hl.setSpacing(true);
+        for (Component c : components) {
+            hl.addComponent(c);
+        }
+        return hl;
     }
 
     public static HorizontalLayout horizontalLayout(com.vaadin.ui.Component c1, com.vaadin.ui.Component c2) {
@@ -276,9 +292,35 @@ public class VaadinUtility {
         return c;
     }
 
+    public static Runnable confirmable(final Application app, final String windowCaption, final String message,
+                                       final Runnable runnable) {
+        return new Runnable() {
+            @Override
+            public void run() {
+                ConfirmDialog.show(app.getMainWindow(),
+                        windowCaption, message,
+                        getLocalizedMessage("confirm.yes"),
+                        getLocalizedMessage("confirm.no"),
+                        new ConfirmDialog.Listener() {
+                            @Override
+                            public void onClose(ConfirmDialog confirmDialog) {
+                                if (confirmDialog.isConfirmed()) {
+                                    runnable.run();
+                                }
+                            }
+                        });
+            }
+        };
+    }
+
     public static Button linkButton(String caption, final Runnable onClick) {
-        Button b = new Button(caption);
+        Button b = button(caption, onClick);
         b.setStyleName(Reindeer.BUTTON_LINK);
+        return b;
+    }
+    
+    public static Button button(String caption, final Runnable onClick) {
+        Button b = new Button(caption);
         b.addListener(new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent event) {

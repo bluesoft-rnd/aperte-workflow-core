@@ -23,5 +23,5 @@ public interface ProcessInstanceDAO {
 	UserData findOrCreateUser(UserData ud);
 	List<ProcessInstance> getRecentProcesses(UserData userData, Calendar minDate, String filter, int offset, int limit);
 
-    Collection<ProcessInstance> searchProcesses(String filter, int offset, int limit, boolean onlyRunning, String assignee, String... queues);
+    Collection<ProcessInstance> searchProcesses(String filter, int offset, int limit, boolean onlyRunning, String[] userRoles, String assignee, String... queues);
 }

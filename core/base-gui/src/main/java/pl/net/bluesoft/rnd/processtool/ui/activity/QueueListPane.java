@@ -109,7 +109,7 @@ public class QueueListPane extends ProcessListPane {
                     ProcessToolContext.Util.getProcessToolContextFromThread()));
         } else {
             return new ArrayList<ProcessInstance>(ProcessToolContext.Util.getProcessToolContextFromThread().getProcessInstanceDAO()
-                                .searchProcesses(filterExpression, offset, limit, true, null, q.getName()));
+                                .searchProcesses(filterExpression, offset, limit, true, null, null, q.getName()));
         }
 	}
 }

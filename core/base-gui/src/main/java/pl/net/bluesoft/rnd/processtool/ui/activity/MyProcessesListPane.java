@@ -198,7 +198,7 @@ public class MyProcessesListPane extends ProcessListPane {
     protected List<ProcessInstance> getProcessInstances(String filterExpression, int offset, int limit) {
         if (filterExpression != null && !filterExpression.trim().isEmpty()) {
             return new ArrayList<ProcessInstance>(ProcessToolContext.Util.getProcessToolContextFromThread().getProcessInstanceDAO()
-                    .searchProcesses(filterExpression, offset, limit, true, getBpmSession().getUserLogin()));
+                    .searchProcesses(filterExpression, offset, limit, true, null, getBpmSession().getUserLogin()));
         } else {
             return new ArrayList(getBpmSession()
                     .getUserProcesses(offset, limit, ProcessToolContext.Util.getProcessToolContextFromThread()));

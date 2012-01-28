@@ -16,7 +16,9 @@ import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionPermission;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStatePermission;
 
 import java.util.*;
 
@@ -82,6 +84,15 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
                 {"definition_comment", def.getComment()},
                 {"definition_processname", def.getProcessName()},
         });
+        for (ProcessDefinitionPermission perm : def.getPermissions()) {
+            if ("SEARCH".equals(perm.getPriviledgeName())) {
+                String roleName = perm.getRoleName();
+                if (roleName.equals(".*"))
+                    roleName = "__AWF__ROLE_ALL";
+                roleName = roleName.replace(' ', '_');
+                searchData.addSearchAttribute("__AWF__ROLE", roleName, true);
+            }
+        }
         //lookup process state configuration
         ProcessStateConfiguration psc
                 = new ProcessDefinitionDAOImpl(session).getProcessStateConfiguration(processInstance);
@@ -91,6 +102,15 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
                             {"state_description", psc.getDescription()},
                             {"state_name", psc.getName()},
                     });
+            for (ProcessStatePermission perm : psc.getPermissions()) {
+                if ("SEARCH".equals(perm.getPriviledgeName())) {
+                    String roleName = perm.getRoleName();
+                    if (roleName.equals(".*"))
+                        roleName = "__AWF__ROLE_ALL";
+                    roleName = roleName.replace(' ', '_');
+                    searchData.addSearchAttribute("__AWF__ROLE", roleName, true);
+                }
+            }
         }
         for (ProcessInstanceAttribute attr : processInstance.getProcessAttributes()) {
             if (attr instanceof Searchable) {
@@ -214,15 +234,15 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
 				.setMaxResults(100).list();
         if (filter != null && !filter.trim().isEmpty()) {
             String query = "+__AWF__ID:(" + join(list, " ")+") +(" + filter + ")";
-            return new ArrayList<ProcessInstance>(searchProcesses(query, offset, limit, false, null));
+            return new ArrayList<ProcessInstance>(searchProcesses(query, offset, limit, false, null, null));
         } else {
 		    return getProcessInstancesByIds(list);
         }
 	}
 
     @Override
-    public Collection<ProcessInstance> searchProcesses(String filter, int offset, int limit, boolean onlyRunning, String assignee, String... queues) {
-        List<Long> processIds = searchProvider.searchProcesses(filter, offset, limit, onlyRunning, assignee, queues);
+    public Collection<ProcessInstance> searchProcesses(String filter, int offset, int limit, boolean onlyRunning, String[] userRoles, String assignee, String... queues) {
+        List<Long> processIds = searchProvider.searchProcesses(filter, offset, limit, onlyRunning, userRoles, assignee, queues);
         List<ProcessInstance> processInstancesByIds = getProcessInstancesByIds(processIds);
         Collections.sort(processInstancesByIds, new Comparator<ProcessInstance>() {
             @Override

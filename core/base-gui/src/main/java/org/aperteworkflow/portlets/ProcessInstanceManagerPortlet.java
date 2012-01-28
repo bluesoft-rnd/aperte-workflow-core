@@ -15,6 +15,6 @@ public class ProcessInstanceManagerPortlet extends GenericVaadinPortlet2BpmAppli
 
     @Override
     protected void renderPortlet() {
-        getMainWindow().setContent(new ProcessInstanceAdminManagerPane(this));
+        getMainWindow().setContent(new ProcessInstanceAdminManagerPane(this, bpmSession));
     }
 }

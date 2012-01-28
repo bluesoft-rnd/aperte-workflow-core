@@ -1,6 +1,8 @@
 package pl.net.bluesoft.rnd.pt.ext.widget.permission;
 
 
+import com.vaadin.data.Container;
+import com.vaadin.data.Property;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.ui.GridLayout;
@@ -146,8 +148,8 @@ public class PermissionPanel extends GridLayout implements DataHandler {
     }
     
     private void registerPermissionWrapper(PermissionWrapper wrapper) {
-        permissionTable.getDataSourceContainer().addBean(wrapper);
-        permissionFormMap.put(wrapper, new PermissionWrapperForm(wrapper));
+        BeanItem<PermissionWrapper> bean = permissionTable.getDataSourceContainer().addBean(wrapper);
+        permissionFormMap.put(wrapper, new PermissionWrapperForm(bean));
     }
     
     private void unregisterPermissionWrapper(PermissionWrapper wrapper) {
@@ -156,6 +158,11 @@ public class PermissionPanel extends GridLayout implements DataHandler {
     }
 
     private void loadPermissionForm(PermissionWrapper wrapper) {
+        if (wrapper != null && permissionForm == permissionFormMap.get(wrapper)) {
+            // Nothing to change because we display the same form as shown
+            return;
+        }
+
         if (permissionForm != null) {
             removeComponent(permissionForm);
             permissionForm = null;
@@ -163,11 +170,11 @@ public class PermissionPanel extends GridLayout implements DataHandler {
 
         if (wrapper != null) {
             permissionForm = permissionFormMap.get(wrapper);
-            if (permissionForm == null) {
-                permissionForm = new PermissionWrapperForm(wrapper);
-                permissionFormMap.put(wrapper, permissionForm);
-            }
             addComponent(permissionForm, 2, 1);
+
+            // This is just a workaround for strange behaviour of Table component when refreshing
+            // itself. This is can be related to: http://dev.vaadin.com/ticket/8298
+            permissionTable.select(wrapper);
         }
     }
 

@@ -4,32 +4,27 @@ import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.ui.Table;
 import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 
-public class PermissionWrapperTable extends Table implements Table.ColumnGenerator {
+import static pl.net.bluesoft.rnd.pt.ext.widget.permission.PermissionWrapper.PROPERTY_PRIVILEDGE_NAME;
+import static pl.net.bluesoft.rnd.pt.ext.widget.permission.PermissionWrapper.PROPERTY_ROLE_NAME;
+import static pl.net.bluesoft.rnd.pt.ext.widget.permission.PermissionWrapper.PROPERTY_SHORT_NAME;
+
+public class PermissionWrapperTable extends Table {
 
     private BeanItemContainer<PermissionWrapper> dataSourceContainer;
 
     public PermissionWrapperTable() {
+        setSelectable(true);
+        setImmediate(true);
+        setReadThrough(true);
+        setWriteThrough(true);
         dataSourceContainer = new BeanItemContainer<PermissionWrapper>(PermissionWrapper.class);
         setContainerDataSource(dataSourceContainer);
-        setSelectable(true);
-        setColumnHeader("foo", VaadinUtility.getThreadI18nSource().getMessage("permission.list"));
-        addGeneratedColumn("foo", this);
-        setVisibleColumns(new String[] { "foo" });
+        setColumnHeader(PROPERTY_SHORT_NAME, VaadinUtility.getThreadI18nSource().getMessage("permission.list"));
+        setVisibleColumns(new String[] { PROPERTY_SHORT_NAME });
     }
 
     public BeanItemContainer<PermissionWrapper> getDataSourceContainer() {
         return dataSourceContainer;
     }
 
-    @Override
-    public Object generateCell(Table source, Object itemId, Object columnId) {
-        PermissionWrapper wrapper = (PermissionWrapper) itemId;
-        String name = wrapper.getPriviledgeName();
-        if (name == null) {
-            name = VaadinUtility.getThreadI18nSource().getMessage("permission.new");
-        } else if (wrapper.getRoleName() != null) {
-            name += " : " + wrapper.getRoleName();
-        }
-        return name;
-    }
 }

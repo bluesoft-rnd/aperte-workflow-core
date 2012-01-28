@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name = "hl")
+//@XmlRootElement(name = "hl")
 @XStreamAlias("hl")
 public class HorizontalLayoutWidgetElement extends HasWidgetsElement {
 

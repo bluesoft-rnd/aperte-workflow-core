@@ -13,7 +13,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 
-@XmlRootElement(name = "input")
+//@XmlRootElement(name = "input")
 @XStreamAlias("input")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class InputWidgetElement extends WidgetElement {
@@ -96,7 +96,7 @@ public class InputWidgetElement extends WidgetElement {
     }
 
     @Override
-    public List<XmlValidationError> validate() {
+    public List<XmlValidationError> validateElement() {
         List<XmlValidationError> errors = new ArrayList<XmlValidationError>();
         if (!StringUtil.hasText(regexp) && StringUtil.hasText(errorKey) || StringUtil.hasText(regexp) && !StringUtil.hasText(errorKey)) {
             errors.add(new XmlValidationError("input", "[regexp & errorKey]", XmlConstants.XML_TAG_INVALID));

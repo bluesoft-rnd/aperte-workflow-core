@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "script")
+//@XmlType(name = "script")
 @XStreamAlias("script")
 public class ScriptElement extends WidgetElement {
     @XmlAttribute
@@ -35,10 +35,5 @@ public class ScriptElement extends WidgetElement {
 
     public void setScript(String script) {
         this.script = script;
-    }
-
-    @Override
-    public List<XmlValidationError> validate() {
-        return new ArrayList<XmlValidationError>();
     }
 }

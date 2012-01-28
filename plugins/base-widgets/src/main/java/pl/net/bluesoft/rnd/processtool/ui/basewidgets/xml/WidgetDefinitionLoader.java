@@ -11,7 +11,7 @@ public class WidgetDefinitionLoader extends OXHelper {
     }
 
     @Override
-    protected Class[] getSupportedClasses() {
+    public Class[] getSupportedClasses() {
         return new Class[] {
                 AlignElement.class,
                 CheckBoxWidgetElement.class,

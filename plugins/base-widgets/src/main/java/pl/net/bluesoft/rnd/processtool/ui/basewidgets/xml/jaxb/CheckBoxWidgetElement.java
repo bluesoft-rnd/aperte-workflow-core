@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name = "checkbox")
+//@XmlRootElement(name = "checkbox")
 @XStreamAlias("checkbox")
 public class CheckBoxWidgetElement extends WidgetElement {
     @XmlAttribute
@@ -25,10 +25,5 @@ public class CheckBoxWidgetElement extends WidgetElement {
 
     public void setDefaultSelect(Boolean defaultSelect) {
         this.defaultSelect = defaultSelect;
-    }
-
-    @Override
-    public List<XmlValidationError> validate() {
-        return new ArrayList<XmlValidationError>();
     }
 }

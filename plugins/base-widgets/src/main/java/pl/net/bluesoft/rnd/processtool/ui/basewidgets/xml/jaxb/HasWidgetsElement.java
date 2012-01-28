@@ -52,7 +52,7 @@ public abstract class HasWidgetsElement extends WidgetElement {
 
     @Override
     public List<XmlValidationError> validate() {
-        List<XmlValidationError> errors = new ArrayList<XmlValidationError>();
+        List<XmlValidationError> errors = validateElement();
         for (WidgetElement we : getWidgets()) {
             errors.addAll(we.validate());
         }

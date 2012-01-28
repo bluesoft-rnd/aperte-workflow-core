@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name = "vl")
+//@XmlRootElement(name = "vl")
 @XStreamAlias("vl")
 public class VerticalLayoutWidgetElement extends HasWidgetsElement {
 

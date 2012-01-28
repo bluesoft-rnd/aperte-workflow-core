@@ -5,6 +5,7 @@ import com.vaadin.data.Container;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.service.ApplicationContext;
 import com.vaadin.terminal.ClassResource;
+import com.vaadin.terminal.FileResource;
 import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.ui.*;
 import com.vaadin.ui.Table.ColumnGenerator;
@@ -18,12 +19,11 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.vaadin.ui.LocalizedPagedTable;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.Map;
 
-import static com.vaadin.ui.Window.Notification.POSITION_CENTERED;
-import static com.vaadin.ui.Window.Notification.TYPE_ERROR_MESSAGE;
-import static com.vaadin.ui.Window.Notification.TYPE_HUMANIZED_MESSAGE;
+import static com.vaadin.ui.Window.Notification.*;
 import static pl.net.bluesoft.rnd.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
 
 /**
@@ -260,6 +260,10 @@ public class
 
     public static Embedded embedded(Application application, String fileName) {
         return new Embedded(null, new ClassResource(VaadinUtility.class, fileName, application));
+    }
+    
+    public static Embedded embedded(File file) {
+        return new Embedded(null, new FileResource(file, getThreadApplication()));
     }
 
     public static String widgetsErrorMessage(I18NSource i18NSource, Map<ProcessToolDataWidget, Collection<String>> errorMap) {

@@ -1,14 +1,19 @@
-package pl.net.bluesoft.rnd.pt.ext.actioneditor;
+package pl.net.bluesoft.rnd.pt.ext.widget.property;
 
 import com.vaadin.terminal.Sizeable;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.Field;
 import com.vaadin.ui.Form;
 import com.vaadin.ui.VerticalLayout;
 
-public class AttributesForm extends Form {
-
+public class PropertiesForm extends Form {
+	
+	
 	private VerticalLayout mainLayout;
+	
+	
 
-	public AttributesForm() {
+	public PropertiesForm() {
 		super();
 		mainLayout = new VerticalLayout();
 		mainLayout.setMargin(true);
@@ -19,8 +24,13 @@ public class AttributesForm extends Form {
 	}
 
 	@Override
-	protected void attachField(Object propertyId, com.vaadin.ui.Field field) {
+	protected void attachField(Object propertyId, Field field) {
 		mainLayout.addComponent(field);
 	}
 
+	public void addComponent(Component c) {
+		mainLayout.addComponent(c);
+	}
+	
+	
 }

@@ -6,8 +6,6 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.servlet.ServletContext;
-
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonParseException;
@@ -24,12 +22,12 @@ import pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.user.Property;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.user.WidgetConfigFormFieldFactory;
 import pl.net.bluesoft.rnd.pt.ext.vaadin.GenericEditorApplication;
+import pl.net.bluesoft.rnd.pt.ext.widget.property.PropertiesPanel;
+import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.util.lang.Classes;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.terminal.ParameterHandler;
-import com.vaadin.terminal.Sizeable;
-import com.vaadin.terminal.gwt.server.WebApplicationContext;
 import com.vaadin.ui.*;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -38,11 +36,9 @@ public class ActionEditorApplication extends GenericEditorApplication implements
 
 	private static final long serialVersionUID = 2136349126207525109L;
 	private static final Logger	logger = Logger.getLogger(ActionEditorApplication.class.getName());
-	private static WidgetConfigFormFieldFactory fieldFactory = new WidgetConfigFormFieldFactory();
-	private VerticalLayout attrLayout = new VerticalLayout();
+	private PropertiesPanel propertiesPanel = new PropertiesPanel();
 	private Button saveButton;
 	private Select buttonList;
-	private AttributesForm form;
 	private static final ObjectMapper mapper = new ObjectMapper();
 	private Window mainWindow;
 	private JavaScriptHelper jsHelper;
@@ -88,10 +84,11 @@ public class ActionEditorApplication extends GenericEditorApplication implements
 		main.addComponent(header);
 		buttonList = prepareButtonList(buttonType);
 		main.addComponent(buttonList);
-		main.addComponent(attrLayout);
+		main.addComponent(propertiesPanel);
 		if (!StringUtils.isEmpty(buttonType)) {
-			prepareAttributesForm(buttonType);
-			attrLayout.addComponent(form);
+			Class<? extends ProcessToolActionButton> buttonClass = getRegistry().getAvailableButtons().get(buttonType);
+			propertiesPanel.refreshForm(buttonClass);
+			refreshFormValues();
 		}
 		saveButton = new Button("save", this);
 		saveButton.setImmediate(true);
@@ -100,32 +97,7 @@ public class ActionEditorApplication extends GenericEditorApplication implements
 		mainWindow.setContent(main);
 	}
 
-	private void prepareAttributesForm(String buttonType) {
-		form = null;
-		form = new AttributesForm();
-
-		Class<? extends ProcessToolActionButton> buttonClass = getRegistry().getAvailableButtons().get(buttonType);
-		List<Field> fields = Classes.getFieldsWithAnnotation(buttonClass, AutoWiredProperty.class);
-		List<Property> properties = new ArrayList<Property>();
-		
-		for (Field field : fields) {
-			AutoWiredProperty awp = field.getAnnotation(AutoWiredProperty.class);
-			Property property = new Property(null, field.getType());
-            property.setPropertyType(Property.PropertyType.PROPERTY);
-            property.setPropertyId(field.getName());
-            property.setName(field.getName());
-            property.setDescription(field.getName());
-			properties.add(property);
-		}
-		
-		Collections.sort(properties);
-		for (Property property : properties) {
-			final com.vaadin.ui.Field vaadinField = fieldFactory.createField(property);
-			form.addField(property, vaadinField);
-			vaadinField.setValue(oldActionParameters.get(property.getName()));
-		}
-		
-	}
+	
 
 	@Override
 	public void init() {
@@ -147,35 +119,45 @@ public class ActionEditorApplication extends GenericEditorApplication implements
 		Map<String, Class<? extends ProcessToolActionButton>> availableButtons = reg.getAvailableButtons();
 		for (Class<? extends ProcessToolActionButton> stepClass : availableButtons.values()) {
 			AliasName a = Classes.getClassAnnotation(stepClass, AliasName.class);
-			buttonList.addItem(a.name());
-			buttonList.setItemCaption(a.name(), a.name());
+			buttonList.addItem(stepClass);
+			buttonList.setItemCaption(stepClass, a.name());
+			if (a.name().equals(buttonType))
+				buttonList.setValue(stepClass);
 		}
-		buttonList.setValue(buttonType);
-
+		
 		buttonList.addListener(new Property.ValueChangeListener() {
 			@Override
 			public void valueChange(ValueChangeEvent event) {
-				String buttonType = (String) buttonList.getValue();
-				attrLayout.removeAllComponents();
-				prepareAttributesForm(buttonType);
-				attrLayout.addComponent(form);
+				Class<?> buttonClass = (Class<?>) buttonList.getValue();
+				propertiesPanel.refreshForm(buttonClass);
+				refreshFormValues();
 			}
 		});
 
 		return buttonList;
 	}
 
-	
+	private void refreshFormValues() {
+		for (Object propertyId : propertiesPanel.getPropertiesForm().getItemPropertyIds()) {
+            Property prop = (Property)propertyId;
+			com.vaadin.ui.Field field = propertiesPanel.getPropertiesForm().getField(propertyId);
+			field.setValue(oldActionParameters.get(prop.getName()));
+		}
+	}
 
 	@Override
 	public void buttonClick(ClickEvent event) {
 		if (event.getComponent() == saveButton) {
 			
+			if (!propertiesPanel.getPropertiesForm().isValid()) {
+				getCurrent().getMainWindow().showNotification(VaadinUtility.validationNotification("Validation error","Correct data"));
+				return;
+			}
 			ActionDef actionDef = new ActionDef();
-			actionDef.setButtonType((String) buttonList.getValue());
-			for (Object propertyId : form.getItemPropertyIds()) {
+			actionDef.setButtonType(buttonList.getItemCaption(buttonList.getValue()));
+			for (Object propertyId : propertiesPanel.getPropertiesForm().getItemPropertyIds()) {
                 Property prop = (Property)propertyId;
-				com.vaadin.ui.Field field = form.getField(propertyId);
+				com.vaadin.ui.Field field = propertiesPanel.getPropertiesForm().getField(propertyId);
                 Object obj = field.getValue();
                 
             	if (obj == null) {

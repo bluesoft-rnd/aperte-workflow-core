@@ -1,6 +1,5 @@
 package pl.net.bluesoft.rnd.processtool.plugins.osgi;
 
-import static pl.net.bluesoft.util.lang.FormatUtil.join;
 import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 
 import java.io.*;

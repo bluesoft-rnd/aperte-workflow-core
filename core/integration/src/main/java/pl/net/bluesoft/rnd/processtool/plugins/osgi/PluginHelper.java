@@ -675,19 +675,13 @@ public class PluginHelper implements PluginManager, SearchProvider {
         }
 
         if (userRoles != null) {
-//            Set<String> roleNames = new HashSet<String>();
             BooleanQuery bq = new BooleanQuery();
             bq.add(new TermQuery(new Term(AWF__ROLE, "__AWF__ROLE_ALL".toLowerCase())), BooleanClause.Occur.SHOULD);
-//            addQueries.add(new TermQuery(new Term(AWF__ROLE, "__AWF__ROLE_ALL".toLowerCase())));
             for (String roleName : userRoles) {
-//                roleNames.add(roleName.replace(' ', '_').toLowerCase());
-//                addQueries.add(new TermQuery(new Term(AWF__ROLE, roleName.replace(' ', '_').toLowerCase())));
                 bq.add(new TermQuery(new Term(AWF__ROLE, roleName.replace(' ', '_').toLowerCase())),
                         BooleanClause.Occur.SHOULD);
             }
             addQueries.add(bq);
-//            addQueries.add(new TermQuery(new Term(AWF__ROLE, "(" + join(roleNames, " ") + ")")));
-//            query = "+(" + query + ") +" +new TermQuery(new Term(AWF__ROLE, "(" + join(roleNames, " ") + ")"));
         }
         results = search(query, 0, 1000, addQueries.toArray(new Query[addQueries.size()]));
         //always check 1000 first results - larger limit means no sense and Lucene provides the results
@@ -706,7 +700,6 @@ public class PluginHelper implements PluginManager, SearchProvider {
         Collections.sort(res);
         Collections.reverse(res);
         return res.subList(offset, Math.min(offset+limit, res.size()));
-//        return res;
     }
     
     public List<Document> search(String query, int offset, int limit, Query... addQueries) {

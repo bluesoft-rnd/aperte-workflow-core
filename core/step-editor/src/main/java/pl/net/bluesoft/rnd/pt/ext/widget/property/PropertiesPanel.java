@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -32,7 +33,7 @@ public class PropertiesPanel extends Panel {
 	private String aliasName;
 	private boolean childrenAllowed;
 	
-	public void refreshForm(Class<?> aperteClass) {
+	public void refreshForm(Class<?> aperteClass, Map<String,Object> valuesMap) {
 		
 		AliasName an = Classes.getClassAnnotation(aperteClass, AliasName.class);
 		ChildrenAllowed ca = aperteClass.getAnnotation(ChildrenAllowed.class);
@@ -66,6 +67,7 @@ public class PropertiesPanel extends Panel {
         }
 		
 		refreshForm();
+		refreshFormValues(valuesMap);
 	}
 	
 	private Property getProperty(Field field) {
@@ -125,6 +127,14 @@ public class PropertiesPanel extends Panel {
 		}
 
     }
+    
+	private void refreshFormValues(Map<String,Object> valuesMap) {
+		for (Object propertyId : propertiesForm.getItemPropertyIds()) {
+            Property prop = (Property)propertyId;
+			com.vaadin.ui.Field field = propertiesForm.getField(propertyId);
+			field.setValue(valuesMap.get(prop.getPropertyId()));
+		}
+	}
 
 	public PropertiesForm getPropertiesForm() {
 		return propertiesForm;

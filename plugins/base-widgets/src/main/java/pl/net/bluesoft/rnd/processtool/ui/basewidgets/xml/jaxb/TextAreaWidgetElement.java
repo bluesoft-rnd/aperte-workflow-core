@@ -2,6 +2,7 @@ package pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.jaxb;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+import pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.RequiredAttribute;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.validation.XmlValidationError;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -23,6 +24,7 @@ public class TextAreaWidgetElement extends WidgetElement {
     private Integer visibleLines;
     @XmlAttribute
     @XStreamAsAttribute
+    @RequiredAttribute
     private Integer limit;
     @XmlAttribute
     @XStreamAsAttribute

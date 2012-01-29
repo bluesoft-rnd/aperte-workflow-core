@@ -2,7 +2,6 @@ package pl.net.bluesoft.rnd.processtool.bpm.impl;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent;
-import pl.net.bluesoft.rnd.processtool.bpm.BpmTask;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog;
@@ -142,7 +141,7 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
         Set<String> res = new HashSet<String>();
         for (AbstractPermission permission : col) {
             if (hasMatchingRole(permission.getRoleName())) {
-                res.add(permission.getPriviledgeName());
+                res.add(permission.getPrivilegeName());
             }
         }
         return res;
@@ -195,7 +194,7 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
             }
             for (ProcessDefinitionPermission permission : cfg.getPermissions()) {
                 String roleName = permission.getRoleName();
-                if ("RUN".equals(permission.getPriviledgeName()) && roleName != null && hasMatchingRole(roleName)) {
+                if ("RUN".equals(permission.getPrivilegeName()) && roleName != null && hasMatchingRole(roleName)) {
                     res.add(cfg);
                     break;
                 }

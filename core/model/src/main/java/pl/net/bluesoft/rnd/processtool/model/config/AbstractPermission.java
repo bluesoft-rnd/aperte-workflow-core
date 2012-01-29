@@ -12,7 +12,7 @@ import javax.persistence.*;
 @Inheritance(strategy= InheritanceType.TABLE_PER_CLASS)
 public class AbstractPermission extends PersistentEntity {
 	private String roleName;
-	private String priviledgeName;
+	private String privilegeName;
 
 	public String getRoleName() {
 		return roleName;
@@ -22,12 +22,12 @@ public class AbstractPermission extends PersistentEntity {
 		this.roleName = roleName;
 	}
 
-	public String getPriviledgeName() {
-		return priviledgeName;
+	public String getPrivilegeName() {
+		return privilegeName;
 	}
 
-	public void setPriviledgeName(String priviledgeName) {
-		this.priviledgeName = priviledgeName;
+	public void setPrivilegeName(String privilegeName) {
+		this.privilegeName = privilegeName;
 	}
 
 }

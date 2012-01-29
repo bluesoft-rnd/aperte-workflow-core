@@ -194,10 +194,10 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 		if (newPermissions.size() != oldPermissions.size()) return false;
 		Set<String> permissionSet = new HashSet();
 		for (AbstractPermission p : newPermissions) {
-			permissionSet.add(p.getPriviledgeName() + "|||" + p.getRoleName());
+			permissionSet.add(p.getPrivilegeName() + "|||" + p.getRoleName());
 		}
 		for (AbstractPermission p : oldPermissions) {
-			if (!permissionSet.contains(p.getPriviledgeName() + "|||" + p.getRoleName())) return false;
+			if (!permissionSet.contains(p.getPrivilegeName() + "|||" + p.getRoleName())) return false;
 		}
 		return true;
 	}

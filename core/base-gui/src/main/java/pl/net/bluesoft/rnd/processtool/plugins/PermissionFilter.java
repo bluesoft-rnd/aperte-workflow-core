@@ -72,7 +72,7 @@ public class PermissionFilter implements Filter {
                         }
                     }
                     if (!found) {
-                        logger.info("User " + username + " has insufficient priviledges.");                        
+                        logger.info("User " + username + " has insufficient privileges.");
                     } else {
                         session.setAttribute(AUTHORIZED, username);
                         chain.doFilter(request, response);

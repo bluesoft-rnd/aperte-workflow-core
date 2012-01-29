@@ -119,6 +119,7 @@ public class ProcessDataWidgetsDefinitionEditor extends CustomField {
                                     public void onClose(ConfirmDialog confirmDialog) {
                                         if (confirmDialog.isConfirmed())
                                             hierarchicalContainer.removeItem(itemId);
+                                        refreshRawXmlAndPreview();
                                     }
                                 });
                     }
@@ -129,7 +130,7 @@ public class ProcessDataWidgetsDefinitionEditor extends CustomField {
 
         VerticalLayout editorLayout = new VerticalLayout();
         editorLayout.addComponent(getAvailableWidgetsComponent());
-        editorLayout.addComponent(new Label("Drag a control from a list above to add it to a hierarchy")); //TODO i18n
+        editorLayout.addComponent(new Label("Drag a control from a list above to add it to a hierarchy. Press Delete or drag a selected node back to a list above to delete it from a hierarchy.")); //TODO i18n
         Panel panel = new Panel("Widget hierarchy");
         panel.setHeight("340px");
         panel.setWidth("250px");
@@ -272,7 +273,7 @@ public class ProcessDataWidgetsDefinitionEditor extends CustomField {
                                     throw new RuntimeException(e);
                                 }
                             }
-                            refreshRawXml();
+                            refreshRawXmlAndPreview();
                         }
                     });
                     hl.addComponent(commit);
@@ -292,7 +293,7 @@ public class ProcessDataWidgetsDefinitionEditor extends CustomField {
 
     }
 
-    private void refreshRawXml() {
+    private void refreshRawXmlAndPreview() {
         updateXml(rootWidget);
         List<XmlValidationError> xmlValidationErrors = rootWidget.validate();
         if (xmlValidationErrors != null && !xmlValidationErrors.isEmpty()) {
@@ -472,7 +473,7 @@ public class ProcessDataWidgetsDefinitionEditor extends CustomField {
                     container.removeItem(newItemId);
                 }
             } else {
-                refreshRawXml();
+                refreshRawXmlAndPreview();
             }
         }
 
@@ -564,8 +565,6 @@ public class ProcessDataWidgetsDefinitionEditor extends CustomField {
         for (Class cls : supportedClasses) {
             if (getAnnotation(cls, XmlRootElement.class) != null) continue; //ignore root elements
             if (Modifier.isAbstract(cls.getModifiers())) continue;
-//            if (!WidgetElement.class.isAssignableFrom(cls)) continue;
-            
             Label lbl = new Label(cls.getSimpleName());
             lbl.setSizeUndefined();            
             DragAndDropWrapper c = new WidgetDragAndDropWrapper(lbl, cls);
@@ -575,7 +574,26 @@ public class ProcessDataWidgetsDefinitionEditor extends CustomField {
             c.setDragStartMode(DragAndDropWrapper.DragStartMode.WRAPPER);
         }
 
-        return cssLayout;
+        DragAndDropWrapper wr = new DragAndDropWrapper(cssLayout);
+        wr.setDropHandler(new DropHandler() {
+            @Override
+            public void drop(DragAndDropEvent event) {
+                Transferable t = event.getTransferable();
+                Component src = t.getSourceComponent();
+                if (src != widgetTree || !(t instanceof DataBoundTransferable)) {
+                    return;
+                }
+                Object sourceItemId = ((DataBoundTransferable) t).getItemId();
+                hierarchicalContainer.removeItem(sourceItemId);
+                refreshRawXmlAndPreview();
+            }
+
+            @Override
+            public AcceptCriterion getAcceptCriterion() {
+                return AcceptAll.get();
+            }
+        });
+        return wr;
 
     }
 

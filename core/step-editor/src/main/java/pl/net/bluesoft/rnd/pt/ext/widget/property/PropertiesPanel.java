@@ -1,10 +1,7 @@
 package pl.net.bluesoft.rnd.pt.ext.widget.property;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -134,6 +131,27 @@ public class PropertiesPanel extends Panel {
 			com.vaadin.ui.Field field = propertiesForm.getField(propertyId);
 			field.setValue(valuesMap.get(prop.getPropertyId()));
 		}
+	}
+	
+	public Map<String,Object> getPropertiesMap() {
+		Map<String,Object> map = new HashMap<String,Object>(); 
+		
+		for (Object propertyId : propertiesForm.getItemPropertyIds()) {
+            Property prop = (Property)propertyId;
+			com.vaadin.ui.Field field = propertiesForm.getField(propertyId);
+            Object obj = field.getValue();
+            
+        	if (obj == null) {
+        		if (Boolean.class.equals(prop.getType()))
+        			obj = Boolean.FALSE;
+        		else if (String.class.equals(prop.getType()))
+        			obj = "";
+        	}
+            
+            map.put(prop.getPropertyId(), obj);
+		}
+
+		return map;
 	}
 
 	public PropertiesForm getPropertiesForm() {

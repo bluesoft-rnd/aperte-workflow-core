@@ -145,21 +145,7 @@ public class ActionEditorApplication extends GenericEditorApplication implements
 			}
 			ActionDef actionDef = new ActionDef();
 			actionDef.setButtonType(buttonList.getItemCaption(buttonList.getValue()));
-			for (Object propertyId : propertiesPanel.getPropertiesForm().getItemPropertyIds()) {
-                Property prop = (Property)propertyId;
-				com.vaadin.ui.Field field = propertiesPanel.getPropertiesForm().getField(propertyId);
-                Object obj = field.getValue();
-                
-            	if (obj == null) {
-            		if (Boolean.class.equals(prop.getType()))
-            			obj = Boolean.FALSE;
-            		else if (String.class.equals(prop.getType()))
-            			obj = "";
-            	}
-                
-                actionDef.putItem(prop.getPropertyId(), obj);
-			}
-			
+			actionDef.setItems(propertiesPanel.getPropertiesMap());
 			
 			try {
 			  String s = mapper.writeValueAsString(actionDef);

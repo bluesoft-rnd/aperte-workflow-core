@@ -108,21 +108,7 @@ public class AutoStepEditorWindow extends AbstractStepEditorWindow implements Cl
 	private String getJsonToSave() {
 		TaskConfig tc = new TaskConfig();
 		tc.setTaskName(propertiesPanel.getAliasName());
-		
-		for (Object propertyId : propertiesPanel.getPropertiesForm().getItemPropertyIds()) {
-            Property prop = (Property)propertyId;
-			com.vaadin.ui.Field field = propertiesPanel.getPropertiesForm().getField(propertyId);
-            Object obj = field.getValue();
-            
-        	if (obj == null) {
-        		if (Boolean.class.equals(prop.getType()))
-        			obj = Boolean.FALSE;
-        		else if (String.class.equals(prop.getType()))
-        			obj = "";
-        	}
-            
-            tc.addParam(prop.getPropertyId(), obj);
-		}
+		tc.setParams(propertiesPanel.getPropertiesMap());
 		
 		try {
 			return mapper.writeValueAsString(tc);

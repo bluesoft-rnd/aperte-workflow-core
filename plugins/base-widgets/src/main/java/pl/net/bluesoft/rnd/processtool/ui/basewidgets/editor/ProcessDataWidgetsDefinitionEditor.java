@@ -403,6 +403,8 @@ public class ProcessDataWidgetsDefinitionEditor extends CustomField {
             if (getFieldAnnotation(widget.getClass(), XmlElements.class) != null) {
                 hierarchicalContainer.setChildrenAllowed(widget, true);
                 processWidgetsTree(hierarchicalContainer, widget);
+            } else {
+                hierarchicalContainer.setChildrenAllowed(widget, false);
             }
         }
     }

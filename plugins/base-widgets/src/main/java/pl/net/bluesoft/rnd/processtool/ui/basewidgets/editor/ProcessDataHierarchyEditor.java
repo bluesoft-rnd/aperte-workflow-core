@@ -129,7 +129,7 @@ public class ProcessDataHierarchyEditor extends VerticalLayout {
                                     @Override
                                     public void onClose(ConfirmDialog confirmDialog) {
                                         if (confirmDialog.isConfirmed())
-                                            hierarchicalContainer.removeItem(itemId);
+                                            removeItemFromTreeRecursively(itemId);
                                         refreshRawXmlAndPreview();
                                     }
                                 });
@@ -137,6 +137,10 @@ public class ProcessDataHierarchyEditor extends VerticalLayout {
                 }
             }
         };
+    }
+
+    private void removeItemFromTreeRecursively(Object itemId) {
+        hierarchicalContainer.removeItemRecursively(itemId);
     }
 
     private void updateXml(Object itemId) {
@@ -244,7 +248,7 @@ public class ProcessDataHierarchyEditor extends VerticalLayout {
                     return;
                 }
                 Object sourceItemId = ((DataBoundTransferable) t).getItemId();
-                hierarchicalContainer.removeItem(sourceItemId);
+                removeItemFromTreeRecursively(sourceItemId);
                 refreshRawXmlAndPreview();
             }
 

@@ -374,7 +374,12 @@ public class PluginHelper implements PluginManager, SearchProvider {
         }
         File f = new File(pluginsDir);
         if (!f.exists()) {
-            LOGGER.warning("Plugins dir not found: " + pluginsDir);
+            LOGGER.warning("Plugins dir not found: " + pluginsDir + " attempting to create...");
+            if (!f.mkdir()) {
+                LOGGER.warning("Failed to create plugins directory: " + pluginsDir + ", please reconfigure!!!");
+            } else {
+                LOGGER.severe("Created plugins directory: " + pluginsDir);
+            }
             return;
         }
         String[] list = f.list();
@@ -438,11 +443,19 @@ public class PluginHelper implements PluginManager, SearchProvider {
 
     public String getSystemPackages() {
         try {
-            FileInputStream fis = new FileInputStream(pluginsDir + File.separatorChar + "packages.export");
+            InputStream is;
+            try {
+                is = new FileInputStream(pluginsDir + File.separatorChar + "packages.export");
+            }
+            catch (IOException e) {
+                LOGGER.log(Level.SEVERE, "Error occurred while reading " + pluginsDir + File.separatorChar + "packages.export", e);                
+                LOGGER.log(Level.SEVERE, "Falling back to bundled version");
+                is = getClass().getResourceAsStream("/packages.export");
+            }
             try {
                 int c = 0;
                 StringBuffer sb = new StringBuffer();
-                while ((c = fis.read()) >= 0) {
+                while ((c = is.read()) >= 0) {
                     if (c == 10 || c == 13 || (char) c == ' ' || (char) c == '\t') {
                         continue;
                     }
@@ -450,12 +463,13 @@ public class PluginHelper implements PluginManager, SearchProvider {
                 }
                 return sb.toString().replaceAll("\\s*", "");
             } finally {
-                if (fis != null) {
-                    fis.close();
+                if (is != null) {
+                    is.close();
                 }
             }
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error occurred while reading " + pluginsDir + File.separatorChar + "packages.export", e);
+            
         }
         return "";
     }
@@ -627,7 +641,16 @@ public class PluginHelper implements PluginManager, SearchProvider {
     
     private void initializeSearchService() {
         try {
-            index = FSDirectory.open(new File(luceneDir));
+            File path = new File(luceneDir);
+            if (!path.exists()) {
+                LOGGER.severe("Default lucene index directory: " + luceneDir + " not found, attempting to create...");
+                if (!path.mkdir()) {
+                    LOGGER.severe("Failed to create Default lucene index directory: " + luceneDir);
+                } else {
+                    LOGGER.severe("Created Default lucene index directory: " + luceneDir);
+                }
+            }
+            index = FSDirectory.open(path);
             indexReader = IndexReader.open(index);
             indexSearcher = new IndexSearcher(indexReader);
 

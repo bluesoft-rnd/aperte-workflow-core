@@ -474,6 +474,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolWidget implements Pro
 
     private Link createLink(LinkWidgetElement we) {
         Link link = new Link();
+        link.setTargetName("_blank");
         link.setResource(new ExternalResource(we.getUrl()));
         return link;
     }

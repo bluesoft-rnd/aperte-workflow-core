@@ -60,8 +60,7 @@ public class ProcessDataHierarchyEditor extends VerticalLayout {
         treeAndForm.setSpacing(true);
 
         addComponent(getAvailableWidgetsComponent());
-        addComponent(new Label("Drag a control from a list above to add it to a hierarchy. " +
-                "Press Delete or drag a selected node back to a list above to delete it from a hierarchy.")); //TODO i18n
+        addComponent(new Label(getLocalizedMessage("info")));
         addComponent(treeAndForm);
         setExpandRatio(treeAndForm, 1.0f);
     }
@@ -76,7 +75,7 @@ public class ProcessDataHierarchyEditor extends VerticalLayout {
                 final Object itemId = event.getItemId();
                 if (prevFormHandler[0] != null && prevFormHandler[0].isModified()) {
                     ConfirmDialog.show(getApplication().getMainWindow(),
-                            "Unsaved data exists, abandon?", //TODO i18n
+                            getLocalizedMessage("unsaved-data-warning"),
                             new ConfirmDialog.Listener() {
                                 @Override
                                 public void onClose(ConfirmDialog confirmDialog) {
@@ -109,7 +108,7 @@ public class ProcessDataHierarchyEditor extends VerticalLayout {
         widgetTree.setWidth("100%");
         widgetTree.addShortcutListener(getDeleteShortcutListener());
 
-        Panel panel = new Panel("Widget hierarchy");
+        Panel panel = new Panel(getLocalizedMessage("widget-hierarchy"));
         panel.setHeight("340px");
         panel.setWidth("250px");
         panel.addComponent(widgetTree);
@@ -125,7 +124,7 @@ public class ProcessDataHierarchyEditor extends VerticalLayout {
                     final Object itemId = target1.getValue();
                     if (itemId != null) {
                         ConfirmDialog.show(getApplication().getMainWindow(),
-                                "Remove item?", //TODO i18n
+                                getLocalizedMessage("remove-item-confirm"),
                                 new ConfirmDialog.Listener() {
                                     @Override
                                     public void onClose(ConfirmDialog confirmDialog) {
@@ -169,14 +168,14 @@ public class ProcessDataHierarchyEditor extends VerticalLayout {
         List<XmlValidationError> xmlValidationErrors = rootWidget.validate();
         if (xmlValidationErrors != null && !xmlValidationErrors.isEmpty()) {
             String msg = joinValidationErrors(xmlValidationErrors);
-            Window.Notification n = new Window.Notification("Validation errors",  //TODO i18n
+            Window.Notification n = new Window.Notification(getLocalizedMessage("validation-errors"),
                     msg, Window.Notification.TYPE_TRAY_NOTIFICATION);
             n.setDelayMsec(4000);
             getApplication().getMainWindow().showNotification(n);
         } else {
             editor.updateFromWidgetsDefinitionElement(rootWidget);
-            Window.Notification n = new Window.Notification("Update successfull",  //TODO i18n
-                    "XML widget definition generated successfully", Window.Notification.TYPE_TRAY_NOTIFICATION);
+            Window.Notification n = new Window.Notification(getLocalizedMessage("update-success"),
+                    getLocalizedMessage("xml-definition-generate-success"), Window.Notification.TYPE_TRAY_NOTIFICATION);
             n.setDelayMsec(2000);
             getApplication().getMainWindow().showNotification(n);
         }
@@ -192,7 +191,7 @@ public class ProcessDataHierarchyEditor extends VerticalLayout {
         }
 
         Item item = hierarchicalContainer.addItem(rootWidget);
-        item.getItemProperty("name").setValue("widgets");
+        item.getItemProperty("name").setValue(rootWidget.getClass().getSimpleName());
         item.getItemProperty("widget").setValue(rootWidget);
 
         hierarchicalContainer.setChildrenAllowed(rootWidget, true);
@@ -327,9 +326,9 @@ public class ProcessDataHierarchyEditor extends VerticalLayout {
                     sourceItemId = widgetElement;
                 } catch (Throwable e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                    src.getApplication().getMainWindow().showNotification("Widget creation failed",
+                    src.getApplication().getMainWindow().showNotification(getLocalizedMessage("widget-creation-failed"),
                             e.getClass().getName() + ", " + e.getMessage(),
-                            Window.Notification.TYPE_ERROR_MESSAGE);//TODO i18n
+                            Window.Notification.TYPE_ERROR_MESSAGE);
                     if (subItem != null && widgetElement != null) {
                         container.removeItem(widgetElement);
                     }

@@ -1,6 +1,8 @@
 package pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor;
 
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.validation.XmlValidationError;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -62,9 +64,14 @@ class EditorHelper {
     public static String joinValidationErrors(List<XmlValidationError> xmlValidationErrors) {
         String msg = "";
         for (XmlValidationError err : xmlValidationErrors) {
-            msg += err.getField() + ": " + err.getMessageKey() + "\n";    //TODO i18n
+            msg += getLocalizedMessage(err.getMessageKey()).replace("%s", getLocalizedMessage(err.getField())) + " \n";
         }
         return msg;
+    }
+    
+    public static String getLocalizedMessage(String key) {
+        return I18NSource.ThreadUtil.getLocalizedMessage(
+                (key.startsWith("processdata") ? "" : "widget.process_data_block.editor.") + key);
     }
     
 }

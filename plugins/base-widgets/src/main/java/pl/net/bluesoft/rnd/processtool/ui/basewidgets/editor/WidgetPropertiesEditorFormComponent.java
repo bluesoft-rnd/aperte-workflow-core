@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.EditorHelper.findField;
+import static pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.EditorHelper.getLocalizedMessage;
 import static pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.EditorHelper.joinValidationErrors;
 
 /**
@@ -40,7 +41,7 @@ public class WidgetPropertiesEditorFormComponent extends VerticalLayout {
         form.setCaption(itemId.getClass().getSimpleName());
         form.setItemDataSource(new BeanItem(clone));
 
-        final Button commit = new Button("Commit");   //TODO i18n
+        final Button commit = new Button(getLocalizedMessage("commit"));
         commit.addListener(new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent event) {
@@ -54,7 +55,7 @@ public class WidgetPropertiesEditorFormComponent extends VerticalLayout {
 
     private void commit() {
         if (!form.isValid()) {
-            getApplication().getMainWindow().showNotification("Please review validation errors",  //TODO i18n
+            getApplication().getMainWindow().showNotification(getLocalizedMessage("validation-errors"),
                     Window.Notification.TYPE_WARNING_MESSAGE);
             return;
         }
@@ -63,8 +64,8 @@ public class WidgetPropertiesEditorFormComponent extends VerticalLayout {
             List<XmlValidationError> xmlValidationErrors = ((WidgetElement) clone).validateElement();
             if (xmlValidationErrors != null && !xmlValidationErrors.isEmpty()) {
                 String msg = joinValidationErrors(xmlValidationErrors);
-                getApplication().getMainWindow().showNotification("Validation errors",  //TODO i18n
-                        msg, Window.Notification.TYPE_WARNING_MESSAGE);         //TODO i18n
+                getApplication().getMainWindow().showNotification(getLocalizedMessage("validation-errors"),
+                        msg, Window.Notification.TYPE_WARNING_MESSAGE);
                 return;
             }
         }
@@ -104,13 +105,14 @@ public class WidgetPropertiesEditorFormComponent extends VerticalLayout {
                 java.lang.reflect.Field reflectField = findField(propertyId, classOfItem);
                 if (reflectField != null) {
                     Field field = super.createField(item, propertyId, uiContext);
+                    field.setCaption(getLocalizedMessage((String) propertyId));
                     AvailableOptions opts = reflectField.getAnnotation(AvailableOptions.class);
                     if (opts != null && opts.value() != null) {
                         NativeSelect ns = new NativeSelect();
                         field = ns;
-                        field.setCaption(createCaptionByPropertyId(propertyId));
                         for (String opt : opts.value()) {
                             ns.addItem(opt);
+                            ns.setItemCaption(opt, getLocalizedMessage(propertyId + "." + opt));
                         }
                     }
                     if (field instanceof AbstractField) {
@@ -123,7 +125,7 @@ public class WidgetPropertiesEditorFormComponent extends VerticalLayout {
                         textField.setNullRepresentation("");
                     }
                     if (cls.equals(Integer.class)) {
-                        field.addValidator(new IntegerValidator("is.not.an.integer"));
+                        field.addValidator(new IntegerValidator(getLocalizedMessage("is.not.an.integer")));
                         field.setWidth("100px");
                     } else {
                         field.setWidth("100%");

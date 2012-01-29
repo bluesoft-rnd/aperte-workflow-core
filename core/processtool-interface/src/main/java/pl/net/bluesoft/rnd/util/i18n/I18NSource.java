@@ -11,4 +11,18 @@ public interface I18NSource {
 	Locale getLocale();
 	void setLocale(Locale locale);
 
+    public class ThreadUtil {
+        public static final ThreadLocal<I18NSource> i18nSource = new ThreadLocal<I18NSource>();
+
+        public static void setThreadI18nSource(I18NSource source) {
+            i18nSource.set(source);
+        }
+
+        public static I18NSource getThreadI18nSource() {
+            return i18nSource.get();
+        }
+        public static String getLocalizedMessage(String key) {
+            return getThreadI18nSource().getMessage(key);
+        }
+    }
 }

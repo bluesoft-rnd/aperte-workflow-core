@@ -10,6 +10,7 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.i18n.DefaultI18NSource;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 
 import javax.servlet.ServletContext;
@@ -60,7 +61,7 @@ public class GenericEditorApplication extends Application implements HttpServlet
                 @Override
                 public void withContext(ProcessToolContext ctx) {
                     ProcessToolContext.Util.setProcessToolContextForThread(ctx);
-                    VaadinUtility.setThreadI18nSource(new DefaultI18NSource(request.getLocale()));
+                    I18NSource.ThreadUtil.setThreadI18nSource(new DefaultI18NSource(request.getLocale()));
                 }
             });
         } finally {
@@ -70,7 +71,7 @@ public class GenericEditorApplication extends Application implements HttpServlet
 
     @Override
     public void onRequestEnd(HttpServletRequest request, HttpServletResponse response) {
-        VaadinUtility.setThreadI18nSource(null);
+        I18NSource.ThreadUtil.setThreadI18nSource(null);
 
         ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
         if (ctx != null) {

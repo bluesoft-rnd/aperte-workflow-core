@@ -60,7 +60,7 @@ public class AutoStepEditorWindow extends AbstractStepEditorWindow implements Cl
 		  for (Object propertyId : propertiesPanel.getPropertiesForm().getItemPropertyIds()) {
               Property prop = (Property)propertyId;
 			  com.vaadin.ui.Field field = propertiesPanel.getPropertiesForm().getField(propertyId);
-			  field.setValue(map.get(prop.getName()));
+			  field.setValue(map.get(prop.getPropertyId()));
 		  }
     	}
 	}
@@ -125,7 +125,7 @@ public class AutoStepEditorWindow extends AbstractStepEditorWindow implements Cl
         			obj = "";
         	}
             
-            tc.addParam(prop.getName(), obj);
+            tc.addParam(prop.getPropertyId(), obj);
 		}
 		
 		try {

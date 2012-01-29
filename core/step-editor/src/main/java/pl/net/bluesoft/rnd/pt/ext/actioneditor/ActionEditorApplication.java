@@ -141,7 +141,7 @@ public class ActionEditorApplication extends GenericEditorApplication implements
 		for (Object propertyId : propertiesPanel.getPropertiesForm().getItemPropertyIds()) {
             Property prop = (Property)propertyId;
 			com.vaadin.ui.Field field = propertiesPanel.getPropertiesForm().getField(propertyId);
-			field.setValue(oldActionParameters.get(prop.getName()));
+			field.setValue(oldActionParameters.get(prop.getPropertyId()));
 		}
 	}
 
@@ -167,7 +167,7 @@ public class ActionEditorApplication extends GenericEditorApplication implements
             			obj = "";
             	}
                 
-                actionDef.putItem(prop.getName(), obj);
+                actionDef.putItem(prop.getPropertyId(), obj);
 			}
 			
 			

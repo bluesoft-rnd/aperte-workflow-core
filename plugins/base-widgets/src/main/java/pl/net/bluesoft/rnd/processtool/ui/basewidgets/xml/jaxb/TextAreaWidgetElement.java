@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name = "text")
+//@XmlRootElement(name = "text")
 @XStreamAlias("text")
 public class TextAreaWidgetElement extends WidgetElement {
     @XmlAttribute
@@ -50,11 +50,6 @@ public class TextAreaWidgetElement extends WidgetElement {
 
     public void setLimit(Integer limit) {
         this.limit = limit;
-    }
-
-    @Override
-    public List<XmlValidationError> validate() {
-        return new ArrayList<XmlValidationError>();
     }
 
     public Boolean getRequired() {

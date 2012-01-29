@@ -7,6 +7,7 @@ import pl.net.bluesoft.util.lang.StringUtil;
 
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @XmlAccessorType(XmlAccessType.NONE)
@@ -151,5 +152,10 @@ public abstract class WidgetElement implements Serializable {
         this.caption = caption;
     }
 
-    public abstract List<XmlValidationError> validate();
+    public  List<XmlValidationError> validate() {
+        return validateElement();
+    }
+    public List<XmlValidationError> validateElement() {
+        return new ArrayList<XmlValidationError>();
+    }
 }

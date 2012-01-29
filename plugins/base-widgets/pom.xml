@@ -84,6 +84,14 @@
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets,pl.net.bluesoft.rnd.processtool.ui.buttons
                         </Export-Package>
                         <Import-Package>
+                            com.vaadin.event.dd.acceptcriteria,
+                            com.vaadin.event.dd,
+                            com.vaadin.event,
+                            com.vaadin.terminal.gwt.client.ui.dd,
+                            com.vaadin.terminal,
+                            com.vaadin.data.util,
+                            org.vaadin.dialogs,
+                            org.vaadin.addon.customfield,
                             pl.net.bluesoft.rnd.util.i18n,javassist.util.proxy,org.hibernate.proxy,org.osgi.framework,pl.net.bluesoft.rnd.processtool.plugins.osgi,pl.net.bluesoft.rnd.processtool.plugins,pl.net.bluesoft.rnd.processtool.model,javax.persistence,pl.net.bluesoft.rnd.processtool.ui.widgets,com.vaadin.data,com.vaadin.ui,com.vaadin,pl.net.bluesoft.rnd.processtool.ui.widgets.impl,*;resolution:=optional
                         </Import-Package>
                         <Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>

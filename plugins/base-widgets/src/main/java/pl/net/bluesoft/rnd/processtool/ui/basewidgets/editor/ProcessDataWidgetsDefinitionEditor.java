@@ -340,9 +340,10 @@ public class ProcessDataWidgetsDefinitionEditor extends CustomField {
             if (children != null) for (Object subItemId : children) {
                 if (subItemId instanceof ItemElement) {
                     values.add((ItemElement) subItemId);
-                } else if (subItemId instanceof ScriptElement) {
-                    selectWidgetElement.setScript((ScriptElement) subItemId);
                 }
+//                else if (subItemId instanceof ScriptElement) {
+//                    selectWidgetElement.setScript((ScriptElement) subItemId);
+//                }
             }
             selectWidgetElement.setValues(values);
         }
@@ -486,21 +487,21 @@ public class ProcessDataWidgetsDefinitionEditor extends CustomField {
             Class srcClass = sourceItemId.getClass();
             Class targetClass = targetItemId.getClass();
             if (location == VerticalDropLocation.MIDDLE) {
-                if (checkIfParentChildRelationIsPossible(srcClass, targetClass)) return false;
+                if (!checkIfParentChildRelationIsPossible(srcClass, targetClass)) return false;
                 if (container.setParent(sourceItemId, targetItemId)
                         && container.hasChildren(targetItemId)) {
                     container.moveAfterSibling(sourceItemId, null);
                 }
             } else if (location == VerticalDropLocation.TOP) {
                 Object parentId = container.getParent(targetItemId);
-                if (checkIfParentChildRelationIsPossible(srcClass, parentId.getClass())) return false;
+                if (!checkIfParentChildRelationIsPossible(srcClass, parentId.getClass())) return false;
                 if (container.setParent(sourceItemId, parentId)) {
                     container.moveAfterSibling(sourceItemId, targetItemId);
                     container.moveAfterSibling(targetItemId, sourceItemId);
                 }
             } else if (location == VerticalDropLocation.BOTTOM) {
                 Object parentId = container.getParent(targetItemId);
-                if (checkIfParentChildRelationIsPossible(srcClass, parentId.getClass())) return false;
+                if (!checkIfParentChildRelationIsPossible(srcClass, parentId.getClass())) return false;
                 if (container.setParent(sourceItemId, parentId)) {
                     container.moveAfterSibling(sourceItemId, targetItemId);
                 }
@@ -511,17 +512,17 @@ public class ProcessDataWidgetsDefinitionEditor extends CustomField {
 
         private boolean checkIfParentChildRelationIsPossible(Class srcClass, Class targetClass) {
             XmlElements targetClassAnnotation = (XmlElements) getFieldAnnotation(targetClass, XmlElements.class);
-            if (targetClassAnnotation == null) {
+            //special case
+            if (srcClass.equals(ScriptElement.class) && targetClass.equals(SelectWidgetElement.class)) {
                 return true;
             }
-            boolean found = false;
+            if (targetClassAnnotation == null) {
+                return false;
+            }
             for (XmlElement xe: targetClassAnnotation.value()) {
                 if (srcClass.isAssignableFrom(xe.type())) {
-                    found = true;
+                    return true;
                 }
-            }
-            if (!found) {
-                return true;
             }
             return false;
         }

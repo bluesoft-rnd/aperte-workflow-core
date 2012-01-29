@@ -24,7 +24,7 @@ public class WidgetDefinitionLoader extends OXHelper {
                 ItemElement.class,
                 LabelWidgetElement.class,
                 LinkWidgetElement.class,
-                ScriptElement.class,
+//                ScriptElement.class, ! not supported yet!
                 SelectWidgetElement.class,
                 TextAreaWidgetElement.class,
                 UploadWidgetElement.class,

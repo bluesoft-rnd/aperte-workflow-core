@@ -33,18 +33,19 @@ import static pl.net.bluesoft.rnd.util.vaadin.VaadinExceptionHandler.Util.withEr
 public class VaadinUtility {
 
 
-    public static final ThreadLocal<I18NSource> i18nSource = new ThreadLocal<I18NSource>();
-
-    public static void setThreadI18nSource(I18NSource source) {
-        i18nSource.set(source);
-    }
-
-    public static I18NSource getThreadI18nSource() {
-        return i18nSource.get();
-    }
+//moved to I18NSource as it has nothing to do with Vaadin!
+//    public static final ThreadLocal<I18NSource> i18nSource = new ThreadLocal<I18NSource>();
+//
+//    public static void setThreadI18nSource(I18NSource source) {
+//        i18nSource.set(source);
+//    }
+//
+//    public static I18NSource getThreadI18nSource() {
+//        return i18nSource.get();
+//    }
 
     public static String getLocalizedMessage(String key) {
-        return getThreadI18nSource().getMessage(key);
+        return I18NSource.ThreadUtil.getLocalizedMessage(key);
     }
 
     public static ProcessToolContextFactory getProcessToolContext(ApplicationContext applicationContext) {

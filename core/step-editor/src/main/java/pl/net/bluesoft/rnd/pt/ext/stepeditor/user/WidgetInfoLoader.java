@@ -115,7 +115,7 @@ public class WidgetInfoLoader {
             }
 
             if (perms != null) {
-                I18NSource i18NSource = VaadinUtility.getThreadI18nSource();
+                I18NSource i18NSource = I18NSource.ThreadUtil.getThreadI18nSource();
                 for (Permission perm : perms) {
                     String permDesc = StringUtils.isEmpty(perm.desc()) ? PERMISSION_DESC_PREFIX + perm.key() : perm.desc();
                     permDesc = i18NSource.getMessage(permDesc);
@@ -168,7 +168,7 @@ public class WidgetInfoLoader {
 	public static Map<BundleItem, Collection<WidgetItem>> loadAvailableWidgets(Application application)
             throws ClassNotFoundException {
 		ProcessToolRegistry reg = GenericEditorApplication.getRegistry();
-        I18NSource i18NSource = VaadinUtility.getThreadI18nSource();
+        I18NSource i18NSource = I18NSource.ThreadUtil.getThreadI18nSource();
 
 		Map<BundleItem, Collection<WidgetItem>> availableWidgets = new HashMap<BundleItem, Collection<WidgetItem>>();
 
@@ -233,7 +233,7 @@ public class WidgetInfoLoader {
 			doc = ((Field) object).getAnnotation(AperteDoc.class);
 		}
 
-        I18NSource i18NSource = VaadinUtility.getThreadI18nSource();
+        I18NSource i18NSource = I18NSource.ThreadUtil.getThreadI18nSource();
 		Map<String, String> docMap = new HashMap<String, String>();
 		if (doc != null) {
 			docMap.put("name", i18NSource.getMessage(doc.humanNameKey()));

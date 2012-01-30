@@ -85,7 +85,7 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
                 {"definition_processname", def.getProcessName()},
         });
         for (ProcessDefinitionPermission perm : def.getPermissions()) {
-            if ("SEARCH".equals(perm.getPriviledgeName())) {
+            if ("SEARCH".equals(perm.getPrivilegeName())) {
                 String roleName = perm.getRoleName();
                 if (roleName.equals(".*"))
                     roleName = "__AWF__ROLE_ALL";
@@ -103,7 +103,7 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
                             {"state_name", psc.getName()},
                     });
             for (ProcessStatePermission perm : psc.getPermissions()) {
-                if ("SEARCH".equals(perm.getPriviledgeName())) {
+                if ("SEARCH".equals(perm.getPrivilegeName())) {
                     String roleName = perm.getRoleName();
                     if (roleName.equals(".*"))
                         roleName = "__AWF__ROLE_ALL";

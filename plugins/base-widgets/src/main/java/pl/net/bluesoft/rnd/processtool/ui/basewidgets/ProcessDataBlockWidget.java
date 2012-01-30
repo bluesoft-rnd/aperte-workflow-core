@@ -397,9 +397,10 @@ public class ProcessDataBlockWidget extends BaseProcessToolWidget implements Pro
                     select.setValue(item.getKey());
                 }
             }
-        } else if (swe.getScript() != null) {
-            processScriptElement(select, swe.getScript());
         }
+//        else if (swe.getScript() != null) {
+//            processScriptElement(select, swe.getScript());
+//        }
         if (nvl(swe.getRequired(), false)) {
             select.setRequired(true);
             if (hasText(swe.getCaption())) {
@@ -473,6 +474,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolWidget implements Pro
 
     private Link createLink(LinkWidgetElement we) {
         Link link = new Link();
+        link.setTargetName("_blank");
         link.setResource(new ExternalResource(we.getUrl()));
         return link;
     }

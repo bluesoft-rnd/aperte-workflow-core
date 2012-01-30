@@ -51,11 +51,11 @@ public class ProcessToolVaadinApplicationPortlet2 extends ApplicationPortlet2 {
 					try {
 //						request.setAttribute(ProcessToolContextImpl.class.getName(), ctx);
                         try {
-                            VaadinUtility.setThreadI18nSource(new DefaultI18NSource(request.getLocale()));
+                            I18NSource.ThreadUtil.setThreadI18nSource(new DefaultI18NSource(request.getLocale()));
 						    ProcessToolVaadinApplicationPortlet2.super.handleRequest(request, response);
                         }
                         finally {
-                            VaadinUtility.setThreadI18nSource(null);
+                            I18NSource.ThreadUtil.setThreadI18nSource(null);
                         }
 					} catch (Exception e) {
 						throw new RuntimeException(e);

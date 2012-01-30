@@ -12,7 +12,8 @@
         <!--
             RUN is the only process-level permission supported at this moment
         -->
-        <config.ProcessDefinitionPermission priviledgeName="RUN" roleName="Power User"/>
+        <config.ProcessDefinitionPermission privilegeName="RUN" roleName="Power User"/>
+        <config.ProcessDefinitionPermission privilegeName="SEARCH" roleName="Power User"/>
     </permissions>
     <states>
         <config.ProcessStateConfiguration description="Provide submission details" name="ENTER_SUBMISSION">
@@ -22,6 +23,9 @@
                         Please configure CMIS widget to achieve document upload feature.
                 ]]>
             </commentary>
+            <permissions>
+                <config.ProcessStatePermission privilegeName="SEARCH" roleName=".*"/>
+            </permissions>
             <widgets>
                 <config.ProcessStateWidget className="TabSheet">
                     <children>
@@ -32,7 +36,7 @@
                             <children>
                                 <config.ProcessStateWidget className="ProcessData" priority="15">
                                     <permissions>
-                                        <config.ProcessStateWidgetPermission priviledgeName="EDIT" roleName=".*"/>
+                                        <config.ProcessStateWidgetPermission privilegeName="EDIT" roleName=".*"/>
                                     </permissions>
                                     <attributes>
                                         <config.ProcessStateWidgetAttribute name="caption" value="Submission data"/>
@@ -53,7 +57,7 @@
 
                                 <!--<config.ProcessStateWidget className="CmisDocumentList" priority="20">-->
                                     <!--<permissions>-->
-                                        <!--<config.ProcessStateWidgetPermission priviledgeName="EDIT" roleName=".*"/>-->
+                                        <!--<config.ProcessStateWidgetPermission privilegeName="EDIT" roleName=".*"/>-->
                                     <!--</permissions>-->
                                     <!--<attributes>-->
                                         <!--<config.ProcessStateWidgetAttribute name="repositoryAtomUrl"-->
@@ -87,7 +91,7 @@
                             <children>
                                 <config.ProcessStateWidget className="LiferayUserData" priority="10">
                                     <permissions>
-                                        <config.ProcessStateWidgetPermission priviledgeName="EDIT"
+                                        <config.ProcessStateWidgetPermission privilegeName="EDIT"
                                                                              roleName=".*"/>
                                     </permissions>
                                     <attributes>
@@ -100,7 +104,7 @@
                                 </config.ProcessStateWidget>
                                 <config.ProcessStateWidget className="ProcessHistory" priority="98">
                                     <permissions>
-                                        <config.ProcessStateWidgetPermission priviledgeName="VIEW" roleName=".*"/>
+                                        <config.ProcessStateWidgetPermission privilegeName="VIEW" roleName=".*"/>
                                     </permissions>
                                     <attributes>
                                         <config.ProcessStateWidgetAttribute name="caption" value="Process history"/>
@@ -109,7 +113,7 @@
 
                                 <config.ProcessStateWidget className="ProcessComments" priority="99">
                                     <permissions>
-                                        <config.ProcessStateWidgetPermission priviledgeName="ADD" roleName=".*"/>
+                                        <config.ProcessStateWidgetPermission privilegeName="ADD" roleName=".*"/>
                                     </permissions>
                                     <attributes>
                                         <config.ProcessStateWidgetAttribute name="caption" value="Comments"/>
@@ -148,7 +152,7 @@
                     <children>
                         <config.ProcessStateWidget className="ProcessData" priority="15">
                             <permissions>
-                                <config.ProcessStateWidgetPermission priviledgeName="VIEW" roleName=".*"/>
+                                <config.ProcessStateWidgetPermission privilegeName="VIEW" roleName=".*"/>
                             </permissions>
                             <attributes>
                                 <config.ProcessStateWidgetAttribute name="caption" value="Submission data"/>
@@ -168,7 +172,7 @@
                         <!-- uncomment this to connect to CMIS repository -->
                         <!--<config.ProcessStateWidget className="CmisDocumentList" priority="20">-->
                             <!--<permissions>-->
-                                <!--<config.ProcessStateWidgetPermission priviledgeName="VIEW" roleName=".*"/>-->
+                                <!--<config.ProcessStateWidgetPermission privilegeName="VIEW" roleName=".*"/>-->
                             <!--</permissions>-->
                             <!--<attributes>-->
                                 <!--<config.ProcessStateWidgetAttribute name="repositoryAtomUrl"-->
@@ -191,7 +195,7 @@
                         <!--</config.ProcessStateWidget>-->
                         <config.ProcessStateWidget className="ProcessHistory" priority="98">
                             <permissions>
-                                <config.ProcessStateWidgetPermission priviledgeName="VIEW" roleName=".*"/>
+                                <config.ProcessStateWidgetPermission privilegeName="VIEW" roleName=".*"/>
                             </permissions>
                             <attributes>
                                 <config.ProcessStateWidgetAttribute name="caption" value="Process history"/>
@@ -199,7 +203,7 @@
                         </config.ProcessStateWidget>
                         <config.ProcessStateWidget className="ProcessComments" priority="99">
                             <permissions>
-                                <config.ProcessStateWidgetPermission priviledgeName="ADD" roleName=".*"/>
+                                <config.ProcessStateWidgetPermission privilegeName="ADD" roleName=".*"/>
                             </permissions>
                             <attributes>
                                 <config.ProcessStateWidgetAttribute name="caption" value="Comments"/>
@@ -253,7 +257,7 @@
                     <children>
                         <config.ProcessStateWidget className="ProcessData" priority="15">
                             <permissions>
-                                <config.ProcessStateWidgetPermission priviledgeName="EDIT" roleName=".*"/>
+                                <config.ProcessStateWidgetPermission privilegeName="EDIT" roleName=".*"/>
                             </permissions>
                             <attributes>
                                 <config.ProcessStateWidgetAttribute name="caption" value="Submission data"/>
@@ -273,7 +277,7 @@
 
                         <!--<config.ProcessStateWidget className="CmisDocumentList" priority="20">-->
                             <!--<permissions>-->
-                                <!--<config.ProcessStateWidgetPermission priviledgeName="EDIT" roleName=".*"/>-->
+                                <!--<config.ProcessStateWidgetPermission privilegeName="EDIT" roleName=".*"/>-->
                             <!--</permissions>-->
                             <!--<attributes>-->
                                 <!--<config.ProcessStateWidgetAttribute name="repositoryAtomUrl"-->
@@ -296,7 +300,7 @@
                         <!--</config.ProcessStateWidget>-->
                         <config.ProcessStateWidget className="ProcessHistory" priority="98">
                             <permissions>
-                                <config.ProcessStateWidgetPermission priviledgeName="VIEW" roleName=".*"/>
+                                <config.ProcessStateWidgetPermission privilegeName="VIEW" roleName=".*"/>
                             </permissions>
                             <attributes>
                                 <config.ProcessStateWidgetAttribute name="caption" value="Process history"/>
@@ -304,7 +308,7 @@
                         </config.ProcessStateWidget>
                         <config.ProcessStateWidget className="ProcessComments" priority="99">
                             <permissions>
-                                <config.ProcessStateWidgetPermission priviledgeName="ADD" roleName=".*"/>
+                                <config.ProcessStateWidgetPermission privilegeName="ADD" roleName=".*"/>
                             </permissions>
                             <attributes>
                                 <config.ProcessStateWidgetAttribute name="caption" value="Comments"/>
@@ -341,7 +345,7 @@
                     <children>
                         <config.ProcessStateWidget className="ProcessData" priority="2">
                             <permissions>
-                                <config.ProcessStateWidgetPermission priviledgeName="EDIT" roleName=".*"/>
+                                <config.ProcessStateWidgetPermission privilegeName="EDIT" roleName=".*"/>
                             </permissions>
                             <attributes>
                                 <config.ProcessStateWidgetAttribute name="caption" value="Twitter data"/>
@@ -357,7 +361,7 @@
                         </config.ProcessStateWidget>
                         <config.ProcessStateWidget className="ProcessData" priority="15">
                             <permissions>
-                                <config.ProcessStateWidgetPermission priviledgeName="VIEW" roleName=".*"/>
+                                <config.ProcessStateWidgetPermission privilegeName="VIEW" roleName=".*"/>
                             </permissions>
                             <attributes>
                                 <config.ProcessStateWidgetAttribute name="caption" value="Submission data"/>
@@ -375,7 +379,7 @@
 
                         <!--<config.ProcessStateWidget className="CmisDocumentList" priority="20">-->
                             <!--<permissions>-->
-                                <!--<config.ProcessStateWidgetPermission priviledgeName="VIEW" roleName=".*"/>-->
+                                <!--<config.ProcessStateWidgetPermission privilegeName="VIEW" roleName=".*"/>-->
                             <!--</permissions>-->
                             <!--<attributes>-->
                                 <!--<config.ProcessStateWidgetAttribute name="repositoryAtomUrl"-->
@@ -402,7 +406,7 @@
                         <!--</config.ProcessStateWidget>-->
                         <config.ProcessStateWidget className="ProcessHistory" priority="98">
                             <permissions>
-                                <config.ProcessStateWidgetPermission priviledgeName="VIEW" roleName=".*"/>
+                                <config.ProcessStateWidgetPermission privilegeName="VIEW" roleName=".*"/>
                             </permissions>
                             <attributes>
                                 <config.ProcessStateWidgetAttribute name="caption" value="Process history"/>
@@ -410,7 +414,7 @@
                         </config.ProcessStateWidget>
                         <config.ProcessStateWidget className="ProcessComments" priority="99">
                             <permissions>
-                                <config.ProcessStateWidgetPermission priviledgeName="ADD"
+                                <config.ProcessStateWidgetPermission privilegeName="ADD"
                                                                      roleName=".*"/>
                             </permissions>
                             <attributes>

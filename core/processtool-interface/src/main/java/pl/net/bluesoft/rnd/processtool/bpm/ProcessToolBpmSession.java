@@ -39,6 +39,7 @@ public interface ProcessToolBpmSession {
 	Set<String> getPermissionsForAction(ProcessStateAction action, ProcessToolContext ctx);
 	EventBusManager getEventBusManager();
 	Collection<BpmTask> getTaskList(ProcessInstance pi, ProcessToolContext ctx);
+    Collection<BpmTask> getTaskList(ProcessInstance pi, final ProcessToolContext ctx, final boolean mustHaveAssignee);
 	boolean isProcessOwnedByUser(ProcessInstance processInstance, ProcessToolContext ctx);
 	ProcessInstance performAction(ProcessStateAction action, ProcessInstance processInstance, ProcessToolContext ctx);
 	ProcessInstance performAction(ProcessStateAction action,
@@ -64,4 +65,16 @@ public interface ProcessToolBpmSession {
     List<String> getOutgoingTransitionNames(String internalId, ProcessToolContext ctx);
         
     ProcessToolBpmSession createSession(UserData user, Collection<String> roleNames, ProcessToolContext ctx);
+
+    Collection<String> getRoleNames();
+
+    void adminCancelProcessInstance(ProcessInstance pi);
+
+    void adminReassignProcessTask(ProcessInstance pi, BpmTask bpmTask, String userLogin);
+
+    void adminCompleteTask(ProcessInstance pi, BpmTask bpmTask, ProcessStateAction action);
+
+    List<String> getAvailableLogins(final String filter);
+
+
 }

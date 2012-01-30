@@ -6,9 +6,6 @@ import pl.net.bluesoft.rnd.pt.ext.jbpm.ProcessToolContextFactoryImpl;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -50,12 +47,12 @@ public class ProcessToolRegistryContextLoader implements ServletContextListener 
 		sce.getServletContext().removeAttribute(ProcessToolRegistry.class.getName());
 	}
 
-	private byte[] slurp(InputStream is) throws IOException {
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		int c=0;
-		while ((c = is.read()) > 0) {
-			baos.write(c);
-		}
-		return baos.toByteArray();
-	}
+//	private byte[] slurp(InputStream is) throws IOException {
+//		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//		int c=0;
+//		while ((c = is.read()) > 0) {
+//			baos.write(c);
+//		}
+//		return baos.toByteArray();
+//	}
 }

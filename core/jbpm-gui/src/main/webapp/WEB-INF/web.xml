@@ -338,7 +338,7 @@
             <param-value>${aperte.workflow.home}/osgi-plugins</param-value>
         </init-param>
         <init-param>
-            <param-name>osgi-storage-directory</param-name>
+            <param-name>felix-cache-directory</param-name>
             <param-value>${aperte.workflow.home}/felix-cache</param-value>
         </init-param>
         -->

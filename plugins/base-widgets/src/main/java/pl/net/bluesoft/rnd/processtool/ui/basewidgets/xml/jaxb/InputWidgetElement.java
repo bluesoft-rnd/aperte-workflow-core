@@ -2,6 +2,7 @@ package pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.jaxb;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+import pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.RequiredAttribute;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.XmlConstants;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.validation.XmlValidationError;
 import pl.net.bluesoft.util.lang.StringUtil;
@@ -9,11 +10,10 @@ import pl.net.bluesoft.util.lang.StringUtil;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 
-@XmlRootElement(name = "input")
+//@XmlRootElement(name = "input")
 @XStreamAlias("input")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class InputWidgetElement extends WidgetElement {
@@ -22,6 +22,7 @@ public class InputWidgetElement extends WidgetElement {
     private Boolean secret;
     @XmlAttribute
     @XStreamAsAttribute
+    @RequiredAttribute
     private Integer maxLength;
     @XmlAttribute
     @XStreamAsAttribute
@@ -96,7 +97,7 @@ public class InputWidgetElement extends WidgetElement {
     }
 
     @Override
-    public List<XmlValidationError> validate() {
+    public List<XmlValidationError> validateElement() {
         List<XmlValidationError> errors = new ArrayList<XmlValidationError>();
         if (!StringUtil.hasText(regexp) && StringUtil.hasText(errorKey) || StringUtil.hasText(regexp) && !StringUtil.hasText(errorKey)) {
             errors.add(new XmlValidationError("input", "[regexp & errorKey]", XmlConstants.XML_TAG_INVALID));

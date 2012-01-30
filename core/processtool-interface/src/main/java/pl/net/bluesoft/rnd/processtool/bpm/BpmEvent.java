@@ -13,7 +13,7 @@ import java.io.Serializable;
 public class BpmEvent implements Serializable {
 
 	public enum Type {
-		NEW_PROCESS, SIGNAL_PROCESS, ASSIGN_PROCESS
+		NEW_PROCESS, SIGNAL_PROCESS, ASSIGN_PROCESS, END_PROCESS
 	}
 
 	private Type eventType;

@@ -5,7 +5,6 @@ import com.vaadin.ui.Window;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.JavaScriptHelper;
 import pl.net.bluesoft.rnd.pt.ext.vaadin.GenericEditorApplication;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 
 import java.util.Map;
 
@@ -27,7 +26,7 @@ public class ProcessEditorApplication extends GenericEditorApplication implement
     public void init() {
         super.init();
 
-        I18NSource messages = VaadinUtility.getThreadI18nSource();
+        I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
 
         mainWindow = new Window(messages.getMessage("processeditor.application.name"));
         mainWindow.addParameterHandler(this);

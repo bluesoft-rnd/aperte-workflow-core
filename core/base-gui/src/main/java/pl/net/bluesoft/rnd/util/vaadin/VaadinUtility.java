@@ -12,6 +12,7 @@ import com.vaadin.ui.Table.ColumnGenerator;
 import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.themes.BaseTheme;
 import com.vaadin.ui.themes.Reindeer;
+import org.vaadin.dialogs.ConfirmDialog;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
@@ -29,30 +30,22 @@ import static pl.net.bluesoft.rnd.util.vaadin.VaadinExceptionHandler.Util.withEr
 /**
  * @author tlipski@bluesoft.net.pl
  */
-public class
-        VaadinUtility {
+public class VaadinUtility {
 
-    private static final ThreadLocal<Application> application = new ThreadLocal<Application>();
-    public static final ThreadLocal<I18NSource> i18nSource = new ThreadLocal<I18NSource>();
 
-    public static void setThreadI18nSource(I18NSource source) {
-        i18nSource.set(source);
-    }
-
-    public static I18NSource getThreadI18nSource() {
-        return i18nSource.get();
-    }
-
-    public static void setThreadApplication(Application app) {
-        application.set(app);
-    }
-    
-    public static Application getThreadApplication() {
-        return application.get();
-    }
+//moved to I18NSource as it has nothing to do with Vaadin!
+//    public static final ThreadLocal<I18NSource> i18nSource = new ThreadLocal<I18NSource>();
+//
+//    public static void setThreadI18nSource(I18NSource source) {
+//        i18nSource.set(source);
+//    }
+//
+//    public static I18NSource getThreadI18nSource() {
+//        return i18nSource.get();
+//    }
 
     public static String getLocalizedMessage(String key) {
-        return getThreadI18nSource().getMessage(key);
+        return I18NSource.ThreadUtil.getLocalizedMessage(key);
     }
 
     public static ProcessToolContextFactory getProcessToolContext(ApplicationContext applicationContext) {
@@ -112,6 +105,25 @@ public class
         Label l = new Label(message);
         l.setWidth(width + "px");
         return l;
+    }
+    public static Label htmlLabel(String message, int width) {
+        Label l = new Label(message, Label.CONTENT_XHTML);
+        l.setWidth(width + "px");
+        return l;
+    }
+
+    public static Label htmlLabel(String message) {
+        return new Label(message, Label.CONTENT_XHTML);
+    }
+
+    public static HorizontalLayout hl(com.vaadin.ui.Component... components) {
+        HorizontalLayout hl = new HorizontalLayout();
+        hl.setWidth("100%");
+        hl.setSpacing(true);
+        for (Component c : components) {
+            hl.addComponent(c);
+        }
+        return hl;
     }
 
     public static HorizontalLayout horizontalLayout(com.vaadin.ui.Component c1, com.vaadin.ui.Component c2) {
@@ -211,12 +223,12 @@ public class
         application.getMainWindow().showNotification(notification);
     }
     
-    public static void errorNotification(String message) {
-        Notification notification = new Notification(getThreadI18nSource().getMessage("notification.error"),
+    public static void errorNotification(Application application, I18NSource messageSource, String message) {
+        Notification notification = new Notification(messageSource.getMessage("notification.error"),
                 "<br/><b>" + message + "</b>", TYPE_ERROR_MESSAGE);
         notification.setPosition(POSITION_CENTERED);
         notification.setStyleName("error");
-        getThreadApplication().getMainWindow().showNotification(notification);
+        application.getMainWindow().showNotification(notification);
     }
 
     public static Button addIcon(Application application) {
@@ -262,8 +274,8 @@ public class
         return new Embedded(null, new ClassResource(VaadinUtility.class, fileName, application));
     }
     
-    public static Embedded embedded(File file) {
-        return new Embedded(null, new FileResource(file, getThreadApplication()));
+    public static Embedded embedded(Application application, File file) {
+        return new Embedded(null, new FileResource(file, application));
     }
 
     public static String widgetsErrorMessage(I18NSource i18NSource, Map<ProcessToolDataWidget, Collection<String>> errorMap) {
@@ -293,9 +305,35 @@ public class
         return c;
     }
 
+    public static Runnable confirmable(final Application app, final String windowCaption, final String message,
+                                       final Runnable runnable) {
+        return new Runnable() {
+            @Override
+            public void run() {
+                ConfirmDialog.show(app.getMainWindow(),
+                        windowCaption, message,
+                        getLocalizedMessage("confirm.yes"),
+                        getLocalizedMessage("confirm.no"),
+                        new ConfirmDialog.Listener() {
+                            @Override
+                            public void onClose(ConfirmDialog confirmDialog) {
+                                if (confirmDialog.isConfirmed()) {
+                                    runnable.run();
+                                }
+                            }
+                        });
+            }
+        };
+    }
+
     public static Button linkButton(String caption, final Runnable onClick) {
-        Button b = new Button(caption);
+        Button b = button(caption, onClick);
         b.setStyleName(Reindeer.BUTTON_LINK);
+        return b;
+    }
+    
+    public static Button button(String caption, final Runnable onClick) {
+        Button b = new Button(caption);
         b.addListener(new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent event) {

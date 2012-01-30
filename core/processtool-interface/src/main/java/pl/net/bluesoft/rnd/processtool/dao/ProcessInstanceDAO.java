@@ -4,6 +4,7 @@ import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -20,5 +21,7 @@ public interface ProcessInstanceDAO {
 	Map<String,ProcessInstance> getProcessInstanceByInternalIdMap(List<String> internalId);
 	void deleteProcessInstance(ProcessInstance instance);
 	UserData findOrCreateUser(UserData ud);
-	List<ProcessInstance> getRecentProcesses(UserData userData, Calendar minDate);
+	List<ProcessInstance> getRecentProcesses(UserData userData, Calendar minDate, String filter, int offset, int limit);
+
+    Collection<ProcessInstance> searchProcesses(String filter, int offset, int limit, boolean onlyRunning, String[] userRoles, String assignee, String... queues);
 }

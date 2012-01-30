@@ -3,7 +3,6 @@ package pl.net.bluesoft.rnd.processtool.model.config;
 import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -27,6 +26,11 @@ public class ProcessStateConfiguration extends PersistentEntity {
 	@OneToMany(cascade = CascadeType.ALL)
 	@JoinColumn(name="state_id")
 	private Set<ProcessStateAction> actions = new HashSet();
+
+    
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name="state_id")
+    private Set<ProcessStatePermission> permissions = new HashSet();
 
 	@ManyToOne
 	@JoinColumn(name="definition_id")
@@ -78,5 +82,12 @@ public class ProcessStateConfiguration extends PersistentEntity {
 
 	public void setActions(Set<ProcessStateAction> actions) {
 		this.actions = actions;
+	}
+	public Set<ProcessStatePermission> getPermissions() {
+		return permissions != null ? permissions : (permissions = new HashSet<ProcessStatePermission>());
+	}
+
+	public void setPermissions(Set<ProcessStatePermission> permissions) {
+		this.permissions = permissions;
 	}
 }

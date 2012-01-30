@@ -58,7 +58,7 @@ public class MyProcessesListPane extends ProcessListPane {
             }
         });
 
-        // ikona
+        // the icon
 
         ProcessInstance pi = tti.getProcessInstance();
 
@@ -73,7 +73,7 @@ public class MyProcessesListPane extends ProcessListPane {
         layout.addComponent(til, 0, 0, 0, 1);
         layout.setComponentAlignment(til, Alignment.MIDDLE_CENTER);
 
-        // górny pasek
+        // upper bar
 
         Button processNameButton = createOpenProcessInstanceButton(nvl(pi.getExternalKey(), pi.getInternalId()), tti);
         Button processDescriptionButton = createOpenProcessInstanceButton(getMessage(pi.getDefinition().getDescription()), tti);
@@ -83,7 +83,7 @@ public class MyProcessesListPane extends ProcessListPane {
         layout.setComponentAlignment(processDescriptionButton, Alignment.MIDDLE_LEFT);
         layout.setComponentAlignment(processNameButton, Alignment.MIDDLE_RIGHT);
 
-        // dolny pasek
+        // lower bar
 
 		Label longProcessStepName = new Label(getMessage(tti.getState()));
         longProcessStepName.setWidth(200, UNITS_PIXELS);
@@ -162,7 +162,8 @@ public class MyProcessesListPane extends ProcessListPane {
 
     private Resource createTaskIcon(TasksMainPane.TaskTableItem tti) {
         final ProcessDefinitionConfig cfg = tti.getProcessInstance().getDefinition();
-        String path = cfg.getProcessLogo() != null ? cfg.getBpmDefinitionKey() + "_" + cfg.getId() + "_logo.png" : "/img/aperte-logo.png";
+        String path = cfg.getProcessLogo() != null ? cfg.getBpmDefinitionKey() + "_" + cfg.getId() +
+                "_logo.png" : "/img/aperte-logo.png";
         Resource res = getResource(path);
         if (res == null) {
             if (cfg.getProcessLogo() != null) {
@@ -194,9 +195,14 @@ public class MyProcessesListPane extends ProcessListPane {
         return hl;
     }
 
-    protected List<ProcessInstance> getProcessInstances() {
-        return new ArrayList(getBpmSession()
-                    .getUserProcesses(0, 1000, ProcessToolContext.Util.getProcessToolContextFromThread()));
+    protected List<ProcessInstance> getProcessInstances(String filterExpression, int offset, int limit) {
+        if (filterExpression != null && !filterExpression.trim().isEmpty()) {
+            return new ArrayList<ProcessInstance>(ProcessToolContext.Util.getProcessToolContextFromThread().getProcessInstanceDAO()
+                    .searchProcesses(filterExpression, offset, limit, true, null, getBpmSession().getUserLogin()));
+        } else {
+            return new ArrayList(getBpmSession()
+                    .getUserProcesses(offset, limit, ProcessToolContext.Util.getProcessToolContextFromThread()));
+        }
     }
 
     private static String formatDate(Date date) {

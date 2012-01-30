@@ -1,8 +1,6 @@
 package pl.net.bluesoft.rnd.pt.ext.widget.permission;
 
 
-import com.vaadin.data.Container;
-import com.vaadin.data.Property;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.ui.GridLayout;
@@ -12,7 +10,6 @@ import pl.net.bluesoft.rnd.processtool.model.config.AbstractPermission;
 import pl.net.bluesoft.rnd.pt.ext.vaadin.DataHandler;
 import pl.net.bluesoft.rnd.pt.ext.vaadin.HorizontalBox;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -86,7 +83,7 @@ public class PermissionPanel extends GridLayout implements DataHandler {
     }
 
     private void initComponent() {
-        I18NSource messages = VaadinUtility.getThreadI18nSource();
+        I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
 
         permissionTable = new PermissionWrapperTable();
         permissionTable.addStyleName(Reindeer.TABLE_BORDERLESS);
@@ -123,7 +120,7 @@ public class PermissionPanel extends GridLayout implements DataHandler {
 
     @Override
     public void loadData() {
-        I18NSource messages = VaadinUtility.getThreadI18nSource();
+        I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
 
         addMenuItem.removeChildren();
         if (permissionProvider.getPermissionDefinitions() != null) {

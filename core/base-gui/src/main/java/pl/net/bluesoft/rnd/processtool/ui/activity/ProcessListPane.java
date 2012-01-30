@@ -13,10 +13,12 @@ import pl.net.bluesoft.rnd.processtool.ui.tasks.TasksMainPane;
 import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.HasRefreshButton;
 
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import static pl.net.bluesoft.rnd.util.i18n.I18NSource.ThreadUtil.getLocalizedMessage;
 import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.horizontalLayout;
 import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.refreshIcon;
-import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 
 /**
  * Created by IntelliJ IDEA.
@@ -26,6 +28,8 @@ import static pl.net.bluesoft.util.lang.StringUtil.hasText;
  * To change this template use File | Settings | File Templates.
  */
 public abstract class ProcessListPane extends VerticalLayout implements HasRefreshButton {
+    protected Logger logger = Logger.getLogger(ProcessListPane.class.getName());
+
     protected ActivityMainPane activityMainPane;
     protected VerticalLayout dataPane = new VerticalLayout();
     int limit = 10;
@@ -85,6 +89,7 @@ public abstract class ProcessListPane extends VerticalLayout implements HasRefre
             @Override
             public void textChange(FieldEvents.TextChangeEvent event) {
                 filterExpression = event.getText();
+                offset = 0;
                 refreshData();
             }
         });
@@ -95,54 +100,59 @@ public abstract class ProcessListPane extends VerticalLayout implements HasRefre
     }
 
     public void refreshData() {
+//        searchField.focus();
         dataPane.setSpacing(getDataPaneUsesSpacing());
         dataPane.setMargin(true);
         dataPane.setWidth("100%");
         dataPane.removeAllComponents();
 
-        List<ProcessInstance> userProcesses = getProcessInstances();
-        Collections.sort(userProcesses, new Comparator<ProcessInstance>() {
-            @Override
-            public int compare(ProcessInstance o1, ProcessInstance o2) {
-                return -1 * new Long(o1.getId()).compareTo(o2.getId());
-            }
-        });
-        List<TasksMainPane.TaskTableItem> filteredProcesses = new ArrayList<TasksMainPane.TaskTableItem>();
-        for (ProcessInstance pi : userProcesses) {
-            TasksMainPane.TaskTableItem tti = new TasksMainPane.TaskTableItem(pi.getDefinition().getDescription(),
-                    pi.getInternalId(), pi.getState(), pi, null);
-            if (tti.getState() != null) {
-                for (ProcessStateConfiguration st : pi.getDefinition().getStates()) {
-                    if (tti.getState().equals(st.getName())) {
-                        tti.setState(st.getDescription());
-                        tti.setStateConfiguration(st);
-                        break;
+        try {
+            List<ProcessInstance> userProcesses = getProcessInstances(filterExpression, offset, limit + 1);
+            Collections.sort(userProcesses, new Comparator<ProcessInstance>() {
+                @Override
+                public int compare(ProcessInstance o1, ProcessInstance o2) {
+                    return -1 * o1.getId().compareTo(o2.getId());
+                }
+            });
+            List<TasksMainPane.TaskTableItem> filteredProcesses = new ArrayList<TasksMainPane.TaskTableItem>();
+            for (ProcessInstance pi : userProcesses) {
+                TasksMainPane.TaskTableItem tti = new TasksMainPane.TaskTableItem(pi.getDefinition().getDescription(),
+                        pi.getInternalId(), pi.getState(), pi, null);
+                if (tti.getState() != null) {
+                    for (ProcessStateConfiguration st : pi.getDefinition().getStates()) {
+                        if (tti.getState().equals(st.getName())) {
+                            tti.setState(st.getDescription());
+                            tti.setStateConfiguration(st);
+                            break;
+                        }
                     }
                 }
-            }
-
-            if (!hasText(filterExpression) || tti.matchSearchCriteria(filterExpression)) {
                 filteredProcesses.add(tti);
             }
-        }
-        processInstances = filteredProcesses;
-        if (offset > processInstances.size()) {
-            offset = processInstances.size() - processInstances.size() % limit;
-        }
-        if (offset < 0) offset = 0;
+            processInstances = filteredProcesses;
+            if (offset < 0) offset = 0;
 
-        Component topNavigation = getNavigation();
-        dataPane.addComponent(topNavigation);
-        dataPane.setComponentAlignment(topNavigation, Alignment.TOP_RIGHT);
+            if (!processInstances.isEmpty()) {
+                Component topNavigation = getNavigation();
+                dataPane.addComponent(topNavigation);
+                dataPane.setComponentAlignment(topNavigation, Alignment.TOP_RIGHT);
 
-        for (int i = offset; i < Math.min(offset + limit, processInstances.size()); i++) {
-            TasksMainPane.TaskTableItem tti = processInstances.get(i);
-            dataPane.addComponent(getTaskItem(tti));
+                for (int i = 0; i < Math.min(limit, processInstances.size()); i++) {
+                    TasksMainPane.TaskTableItem tti = processInstances.get(i);
+                    dataPane.addComponent(getTaskItem(tti));
+                }
+
+                Component bottomNavigation = getNavigation();
+                dataPane.addComponent(bottomNavigation);
+                dataPane.setComponentAlignment(bottomNavigation, Alignment.TOP_RIGHT);
+            } else {
+                dataPane.addComponent(new Label(getLocalizedMessage("activity.no-results")));
+            }
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, e.getMessage(), e);
+            dataPane.addComponent(new Label(getLocalizedMessage("processinstances.console.failed") + " " + e.getClass().getName()
+                    + ": " + e.getMessage()));
         }
-
-        Component bottomNavigation = getNavigation();
-        dataPane.addComponent(bottomNavigation);
-        dataPane.setComponentAlignment(bottomNavigation, Alignment.TOP_RIGHT);
 
     }
 
@@ -150,45 +160,11 @@ public abstract class ProcessListPane extends VerticalLayout implements HasRefre
         return true;
     }
 
-    protected abstract List<ProcessInstance> getProcessInstances();
+    protected abstract List<ProcessInstance> getProcessInstances(String filterExpression, int offset, int limit);
 
     protected abstract Component getTaskItem(TasksMainPane.TaskTableItem tti);
 
-//    private Component getNavigation() {
-//        HorizontalLayout hl = new HorizontalLayout();
-//        hl.setWidth("100%");
-//        hl.setSpacing(true);
-//
-//        Button firstButton = createPagingButton("/img/left.png", GoToPage.FIRST);
-//        hl.addComponent(firstButton);
-//        hl.setComponentAlignment(firstButton, Alignment.MIDDLE_LEFT);
-//
-//        HorizontalLayout hl2 = new HorizontalLayout();
-//        hl2.setSpacing(true);
-//
-//        Button prevButton = createPagingButton("/img/left-large.png", GoToPage.PREVIOUS);
-//        hl2.addComponent(prevButton);
-//        hl2.setComponentAlignment(prevButton, Alignment.MIDDLE_LEFT);
-//
-//        Label rangeLabel = new Label((offset + 1) + "-" + Math.min(offset + limit, processInstances.size()) + " z " + processInstances.size());
-//        rangeLabel.styled("tti-range-label");
-//        hl2.addComponent(rangeLabel);
-//        hl2.setComponentAlignment(rangeLabel, Alignment.MIDDLE_LEFT);
-//
-//        Button nextButton = createPagingButton("/img/right-large.png", GoToPage.NEXT);
-//        hl2.addComponent(nextButton);
-//        hl2.setComponentAlignment(nextButton, Alignment.MIDDLE_LEFT);
-//
-//        Button lastButton = createPagingButton("/img/right.png", GoToPage.LAST);
-//        hl2.addComponent(lastButton);
-//        hl2.setComponentAlignment(lastButton, Alignment.MIDDLE_LEFT);
-//
-//        hl.addComponent(hl2);
-//        hl.setComponentAlignment(hl2, Alignment.MIDDLE_RIGHT);
-//
-//        return hl;
-//    }
-	 private Component getNavigation() {
+    private Component getNavigation() {
         HorizontalLayout hl = new HorizontalLayout();
 
         hl.setSpacing(true);
@@ -205,16 +181,17 @@ public abstract class ProcessListPane extends VerticalLayout implements HasRefre
         });
         hl.addComponent(prevButton);
 
-        hl.addComponent(new Label((offset + 1) + "-" + Math.min(offset + limit, processInstances.size())
-                + " " + getMessage("activity.tasks.of") + " " + processInstances.size()));
+        final int size = processInstances.size();
+        hl.addComponent(new Label((offset + 1) + "-" + Math.min(offset + limit, offset + size)));
+
         Button nextButton = new Button(getMessage("activity.tasks.next"));
         nextButton.setStyleName(BaseTheme.BUTTON_LINK);
-        nextButton.setEnabled(offset + limit < processInstances.size());
+        nextButton.setEnabled(limit < size);
         nextButton.addListener(new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent event) {
                 offset += limit;
-                if (offset > processInstances.size() - 1) offset = processInstances.size() - 1;
+//                if (offset > size - 1) offset = size - 1;
                 refreshData();
             }
         });
@@ -223,54 +200,6 @@ public abstract class ProcessListPane extends VerticalLayout implements HasRefre
         return hl;
     }
 
-    private Button createPagingButton(String icon, final GoToPage goTo) {
-        Button button = new Button();
-        button.setIcon(getImage(icon));
-        button.setStyleName(BaseTheme.BUTTON_LINK);
-        switch (goTo) {
-            case NEXT:
-            case LAST:
-                button.setEnabled(offset + limit < processInstances.size());
-                break;
-            case PREVIOUS:
-            case FIRST:
-                button.setEnabled(offset > 0);
-                break;
-        }
-        button.addListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent event) {
-                goToPage(goTo);
-            }
-        });
-        return button;
-    }
-
-    private enum GoToPage {
-        NEXT,
-        PREVIOUS,
-        FIRST,
-        LAST,
-    }
-    private void goToPage(GoToPage goTo) {
-        switch (goTo) {
-            case NEXT:
-                offset += limit;
-                break;
-            case PREVIOUS:
-                offset -= limit;
-                break;
-            case FIRST:
-                offset = 0;
-                break;
-            case LAST:
-                offset = (processInstances.size()/limit)*limit - 1;
-                break;
-        }
-        if (offset < 0) offset = 0;
-        if (offset > processInstances.size() - 1) offset = processInstances.size() - 1;
-        refreshData();
-    }
 
     protected String getMessage(String title) {
         return activityMainPane.getI18NSource().getMessage(title);
@@ -291,5 +220,5 @@ public abstract class ProcessListPane extends VerticalLayout implements HasRefre
             resourceCache.put(path, new ClassResource(getClass(), path, activityMainPane.getApplication()));
         }
         return resourceCache.get(path);
-	}
+    }
 }

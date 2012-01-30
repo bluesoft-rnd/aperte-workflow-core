@@ -2,17 +2,14 @@ package pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.jaxb;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
-import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.validation.XmlValidationError;
+import pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.RequiredAttribute;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
-import java.util.ArrayList;
-import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name = "text")
+//@XmlRootElement(name = "text")
 @XStreamAlias("text")
 public class TextAreaWidgetElement extends WidgetElement {
     @XmlAttribute
@@ -23,6 +20,7 @@ public class TextAreaWidgetElement extends WidgetElement {
     private Integer visibleLines;
     @XmlAttribute
     @XStreamAsAttribute
+    @RequiredAttribute
     private Integer limit;
     @XmlAttribute
     @XStreamAsAttribute
@@ -50,11 +48,6 @@ public class TextAreaWidgetElement extends WidgetElement {
 
     public void setLimit(Integer limit) {
         this.limit = limit;
-    }
-
-    @Override
-    public List<XmlValidationError> validate() {
-        return new ArrayList<XmlValidationError>();
     }
 
     public Boolean getRequired() {

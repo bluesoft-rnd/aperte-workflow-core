@@ -2,6 +2,7 @@ package pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.jaxb;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+import pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.RequiredAttribute;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.XmlConstants;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.validation.XmlValidationError;
 import pl.net.bluesoft.util.lang.StringUtil;
@@ -20,9 +21,11 @@ import java.util.List;
 public class ItemElement implements Serializable {
     @XmlAttribute
     @XStreamAsAttribute
+    @RequiredAttribute
     private String key;
     @XmlAttribute
     @XStreamAsAttribute
+    @RequiredAttribute
     private String value;
 
     public ItemElement() {
@@ -49,7 +52,7 @@ public class ItemElement implements Serializable {
         this.value = value;
     }
 
-    public List<XmlValidationError> validate() {
+    public List<XmlValidationError> validateElement() {
         List<XmlValidationError> errors = new ArrayList<XmlValidationError>();
         if (!(StringUtil.hasText(value) && StringUtil.hasText(key))) {
             errors.add(new XmlValidationError("item", "[key & value]", XmlConstants.XML_TAG_EMPTY));

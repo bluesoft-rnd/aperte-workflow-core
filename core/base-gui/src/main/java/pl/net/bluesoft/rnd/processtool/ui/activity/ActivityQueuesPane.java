@@ -5,9 +5,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.BaseTheme;
-
 import pl.net.bluesoft.rnd.poutils.DateUtil;
-import pl.net.bluesoft.rnd.poutils.cquery.Selectors;
 import pl.net.bluesoft.rnd.poutils.cquery.func.F;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent;
@@ -16,14 +14,12 @@ import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.UserSubstitution;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
-import pl.net.bluesoft.rnd.util.liferay.LiferayBridge;
 import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.HasRefreshButton;
 import pl.net.bluesoft.util.eventbus.EventListener;
 
 import java.util.*;
 
 import static pl.net.bluesoft.rnd.poutils.cquery.CQuery.from;
-import static pl.net.bluesoft.rnd.poutils.cquery.Selectors.identity;
 import static pl.net.bluesoft.rnd.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
 import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.horizontalLayout;
 import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.refreshIcon;
@@ -72,9 +68,11 @@ public class ActivityQueuesPane extends Panel implements HasRefreshButton {
                 processToolContextFromThread,
                 null
         ));
+//        this feature will be replaced by process search ability
 		taskList.addComponent(createRecentTasksButton(user, processToolContextFromThread));
 
-		final List<ProcessQueue> userAvailableQueues = new ArrayList(bpmSession.getUserAvailableQueues(processToolContextFromThread));
+		final List<ProcessQueue> userAvailableQueues =
+                new ArrayList<ProcessQueue>(bpmSession.getUserAvailableQueues(processToolContextFromThread));
 
         Collections.sort(userAvailableQueues, new Comparator<ProcessQueue>() {
 			public int compare(ProcessQueue o1, ProcessQueue o2) {
@@ -85,6 +83,8 @@ public class ActivityQueuesPane extends Panel implements HasRefreshButton {
 		for (ProcessQueue q : userAvailableQueues) {
 			taskList.addComponent(createQueueButton(q, bpmSession, null));
 		}
+/*
+        user substitutions require more analysis
 
         List<UserData> substitutedUsers = getSubstitutedUsers(user, new Date());
         Map<UserData, ProcessToolBpmSession> substitutedUserToSession = from(substitutedUsers)
@@ -130,7 +130,7 @@ public class ActivityQueuesPane extends Panel implements HasRefreshButton {
                     map.get(queueName).get(0).bpmSession,
                     map.get(queueName).get(0).user
             ));
-		}                   
+		}   */
 	}
 
     private static class QueueUserSession {
@@ -166,7 +166,7 @@ public class ActivityQueuesPane extends Panel implements HasRefreshButton {
         final Calendar minDate = Calendar.getInstance();
 		minDate.add(Calendar.DAY_OF_YEAR, -5);
 		List<ProcessInstance> recentProcesses = ctx.getProcessInstanceDAO()
-				.getRecentProcesses(user, minDate);
+				.getRecentProcesses(user, minDate, null, 0, 100);
 		Button b = new Button(getMessage("activity.recent.tasks") + " (" + recentProcesses.size() + ")");
 		b.setStyleName(BaseTheme.BUTTON_LINK);
 		b.setEnabled(recentProcesses.size() > 0);

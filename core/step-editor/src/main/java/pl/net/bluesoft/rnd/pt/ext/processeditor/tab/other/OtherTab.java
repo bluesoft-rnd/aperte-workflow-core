@@ -2,6 +2,7 @@ package pl.net.bluesoft.rnd.pt.ext.processeditor.tab.other;
 
 import com.vaadin.ui.Embedded;
 import com.vaadin.ui.VerticalLayout;
+import pl.net.bluesoft.rnd.pt.ext.vaadin.GenericEditorApplication;
 import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 
 import java.io.File;
@@ -29,7 +30,7 @@ public class OtherTab extends VerticalLayout implements ProcessLogoHandler {
         }
 
         if (processLogoFile.exists()) {
-            logoImage = VaadinUtility.embedded(processLogoFile);
+            logoImage = VaadinUtility.embedded(GenericEditorApplication.getCurrent(), processLogoFile);
             logoImage.setWidth("75px");
             logoImage.setHeight("75px");
             addComponent(logoImage);

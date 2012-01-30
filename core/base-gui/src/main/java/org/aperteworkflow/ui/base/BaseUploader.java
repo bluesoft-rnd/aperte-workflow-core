@@ -1,5 +1,6 @@
 package org.aperteworkflow.ui.base;
 
+import com.vaadin.Application;
 import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.VerticalLayout;
@@ -28,12 +29,17 @@ public abstract class BaseUploader extends VerticalLayout implements Upload.Succ
     private final OutputStream nullOut;
     private String uploadFailedNotification;
 
+    protected Application application;
+    protected I18NSource messages;
+    
     protected OutputStream out;
     protected Upload upload;
     protected ProgressIndicator progressIndicator;
     protected VerticalLayout mainLayout;
 
-    public BaseUploader() {
+    public BaseUploader(Application application) {
+        this.application = application; // TODO pass from ThreadLocal
+        messages = I18NSource.ThreadUtil.getThreadI18nSource();
         nullOut = new OutputStream() {
             @Override
             public void write(int b) throws IOException {
@@ -65,7 +71,7 @@ public abstract class BaseUploader extends VerticalLayout implements Upload.Succ
     @Override
     public void updateProgress(long readBytes, long contentLength) {
         if (maxFileSize > 0 && (maxFileSize < readBytes || (contentLength != -1 && maxFileSize < contentLength))) {
-            I18NSource messages = VaadinUtility.getThreadI18nSource();
+            I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
             setUploadFailedNotification(messages.getMessage("baseuploader.filesize.exceeded"));
             upload.interruptUpload();
         }
@@ -84,10 +90,10 @@ public abstract class BaseUploader extends VerticalLayout implements Upload.Succ
         cleanup();
 
         if (uploadFailedNotification != null) {
-            VaadinUtility.errorNotification(uploadFailedNotification);
+            VaadinUtility.errorNotification(application, messages, uploadFailedNotification);
             uploadFailedNotification = null;
         } else if (event.getReason() != null) {
-            VaadinUtility.errorNotification(event.getReason().getMessage());
+            VaadinUtility.errorNotification(application, messages, event.getReason().getMessage());
         }
     }
 
@@ -95,7 +101,7 @@ public abstract class BaseUploader extends VerticalLayout implements Upload.Succ
     public OutputStream receiveUpload(String filename, String mimeType) {
         out = null;
 
-        I18NSource message = VaadinUtility.getThreadI18nSource();
+        I18NSource message = I18NSource.ThreadUtil.getThreadI18nSource();
 
         if (!allowedMimeTypes.isEmpty() && !allowedMimeTypes.contains(mimeType)) {
             logger.log(Level.INFO, "Disallowed mimeType " + mimeType);

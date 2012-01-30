@@ -1,11 +1,13 @@
 package pl.net.bluesoft.rnd.processtool.plugins;
 
+import org.aperteworkflow.search.SearchProvider;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.dao.*;
@@ -28,11 +30,13 @@ import pl.net.bluesoft.util.lang.FormatUtil;
 import pl.net.bluesoft.util.lang.StringUtil;
 
 import javax.naming.InitialContext;
+import javax.sql.DataSource;
 import javax.transaction.UserTransaction;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
@@ -50,6 +54,8 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	private SessionFactory sessionFactory;
 	private EventBusManager eventBusManager = new EventBusManager();
     private PluginManager pluginManager;
+    private SearchProvider searchProvider;
+
     private boolean jta;
     private BundleContext bundleContext;
 
@@ -183,18 +189,8 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 
         jta = false;
         boolean startJtaTransaction = true;
-        UserTransaction ut=null;
-        try {
-            ut = (UserTransaction) new InitialContext().lookup("java:comp/UserTransaction");
-        } catch (Exception e) {
-            logger.warning("java:comp/UserTransaction not found, looking for UserTransaction");
-            try {
-                ut = (UserTransaction) new InitialContext().lookup("UserTransaction");
-            }
-            catch (Exception e1) {
-                logger.warning("UserTransaction not found in JNDI, JTA not available!");
-            }
-        }
+        String dataSourceName = checkForDataSource();
+        UserTransaction ut = dataSourceName != null ? findUserTransaction() : null; //do not even try...
 
         Configuration configuration = new Configuration().configure();
 		for (Class cls : annotatedClasses.values()) {
@@ -208,8 +204,26 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 			}
 		}
 
+        if (dataSourceName == null) {
+            logger.severe("Aperte Workflow runs using embedded datasource. This approach is useful only for development and demoing purposes.");
+                /*
+                <!--<property name="hibernate.connection.driver_class">org.hsqldb.jdbcDriver</property>-->
+                <!--<property name="hibernate.connection.url">jdbc:hsqldb:${liferay.home}/data/hsql/aperteworkflow</property>-->
+                <!--<property name="hibernate.connection.username">sa</property>-->
+                <!--<property name="hibernate.connection.password"></property>-->
+                */
+            configuration.setProperty("hibernate.connection.driver_class", "org.hsqldb.jdbcDriver");
+            String url = "jdbc:hsqldb:" + ProcessToolContext.Util.getHomePath() + "/aperteworkflow-hsql";
+            configuration.setProperty("hibernate.connection.url", url);
+            configuration.setProperty("hibernate.connection.username", "sa");
+            configuration.setProperty("hibernate.connection.password", "");
+            logger.severe("Configured Aperte Workflow to use Hypersonic DB driver org.hsqldb.jdbcDriver, url: " + url);
+        } else {
+            logger.info("Configuring Aperte Workflow to use data source: " + dataSourceName);
+            configuration.setProperty("hibernate.connection.datasource", dataSourceName);
+        }
         String managerLookupClassName=null;
-        if (ut != null && !"true".equalsIgnoreCase(System.getProperty("org.aperteworkflow.nojta"))) { //try to autodetect JTA settings
+        if (ut != null) { //try to autodetect JTA settings
             logger.warning("UserTransaction found, attempting to autoconfigure Hibernate to use JTA");
             managerLookupClassName = System.getProperty("org.aperteworkflow.hibernate.transaction.manager_lookup_class");
             if (managerLookupClassName == null) {
@@ -267,10 +281,50 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
                 throw new RuntimeException(e);
             }
         }
+        if (dataSourceName == null) {
+            logger.severe("Aperte Workflow runs using embedded datasource. This approach is useful only for development and demoing purposes.");
+        }
+
 
     }
 
-	public <T extends ProcessToolWidget> T makeWidget(Class<? extends ProcessToolWidget> aClass) throws IllegalAccessException, InstantiationException {
+    /*
+        <!--<property name="hibernate.connection.datasource">java:comp/env/jdbc/aperte-workflow-ds</property>-->
+     */
+    private String checkForDataSource() {
+
+        String dsName = nvl(System.getProperty("org.aperteworkflow.datasource"), "java:comp/env/jdbc/aperte-workflow-ds");
+        try {
+            DataSource lookup = (DataSource) new InitialContext().lookup(dsName);
+            lookup.getConnection().close();
+            return dsName;
+        }
+        catch (Exception e) {
+            logger.log(Level.SEVERE, "Aperte Workflow datasource bound to name: " + dsName +
+                    " not found or is badly configured, falling back to preconfigured HSQLDB. DO NOT USE THAT IN PRODUCTION!", e);
+        }
+        return null;
+    }
+
+    private UserTransaction findUserTransaction() {
+        UserTransaction ut=null;
+        if (!"true".equalsIgnoreCase(System.getProperty("org.aperteworkflow.nojta"))) {
+            try {
+                ut = (UserTransaction) new InitialContext().lookup("java:comp/UserTransaction");
+            } catch (Exception e) {
+                logger.warning("java:comp/UserTransaction not found, looking for UserTransaction");
+                try {
+                    ut = (UserTransaction) new InitialContext().lookup("UserTransaction");
+                }
+                catch (Exception e1) {
+                    logger.warning("UserTransaction not found in JNDI, JTA not available!");
+                }
+            }
+        }
+        return ut;
+    }
+
+    public <T extends ProcessToolWidget> T makeWidget(Class<? extends ProcessToolWidget> aClass) throws IllegalAccessException, InstantiationException {
 		return (T) aClass.newInstance();
 	}
 
@@ -319,7 +373,7 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 
     @Override
 	public ProcessInstanceDAO getProcessInstanceDAO(Session hibernateSession) {
-		return new ProcessInstanceDAOImpl(hibernateSession);
+		return new ProcessInstanceDAOImpl(hibernateSession, searchProvider);
 	}
 
 	@Override
@@ -606,4 +660,13 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
     public boolean isJta() {
         return jta;
     }
+    
+    public SearchProvider getSearchProvider() {
+        return searchProvider;
+    }
+
+    public void setSearchProvider(SearchProvider searchProvider) {
+        this.searchProvider = searchProvider;
+    }
+    
 }

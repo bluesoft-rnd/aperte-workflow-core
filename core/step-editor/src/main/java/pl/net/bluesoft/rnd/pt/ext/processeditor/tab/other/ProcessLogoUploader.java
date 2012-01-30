@@ -4,6 +4,7 @@ package pl.net.bluesoft.rnd.pt.ext.processeditor.tab.other;
 import com.vaadin.ui.Upload;
 import org.aperteworkflow.ui.base.BaseUploader;
 import pl.net.bluesoft.rnd.pt.ext.signavio.ModelConstants;
+import pl.net.bluesoft.rnd.pt.ext.vaadin.GenericEditorApplication;
 import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 
 import java.io.File;
@@ -21,6 +22,7 @@ public class ProcessLogoUploader extends BaseUploader {
     private ProcessLogoHandler processLogoHandler;
 
     public ProcessLogoUploader() {
+        super(GenericEditorApplication.getCurrent()); // TODO remove after fixing this in baseuploader
         setMaxFileSize(25 * 1024);
         addAllowedMimeType("image/png");
     }
@@ -48,7 +50,7 @@ public class ProcessLogoUploader extends BaseUploader {
         File processLogoFile = new File(getProcessLogoFile());
         if (!logoFile.renameTo(processLogoFile)) {
             logger.log(Level.SEVERE, "Failed to move process logo file");
-            VaadinUtility.errorNotification("proceslogoupload.move.failed");
+            VaadinUtility.errorNotification(application, messages, "proceslogoupload.move.failed");
         } else {
             processLogoHandler.handleProcessLogo(processLogoFile);
         }

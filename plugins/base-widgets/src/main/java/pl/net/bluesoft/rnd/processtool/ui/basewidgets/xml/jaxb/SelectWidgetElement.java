@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name = "select")
+//@XmlRootElement(name = "select")
 @XStreamAlias("select")
 public class SelectWidgetElement extends WidgetElement {
     @XmlElements({
@@ -21,8 +21,8 @@ public class SelectWidgetElement extends WidgetElement {
     @XStreamImplicit
     private List<ItemElement> values;
 
-    @XmlElement
-    private ScriptElement script;
+//    @XmlElement
+//    private ScriptElement script;
 
     @XmlAttribute
     @XStreamAsAttribute
@@ -40,13 +40,13 @@ public class SelectWidgetElement extends WidgetElement {
         this.values = values;
     }
 
-    public ScriptElement getScript() {
-        return script;
-    }
-
-    public void setScript(ScriptElement script) {
-        this.script = script;
-    }
+//    public ScriptElement getScript() {
+//        return script;
+//    }
+//
+//    public void setScript(ScriptElement script) {
+//        this.script = script;
+//    }
 
     public Integer getDefaultSelect() {
         return defaultSelect;
@@ -72,14 +72,29 @@ public class SelectWidgetElement extends WidgetElement {
         } else if (!StringUtil.hasText(provider) && StringUtil.hasText(dict)) {
             errors.add(new XmlValidationError("select", "provider", XmlConstants.XML_TAG_EMPTY));
         } else if (!(StringUtil.hasText(provider) && StringUtil.hasText(dict)) &&
-                script == null && getValues().isEmpty()) {
-            errors.add(new XmlValidationError("select", "[dict & provider | values | script]", XmlConstants.XML_TAG_EMPTY));
-        } else if (script != null) {
-            errors.addAll(script.validate());
+//                script == null &&
+                getValues().isEmpty()) {
+            errors.add(new XmlValidationError("select", "[dict & provider | values ]", XmlConstants.XML_TAG_EMPTY));
+//        } else if (script != null) {
+//            errors.addAll(script.validate());
         } else if (!getValues().isEmpty()) {
             for (ItemElement ie : getValues()) {
-                errors.addAll(ie.validate());
+                errors.addAll(ie.validateElement());
             }
+        }
+        return errors;
+    }
+    @Override
+    public List<XmlValidationError> validateElement() {
+        List<XmlValidationError> errors = new ArrayList<XmlValidationError>();
+        if (StringUtil.hasText(provider) && !StringUtil.hasText(dict)) {
+            errors.add(new XmlValidationError("select", "dict", XmlConstants.XML_TAG_EMPTY));
+        } else if (!StringUtil.hasText(provider) && StringUtil.hasText(dict)) {
+            errors.add(new XmlValidationError("select", "provider", XmlConstants.XML_TAG_EMPTY));
+        } else if (!(StringUtil.hasText(provider) && StringUtil.hasText(dict)) &&
+//                script == null &&
+                getValues().isEmpty()) {
+            errors.add(new XmlValidationError("select", "[dict & provider | values]", XmlConstants.XML_TAG_EMPTY));
         }
         return errors;
     }

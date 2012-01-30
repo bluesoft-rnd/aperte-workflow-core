@@ -102,6 +102,7 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
 
     public ProcessStateConfiguration getProcessStateConfiguration(ProcessInstance pi, ProcessToolContext ctx) {
         ProcessStateConfiguration configuration = ctx.getProcessDefinitionDAO().getProcessStateConfiguration(pi);
+        if (configuration == null) return null;
         ProcessStateConfiguration res = new ProcessStateConfiguration();
         res.setDescription(configuration.getDescription());
         res.setCommentary(configuration.getCommentary());
@@ -140,7 +141,7 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
         Set<String> res = new HashSet<String>();
         for (AbstractPermission permission : col) {
             if (hasMatchingRole(permission.getRoleName())) {
-                res.add(permission.getPriviledgeName());
+                res.add(permission.getPrivilegeName());
             }
         }
         return res;
@@ -179,7 +180,6 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
     @Override
     public void saveProcessInstance(ProcessInstance processInstance, ProcessToolContext ctx) {
         ctx.getProcessInstanceDAO().saveProcessInstance(processInstance);
-
     }
 
     protected abstract ProcessInstance startProcessInstance(ProcessDefinitionConfig config, String externalKey,
@@ -194,7 +194,7 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
             }
             for (ProcessDefinitionPermission permission : cfg.getPermissions()) {
                 String roleName = permission.getRoleName();
-                if ("RUN".equals(permission.getPriviledgeName()) && roleName != null && hasMatchingRole(roleName)) {
+                if ("RUN".equals(permission.getPrivilegeName()) && roleName != null && hasMatchingRole(roleName)) {
                     res.add(cfg);
                     break;
                 }
@@ -250,4 +250,10 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
         }
         return false;
     }
+
+    @Override
+    public Collection<String> getRoleNames() {
+        return roleNames;
+    }
+
 }

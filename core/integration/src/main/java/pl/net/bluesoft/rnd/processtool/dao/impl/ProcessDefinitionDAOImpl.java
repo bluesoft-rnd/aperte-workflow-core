@@ -10,6 +10,8 @@ import pl.net.bluesoft.rnd.processtool.model.config.*;
 import java.util.*;
 import java.util.logging.Logger;
 
+import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
+
 /**
  * @author tlipski@bluesoft.net.pl
  */
@@ -143,6 +145,9 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 
 		Set<ProcessStateWidget> newWidgets = newState.getWidgets();
 		Set<ProcessStateWidget> oldWidgets = oldState.getWidgets();
+
+        if (!comparePermissions(oldState.getPermissions(), newState.getPermissions())) return false;
+
 		return compareWidgets(newWidgets, oldWidgets);
 
 
@@ -180,7 +185,7 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 	}
 
 	private boolean compareActions(ProcessStateAction newAction, ProcessStateAction oldAction) {
-		return newAction.getDescription().equals(oldAction.getDescription()) &&
+		return nvl(newAction.getDescription(),"").equals(nvl(oldAction.getDescription(), "")) &&
 				comparePermissions(newAction.getPermissions(), oldAction.getPermissions());
 
 	}
@@ -189,10 +194,10 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 		if (newPermissions.size() != oldPermissions.size()) return false;
 		Set<String> permissionSet = new HashSet();
 		for (AbstractPermission p : newPermissions) {
-			permissionSet.add(p.getPriviledgeName() + "|||" + p.getRoleName());
+			permissionSet.add(p.getPrivilegeName() + "|||" + p.getRoleName());
 		}
 		for (AbstractPermission p : oldPermissions) {
-			if (!permissionSet.contains(p.getPriviledgeName() + "|||" + p.getRoleName())) return false;
+			if (!permissionSet.contains(p.getPrivilegeName() + "|||" + p.getRoleName())) return false;
 		}
 		return true;
 	}

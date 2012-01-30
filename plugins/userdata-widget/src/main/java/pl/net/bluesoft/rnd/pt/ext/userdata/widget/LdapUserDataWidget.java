@@ -1,8 +1,8 @@
 package pl.net.bluesoft.rnd.pt.ext.userdata.widget;
 
 import com.novell.ldap.*;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.WidgetGroup;
 
 import java.util.Collection;
@@ -15,13 +15,13 @@ import java.util.HashSet;
 @WidgetGroup("userdata-widget")
 public class LdapUserDataWidget extends UserDataWidget {
 
-	@AutoWiredProperty
+	@AutoWiredProperty(required = true)
 	public String ip;
 	@AutoWiredProperty
 	public Integer port = 389;
-	@AutoWiredProperty
+	@AutoWiredProperty(required = true)
 	public String loginDN;
-	@AutoWiredProperty
+	@AutoWiredProperty(required = true)
 	public String password;
 
 	@AutoWiredProperty

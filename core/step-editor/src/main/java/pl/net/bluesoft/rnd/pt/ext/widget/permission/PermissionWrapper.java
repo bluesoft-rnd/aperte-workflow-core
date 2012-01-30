@@ -24,14 +24,14 @@ public class PermissionWrapper extends AbstractPermission {
     public PermissionWrapper(PermissionDefinition permissionDefinition) {
         this();
         if (permissionDefinition != null) {
-            setPriviledgeName(permissionDefinition.getKey());
+            setPrivilegeName(permissionDefinition.getKey());
         }
     }
 
     public PermissionWrapper(AbstractPermission abstractPermission) {
         this();
         if (abstractPermission != null) {
-            setPriviledgeName(abstractPermission.getPriviledgeName());
+            setPrivilegeName(abstractPermission.getPrivilegeName());
             setRoleName(abstractPermission.getRoleName());
             setShortName(getShortNameFromAttributes());
         }
@@ -54,12 +54,12 @@ public class PermissionWrapper extends AbstractPermission {
     }
 
     public String getShortNameFromAttributes() {
-        if (getPriviledgeName() == null || getPriviledgeName().trim().isEmpty()) {
+        if (getPrivilegeName() == null || getPrivilegeName().trim().isEmpty()) {
             return "undefined";
         } else if (getRoleName() != null && !getRoleName().trim().isEmpty()) {
-            return getPriviledgeName() + " : " + getRoleName();
+            return getPrivilegeName() + " : " + getRoleName();
         } else {
-            return getPriviledgeName();
+            return getPrivilegeName();
         }
     }
 

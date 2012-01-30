@@ -87,6 +87,10 @@ public class JbpmStepAction {
                     logger.warning("Setting attribute " + autoName + " to " + v);
                     if (f.getType().equals(String.class)) {
                         PropertyUtils.setProperty(object, autoName, v);
+                    } else if (f.getType().equals(Integer.class)) {
+                    	PropertyUtils.setProperty(object, autoName, Integer.parseInt(v));
+                    } else if (f.getType().equals(Boolean.class)) {
+                    	PropertyUtils.setProperty(object, autoName, Boolean.parseBoolean(v));
                     }
                     else if (f.getType().isPrimitive()) {
                         String name = f.getType().getName();

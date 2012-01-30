@@ -3,14 +3,14 @@ package pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.jaxb;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
-import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.validation.XmlValidationError;
 
-import javax.xml.bind.annotation.*;
-import java.util.ArrayList;
-import java.util.List;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlValue;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "script")
+//@XmlType(name = "script")
 @XStreamAlias("script")
 public class ScriptElement extends WidgetElement {
     @XmlAttribute
@@ -35,10 +35,5 @@ public class ScriptElement extends WidgetElement {
 
     public void setScript(String script) {
         this.script = script;
-    }
-
-    @Override
-    public List<XmlValidationError> validate() {
-        return new ArrayList<XmlValidationError>();
     }
 }

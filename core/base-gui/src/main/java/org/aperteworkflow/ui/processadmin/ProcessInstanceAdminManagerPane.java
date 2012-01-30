@@ -3,9 +3,24 @@ package org.aperteworkflow.ui.processadmin;
 import com.vaadin.Application;
 import com.vaadin.data.Property;
 import com.vaadin.event.FieldEvents;
+import com.vaadin.terminal.*;
+import com.vaadin.terminal.gwt.client.ui.VEmbedded;
 import com.vaadin.ui.*;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Panel;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.BaseTheme;
 import com.vaadin.ui.themes.Reindeer;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.aperteworkflow.bpm.graph.GraphElement;
+import org.aperteworkflow.bpm.graph.StateNode;
+import org.aperteworkflow.bpm.graph.TransitionArc;
+import org.aperteworkflow.bpm.graph.TransitionArcPoint;
+import org.aperteworkflow.portlets.ProcessInstanceManagerApplicationPortlet;
+import org.aperteworkflow.portlets.ProcessInstanceManagerPortlet;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.BpmTask;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
@@ -16,8 +31,16 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -239,9 +262,121 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements V
                 vl.addComponent(hl);
             }
         }
-        vl.addComponent(getCancelProcessButton(pi));
+        vl.addComponent(hl(getCancelProcessButton(pi), getDisplayProcessMapButton(pi)));
       
         return vl;
+    }
+
+    private Button getDisplayProcessMapButton(final ProcessInstance pi) {
+        Button button = linkButton(getLocalizedMessage("processinstances.console.show-process-map"),
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        //doesn't show in window!!!
+                                        //showWindowWithProcessMapEmbedded(pi);
+                                        BufferedImage read;
+                                        final byte[] png = bpmSession.getProcessMapImage(pi);
+
+                                        try {
+                                            read = ImageIO.read(new ByteArrayInputStream(png));
+                                            String url = ProcessInstanceManagerPortlet.getProcessInstanceMapRequestUrl(getApplication(),
+                                                    pi.getInternalId());
+                                            Window w = new Window(getLocalizedMessage("process.image-map"));
+//                                            w.setWidth(read.getWidth() + "px");
+//                                            w.setHeight(read.getHeight() + "px");
+                                            w.getContent().setWidth(read.getWidth() + "px");
+                                            w.getContent().setHeight(read.getHeight() + "px");
+                                            w.center();
+                                            Embedded e = new Embedded("", new ExternalResource(url));
+                                            e.setSizeFull();
+                                            e.setWidth(read.getWidth() + "px");
+                                            e.setHeight(read.getHeight() + "px");
+                                            e.setType(Embedded.TYPE_BROWSER);
+                                            w.getContent().addComponent(e);
+                                            w.setResizable(false);
+                                            getApplication().getMainWindow().addWindow(w);
+                                        } catch (IOException e) {
+                                            throw new RuntimeException(e);
+                                        }
+                                    }
+                                });
+                return button;            
+    }
+
+    private void showWindowWithProcessMapEmbedded(ProcessInstance pi) {
+        List<GraphElement> processHistory = bpmSession.getProcessHistory(pi);
+        final StringBuffer svg = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n");
+        svg.append("<svg xmlns=\"http://www.w3.org/2000/svg\"\n" +
+                "     xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n");
+        final byte[] png = bpmSession.getProcessMapImage(pi);
+        if (png != null) {
+            BufferedImage read;
+            try {
+                read = ImageIO.read(new ByteArrayInputStream(png));
+                String url = ProcessInstanceManagerPortlet.getProcessInstanceMapRequestUrl(getApplication(),
+                        pi.getInternalId());
+                url = StringEscapeUtils.escapeXml(url);
+//                                                svg.append(String.format("<image x=\"0\" y=\"0\" width=\"%d\" height=\"%d\"\n" +
+//                                                        "xlink:href=\"%s\" />",
+//                                                        read.getWidth(),
+//                                                        read.getHeight(),
+//                                                        url));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            String strokeStyle = "stroke:#C14F45;stroke-width:3;stroke-opacity:0.25;";
+
+            for (GraphElement el : processHistory) {
+                if (el instanceof StateNode) {
+                    StateNode sn = (StateNode) el;
+                    svg.append(String.format("<rect x=\"%d\" y=\"%d\" height=\"%d\" width=\"%d\"\n" +
+                                        " rx=\"5\" ry=\"5\"\n" +
+                                        " style=\"" + strokeStyle + "fill-opacity:0.0\"/>\n",
+                                        sn.getX(),
+                                        sn.getY(),
+                                        sn.getHeight(),
+                                        sn.getWidth()));
+                } else if (el instanceof TransitionArc) {
+                    TransitionArc ta = (TransitionArc) el;
+                    TransitionArcPoint prevPoint = null;
+                    for (TransitionArcPoint p : ta.getPath()) {
+                        if (prevPoint != null) {
+                            svg.append(String.format("<line x1=\"%d\" y1=\"%d\" x2=\"%d\" y2=\"%d\"\n" +
+                                    "  style=\"" + strokeStyle + "\"/>\n",
+                                    prevPoint.getX(),
+                                    prevPoint.getY(),
+                                    p.getX(),
+                                    p.getY()
+                                    ));
+                        }
+                        prevPoint = p;
+                    }
+                }
+            }
+            svg.append("</svg>");
+
+            System.out.println(svg);
+            Window w = new Window(getLocalizedMessage("process.image-map"));
+            w.setWidth(read.getWidth() + "px");
+            w.setHeight(read.getHeight() + "px");
+            w.center();
+            Embedded e = new Embedded();
+            e.setSizeFull();
+            e.setType(Embedded.TYPE_OBJECT);
+            e.setMimeType("image/svg+xml");
+            e.setSource(new StreamResource(new StreamResource.StreamSource() {
+                @Override
+                public InputStream getStream() {
+                    return new ByteArrayInputStream(svg.toString().getBytes());
+                }
+            },  "map.svg", getApplication()));
+            w.getContent().addComponent(e);
+            w.setResizable(false);
+            getApplication().getMainWindow().addWindow(w);
+        } else {
+            getApplication().getMainWindow().showNotification(getLocalizedMessage("process.no-image.error"));
+        }
     }
 
     private Button getCancelProcessButton(final ProcessInstance pi) {

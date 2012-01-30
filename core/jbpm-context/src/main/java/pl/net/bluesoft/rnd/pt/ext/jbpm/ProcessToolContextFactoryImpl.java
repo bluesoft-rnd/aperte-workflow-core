@@ -8,13 +8,14 @@ import org.jbpm.api.*;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
+import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
+import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 
 import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.transaction.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -22,7 +23,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -153,46 +153,22 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory 
 
                 boolean skipJbpm = false;
                 InputStream is = bpmStream;
-                ProcessToolContextImpl impl = (ProcessToolContextImpl) processToolContext;
-                RepositoryService service = impl.getProcessEngine().getRepositoryService();
-                List<ProcessDefinition> latestList = service.createProcessDefinitionQuery()
-                        .processDefinitionKey(cfg.getBpmDefinitionKey()).orderDesc("deployment.dbid").page(0, 1).list();
-                if (!latestList.isEmpty()) {
-                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                    int c;
-                    try {
-                        String oldDeploymentId = latestList.get(0).getDeploymentId();
-                        InputStream oldStream = service.getResourceAsStream(oldDeploymentId, cfg.getProcessName() + ".jpdl.xml");
-                        if (oldStream != null) {
-                            while ((c = is.read()) >= 0) {
-                                bos.write(c);
-                            }
-                            is = new ByteArrayInputStream(bos.toByteArray());
-                            ByteArrayOutputStream bos2 = new ByteArrayOutputStream();
-                            while ((c = oldStream.read()) >= 0) {
-                                bos2.write(c);
-                            }
-                            if (bos.toByteArray().length == bos2.toByteArray().length) {
-                                if (Arrays.equals(bos.toByteArray(), bos2.toByteArray())) {
-                                    logger.log(Level.WARNING, "jbpm definition for " + cfg.getProcessName() +
-                                            ".jpdl.xml is the same as in jBPM DB, therefore not updating jBPM process definition");
-                                    skipJbpm = true;
-                                }
-                            }
-                        }
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
+                ProcessToolBpmSession session = processToolContext.getProcessToolSessionFactory().createSession(
+                        new UserData("admin", "admin@aperteworkflow.org", "Admin"), Arrays.asList("ADMIN"));
+                byte[] oldDefinition = session.getProcessLatestDefinition(cfg.getBpmDefinitionKey(), cfg.getProcessName());
+                if (oldDefinition != null) {
+                    byte[] newDefinition = loadBytesFromStream(is);
+                    is = new ByteArrayInputStream(newDefinition);
+                    if (Arrays.equals(newDefinition, oldDefinition)) {
+                        logger.log(Level.WARNING, "bpm definition for " + cfg.getProcessName() +
+                                " is the same as in BPM, therefore not updating BPM process definition");
+                        skipJbpm = true;
                     }
-
                 }
 
                 if (!skipJbpm) {
-                    NewDeployment deployment = service.createDeployment();
-                    deployment.addResourceFromInputStream(cfg.getProcessName() + ".jpdl.xml", is);
-                    if (imageStream != null)
-                        deployment.addResourceFromInputStream(cfg.getProcessName() + ".png", imageStream);
-                    String deploymentId = deployment.deploy();
-                    logger.log(Level.INFO, "deployed definition with id: " + deploymentId);
+                    String deploymentId = session.deployProcessDefinition(cfg.getProcessName(), is, imageStream);
+                    logger.log(Level.INFO, "deployed new BPM Engine definition with id: " + deploymentId);
                 }
 
                 ProcessDefinitionDAO processDefinitionDAO = processToolContext.getProcessDefinitionDAO();
@@ -237,8 +213,6 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory 
                 logoStream);
     }
 
-//        Collection<ProcessQueueConfig> qConfigs = (Collection<ProcessQueueConfig>) xstream.fromXML(queueConfigStream);
-//        deployOrUpdateProcessDefinition(jpdlStream, config, qConfigs.toArray(new ProcessQueueConfig[qConfigs.size()]));
 //    }
 
     private byte[] loadBytesFromStream(InputStream stream) {

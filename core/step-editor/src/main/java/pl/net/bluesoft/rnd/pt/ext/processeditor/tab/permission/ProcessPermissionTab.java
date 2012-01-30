@@ -1,55 +1,55 @@
 package pl.net.bluesoft.rnd.pt.ext.processeditor.tab.permission;
 
 import com.vaadin.ui.VerticalLayout;
-import pl.net.bluesoft.rnd.processtool.model.config.AbstractPermission;
-import pl.net.bluesoft.rnd.pt.ext.widget.permission.PermissionDefinition;
-import pl.net.bluesoft.rnd.pt.ext.widget.permission.PermissionPanel;
-import pl.net.bluesoft.rnd.pt.ext.widget.permission.PermissionProvider;
+import org.aperteworkflow.editor.ui.permission.PermissionEditor;
+import pl.net.bluesoft.rnd.pt.ext.processeditor.json.ProcessConfigJSONHandler;
+import pl.net.bluesoft.rnd.pt.ext.vaadin.DataHandler;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
-public class ProcessPermissionTab extends VerticalLayout implements PermissionProvider {
+public class ProcessPermissionTab extends VerticalLayout implements DataHandler {
 
-    private PermissionPanel permissionPanel;
+    private String processConfig;
+    private PermissionEditor permissionEditor;
+    private ProcessConfigJSONHandler processConfigHandler;
+    private ProcessPermissionProvider permissionProvider;
 
     public ProcessPermissionTab() {
         initComponent();
     }
 
     private void initComponent() {
-        permissionPanel = new PermissionPanel();
-        permissionPanel.setPermissionProvider(this);
-        permissionPanel.loadData();
+        processConfigHandler = ProcessConfigJSONHandler.getInstance();
 
-        addComponent(permissionPanel);
+        permissionProvider = new ProcessPermissionProvider();
+        permissionProvider.setPermissions(processConfigHandler.getPermissions(processConfig));
+
+        permissionEditor = new PermissionEditor();
+        permissionEditor.setProvider(permissionProvider);
+
+        setMargin(true);
+        addComponent(permissionEditor);
     }
 
     @Override
-    public Collection<AbstractPermission> getPermissions() {
-        return null;
+    public void loadData() {
+        // read the permissions from the json
+        permissionProvider.setPermissions(ProcessConfigJSONHandler.getInstance().getPermissions(processConfig));
+
+        permissionEditor.loadData();
     }
 
     @Override
-    public Collection<PermissionDefinition> getPermissionDefinitions() {
-        Collection<PermissionDefinition> definitions = new ArrayList<PermissionDefinition>();
-
-        PermissionDefinition pd = new PermissionDefinition();
-        pd.setKey("EDIT");
-        pd.setDescription("aaaa");
-
-        definitions.add(pd);
-        
-        pd = new PermissionDefinition();
-        pd.setKey("VIEW");
-
-        definitions.add(pd);
-        
-        return definitions;
+    public void saveData() {
+        permissionEditor.saveData();
     }
 
     @Override
-    public boolean isNewDefinitionAllowed() {
-        return true;
+    public Collection<String> validateData() {
+        return permissionEditor.validateData();
+    }
+
+    public void setProcessConfig(String processConfig) {
+        this.processConfig = processConfig;
     }
 }

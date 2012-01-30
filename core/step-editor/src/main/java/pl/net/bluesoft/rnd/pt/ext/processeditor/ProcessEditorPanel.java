@@ -14,6 +14,7 @@ public class ProcessEditorPanel extends VerticalLayout {
 
     private TabSheet tabSheet;
     private OtherTab otherTab;
+    private ProcessPermissionTab permissionTab;
 
     public ProcessEditorPanel() {
         initComponents();
@@ -29,12 +30,16 @@ public class ProcessEditorPanel extends VerticalLayout {
 
         tabSheet = new TabSheet();
         tabSheet.setSizeFull();
-        tabSheet.addTab(new ProcessPermissionTab(), messages.getMessage("process.editor.process.permissions"));
+        tabSheet.addTab(permissionTab = new ProcessPermissionTab(), messages.getMessage("process.editor.process.permissions"));
         tabSheet.addTab(new QueueTab(), messages.getMessage("process.editor.queues"));
         tabSheet.addTab(otherTab = new OtherTab(), messages.getMessage("process.editor.other"));
     }
 
     public void setProcessDir(String processDir) {
         otherTab.setProcessDir(processDir);
+    }
+
+    public void setProcessConfig(String processConfig) {
+        permissionTab.setProcessConfig(processConfig);
     }
 }

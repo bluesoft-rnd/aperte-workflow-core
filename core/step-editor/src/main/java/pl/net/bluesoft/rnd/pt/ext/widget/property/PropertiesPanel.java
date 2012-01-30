@@ -42,7 +42,7 @@ public class PropertiesPanel extends Panel {
         docName = null;
         docDescription = null;
         properties = new ArrayList<Property>();
-        I18NSource i18NSource = VaadinUtility.getThreadI18nSource();
+        I18NSource i18NSource = I18NSource.ThreadUtil.getThreadI18nSource();
         
 		if (classDoc != null) {
 			docName = i18NSource.getMessage(classDoc.humanNameKey());
@@ -71,7 +71,7 @@ public class PropertiesPanel extends Panel {
 		AutoWiredProperty awp = field.getAnnotation(AutoWiredProperty.class);
         AutoWiredPropertyConfigurator awpConfigurator = field.getAnnotation(AutoWiredPropertyConfigurator.class);
         AperteDoc fieldDoc = field.getAnnotation(AperteDoc.class);
-        I18NSource i18NSource = VaadinUtility.getThreadI18nSource();
+        I18NSource i18NSource = I18NSource.ThreadUtil.getThreadI18nSource();
         
         String fieldDocName = null;
         String fieldDocDescription = null;

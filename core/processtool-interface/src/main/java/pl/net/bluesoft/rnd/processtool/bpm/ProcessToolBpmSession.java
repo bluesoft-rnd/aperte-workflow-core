@@ -1,5 +1,6 @@
 package pl.net.bluesoft.rnd.processtool.bpm;
 
+import org.aperteworkflow.bpm.graph.GraphElement;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
@@ -10,6 +11,7 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
 import pl.net.bluesoft.util.eventbus.EventBusManager;
 
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -76,5 +78,14 @@ public interface ProcessToolBpmSession {
 
     List<String> getAvailableLogins(final String filter);
 
+    List<GraphElement> getProcessHistory(ProcessInstance pi);
+    
+    byte[] getProcessLatestDefinition(String bpmDefinitionKey, String processName);
+
+    byte[] getProcessDefinition(ProcessInstance pi);
+
+    byte[] getProcessMapImage(ProcessInstance pi);
+
+    String deployProcessDefinition(String processName, InputStream definitionStream, InputStream processMapImageStream);
 
 }

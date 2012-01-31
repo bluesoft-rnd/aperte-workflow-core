@@ -4,34 +4,37 @@ import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.AbstractStepEditorWindow;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.StepEditorApplication;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.TaskConfig;
+import pl.net.bluesoft.rnd.pt.ext.vaadin.GenericEditorApplication;
+import pl.net.bluesoft.rnd.pt.ext.widget.property.PropertiesPanel;
+import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.util.lang.Classes;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class AutoStepEditorWindow extends AbstractStepEditorWindow implements ClickListener {
 
     private static final long		serialVersionUID	= 2136349026207825108L;
-	
+    private static final Logger	logger = Logger.getLogger(AutoStepEditorWindow.class.getName());
 	private Button					saveButton = new Button(Messages.getString("jse.button.save"), this);
 
-	private Map<String,TextField>   textParams = new HashMap<String,TextField>();
-
-    private StepDefinition          stepDef;
+	private PropertiesPanel propertiesPanel = new PropertiesPanel();
+	private static final ObjectMapper mapper = new ObjectMapper();
 
     public AutoStepEditorWindow(StepEditorApplication application, String jsonConfig, String url, String stepName, String stepType) {
 		super(application, jsonConfig, url, stepName, stepType);
@@ -42,77 +45,37 @@ public class AutoStepEditorWindow extends AbstractStepEditorWindow implements Cl
         
         Label stepNameLabel = new Label();
         stepNameLabel.setContentMode(Label.CONTENT_XHTML);
-        if (stepName == null) {
+        if (StringUtils.isEmpty(stepName)) {
             stepNameLabel.setValue("<h2>" + Messages.getString("jse.noStepName") + "</h2>");
         } else {
             stepNameLabel.setValue("<h2>" + Messages.getString("jse.stepName", stepName) + "</h2>");
         }
 
-        Label definitionLabel = new Label();
-        definitionLabel.setContentMode(Label.CONTENT_XHTML);
-        if (stepDef == null) {
-            definitionLabel.setValue(Messages.getString("jse.stepdef.notfound"));
-        } else if (stepDef.getParameters().isEmpty()) {
-            definitionLabel.setValue(Messages.getString("jse.params.notfound", stepDef.getName()));
-        } else {
-            definitionLabel.setValue(Messages.getString("jse.definition", stepDef.getName()));
-        }
-        
         layout.addComponent(stepNameLabel);
-        layout.addComponent(definitionLabel);
+     
 		return layout;
     }
-	
-	private ComponentContainer buildLayout(Map<String,String> loadedMap) {
+	 
+	public ComponentContainer init() {
 
 		VerticalLayout vll = new VerticalLayout();
 		vll.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+		vll.setSpacing(true);
+		vll.setMargin(true);
 		
-		if (stepDef != null) {
+		if (stepType != null) {
 		
 		   vll.addComponent(saveButton);
 		   vll.setExpandRatio(saveButton, 0);
-		   textParams.clear();
+		   vll.addComponent(propertiesPanel);
 		   
-		   for (StepParameter stepParam : stepDef.getParameters()) {
-			  TextField tf = new TextField(stepParam.getName() + (stepParam.isRequired() ? "*" : ""));
-			  tf.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-			  tf.setNullRepresentation("");
-			  if (loadedMap != null) {
-				  tf.setValue(loadedMap.get(stepParam.getName()));
-			  }
-			  
-			  textParams.put(stepParam.getName(),tf);
-			  vll.addComponent(tf);
-			  vll.setExpandRatio(tf, 0);
-		   }
+		   Class<?> stepClass = getStepClass(stepType);
+		   propertiesPanel.refreshForm(stepClass, getLoadedJsonData(jsonConfig));
 		}
-
-		HorizontalLayout hl = new HorizontalLayout();
-		hl.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-		hl.setSpacing(true);
-		hl.setMargin(true);
-
-		hl.addComponent(vll);
+		   
+		return vll;
+	}
 		
-		return hl;
-	}
-	
-
-    public ComponentContainer init() {
-    	Map<String, String> loadedMap = null;
-    	
-    	if (jsonConfig != null && jsonConfig.trim().length() > 0) {
-    	   loadedMap = getLoadedJsonData(jsonConfig);
-    	}
-    	
-    	if (stepType != null && stepType.trim().length() > 0) {
-    		stepDef = getStepDefinition(stepType);
-    	}
-    	
-		return buildLayout(loadedMap);
-	}
-	
 
 	@Override
 	public void buttonClick(ClickEvent event) {
@@ -121,93 +84,64 @@ public class AutoStepEditorWindow extends AbstractStepEditorWindow implements Cl
 		}
 	}
 	
-	private Map<String,String> getLoadedJsonData(String jsonConfig) {
+	private Map<String,Object> getLoadedJsonData(String jsonConfig) {
+		if (StringUtils.isEmpty(jsonConfig))
+			return new HashMap<String,Object>();
 		try {
-		  return new ObjectMapper().readValue(jsonConfig, Map.class);
+			return mapper.readValue(jsonConfig, new TypeReference<HashMap<String, Object>>() {
+            });
 		} catch (JsonMappingException e) {
-			e.printStackTrace();
+			logger.log(Level.SEVERE, "Error parsing JSON data", e);
 		} catch (JsonGenerationException e) {
-			e.printStackTrace();
+			logger.log(Level.SEVERE, "Error parsing JSON data", e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.log(Level.SEVERE, "Error parsing JSON data", e);
 		}
 		application.getMainWindow().showNotification(Messages.getString("jse.error.read"));
 		return null;
 	}
 	
-	private String validate() {
-		StringBuffer msg = new StringBuffer();
-		for (StepParameter stepParam : stepDef.getParameters()) {
-			TextField tf = textParams.get(stepParam.getName());
-			String value = (String)tf.getValue();
-			if (stepParam.isRequired() && (value == null || value.trim().length() == 0)) {
-		       msg.append(Messages.getString("jse.required", stepParam.getName()) + "<br/>");		
-			}
-		}
-		return msg.toString();
-	}
 	
 	private String getJsonToSave() {
 		TaskConfig tc = new TaskConfig();
-		tc.setTaskName(stepDef.getName());
+		tc.setTaskName(propertiesPanel.getAliasName());
+		tc.setParams(propertiesPanel.getPropertiesMap());
 		
-		for (StepParameter stepParam : stepDef.getParameters()) {
-			TextField tf = textParams.get(stepParam.getName());
-			tc.addParam(stepParam.getName(), tf.getValue());		
-		}
 		try {
-			return new ObjectMapper().writeValueAsString(tc);
+			return mapper.writeValueAsString(tc);
 		} catch (JsonMappingException e) {
-			e.printStackTrace();
+			logger.log(Level.SEVERE, "Error creating JSON", e);
 		} catch (JsonGenerationException e) {
-			e.printStackTrace();
+			logger.log(Level.SEVERE, "Error creating JSON", e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.log(Level.SEVERE, "Error creating JSON", e);
 		}
 		application.getMainWindow().showNotification(Messages.getString("jse.error.write"));
 		return "";
+		
 	}
 	
 	private void save() {
-		String msg = validate();
-		if (msg.trim().length() != 0) {
-			application.getMainWindow().showNotification(msg);
-		} else {
-		  String json = getJsonToSave();
-		  application.getJsHelper().postAndRedirectStep(url, json);
+		if (!propertiesPanel.getPropertiesForm().isValid()) {
+			GenericEditorApplication.getCurrent().getMainWindow().showNotification(VaadinUtility.validationNotification("Validation error","Correct data"));
+			return;
 		}
+		String json = getJsonToSave();
+		application.getJsHelper().postAndRedirectStep(url, json);
 	}
 
 	
-	private StepDefinition getStepDefinition(String stepName) {
-		ProcessToolRegistry reg = StepEditorApplication.getRegistry();
+	private Class<?> getStepClass(String stepType) {
+		ProcessToolRegistry reg = GenericEditorApplication.getRegistry();
         Map<String,ProcessToolProcessStep> availableSteps = reg.getAvailableSteps();
         for (ProcessToolProcessStep stepInstance : availableSteps.values()) {
             Class stepClass = stepInstance.getClass();
             AliasName a = Classes.getClassAnnotation(stepClass, AliasName.class);
-            if (stepName.equals(a.name())) {
-
-              StepDefinition stepDef = new StepDefinition();
-              stepDef.setName(a.name());
-
-              List<Field> fields = Classes.getFieldsWithAnnotation(stepClass, AutoWiredProperty.class);
-
-              if (fields != null) {
-                for (Field field : fields) {
-                    StepParameter param = new StepParameter();
-                    param.setName(field.getName());
-                    param.setType(field.getType());
-
-                    AutoWiredProperty awp = field.getAnnotation(AutoWiredProperty.class);
-                    param.setRequired(awp != null && awp.required());
-                    stepDef.addParameter(param);
-                }
-              }
-              return stepDef;
+            if (stepType.equals(a.name())) {
+            	return stepClass;
             }
         }
-
-		return null;
+        return null;
 	}
-
+	
 }

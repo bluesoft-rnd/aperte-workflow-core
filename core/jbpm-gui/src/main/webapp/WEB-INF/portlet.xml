@@ -164,7 +164,7 @@
     <portlet>
 		<portlet-name>Aperte Workflow Process Instance Manager</portlet-name>
 		<display-name>Aperte Workflow Process Instances</display-name>
-        <portlet-class>pl.net.bluesoft.rnd.util.vaadin.ProcessToolVaadinApplicationPortlet2</portlet-class>
+        <portlet-class>org.aperteworkflow.portlets.ProcessInstanceManagerApplicationPortlet</portlet-class>
 		<init-param>
 			<name>application</name>
 			<value>org.aperteworkflow.portlets.ProcessInstanceManagerPortlet</value>

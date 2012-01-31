@@ -23,12 +23,14 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class QueueEditorApplication extends GenericEditorApplication implements ParameterHandler, ClickListener, ValueChangeListener {
 
 	private static final long		serialVersionUID	= 2136349026207825109L;
-	
+	private static final Logger	logger = Logger.getLogger(QueueEditorApplication.class.getName());
 	private static final String     NAME = "Name";
 	private static final String     DESCRIPTION = "Description";
 	private static final String     ROLE_NAME = "Role name";
@@ -78,7 +80,7 @@ public class QueueEditorApplication extends GenericEditorApplication implements 
 		  else
 			queueDefs = new TreeMap<Integer, QueueDef>();
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.log(Level.SEVERE, "Error creating queue defs", e);
 		}
 		
 		prevSelected = null;
@@ -150,11 +152,11 @@ public class QueueEditorApplication extends GenericEditorApplication implements 
 		  String s = mapper.writeValueAsString(queueDefs);
 		  jsHelper.postAndRedirectQueue(url, s);
 		} catch (JsonMappingException e) {
-			e.printStackTrace();
+			logger.log(Level.SEVERE, "Error creating JSON data", e);
 		} catch (JsonGenerationException e) {
-			e.printStackTrace();
+			logger.log(Level.SEVERE, "Error creating JSON data", e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.log(Level.SEVERE, "Error creating JSON data", e);
 		}
 	}
 	

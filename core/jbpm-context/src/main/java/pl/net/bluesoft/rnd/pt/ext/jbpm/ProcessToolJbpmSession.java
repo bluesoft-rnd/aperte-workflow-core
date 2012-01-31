@@ -1,5 +1,8 @@
 package pl.net.bluesoft.rnd.pt.ext.jbpm;
 
+import org.aperteworkflow.bpm.graph.GraphElement;
+import org.aperteworkflow.bpm.graph.StateNode;
+import org.aperteworkflow.bpm.graph.TransitionArc;
 import org.hibernate.Query;
 import org.jbpm.api.ExecutionService;
 import org.jbpm.api.IdentityService;
@@ -7,15 +10,23 @@ import org.jbpm.api.ProcessEngine;
 import org.jbpm.api.TaskService;
 import org.jbpm.api.cmd.Command;
 import org.jbpm.api.cmd.Environment;
+import org.jbpm.api.history.HistoryActivityInstance;
+import org.jbpm.api.history.HistoryActivityInstanceQuery;
+import org.jbpm.api.history.HistoryProcessInstance;
+import org.jbpm.api.history.HistoryProcessInstanceQuery;
 import org.jbpm.api.identity.User;
+import org.jbpm.api.model.Transition;
 import org.jbpm.api.task.Participation;
 import org.jbpm.api.task.Task;
+import org.jbpm.pvm.internal.history.model.HistoryActivityInstanceImpl;
 import org.jbpm.pvm.internal.identity.impl.UserImpl;
 import org.jbpm.pvm.internal.model.ExecutionImpl;
-import org.jbpm.pvm.internal.model.Transition;
 import org.jbpm.pvm.internal.query.AbstractQuery;
 import org.jbpm.pvm.internal.task.ParticipationImpl;
 import org.jbpm.pvm.internal.task.TaskImpl;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent;
 import pl.net.bluesoft.rnd.processtool.bpm.BpmTask;
@@ -29,7 +40,14 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
 import pl.net.bluesoft.util.lang.Mapcar;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
@@ -43,7 +61,8 @@ import static pl.net.bluesoft.util.lang.StringUtil.hasText;
  */
 public class ProcessToolJbpmSession extends AbstractProcessToolSession {
 
-	protected Logger log = Logger.getLogger(ProcessToolJbpmSession.class.getName());
+    public static final Logger LOGGER = Logger.getLogger(ProcessToolJbpmSession.class.getName());
+    protected Logger log = LOGGER;
 
 	public ProcessToolJbpmSession(UserData user, Collection<String> roleNames, ProcessToolContext ctx) {
 		super(user, roleNames);
@@ -704,4 +723,355 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
         return res;
 
     }
+
+    @Override
+    public List<GraphElement> getProcessHistory(final ProcessInstance pi) {
+        ProcessEngine processEngine = getProcessEngine(ProcessToolContext.Util.getProcessToolContextFromThread());
+        HistoryService service = processEngine.getHistoryService();
+        HistoryActivityInstanceQuery activityInstanceQuery = service.createHistoryActivityInstanceQuery().executionId(pi.getInternalId());
+        List<HistoryActivityInstance> list = activityInstanceQuery.list();
+
+        Map<String,GraphElement> processGraphElements = parseProcessDefinition(pi);
+
+        ArrayList<GraphElement> res = new ArrayList<GraphElement>();
+        for (HistoryActivityInstance hpi : list) {
+            System.out.println(hpi.getActivityName());
+            if (hpi instanceof HistoryActivityInstanceImpl) {
+                HistoryActivityInstanceImpl activity = (HistoryActivityInstanceImpl) hpi;
+                String activityName = activity.getActivityName();
+                if (res.isEmpty()) { //initialize start node and its transition
+                    GraphElement startNode = processGraphElements.get("__AWF__start_node");
+                    if (startNode != null) {
+                        res.add(startNode);
+                    }
+                    GraphElement firstTransition = processGraphElements.get("__AWF__start_transition_to_" + activityName);
+                    if (firstTransition != null) {
+                        res.add(firstTransition);
+                    }
+                }
+                StateNode sn = (StateNode) processGraphElements.get(activityName);
+                if (sn == null) continue;
+                sn = sn.cloneNode();
+                sn.setUnfinished(activity.getEndTime() == null);
+                sn.setLabel(activityName + ": " + hpi.getDuration() + "ms");
+                res.add(sn);
+                //look for transition
+                TransitionArc ta = (TransitionArc) processGraphElements.get(activityName + "_" + activity.getTransitionName());
+                if (ta == null) { //look for default!
+                    ta = (TransitionArc) processGraphElements.get("__AWF__default_transition_" + activityName);
+                }
+                if (ta == null) {
+                    continue;
+                }
+                res.add(ta.cloneNode());
+            } else {
+                LOGGER.severe("Unsupported entry: " + hpi);
+            }
+        }
+        HistoryProcessInstanceQuery historyProcessInstanceQuery = processEngine.getHistoryService()
+                .createHistoryProcessInstanceQuery().processInstanceId(pi.getInternalId());
+        HistoryProcessInstance historyProcessInstance = historyProcessInstanceQuery.uniqueResult();
+        if (historyProcessInstance != null && historyProcessInstance.getEndActivityName() != null) {
+            StateNode sn = (StateNode) processGraphElements.get(historyProcessInstance.getEndActivityName());
+            if (sn != null) {
+                StateNode e = sn.cloneNode();
+                e.setUnfinished(true);
+                res.add(e);
+            }
+        }
+        return res;
+    }
+
+    private HashMap<String, GraphElement> parseProcessDefinition(ProcessInstance pi) {
+        HashMap<String, GraphElement> res = new HashMap<String, GraphElement>();
+        byte[] processDefinition = getProcessDefinition(pi);
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
+        try {
+
+            //Using factory get an instance of document builder
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            //parse using builder to get DOM representation of the XML file
+            Document dom = db.parse(new ByteArrayInputStream(processDefinition));
+            Element documentElement = dom.getDocumentElement();
+            String[] nodeTypes = new String[]{"start", "end", "java", "task", "decision"};
+            for (String nodeType : nodeTypes) {
+                NodeList nodes = documentElement.getElementsByTagName(nodeType);
+                for (int i = 0; i < nodes.getLength(); i++) {
+                    Element node = (Element) nodes.item(i);
+                    try {
+                        StateNode sn = new StateNode();
+                        String gval = node.getAttribute("g");
+                        String[] vals = gval.split(",", 4);
+                        int x = Integer.parseInt(vals[0]);
+                        int y = Integer.parseInt(vals[1]);
+                        int w = Integer.parseInt(vals[2]);
+                        int h = Integer.parseInt(vals[3]);
+                        sn.setX(x);
+                        sn.setY(y);
+                        sn.setWidth(w);
+                        sn.setHeight(h);
+                        String name = node.getAttribute("name");
+                        sn.setLabel(name);
+                        res.put(name, sn);
+                        if ("start".equals(nodeType)) {
+                            res.put("__AWF__start_node", sn);
+                        }
+                        LOGGER.fine("Found node" + name + ": " + x + "," + y + "," + w + "," + h);
+                    } catch (Exception e) {
+                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    }
+                }
+            }
+                //once again - for transitions
+            for (String nodeType : nodeTypes) {
+                NodeList nodes = documentElement.getElementsByTagName(nodeType);
+                for (int i = 0; i < nodes.getLength(); i++) {
+                    Element node = (Element) nodes.item(i);
+                    try {
+                        String startNodeName = node.getAttribute("name");
+                        StateNode startNode = (StateNode) res.get(startNodeName);
+                        if (startNode == null) {
+                            LOGGER.severe("Start node " + startNodeName +
+                                    " has not been localized, skipping transition drawing too.");
+                            continue;
+                        }
+                        NodeList transitions = node.getElementsByTagName("transition");
+                        for (int j=0; j < transitions.getLength(); j++) {
+                            Element transitionEl = (Element) transitions.item(j);
+                            String name = transitionEl.getAttribute("name");
+                            String to = transitionEl.getAttribute("to") ;
+                            StateNode endNode = (StateNode) res.get(to);
+                            if (endNode == null) {
+                                LOGGER.severe("End node " + to + " has not been localized for transition " + name +
+                                        " of node " + startNodeName + ", skipping transition drawing.");
+                                continue;                                
+                            }
+                            String g = transitionEl.getAttribute("g");
+                            if (g != null) {
+                                String[] dockersAndDistances = g.split(":");
+                                String[] dockers = new String[0];
+                                if (dockersAndDistances.length == 2) {
+                                    dockers = dockersAndDistances[0].split(";");//what the other numbers mean - I have no idea...
+                                }
+                                //calculate line start node which is a center of the start node
+                                int startX = startNode.getX() + startNode.getWidth()/2;
+                                int startY = startNode.getY() + startNode.getHeight()/2;
+                                //and the same for end node
+                                int endX   = endNode.getX() + endNode.getWidth()/2;
+                                int endY   = endNode.getY() + endNode.getHeight()/2;
+
+                                TransitionArc arc = new TransitionArc();
+                                arc.setName(name);
+                                arc.addPoint(startX, startY);
+                                for (String docker : dockers) {
+                                    String[] split = docker.split(",",2);
+                                    arc.addPoint(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
+                                }
+                                arc.addPoint(endX, endY);
+
+                                double a;//remember about vertical line
+                                double b;
+
+                                endX = arc.getPath().get(1).getX();
+                                endY = arc.getPath().get(1).getY();
+                                if (startX - endX == 0) { //whoa - vertical line - simple case, but requires special approach
+                                    if (endY > startNode.getY()+startNode.getHeight()) { //below
+                                        startY = startNode.getY()+startNode.getHeight();
+                                    } else {
+                                        startY = startNode.getY();
+                                    }
+                                } else {
+                                    a = ((double)(startY-endY))/((double)(startX - endX));
+                                    b = (double)startY - (double)startX*a;
+                                    for (int x = startX; x <= endX; x++) {
+                                        int y = (int) Math.round(a*x+b);
+                                        boolean inside = false;
+                                        if (x >= startNode.getX() && x <= startNode.getX() + startNode.getWidth()) {
+                                            if (y >= startNode.getY() && y <= startNode.getY() + startNode.getHeight()) {
+                                                inside = true;
+                                            }
+                                        }
+                                        if (!inside) {
+                                            startX = x;
+                                            startY = y;
+                                            break;
+                                        }
+                                    }
+                                    for (int x = startX; x > endX; x--) {
+                                        int y = (int) Math.round(a*x+b);
+                                        boolean inside = false;
+                                        if (x >= startNode.getX() && x <= startNode.getX() + startNode.getWidth()) {
+                                            if (y >= startNode.getY() && y <= startNode.getY() + startNode.getHeight()) {
+                                                inside = true;
+                                            }
+                                        }
+                                        if (!inside) {
+                                            startX = x;
+                                            startY = y;
+                                            break;
+                                        }
+                                    }
+                                }
+                                arc.getPath().get(0).setX(startX);
+                                arc.getPath().get(0).setY(startY);
+
+                                endX = arc.getPath().get(arc.getPath().size()-1).getX();
+                                endY = arc.getPath().get(arc.getPath().size()-1).getY();
+                                startX = arc.getPath().get(arc.getPath().size()-2).getX();
+                                startY = arc.getPath().get(arc.getPath().size()-2).getY();
+                                if (startX - endX == 0) { //whoa - vertical line - simple case, but requires special approach
+                                   if (startY > endNode.getY()+endNode.getHeight()) { //below
+                                       endY = endNode.getY()+endNode.getHeight();
+                                   } else {
+                                       endY = endNode.getY();
+                                   }
+                                } else {
+                                    a = ((double)(startY-endY))/((double)(startX - endX));//remember about vertical line
+                                    //startY = startX*a+b
+                                    b = (double)startY - (double)startX*a;
+                                    for (int x = endX; x <= startX; x++) {
+                                        int y = (int) Math.round(a*x+b);
+                                        boolean inside = false;
+                                        if (x >= endNode.getX() && x <= endNode.getX() + endNode.getWidth()) {
+                                            if (y >= endNode.getY() && y <= endNode.getY() + endNode.getHeight()) {
+                                                inside = true;
+                                            }
+                                        }
+                                        if (!inside) {
+                                            endX = x;
+                                            endY = y;
+                                            break;
+                                        }
+                                    }
+                                    for (int x = endX; x > startX; x--) {
+                                        int y = (int) Math.round(a*x+b);
+                                        boolean inside = false;
+                                        if (x >= endNode.getX() && x <= endNode.getX() + endNode.getWidth()) {
+                                            if (y >= endNode.getY() && y <= endNode.getY() + endNode.getHeight()) {
+                                                inside = true;
+                                            }
+                                        }
+                                        if (!inside) {
+                                            endX = x;
+                                            endY = y;
+                                            break;
+                                        }
+                                    }
+                                }
+                                arc.getPath().get(arc.getPath().size()-1).setX(endX);
+                                arc.getPath().get(arc.getPath().size()-1).setY(endY);
+
+                                res.put(startNodeName + "_" + name,arc);
+                                if ("start".equals(nodeType)) {
+                                    res.put("__AWF__start_transition_to_" + to, arc);
+                                }
+                                if (transitions.getLength() == 1) {
+                                    res.put("__AWF__default_transition_" + startNodeName, arc);
+                                }
+                            } else {
+                                LOGGER.severe("No 'g' attribute for transition "+ name +
+                                               " of node " + startNodeName + ", skipping transition drawing.");
+                            }
+                        }
+
+                    } catch (Exception e) {
+                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    }
+                }
+            }
+
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return res;
+    }
+
+    @Override
+    public byte[] getProcessLatestDefinition(String definitionKey, String processName) {
+        String resourceName = processName + ".jpdl.xml";
+        return fetchLatestProcessResource(definitionKey, resourceName);
+    }
+
+    @Override
+    public byte[] getProcessMapImage(ProcessInstance pi) {
+        String resourceName = pi.getDefinition().getProcessName() + ".png";
+        return fetchProcessResource(pi, resourceName);
+    }
+
+    @Override
+    public byte[] getProcessDefinition(ProcessInstance pi) {
+        String resourceName = pi.getDefinition().getProcessName() + ".jpdl.xml";
+        return fetchProcessResource(pi, resourceName);
+    }
+
+    private byte[] fetchLatestProcessResource(String definitionKey, String resourceName) {
+        RepositoryService service = getProcessEngine(ProcessToolContext.Util.getProcessToolContextFromThread())
+                .getRepositoryService();
+        List<ProcessDefinition> latestList = service.createProcessDefinitionQuery()
+                .processDefinitionKey(definitionKey).orderDesc("deployment.dbid").page(0, 1).list();
+        if (!latestList.isEmpty()) {
+            String oldDeploymentId = latestList.get(0).getDeploymentId();
+            return getDeploymentResource(resourceName, oldDeploymentId);
+        }
+        return null;
+    }
+    private byte[] fetchProcessResource(ProcessInstance pi, String resourceName) {
+        ProcessEngine processEngine = getProcessEngine(ProcessToolContext.Util.getProcessToolContextFromThread());
+        RepositoryService service = processEngine.getRepositoryService();
+
+        ExecutionService executionService = processEngine.getExecutionService();
+        org.jbpm.api.ProcessInstance processInstanceById = executionService.findProcessInstanceById(pi.getInternalId());
+        String processDefinitionId;
+        if (processInstanceById == null) { //look in history service
+            HistoryProcessInstanceQuery historyProcessInstanceQuery = processEngine.getHistoryService()
+                    .createHistoryProcessInstanceQuery().processInstanceId(pi.getInternalId());
+            HistoryProcessInstance historyProcessInstance = historyProcessInstanceQuery.uniqueResult();
+            processDefinitionId = historyProcessInstance.getProcessDefinitionId();
+        } else {
+            processDefinitionId = processInstanceById.getProcessDefinitionId();
+        }
+        List<ProcessDefinition> latestList = service.createProcessDefinitionQuery()
+                .processDefinitionId(processDefinitionId).orderDesc("deployment.dbid").page(0, 1).list();
+        if (!latestList.isEmpty()) {
+            String oldDeploymentId = latestList.get(0).getDeploymentId();
+            return getDeploymentResource(resourceName, oldDeploymentId);
+        }
+        return null;
+    }
+
+    private byte[] getDeploymentResource(String resourceName, String oldDeploymentId) {
+        RepositoryService service = getProcessEngine(ProcessToolContext.Util.getProcessToolContextFromThread()).getRepositoryService();;
+        try {
+            InputStream oldStream = service.getResourceAsStream(oldDeploymentId, resourceName);
+            try {
+                if (oldStream != null) {
+                    ByteArrayOutputStream bos2 = new ByteArrayOutputStream();
+                    int c;
+                    while ((c = oldStream.read()) >= 0) {
+                        bos2.write(c);
+                    }
+                    return bos2.toByteArray();
+                }
+            }
+            finally {
+                oldStream.close();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
+    public String deployProcessDefinition(String processName, InputStream definitionStream, InputStream processMapImageStream) {
+        RepositoryService service = getProcessEngine(ProcessToolContext.Util.getProcessToolContextFromThread())
+                .getRepositoryService();
+        NewDeployment deployment = service.createDeployment();
+        deployment.addResourceFromInputStream(processName + ".jpdl.xml", definitionStream);
+        if (processMapImageStream != null)
+            deployment.addResourceFromInputStream(processName + ".png", processMapImageStream);
+        return deployment.deploy();
+    }
+
 }

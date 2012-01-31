@@ -281,7 +281,7 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements V
                                             read = ImageIO.read(new ByteArrayInputStream(png));
                                             String url = ProcessInstanceManagerPortlet.getProcessInstanceMapRequestUrl(getApplication(),
                                                     pi.getInternalId());
-                                            Window w = new Window(getLocalizedMessage("process.image-map"));
+                                            Window w = new Window(getLocalizedMessage("processinstances.console.process.image-map"));
 //                                            w.setWidth(read.getWidth() + "px");
 //                                            w.setHeight(read.getHeight() + "px");
                                             w.getContent().setWidth(read.getWidth() + "px");

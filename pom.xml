@@ -13,7 +13,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jbpm.version>4.2</jbpm.version>
+        <jbpm.version>4.4</jbpm.version>
         <spring.version>3.0.5.RELEASE</spring.version>
         <vaadin.version>6.7.4</vaadin.version>
         <hibernate.version>3.6.6.Final</hibernate.version>

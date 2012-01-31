@@ -90,8 +90,8 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory 
                 logger.warning("java:comp/UserTransaction not found, looking for UserTransaction");
                 ut = (UserTransaction) new InitialContext().lookup("UserTransaction");
             }
-            
-            
+
+            System.out.println("ut.getStatus() = " + ut.getStatus());
             ut.begin();
             Session session = registry.getSessionFactory().getCurrentSession();
             try {
@@ -151,32 +151,37 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory 
             @Override
             public void withContext(ProcessToolContext processToolContext) {
 
-                boolean skipJbpm = false;
-                InputStream is = bpmStream;
-                ProcessToolBpmSession session = processToolContext.getProcessToolSessionFactory().createSession(
-                        new UserData("admin", "admin@aperteworkflow.org", "Admin"), Arrays.asList("ADMIN"));
-                byte[] oldDefinition = session.getProcessLatestDefinition(cfg.getBpmDefinitionKey(), cfg.getProcessName());
-                if (oldDefinition != null) {
-                    byte[] newDefinition = loadBytesFromStream(is);
-                    is = new ByteArrayInputStream(newDefinition);
-                    if (Arrays.equals(newDefinition, oldDefinition)) {
-                        logger.log(Level.WARNING, "bpm definition for " + cfg.getProcessName() +
-                                " is the same as in BPM, therefore not updating BPM process definition");
-                        skipJbpm = true;
+                ProcessToolContext.Util.setProcessToolContextForThread(processToolContext);
+                try {
+                    boolean skipJbpm = false;
+                    InputStream is = bpmStream;
+                    ProcessToolBpmSession session = processToolContext.getProcessToolSessionFactory().createSession(
+                            new UserData("admin", "admin@aperteworkflow.org", "Admin"), Arrays.asList("ADMIN"));
+                    byte[] oldDefinition = session.getProcessLatestDefinition(cfg.getBpmDefinitionKey(), cfg.getProcessName());
+                    if (oldDefinition != null) {
+                        byte[] newDefinition = loadBytesFromStream(is);
+                        is = new ByteArrayInputStream(newDefinition);
+                        if (Arrays.equals(newDefinition, oldDefinition)) {
+                            logger.log(Level.WARNING, "bpm definition for " + cfg.getProcessName() +
+                                    " is the same as in BPM, therefore not updating BPM process definition");
+                            skipJbpm = true;
+                        }
                     }
-                }
 
-                if (!skipJbpm) {
-                    String deploymentId = session.deployProcessDefinition(cfg.getProcessName(), is, imageStream);
-                    logger.log(Level.INFO, "deployed new BPM Engine definition with id: " + deploymentId);
-                }
+                    if (!skipJbpm) {
+                        String deploymentId = session.deployProcessDefinition(cfg.getProcessName(), is, imageStream);
+                        logger.log(Level.INFO, "deployed new BPM Engine definition with id: " + deploymentId);
+                    }
 
-                ProcessDefinitionDAO processDefinitionDAO = processToolContext.getProcessDefinitionDAO();
-                processDefinitionDAO.updateOrCreateProcessDefinitionConfig(cfg);
-                logger.log(Level.INFO, "created  definition with id: " + cfg.getId());
-                if (queues != null && queues.length > 0) {
-                    processDefinitionDAO.updateOrCreateQueueConfigs(queues);
-                    logger.log(Level.INFO, "created/updated " + queues.length + " queues");
+                    ProcessDefinitionDAO processDefinitionDAO = processToolContext.getProcessDefinitionDAO();
+                    processDefinitionDAO.updateOrCreateProcessDefinitionConfig(cfg);
+                    logger.log(Level.INFO, "created  definition with id: " + cfg.getId());
+                    if (queues != null && queues.length > 0) {
+                        processDefinitionDAO.updateOrCreateQueueConfigs(queues);
+                        logger.log(Level.INFO, "created/updated " + queues.length + " queues");
+                    }
+                } finally {
+                    ProcessToolContext.Util.removeProcessToolContextForThread(processToolContext);
                 }
             }
         });

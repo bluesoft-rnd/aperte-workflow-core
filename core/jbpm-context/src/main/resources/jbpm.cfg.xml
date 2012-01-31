@@ -70,12 +70,13 @@
     </process-engine-context>
 
     <transaction-context>
-        <repository-session />
-        <db-session />
-
-        <message-session />
-        <timer-session />
-        <history-session />
+        <repository-session/>
+        <db-session/>
+        <message-session/>
+        <timer-session/>
+        <history-sessions>
+            <object class="org.jbpm.pvm.internal.history.HistorySessionImpl"/>
+        </history-sessions>
         <transaction/>
         <hibernate-session current="true" close="false"/>
     </transaction-context>

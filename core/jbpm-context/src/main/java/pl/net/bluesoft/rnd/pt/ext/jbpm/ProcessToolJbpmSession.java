@@ -12,12 +12,12 @@ import org.jbpm.api.history.HistoryActivityInstanceQuery;
 import org.jbpm.api.history.HistoryProcessInstance;
 import org.jbpm.api.history.HistoryProcessInstanceQuery;
 import org.jbpm.api.identity.User;
+import org.jbpm.api.model.Transition;
 import org.jbpm.api.task.Participation;
 import org.jbpm.api.task.Task;
 import org.jbpm.pvm.internal.history.model.HistoryActivityInstanceImpl;
 import org.jbpm.pvm.internal.identity.impl.UserImpl;
 import org.jbpm.pvm.internal.model.ExecutionImpl;
-import org.jbpm.pvm.internal.model.Transition;
 import org.jbpm.pvm.internal.query.AbstractQuery;
 import org.jbpm.pvm.internal.task.ParticipationImpl;
 import org.jbpm.pvm.internal.task.TaskImpl;
@@ -750,12 +750,17 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
                 StateNode sn = (StateNode) processGraphElements.get(activityName);
                 if (sn == null) continue;
                 sn = sn.cloneNode();
-                sn.setUnfinished(((HistoryActivityInstanceImpl) hpi).getTransitionName() == null);
+                sn.setUnfinished(activity.getEndTime() == null);
                 sn.setLabel(activityName + ": " + hpi.getDuration() + "ms");
                 res.add(sn);
                 //look for transition
                 TransitionArc ta = (TransitionArc) processGraphElements.get(activityName + "_" + activity.getTransitionName());
-                if (ta == null) continue;
+                if (ta == null) { //look for default!
+                    ta = (TransitionArc) processGraphElements.get("__AWF__default_transition_" + activityName);
+                }
+                if (ta == null) {
+                    continue;
+                }
                 res.add(ta.cloneNode());
             } else {
                 LOGGER.severe("Unsupported entry: " + hpi);
@@ -842,6 +847,9 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
                                 //and the same for end node
                                 int endX   = endNode.getX() + endNode.getWidth()/2;
                                 int endY   = endNode.getY() + endNode.getHeight()/2;
+
+
+
                                 //TODO - shorten start and end so it wont overlap with nodes.
                                 //TODO Take note of node shape (start/end - circle, decision - rhomb, task/java - rounded rectangle) - different for Signavio and GDL
                                 TransitionArc arc = new TransitionArc();
@@ -852,9 +860,90 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
                                     arc.addPoint(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
                                 }
                                 arc.addPoint(endX, endY);
+
+                                endX = arc.getPath().get(1).getX();
+                                endY = arc.getPath().get(1).getY();
+                                double a = ((double)(startY-endY))/((double)(startX - endX));//remember about vertical line
+                                //startY = startX*a+b
+                                double b = (double)startY - (double)startX*a;
+                                for (int x = startX; x <= endX; x++) {
+                                    int y = (int) Math.round(a*x+b);
+                                    boolean inside = false;
+                                    if (x >= startNode.getX() && x <= startNode.getX() + startNode.getWidth()) {
+                                        if (y >= startNode.getY() && y <= startNode.getY() + startNode.getHeight()) {
+                                            inside = true;
+                                        }
+                                    }
+                                    if (!inside) {
+                                        startX = x;
+                                        startY = y;
+                                        break;
+                                    }
+                                }
+                                for (int x = startX; x > endX; x--) {
+                                    int y = (int) Math.round(a*x+b);
+                                    boolean inside = false;
+                                    if (x >= startNode.getX() && x <= startNode.getX() + startNode.getWidth()) {
+                                        if (y >= startNode.getY() && y <= startNode.getY() + startNode.getHeight()) {
+                                            inside = true;
+                                        }
+                                    }
+                                    if (!inside) {
+                                        startX = x;
+                                        startY = y;
+                                        break;
+                                    }
+                                }
+                                arc.getPath().get(0).setX(startX);
+                                arc.getPath().get(0).setY(startY);
+
+                                endX = arc.getPath().get(arc.getPath().size()-1).getX();
+                                endY = arc.getPath().get(arc.getPath().size()-1).getY();
+                                startX = arc.getPath().get(arc.getPath().size()-2).getX();
+                                startY = arc.getPath().get(arc.getPath().size()-2).getY();
+                                if (arc.getPath().size() > 2) {
+                                    System.out.println(arc);
+                                }
+                                a = ((double)(startY-endY))/((double)(startX - endX));//remember about vertical line
+                                //startY = startX*a+b
+                                b = (double)startY - (double)startX*a;
+                                for (int x = endX; x <= startX; x++) {
+                                    int y = (int) Math.round(a*x+b);
+                                    boolean inside = false;
+                                    if (x >= endNode.getX() && x <= endNode.getX() + endNode.getWidth()) {
+                                        if (y >= endNode.getY() && y <= endNode.getY() + endNode.getHeight()) {
+                                            inside = true;
+                                        }
+                                    }
+                                    if (!inside) {
+                                        endX = x;
+                                        endY = y;
+                                        break;
+                                    }
+                                }
+                                for (int x = endX; x > startX; x--) {
+                                    int y = (int) Math.round(a*x+b);
+                                    boolean inside = false;
+                                    if (x >= endNode.getX() && x <= endNode.getX() + endNode.getWidth()) {
+                                        if (y >= endNode.getY() && y <= endNode.getY() + endNode.getHeight()) {
+                                            inside = true;
+                                        }
+                                    }
+                                    if (!inside) {
+                                        endX = x;
+                                        endY = y;
+                                        break;
+                                    }
+                                }
+                                arc.getPath().get(arc.getPath().size()-1).setX(endX);
+                                arc.getPath().get(arc.getPath().size()-1).setY(endY);
+
                                 res.put(startNodeName + "_" + name,arc);
                                 if ("start".equals(nodeType)) {
                                     res.put("__AWF__start_transition_to_" + to, arc);
+                                }
+                                if (transitions.getLength() == 1) {
+                                    res.put("__AWF__default_transition_" + startNodeName, arc);
                                 }
                             } else {
                                 LOGGER.severe("No 'g' attribute for transition "+ name +
@@ -912,7 +1001,8 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
         org.jbpm.api.ProcessInstance processInstanceById = executionService.findProcessInstanceById(pi.getInternalId());
         String processDefinitionId;
         if (processInstanceById == null) { //look in history service
-            HistoryProcessInstanceQuery historyProcessInstanceQuery = processEngine.getHistoryService().createHistoryProcessInstanceQuery().processInstanceId(pi.getInternalId());
+            HistoryProcessInstanceQuery historyProcessInstanceQuery = processEngine.getHistoryService()
+                    .createHistoryProcessInstanceQuery().processInstanceId(pi.getInternalId());
             HistoryProcessInstance historyProcessInstance = historyProcessInstanceQuery.uniqueResult();
             processDefinitionId = historyProcessInstance.getProcessDefinitionId();
         } else {

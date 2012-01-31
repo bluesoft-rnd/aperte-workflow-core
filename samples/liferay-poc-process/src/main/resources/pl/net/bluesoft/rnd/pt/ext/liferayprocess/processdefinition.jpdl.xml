@@ -22,7 +22,9 @@
     <task g="784,179,183,52" name="UPDATE_REQUIRED" swimlane="REVIEW">
         <transition g="729,161:-51,-25" name="to REVIEW_SUBMISSION" to="REVIEW_SUBMISSION"/>
     </task>
-    <java auto-wire="true" cache="false" class="pl.net.bluesoft.rnd.pt.ext.jbpm.JbpmStepAction" g="953,42,163,52" method="invoke" name="publishToTwitter" var="result">
+    <java auto-wire="true" cache="false"
+          class="pl.net.bluesoft.rnd.pt.ext.jbpm.JbpmStepAction" g="953,42,163,52"
+          method="invoke" name="publishToTwitter" var="result">
         <field name="stepName">
             <string value="MuleStep"/>
         </field>
@@ -34,7 +36,9 @@
                 </entry>
             </map>
         </field>
-        <transition g="-52,-35" name="to exclusive1" to="end1"/>
+        <transition g="-52,-35" name="to exclusive1" to="end1">
+            <condition expr="#{'1' == '1'}"/>
+        </transition>
     </java>
     <decision g="222,180,48,48" name="exclusive1">
         <transition g="-44,-49" name="to REVIEW_SUBMISSION" to="REVIEW_SUBMISSION">

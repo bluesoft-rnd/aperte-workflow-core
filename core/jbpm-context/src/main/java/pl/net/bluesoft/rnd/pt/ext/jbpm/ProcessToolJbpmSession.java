@@ -726,8 +726,8 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
     public List<GraphElement> getProcessHistory(final ProcessInstance pi) {
         ProcessEngine processEngine = getProcessEngine(ProcessToolContext.Util.getProcessToolContextFromThread());
         HistoryService service = processEngine.getHistoryService();
-        HistoryActivityInstanceQuery historyProcessInstanceQuery = service.createHistoryActivityInstanceQuery().executionId(pi.getInternalId());
-        List<HistoryActivityInstance> list = historyProcessInstanceQuery.list();
+        HistoryActivityInstanceQuery activityInstanceQuery = service.createHistoryActivityInstanceQuery().executionId(pi.getInternalId());
+        List<HistoryActivityInstance> list = activityInstanceQuery.list();
 
         Map<String,GraphElement> processGraphElements = parseProcessDefinition(pi);
 
@@ -764,6 +764,15 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
                 res.add(ta.cloneNode());
             } else {
                 LOGGER.severe("Unsupported entry: " + hpi);
+            }
+        }
+        HistoryProcessInstanceQuery historyProcessInstanceQuery = processEngine.getHistoryService()
+                .createHistoryProcessInstanceQuery().processInstanceId(pi.getInternalId());
+        HistoryProcessInstance historyProcessInstance = historyProcessInstanceQuery.uniqueResult();
+        if (historyProcessInstance != null && historyProcessInstance.getEndActivityName() != null) {
+            StateNode sn = (StateNode) processGraphElements.get(historyProcessInstance.getEndActivityName());
+            if (sn != null) {
+                res.add(sn);
             }
         }
         return res;
@@ -848,10 +857,6 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
                                 int endX   = endNode.getX() + endNode.getWidth()/2;
                                 int endY   = endNode.getY() + endNode.getHeight()/2;
 
-
-
-                                //TODO - shorten start and end so it wont overlap with nodes.
-                                //TODO Take note of node shape (start/end - circle, decision - rhomb, task/java - rounded rectangle) - different for Signavio and GDL
                                 TransitionArc arc = new TransitionArc();
                                 arc.setName(name);
                                 arc.addPoint(startX, startY);

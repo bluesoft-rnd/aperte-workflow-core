@@ -1,7 +1,7 @@
 package org.aperteworkflow.editor.ui.permission;
 
 
-import pl.net.bluesoft.rnd.processtool.model.config.AbstractPermission;
+import org.aperteworkflow.editor.domain.Permission;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,13 +21,13 @@ public class PrivilegeNamePermissionProvider implements PermissionProvider{
     }
 
     @Override
-    public Collection<AbstractPermission> getPermissions() {
+    public Collection<Permission> getPermissions() {
         if (permissionProvider.getPermissions() == null) {
             return null;
         }
 
-        List<AbstractPermission> privilegeNamePermissions = new ArrayList<AbstractPermission>();
-        for (AbstractPermission permission : permissionProvider.getPermissions()) {
+        List<Permission> privilegeNamePermissions = new ArrayList<Permission>();
+        for (Permission permission : permissionProvider.getPermissions()) {
             if (privilegeName.equals(permission.getPrivilegeName())) {
                 privilegeNamePermissions.add(permission);
             }

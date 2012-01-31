@@ -1,6 +1,6 @@
 package org.aperteworkflow.editor.ui.permission;
 
-import pl.net.bluesoft.rnd.processtool.model.config.AbstractPermission;
+import org.aperteworkflow.editor.domain.Permission;
 
 /**
  * Definition of the permission, provides metadata to create the actual permission object
@@ -22,7 +22,7 @@ public class PermissionDefinition implements Comparable<PermissionDefinition> {
         this.description = description;
     }
     
-    public PermissionDefinition(AbstractPermission permission) {
+    public PermissionDefinition(Permission permission) {
         this.key = permission.getPrivilegeName();
     }
 

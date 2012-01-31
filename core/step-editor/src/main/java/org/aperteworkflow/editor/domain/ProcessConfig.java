@@ -1,23 +1,21 @@
-package pl.net.bluesoft.rnd.pt.ext.processeditor.domain;
-
-import pl.net.bluesoft.rnd.processtool.model.config.AbstractPermission;
+package org.aperteworkflow.editor.domain;
 
 import java.io.Serializable;
 import java.util.List;
 
 /**
- * Main configuration for the process editor
+ * Main configuration for the process editor application
  */
 public class ProcessConfig implements Serializable {
 
-    private List<AbstractPermission> processPermissions;
+    private List<Permission> processPermissions;
     private List<Queue> queues;
 
-    public List<AbstractPermission> getProcessPermissions() {
+    public List<Permission> getProcessPermissions() {
         return processPermissions;
     }
 
-    public void setProcessPermissions(List<AbstractPermission> processPermissions) {
+    public void setProcessPermissions(List<Permission> processPermissions) {
         this.processPermissions = processPermissions;
     }
 

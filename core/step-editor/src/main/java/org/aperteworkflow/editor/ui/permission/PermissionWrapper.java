@@ -1,5 +1,6 @@
 package org.aperteworkflow.editor.ui.permission;
 
+import org.aperteworkflow.editor.domain.Permission;
 import pl.net.bluesoft.rnd.processtool.model.config.AbstractPermission;
 
 public class PermissionWrapper extends AbstractPermission {
@@ -25,6 +26,15 @@ public class PermissionWrapper extends AbstractPermission {
         }
     }
 
+    public PermissionWrapper(Permission permission) {
+        this();
+        if (permission != null) {
+            setPrivilegeName(permission.getPrivilegeName());
+            setRoleName(permission.getRoleName());
+            setShortName(getShortNameFromAttributes());
+        }
+    }
+    
     public PermissionWrapper(AbstractPermission abstractPermission) {
         this();
         if (abstractPermission != null) {
@@ -51,9 +61,9 @@ public class PermissionWrapper extends AbstractPermission {
             return getPrivilegeName();
         }
     }
-
-    public AbstractPermission toAbstractPermission() {
-        AbstractPermission perm = new AbstractPermission();
+    
+    public Permission toPermission() {
+        Permission perm = new Permission();
         perm.setPrivilegeName(getPrivilegeName());
         perm.setRoleName(getRoleName());
         return perm;

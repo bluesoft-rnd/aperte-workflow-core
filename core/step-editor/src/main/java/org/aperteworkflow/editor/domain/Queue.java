@@ -1,4 +1,4 @@
-package pl.net.bluesoft.rnd.pt.ext.processeditor.domain;
+package org.aperteworkflow.editor.domain;
 
 import java.io.Serializable;
 import java.util.List;

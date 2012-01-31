@@ -2,8 +2,8 @@ package pl.net.bluesoft.rnd.pt.ext.processeditor;
 
 import com.vaadin.terminal.ParameterHandler;
 import com.vaadin.ui.Window;
-import pl.net.bluesoft.rnd.pt.ext.processeditor.domain.ProcessConfig;
-import pl.net.bluesoft.rnd.pt.ext.processeditor.json.ProcessConfigJSONHandler;
+import org.aperteworkflow.editor.domain.ProcessConfig;
+import org.aperteworkflow.editor.json.ProcessConfigJSONHandler;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.JavaScriptHelper;
 import pl.net.bluesoft.rnd.pt.ext.vaadin.GenericEditorApplication;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;

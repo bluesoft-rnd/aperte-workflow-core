@@ -1,7 +1,7 @@
 package pl.net.bluesoft.rnd.pt.ext.processeditor;
 
 import com.vaadin.ui.*;
-import pl.net.bluesoft.rnd.pt.ext.processeditor.domain.ProcessConfig;
+import org.aperteworkflow.editor.domain.ProcessConfig;
 import pl.net.bluesoft.rnd.pt.ext.processeditor.tab.other.OtherTab;
 import pl.net.bluesoft.rnd.pt.ext.processeditor.tab.permission.ProcessPermissionTab;
 import pl.net.bluesoft.rnd.pt.ext.processeditor.tab.queue.QueueTab;

@@ -1,7 +1,7 @@
 package org.aperteworkflow.editor.ui.permission;
 
 import com.vaadin.ui.*;
-import pl.net.bluesoft.rnd.processtool.model.config.AbstractPermission;
+import org.aperteworkflow.editor.domain.Permission;
 import pl.net.bluesoft.rnd.pt.ext.vaadin.DataHandler;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
@@ -135,7 +135,7 @@ public class PrivilegeNameEditor extends GridLayout implements PermissionWrapper
 
         roleNameLayout.removeAllComponents();
         if (provider.getPermissions() != null) {
-            for (AbstractPermission permission : provider.getPermissions()) {
+            for (Permission permission : provider.getPermissions()) {
                 addPermissionWrapper(new PermissionWrapper(permission));
             }
         }
@@ -163,15 +163,15 @@ public class PrivilegeNameEditor extends GridLayout implements PermissionWrapper
         return permissionDefinition;
     }
 
-    public List<AbstractPermission> getPermissions() {
-        List<AbstractPermission> list = new ArrayList<AbstractPermission>();
+    public List<Permission> getPermissions() {
+        List<Permission> list = new ArrayList<Permission>();
 
         Iterator<Component> it = roleNameLayout.getComponentIterator();
         while (it.hasNext()) {
             Component c = it.next();
             if ((c instanceof PermissionWrapperBox)) {
                 PermissionWrapperBox box = (PermissionWrapperBox) c;
-                list.add(box.getPermissionWrapper().toAbstractPermission());
+                list.add(box.getPermissionWrapper().toPermission());
             }
         }
 

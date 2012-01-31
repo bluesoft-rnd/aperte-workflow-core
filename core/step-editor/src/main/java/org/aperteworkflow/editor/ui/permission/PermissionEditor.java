@@ -1,7 +1,7 @@
 package org.aperteworkflow.editor.ui.permission;
 
 import com.vaadin.ui.*;
-import pl.net.bluesoft.rnd.processtool.model.config.AbstractPermission;
+import org.aperteworkflow.editor.domain.Permission;
 import pl.net.bluesoft.rnd.pt.ext.vaadin.DataHandler;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
@@ -108,7 +108,7 @@ public class PermissionEditor extends VerticalLayout implements DataHandler {
         // use set to get unique permission definitions
         Set<PermissionDefinition> set = new TreeSet<PermissionDefinition>();
         if (provider.getPermissions() != null) {
-            for (AbstractPermission permission : provider.getPermissions()) {
+            for (Permission permission : provider.getPermissions()) {
                 set.add(new PermissionDefinition(permission));
             }
         }
@@ -131,8 +131,8 @@ public class PermissionEditor extends VerticalLayout implements DataHandler {
         return null;
     }
 
-    public List<AbstractPermission> getPermissions() {
-        List<AbstractPermission> list = new ArrayList<AbstractPermission>();
+    public List<Permission> getPermissions() {
+        List<Permission> list = new ArrayList<Permission>();
         for (PrivilegeNameEditor privilegeNameEditor : privilegeNameEditors) {
             list.addAll(privilegeNameEditor.getPermissions());
         }

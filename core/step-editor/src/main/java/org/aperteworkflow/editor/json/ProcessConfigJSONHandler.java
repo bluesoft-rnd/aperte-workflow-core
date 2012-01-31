@@ -1,7 +1,7 @@
-package pl.net.bluesoft.rnd.pt.ext.processeditor.json;
+package org.aperteworkflow.editor.json;
 
+import org.aperteworkflow.editor.domain.ProcessConfig;
 import org.codehaus.jackson.map.ObjectMapper;
-import pl.net.bluesoft.rnd.pt.ext.processeditor.domain.ProcessConfig;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;

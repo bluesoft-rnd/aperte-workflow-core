@@ -1,9 +1,8 @@
 package pl.net.bluesoft.rnd.pt.ext.processeditor.tab.permission;
 
 import com.vaadin.ui.VerticalLayout;
+import org.aperteworkflow.editor.domain.ProcessConfig;
 import org.aperteworkflow.editor.ui.permission.PermissionEditor;
-import pl.net.bluesoft.rnd.pt.ext.processeditor.domain.ProcessConfig;
-import pl.net.bluesoft.rnd.pt.ext.processeditor.json.ProcessConfigJSONHandler;
 import pl.net.bluesoft.rnd.pt.ext.vaadin.DataHandler;
 
 import java.util.Collection;
@@ -13,7 +12,6 @@ public class ProcessPermissionTab extends VerticalLayout implements DataHandler 
     private ProcessConfig processConfig;
 
     private PermissionEditor permissionEditor;
-    private ProcessConfigJSONHandler processConfigHandler;
     private ProcessPermissionProvider permissionProvider;
 
     public ProcessPermissionTab() {
@@ -21,7 +19,6 @@ public class ProcessPermissionTab extends VerticalLayout implements DataHandler 
     }
 
     private void initComponent() {
-        processConfigHandler = ProcessConfigJSONHandler.getInstance();
 
         permissionProvider = new ProcessPermissionProvider();
 

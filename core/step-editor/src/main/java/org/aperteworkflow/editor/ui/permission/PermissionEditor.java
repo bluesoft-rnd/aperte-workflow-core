@@ -11,14 +11,15 @@ import java.util.*;
 public class PermissionEditor extends VerticalLayout implements DataHandler {
 
     private PermissionProvider provider;
-
+    private List<PrivilegeNameEditor> privilegeNameEditors;
+    
     private TextField newPrivilegeNameField;
     private Button newPrivilegeNameButton;
     private HorizontalLayout newPrivilegeNameLayout;
-
     private Label descriptionLabel;
 
     public PermissionEditor() {
+        privilegeNameEditors = new ArrayList<PrivilegeNameEditor>();
         initComponent();
     }
 
@@ -67,15 +68,14 @@ public class PermissionEditor extends VerticalLayout implements DataHandler {
     @Override
     public void loadData() {
         removeAllComponents();
+        privilegeNameEditors.clear();
 
         addComponent(descriptionLabel);
-
         if (provider.isNewPermissionDefinitionAllowed()) {
             addComponent(newPrivilegeNameLayout);
         }
 
-        List<PermissionDefinition> definitions = getProvidedPermissionDefinitions();
-        for (PermissionDefinition definition : definitions) {
+        for (PermissionDefinition definition : getUniqueProvidedPermissionDefinitions()) {
             addNewPrivilegeEditor(definition);
         }
     }
@@ -85,6 +85,7 @@ public class PermissionEditor extends VerticalLayout implements DataHandler {
         editor.setProvider(new PrivilegeNamePermissionProvider(definition.getKey(), provider));
         editor.loadData();
         addComponent(editor);
+        privilegeNameEditors.add(editor);
     }
 
     private List<PermissionDefinition> getUsedPermissionDefinition() {
@@ -103,21 +104,21 @@ public class PermissionEditor extends VerticalLayout implements DataHandler {
         return list;
     }
     
-    private List<PermissionDefinition> getProvidedPermissionDefinitions() {
-        List<PermissionDefinition> list = new ArrayList<PermissionDefinition>();
-
+    private Set<PermissionDefinition> getUniqueProvidedPermissionDefinitions() {
+        // use set to get unique permission definitions
+        Set<PermissionDefinition> set = new TreeSet<PermissionDefinition>();
         if (provider.getPermissions() != null) {
             for (AbstractPermission permission : provider.getPermissions()) {
-                list.add(new PermissionDefinition(permission));
+                set.add(new PermissionDefinition(permission));
             }
         }
 
         if (provider.getPermissionDefinitions() != null) {
-            list.addAll(provider.getPermissionDefinitions());
+            set.addAll(provider.getPermissionDefinitions());
         }
 
-        Collections.sort(list);
-        return list;
+
+        return set;
     }
 
     @Override
@@ -128,5 +129,13 @@ public class PermissionEditor extends VerticalLayout implements DataHandler {
     @Override
     public Collection<String> validateData() {
         return null;
+    }
+
+    public List<AbstractPermission> getPermissions() {
+        List<AbstractPermission> list = new ArrayList<AbstractPermission>();
+        for (PrivilegeNameEditor privilegeNameEditor : privilegeNameEditors) {
+            list.addAll(privilegeNameEditor.getPermissions());
+        }
+        return list;
     }
 }

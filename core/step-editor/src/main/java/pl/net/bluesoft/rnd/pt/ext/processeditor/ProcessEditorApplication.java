@@ -2,6 +2,8 @@ package pl.net.bluesoft.rnd.pt.ext.processeditor;
 
 import com.vaadin.terminal.ParameterHandler;
 import com.vaadin.ui.Window;
+import pl.net.bluesoft.rnd.pt.ext.processeditor.domain.ProcessConfig;
+import pl.net.bluesoft.rnd.pt.ext.processeditor.json.ProcessConfigJSONHandler;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.JavaScriptHelper;
 import pl.net.bluesoft.rnd.pt.ext.vaadin.GenericEditorApplication;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
@@ -16,8 +18,10 @@ public class ProcessEditorApplication extends GenericEditorApplication implement
     private static final String CALLBACK_URL_PARAM_NAME = "callbackUrl";
     private static final String PROCESS_CONFIG_PARAM_NAME = "processConfig";
 
+    private ProcessConfig processConfig;
+    
     private String callbackUrl;
-    private String processConfig;
+    private String jsonProcessConfig;
     private Window mainWindow;
     private ProcessEditorPanel processEditorPanel;
     private JavaScriptHelper mainWindowJavaScriptHelper;
@@ -28,7 +32,7 @@ public class ProcessEditorApplication extends GenericEditorApplication implement
 
         I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
 
-        mainWindow = new Window(messages.getMessage("processeditor.application.name"));
+        mainWindow = new Window(messages.getMessage("process.editor.title"));
         mainWindow.addParameterHandler(this);
 
         mainWindowJavaScriptHelper = new JavaScriptHelper(mainWindow);
@@ -44,33 +48,37 @@ public class ProcessEditorApplication extends GenericEditorApplication implement
         }
 
         String callbackUrl = getStringParameterByName(CALLBACK_URL_PARAM_NAME, parameters);
-        String processConfig = getStringParameterByName(PROCESS_CONFIG_PARAM_NAME, parameters);
+        String jsonProcessConfig = getStringParameterByName(PROCESS_CONFIG_PARAM_NAME, parameters);
         if (callbackUrl != null) {
             this.callbackUrl = callbackUrl;
-            this.processConfig = processConfig;
+            this.jsonProcessConfig = jsonProcessConfig;
             refreshApplication();
         }
     }
 
+    /**
+     * Reinitialize the application from the last received configuration
+     */
     private void refreshApplication() {
         mainWindow.removeAllComponents();
+
+        processConfig = ProcessConfigJSONHandler.getInstance().toObject(jsonProcessConfig);
 
         processEditorPanel = new ProcessEditorPanel();
         processEditorPanel.setProcessDir("/opt/aperte/aperteworkflow-bundle/modeler-repo");
         processEditorPanel.setProcessConfig(processConfig);
+        processEditorPanel.loadData();
+
         mainWindow.addComponent(processEditorPanel);
     }
 
-    public String getCallbackUrl() {
-        return callbackUrl;
-    }
-
-    public String getProcessConfig() {
-        return processConfig;
-    }
-
-    public JavaScriptHelper getJavaScriptHelper() {
-        return mainWindowJavaScriptHelper;
+    /**
+     * Save and callback the signavio editor
+     */
+    public void saveAndCallback() {
+        processEditorPanel.saveData();
+        String json = ProcessConfigJSONHandler.getInstance().toJSON(processConfig);
+        mainWindowJavaScriptHelper.postAndRedirectProcess(callbackUrl, json);
     }
 
 }

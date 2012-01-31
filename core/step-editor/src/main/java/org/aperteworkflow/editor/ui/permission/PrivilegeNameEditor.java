@@ -5,8 +5,10 @@ import pl.net.bluesoft.rnd.processtool.model.config.AbstractPermission;
 import pl.net.bluesoft.rnd.pt.ext.vaadin.DataHandler;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Component used to edit role names inside single privilege name
@@ -84,6 +86,9 @@ public class PrivilegeNameEditor extends GridLayout implements PermissionWrapper
     
     @Override
     public void addPermissionWrapper(PermissionWrapper permissionWrapper) {
+        // ensure the privilege name
+        permissionWrapper.setPrivilegeName(permissionDefinition.getKey());
+
         PermissionWrapperBox box = getPermissionWrapperBoxByRoleName(permissionWrapper.getRoleName());
         if (box == null) {
             box = new PermissionWrapperBox(permissionWrapper, this);
@@ -156,6 +161,21 @@ public class PrivilegeNameEditor extends GridLayout implements PermissionWrapper
 
     public PermissionDefinition getPermissionDefinition() {
         return permissionDefinition;
+    }
+
+    public List<AbstractPermission> getPermissions() {
+        List<AbstractPermission> list = new ArrayList<AbstractPermission>();
+
+        Iterator<Component> it = roleNameLayout.getComponentIterator();
+        while (it.hasNext()) {
+            Component c = it.next();
+            if ((c instanceof PermissionWrapperBox)) {
+                PermissionWrapperBox box = (PermissionWrapperBox) c;
+                list.add(box.getPermissionWrapper().toAbstractPermission());
+            }
+        }
+
+        return list;
     }
 
 }

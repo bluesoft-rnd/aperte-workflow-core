@@ -2,6 +2,7 @@ package pl.net.bluesoft.rnd.pt.ext.processeditor.tab.permission;
 
 import com.vaadin.ui.VerticalLayout;
 import org.aperteworkflow.editor.ui.permission.PermissionEditor;
+import pl.net.bluesoft.rnd.pt.ext.processeditor.domain.ProcessConfig;
 import pl.net.bluesoft.rnd.pt.ext.processeditor.json.ProcessConfigJSONHandler;
 import pl.net.bluesoft.rnd.pt.ext.vaadin.DataHandler;
 
@@ -9,7 +10,8 @@ import java.util.Collection;
 
 public class ProcessPermissionTab extends VerticalLayout implements DataHandler {
 
-    private String processConfig;
+    private ProcessConfig processConfig;
+
     private PermissionEditor permissionEditor;
     private ProcessConfigJSONHandler processConfigHandler;
     private ProcessPermissionProvider permissionProvider;
@@ -22,7 +24,6 @@ public class ProcessPermissionTab extends VerticalLayout implements DataHandler 
         processConfigHandler = ProcessConfigJSONHandler.getInstance();
 
         permissionProvider = new ProcessPermissionProvider();
-        permissionProvider.setPermissions(processConfigHandler.getPermissions(processConfig));
 
         permissionEditor = new PermissionEditor();
         permissionEditor.setProvider(permissionProvider);
@@ -33,15 +34,20 @@ public class ProcessPermissionTab extends VerticalLayout implements DataHandler 
 
     @Override
     public void loadData() {
-        // read the permissions from the json
-        permissionProvider.setPermissions(ProcessConfigJSONHandler.getInstance().getPermissions(processConfig));
+        // load the permissions
+        permissionProvider.setPermissions(processConfig.getProcessPermissions());
 
+        // load the editor
         permissionEditor.loadData();
     }
 
     @Override
     public void saveData() {
+        // save the editor
         permissionEditor.saveData();
+
+        // save permissions
+        processConfig.setProcessPermissions(permissionEditor.getPermissions());
     }
 
     @Override
@@ -49,7 +55,11 @@ public class ProcessPermissionTab extends VerticalLayout implements DataHandler 
         return permissionEditor.validateData();
     }
 
-    public void setProcessConfig(String processConfig) {
+    public ProcessConfig getProcessConfig() {
+        return processConfig;
+    }
+
+    public void setProcessConfig(ProcessConfig processConfig) {
         this.processConfig = processConfig;
     }
 }

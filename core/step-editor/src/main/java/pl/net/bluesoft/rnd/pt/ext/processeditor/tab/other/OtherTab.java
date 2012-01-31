@@ -2,12 +2,14 @@ package pl.net.bluesoft.rnd.pt.ext.processeditor.tab.other;
 
 import com.vaadin.ui.Embedded;
 import com.vaadin.ui.VerticalLayout;
+import pl.net.bluesoft.rnd.pt.ext.vaadin.DataHandler;
 import pl.net.bluesoft.rnd.pt.ext.vaadin.GenericEditorApplication;
 import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 
 import java.io.File;
+import java.util.Collection;
 
-public class OtherTab extends VerticalLayout implements ProcessLogoHandler {
+public class OtherTab extends VerticalLayout implements ProcessLogoHandler, DataHandler {
 
     private ProcessLogoUploader logoUploader;
      private Embedded logoImage;
@@ -39,4 +41,18 @@ public class OtherTab extends VerticalLayout implements ProcessLogoHandler {
         }
     }
 
+    @Override
+    public void loadData() {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void saveData() {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public Collection<String> validateData() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
 }

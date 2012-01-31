@@ -52,4 +52,11 @@ public class PermissionWrapper extends AbstractPermission {
         }
     }
 
+    public AbstractPermission toAbstractPermission() {
+        AbstractPermission perm = new AbstractPermission();
+        perm.setPrivilegeName(getPrivilegeName());
+        perm.setRoleName(getRoleName());
+        return perm;
+    }
+
 }

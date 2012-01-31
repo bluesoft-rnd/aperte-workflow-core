@@ -15,10 +15,7 @@ import pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.TaskConfig;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -120,16 +117,22 @@ public class JSONHandler {
 			}
 		}
 
-		Map<String, Object> permissions = (Map<String, Object>) node.get(PERMISSIONS);
-		if (permissions != null) {
-			for (String key : permissions.keySet()) {
-				for (Property<?> perm : item.getPermissions()) {
-					if (perm.getPropertyId().equals(key)) {
-						perm.setValue(permissions.get(key));
-					}
-				}
-			}
-		}
+		try {
+            List<Permission> permissions = (List<Permission>) node.get(PERMISSIONS);
+            if (permissions != null) item.setPermissions(new ArrayList<Permission>(permissions));
+        } catch (ClassCastException e) { //TODO removeme, I exist only for backwards dev compatibility
+            //nothing
+        }
+//		if (permissions != null) {
+//			for (String key : permissions.keySet()) {
+//				for (Permission perm : item.getPermissions()) {
+//
+//					if (perm.getPropertyId().equals(key)) {
+//						perm.setValue(permissions.get(key));
+//					}
+//				}
+//			}
+//		}
 		
 		Item newItem = hc.addItem(item);
 		newItem.getItemProperty(NAME).setValue(widgetItem.getName());
@@ -152,22 +155,22 @@ public class JSONHandler {
                 }
 			}
 		}
-		Map<String, Object> permissionsMap = new HashMap<String, Object>();
-		if (widgetItemInStep.hasPermissions()) {
-			for (Property<?> perm : widgetItemInStep.getPermissions()) {
-				if (perm.getValue() != null) {
-					permissionsMap.put(perm.getPropertyId(), perm.getValue());
-                }
-			}
-		}
+//		Map<String, Object> permissionsMap = new HashMap<String, Object>();
+//		if (widgetItemInStep.hasPermissions()) {
+//			for (Property<?> perm : widgetItemInStep.getPermissions()) {
+//				if (perm.getValue() != null) {
+//					permissionsMap.put(perm.getPropertyId(), perm.getValue());
+//                }
+//			}
+//		}
 
 		map.put(WIDGET_ID, widgetItemInStep.getWidgetItem().getWidgetId());
         map.put(PRIORITY, priority);
 
 		if (!propertiesMap.isEmpty())
 			map.put(PROPERTIES, propertiesMap);
-		if (!permissionsMap.isEmpty())
-			map.put(PERMISSIONS, permissionsMap);
+		if (!widgetItemInStep.getPermissions().isEmpty())
+			map.put(PERMISSIONS, widgetItemInStep.getPermissions());
 
 		if (tree.hasChildren(node)) {
 			map.put(CHILDREN, CollectionUtils.collect(tree.getChildren(node), new Transformer() {

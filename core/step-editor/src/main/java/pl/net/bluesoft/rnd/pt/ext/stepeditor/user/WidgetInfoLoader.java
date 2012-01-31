@@ -4,6 +4,7 @@ import com.vaadin.Application;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang.StringUtils;
+import org.aperteworkflow.editor.ui.permission.PermissionDefinition;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.*;
@@ -77,7 +78,7 @@ public class WidgetInfoLoader {
 				return null;
 
             List<Property<?>> properties = getProperties(widgetClass);
-            List<Property<?>> permissions = getPermissions(permissionsUsed);
+            List<PermissionDefinition> permissions = getPermissions(permissionsUsed);
 
 			return new WidgetItem(aliasName.name(), docMap.get("name"), docMap.get("description"),
                     docMap.get("icon"), properties, permissions, childrenAllowed,
@@ -98,8 +99,8 @@ public class WidgetInfoLoader {
             return properties;
         }
         
-		private List<Property<?>> getPermissions(PermissionsUsed permissionsUsed) {
-            List<Property<?>> permissions = new ArrayList<Property<?>>();
+		private List<PermissionDefinition> getPermissions(PermissionsUsed permissionsUsed) {
+            List<PermissionDefinition> permissions = new ArrayList<PermissionDefinition>();
 
             Set<Permission> perms = null;
             if (permissionsUsed == null) {
@@ -114,18 +115,12 @@ public class WidgetInfoLoader {
             }
 
             if (perms != null) {
-                I18NSource i18NSource = I18NSource.ThreadUtil.getThreadI18nSource();
                 for (Permission perm : perms) {
-                    String permDesc = StringUtils.isEmpty(perm.desc()) ? PERMISSION_DESC_PREFIX + perm.key() : perm.desc();
-                    permDesc = i18NSource.getMessage(permDesc);
-
-                    Property property = new Property(null, String.class);
-                    property.setPropertyType(Property.PropertyType.PERMISSION);
-                    property.setPropertyId(perm.key());
-                    property.setName(permDesc + " (" + perm.key() + ")");
-                    property.setRequired(false);
-
-                    permissions.add(property);
+                    PermissionDefinition permissionDefinition = new PermissionDefinition();
+                    permissionDefinition.setKey(perm.key());
+                    permissionDefinition.setDescription(perm.desc());
+//
+                    permissions.add(permissionDefinition);
                 }
 
                 Collections.sort(permissions);

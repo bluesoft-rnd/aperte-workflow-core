@@ -41,6 +41,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages.getString;
+import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.htmlLabel;
+import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.styled;
 import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.verticalLayout;
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
@@ -85,15 +87,7 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 	}
 	
 	private ComponentContainer buildLayout() {
-		assigneeField = new TextField(Messages.getString("field.assignee"));
-        assigneeField.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-		assigneeField.setNullRepresentation("");
-		candidateGroupsField = new TextField(Messages.getString("field.candidateGroups"));
-        candidateGroupsField.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-		candidateGroupsField .setNullRepresentation("");
-		swimlaneField = new TextField(Messages.getString("field.swimlane"));
-        swimlaneField.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-		swimlaneField.setNullRepresentation("");
+		
 
         prepareAvailableWidgetsComponent();
         
@@ -133,14 +127,7 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
                 return false;
             }
         });
-
-		VerticalLayout assignmentLayout = new VerticalLayout();
-        assignmentLayout.setWidth("100%");
-        assignmentLayout.setSpacing(true);
-        assignmentLayout.setMargin(true);
-        assignmentLayout.addComponent(assigneeField);
-        assignmentLayout.addComponent(candidateGroupsField);
-        assignmentLayout.addComponent(swimlaneField);
+        VerticalLayout assignmentLayout = prepareAssignmentLayout();
 
         VerticalLayout stepLayout = buildWidgetEditorTabContent();
 
@@ -160,6 +147,35 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
         return vl;
 
 	}
+
+    private VerticalLayout prepareAssignmentLayout() {
+        assigneeField = new TextField();//Messages.getString("field.assignee"));
+        assigneeField.setWidth("100%");
+        assigneeField.setNullRepresentation("");
+        
+        candidateGroupsField = new TextField();//Messages.getString("field.candidateGroups"));
+        candidateGroupsField.setWidth("100%");
+        candidateGroupsField .setNullRepresentation("");
+        
+        swimlaneField = new TextField();//Messages.getString("field.swimlane"));
+        swimlaneField.setWidth("100%");
+        swimlaneField.setNullRepresentation("");
+        
+        VerticalLayout assignmentLayout = new VerticalLayout();
+        assignmentLayout.setWidth("100%");
+        assignmentLayout.setSpacing(true);
+        assignmentLayout.setMargin(true);
+        assignmentLayout.addComponent(styled(new Label(getString("field.assignee")), "h1"));
+        assignmentLayout.addComponent(htmlLabel(getString("field.assignee.info")));
+        assignmentLayout.addComponent(assigneeField);
+        assignmentLayout.addComponent(styled(new Label(getString("field.candidateGroups")), "h1"));
+        assignmentLayout.addComponent(htmlLabel(getString("field.candidateGroups.info")));
+        assignmentLayout.addComponent(candidateGroupsField);
+        assignmentLayout.addComponent(styled(new Label(getString("field.swimlane")), "h1"));
+        assignmentLayout.addComponent(htmlLabel(getString("field.swimlane.info")));
+        assignmentLayout.addComponent(swimlaneField);
+        return assignmentLayout;
+    }
 
 
     private void prepareAvailableWidgetsComponent() {

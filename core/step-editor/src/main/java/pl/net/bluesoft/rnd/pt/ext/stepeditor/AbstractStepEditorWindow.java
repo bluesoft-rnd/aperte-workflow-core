@@ -22,7 +22,7 @@ public abstract class AbstractStepEditorWindow {
 	
 	public abstract ComponentContainer init();
 
-	public abstract Component getHeader();
+    public abstract void save();
 
 	public String getJsonConfig() {
 		return jsonConfig;

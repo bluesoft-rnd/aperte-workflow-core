@@ -6,6 +6,7 @@ import com.vaadin.ui.Tree;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
+import org.aperteworkflow.editor.domain.Permission;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -16,6 +17,7 @@ import pl.net.bluesoft.rnd.pt.ext.stepeditor.TaskConfig;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,6 +30,7 @@ public class JSONHandler {
     private static final String PRIORITY = "priority";
 	private static final String PROPERTIES = "properties";
 	private static final String PERMISSIONS = "permissions";
+	private static final String STEP_PERMISSIONS = "step-permissions";
 	private static final String CHILDREN = "children";
 	private static final String NAME = "name";
 
@@ -53,7 +56,8 @@ public class JSONHandler {
 
 	private static final ObjectMapper mapper = new ObjectMapper();
 
-	public static Map<String, String> loadConfig(HierarchicalContainer hc, WidgetItemInStep rootItem, String config) throws WidgetNotFoundException, ParsingFailedException {
+	public static Map<String, String> loadConfig(HierarchicalContainer hc, WidgetItemInStep rootItem, 
+                                                 String config, List<Permission> permissions) throws WidgetNotFoundException, ParsingFailedException {
 		try {
 			Map<String, Object> map = mapper.readValue(config, Map.class);
 
@@ -69,6 +73,10 @@ public class JSONHandler {
 			if(map.containsKey(CANDIDATE_GROUPS)){
 				resultMap.put(CANDIDATE_GROUPS, map.get(CANDIDATE_GROUPS).toString());
 			}
+            permissions.clear();
+            if (map.containsKey(STEP_PERMISSIONS)) {
+                permissions.addAll(permissions);
+            }
 			return resultMap;
 
 		} catch (JsonParseException e) {
@@ -176,7 +184,9 @@ public class JSONHandler {
 		return map;
 	}
 
-	protected static String dumpTreeToJSON(Tree tree, WidgetItemInStep rootItem, Object assignee, Object candidateGroups, Object swimlane, String stepName) {
+	protected static String dumpTreeToJSON(Tree tree, WidgetItemInStep rootItem, Object assignee, 
+                                           Object candidateGroups, Object swimlane, String stepName, 
+                                           List<Permission> permissions) {
 		TaskConfig tc = new TaskConfig();
 		tc.setTaskName(stepName);
 		
@@ -184,11 +194,14 @@ public class JSONHandler {
 		treeMap.put(ASSIGNEE, assignee);
 		treeMap.put(CANDIDATE_GROUPS, candidateGroups);
 		treeMap.put(SWIMLANE, swimlane);
+        treeMap.put("step-permissions", permissions);
 		
         tc.setParams(treeMap);
         
 		try {
-			return mapper.writeValueAsString(tc);
+            String s = mapper.writeValueAsString(tc);
+            logger.info("Dumped result: " +s);
+            return s;
 		} catch (JsonGenerationException e) {
             logger.log(Level.SEVERE, "Error dumping tree", e);
 		} catch (JsonMappingException e) {

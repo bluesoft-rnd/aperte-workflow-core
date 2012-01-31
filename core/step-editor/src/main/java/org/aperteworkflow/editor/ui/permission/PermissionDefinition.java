@@ -27,6 +27,8 @@ public class PermissionDefinition implements Comparable<PermissionDefinition> {
     }
 
     public String getDescription() {
+        if (description == null)
+            return "editor.permissions.description." + description;
         return description;
     }
 

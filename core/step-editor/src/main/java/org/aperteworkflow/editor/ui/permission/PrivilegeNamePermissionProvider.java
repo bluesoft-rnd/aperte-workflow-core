@@ -32,7 +32,6 @@ public class PrivilegeNamePermissionProvider implements PermissionProvider{
                 privilegeNamePermissions.add(permission);
             }
         }
-
         return privilegeNamePermissions;
     }
 

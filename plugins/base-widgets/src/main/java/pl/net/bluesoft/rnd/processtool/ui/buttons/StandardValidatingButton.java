@@ -43,7 +43,7 @@ public class StandardValidatingButton implements ProcessToolVaadinActionButton {
 	@AutoWiredProperty
 	protected Boolean autoHide = false;
 	
-	@AutoWiredProperty
+	@AutoWiredProperty(required=true)
 	protected Integer priority;
 
 	

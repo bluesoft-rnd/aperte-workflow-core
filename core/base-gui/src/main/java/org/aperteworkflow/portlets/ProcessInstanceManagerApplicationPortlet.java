@@ -72,7 +72,8 @@ public class ProcessInstanceManagerApplicationPortlet extends ApplicationPortlet
                                                     new ArrayList<String>());
                                     ProcessInstance pi = session.getProcessData(rr.getParameter("svg"), ctx);
                                     List<GraphElement> processHistory = session.getProcessHistory(pi);
-                                    final StringBuffer svg = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n");
+//                                    final StringBuffer svg = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n");
+                                    final StringBuffer svg = new StringBuffer("<html><body style=\"margin:0; padding:0\">\n\n");
                                     svg.append("<svg xmlns=\"http://www.w3.org/2000/svg\"\n" +
                                             "     xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n");
                                     final byte[] png = session.getProcessMapImage(pi);
@@ -123,7 +124,7 @@ public class ProcessInstanceManagerApplicationPortlet extends ApplicationPortlet
                                                 }
                                             }
                                         }
-                                        svg.append("</svg>");
+                                        svg.append("</svg></body></html>");
                                         resp.setContentType("text/html");
                                         resp.getPortletOutputStream().write(svg.toString().getBytes());
                                     }

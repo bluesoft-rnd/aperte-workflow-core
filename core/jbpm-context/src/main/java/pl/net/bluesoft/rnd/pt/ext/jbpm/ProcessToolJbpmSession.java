@@ -772,7 +772,9 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
         if (historyProcessInstance != null && historyProcessInstance.getEndActivityName() != null) {
             StateNode sn = (StateNode) processGraphElements.get(historyProcessInstance.getEndActivityName());
             if (sn != null) {
-                res.add(sn);
+                StateNode e = sn.cloneNode();
+                e.setUnfinished(true);
+                res.add(e);
             }
         }
         return res;
@@ -866,37 +868,47 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
                                 }
                                 arc.addPoint(endX, endY);
 
+                                double a;//remember about vertical line
+                                double b;
+
                                 endX = arc.getPath().get(1).getX();
                                 endY = arc.getPath().get(1).getY();
-                                double a = ((double)(startY-endY))/((double)(startX - endX));//remember about vertical line
-                                //startY = startX*a+b
-                                double b = (double)startY - (double)startX*a;
-                                for (int x = startX; x <= endX; x++) {
-                                    int y = (int) Math.round(a*x+b);
-                                    boolean inside = false;
-                                    if (x >= startNode.getX() && x <= startNode.getX() + startNode.getWidth()) {
-                                        if (y >= startNode.getY() && y <= startNode.getY() + startNode.getHeight()) {
-                                            inside = true;
+                                if (startX - endX == 0) { //whoa - vertical line - simple case, but requires special approach
+                                    if (endY > startNode.getY()+startNode.getHeight()) { //below
+                                        startY = startNode.getY()+startNode.getHeight();
+                                    } else {
+                                        startY = startNode.getY();
+                                    }
+                                } else {
+                                    a = ((double)(startY-endY))/((double)(startX - endX));
+                                    b = (double)startY - (double)startX*a;
+                                    for (int x = startX; x <= endX; x++) {
+                                        int y = (int) Math.round(a*x+b);
+                                        boolean inside = false;
+                                        if (x >= startNode.getX() && x <= startNode.getX() + startNode.getWidth()) {
+                                            if (y >= startNode.getY() && y <= startNode.getY() + startNode.getHeight()) {
+                                                inside = true;
+                                            }
+                                        }
+                                        if (!inside) {
+                                            startX = x;
+                                            startY = y;
+                                            break;
                                         }
                                     }
-                                    if (!inside) {
-                                        startX = x;
-                                        startY = y;
-                                        break;
-                                    }
-                                }
-                                for (int x = startX; x > endX; x--) {
-                                    int y = (int) Math.round(a*x+b);
-                                    boolean inside = false;
-                                    if (x >= startNode.getX() && x <= startNode.getX() + startNode.getWidth()) {
-                                        if (y >= startNode.getY() && y <= startNode.getY() + startNode.getHeight()) {
-                                            inside = true;
+                                    for (int x = startX; x > endX; x--) {
+                                        int y = (int) Math.round(a*x+b);
+                                        boolean inside = false;
+                                        if (x >= startNode.getX() && x <= startNode.getX() + startNode.getWidth()) {
+                                            if (y >= startNode.getY() && y <= startNode.getY() + startNode.getHeight()) {
+                                                inside = true;
+                                            }
                                         }
-                                    }
-                                    if (!inside) {
-                                        startX = x;
-                                        startY = y;
-                                        break;
+                                        if (!inside) {
+                                            startX = x;
+                                            startY = y;
+                                            break;
+                                        }
                                     }
                                 }
                                 arc.getPath().get(0).setX(startX);
@@ -906,38 +918,43 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
                                 endY = arc.getPath().get(arc.getPath().size()-1).getY();
                                 startX = arc.getPath().get(arc.getPath().size()-2).getX();
                                 startY = arc.getPath().get(arc.getPath().size()-2).getY();
-                                if (arc.getPath().size() > 2) {
-                                    System.out.println(arc);
-                                }
-                                a = ((double)(startY-endY))/((double)(startX - endX));//remember about vertical line
-                                //startY = startX*a+b
-                                b = (double)startY - (double)startX*a;
-                                for (int x = endX; x <= startX; x++) {
-                                    int y = (int) Math.round(a*x+b);
-                                    boolean inside = false;
-                                    if (x >= endNode.getX() && x <= endNode.getX() + endNode.getWidth()) {
-                                        if (y >= endNode.getY() && y <= endNode.getY() + endNode.getHeight()) {
-                                            inside = true;
+                                if (startX - endX == 0) { //whoa - vertical line - simple case, but requires special approach
+                                   if (startY > endNode.getY()+endNode.getHeight()) { //below
+                                       endY = endNode.getY()+endNode.getHeight();
+                                   } else {
+                                       endY = endNode.getY();
+                                   }
+                                } else {
+                                    a = ((double)(startY-endY))/((double)(startX - endX));//remember about vertical line
+                                    //startY = startX*a+b
+                                    b = (double)startY - (double)startX*a;
+                                    for (int x = endX; x <= startX; x++) {
+                                        int y = (int) Math.round(a*x+b);
+                                        boolean inside = false;
+                                        if (x >= endNode.getX() && x <= endNode.getX() + endNode.getWidth()) {
+                                            if (y >= endNode.getY() && y <= endNode.getY() + endNode.getHeight()) {
+                                                inside = true;
+                                            }
+                                        }
+                                        if (!inside) {
+                                            endX = x;
+                                            endY = y;
+                                            break;
                                         }
                                     }
-                                    if (!inside) {
-                                        endX = x;
-                                        endY = y;
-                                        break;
-                                    }
-                                }
-                                for (int x = endX; x > startX; x--) {
-                                    int y = (int) Math.round(a*x+b);
-                                    boolean inside = false;
-                                    if (x >= endNode.getX() && x <= endNode.getX() + endNode.getWidth()) {
-                                        if (y >= endNode.getY() && y <= endNode.getY() + endNode.getHeight()) {
-                                            inside = true;
+                                    for (int x = endX; x > startX; x--) {
+                                        int y = (int) Math.round(a*x+b);
+                                        boolean inside = false;
+                                        if (x >= endNode.getX() && x <= endNode.getX() + endNode.getWidth()) {
+                                            if (y >= endNode.getY() && y <= endNode.getY() + endNode.getHeight()) {
+                                                inside = true;
+                                            }
                                         }
-                                    }
-                                    if (!inside) {
-                                        endX = x;
-                                        endY = y;
-                                        break;
+                                        if (!inside) {
+                                            endX = x;
+                                            endY = y;
+                                            break;
+                                        }
                                     }
                                 }
                                 arc.getPath().get(arc.getPath().size()-1).setX(endX);

@@ -281,19 +281,22 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements V
                                             read = ImageIO.read(new ByteArrayInputStream(png));
                                             String url = ProcessInstanceManagerPortlet.getProcessInstanceMapRequestUrl(getApplication(),
                                                     pi.getInternalId());
-                                            Window w = new Window(getLocalizedMessage("processinstances.console.process.image-map"));
+                                            Window w = new Window(getLocalizedMessage("processinstances.console.process.image-map") + ":" + pi.getInternalId());
 //                                            w.setWidth(read.getWidth() + "px");
 //                                            w.setHeight(read.getHeight() + "px");
+                                            VerticalLayout newContent = new VerticalLayout();
+                                            newContent.setMargin(false);
+                                            newContent.setSpacing(false);
+                                            w.setContent(newContent);
                                             w.getContent().setWidth(read.getWidth() + "px");
                                             w.getContent().setHeight(read.getHeight() + "px");
                                             w.center();
-                                            Embedded e = new Embedded("", new ExternalResource(url));
-                                            e.setSizeFull();
+                                            Embedded e = new Embedded(null, new ExternalResource(url));
                                             e.setWidth(read.getWidth() + "px");
                                             e.setHeight(read.getHeight() + "px");
                                             e.setType(Embedded.TYPE_BROWSER);
                                             w.getContent().addComponent(e);
-                                            w.setResizable(false);
+                                            w.setResizable(true);
                                             getApplication().getMainWindow().addWindow(w);
                                         } catch (IOException e) {
                                             throw new RuntimeException(e);

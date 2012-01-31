@@ -16,7 +16,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.JavaScriptHelper;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages;
-import pl.net.bluesoft.rnd.pt.ext.stepeditor.auto.AutoStepEditorWindow;
 import pl.net.bluesoft.rnd.pt.ext.vaadin.GenericEditorApplication;
 
 import java.io.IOException;

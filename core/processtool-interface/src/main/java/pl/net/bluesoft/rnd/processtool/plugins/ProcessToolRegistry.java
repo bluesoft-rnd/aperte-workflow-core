@@ -79,6 +79,8 @@ public interface ProcessToolRegistry {
 
 	Collection<I18NProvider> getI18NProviders();
 
+    boolean hasI18NProvider(String providerId);
+
 	void withProcessToolContext(ProcessToolContextCallback callback);
 
     ProcessDictionaryDAO getProcessDictionaryDAO(Session hibernateSession);

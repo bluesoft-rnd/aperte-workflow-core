@@ -30,9 +30,8 @@ import pl.net.bluesoft.util.lang.FormatUtil;
 import pl.net.bluesoft.util.lang.StringUtil;
 
 import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.sql.DataSource;
-import javax.transaction.*;
+import javax.transaction.UserTransaction;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -354,7 +353,12 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 		return registeredI18NProviders.values();
 	}
 
-	@Override
+    @Override
+    public boolean hasI18NProvider(String providerId) {
+        return registeredI18NProviders.containsKey(providerId);
+    }
+
+    @Override
 	public void withProcessToolContext(ProcessToolContextCallback callback) {
 		if (processToolContextFactory == null) {
 			throw new RuntimeException("No process tool context factory implementation registered");

@@ -39,6 +39,17 @@
     </init-param>
   </servlet>
 
+  <servlet>
+    <servlet-name>process_editor</servlet-name>
+    <servlet-class>
+        com.vaadin.terminal.gwt.server.ApplicationServlet
+    </servlet-class>
+    <init-param>
+        <param-name>application</param-name>
+        <param-value>pl.net.bluesoft.rnd.pt.ext.processeditor.ProcessEditorApplication</param-value>
+    </init-param>
+  </servlet>
+
   <servlet-mapping>
     <servlet-name>step_editor</servlet-name>
     <url-pattern>/*</url-pattern>
@@ -51,6 +62,11 @@
   
   <servlet-mapping>
     <servlet-name>action_editor</servlet-name>
+    <url-pattern>/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>process_editor</servlet-name>
     <url-pattern>/*</url-pattern>
   </servlet-mapping>
 </web-app>

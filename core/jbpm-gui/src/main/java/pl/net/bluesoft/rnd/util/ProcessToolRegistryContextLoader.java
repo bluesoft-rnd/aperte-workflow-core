@@ -6,9 +6,6 @@ import pl.net.bluesoft.rnd.pt.ext.jbpm.ProcessToolContextFactoryImpl;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

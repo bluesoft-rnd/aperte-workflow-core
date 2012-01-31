@@ -2,7 +2,10 @@ package pl.net.bluesoft.rnd.processtool.model.config;
 
 import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.Table;
 
 /**
  * @author tlipski@bluesoft.net.pl

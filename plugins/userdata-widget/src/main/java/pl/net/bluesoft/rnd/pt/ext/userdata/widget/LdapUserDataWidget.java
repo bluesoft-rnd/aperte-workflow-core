@@ -1,8 +1,8 @@
 package pl.net.bluesoft.rnd.pt.ext.userdata.widget;
 
 import com.novell.ldap.*;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.WidgetGroup;
 
 import java.util.Collection;

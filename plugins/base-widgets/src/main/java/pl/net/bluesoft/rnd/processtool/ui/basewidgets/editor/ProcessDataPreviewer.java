@@ -2,8 +2,6 @@ package pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor;
 
 import com.vaadin.Application;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.VerticalLayout;
-import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
@@ -12,7 +10,6 @@ import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.jaxb.WidgetsDefinition
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Locale;
 

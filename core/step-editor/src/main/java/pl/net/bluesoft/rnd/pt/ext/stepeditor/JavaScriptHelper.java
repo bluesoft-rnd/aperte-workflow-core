@@ -1,8 +1,8 @@
 package pl.net.bluesoft.rnd.pt.ext.stepeditor;
 
-import java.text.MessageFormat;
-
 import com.vaadin.ui.Window;
+
+import java.text.MessageFormat;
 
 public class JavaScriptHelper {
 
@@ -73,5 +73,11 @@ public class JavaScriptHelper {
 		System.out.println(MessageFormat.format(CALL_POST_TO_URL_FUNCTION, url, ("{\"action_editor\": \"" + jsonConfig.replaceAll("\"", "\\\\\"") + "\"}")));
 		window.executeJavaScript(MessageFormat.format(CALL_POST_TO_URL_FUNCTION, url, ("{\"action_editor\": \"" + jsonConfig.replaceAll("\"", "\\\\\"") + "\"}")));
 	}
+
+    public void postAndRedirectProcess(String url, String processConfig) {
+        window.executeJavaScript(CLOSE_ALLOW_FUNCTION);
+        String escapedJson = processConfig.replaceAll("\"", "\\\\\"");
+        window.executeJavaScript(MessageFormat.format(CALL_POST_TO_URL_FUNCTION, url, ("{\"process_editor\": \"" + escapedJson + "\"}")));
+    }
 
 }

@@ -93,6 +93,12 @@
             <version>0.1</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.aperteworkflow</groupId>
+            <artifactId>model</artifactId>
+            <version>0.1</version>
+            <scope>provided</scope>
+        </dependency>
 	</dependencies>
 
 	<repositories>

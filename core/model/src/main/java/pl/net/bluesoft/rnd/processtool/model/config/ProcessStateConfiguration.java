@@ -3,7 +3,6 @@ package pl.net.bluesoft.rnd.processtool.model.config;
 import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 

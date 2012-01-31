@@ -1,8 +1,5 @@
 package org.aperteworkflow.search;
 
-import org.apache.lucene.document.Document;
-
-import java.util.Collection;
 import java.util.List;
 
 /**

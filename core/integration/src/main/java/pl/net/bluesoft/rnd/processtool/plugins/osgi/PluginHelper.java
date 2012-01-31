@@ -1,30 +1,5 @@
 package pl.net.bluesoft.rnd.processtool.plugins.osgi;
 
-import static pl.net.bluesoft.util.lang.StringUtil.hasText;
-import org.apache.felix.framework.Felix;
-import org.apache.felix.framework.Logger;
-import org.apache.felix.framework.util.FelixConstants;
-import org.osgi.framework.*;
-import pl.net.bluesoft.rnd.poutils.cquery.func.F;
-import pl.net.bluesoft.rnd.processtool.plugins.*;
-import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
-import pl.net.bluesoft.rnd.util.i18n.impl.PropertiesBasedI18NProvider;
-import pl.net.bluesoft.rnd.util.i18n.impl.PropertyLoader;
-import java.io.*;
-import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
-import java.util.logging.Level;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static pl.net.bluesoft.rnd.poutils.cquery.CQuery.from;
-import static pl.net.bluesoft.rnd.processtool.plugins.osgi.OSGiBundleHelper.*;
-import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
-
 import org.apache.felix.framework.Felix;
 import org.apache.felix.framework.Logger;
 import org.apache.felix.framework.util.FelixConstants;
@@ -44,21 +19,27 @@ import org.apache.lucene.util.Version;
 import org.aperteworkflow.search.ProcessInstanceSearchAttribute;
 import org.aperteworkflow.search.ProcessInstanceSearchData;
 import org.aperteworkflow.search.SearchProvider;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleEvent;
-import org.osgi.framework.BundleException;
-import org.osgi.framework.BundleListener;
-import org.osgi.framework.Constants;
-import org.osgi.framework.ServiceReference;
-
-import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
-import pl.net.bluesoft.rnd.processtool.plugins.PluginManager;
-import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
-import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistryImpl;
+import org.osgi.framework.*;
+import pl.net.bluesoft.rnd.poutils.cquery.func.F;
+import pl.net.bluesoft.rnd.processtool.plugins.*;
+import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.util.i18n.impl.PropertiesBasedI18NProvider;
 import pl.net.bluesoft.rnd.util.i18n.impl.PropertyLoader;
+
+import java.io.*;
+import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
+import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static pl.net.bluesoft.rnd.poutils.cquery.CQuery.from;
+import static pl.net.bluesoft.rnd.processtool.plugins.osgi.OSGiBundleHelper.*;
+import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
 public class PluginHelper implements PluginManager, SearchProvider {
 

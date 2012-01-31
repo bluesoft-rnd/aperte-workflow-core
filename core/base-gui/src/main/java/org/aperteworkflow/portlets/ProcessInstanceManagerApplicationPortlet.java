@@ -1,9 +1,6 @@
 package org.aperteworkflow.portlets;
 
-import com.vaadin.terminal.StreamResource;
 import com.vaadin.terminal.gwt.server.ApplicationPortlet2;
-import com.vaadin.ui.Embedded;
-import com.vaadin.ui.Window;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.aperteworkflow.bpm.graph.GraphElement;
 import org.aperteworkflow.bpm.graph.StateNode;
@@ -17,18 +14,14 @@ import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import pl.net.bluesoft.rnd.util.vaadin.ProcessToolVaadinApplicationPortlet2;
 
 import javax.imageio.ImageIO;
 import javax.portlet.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-
-import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.getLocalizedMessage;
 
 /**
  * @author tlipski@bluesoft.net.pl

@@ -12,9 +12,7 @@ import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.validation.XmlValidati
 import java.util.Arrays;
 import java.util.List;
 
-import static pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.EditorHelper.findField;
-import static pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.EditorHelper.getLocalizedMessage;
-import static pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.EditorHelper.joinValidationErrors;
+import static pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.EditorHelper.*;
 
 /**
  * @author tlipski@bluesoft.net.pl

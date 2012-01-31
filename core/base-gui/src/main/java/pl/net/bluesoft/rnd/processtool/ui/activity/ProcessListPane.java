@@ -16,10 +16,9 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.getLocalizedMessage;
+import static pl.net.bluesoft.rnd.util.i18n.I18NSource.ThreadUtil.getLocalizedMessage;
 import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.horizontalLayout;
 import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.refreshIcon;
-import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 
 /**
  * Created by IntelliJ IDEA.

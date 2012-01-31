@@ -1,6 +1,5 @@
 package pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor;
 
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.validation.XmlValidationError;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 

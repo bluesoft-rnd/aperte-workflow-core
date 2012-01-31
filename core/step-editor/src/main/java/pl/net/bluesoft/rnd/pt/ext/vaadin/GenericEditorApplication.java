@@ -1,23 +1,24 @@
 package pl.net.bluesoft.rnd.pt.ext.vaadin;
 
 
-import java.util.Map;
-
 import com.vaadin.Application;
 import com.vaadin.terminal.gwt.server.HttpServletRequestListener;
 import com.vaadin.terminal.gwt.server.WebApplicationContext;
+import org.apache.commons.lang.StringUtils;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.i18n.DefaultI18NSource;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
+import pl.net.bluesoft.rnd.util.i18n.impl.PropertiesBasedI18NProvider;
+import pl.net.bluesoft.rnd.util.i18n.impl.PropertyLoader;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang.StringUtils;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Map;
 
 /**
  * Basic class for editor application which provides integration with rest of
@@ -35,6 +36,10 @@ public class GenericEditorApplication extends Application implements HttpServlet
         return current.get();
     }
 
+    /**
+     * Get current {@link ProcessToolRegistry}
+     * @return current registry
+     */
     public static ProcessToolRegistry getRegistry() {
         WebApplicationContext webCtx = (WebApplicationContext) getCurrent().getContext();
         ServletContext sc = webCtx.getHttpSession().getServletContext();
@@ -50,6 +55,8 @@ public class GenericEditorApplication extends Application implements HttpServlet
     public void onRequestStart(final HttpServletRequest request, HttpServletResponse response) {
         current.set(this);
 
+        I18NSource.ThreadUtil.setThreadI18nSource(new DefaultI18NSource(request.getLocale()));
+
         // Setting ProcessToolContext was taken from ProcessToolVaadinApplicationPortlet2
         // to preserve functionality used in portlet based Vaadin applications
         ServletContext servletContext = request.getSession().getServletContext();
@@ -57,11 +64,24 @@ public class GenericEditorApplication extends Application implements HttpServlet
         Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
         try {
             ProcessToolRegistry registry = (ProcessToolRegistry) servletContext.getAttribute(ProcessToolRegistry.class.getName());
+
+            final String providerId = "step-editor";
+            if (!registry.hasI18NProvider(providerId)) {
+                registry.registerI18NProvider(
+                        new PropertiesBasedI18NProvider(new PropertyLoader() {
+                            @Override
+                            public InputStream loadProperty(String path) throws IOException {
+                                return getClass().getClassLoader().getResourceAsStream(path);
+                            }
+                        }, providerId + "-messages"),
+                        providerId
+                );
+            }
+
             registry.withProcessToolContext(new ProcessToolContextCallback() {
                 @Override
                 public void withContext(ProcessToolContext ctx) {
                     ProcessToolContext.Util.setProcessToolContextForThread(ctx);
-                    I18NSource.ThreadUtil.setThreadI18nSource(new DefaultI18NSource(request.getLocale()));
                 }
             });
         } finally {
@@ -71,12 +91,12 @@ public class GenericEditorApplication extends Application implements HttpServlet
 
     @Override
     public void onRequestEnd(HttpServletRequest request, HttpServletResponse response) {
-        I18NSource.ThreadUtil.setThreadI18nSource(null);
-
         ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
         if (ctx != null) {
             ProcessToolContext.Util.removeProcessToolContextForThread(ctx);
         }
+
+        I18NSource.ThreadUtil.setThreadI18nSource(null);
 
         current.remove();
     }

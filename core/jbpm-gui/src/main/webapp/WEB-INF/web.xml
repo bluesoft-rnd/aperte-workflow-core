@@ -286,7 +286,10 @@
         <filter-name>PermissionFilter</filter-name>
         <url-pattern>/action_editor/*</url-pattern>
     </filter-mapping>
-
+    <filter-mapping>
+        <filter-name>PermissionFilter</filter-name>
+        <url-pattern>/process_editor/*</url-pattern>
+    </filter-mapping>
 	<filter-mapping>
         <filter-name>PermissionFilter</filter-name>
         <url-pattern>/osgi</url-pattern>
@@ -365,6 +368,15 @@
         </init-param>
         <load-on-startup>4</load-on-startup>
     </servlet>
+    <servlet>
+        <servlet-name>ProcessEditorServlet</servlet-name>
+        <servlet-class>com.vaadin.terminal.gwt.server.ApplicationServlet</servlet-class>
+        <init-param>
+            <param-name>application</param-name>
+            <param-value>pl.net.bluesoft.rnd.pt.ext.processeditor.ProcessEditorApplication</param-value>
+        </init-param>
+        <load-on-startup>5</load-on-startup>
+    </servlet>
 	<servlet>
         <servlet-name>DummyVaadinServlet</servlet-name>
         <servlet-class>com.vaadin.terminal.gwt.server.ApplicationServlet</servlet-class>
@@ -372,12 +384,12 @@
             <param-name>application</param-name>
             <param-value>pl.net.bluesoft.rnd.pt.ext.stepeditor.DummyApplication</param-value>
         </init-param>
-        <load-on-startup>5</load-on-startup>
+        <load-on-startup>6</load-on-startup>
     </servlet>
 	<servlet>
         <servlet-name>ButtonExposureServlet</servlet-name>
         <servlet-class>pl.net.bluesoft.rnd.processtool.plugins.ButtonExposureServlet</servlet-class>
-        <load-on-startup>6</load-on-startup>
+        <load-on-startup>7</load-on-startup>
     </servlet>
 	<servlet>
         <servlet-name>ActionEditorServlet</servlet-name>
@@ -386,7 +398,7 @@
             <param-name>application</param-name>
             <param-value>pl.net.bluesoft.rnd.pt.ext.actioneditor.ActionEditorApplication</param-value>
         </init-param>
-        <load-on-startup>7</load-on-startup>
+        <load-on-startup>8</load-on-startup>
     </servlet>
 
     <servlet-mapping>
@@ -429,6 +441,11 @@
 	<servlet-mapping>
         <servlet-name>ActionEditorServlet</servlet-name>
         <url-pattern>/action_editor/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ProcessEditorServlet</servlet-name>
+        <url-pattern>/process_editor/*</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

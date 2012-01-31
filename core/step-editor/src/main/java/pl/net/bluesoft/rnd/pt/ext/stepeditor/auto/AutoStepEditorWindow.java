@@ -1,35 +1,31 @@
 package pl.net.bluesoft.rnd.pt.ext.stepeditor.auto;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import com.vaadin.terminal.Sizeable;
+import com.vaadin.ui.*;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
-
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
-import pl.net.bluesoft.rnd.pt.ext.actioneditor.ActionEditorApplication;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.AbstractStepEditorWindow;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.StepEditorApplication;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.TaskConfig;
-import pl.net.bluesoft.rnd.pt.ext.stepeditor.user.Property;
 import pl.net.bluesoft.rnd.pt.ext.vaadin.GenericEditorApplication;
 import pl.net.bluesoft.rnd.pt.ext.widget.property.PropertiesPanel;
 import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.util.lang.Classes;
 
-import com.vaadin.terminal.Sizeable;
-import com.vaadin.ui.*;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class AutoStepEditorWindow extends AbstractStepEditorWindow implements ClickListener {
 
@@ -92,7 +88,8 @@ public class AutoStepEditorWindow extends AbstractStepEditorWindow implements Cl
 		if (StringUtils.isEmpty(jsonConfig))
 			return new HashMap<String,Object>();
 		try {
-			return mapper.readValue(jsonConfig, new TypeReference<HashMap<String,Object>>(){});
+			return mapper.readValue(jsonConfig, new TypeReference<HashMap<String, Object>>() {
+            });
 		} catch (JsonMappingException e) {
 			logger.log(Level.SEVERE, "Error parsing JSON data", e);
 		} catch (JsonGenerationException e) {

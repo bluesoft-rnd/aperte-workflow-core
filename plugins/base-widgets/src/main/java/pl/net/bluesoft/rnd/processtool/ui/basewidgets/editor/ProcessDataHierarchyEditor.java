@@ -18,7 +18,7 @@ import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.validation.XmlValidati
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.lang.reflect.*;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;

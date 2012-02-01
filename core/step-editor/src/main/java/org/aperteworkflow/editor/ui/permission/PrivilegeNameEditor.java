@@ -17,8 +17,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages.getString;
-
 /**
  * Component used to edit role names inside single privilege name
  */
@@ -63,7 +61,6 @@ public class PrivilegeNameEditor extends GridLayout implements PermissionWrapper
                 return super.getCss(c);
             }
         };
-//        roleNameLayout.setMargin(true);
         roleNameLayout.setWidth("100%");
     }
 
@@ -74,7 +71,7 @@ public class PrivilegeNameEditor extends GridLayout implements PermissionWrapper
         builder.append("</h2>");
         if (definition.getDescription() != null && !definition.getDescription().trim().isEmpty()) {
             builder.append("<i>");
-            builder.append(getString(definition.getDescription()));
+            builder.append(I18NSource.ThreadUtil.getThreadI18nSource().getMessage(definition.getDescription()));
             builder.append("</i>");
         }
         return builder.toString();

@@ -67,12 +67,14 @@ public class ProcessEditorPanel extends GridLayout implements DataHandler {
     @Override
     public void loadData() {
         permissionTab.loadData();
+        queueTab.loadData();
         otherTab.loadData();
     }
 
     @Override
     public void saveData() {
         permissionTab.saveData();
+        queueTab.saveData();
         otherTab.saveData();
     }
 
@@ -87,5 +89,6 @@ public class ProcessEditorPanel extends GridLayout implements DataHandler {
 
     public void setProcessConfig(ProcessConfig processConfig) {
         permissionTab.setProcessConfig(processConfig);
+        queueTab.setProcessConfig(processConfig);
     }
 }

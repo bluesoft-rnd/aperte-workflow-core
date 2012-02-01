@@ -104,7 +104,7 @@ public class GenericEditorApplication extends Application implements HttpServlet
     protected String getStringParameterByName(String paramterName, Map<String, String[]> paramterMap) {
         String[] value = paramterMap.get(paramterName);
         if (value != null && value.length > 0 && !StringUtils.isEmpty(value[0])) {
-            return value[0];
+            return value[0].trim();
         }
         return null;
     }

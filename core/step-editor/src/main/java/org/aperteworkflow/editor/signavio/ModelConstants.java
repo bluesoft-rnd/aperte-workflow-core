@@ -3,9 +3,9 @@ package org.aperteworkflow.editor.signavio;
 public class ModelConstants {
 
     /**
-     * Name that indicates that the model is new
+     * Regex to check if directory path fragment points to the model root
      */
-    public static final String NEW_MODEL_NAME = "Model Name";
+    public static final String MODEL_ROOT_DIRECTORY_PATTERN = ".*root-directory.*";
 
     /**
      * The name of the logo file
@@ -18,10 +18,13 @@ public class ModelConstants {
     public static final long PROCESS_LOGO_FILE_SIZE = 128 * 1024;
 
     /**
-     * Allowed mime types for proces logo image
+     * Allowed mime types for process logo image
      */
     public static final String[] PROCESS_LOGO_ALLOWED_MIME_TYPES = { "image/png" };
-    
+
+    /**
+     * Default process logo for aperte process without own logo
+     */
     public static final String PROCESS_LOGO_DEFAULT_RESOURCE = "/img/aperte-logo.png";
     
 }

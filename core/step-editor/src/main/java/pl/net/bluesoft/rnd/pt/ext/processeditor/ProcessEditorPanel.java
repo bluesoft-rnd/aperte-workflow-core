@@ -2,6 +2,7 @@ package pl.net.bluesoft.rnd.pt.ext.processeditor;
 
 import com.vaadin.ui.*;
 import org.aperteworkflow.editor.domain.ProcessConfig;
+import org.aperteworkflow.editor.domain.ProcessModelConfig;
 import pl.net.bluesoft.rnd.pt.ext.processeditor.tab.message.MessageTab;
 import pl.net.bluesoft.rnd.pt.ext.processeditor.tab.other.OtherTab;
 import pl.net.bluesoft.rnd.pt.ext.processeditor.tab.permission.ProcessPermissionTab;
@@ -88,8 +89,8 @@ public class ProcessEditorPanel extends GridLayout implements DataHandler {
         return null;
     }
 
-    public void setProcessDir(String processDir) {
-        otherTab.setProcessDir(processDir);
+    public void setProcessModelConfig(ProcessModelConfig processModelConfig) {
+        otherTab.setProcessModelConfig(processModelConfig);
     }
 
     public void setProcessConfig(ProcessConfig processConfig) {

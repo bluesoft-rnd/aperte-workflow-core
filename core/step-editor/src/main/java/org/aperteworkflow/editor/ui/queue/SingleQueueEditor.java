@@ -1,5 +1,10 @@
 package org.aperteworkflow.editor.ui.queue;
 
+import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.model.Role;
+import com.liferay.portal.model.RoleConstants;
+import com.liferay.portal.service.RoleLocalServiceUtil;
+import com.liferay.portal.util.PortalUtil;
 import com.vaadin.data.Property;
 import com.vaadin.ui.*;
 import org.aperteworkflow.editor.domain.Queue;
@@ -8,10 +13,16 @@ import pl.net.bluesoft.rnd.pt.ext.vaadin.DataHandler;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class SingleQueueEditor extends GridLayout implements QueueRolePermissionBoxHandler, DataHandler {
 
+    private static final Logger logger = Logger.getLogger(SingleQueueEditor.class.getName());
+    
     private Queue queue;
     private QueueHandler handler;
     private TextField queueDescriptionField;
@@ -93,6 +104,13 @@ public class SingleQueueEditor extends GridLayout implements QueueRolePermission
     public void addQueueRolePermissionBox(QueueRolePermissionBox box) {
         rolePermissionLayout.addComponent(box);
         
+        if (queue.getRolePermissions() == null) {
+            queue.setRolePermissions(new ArrayList<QueueRolePermission>());
+        }
+        if (!queue.getRolePermissions().contains(box.getQueueRolePermission())) {
+            queue.getRolePermissions().add(box.getQueueRolePermission());
+        }
+        
         String roleName = box.getQueueRolePermission().getRoleName();
         if (roleNameComboBox.containsId(roleName)) {
             roleNameComboBox.removeItem(roleName);
@@ -104,10 +122,27 @@ public class SingleQueueEditor extends GridLayout implements QueueRolePermission
         rolePermissionLayout.removeComponent(box);
 
         roleNameComboBox.addItem(box.getQueueRolePermission().getRoleName());
+        
+        if (queue.getRolePermissions() != null) {
+            queue.getRolePermissions().remove(box.getQueueRolePermission());
+        }
     }
 
     @Override
     public void loadData() {
+        roleNameComboBox.removeAllItems();
+        roleNameComboBox.addItem(".*");
+        try {
+            List<Role> roles = RoleLocalServiceUtil.getRoles(PortalUtil.getDefaultCompanyId());
+            for (Role r : roles) {
+                if (r.getType() == RoleConstants.TYPE_REGULAR) {
+                    roleNameComboBox.addItem(r.getName());
+                }
+            }
+        } catch (SystemException e) {
+            logger.log(Level.SEVERE, e.getMessage(), e);
+        }
+
         if (queue.getDescription() != null && !queue.getDescription().trim().isEmpty()) {
             queueDescriptionField.setValue(queue.getDescription());
         }
@@ -122,7 +157,17 @@ public class SingleQueueEditor extends GridLayout implements QueueRolePermission
 
     @Override
     public void saveData() {
-
+//        List<QueueRolePermission> permissions = new ArrayList<QueueRolePermission>();
+//
+//        Iterator<Component> it = rolePermissionLayout.getComponentIterator();
+//        while (it.hasNext()) {
+//            Component c = it.next();
+//            if (c instanceof QueueRolePermissionBox) {
+//                QueueRolePermissionBox box = (QueueRolePermissionBox) c;
+//                QueueRolePermission permission = box.getQueueRolePermission();
+//                permissions.add(permission);
+//            }
+//        }
     }
 
     @Override

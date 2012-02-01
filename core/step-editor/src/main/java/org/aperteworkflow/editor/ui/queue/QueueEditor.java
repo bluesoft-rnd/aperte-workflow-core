@@ -30,6 +30,8 @@ public class QueueEditor extends VerticalLayout implements QueueHandler, DataHan
 
         addQueueNameField = new TextField();
         addQueueNameField.setNullRepresentation("");
+        addQueueNameField.setInputPrompt(messages.getMessage("queue.editor.name.prompt"));
+
         addQueueButton = VaadinUtility.button(messages.getMessage("queue.editor.add"), new Runnable() {
             @Override
             public void run() {
@@ -105,7 +107,6 @@ public class QueueEditor extends VerticalLayout implements QueueHandler, DataHan
 
         queueEditors.put(queue, editor);
         addComponent(editor);
-
     }
 
     @Override

@@ -9,8 +9,7 @@ import org.aperteworkflow.editor.ui.permission.PermissionEditor;
 import org.aperteworkflow.editor.ui.permission.PermissionProvider;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages;
 
-import java.util.Collection;
-import java.util.Locale;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class WidgetFormWindow extends Panel  {
@@ -47,7 +46,7 @@ public class WidgetFormWindow extends Panel  {
                 permissionEditor.setProvider(new PermissionProvider() {
                     @Override
                     public Collection<Permission> getPermissions() {
-                        return widget.getPermissions();
+                        return new LinkedHashSet<Permission>(widget.getPermissions());
                     }
 
                     @Override
@@ -58,6 +57,30 @@ public class WidgetFormWindow extends Panel  {
                     @Override
                     public boolean isNewPermissionDefinitionAllowed() {
                         return false;
+                    }
+
+                    @Override
+                    public void addPermission(Permission permission) {
+                        Set<Permission> newPermissions = new LinkedHashSet<Permission>(widget.getPermissions());
+                        newPermissions.add(permission);
+                        logger.info("addPermission: ");
+                        for (Permission pp : newPermissions) {
+                            logger.info(pp.toString());
+                        }
+                        logger.info("addPermission: finished");
+                        widget.setPermissions(new ArrayList<Permission>(newPermissions));
+                    }
+
+                    @Override
+                    public void removePermission(Permission permission) {
+                        Set<Permission> newPermissions = new LinkedHashSet<Permission>(widget.getPermissions());
+                        newPermissions.remove(permission);
+                        logger.info("removePermission: ");
+                        for (Permission pp : newPermissions) {
+                            logger.info(pp.toString());
+                        }
+                        logger.info("removePermission: finished");
+                        widget.setPermissions(new ArrayList<Permission>(newPermissions));
                     }
                 });
                 permissionEditor.loadData();

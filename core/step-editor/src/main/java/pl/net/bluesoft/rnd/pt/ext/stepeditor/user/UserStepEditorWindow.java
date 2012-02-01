@@ -67,7 +67,7 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 	private static final Action[]	ACTIONS				= new Action[] { ACTION_DELETE };
 	private static final Action[]	COMMON_ACTIONS		= new Action[] {};
     private PermissionEditor permissionEditor;
-    private List<Permission> permissions = new ArrayList<Permission>();
+    private Collection<Permission> permissions = new LinkedHashSet<Permission>();
 
     public UserStepEditorWindow(StepEditorApplication application, String jsonConfig, String url, String stepName, String stepType) {
 		super(application, jsonConfig, url, stepName, stepType);
@@ -111,6 +111,11 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
         permissionEditor.setProvider(new PermissionProvider() {
             @Override
             public Collection<Permission> getPermissions() {
+                logger.info("getPermissions: ");
+                for (Permission pp : permissions) {
+                    logger.info(pp.toString());
+                }
+                logger.info("getPermissions: finished");
                 return permissions;
             }
 
@@ -125,6 +130,26 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
             @Override
             public boolean isNewPermissionDefinitionAllowed() {
                 return false;
+            }
+
+            @Override
+            public void addPermission(Permission permission) {
+                permissions.add(permission);
+                logger.info("addPermission: ");
+                for (Permission pp : permissions) {
+                    logger.info(pp.toString());
+                }
+                logger.info("addPermission: finished");
+            }
+
+            @Override
+            public void removePermission(Permission permission) {
+                permissions.remove(permission);
+                logger.info("removePermission: ");
+                for (Permission pp : permissions) {
+                    logger.info(pp.toString());
+                }
+                logger.info("removePermission: finished");
             }
         });
         VerticalLayout assignmentLayout = prepareAssignmentLayout();
@@ -446,7 +471,7 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 
 	private String dumpTreeToJSON() {
 		return JSONHandler.dumpTreeToJSON(stepTree, rootItem, assigneeField.getValue(), candidateGroupsField.getValue(), swimlaneField.getValue(),
-                stepType, permissionEditor.getPermissions());
+                stepType, permissions);
 	}
 
     @Override

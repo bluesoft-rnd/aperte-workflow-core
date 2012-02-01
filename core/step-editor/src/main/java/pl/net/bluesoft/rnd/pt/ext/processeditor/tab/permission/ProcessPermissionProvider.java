@@ -40,4 +40,14 @@ public class ProcessPermissionProvider implements PermissionProvider {
     public boolean isNewPermissionDefinitionAllowed() {
         return false;
     }
+
+    @Override
+    public void addPermission(Permission permission) {
+        //TODO
+    }
+
+    @Override
+    public void removePermission(Permission permission) {
+        //TODO
+    }
 }

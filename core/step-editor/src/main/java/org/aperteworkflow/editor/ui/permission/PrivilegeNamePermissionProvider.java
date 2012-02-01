@@ -55,4 +55,15 @@ public class PrivilegeNamePermissionProvider implements PermissionProvider{
     public boolean isNewPermissionDefinitionAllowed() {
         return permissionProvider.isNewPermissionDefinitionAllowed();
     }
+
+
+    @Override
+    public void addPermission(Permission permission) {
+        permissionProvider.addPermission(permission);
+    }
+
+    @Override
+    public void removePermission(Permission permission) {
+        permissionProvider.removePermission(permission);
+    }
 }

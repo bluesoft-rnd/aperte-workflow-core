@@ -25,4 +25,6 @@ public interface PermissionProvider {
      */
     boolean isNewPermissionDefinitionAllowed();
 
+    void addPermission(Permission permission);
+    void removePermission(Permission permission);
 }

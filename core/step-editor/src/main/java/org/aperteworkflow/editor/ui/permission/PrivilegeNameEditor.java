@@ -90,6 +90,7 @@ public class PrivilegeNameEditor extends GridLayout implements PermissionWrapper
     
     @Override
     public void addPermissionWrapper(PermissionWrapper permissionWrapper) {
+        System.out.println("aPW: " + permissionWrapper);
         // ensure the privilege name
         permissionWrapper.setPrivilegeName(permissionDefinition.getKey());
 
@@ -102,6 +103,10 @@ public class PrivilegeNameEditor extends GridLayout implements PermissionWrapper
         if (roleNameComboBox.containsId(permissionWrapper.getRoleName())) {
             roleNameComboBox.removeItem(permissionWrapper.getRoleName());
         }
+        Permission permission = new Permission();
+        permission.setPrivilegeName(permissionWrapper.getPrivilegeName());
+        permission.setRoleName(permissionWrapper.getRoleName());
+        provider.addPermission(permission);
     }
 
     @Override
@@ -115,6 +120,10 @@ public class PrivilegeNameEditor extends GridLayout implements PermissionWrapper
         roleNameLayout.removeComponent(box);
         roleNameLayout.requestRepaint();
         roleNameComboBox.addItem(permissionWrapper.getRoleName());
+        Permission permission = new Permission();
+        permission.setPrivilegeName(permissionWrapper.getPrivilegeName());
+        permission.setRoleName(permissionWrapper.getRoleName());
+        provider.removePermission(permission);
         return true;
     }
     

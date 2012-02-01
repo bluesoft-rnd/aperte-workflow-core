@@ -57,11 +57,8 @@ public class ProcessDataPane extends VerticalLayout {
         this.displayProcessContext = hideProcessHandler;
         setSpacing(true);
         setMargin(new MarginInfo(false, false, true, true));
-        long t = System.currentTimeMillis();
         ProcessDataPane.this.process = bpmSession.getProcessData(process.getInternalId(), ProcessToolContext.Util.getProcessToolContextFromThread());
-        System.out.println("getProcessData" + (System.currentTimeMillis() - t));
         initLayout(ProcessToolContext.Util.getProcessToolContextFromThread(), false);
-        System.out.println("initLayout" + (System.currentTimeMillis() - t));
 
     }
 
@@ -98,17 +95,14 @@ public class ProcessDataPane extends VerticalLayout {
 
     private boolean initLayout(ProcessToolContext ctx, boolean autohide) {
 
-        long t = System.currentTimeMillis();
         failed = false;
 
         removeAllComponents();
         if (autohide && !bpmSession.isProcessRunning(process.getInternalId(), ctx)) {
             application.getMainWindow().showNotification(getMessage("process.data.process-ended"));
             displayProcessContext.hide();
-//			application.getMainWindow().removeWindow(window);
             return true;
         }
-        System.out.println("1:" + (System.currentTimeMillis() - t));
 
         dataWidgets.clear();
         isOwner = bpmSession.isProcessOwnedByUser(process, ctx);
@@ -120,8 +114,13 @@ public class ProcessDataPane extends VerticalLayout {
         setWidth("100%");
 
         ProcessStateConfiguration stateConfiguration = bpmSession.getProcessStateConfiguration(process, ctx);
-        System.out.println("2:" + (System.currentTimeMillis() - t));
+        if (stateConfiguration == null) {
+            application.getMainWindow().showNotification(getMessage("process.data.no-config"));
+            displayProcessContext.hide();
+//			application.getMainWindow().removeWindow(window);
+            return true;
 
+        }
         Label l = new Label(getMessage(stateConfiguration.getDescription()));
         l.addStyleName("h1 color processtool-title");
 
@@ -139,7 +138,6 @@ public class ProcessDataPane extends VerticalLayout {
 
         final VerticalLayout vl = new VerticalLayout();
         vl.setSpacing(true);
-        System.out.println("3:" + (System.currentTimeMillis() - t));
 
         for (ProcessStateWidget w : stateConfiguration.getWidgets()) {
             try {
@@ -161,15 +159,12 @@ public class ProcessDataPane extends VerticalLayout {
             }
 
         }
-        System.out.println("4:" + (System.currentTimeMillis() - t));
-
         addComponent(vl);
         setExpandRatio(vl, 1.0f);
 
         buttonLayout = getButtonsPanel(stateConfiguration);
         addComponent(buttonLayout);
         setComponentAlignment(buttonLayout, Alignment.TOP_LEFT);
-        System.out.println("5:" + (System.currentTimeMillis() - t));
 
         return isOwner;
     }
@@ -239,29 +234,6 @@ public class ProcessDataPane extends VerticalLayout {
         HorizontalLayout masterLayout = new HorizontalLayout();
         masterLayout.setWidth("100%");
         masterLayout.setMargin(new MarginInfo(false, true, false, true));
-
-        /*Button saveButton = new Button(i18NSource.getMessage("button.save.process.data"));
-       saveButton.styled("default");
-       saveButton.addListener(new Button.ClickListener() {
-
-           @Override
-           public void buttonClick(Button.ClickEvent event) {
-               withErrorHandling(application, new Runnable() {
-                   public void run() {
-                       ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
-                       if (validateAndSaveData(ctx)) {
-                           application.getMainWindow().showNotification(getMessage("process.data.save-success"));
-                           process = bpmSession.getProcessData(process.getInternalId(), ctx);
-                           initLayout(ctx, false);
-                       }
-                   }
-               });
-           }
-       });
-       saveButton.setEnabled(isOwner);
-
-       masterLayout.addComponent(saveButton);
-       masterLayout.setComponentAlignment(saveButton, Alignment.BOTTOM_RIGHT);*/
 
         masterLayout.addComponent(buttonLayout);
         masterLayout.setComponentAlignment(buttonLayout, Alignment.BOTTOM_RIGHT);
@@ -373,7 +345,6 @@ public class ProcessDataPane extends VerticalLayout {
 
     private ProcessToolWidget getWidget(ProcessStateWidget w, ProcessStateConfiguration stateConfiguration, ProcessToolContext ctx) {
 
-        long t = System.currentTimeMillis();
         try {
             ProcessToolWidget processToolWidget;
             ProcessToolRegistry toolRegistry = VaadinUtility.getProcessToolContext(application.getContext()).getRegistry();
@@ -405,10 +376,6 @@ public class ProcessDataPane extends VerticalLayout {
 
 //			throw new RuntimeException(e);
         }
-        finally {
-            System.out.println("process(" + w.getClassName() + "):" + (System.currentTimeMillis() - t));
-        }
-
     }
 
     private void processAutowiredProperties(ProcessToolWidget processToolWidget, ProcessStateWidget w) {
@@ -462,7 +429,7 @@ public class ProcessDataPane extends VerticalLayout {
                     ProcessToolContext.Util.getProcessToolContextFromThread().getSetting("autowire." + autoName));
             if (autoName != null && v != null) {
                 try {
-                    logger.warning("Setting attribute " + autoName + " to " + v);
+                    logger.fine("Setting attribute " + autoName + " to " + v);
                     if (f.getType().equals(String.class)) {
                         PropertyUtils.setProperty(object, autoName, v);
                     } else if (f.getType().equals(Integer.class)) {

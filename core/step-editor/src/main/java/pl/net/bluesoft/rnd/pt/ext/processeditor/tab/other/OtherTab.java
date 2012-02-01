@@ -1,5 +1,6 @@
 package pl.net.bluesoft.rnd.pt.ext.processeditor.tab.other;
 
+import com.vaadin.terminal.StreamResource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Embedded;
 import com.vaadin.ui.GridLayout;
@@ -13,10 +14,17 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.Collection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class OtherTab extends GridLayout implements ProcessLogoHandler, DataHandler {
 
+    private static final Logger logger = Logger.getLogger(OtherTab.class.getName());
+    
     private ProcessModelConfig processModelConfig;
     
     private ProcessLogoUploader logoUploader;
@@ -79,14 +87,26 @@ public class OtherTab extends GridLayout implements ProcessLogoHandler, DataHand
         }
 
         if (processLogoFile.exists()) {
-            logoImage = VaadinUtility.embedded(
-                    GenericEditorApplication.getCurrent(),
-                    processLogoFile
-            );
+            try {
+                final FileInputStream fis = new FileInputStream(processLogoFile);
 
-            // adding random runtime parameter should prevent browser caching
-            // TODO thuis should be tested, sometimes the image may not be refreshed
-            logoImage.setParameter("nanoTime", Long.toString(System.nanoTime()));
+                StreamResource.StreamSource source = new StreamResource.StreamSource() {
+                    @Override
+                    public InputStream getStream() {
+                        return fis;
+                    }
+                };
+
+                // generate random file name to bypass web browser image cache
+                String randomFileName = "process-logo-" + System.nanoTime() + ".png";
+                StreamResource resource = new StreamResource(source, randomFileName, GenericEditorApplication.getCurrent());
+
+                logoImage = new Embedded();
+                logoImage.setType(Embedded.TYPE_IMAGE);
+                logoImage.setSource(resource);
+            } catch (FileNotFoundException e) {
+                logger.log(Level.SEVERE, "Failed to read the process logo file", e);
+            }
         } else {
             logoImage = VaadinUtility.embedded(
                     GenericEditorApplication.getCurrent(),

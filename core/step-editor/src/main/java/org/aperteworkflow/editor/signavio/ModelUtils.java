@@ -1,4 +1,4 @@
-package pl.net.bluesoft.rnd.pt.ext.signavio;
+package org.aperteworkflow.editor.signavio;
 
 import java.io.File;
 import java.util.StringTokenizer;

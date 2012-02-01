@@ -4,6 +4,7 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.util.i18n.I18NProvider;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Locale;
@@ -88,5 +89,16 @@ public class DefaultI18NSource implements I18NSource {
             if (m != null) return m;
         }
         return defaultValue;
+    }
+
+    @Override
+    public String getMessage(String key, Object... params) {
+        return getMessage(key, key, params);
+    }
+
+    @Override
+    public String getMessage(String key, String defaultValue, Object... params) {
+        String message = getMessage(key, defaultValue);
+        return MessageFormat.format(message, params);
     }
 }

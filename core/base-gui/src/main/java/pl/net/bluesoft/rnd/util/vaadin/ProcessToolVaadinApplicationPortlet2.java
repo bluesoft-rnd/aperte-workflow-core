@@ -17,23 +17,6 @@ import java.io.IOException;
  */
 public class ProcessToolVaadinApplicationPortlet2 extends ApplicationPortlet2 {
 
-	private static class ExceptionCarrier extends RuntimeException {
-		private Exception realException;
-
-		private ExceptionCarrier(Exception realException) {
-			this.realException = realException;
-		}
-
-		public Exception getRealException() {
-			return realException;
-		}
-
-		public void setRealException(Exception realException) {
-			this.realException = realException;
-		}
-	}
-
-
 	@Override
 	protected void handleRequest(final PortletRequest request, final PortletResponse response) throws PortletException, IOException {
 

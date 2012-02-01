@@ -1,6 +1,5 @@
 package pl.net.bluesoft.rnd.pt.ext.stepeditor;
 
-import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
 
 
@@ -22,7 +21,7 @@ public abstract class AbstractStepEditorWindow {
 	
 	public abstract ComponentContainer init();
 
-	public abstract Component getHeader();
+    public abstract void save();
 
 	public String getJsonConfig() {
 		return jsonConfig;

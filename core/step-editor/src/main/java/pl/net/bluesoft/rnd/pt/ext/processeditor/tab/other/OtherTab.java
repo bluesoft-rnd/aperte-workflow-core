@@ -51,6 +51,7 @@ public class OtherTab extends GridLayout implements ProcessLogoHandler, DataHand
 
     private void initLayout() {
         setSpacing(true);
+        setMargin(true);
         setWidth("100%");
 
         addComponent(logoDescriptionLabel, 0, 0, 1, 0);

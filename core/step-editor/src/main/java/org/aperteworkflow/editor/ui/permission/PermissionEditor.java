@@ -55,6 +55,7 @@ public class PermissionEditor extends VerticalLayout implements DataHandler {
         newPrivilegeNameLayout.addComponent(newPrivilegeNameButton);
 
         setSpacing(true);
+        setMargin(true);
     }
 
     public PermissionProvider getProvider() {

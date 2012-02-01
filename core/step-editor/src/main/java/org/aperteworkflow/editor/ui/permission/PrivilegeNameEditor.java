@@ -1,5 +1,10 @@
 package org.aperteworkflow.editor.ui.permission;
 
+import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.model.Role;
+import com.liferay.portal.model.RoleConstants;
+import com.liferay.portal.service.RoleLocalServiceUtil;
+import com.liferay.portal.util.PortalUtil;
 import com.vaadin.ui.*;
 import org.aperteworkflow.editor.domain.Permission;
 import pl.net.bluesoft.rnd.pt.ext.vaadin.DataHandler;
@@ -9,12 +14,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages.getString;
 
 /**
  * Component used to edit role names inside single privilege name
  */
 public class PrivilegeNameEditor extends GridLayout implements PermissionWrapperHandler, DataHandler {
 
+    public static final Logger LOGGER = Logger.getLogger(PrivilegeNameEditor.class.getName());
     private PermissionDefinition permissionDefinition;
     private PermissionProvider provider;
 
@@ -25,6 +35,7 @@ public class PrivilegeNameEditor extends GridLayout implements PermissionWrapper
 
     public PrivilegeNameEditor(PermissionDefinition permissionDefinition) {
         super(2, 3);
+        setSpacing(true);
         this.permissionDefinition = permissionDefinition;
         initComponent();
         initLayout();
@@ -45,13 +56,14 @@ public class PrivilegeNameEditor extends GridLayout implements PermissionWrapper
             @Override
             protected String getCss(Component c) {
                 if (c instanceof PermissionWrapperBox) {
-                    String basicCss = "float: left; margin: 3px; padding: 3px;  display: inline; font-weight: bold; border: 2px solid ";
-                    return basicCss + "#287ece;";
+                    String basicCss = "float: left; margin: 3px; margin-bottom: 8px; padding: 3px; display: inline; font-weight: bold; border: 2px solid ";
+                    return basicCss + "#287ece; -moz-border-radius: 5px; border-radius: 5px; padding-left: 6px; padding-right: 6px;";
                 }
 
                 return super.getCss(c);
             }
         };
+//        roleNameLayout.setMargin(true);
         roleNameLayout.setWidth("100%");
     }
 
@@ -62,7 +74,7 @@ public class PrivilegeNameEditor extends GridLayout implements PermissionWrapper
         builder.append("</h2>");
         if (definition.getDescription() != null && !definition.getDescription().trim().isEmpty()) {
             builder.append("<i>");
-            builder.append(definition.getDescription());
+            builder.append(getString(definition.getDescription()));
             builder.append("</i>");
         }
         return builder.toString();
@@ -98,6 +110,10 @@ public class PrivilegeNameEditor extends GridLayout implements PermissionWrapper
         if (roleNameComboBox.containsId(permissionWrapper.getRoleName())) {
             roleNameComboBox.removeItem(permissionWrapper.getRoleName());
         }
+        Permission permission = new Permission();
+        permission.setPrivilegeName(permissionWrapper.getPrivilegeName());
+        permission.setRoleName(permissionWrapper.getRoleName());
+        provider.addPermission(permission);
     }
 
     @Override
@@ -111,6 +127,10 @@ public class PrivilegeNameEditor extends GridLayout implements PermissionWrapper
         roleNameLayout.removeComponent(box);
         roleNameLayout.requestRepaint();
         roleNameComboBox.addItem(permissionWrapper.getRoleName());
+        Permission permission = new Permission();
+        permission.setPrivilegeName(permissionWrapper.getPrivilegeName());
+        permission.setRoleName(permissionWrapper.getRoleName());
+        provider.removePermission(permission);
         return true;
     }
     
@@ -131,8 +151,16 @@ public class PrivilegeNameEditor extends GridLayout implements PermissionWrapper
     @Override
     public void loadData() {
         roleNameComboBox.removeAllItems();
-        // TODO get roles from liferay
-
+        roleNameComboBox.addItem(".*");
+        try {
+            List<Role> roles = RoleLocalServiceUtil.getRoles(PortalUtil.getDefaultCompanyId());
+            for (Role r : roles) {
+                if (r.getType() == RoleConstants.TYPE_REGULAR)
+                    roleNameComboBox.addItem(r.getName());
+            }
+        } catch (SystemException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
         roleNameLayout.removeAllComponents();
         if (provider.getPermissions() != null) {
             for (Permission permission : provider.getPermissions()) {

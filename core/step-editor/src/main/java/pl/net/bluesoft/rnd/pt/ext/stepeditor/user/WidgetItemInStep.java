@@ -1,5 +1,8 @@
 package pl.net.bluesoft.rnd.pt.ext.stepeditor.user;
 
+import org.aperteworkflow.editor.domain.Permission;
+import org.aperteworkflow.editor.ui.permission.PermissionDefinition;
+
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
@@ -12,12 +15,13 @@ public class WidgetItemInStep implements Serializable {
 
 	private WidgetItem widgetItem;
 	private List<Property<?>> properties = new LinkedList<Property<?>>();
-	private List<Property<?>> permissions = new LinkedList<Property<?>>();
+	private List<Permission> permissions = new LinkedList<Permission>();
+	private List<PermissionDefinition> permissionDefinitions = new LinkedList<PermissionDefinition>();
 
-	public WidgetItemInStep(WidgetItem widgetItem, List<Property<?>> properties, List<Property<?>> permissions) {
+	public WidgetItemInStep(WidgetItem widgetItem, List<Property<?>> properties, List<PermissionDefinition> permissionDefinitions) {
 		this.widgetItem = widgetItem;
 		this.properties = properties;
-		this.permissions = permissions;
+		this.permissionDefinitions = permissionDefinitions;
 	}
 
 	public WidgetItemInStep(WidgetItem widgetItem) {
@@ -36,15 +40,8 @@ public class WidgetItemInStep implements Serializable {
 			}
 		}
 		if (widgetItem.getPermissions() != null) {
-			for (Property<?> perm : widgetItem.getPermissions()) {
-				try {
-					permissions.add((Property<?>) perm.clone());
-				} catch (CloneNotSupportedException e) {
-					// should never happen
-					// if happens, we just log the exception and skip property
-					// that failed
-                    logger.log(Level.SEVERE, "Clone not supported for property", e);
-				}
+			for (PermissionDefinition perm : widgetItem.getPermissions()) {
+                permissionDefinitions.add(perm);
 			}
 		}
 	}
@@ -68,16 +65,24 @@ public class WidgetItemInStep implements Serializable {
 	public boolean hasProperties() {
 		return properties != null && properties.size() > 0;
 	}
-	
-	public List<Property<?>> getPermissions() {
+
+    public List<PermissionDefinition> getPermissionDefinitions() {
+        return permissionDefinitions;
+    }
+
+    public void setPermissionDefinitions(List<PermissionDefinition> permissionDefinitions) {
+        this.permissionDefinitions = permissionDefinitions;
+    }
+
+    public List<Permission> getPermissions() {
 		return permissions;
 	}
 
-	public void setPermissions(List<Property<?>> permissions) {
+	public void setPermissions(List<Permission> permissions) {
 		this.permissions = permissions;
 	}
 
 	public boolean hasPermissions() {
-		return permissions != null && permissions.size() > 0;
+		return permissionDefinitions != null && !permissionDefinitions.isEmpty();
 	}
 }

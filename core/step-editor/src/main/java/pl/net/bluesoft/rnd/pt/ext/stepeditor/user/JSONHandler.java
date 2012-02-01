@@ -6,6 +6,7 @@ import com.vaadin.ui.Tree;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
+import org.aperteworkflow.editor.domain.Permission;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -14,9 +15,7 @@ import pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.TaskConfig;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,6 +27,7 @@ public class JSONHandler {
     private static final String PRIORITY = "priority";
 	private static final String PROPERTIES = "properties";
 	private static final String PERMISSIONS = "permissions";
+	private static final String STEP_PERMISSIONS = "step-permissions";
 	private static final String CHILDREN = "children";
 	private static final String NAME = "name";
 
@@ -53,7 +53,8 @@ public class JSONHandler {
 
 	private static final ObjectMapper mapper = new ObjectMapper();
 
-	public static Map<String, String> loadConfig(HierarchicalContainer hc, WidgetItemInStep rootItem, String config) throws WidgetNotFoundException, ParsingFailedException {
+	public static Map<String, String> loadConfig(HierarchicalContainer hc, WidgetItemInStep rootItem, 
+                                                 String config, Collection<Permission> permissions) throws WidgetNotFoundException, ParsingFailedException {
 		try {
 			Map<String, Object> map = mapper.readValue(config, Map.class);
 
@@ -69,6 +70,13 @@ public class JSONHandler {
 			if(map.containsKey(CANDIDATE_GROUPS)){
 				resultMap.put(CANDIDATE_GROUPS, map.get(CANDIDATE_GROUPS).toString());
 			}
+            if (map.containsKey(STEP_PERMISSIONS)) {
+                Collection<Map> jsonPermissions = (Collection<Map>) map.get(STEP_PERMISSIONS);
+                for (Map m : jsonPermissions) {
+                    permissions.add(parsePrivilege(m));
+                }
+//                permissions.addAll(pp);
+            }
 			return resultMap;
 
 		} catch (JsonParseException e) {
@@ -112,16 +120,19 @@ public class JSONHandler {
 			}
 		}
 
-		Map<String, Object> permissions = (Map<String, Object>) node.get(PERMISSIONS);
-		if (permissions != null) {
-			for (String key : permissions.keySet()) {
-				for (Property<?> perm : item.getPermissions()) {
-					if (perm.getPropertyId().equals(key)) {
-						perm.setValue(permissions.get(key));
-					}
-				}
-			}
-		}
+		try {
+            Collection<Map> jsonPermissions = (Collection<Map>) node.get(PERMISSIONS);
+            if (jsonPermissions != null) {
+                List<Permission> permissions = new ArrayList<Permission>();
+                for (Map m : jsonPermissions) {
+                    permissions.add(parsePrivilege(m));
+                }
+                item.setPermissions(new ArrayList<Permission>(new LinkedHashSet<Permission>(permissions)));
+            }
+        } catch (ClassCastException e) { //TODO removeme, I exist only for backwards dev compatibility
+            //nothing
+        }
+
 		
 		Item newItem = hc.addItem(item);
 		newItem.getItemProperty(NAME).setValue(widgetItem.getName());
@@ -131,7 +142,14 @@ public class JSONHandler {
 		return item;
 	}
 
-	static Map<String, Object> collectNode(final Tree tree, Object node, Integer priority) {
+    private static Permission parsePrivilege(Map m) {
+        Permission p = new Permission();
+        p.setPrivilegeName((String) m.get("privilegeName"));
+        p.setRoleName((String) m.get("roleName"));
+        return p;
+    }
+
+    static Map<String, Object> collectNode(final Tree tree, Object node, Integer priority) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		final WidgetItemInStep widgetItemInStep = (WidgetItemInStep) node;
 
@@ -144,22 +162,14 @@ public class JSONHandler {
                 }
 			}
 		}
-		Map<String, Object> permissionsMap = new HashMap<String, Object>();
-		if (widgetItemInStep.hasPermissions()) {
-			for (Property<?> perm : widgetItemInStep.getPermissions()) {
-				if (perm.getValue() != null) {
-					permissionsMap.put(perm.getPropertyId(), perm.getValue());
-                }
-			}
-		}
 
 		map.put(WIDGET_ID, widgetItemInStep.getWidgetItem().getWidgetId());
         map.put(PRIORITY, priority);
 
 		if (!propertiesMap.isEmpty())
 			map.put(PROPERTIES, propertiesMap);
-		if (!permissionsMap.isEmpty())
-			map.put(PERMISSIONS, permissionsMap);
+		if (!widgetItemInStep.getPermissions().isEmpty())
+			map.put(PERMISSIONS, widgetItemInStep.getPermissions());
 
 		if (tree.hasChildren(node)) {
 			map.put(CHILDREN, CollectionUtils.collect(tree.getChildren(node), new Transformer() {
@@ -176,7 +186,9 @@ public class JSONHandler {
 		return map;
 	}
 
-	protected static String dumpTreeToJSON(Tree tree, WidgetItemInStep rootItem, Object assignee, Object candidateGroups, Object swimlane, String stepName) {
+	protected static String dumpTreeToJSON(Tree tree, WidgetItemInStep rootItem, Object assignee, 
+                                           Object candidateGroups, Object swimlane, String stepName, 
+                                           Collection<Permission> permissions) {
 		TaskConfig tc = new TaskConfig();
 		tc.setTaskName(stepName);
 		
@@ -184,11 +196,14 @@ public class JSONHandler {
 		treeMap.put(ASSIGNEE, assignee);
 		treeMap.put(CANDIDATE_GROUPS, candidateGroups);
 		treeMap.put(SWIMLANE, swimlane);
+        treeMap.put(STEP_PERMISSIONS, permissions);
 		
         tc.setParams(treeMap);
         
 		try {
-			return mapper.writeValueAsString(tc);
+            String s = mapper.writeValueAsString(tc);
+//            logger.info("Dumped result: " +s);
+            return s;
 		} catch (JsonGenerationException e) {
             logger.log(Level.SEVERE, "Error dumping tree", e);
 		} catch (JsonMappingException e) {

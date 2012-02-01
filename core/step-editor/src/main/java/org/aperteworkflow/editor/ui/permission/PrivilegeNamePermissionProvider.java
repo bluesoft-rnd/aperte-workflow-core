@@ -32,7 +32,6 @@ public class PrivilegeNamePermissionProvider implements PermissionProvider{
                 privilegeNamePermissions.add(permission);
             }
         }
-
         return privilegeNamePermissions;
     }
 
@@ -55,5 +54,16 @@ public class PrivilegeNamePermissionProvider implements PermissionProvider{
     @Override
     public boolean isNewPermissionDefinitionAllowed() {
         return permissionProvider.isNewPermissionDefinitionAllowed();
+    }
+
+
+    @Override
+    public void addPermission(Permission permission) {
+        permissionProvider.addPermission(permission);
+    }
+
+    @Override
+    public void removePermission(Permission permission) {
+        permissionProvider.removePermission(permission);
     }
 }

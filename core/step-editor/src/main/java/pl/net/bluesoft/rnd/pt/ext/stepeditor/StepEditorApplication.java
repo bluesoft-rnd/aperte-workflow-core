@@ -3,10 +3,9 @@ package pl.net.bluesoft.rnd.pt.ext.stepeditor;
 
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.event.ShortcutAction;
 import com.vaadin.terminal.ParameterHandler;
-import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
-import org.apache.commons.lang.StringUtils;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
@@ -26,6 +25,8 @@ public class StepEditorApplication extends GenericEditorApplication implements P
 	private JavaScriptHelper		jsHelper;
     private String					url;
     private String                  stepName;
+    
+    
 
 	public Window getMainWindow() {
 		return mainWindow;
@@ -68,18 +69,40 @@ public class StepEditorApplication extends GenericEditorApplication implements P
 		ComponentContainer header = buildHeader(stepEditorWindow, stepType);
 		refreshWindow(header, window);
 	}
-	
-	private ComponentContainer buildHeader(AbstractStepEditorWindow sew, String stepType) {
-		Component header = sew.getHeader();
-        Select stepList = prepareStepList(stepType);
 
+    public Label getHeaderLabel() {
+        Label headerLabel = new Label();
+        if (stepName != null && !stepName.isEmpty()) {
+            headerLabel.setValue(Messages.getString("userStep.stepName", stepName));
+        } else {
+            headerLabel.setValue(Messages.getString("userStep.noStepName"));
+        }
+        headerLabel.addStyleName("h1");
+
+        return headerLabel;
+    }
+
+    private ComponentContainer buildHeader(final AbstractStepEditorWindow sew, String stepType) {
+		Component label = getHeaderLabel();
+        Select stepList = prepareStepList(stepType);
+        Button saveButton = new Button(Messages.getString("jse.button.save"), new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent event) {
+               sew.save();
+            }
+        });
+        saveButton.setClickShortcut(ShortcutAction.KeyCode.S,
+                        ShortcutAction.ModifierKey.CTRL
+                );
+        saveButton.setDescription("Ctrl-S");
 		HorizontalLayout headerLayout = new HorizontalLayout();
 		headerLayout.setSpacing(true);
-        headerLayout.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-        headerLayout.addComponent(header);
+        headerLayout.setWidth("100%");
+        headerLayout.addComponent(label);
+        headerLayout.addComponent(saveButton);
 		headerLayout.addComponent(stepList);
-        headerLayout.setExpandRatio(header, 1);
-        headerLayout.setExpandRatio(stepList, 0);
+        headerLayout.setExpandRatio(label, 1.0f);
+        headerLayout.setComponentAlignment(saveButton, Alignment.TOP_RIGHT);
         headerLayout.setComponentAlignment(stepList, Alignment.TOP_RIGHT);
 
 		return headerLayout;
@@ -89,6 +112,7 @@ public class StepEditorApplication extends GenericEditorApplication implements P
 		mainWindow.removeAllComponents();
 		VerticalLayout main = new VerticalLayout();
         main.setMargin(true);
+        main.setSpacing(true);
 		main.addComponent(header);
 		main.addComponent(windowContainer);
 		mainWindow.setContent(main);
@@ -98,7 +122,7 @@ public class StepEditorApplication extends GenericEditorApplication implements P
 		final Select stepList = new Select();
 		stepList.setNullSelectionAllowed(false);
         stepList.setImmediate(true);
-        
+        stepList.setWidth("250px");
         //add User tasktype
         stepList.addItem("User");
         stepList.setItemCaption("User", "User");

@@ -276,6 +276,7 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
         VerticalLayout stepLayout = new VerticalLayout();
         stepLayout.setWidth("100%");
         stepLayout.setSpacing(true);
+        stepLayout.setMargin(true);
         stepLayout.addComponent(new Label(getString("userstep.editor.widgets.instructions"), Label.CONTENT_XHTML));
         stepLayout.addComponent(availableWidgetsLayout);
         Panel treePanel = new Panel();

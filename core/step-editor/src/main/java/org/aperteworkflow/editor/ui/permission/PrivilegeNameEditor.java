@@ -1,5 +1,11 @@
 package org.aperteworkflow.editor.ui.permission;
 
+import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.model.Role;
+import com.liferay.portal.model.RoleConstants;
+import com.liferay.portal.service.PortalServiceUtil;
+import com.liferay.portal.service.RoleLocalServiceUtil;
+import com.liferay.portal.util.PortalUtil;
 import com.vaadin.ui.*;
 import org.aperteworkflow.editor.domain.Permission;
 import pl.net.bluesoft.rnd.pt.ext.vaadin.DataHandler;
@@ -9,6 +15,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages.getString;
 
@@ -17,6 +25,7 @@ import static pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages.getString;
  */
 public class PrivilegeNameEditor extends GridLayout implements PermissionWrapperHandler, DataHandler {
 
+    public static final Logger LOGGER = Logger.getLogger(PrivilegeNameEditor.class.getName());
     private PermissionDefinition permissionDefinition;
     private PermissionProvider provider;
 
@@ -90,7 +99,6 @@ public class PrivilegeNameEditor extends GridLayout implements PermissionWrapper
     
     @Override
     public void addPermissionWrapper(PermissionWrapper permissionWrapper) {
-        System.out.println("aPW: " + permissionWrapper);
         // ensure the privilege name
         permissionWrapper.setPrivilegeName(permissionDefinition.getKey());
 
@@ -144,8 +152,16 @@ public class PrivilegeNameEditor extends GridLayout implements PermissionWrapper
     @Override
     public void loadData() {
         roleNameComboBox.removeAllItems();
-        // TODO get roles from liferay
-
+        roleNameComboBox.addItem(".*");
+        try {
+            List<Role> roles = RoleLocalServiceUtil.getRoles(PortalUtil.getDefaultCompanyId());
+            for (Role r : roles) {
+                if (r.getType() == RoleConstants.TYPE_REGULAR)
+                    roleNameComboBox.addItem(r.getName());
+            }
+        } catch (SystemException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
         roleNameLayout.removeAllComponents();
         if (provider.getPermissions() != null) {
             for (Permission permission : provider.getPermissions()) {

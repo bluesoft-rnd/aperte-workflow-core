@@ -43,7 +43,7 @@ public class PrivilegeNameEditor extends GridLayout implements PermissionWrapper
         I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
 
         privilegeDescriptionLabel = new Label(getDescription(permissionDefinition));
-        privilegeDescriptionLabel.setContentMode(Label.CONTENT_XHTML);
+        privilegeDescriptionLabel.setContentMode(Label.CONTENT_XHTML); // TODO don't use XHTML switch to style names
 
         roleNameDescriptionLabel = new Label(messages.getMessage("permission.editor.assigned.roles"));
 

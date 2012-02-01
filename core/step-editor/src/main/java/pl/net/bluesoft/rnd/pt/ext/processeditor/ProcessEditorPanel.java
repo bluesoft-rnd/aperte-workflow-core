@@ -64,8 +64,8 @@ public class ProcessEditorPanel extends GridLayout implements DataHandler {
             }
         });
         
-        titleLabel = new Label("<h1>" + messages.getMessage("process.editor.title") + "</h1>");
-        titleLabel.setContentMode(Label.CONTENT_XHTML);
+        titleLabel = new Label(messages.getMessage("process.editor.title"));
+        titleLabel.addStyleName("h1");
     }
 
     @Override

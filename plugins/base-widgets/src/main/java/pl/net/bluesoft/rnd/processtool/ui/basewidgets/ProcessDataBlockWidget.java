@@ -60,8 +60,6 @@ public class ProcessDataBlockWidget extends BaseProcessToolWidget implements Pro
     private static final Logger logger = Logger.getLogger(ProcessDataBlockWidget.class.getName());
     private static final Resolver resolver = new DefaultResolver();
 
-    public static final String ATTRIBUTE_WIDGETS_DEFINITION = "widgetsDefinitionElement";
-
     private WidgetDefinitionLoader definitionLoader = WidgetDefinitionLoader.getInstance();
 
     private ProcessDictionaryRegistry processDictionaryRegistry;
@@ -74,7 +72,8 @@ public class ProcessDataBlockWidget extends BaseProcessToolWidget implements Pro
 
     @AutoWiredProperty(required=true)
     @AutoWiredPropertyConfigurator(fieldClass = ProcessDataWidgetsDefinitionEditor.class)
-    @AperteDoc(humanNameKey="widget.process_data_block.property.widgetsDefinition.name", descriptionKey="widget.process_data_block.property.widgetsDefinition.description")
+    @AperteDoc(humanNameKey="widget.process_data_block.property.widgetsDefinition.name",
+            descriptionKey="widget.process_data_block.property.widgetsDefinition.description")
     private String widgetsDefinition;
 
     @AutoWiredProperty
@@ -113,8 +112,9 @@ public class ProcessDataBlockWidget extends BaseProcessToolWidget implements Pro
                     }
                 }
             } catch (Exception e) {
-                logException(getMessage("processdata.block.error.eval.other").replaceFirst("%s",
-                        currentComponent.toString()).replaceFirst("%s", currentElement.getBind()), e);
+                logException(getMessage("processdata.block.error.eval.other")
+                        .replaceFirst("%s", nvl(currentComponent.toString(),"NIL"))
+                        .replaceFirst("%s", nvl(currentElement.getBind(), "NIL")), e);
             }
         }
 

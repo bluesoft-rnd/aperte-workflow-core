@@ -4,7 +4,6 @@ import com.vaadin.ui.Upload;
 import org.aperteworkflow.editor.signavio.ModelConstants;
 import org.aperteworkflow.ui.base.BaseUploader;
 import pl.net.bluesoft.rnd.pt.ext.vaadin.GenericEditorApplication;
-import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -45,14 +44,8 @@ public class ProcessLogoUploader extends BaseUploader {
             return;
         }
 
-        File processLogoFile = processLogoHandler.getProcessLogoFile();
-        if (!logoFile.renameTo(processLogoFile)) {
-            // TODO perhaps change the place where this is saved, maybe ProcessLogoHandler should do it
-            logger.log(Level.SEVERE, "Failed to move process logo file from " + logoFile + " to " + processLogoFile);
-            VaadinUtility.errorNotification(application, messages, "process.logo.move.failed");
-        } else {
-            processLogoHandler.handleProcessLogo(processLogoFile);
-        }
+        // notify the handler
+        processLogoHandler.handleProcessLogo(logoFile);
     }
 
 }

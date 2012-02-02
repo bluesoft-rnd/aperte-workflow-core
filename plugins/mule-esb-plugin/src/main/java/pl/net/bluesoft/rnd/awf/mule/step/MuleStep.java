@@ -20,6 +20,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
+
 /**
  * Created by IntelliJ IDEA.
  *
@@ -34,10 +36,10 @@ public class MuleStep implements ProcessToolProcessStep {
     private Object payload;
 
     @AutoWiredProperty
-    private boolean asynchronous = false;
+    private Boolean asynchronous = false;
 
     @AutoWiredProperty
-    private long timeout = -1;
+    private Long timeout = Long.valueOf(-1);
 
     private MulePluginManager mulePluginManager;
 
@@ -115,7 +117,7 @@ public class MuleStep implements ProcessToolProcessStep {
     }
 
     public boolean isAsynchronous() {
-        return asynchronous;
+        return nvl(asynchronous, false);
     }
 
     public void setAsynchronous(boolean asynchronous) {

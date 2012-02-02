@@ -1,32 +1,56 @@
 package pl.net.bluesoft.rnd.pt.ext.processeditor.tab.queue;
 
-import com.vaadin.ui.Button;
-import com.vaadin.ui.GridLayout;
-import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
+import com.vaadin.ui.VerticalLayout;
+import org.aperteworkflow.editor.domain.ProcessConfig;
+import org.aperteworkflow.editor.ui.queue.QueueEditor;
+import pl.net.bluesoft.rnd.pt.ext.vaadin.DataHandler;
 
-public class QueueTab extends GridLayout {
+import java.util.Collection;
 
-    private Button addQueueButton;
-    private Button removeQueueButton;
-    private GridLayout layout;
+public class QueueTab extends VerticalLayout implements DataHandler {
+
+    private ProcessConfig processConfig;
+    private ProcessQueueProvider processQueueProvider;
+
+    private QueueEditor queueEditor;
 
     public QueueTab() {
-        super(3, 2);
         initComponents();
         initLayout();
     }
 
     private void initComponents() {
-        I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
+        processQueueProvider = new ProcessQueueProvider();
 
-        addQueueButton = VaadinUtility.smallButton(messages.getMessage("processeditor.queue.add"));
-        removeQueueButton = VaadinUtility.smallButton(messages.getMessage("processeditor.queue.remove"));
+        queueEditor = new QueueEditor();
+        queueEditor.setProvider(processQueueProvider);
     }
 
     private void initLayout() {
-
+        setMargin(true);
+        addComponent(queueEditor);
     }
 
+    @Override
+    public void loadData() {
+        processQueueProvider.setQueues(processConfig.getQueues());
 
+        queueEditor.loadData();
+    }
+
+    @Override
+    public void saveData() {
+        queueEditor.saveData();
+
+        processConfig.setQueues(processQueueProvider.getQueues());
+    }
+
+    @Override
+    public Collection<String> validateData() {
+        return null;
+    }
+
+    public void setProcessConfig(ProcessConfig processConfig) {
+        this.processConfig = processConfig;
+    }
 }

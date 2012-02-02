@@ -10,6 +10,7 @@ public class ProcessConfig implements Serializable {
 
     private List<Permission> processPermissions;
     private List<Queue> queues;
+    private String messages;
 
     public List<Permission> getProcessPermissions() {
         return processPermissions;
@@ -25,5 +26,13 @@ public class ProcessConfig implements Serializable {
 
     public void setQueues(List<Queue> queues) {
         this.queues = queues;
+    }
+
+    public String getMessages() {
+        return messages;
+    }
+
+    public void setMessages(String messages) {
+        this.messages = messages;
     }
 }

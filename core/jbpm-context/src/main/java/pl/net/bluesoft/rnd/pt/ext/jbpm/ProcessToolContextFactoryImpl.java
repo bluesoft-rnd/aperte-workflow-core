@@ -17,6 +17,7 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 
 import javax.naming.InitialContext;
+import javax.transaction.Status;
 import javax.transaction.UserTransaction;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -93,7 +94,11 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory 
             }
 
             System.out.println("ut.getStatus() = " + ut.getStatus());
-            ut.begin();
+            if (ut.getStatus() == Status.STATUS_MARKED_ROLLBACK) {
+                ut.rollback();
+            }
+            if (ut.getStatus() != Status.STATUS_ACTIVE)
+                ut.begin();
             Session session = registry.getSessionFactory().getCurrentSession();
             try {
                 ProcessEngine pi = getProcessEngine();
@@ -101,7 +106,7 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory 
                     try {
                         ProcessToolContextImpl ctx = new ProcessToolContextImpl(session, this, pi);
                         callback.withContext(ctx);
-                    } catch (RuntimeException e) {
+                    } catch (Exception e) {
                         logger.log(Level.SEVERE, e.getMessage(), e);
                         try {
                             ut.rollback();

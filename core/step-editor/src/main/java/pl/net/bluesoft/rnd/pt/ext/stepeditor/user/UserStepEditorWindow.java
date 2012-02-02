@@ -1,7 +1,8 @@
 package pl.net.bluesoft.rnd.pt.ext.stepeditor.user;
 
 
-import com.vaadin.data.*;
+import com.vaadin.data.Container;
+import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.HierarchicalContainer;
@@ -14,11 +15,10 @@ import com.vaadin.event.dd.DropHandler;
 import com.vaadin.event.dd.acceptcriteria.AcceptAll;
 import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
 import com.vaadin.terminal.Resource;
-import com.vaadin.terminal.Sizeable;
 import com.vaadin.terminal.StreamResource;
-import com.vaadin.ui.*;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.*;
 import com.vaadin.ui.Tree.TreeDragMode;
 import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.themes.Reindeer;
@@ -43,7 +43,6 @@ import java.util.logging.Logger;
 import static pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages.getString;
 import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.htmlLabel;
 import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.styled;
-import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.verticalLayout;
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
 public class UserStepEditorWindow extends AbstractStepEditorWindow implements Handler, ValueChangeListener, ClickListener {
@@ -82,6 +81,8 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 				loadJSONConfig();
 			}
 		}
+
+        permissionEditor.loadData();
 		
 		return comp;
 	}
@@ -108,6 +109,7 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
         paramPanel = new WidgetFormWindow();
 
         permissionEditor = new PermissionEditor();
+        permissionEditor.setMargin(true);
         permissionEditor.setProvider(new PermissionProvider() {
             @Override
             public Collection<Permission> getPermissions() {
@@ -395,7 +397,6 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 					stepTree.getItem(widget).getItemProperty("icon").setValue(getWidgetIcon(((WidgetItemInStep) widget).getWidgetItem()));
 			}
 			//jsonConfig = dumpTreeToJSON();
-            permissionEditor.loadData();
 
 		} catch (WidgetNotFoundException e) {
 			logger.log(Level.SEVERE, "Widget not found", e);

@@ -1,5 +1,6 @@
 package pl.net.bluesoft.rnd.pt.ext.stepeditor.user;
 
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -19,6 +20,7 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
+
 
 public class WidgetFormWindow extends Panel  {
 
@@ -47,6 +49,7 @@ public class WidgetFormWindow extends Panel  {
             }
             if (widget.hasPermissions()) {
                 PermissionEditor permissionEditor = new PermissionEditor();
+                permissionEditor.setMargin(true);
                 permissionEditor.setProvider(new PermissionProvider() {
                     @Override
                     public Collection<Permission> getPermissions() {

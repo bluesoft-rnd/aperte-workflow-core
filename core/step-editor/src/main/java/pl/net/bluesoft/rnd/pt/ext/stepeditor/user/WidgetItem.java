@@ -1,5 +1,6 @@
 package pl.net.bluesoft.rnd.pt.ext.stepeditor.user;
 
+
 import java.io.Serializable;
 import java.util.*;
 

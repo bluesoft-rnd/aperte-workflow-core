@@ -3,7 +3,6 @@ package org.aperteworkflow.editor.ui.permission;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.model.Role;
 import com.liferay.portal.model.RoleConstants;
-import com.liferay.portal.service.PortalServiceUtil;
 import com.liferay.portal.service.RoleLocalServiceUtil;
 import com.liferay.portal.util.PortalUtil;
 import com.vaadin.ui.*;
@@ -17,8 +16,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages.getString;
 
 /**
  * Component used to edit role names inside single privilege name
@@ -46,7 +43,7 @@ public class PrivilegeNameEditor extends GridLayout implements PermissionWrapper
         I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
 
         privilegeDescriptionLabel = new Label(getDescription(permissionDefinition));
-        privilegeDescriptionLabel.setContentMode(Label.CONTENT_XHTML);
+        privilegeDescriptionLabel.setContentMode(Label.CONTENT_XHTML); // TODO don't use XHTML switch to style names
 
         roleNameDescriptionLabel = new Label(messages.getMessage("permission.editor.assigned.roles"));
 
@@ -64,7 +61,6 @@ public class PrivilegeNameEditor extends GridLayout implements PermissionWrapper
                 return super.getCss(c);
             }
         };
-//        roleNameLayout.setMargin(true);
         roleNameLayout.setWidth("100%");
     }
 
@@ -75,7 +71,7 @@ public class PrivilegeNameEditor extends GridLayout implements PermissionWrapper
         builder.append("</h2>");
         if (definition.getDescription() != null && !definition.getDescription().trim().isEmpty()) {
             builder.append("<i>");
-            builder.append(getString(definition.getDescription()));
+            builder.append(I18NSource.ThreadUtil.getThreadI18nSource().getMessage(definition.getDescription()));
             builder.append("</i>");
         }
         return builder.toString();

@@ -19,7 +19,6 @@ public class ProcessPermissionTab extends VerticalLayout implements DataHandler 
     }
 
     private void initComponent() {
-
         permissionProvider = new ProcessPermissionProvider();
 
         permissionEditor = new PermissionEditor();

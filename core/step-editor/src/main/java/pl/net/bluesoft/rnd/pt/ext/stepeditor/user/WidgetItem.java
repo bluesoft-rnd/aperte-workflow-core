@@ -1,6 +1,5 @@
 package pl.net.bluesoft.rnd.pt.ext.stepeditor.user;
 
-import org.aperteworkflow.editor.domain.Permission;
 import org.aperteworkflow.editor.ui.permission.PermissionDefinition;
 
 import java.io.Serializable;

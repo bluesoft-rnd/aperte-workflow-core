@@ -81,6 +81,8 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 				loadJSONConfig();
 			}
 		}
+
+        permissionEditor.loadData();
 		
 		return comp;
 	}
@@ -427,7 +429,6 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 					stepTree.getItem(widget).getItemProperty("icon").setValue(getWidgetIcon(((WidgetItemInStep) widget).getWidgetItem()));
 			}
 			//jsonConfig = dumpTreeToJSON();
-            permissionEditor.loadData();
 
 		} catch (WidgetNotFoundException e) {
 			logger.log(Level.SEVERE, "Widget not found", e);

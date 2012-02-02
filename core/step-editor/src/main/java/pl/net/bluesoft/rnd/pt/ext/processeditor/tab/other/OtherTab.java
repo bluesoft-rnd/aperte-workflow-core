@@ -27,6 +27,7 @@ public class OtherTab extends GridLayout implements ProcessLogoHandler, DataHand
     
     private ProcessModelConfig processModelConfig;
     
+    private File logoFile;
     private ProcessLogoUploader logoUploader;
     private Embedded logoImage;
     private Label logoDescriptionLabel;
@@ -81,44 +82,61 @@ public class OtherTab extends GridLayout implements ProcessLogoHandler, DataHand
 
     @Override
     public void handleProcessLogo(File processLogoFile) {
+        logoFile = processLogoFile;
+
+        if (logoFile != null && logoFile.exists()) {
+            showProcessLogo(logoFile);
+        } else {
+            showDefaultProcessLogo();
+        }
+    }
+    
+    private void showProcessLogo(File processLogoFile) {
         if (logoImage != null) {
             removeComponent(logoImage);
             logoImage = null;
         }
 
-        if (processLogoFile.exists()) {
-            try {
-                final FileInputStream fis = new FileInputStream(processLogoFile);
+        try {
+            final FileInputStream fis = new FileInputStream(processLogoFile);
 
-                StreamResource.StreamSource source = new StreamResource.StreamSource() {
-                    @Override
-                    public InputStream getStream() {
-                        return fis;
-                    }
-                };
+            StreamResource.StreamSource source = new StreamResource.StreamSource() {
+                @Override
+                public InputStream getStream() {
+                    return fis;
+                }
+            };
 
-                // generate random file name to bypass web browser image cache
-                String randomFileName = "process-logo-" + System.nanoTime() + ".png";
-                StreamResource resource = new StreamResource(source, randomFileName, GenericEditorApplication.getCurrent());
+            // generate random file name to bypass web browser image cache
+            String randomFileName = "process-logo-" + System.nanoTime() + ".png";
+            StreamResource resource = new StreamResource(source, randomFileName, GenericEditorApplication.getCurrent());
 
-                logoImage = new Embedded();
-                logoImage.setType(Embedded.TYPE_IMAGE);
-                logoImage.setSource(resource);
-            } catch (FileNotFoundException e) {
-                logger.log(Level.SEVERE, "Failed to read the process logo file", e);
-            }
-        } else {
-            logoImage = VaadinUtility.embedded(
-                    GenericEditorApplication.getCurrent(),
-                    ModelConstants.PROCESS_LOGO_DEFAULT_RESOURCE
-            );
-        }
-
-        if (logoImage != null) {
+            logoImage = new Embedded();
+            logoImage.setType(Embedded.TYPE_IMAGE);
+            logoImage.setSource(resource);
             logoImage.setWidth("32px");
             logoImage.setHeight("32px");
             addComponent(logoImage, 0, 1);
+        } catch (FileNotFoundException e) {
+            logger.log(Level.SEVERE, "Failed to read the process logo file", e);
         }
+    }
+
+    private void showDefaultProcessLogo() {
+        if (logoImage != null) {
+            removeComponent(logoImage);
+            logoImage = null;
+        }
+
+
+        logoImage = VaadinUtility.embedded(
+                GenericEditorApplication.getCurrent(),
+                ModelConstants.PROCESS_LOGO_DEFAULT_RESOURCE
+        );
+
+        logoImage.setWidth("32px");
+        logoImage.setHeight("32px");
+        addComponent(logoImage, 0, 1);
     }
 
     @Override
@@ -146,6 +164,22 @@ public class OtherTab extends GridLayout implements ProcessLogoHandler, DataHand
     public void saveData() {
         if (unsavedModel) {
             return;
+        }
+
+        File processLogoFile = getProcessLogoFile();
+        if (logoFile.equals(processLogoFile)) {
+            // no new logo file to save
+            return;
+        }
+
+        if (!logoFile.renameTo(processLogoFile)) {
+            logger.log(Level.SEVERE, "Failed to move process logo file from " + logoFile + " to " + processLogoFile);
+
+            VaadinUtility.errorNotification(
+                    GenericEditorApplication.getCurrent(),
+                    I18NSource.ThreadUtil.getThreadI18nSource(),
+                    "process.logo.move.failed"
+            );
         }
     }
 

@@ -51,7 +51,7 @@ public class WidgetPropertiesEditorFormComponent extends VerticalLayout {
         addComponent(commit);
     }
 
-    private void commit() {
+    public void commit() {
         if (!form.isValid()) {
             getApplication().getMainWindow().showNotification(getLocalizedMessage("validation-errors"),
                     Window.Notification.TYPE_WARNING_MESSAGE);
@@ -142,5 +142,9 @@ public class WidgetPropertiesEditorFormComponent extends VerticalLayout {
 
     public Form getForm() {
         return form;
+    }
+
+    public Object getItemId() {
+        return itemId;
     }
 }

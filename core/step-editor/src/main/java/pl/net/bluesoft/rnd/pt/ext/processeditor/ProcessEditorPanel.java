@@ -2,6 +2,8 @@ package pl.net.bluesoft.rnd.pt.ext.processeditor;
 
 import com.vaadin.ui.*;
 import org.aperteworkflow.editor.domain.ProcessConfig;
+import org.aperteworkflow.editor.domain.ProcessModelConfig;
+import pl.net.bluesoft.rnd.pt.ext.processeditor.tab.message.MessageTab;
 import pl.net.bluesoft.rnd.pt.ext.processeditor.tab.other.OtherTab;
 import pl.net.bluesoft.rnd.pt.ext.processeditor.tab.permission.ProcessPermissionTab;
 import pl.net.bluesoft.rnd.pt.ext.processeditor.tab.queue.QueueTab;
@@ -20,6 +22,7 @@ public class ProcessEditorPanel extends GridLayout implements DataHandler {
     private OtherTab otherTab;
     private QueueTab queueTab;
     private ProcessPermissionTab permissionTab;
+    private MessageTab messageTab;
     private Label titleLabel;
     private Button saveButton;
 
@@ -51,6 +54,7 @@ public class ProcessEditorPanel extends GridLayout implements DataHandler {
         tabSheet.setSizeFull();
         tabSheet.addTab(permissionTab = new ProcessPermissionTab(), messages.getMessage("process.editor.process.permissions"));
         tabSheet.addTab(queueTab = new QueueTab(), messages.getMessage("process.editor.queues"));
+        tabSheet.addTab(messageTab = new MessageTab(), messages.getMessage("process.editor.messages"));
         tabSheet.addTab(otherTab = new OtherTab(), messages.getMessage("process.editor.other"));
 
         saveButton = VaadinUtility.button(messages.getMessage("process.editor.save"), new Runnable() {
@@ -60,20 +64,24 @@ public class ProcessEditorPanel extends GridLayout implements DataHandler {
             }
         });
         
-        titleLabel = new Label("<h1>" + messages.getMessage("process.editor.title") + "</h1>");
-        titleLabel.setContentMode(Label.CONTENT_XHTML);
+        titleLabel = new Label(messages.getMessage("process.editor.title"));
+        titleLabel.addStyleName("h1");
     }
 
     @Override
     public void loadData() {
         permissionTab.loadData();
+        queueTab.loadData();
         otherTab.loadData();
+        messageTab.loadData();
     }
 
     @Override
     public void saveData() {
         permissionTab.saveData();
+        queueTab.saveData();
         otherTab.saveData();
+        messageTab.saveData();
     }
 
     @Override
@@ -81,11 +89,13 @@ public class ProcessEditorPanel extends GridLayout implements DataHandler {
         return null;
     }
 
-    public void setProcessDir(String processDir) {
-        otherTab.setProcessDir(processDir);
+    public void setProcessModelConfig(ProcessModelConfig processModelConfig) {
+        otherTab.setProcessModelConfig(processModelConfig);
     }
 
     public void setProcessConfig(ProcessConfig processConfig) {
         permissionTab.setProcessConfig(processConfig);
+        queueTab.setProcessConfig(processConfig);
+        messageTab.setProcessConfig(processConfig);
     }
 }

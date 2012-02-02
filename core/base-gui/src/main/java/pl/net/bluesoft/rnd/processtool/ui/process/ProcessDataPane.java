@@ -117,7 +117,6 @@ public class ProcessDataPane extends VerticalLayout {
         if (stateConfiguration == null) {
             application.getMainWindow().showNotification(getMessage("process.data.no-config"));
             displayProcessContext.hide();
-//			application.getMainWindow().removeWindow(window);
             return true;
 
         }

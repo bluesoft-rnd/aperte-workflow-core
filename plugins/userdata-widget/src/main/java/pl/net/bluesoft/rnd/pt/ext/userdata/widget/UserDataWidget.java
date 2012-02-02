@@ -17,6 +17,8 @@ import pl.net.bluesoft.rnd.pt.ext.userdata.model.ProcessInstanceUserAssignment;
 import java.util.Collection;
 import java.util.HashSet;
 
+import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
+
 /**
  * @author tlipski@bluesoft.net.pl
  */
@@ -30,22 +32,25 @@ public abstract class UserDataWidget
 
 	@AutoWiredProperty
 	private String bpmVariableName;
+    @AutoWiredProperty(required = true)
+    private String roleInProcess;
+    @AutoWiredProperty
+    private Boolean required;
 
 	@Override
 	public Collection<String> validateData(ProcessInstance processInstance) {
 		Collection<String> res = new HashSet<String>();
-		if ("true".equalsIgnoreCase(getAttributeValue("required")) && selectedUser==null) {
-			res.add("ext.userdata.validate.required."+getAttributeValue("role-name"));
+		if (getRequired() && selectedUser==null) {
+			res.add("ext.userdata.validate.required."+ roleInProcess);
 		}
 		return res;
 	}
 
 	@Override
 	public void saveData(ProcessInstance processInstance) {
-		String role = getAttributeValue("role-name");
 		boolean found = false;
 		for (ProcessInstanceUserAssignment assign : getAttributes(ProcessInstanceUserAssignment.class, processInstance)) {
-			if ((role == null && assign.getRole() == null) || (assign.getRole() != null && assign.getRole().equals(role))) {
+			if ((roleInProcess == null && assign.getRole() == null) || (assign.getRole() != null && assign.getRole().equals(roleInProcess))) {
 				found = true;
 				if (selectedUser == null) {
 					processInstance.removeAttribute(assign);
@@ -61,17 +66,16 @@ public abstract class UserDataWidget
 			assign.setUserLogin(selectedUser.getLogin());
 			assign.setUserDescription(selectedUser.getDescription());
 			assign.setBpmLogin(selectedUser.getBpmLogin());
-			assign.setRole(role);
-			assign.setKey(role);
+			assign.setRole(roleInProcess);
+			assign.setKey(roleInProcess);
 			processInstance.addAttribute(assign);
 		}
 	}
 
 	@Override
 	public void loadData(ProcessInstance processInstance) {
-		String role = getAttributeValue("role-name");
 		for (ProcessInstanceUserAssignment assign : getAttributes(ProcessInstanceUserAssignment.class, processInstance)) {
-			if ((role == null && assign.getRole() == null) || (assign.getRole() != null && assign.getRole().equals(role))) {
+			if ((roleInProcess == null && assign.getRole() == null) || (assign.getRole() != null && assign.getRole().equals(roleInProcess))) {
 				selectedUser = new UserData();
 				selectedUser.setLogin(assign.getUserLogin());
 				selectedUser.setDescription(assign.getUserDescription());
@@ -90,7 +94,7 @@ public abstract class UserDataWidget
 
 	@Override
 	public Component render() {
-		combo = new ComboBox(i18NSource.getMessage("ext.userdata.prompt." + getAttributeValue("role-name")));
+		combo = new ComboBox(i18NSource.getMessage("ext.userdata.prompt." + roleInProcess));
 
 		combo.setItemCaptionPropertyId("description");
 		combo.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
@@ -98,16 +102,15 @@ public abstract class UserDataWidget
 		combo.setImmediate(true);
 		combo.addListener(this);
 		combo.setNewItemsAllowed(false);
-        if ("true".equalsIgnoreCase(getAttributeValue("required")))
-            combo.setDescription(i18NSource.getMessage("ext.userdata.validate.required."+getAttributeValue("role-name")));
+        if (getRequired()) {
+            combo.setRequired(true);
+            combo.setDescription(i18NSource.getMessage("ext.userdata.validate.required."+ roleInProcess));
+        }
 
 		users = getUsers();
 		BeanItemContainer bic = new BeanItemContainer(users);
 		combo.setContainerDataSource(bic);
 		bic.sort(new Object[] { "description" }, new boolean[] { true });
-//		for (UserData ud : getUsers()) {
-//			combo.addItem(ud);
-//		}
 
 		if (selectedUser != null && combo != null) {
 			for (UserData ud : users) {
@@ -118,8 +121,6 @@ public abstract class UserDataWidget
 		}
 		VerticalLayout vl = new VerticalLayout();
 		vl.addComponent(combo);
-//		combo.setReadOnly(!hasPermission("EDIT"));
-
 		combo.setReadOnly(!hasPermission("EDIT"));
 
 		vl.setWidth("100%");
@@ -146,4 +147,21 @@ public abstract class UserDataWidget
 	public void setBpmVariableName(String bpmVariableName) {
 		this.bpmVariableName = bpmVariableName;
 	}
+
+    public String getRoleInProcess() {
+        return roleInProcess;
+    }
+
+    public void setRoleInProcess(String roleInProcess) {
+        this.roleInProcess = roleInProcess;
+    }
+
+
+    public Boolean getRequired() {
+        return nvl(required, false);
+    }
+
+    public void setRequired(Boolean required) {
+        this.required = required;
+    }
 }

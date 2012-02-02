@@ -1,6 +1,5 @@
 package pl.net.bluesoft.rnd.pt.ext.stepeditor;
 
-import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
 
 

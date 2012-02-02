@@ -36,10 +36,6 @@ public class WidgetConfigFormFieldFactory extends DefaultFieldFactory {
         if (field instanceof AbstractTextField) {
             AbstractTextField textField = (AbstractTextField) field;
             textField.setNullRepresentation("");
-
-            if (Property.PropertyType.PERMISSION.equals(property.getPropertyType())) {
-                textField.setInputPrompt(Messages.getString("form.permissions.roles"));
-            }
         }
 
         if (field instanceof RichTextArea) {

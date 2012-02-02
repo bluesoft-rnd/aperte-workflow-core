@@ -80,10 +80,11 @@ public class ActionEditorApplication extends GenericEditorApplication implements
 		main.addComponent(header);
 		buttonList = prepareButtonList(buttonType);
 		main.addComponent(buttonList);
-		main.addComponent(propertiesPanel);
 		if (!StringUtils.isEmpty(buttonType)) {
 			Class<? extends ProcessToolActionButton> buttonClass = getRegistry().getAvailableButtons().get(buttonType);
-			propertiesPanel.refreshForm(buttonClass,oldActionParameters);
+			propertiesPanel.init(buttonClass);
+			propertiesPanel.refreshForm(true, oldActionParameters);
+			main.addComponent(propertiesPanel);
 		}
 		saveButton = new Button("save", this);
 		saveButton.setImmediate(true);
@@ -124,7 +125,8 @@ public class ActionEditorApplication extends GenericEditorApplication implements
 			@Override
 			public void valueChange(ValueChangeEvent event) {
 				Class<?> buttonClass = (Class<?>) buttonList.getValue();
-				propertiesPanel.refreshForm(buttonClass,oldActionParameters);
+				propertiesPanel.init(buttonClass);
+				propertiesPanel.refreshForm(true, oldActionParameters);
 			}
 		});
 

@@ -325,39 +325,7 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 
 	}
 
-	private Container getAvailableItems() {
-		HierarchicalContainer hc = getAvailableTreeContainer();
-
-		Map<BundleItem, Collection<WidgetItem>> availableWidgets = new HashMap<BundleItem, Collection<WidgetItem>>();
-		try {
-			availableWidgets = WidgetInfoLoader.loadAvailableWidgets(application);
-		} catch (ClassNotFoundException e) {
-            logger.log(Level.SEVERE, "Error loading available widgets", e);
-		}
-
-		for (Entry<BundleItem, Collection<WidgetItem>> entry : availableWidgets.entrySet()) {
-			final BundleItem bundle = entry.getKey();
-			final Collection<WidgetItem> widgets = entry.getValue();
-
-			Item bundleItem = hc.addItem(bundle);
-			bundleItem.getItemProperty("name").setValue(bundle.getBundleName());
-			bundleItem.getItemProperty("icon").setValue(getResource("icon.bundle.default"));
-			hc.setChildrenAllowed(bundle, true);
-
-			for (WidgetItem widgetItem : widgets) {
-				Item item = hc.addItem(widgetItem);
-				item.getItemProperty("name").setValue(widgetItem.getName());
-				item.getItemProperty("icon").setValue(getWidgetIcon(widgetItem));
-				hc.setParent(widgetItem, bundle);
-				hc.setChildrenAllowed(widgetItem, false);
-			}
-		}
-
-		hc.sort(new Object[] { "name" }, new boolean[] { true });
-
-		return hc;
-	}
-
+	
 	private Resource getWidgetIcon(WidgetItem widgetItem) {
 		try {
 			final InputStream stream = widgetItem.getBundle().getIconStream(widgetItem.getIcon());

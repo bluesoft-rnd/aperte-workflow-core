@@ -48,9 +48,10 @@ public class AutoStepEditorWindow extends AbstractStepEditorWindow {
 		vll.setSpacing(true);
 
 		if (stepType != null) {
-		   vll.addComponent(propertiesPanel);
 		   Class<?> stepClass = getStepClass(stepType);
-		   propertiesPanel.refreshForm(stepClass, getLoadedJsonData(jsonConfig));
+		   propertiesPanel.init(stepClass);
+		   propertiesPanel.refreshForm(true, getLoadedJsonData(jsonConfig));
+		   vll.addComponent(propertiesPanel);
 		}
 		   
 		return vll;
@@ -75,7 +76,7 @@ public class AutoStepEditorWindow extends AbstractStepEditorWindow {
 	
 	private String getJsonToSave() {
 		TaskConfig tc = new TaskConfig();
-		tc.setTaskName(propertiesPanel.getAliasName());
+		tc.setTaskName(propertiesPanel.getClassInfo().getAliasName());
 		tc.setParams(propertiesPanel.getPropertiesMap());
 		
 		try {

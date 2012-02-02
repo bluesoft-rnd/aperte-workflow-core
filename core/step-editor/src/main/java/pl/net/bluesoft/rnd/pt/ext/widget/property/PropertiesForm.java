@@ -1,21 +1,18 @@
 package pl.net.bluesoft.rnd.pt.ext.widget.property;
 
 import com.vaadin.terminal.Sizeable;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.Field;
-import com.vaadin.ui.Form;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.*;
 
 public class PropertiesForm extends Form {
 	
 	
-	private VerticalLayout mainLayout;
+	private FormLayout mainLayout;
 	
 	
 
 	public PropertiesForm() {
 		super();
-		mainLayout = new VerticalLayout();
+		mainLayout = new FormLayout();
 		mainLayout.setMargin(true);
 		mainLayout.setSpacing(true);
 		mainLayout.setSizeUndefined();

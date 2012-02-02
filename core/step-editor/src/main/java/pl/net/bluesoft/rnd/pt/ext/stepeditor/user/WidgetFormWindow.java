@@ -1,16 +1,24 @@
 package pl.net.bluesoft.rnd.pt.ext.stepeditor.user;
 
-import com.vaadin.terminal.Sizeable;
-import com.vaadin.ui.*;
-import com.vaadin.ui.themes.Reindeer;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.logging.Logger;
+
 import org.aperteworkflow.editor.domain.Permission;
 import org.aperteworkflow.editor.ui.permission.PermissionDefinition;
 import org.aperteworkflow.editor.ui.permission.PermissionEditor;
 import org.aperteworkflow.editor.ui.permission.PermissionProvider;
-import pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages;
 
-import java.util.*;
-import java.util.logging.Logger;
+import pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages;
+import pl.net.bluesoft.rnd.pt.ext.widget.property.PropertiesPanel;
+
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Panel;
+import com.vaadin.ui.TabSheet;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.Reindeer;
 
 public class WidgetFormWindow extends Panel  {
 
@@ -32,13 +40,9 @@ public class WidgetFormWindow extends Panel  {
             TabSheet ts = new TabSheet();
             ts.setWidth("100%");
             if (widget.hasProperties()) {
-                Form form = new Form();
-                form.setImmediate(true);
-                WidgetConfigFormFieldFactory fieldFactory = new WidgetConfigFormFieldFactory();
-    			for (Property<?> property : widget.getProperties()) {
-    				final Field field = fieldFactory.createField(property);
-    				form.addField(property, field);
-    			}
+                PropertiesPanel form = new PropertiesPanel();
+            	form.init(widget.getWidgetItem().getClassInfo());
+            	form.refreshForm(false, widget.getProperties());
                 ts.addTab(form, Messages.getString("form.properties"));
             }
             if (widget.hasPermissions()) {

@@ -68,21 +68,29 @@ public class ProcessDataHierarchyEditor extends VerticalLayout {
     private VerticalLayout getFormLayout() {
         final VerticalLayout formLayout = new VerticalLayout();
         formLayout.setWidth("100%");
-        final Form[] prevFormHandler = new Form[1];
+        final WidgetPropertiesEditorFormComponent[] prevFormHandler = new WidgetPropertiesEditorFormComponent[1];
         widgetTree.addListener(new ItemClickEvent.ItemClickListener() {
             @Override
             public void itemClick(ItemClickEvent event) {
                 final Object itemId = event.getItemId();
-                if (prevFormHandler[0] != null && prevFormHandler[0].isModified()) {
-                    ConfirmDialog.show(getApplication().getMainWindow(),
-                            getLocalizedMessage("unsaved-data-warning"),
-                            new ConfirmDialog.Listener() {
-                                @Override
-                                public void onClose(ConfirmDialog confirmDialog) {
-                                    if (confirmDialog.isConfirmed())
-                                        renderForm(itemId);
-                                }
-                            });
+                final WidgetPropertiesEditorFormComponent formComponent = prevFormHandler[0];
+                if (formComponent != null && formComponent.getForm().isModified()) {
+                    if (formComponent.getForm().isValid()) {
+                        formComponent.commit();
+                        renderForm(itemId);
+                    } else {
+                        ConfirmDialog.show(getApplication().getMainWindow(),
+                                getLocalizedMessage("unsaved-data-warning"),
+                                new ConfirmDialog.Listener() {
+                                    @Override
+                                    public void onClose(ConfirmDialog confirmDialog) {
+                                        if (confirmDialog.isConfirmed())
+                                            renderForm(itemId);
+                                        else
+                                            widgetTree.select(formComponent.getItemId());
+                                    }
+                                });
+                    }
                 } else {
                     renderForm(itemId);
                 }
@@ -93,7 +101,7 @@ public class ProcessDataHierarchyEditor extends VerticalLayout {
                 if (itemId != null) {
                     WidgetPropertiesEditorFormComponent editorFormComponent = new WidgetPropertiesEditorFormComponent(itemId, ProcessDataHierarchyEditor.this);
                     formLayout.addComponent(editorFormComponent);
-                    prevFormHandler[0] = editorFormComponent.getForm();
+                    prevFormHandler[0] = editorFormComponent;
                 }
             }
         });

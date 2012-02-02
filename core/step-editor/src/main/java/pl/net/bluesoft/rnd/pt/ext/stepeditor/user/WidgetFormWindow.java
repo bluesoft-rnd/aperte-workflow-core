@@ -1,6 +1,5 @@
 package pl.net.bluesoft.rnd.pt.ext.stepeditor.user;
 
-import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.Reindeer;
 import org.aperteworkflow.editor.domain.Permission;
@@ -9,7 +8,10 @@ import org.aperteworkflow.editor.ui.permission.PermissionEditor;
 import org.aperteworkflow.editor.ui.permission.PermissionProvider;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.logging.Logger;
 
 public class WidgetFormWindow extends Panel  {

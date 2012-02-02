@@ -7,6 +7,7 @@ import com.vaadin.ui.VerticalLayout;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -70,9 +71,16 @@ public abstract class BaseUploader extends VerticalLayout implements Upload.Succ
 
     @Override
     public void updateProgress(long readBytes, long contentLength) {
+        if (uploadFailedNotification != null) {
+            // dirty way to check if we failed to start the upload
+            // can not return null from receiveUpload because it causes an ugly error indicator
+            // so we do this here, otherwise error in receiveUpload can be swallowed
+            return;
+        }
+        
         if (maxFileSize > 0 && (maxFileSize < readBytes || (contentLength != -1 && maxFileSize < contentLength))) {
             I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
-            setUploadFailedNotification(messages.getMessage("baseuploader.filesize.exceeded"));
+            setUploadFailedNotification(messages.getMessage("uploader.size.exceeded"));
             upload.interruptUpload();
         }
 
@@ -105,13 +113,13 @@ public abstract class BaseUploader extends VerticalLayout implements Upload.Succ
 
         if (!allowedMimeTypes.isEmpty() && !allowedMimeTypes.contains(mimeType)) {
             logger.log(Level.INFO, "Disallowed mimeType " + mimeType);
-            setUploadFailedNotification(message.getMessage("baseuploader.mimeType.disallowed"));
+            setUploadFailedNotification(message.getMessage("uploader.mimeType.disallowed", new Object[] { mimeType }));
         } else {
             try {
                 out = createOutputStream();
             } catch (Exception e) {
                 logger.log(Level.SEVERE, "Failed to create output stream", e);
-                setUploadFailedNotification(message.getMessage("baseuploader.out.failed"));
+                setUploadFailedNotification(message.getMessage("uploader.out.failed"));
             }
         }
         
@@ -143,7 +151,7 @@ public abstract class BaseUploader extends VerticalLayout implements Upload.Succ
     }
 
     protected OutputStream createOutputStream() throws Exception {
-        return new FileOutputStream("/tmp");
+        return new FileOutputStream(File.createTempFile("temp-", ".temp"));
     }
 
     protected void resetAndHideProgressIndicator() {

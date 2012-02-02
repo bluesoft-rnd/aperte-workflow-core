@@ -1,24 +1,11 @@
 package pl.net.bluesoft.rnd.util.vaadin;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.portlet.ActionRequest;
-import javax.portlet.ActionResponse;
-import javax.portlet.EventRequest;
-import javax.portlet.EventResponse;
-import javax.portlet.PortletSession;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
-import javax.portlet.ResourceRequest;
-import javax.portlet.ResourceResponse;
-
+import com.vaadin.Application;
+import com.vaadin.service.ApplicationContext;
 import com.vaadin.terminal.Terminal;
+import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Window;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.i18n.DefaultI18NSource;
@@ -27,11 +14,14 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolGuiCallback;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.liferay.LiferayBridge;
 
-import com.vaadin.Application;
-import com.vaadin.service.ApplicationContext;
-import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Window;
+import javax.portlet.*;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -150,7 +140,17 @@ public abstract class GenericVaadinPortlet2BpmApplication extends Application im
 		return i18NSource.getMessage(key, defaultValue);
 	}
 
-	public void handleActionRequest(ActionRequest request, ActionResponse response, Window window) {
+    @Override
+    public String getMessage(String key, Object... params) {
+        return i18NSource.getMessage(key, params);
+    }
+
+    @Override
+    public String getMessage(String key, String defaultValue, Object... params) {
+        return i18NSource.getMessage(key, defaultValue, params);
+    }
+
+    public void handleActionRequest(ActionRequest request, ActionResponse response, Window window) {
 		// nothing
 	}
 

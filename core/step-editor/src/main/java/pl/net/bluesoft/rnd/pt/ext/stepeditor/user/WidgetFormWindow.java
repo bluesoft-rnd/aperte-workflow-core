@@ -45,6 +45,7 @@ public class WidgetFormWindow extends Panel  {
             }
             if (widget.hasPermissions()) {
                 PermissionEditor permissionEditor = new PermissionEditor();
+                permissionEditor.setMargin(true);
                 permissionEditor.setProvider(new PermissionProvider() {
                     @Override
                     public Collection<Permission> getPermissions() {

@@ -107,6 +107,7 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
         paramPanel = new WidgetFormWindow();
 
         permissionEditor = new PermissionEditor();
+        permissionEditor.setMargin(true);
         permissionEditor.setProvider(new PermissionProvider() {
             @Override
             public Collection<Permission> getPermissions() {

@@ -47,29 +47,19 @@ public class TrivialMessageEditor extends VerticalLayout implements DataHandler 
             return;
         }
 
-//        try {
-            // decode from base64
-            byte[] decoded = Base64.decodeBase64(messagesContent);
-            String utf8 = StringUtils.newStringUtf8(decoded);
+        byte[] decoded = Base64.decodeBase64(messagesContent);
+        String ascii = StringUtils.newStringUsAscii(decoded);
+        String utf8 = Native2AsciiUtil.ascii2Native(ascii);
 
-
-
-
-            messagesArea.setValue(utf8);
-//        } catch (UnsupportedEncodingException e) {
-//            logger.log(Level.SEVERE, "Error decoding the base64 messages content", e);
-//        }
+        messagesArea.setValue(utf8);
     }
 
     @Override
     public void saveData() {
-//        try {
-            String utf8 = (String) messagesArea.getValue();
-            byte[] encoded = Base64.encodeBase64(utf8.getBytes());
-            messagesContent = StringUtils.newStringUtf8(encoded);
-//        } catch (UnsupportedEncodingException e) {
-//            logger.log(Level.SEVERE, "Error decoding the base64 messages content", e);
-//        }
+        String utf8 = (String) messagesArea.getValue();
+        String ascii = Native2AsciiUtil.native2Ascii(utf8);
+        byte[] encoded = Base64.encodeBase64(ascii.getBytes());
+        messagesContent = StringUtils.newStringUtf8(encoded);
     }
 
     @Override

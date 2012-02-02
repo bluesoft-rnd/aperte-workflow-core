@@ -12,7 +12,6 @@ public class MessageTab extends VerticalLayout implements DataHandler {
 
     private TrivialMessageEditor editor;
 
-
     public MessageTab() {
         initComponent();
     }

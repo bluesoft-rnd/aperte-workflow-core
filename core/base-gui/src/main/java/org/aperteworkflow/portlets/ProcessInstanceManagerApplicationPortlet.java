@@ -87,12 +87,12 @@ public class ProcessInstanceManagerApplicationPortlet extends ApplicationPortlet
                                             throw new RuntimeException(e);
                                         }                                        
 
-                                        String strokeStyle = "stroke:#C14F45;stroke-width:3;stroke-opacity:0.25;";
+                                        String strokeStyle = "stroke:#1B59E0;stroke-width:4;opacity: 1;";
 
                                         for (GraphElement el : processHistory) {
                                             if (el instanceof StateNode) {
                                                 StateNode sn = (StateNode) el;
-                                                String fill = sn.isUnfinished() ? "fill:#C14F45;fill-opacity:0.15" : "fill-opacity:0.0";
+                                                String fill = sn.isUnfinished() ? "fill:#1B59E0;fill-opacity:0.3" : "fill-opacity:0.0";
                                                 svg.append(String.format("<rect x=\"%d\" y=\"%d\" height=\"%d\" width=\"%d\"\n" +
                                                                     " rx=\"5\" ry=\"5\"\n" +
                                                                     " style=\"" + strokeStyle + fill + "\"/>\n",

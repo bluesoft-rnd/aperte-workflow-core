@@ -23,7 +23,7 @@ import java.util.HashSet;
 public class LiferayUserDataWidget extends UserDataWidget {
 
 	@AutoWiredProperty
-	public String roleName = "User";
+	public String liferayRoleName = "User";
 
 	@Override
 	protected Collection<UserData> getUsers() {
@@ -122,7 +122,7 @@ public class LiferayUserDataWidget extends UserDataWidget {
 						oldChecker.setValues(portletRequest);
 					}
 				});
-				Role role = RoleServiceUtil.getRole(PortalUtil.getDefaultCompanyId(), roleName);
+				Role role = RoleServiceUtil.getRole(PortalUtil.getDefaultCompanyId(), liferayRoleName);
 				if (role == null) return new HashSet<UserData>();
 				long[] roleUserIds = UserServiceUtil.getRoleUserIds(role.getRoleId());
 				HashSet<UserData> users = new HashSet<UserData>();
@@ -145,11 +145,11 @@ public class LiferayUserDataWidget extends UserDataWidget {
 
 	}
 
-	public String getRoleName() {
-		return roleName;
+	public String getLiferayRoleName() {
+		return liferayRoleName;
 	}
 
-	public void setRoleName(String roleName) {
-		this.roleName = roleName;
+	public void setLiferayRoleName(String liferayRoleName) {
+		this.liferayRoleName = liferayRoleName;
 	}
 }

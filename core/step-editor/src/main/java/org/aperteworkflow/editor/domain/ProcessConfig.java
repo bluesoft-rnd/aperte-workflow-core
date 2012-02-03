@@ -11,6 +11,7 @@ public class ProcessConfig implements Serializable {
     private List<Permission> processPermissions;
     private List<Queue> queues;
     private String messages;
+    private byte[] processIcon;
 
     public List<Permission> getProcessPermissions() {
         return processPermissions;
@@ -34,5 +35,13 @@ public class ProcessConfig implements Serializable {
 
     public void setMessages(String messages) {
         this.messages = messages;
+    }
+
+    public byte[] getProcessIcon() {
+        return processIcon;
+    }
+
+    public void setProcessIcon(byte[] processIcon) {
+        this.processIcon = processIcon;
     }
 }

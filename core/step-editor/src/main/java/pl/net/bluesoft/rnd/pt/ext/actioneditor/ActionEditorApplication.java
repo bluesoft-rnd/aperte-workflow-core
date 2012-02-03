@@ -1,32 +1,34 @@
 package pl.net.bluesoft.rnd.pt.ext.actioneditor;
 
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.terminal.ParameterHandler;
-import com.vaadin.ui.*;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolActionButton;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.JavaScriptHelper;
-import pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.user.Property;
 import pl.net.bluesoft.rnd.pt.ext.vaadin.GenericEditorApplication;
 import pl.net.bluesoft.rnd.pt.ext.widget.property.PropertiesPanel;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.util.lang.Classes;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.terminal.ParameterHandler;
+import com.vaadin.ui.*;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 
 public class ActionEditorApplication extends GenericEditorApplication implements	ParameterHandler, ClickListener {
 
@@ -80,10 +82,11 @@ public class ActionEditorApplication extends GenericEditorApplication implements
 		main.addComponent(header);
 		buttonList = prepareButtonList(buttonType);
 		main.addComponent(buttonList);
-		main.addComponent(propertiesPanel);
 		if (!StringUtils.isEmpty(buttonType)) {
 			Class<? extends ProcessToolActionButton> buttonClass = getRegistry().getAvailableButtons().get(buttonType);
-			propertiesPanel.refreshForm(buttonClass,oldActionParameters);
+			propertiesPanel.init(buttonClass);
+			propertiesPanel.refreshForm(true, oldActionParameters);
+			main.addComponent(propertiesPanel);
 		}
 		saveButton = new Button("save", this);
 		saveButton.setImmediate(true);
@@ -97,7 +100,7 @@ public class ActionEditorApplication extends GenericEditorApplication implements
 	@Override
 	public void init() {
 		super.init();
-		mainWindow = new Window(Messages.getString("application.title"));
+		mainWindow = new Window(I18NSource.ThreadUtil.getThreadI18nSource().getMessage("application.title"));
 		jsHelper = new JavaScriptHelper(mainWindow);
 		jsHelper.preventWindowClosing();
 		mainWindow.addParameterHandler(this);
@@ -124,7 +127,8 @@ public class ActionEditorApplication extends GenericEditorApplication implements
 			@Override
 			public void valueChange(ValueChangeEvent event) {
 				Class<?> buttonClass = (Class<?>) buttonList.getValue();
-				propertiesPanel.refreshForm(buttonClass,oldActionParameters);
+				propertiesPanel.init(buttonClass);
+				propertiesPanel.refreshForm(true, oldActionParameters);
 			}
 		});
 

@@ -1,42 +1,44 @@
 package pl.net.bluesoft.rnd.pt.ext.stepeditor.user;
 
-import org.aperteworkflow.editor.ui.permission.PermissionDefinition;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+
+import org.aperteworkflow.editor.ui.permission.PermissionDefinition;
+
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.Permission;
+import pl.net.bluesoft.rnd.pt.ext.widget.property.AperteProcessClassInfo;
 
 public class WidgetItem implements Serializable {
 	private static final long								serialVersionUID	= -8907544816596058014L;
     private static Map<String, WidgetItem>					widgetSet			= new HashMap<String, WidgetItem>();
-
-	private String											widgetId;
-	private String											name;
-	private String											description;
-	private Collection<Property<?>>							properties;
-	private Collection<PermissionDefinition>							permissions;
-	private Boolean											childrenAllowed;
-	private String											icon;
 	private BundleItem										bundle;
-
+	private AperteProcessClassInfo classInfo;
+	
+	
 	public WidgetItem(String widgetId, String name, String description, String icon,
-                      Collection<Property<?>> properties,
-                      Collection<PermissionDefinition> permissions,
+                      List<Property<?>> properties,
+                      List<PermissionDefinition> permissions,
                       Boolean childrenAllowed, BundleItem bundle) {
-		super();
-		this.widgetId = widgetId;
-		this.name = name;
-		this.description = description;
-		this.properties = properties;
-		this.permissions = permissions;
-		this.childrenAllowed = childrenAllowed;
-		this.icon = icon;
+		
+		classInfo = new AperteProcessClassInfo();
+		classInfo.setAliasName(widgetId);
+		classInfo.setDocName(name);
+		classInfo.setDocDescription(description);
+		classInfo.setDocIcon(icon);
+		classInfo.setProperties(properties);
+		classInfo.setChildrenAllowed(childrenAllowed);
 		this.bundle = bundle;
-		storeInWidgetset();
+		classInfo.setPermissions(permissions);
+		storeInWidgetset(widgetId);
+	}
+	public WidgetItem(Class<?> aperteClass, Set<Permission> defaultPermissions, BundleItem bundle) {
+		classInfo = new AperteProcessClassInfo(aperteClass, defaultPermissions);
+		this.bundle = bundle;
+		storeInWidgetset(classInfo.getAliasName());
 	}
 
-	private void storeInWidgetset() {
+	private void storeInWidgetset(String widgetId) {
 		widgetSet.put(widgetId, this);
 	}
 
@@ -45,66 +47,38 @@ public class WidgetItem implements Serializable {
 	}
 
 	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
+		return classInfo.getDocName();
 	}
 
 	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
+		return classInfo.getDocDescription();
 	}
 
 	public Collection<Property<?>> getProperties() {
-		return properties;
+		return classInfo.getProperties();
 	}
 
-	public void setProperties(Collection<Property<?>> properties) {
-		this.properties = properties;
-	}
-	
 	public Collection<PermissionDefinition> getPermissions() {
-		return permissions;
-	}
-
-	public void setPermissions(Collection<PermissionDefinition> permissions) {
-		this.permissions = permissions;
+		return classInfo.getPermissions();
 	}
 
 	public Boolean getChildrenAllowed() {
-		return childrenAllowed;
-	}
-
-	public void setChildrenAllowed(Boolean childrenAllowed) {
-		this.childrenAllowed = childrenAllowed;
+		return classInfo.isChildrenAllowed();
 	}
 
 	public String getWidgetId() {
-		return widgetId;
-	}
-
-	public void setWidgetId(String widgetId) {
-		this.widgetId = widgetId;
+		return classInfo.getAliasName();
 	}
 
 	public String getIcon() {
-		return icon;
-	}
-
-	public void setIcon(String icon) {
-		this.icon = icon;
+		return classInfo.getDocIcon();
 	}
 
 	public BundleItem getBundle() {
 		return bundle;
 	}
-
-	public void setBundle(BundleItem bundle) {
-		this.bundle = bundle;
+	public AperteProcessClassInfo getClassInfo() {
+		return classInfo;
 	}
+	
 }

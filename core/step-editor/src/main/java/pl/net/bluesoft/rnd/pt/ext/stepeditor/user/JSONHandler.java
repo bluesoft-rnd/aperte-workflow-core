@@ -13,6 +13,7 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.TaskConfig;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import java.io.IOException;
 import java.util.*;
@@ -189,6 +190,7 @@ public class JSONHandler {
 	protected static String dumpTreeToJSON(Tree tree, WidgetItemInStep rootItem, Object assignee, 
                                            Object candidateGroups, Object swimlane, String stepName, 
                                            Collection<Permission> permissions) {
+		I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
 		TaskConfig tc = new TaskConfig();
 		tc.setTaskName(stepName);
 		
@@ -211,7 +213,7 @@ public class JSONHandler {
 		} catch (IOException e) {
             logger.log(Level.SEVERE, "Error dumping tree", e);
 		}
-		return Messages.getString("dump.failed");
+		return messages.getMessage("dump.failed");
 	}
 
 }

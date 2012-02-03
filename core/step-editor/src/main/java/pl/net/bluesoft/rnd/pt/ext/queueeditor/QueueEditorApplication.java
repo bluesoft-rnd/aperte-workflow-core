@@ -17,6 +17,7 @@ import org.codehaus.jackson.type.TypeReference;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.JavaScriptHelper;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages;
 import pl.net.bluesoft.rnd.pt.ext.vaadin.GenericEditorApplication;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -165,7 +166,7 @@ public class QueueEditorApplication extends GenericEditorApplication implements 
 	public void init() {
         super.init();
         
-		mainWindow = new Window(Messages.getString("application.title"));
+		mainWindow = new Window(I18NSource.ThreadUtil.getThreadI18nSource().getMessage("application.title"));
 		jsHelper = new JavaScriptHelper(mainWindow);
 		jsHelper.preventWindowClosing();
 		mainWindow.addParameterHandler(this);

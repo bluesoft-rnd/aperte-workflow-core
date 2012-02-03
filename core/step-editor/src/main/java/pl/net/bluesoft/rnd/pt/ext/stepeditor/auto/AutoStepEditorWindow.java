@@ -18,6 +18,7 @@ import pl.net.bluesoft.rnd.pt.ext.stepeditor.StepEditorApplication;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.TaskConfig;
 import pl.net.bluesoft.rnd.pt.ext.vaadin.GenericEditorApplication;
 import pl.net.bluesoft.rnd.pt.ext.widget.property.PropertiesPanel;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.util.lang.Classes;
 
@@ -41,9 +42,10 @@ public class AutoStepEditorWindow extends AbstractStepEditorWindow {
 
 	public ComponentContainer init() {
 
+		I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
 		VerticalLayout vll = new VerticalLayout();
 		vll.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-        vll.addComponent(new Label(Messages.getString("jse.instructions"),
+        vll.addComponent(new Label(messages.getMessage("jse.instructions"),
                 Label.CONTENT_XHTML));
 		vll.setSpacing(true);
 
@@ -58,6 +60,7 @@ public class AutoStepEditorWindow extends AbstractStepEditorWindow {
 	}
 		
 	private Map<String,Object> getLoadedJsonData(String jsonConfig) {
+		I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
 		if (StringUtils.isEmpty(jsonConfig))
 			return new HashMap<String,Object>();
 		try {
@@ -70,11 +73,12 @@ public class AutoStepEditorWindow extends AbstractStepEditorWindow {
 		} catch (IOException e) {
 			logger.log(Level.SEVERE, "Error parsing JSON data", e);
 		}
-		application.getMainWindow().showNotification(Messages.getString("jse.error.read"));
+		application.getMainWindow().showNotification(messages.getMessage("jse.error.read"));
 		return null;
 	}
 	
 	private String getJsonToSave() {
+		I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
 		TaskConfig tc = new TaskConfig();
 		tc.setTaskName(propertiesPanel.getClassInfo().getAliasName());
 		tc.setParams(propertiesPanel.getPropertiesMap());
@@ -88,7 +92,7 @@ public class AutoStepEditorWindow extends AbstractStepEditorWindow {
 		} catch (IOException e) {
 			logger.log(Level.SEVERE, "Error creating JSON", e);
 		}
-		application.getMainWindow().showNotification(Messages.getString("jse.error.write"));
+		application.getMainWindow().showNotification(messages.getMessage("jse.error.write"));
 		return "";
 		
 	}

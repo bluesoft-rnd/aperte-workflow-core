@@ -15,6 +15,7 @@ import org.aperteworkflow.editor.ui.permission.PermissionProvider;
 
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages;
 import pl.net.bluesoft.rnd.pt.ext.widget.property.PropertiesPanel;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
@@ -29,6 +30,7 @@ public class WidgetFormWindow extends Panel  {
     private static final Logger logger = Logger.getLogger(WidgetFormWindow.class.getName());
 	
 	public void loadWidget(final WidgetItemInStep widget) {
+		I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
 		removeAllComponents();
         setStyleName(Reindeer.PANEL_LIGHT);
 		if (widget == null) {
@@ -38,7 +40,7 @@ public class WidgetFormWindow extends Panel  {
         VerticalLayout layout = (VerticalLayout) getContent();
 		layout.addComponent(new Label(widget.getWidgetItem().getDescription()));        
 		if ((widget.getProperties() == null || widget.getProperties().size() == 0) && (widget.getPermissions() == null || widget.getPermissions().size() == 0)) {
-			layout.addComponent(new Label(Messages.getString("form.no.parameters.defined")));
+			layout.addComponent(new Label(messages.getMessage("form.no.parameters.defined")));
 		} else {
             TabSheet ts = new TabSheet();
             ts.setWidth("100%");
@@ -46,7 +48,7 @@ public class WidgetFormWindow extends Panel  {
                 PropertiesPanel form = new PropertiesPanel();
             	form.init(widget.getWidgetItem().getClassInfo());
             	form.refreshForm(false, widget.getProperties());
-                ts.addTab(form, Messages.getString("form.properties"));
+                ts.addTab(form, messages.getMessage("form.properties"));
             }
             if (widget.hasPermissions()) {
                 PermissionEditor permissionEditor = new PermissionEditor();
@@ -92,7 +94,7 @@ public class WidgetFormWindow extends Panel  {
                     }
                 });
                 permissionEditor.loadData();
-                ts.addTab(permissionEditor, Messages.getString("form.permissions"));
+                ts.addTab(permissionEditor, messages.getMessage("form.permissions"));
 
             }
             layout.addComponent(ts);

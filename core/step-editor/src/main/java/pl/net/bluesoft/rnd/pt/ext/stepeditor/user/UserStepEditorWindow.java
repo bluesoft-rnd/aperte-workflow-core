@@ -1,6 +1,30 @@
 package pl.net.bluesoft.rnd.pt.ext.stepeditor.user;
 
 
+import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.htmlLabel;
+import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.styled;
+import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.aperteworkflow.editor.domain.Permission;
+import org.aperteworkflow.editor.ui.permission.PermissionDefinition;
+import org.aperteworkflow.editor.ui.permission.PermissionEditor;
+import org.aperteworkflow.editor.ui.permission.PermissionProvider;
+import org.vaadin.dialogs.ConfirmDialog;
+
+import pl.net.bluesoft.rnd.pt.ext.stepeditor.AbstractStepEditorWindow;
+import pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages;
+import pl.net.bluesoft.rnd.pt.ext.stepeditor.StepEditorApplication;
+import pl.net.bluesoft.rnd.pt.ext.stepeditor.user.JSONHandler.ParsingFailedException;
+import pl.net.bluesoft.rnd.pt.ext.stepeditor.user.JSONHandler.WidgetNotFoundException;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -22,28 +46,6 @@ import com.vaadin.ui.*;
 import com.vaadin.ui.Tree.TreeDragMode;
 import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.themes.Reindeer;
-import org.aperteworkflow.editor.domain.Permission;
-import org.aperteworkflow.editor.ui.permission.PermissionDefinition;
-import org.aperteworkflow.editor.ui.permission.PermissionEditor;
-import org.aperteworkflow.editor.ui.permission.PermissionProvider;
-import org.vaadin.dialogs.ConfirmDialog;
-import pl.net.bluesoft.rnd.pt.ext.stepeditor.AbstractStepEditorWindow;
-import pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages;
-import pl.net.bluesoft.rnd.pt.ext.stepeditor.StepEditorApplication;
-import pl.net.bluesoft.rnd.pt.ext.stepeditor.user.JSONHandler.ParsingFailedException;
-import pl.net.bluesoft.rnd.pt.ext.stepeditor.user.JSONHandler.WidgetNotFoundException;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import static pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages.getString;
-import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.htmlLabel;
-import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.styled;
-import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
 public class UserStepEditorWindow extends AbstractStepEditorWindow implements Handler, ValueChangeListener, ClickListener {
 
@@ -62,18 +64,25 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 
 	private WidgetFormWindow		paramPanel;
 
-	private static final Action		ACTION_DELETE		= new Action(Messages.getString("stepTree.action.delete"));
-	private static final Action[]	ACTIONS				= new Action[] { ACTION_DELETE };
+	private Action actionDelete;
+	private Action[] actions;
+	
 	private static final Action[]	COMMON_ACTIONS		= new Action[] {};
     private PermissionEditor permissionEditor;
     private Collection<Permission> permissions = new LinkedHashSet<Permission>();
 
     public UserStepEditorWindow(StepEditorApplication application, String jsonConfig, String url, String stepName, String stepType) {
 		super(application, jsonConfig, url, stepName, stepType);
+		actionDelete = new Action(I18NSource.ThreadUtil.getThreadI18nSource().getMessage("stepTree.action.delete"));
+		actions = new Action[] { actionDelete };
     }
 	
+    
+    
 	public ComponentContainer init() {
 
+		
+		
 		ComponentContainer comp = buildLayout();
 		
 		if (jsonConfig != null && jsonConfig.trim().length() > 0) {
@@ -89,10 +98,10 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 	
 	private ComponentContainer buildLayout() {
 		
-
+		I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource(); 
         prepareAvailableWidgetsComponent();
         
-		stepTree = new Tree(Messages.getString("stepTree.title"), getCurrentStep());
+		stepTree = new Tree(messages.getMessage("stepTree.title"), getCurrentStep());
         stepTree.setItemCaptionMode(Tree.ITEM_CAPTION_MODE_PROPERTY);
         stepTree.setItemCaptionPropertyId("name");
 //        stepTree.setWidth("100%");
@@ -161,13 +170,13 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
         VerticalLayout vl = new VerticalLayout();
         vl.setSizeFull();
         vl.setSpacing(true);
-        vl.addComponent(new Label(getString("userstep.editor.instructions"), Label.CONTENT_XHTML));
+        vl.addComponent(new Label(messages.getMessage("userstep.editor.instructions"), Label.CONTENT_XHTML));
 
         TabSheet ts = new TabSheet();
         ts.setSizeFull();
-        ts.addTab(stepLayout, getString("userstep.editor.widgets.tabcaption"));
-        ts.addTab(assignmentLayout, getString("userstep.editor.assignment.tabcaption"));
-        ts.addTab(permissionEditor, getString("userstep.editor.permissions.tabcaption")); //TODO step permissions
+        ts.addTab(stepLayout, messages.getMessage("userstep.editor.widgets.tabcaption"));
+        ts.addTab(assignmentLayout, messages.getMessage("userstep.editor.assignment.tabcaption"));
+        ts.addTab(permissionEditor, messages.getMessage("userstep.editor.permissions.tabcaption")); //TODO step permissions
         ts.setSelectedTab(stepLayout);
         vl.addComponent(ts);
         vl.setExpandRatio(ts, 1.0f);
@@ -176,7 +185,9 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 	}
 
     private VerticalLayout prepareAssignmentLayout() {
-        assigneeField = new TextField();//Messages.getString("field.assignee"));
+    	I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
+    	
+    	assigneeField = new TextField();//Messages.getString("field.assignee"));
         assigneeField.setWidth("100%");
         assigneeField.setNullRepresentation("");
         
@@ -192,14 +203,14 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
         assignmentLayout.setWidth("100%");
         assignmentLayout.setSpacing(true);
         assignmentLayout.setMargin(true);
-        assignmentLayout.addComponent(styled(new Label(getString("field.assignee")), "h1"));
-        assignmentLayout.addComponent(htmlLabel(getString("field.assignee.info")));
+        assignmentLayout.addComponent(styled(new Label(messages.getMessage("field.assignee")), "h1"));
+        assignmentLayout.addComponent(htmlLabel(messages.getMessage("field.assignee.info")));
         assignmentLayout.addComponent(assigneeField);
-        assignmentLayout.addComponent(styled(new Label(getString("field.candidateGroups")), "h1"));
-        assignmentLayout.addComponent(htmlLabel(getString("field.candidateGroups.info")));
+        assignmentLayout.addComponent(styled(new Label(messages.getMessage("field.candidateGroups")), "h1"));
+        assignmentLayout.addComponent(htmlLabel(messages.getMessage("field.candidateGroups.info")));
         assignmentLayout.addComponent(candidateGroupsField);
-        assignmentLayout.addComponent(styled(new Label(getString("field.swimlane")), "h1"));
-        assignmentLayout.addComponent(htmlLabel(getString("field.swimlane.info")));
+        assignmentLayout.addComponent(styled(new Label(messages.getMessage("field.swimlane")), "h1"));
+        assignmentLayout.addComponent(htmlLabel(messages.getMessage("field.swimlane.info")));
         assignmentLayout.addComponent(swimlaneField);
         return assignmentLayout;
     }
@@ -271,7 +282,8 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
     }
 
     private VerticalLayout buildWidgetEditorTabContent() {
-        VerticalLayout availableWidgetsLayout = new VerticalLayout();
+    	I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
+    	VerticalLayout availableWidgetsLayout = new VerticalLayout();
         availableWidgetsLayout.setSpacing(true);
         availableWidgetsLayout.setWidth("100%");
         availableWidgetsLayout.addComponent(availableWidgetsPane);
@@ -279,7 +291,7 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
         stepLayout.setWidth("100%");
         stepLayout.setSpacing(true);
         stepLayout.setMargin(true);
-        stepLayout.addComponent(new Label(getString("userstep.editor.widgets.instructions"), Label.CONTENT_XHTML));
+        stepLayout.addComponent(new Label(messages.getMessage("userstep.editor.widgets.instructions"), Label.CONTENT_XHTML));
         stepLayout.addComponent(availableWidgetsLayout);
         Panel treePanel = new Panel();
         treePanel.setStyleName(Reindeer.PANEL_LIGHT);
@@ -298,11 +310,12 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
     }
 
     public void deleteTreeItem(final Object widget) {
-		ConfirmDialog.show(application.getMainWindow(),
-                Messages.getString("dialog.delete.title"),
-                Messages.getString("dialog.delete.question"),
-                Messages.getString("dialog.delete.confirm"),
-                Messages.getString("dialog.delete.cancel"),
+    	I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
+    	ConfirmDialog.show(application.getMainWindow(),
+    			messages.getMessage("dialog.delete.title"),
+    			messages.getMessage("dialog.delete.question"),
+    			messages.getMessage("dialog.delete.confirm"),
+    			messages.getMessage("dialog.delete.cancel"),
                 new ConfirmDialog.Listener() {
                     public void onClose(ConfirmDialog dialog) {
                         if (dialog.isConfirmed()) {
@@ -321,7 +334,7 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 	@Override
 	public Action[] getActions(Object target, Object sender) {
 		if (target != rootItem)
-			return ACTIONS;
+			return actions;
 		else
 			return COMMON_ACTIONS;
 
@@ -347,7 +360,8 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 	}
 
 	private Resource getResource(String path_key) {
-		final String path = Messages.getString(path_key);
+		I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
+		final String path = messages.getMessage(path_key);
 		final InputStream stream = getClass().getClassLoader().getResourceAsStream(path);
 		if (stream != null) {
 			String[] path_parts = path.split("/");
@@ -367,21 +381,16 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 		return stepTreeContainer;
 	}
 
-	private HierarchicalContainer getAvailableTreeContainer() {
-		HierarchicalContainer hc = new HierarchicalContainer();
-		hc.addContainerProperty("name", String.class, Messages.getString("availableTree.name.default"));
-		hc.addContainerProperty("icon", Resource.class, getResource("icon.widget.default"));
-		return hc;
-	}
-
 	@Override
 	public void handleAction(Action action, Object sender, Object target) {
-		if (action == ACTION_DELETE) {
+		if (action == actionDelete) {
 			deleteTreeItem(target);
 		}
 	}
 
 	private void loadJSONConfig() {
+		I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
+		
 		try {
 			Map<String, String> map = JSONHandler.loadConfig(stepTreeContainer, rootItem, jsonConfig, permissions);
 			if (stepTree != null) {
@@ -400,23 +409,24 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 
 		} catch (WidgetNotFoundException e) {
 			logger.log(Level.SEVERE, "Widget not found", e);
-			application.getMainWindow().showNotification(Messages.getString("error.config_not_loaded.title"),
-												Messages.getString("error.config_not_loaded.widget_not_found.body", e.getWidgetItemName()),
+			application.getMainWindow().showNotification(messages.getMessage("error.config_not_loaded.title"),
+					messages.getMessage("error.config_not_loaded.widget_not_found.body", e.getWidgetItemName()),
 												Notification.TYPE_ERROR_MESSAGE);
 		} catch (ParsingFailedException e) {
             logger.log(Level.SEVERE, "Parsing failed found", e);
-			application.getMainWindow().showNotification(	Messages.getString("error.config_not_loaded.title"),
-												Messages.getString("error.config_not_loaded.unexpected_error.body", e.getLocalizedMessage()),
+			application.getMainWindow().showNotification(	messages.getMessage("error.config_not_loaded.title"),
+					messages.getMessage("error.config_not_loaded.unexpected_error.body", e.getLocalizedMessage()),
 												Notification.TYPE_ERROR_MESSAGE);
 		}
 	}
 
 	private HierarchicalContainer prepareTreeContainer() {
+		I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
 		stepTreeContainer = new HierarchicalContainer();
-		stepTreeContainer.addContainerProperty("name", String.class, Messages.getString("stepTree.name.default"));
+		stepTreeContainer.addContainerProperty("name", String.class, messages.getMessage("stepTree.name.default"));
 		stepTreeContainer.addContainerProperty("icon", Resource.class, getResource("icon.widget.default"));
 
-		final WidgetItem widgetItem = new WidgetItem("ROOT", Messages.getString("stepTree.root.name"), Messages.getString("stepTree.root.description"), null,
+		final WidgetItem widgetItem = new WidgetItem("ROOT", messages.getMessage("stepTree.root.name"), messages.getMessage("stepTree.root.description"), null,
 				null, new ArrayList<PermissionDefinition>(), true, null);
 		rootItem = new WidgetItemInStep(widgetItem, null, null);
 		Item item = stepTreeContainer.addItem(rootItem);

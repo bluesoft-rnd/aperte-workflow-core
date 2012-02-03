@@ -31,7 +31,8 @@ public class PropertiesPanel extends Panel {
 	}
 	
 	private void refreshForm(boolean setCaption) {
-        removeAllComponents();
+		I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
+		removeAllComponents();
         VerticalLayout layout = (VerticalLayout) getContent();
 		
         if (setCaption) {
@@ -42,7 +43,7 @@ public class PropertiesPanel extends Panel {
 
 		List<Property<?>> properties = classInfo.getProperties();
 		if (properties == null || properties.size() == 0) {
-			layout.addComponent(new Label(Messages.getString("form.no.parameters.defined")));
+			layout.addComponent(new Label(messages.getMessage("form.no.parameters.defined")));
 		} else {
 			propertiesForm = new PropertiesForm();
 			propertiesForm.setImmediate(true);

@@ -12,6 +12,7 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.auto.AutoStepEditorWindow;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.user.UserStepEditorWindow;
 import pl.net.bluesoft.rnd.pt.ext.vaadin.GenericEditorApplication;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.util.lang.Classes;
 
 import java.util.Map;
@@ -71,11 +72,12 @@ public class StepEditorApplication extends GenericEditorApplication implements P
 	}
 
     public Label getHeaderLabel() {
-        Label headerLabel = new Label();
+    	I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
+    	Label headerLabel = new Label();
         if (stepName != null && !stepName.isEmpty()) {
-            headerLabel.setValue(Messages.getString("userStep.stepName", stepName));
+            headerLabel.setValue(messages.getMessage("userStep.stepName", stepName));
         } else {
-            headerLabel.setValue(Messages.getString("userStep.noStepName"));
+            headerLabel.setValue(messages.getMessage("userStep.noStepName"));
         }
         headerLabel.addStyleName("h1");
 
@@ -85,7 +87,7 @@ public class StepEditorApplication extends GenericEditorApplication implements P
     private ComponentContainer buildHeader(final AbstractStepEditorWindow sew, String stepType) {
 		Component label = getHeaderLabel();
         Select stepList = prepareStepList(stepType);
-        Button saveButton = new Button(Messages.getString("jse.button.save"), new Button.ClickListener() {
+        Button saveButton = new Button(I18NSource.ThreadUtil.getThreadI18nSource().getMessage("jse.button.save"), new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent event) {
                sew.save();
@@ -153,7 +155,7 @@ public class StepEditorApplication extends GenericEditorApplication implements P
 	public void init() {
         super.init();
         
-		mainWindow = new Window(Messages.getString("application.title"));
+		mainWindow = new Window(I18NSource.ThreadUtil.getThreadI18nSource().getMessage("application.title"));
 		mainWindow.addParameterHandler(this);
 
         jsHelper = new JavaScriptHelper(mainWindow);

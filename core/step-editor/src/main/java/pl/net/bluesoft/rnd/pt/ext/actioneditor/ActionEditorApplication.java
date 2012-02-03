@@ -19,6 +19,7 @@ import pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.user.Property;
 import pl.net.bluesoft.rnd.pt.ext.vaadin.GenericEditorApplication;
 import pl.net.bluesoft.rnd.pt.ext.widget.property.PropertiesPanel;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.util.lang.Classes;
 
@@ -98,7 +99,7 @@ public class ActionEditorApplication extends GenericEditorApplication implements
 	@Override
 	public void init() {
 		super.init();
-		mainWindow = new Window(Messages.getString("application.title"));
+		mainWindow = new Window(I18NSource.ThreadUtil.getThreadI18nSource().getMessage("application.title"));
 		jsHelper = new JavaScriptHelper(mainWindow);
 		jsHelper.preventWindowClosing();
 		mainWindow.addParameterHandler(this);

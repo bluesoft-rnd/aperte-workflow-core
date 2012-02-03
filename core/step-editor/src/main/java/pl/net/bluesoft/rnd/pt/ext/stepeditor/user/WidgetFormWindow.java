@@ -13,7 +13,6 @@ import org.aperteworkflow.editor.ui.permission.PermissionDefinition;
 import org.aperteworkflow.editor.ui.permission.PermissionEditor;
 import org.aperteworkflow.editor.ui.permission.PermissionProvider;
 
-import pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages;
 import pl.net.bluesoft.rnd.pt.ext.widget.property.PropertiesPanel;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 

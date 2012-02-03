@@ -6,11 +6,10 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang.StringUtils;
 
-import pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
-import com.vaadin.ui.Component;
 import com.vaadin.ui.AbstractSelect.ItemDescriptionGenerator;
+import com.vaadin.ui.Component;
 
 final class PropertiesDescriptionGenerator implements ItemDescriptionGenerator {
 	private static final long serialVersionUID = -5377194182481601578L;

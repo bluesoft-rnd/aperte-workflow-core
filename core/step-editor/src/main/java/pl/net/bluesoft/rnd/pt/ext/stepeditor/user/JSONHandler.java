@@ -1,8 +1,10 @@
 package pl.net.bluesoft.rnd.pt.ext.stepeditor.user;
 
-import com.vaadin.data.Item;
-import com.vaadin.data.util.HierarchicalContainer;
-import com.vaadin.ui.Tree;
+import java.io.IOException;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
@@ -11,14 +13,13 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
-import pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages;
+
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.TaskConfig;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
-import java.io.IOException;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.vaadin.data.Item;
+import com.vaadin.data.util.HierarchicalContainer;
+import com.vaadin.ui.Tree;
 
 public class JSONHandler {
 

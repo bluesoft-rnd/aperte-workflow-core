@@ -1,17 +1,17 @@
 package pl.net.bluesoft.rnd.pt.ext.stepeditor.user;
 
-import com.vaadin.data.validator.IntegerValidator;
-import com.vaadin.terminal.Sizeable;
-import com.vaadin.ui.*;
-import pl.net.bluesoft.rnd.processtool.i18n.DefaultI18NSource;
-import pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages;
-import pl.net.bluesoft.rnd.util.i18n.I18NProvider;
-
 import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import pl.net.bluesoft.rnd.processtool.i18n.DefaultI18NSource;
+import pl.net.bluesoft.rnd.util.i18n.I18NProvider;
+
+import com.vaadin.data.validator.IntegerValidator;
+import com.vaadin.terminal.Sizeable;
+import com.vaadin.ui.*;
 
 public class WidgetConfigFormFieldFactory extends DefaultFieldFactory {
 	private static final long	serialVersionUID	= 1840386215211557588L;

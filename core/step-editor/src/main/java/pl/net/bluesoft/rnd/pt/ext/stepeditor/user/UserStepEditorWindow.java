@@ -19,7 +19,6 @@ import org.aperteworkflow.editor.ui.permission.PermissionProvider;
 import org.vaadin.dialogs.ConfirmDialog;
 
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.AbstractStepEditorWindow;
-import pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.StepEditorApplication;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.user.JSONHandler.ParsingFailedException;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.user.JSONHandler.WidgetNotFoundException;

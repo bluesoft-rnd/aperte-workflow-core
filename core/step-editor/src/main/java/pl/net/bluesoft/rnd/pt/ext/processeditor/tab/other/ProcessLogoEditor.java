@@ -19,7 +19,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Editor for process logo image that stores as separate file in the  modeler-repo directory
+ * Editor for process logo image that stores it as separate file in the modeler repository directory
  */
 public class ProcessLogoEditor extends GridLayout implements ProcessLogoHandler, DataHandler {
 

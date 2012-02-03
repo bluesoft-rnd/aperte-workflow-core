@@ -6,12 +6,12 @@ public interface ProcessLogoHandler {
 
     /**
      * React to new process process logo
-     * @param processLogoFile The file that points to the logo
+     * @param processLogoFile The file that points to the logo image
      */
     void handleProcessLogo(File processLogoFile);
 
     /**
-     * Get the file which is going to be used for storing the image
+     * Get the file which is going to be used for storing the logo image
      * @return File
      */
     File getProcessLogoFile();

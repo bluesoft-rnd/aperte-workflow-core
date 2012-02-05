@@ -12,14 +12,11 @@ import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Collection;
-import java.util.logging.Logger;
 
 /**
- * Editor for process logo image that stores it as separate file in the modeler repository directory
+ * Editor for process logo image. Logo content is stored in {@link ProcessConfig} object.
  */
 public class ProcessLogoEditor extends GridLayout implements ProcessLogoHandler, DataHandler {
-
-    private static final Logger logger = Logger.getLogger(OtherTab.class.getName());
 
     private ProcessConfig processConfig;
 

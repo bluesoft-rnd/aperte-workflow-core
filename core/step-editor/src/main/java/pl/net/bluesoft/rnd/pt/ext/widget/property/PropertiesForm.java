@@ -1,7 +1,10 @@
 package pl.net.bluesoft.rnd.pt.ext.widget.property;
 
 import com.vaadin.terminal.Sizeable;
-import com.vaadin.ui.*;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.Field;
+import com.vaadin.ui.Form;
+import com.vaadin.ui.FormLayout;
 
 public class PropertiesForm extends Form {
 	

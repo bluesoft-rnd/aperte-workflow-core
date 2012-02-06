@@ -15,7 +15,7 @@ public class ModelConstants {
     /**
      * Maximum file size in bytes for process logo image
      */
-    public static final long PROCESS_LOGO_FILE_SIZE = 128 * 1024;
+    public static final long PROCESS_LOGO_FILE_SIZE = 24 * 1024;
 
     /**
      * Allowed mime types for process logo image

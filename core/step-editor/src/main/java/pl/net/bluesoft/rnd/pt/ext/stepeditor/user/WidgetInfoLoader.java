@@ -1,19 +1,17 @@
 package pl.net.bluesoft.rnd.pt.ext.stepeditor.user;
 
 import com.vaadin.Application;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Transformer;
-import org.aperteworkflow.editor.ui.permission.PermissionDefinition;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.*;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.Permission;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.PermissionsUsed;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.WidgetGroup;
 import pl.net.bluesoft.rnd.pt.ext.vaadin.GenericEditorApplication;
 import pl.net.bluesoft.rnd.util.i18n.I18NProvider;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.util.lang.Classes;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.*;

@@ -1,7 +1,5 @@
 package org.aperteworkflow.editor.signavio;
 
-import org.aperteworkflow.editor.domain.ProcessModelConfig;
-
 import java.io.File;
 import java.util.StringTokenizer;
 
@@ -28,30 +26,6 @@ public class ModelUtils {
             }
         }
         return builder.toString();
-    }
-
-    /**
-     * Get the model file full prefix
-     *
-     * @param config
-     * @return
-     */
-    public static String getModelFilePrefix(ProcessModelConfig config) {
-        String prefix = config.getModelerRepoDirectory() + File.separator;
-        prefix += getParentDirectoryPath(config.getDirectory()) + File.separator;
-        prefix += config.getFileName();
-        return prefix;
-    }
-
-    /**
-     * Get the path where one should store the process logo for this model
-     *
-     * @param config
-     * @return
-     */
-    public static String getModelLogoFilePath(ProcessModelConfig config) {
-        String prefix = ModelUtils.getModelFilePrefix(config);
-        return (prefix + "." + ModelConstants.PROCESS_LOGO_FILE_NAME);
     }
 
 }

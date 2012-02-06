@@ -1,26 +1,23 @@
 package pl.net.bluesoft.rnd.pt.ext.stepeditor.user;
 
 
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Panel;
+import com.vaadin.ui.TabSheet;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.Reindeer;
+import org.aperteworkflow.editor.domain.Permission;
+import org.aperteworkflow.editor.ui.permission.PermissionDefinition;
+import org.aperteworkflow.editor.ui.permission.PermissionEditor;
+import org.aperteworkflow.editor.ui.permission.PermissionProvider;
+import pl.net.bluesoft.rnd.pt.ext.widget.property.PropertiesPanel;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.logging.Logger;
-
-import org.aperteworkflow.editor.domain.Permission;
-import org.aperteworkflow.editor.ui.permission.PermissionDefinition;
-import org.aperteworkflow.editor.ui.permission.PermissionEditor;
-import org.aperteworkflow.editor.ui.permission.PermissionProvider;
-
-import pl.net.bluesoft.rnd.pt.ext.widget.property.PropertiesPanel;
-import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Panel;
-import com.vaadin.ui.TabSheet;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
 
 
 public class WidgetFormWindow extends Panel  {

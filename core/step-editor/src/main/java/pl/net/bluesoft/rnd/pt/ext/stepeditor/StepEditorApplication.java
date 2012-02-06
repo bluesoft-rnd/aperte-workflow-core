@@ -75,7 +75,7 @@ public class StepEditorApplication extends GenericEditorApplication implements P
     	I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
     	Label headerLabel = new Label();
         if (stepName != null && !stepName.isEmpty()) {
-            headerLabel.setValue(messages.getMessage("userStep.stepName", stepName));
+            headerLabel.setValue(messages.getMessage("userStep.stepName", new Object[] { stepName }));
         } else {
             headerLabel.setValue(messages.getMessage("userStep.noStepName"));
         }

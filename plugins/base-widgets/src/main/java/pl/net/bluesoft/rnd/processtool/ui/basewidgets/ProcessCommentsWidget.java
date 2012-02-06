@@ -12,10 +12,9 @@ import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComment;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComments;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.*;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.util.lang.FormatUtil;
 
@@ -38,12 +37,15 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
         @Permission(key="VIEW", desc="widget.process_comments.permission.desc.VIEW")
 })
 @WidgetGroup("base-widgets")
-public class ProcessCommentsWidget extends BaseProcessToolWidget implements ProcessToolVaadinWidget, ProcessToolDataWidget {
+public class ProcessCommentsWidget extends BaseProcessToolVaadinWidget implements ProcessToolDataWidget {
 
 	private BeanItemContainer<ProcessComment> bic = new BeanItemContainer<ProcessComment>(ProcessComment.class);
 
     @AutoWiredProperty(required = false)
-    @AperteDoc(humanNameKey="widget.process_comments.property.table.name", descriptionKey="widget.process_comments.property.table.description")
+    @AperteDoc(
+            humanNameKey="widget.process_comments.property.table.name",
+            descriptionKey="widget.process_comments.property.table.description"
+    )
 	private Boolean table;
 
     @AutoWiredProperty
@@ -368,19 +370,4 @@ public class ProcessCommentsWidget extends BaseProcessToolWidget implements Proc
         this.table = table;
     }
 
-    public String getCaption() {
-        return caption;
-    }
-
-    public void setCaption(String caption) {
-        this.caption = caption;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
 }

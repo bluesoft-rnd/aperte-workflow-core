@@ -65,7 +65,7 @@ public class JasperReportingUtil {
             ReportTemplate template = new ReportDAO().loadByName(reportName);
             if (template == null)
                 throw new Exception("Report template does not exist for name: ".concat(reportName));
-            ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
+            ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
             ByteArrayInputStream contentInputStream = new ByteArrayInputStream(Base64.decodeBase64(
                     (new String(template.getContent())).getBytes("UTF-8")));
 //            previousLoader = t.getContextClassLoader();

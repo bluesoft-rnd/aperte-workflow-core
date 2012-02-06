@@ -50,9 +50,9 @@ public class CommentEnabledStandardValidatingButton extends StandardValidatingBu
 				public void buttonClick(Button.ClickEvent event) {
 					if (f.isValid()) {
 						f.commit();
-						ProcessInstance pi = ProcessToolContext.Util.getProcessToolContextFromThread().getProcessInstanceDAO()
+						ProcessInstance pi = ProcessToolContext.Util.getThreadProcessToolContext().getProcessInstanceDAO()
                                 .getProcessInstance(processInstance.getId());
-						CommentEnabledStandardValidatingButton.super.onButtonPress(pi, ProcessToolContext.Util.getProcessToolContextFromThread(),
+						CommentEnabledStandardValidatingButton.super.onButtonPress(pi, ProcessToolContext.Util.getThreadProcessToolContext(),
 						                                                           dataWidgets,
 						                                                           validationErrors,
 						                                                           callback);
@@ -107,7 +107,7 @@ public class CommentEnabledStandardValidatingButton extends StandardValidatingBu
 
 	@Override
 	public void saveData(ProcessInstance pi) {
-		pc.setAuthor(ProcessToolContext.Util.getProcessToolContextFromThread().getUserDataDAO().loadOrCreateUserByLogin(loggedUser));
+		pc.setAuthor(ProcessToolContext.Util.getThreadProcessToolContext().getUserDataDAO().loadOrCreateUserByLogin(loggedUser));
 		pc.setCreateTime(new Date());
 		pc.setProcessState(pi.getState());
 		ProcessComments comments = getCommentsAttribute(pi);

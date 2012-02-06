@@ -15,7 +15,7 @@ public class ReportDAO {
     }
 
     public ReportDAO() {
-		session = ProcessToolContext.Util.getProcessToolContextFromThread()
+		session = ProcessToolContext.Util.getThreadProcessToolContext()
 				.getHibernateSession();
 	}
 

@@ -141,7 +141,7 @@ public class ProcessCommentsWidget extends BaseProcessToolVaadinWidget implement
 			@Override
 			public void buttonClick(Button.ClickEvent event) {
 				ProcessComment pc = new ProcessComment();
-                ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
+                ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
 				pc.setAuthor(bpmSession.getUser(ctx));
                 pc.setAuthorSubstitute(bpmSession.getSubstitutingUser(ctx));
 				pc.setCreateTime(new Date());
@@ -195,7 +195,7 @@ public class ProcessCommentsWidget extends BaseProcessToolVaadinWidget implement
 		final Form f = getCommentDetailsForm(bi,
 		                                     isOwner &&
 				                                     (hasPermission("EDIT") &&
-						                                     bi.getBean().getAuthor().getId() == bpmSession.getUser(ProcessToolContext.Util.getProcessToolContextFromThread()).getId())
+						                                     bi.getBean().getAuthor().getId() == bpmSession.getUser(ProcessToolContext.Util.getThreadProcessToolContext()).getId())
 				                                     || bi.getBean().getId() == null
 				                                     || hasPermission("EDIT_ALL"));
 

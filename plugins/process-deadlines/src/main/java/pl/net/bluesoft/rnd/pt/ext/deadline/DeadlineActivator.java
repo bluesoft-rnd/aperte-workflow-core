@@ -30,12 +30,11 @@ public class DeadlineActivator implements BundleActivator, EventListener<BpmEven
         registry.withProcessToolContext(new ProcessToolContextCallback() {
 		    @Override
 		    public void withContext(ProcessToolContext ctx) {
-			    ProcessToolContext.Util.setProcessToolContextForThread(ctx);
+			    ProcessToolContext.Util.setThreadProcessToolContext(ctx);
 			    try {
 				    engine.setupProcessDeadlines();
-			    }
-			    finally {
-				    ProcessToolContext.Util.removeProcessToolContextForThread(ctx);
+			    } finally {
+				    ProcessToolContext.Util.removeThreadProcessToolContext();
 			    }
 		    }
 	    });

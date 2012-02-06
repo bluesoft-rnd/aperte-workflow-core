@@ -19,7 +19,7 @@ public class DroolsStep implements ProcessToolProcessStep {
 	public String invoke(ProcessInstance processInstance, Map params) throws Exception {
 		String ruleUrl = (String) params.get("ruleUrl");
 
-		ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
+		ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
         if (ruleUrl.startsWith("/")) {
 	        ruleUrl = ctx.getSetting("drools.rules.baseurl") +
                     ruleUrl;

@@ -199,7 +199,7 @@ public class GenerateDocument implements ProcessToolProcessStep {
 		Thread t = Thread.currentThread();
 		ClassLoader previousLoader = t.getContextClassLoader();
 		try {
-			ClassLoader newClassLoader = ProcessToolContext.Util.getProcessToolContextFromThread()
+			ClassLoader newClassLoader = ProcessToolContext.Util.getThreadProcessToolContext()
 					.getRegistry().getModelAwareClassLoader(getClass().getClassLoader());
 //			System.out.println(newClassLoader);
 			t.setContextClassLoader(newClassLoader);
@@ -234,7 +234,7 @@ public class GenerateDocument implements ProcessToolProcessStep {
 			throw new ReportException("Report template does not exist!");
 		// COMPILE REPORT
 		JasperReport jasperReport = null;
-		ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
+		ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
 		try {
 			ByteArrayInputStream contentInputStream = getContentInputStream(template.getContent());
 			Thread t = Thread.currentThread();

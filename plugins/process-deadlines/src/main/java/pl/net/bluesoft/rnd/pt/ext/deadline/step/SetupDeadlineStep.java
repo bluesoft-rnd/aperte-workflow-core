@@ -34,7 +34,7 @@ public class SetupDeadlineStep implements ProcessToolProcessStep {
 
     @Override
     public String invoke(ProcessInstance processInstance, Map params) throws Exception {
-        ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
+        ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
 
         List<String> taskNames = new ArrayList<String>();
         if (StringUtil.hasText(taskName)) {

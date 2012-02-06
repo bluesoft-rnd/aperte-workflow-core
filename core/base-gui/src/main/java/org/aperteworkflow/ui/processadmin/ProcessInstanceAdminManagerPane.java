@@ -147,7 +147,7 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements V
                 errorLbl.setValue(getLocalizedMessage("processinstances.console.noresults"));
                 return;
             }
-            List<ProcessInstance> processInstances = new ArrayList<ProcessInstance>(ProcessToolContext.Util.getProcessToolContextFromThread().getProcessInstanceDAO()
+            List<ProcessInstance> processInstances = new ArrayList<ProcessInstance>(ProcessToolContext.Util.getThreadProcessToolContext().getProcessInstanceDAO()
                     .searchProcesses(filter, offset, limit + 1, (Boolean) onlyActive.getValue(), null, null));
             cnt = processInstances.size();
             if (processInstances.size() > limit) {
@@ -228,11 +228,11 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements V
 
         List<BpmTask> taskList = 
                 new ArrayList<BpmTask>(bpmSession.getTaskList(pi,
-                        ProcessToolContext.Util.getProcessToolContextFromThread(),
+                        ProcessToolContext.Util.getThreadProcessToolContext(),
                         false));
         for (final BpmTask task : taskList) {
             vl.addComponent(getTaskStateComponent(pi, task));
-            ProcessStateConfiguration cfg = bpmSession.getProcessStateConfiguration(pi, ProcessToolContext.Util.getProcessToolContextFromThread());
+            ProcessStateConfiguration cfg = bpmSession.getProcessStateConfiguration(pi, ProcessToolContext.Util.getThreadProcessToolContext());
             if (cfg != null && !cfg.getActions().isEmpty()) {
                 vl.addComponent(new Label(getLocalizedMessage("processinstances.console.entry.available-actions")));
                 HorizontalLayout hl = new HorizontalLayout();
@@ -574,7 +574,7 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements V
 
     private ComponentContainer getHistoryPane(ProcessInstance pi) {
         //refresh
-        pi = ProcessToolContext.Util.getProcessToolContextFromThread().getProcessInstanceDAO().getProcessInstance(pi.getId());
+        pi = ProcessToolContext.Util.getThreadProcessToolContext().getProcessInstanceDAO().getProcessInstance(pi.getId());
 
         List<ProcessInstanceLog> processLogs = new ArrayList<ProcessInstanceLog>(pi.getProcessLogs());
         Collections.sort(processLogs);

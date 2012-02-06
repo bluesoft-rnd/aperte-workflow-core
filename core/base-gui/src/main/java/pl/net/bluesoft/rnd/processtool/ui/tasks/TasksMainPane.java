@@ -161,7 +161,7 @@ public class TasksMainPane extends VerticalLayout implements HasRefreshButton {
         table.setImmediate(true); // react at once when something is selected
         table.setSelectable(true);
 
-        ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
+        ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
 
         bic = new BeanItemContainer<TaskTableItem>(TaskTableItem.class);
         fillTaskList(ctx, bic);
@@ -221,7 +221,7 @@ public class TasksMainPane extends VerticalLayout implements HasRefreshButton {
 
     public void refreshData() {
         bic.removeAllItems();
-        ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
+        ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
         fillTaskList(ctx, bic);
     }
 

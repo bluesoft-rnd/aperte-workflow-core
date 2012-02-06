@@ -157,7 +157,7 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory 
             @Override
             public void withContext(ProcessToolContext processToolContext) {
 
-                ProcessToolContext.Util.setProcessToolContextForThread(processToolContext);
+                ProcessToolContext.Util.setThreadProcessToolContext(processToolContext);
                 try {
                     boolean skipJbpm = false;
                     InputStream is = bpmStream;
@@ -187,7 +187,7 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory 
                         logger.log(Level.INFO, "created/updated " + queues.length + " queues");
                     }
                 } finally {
-                    ProcessToolContext.Util.removeProcessToolContextForThread(processToolContext);
+                    ProcessToolContext.Util.removeThreadProcessToolContext();
                 }
             }
         });

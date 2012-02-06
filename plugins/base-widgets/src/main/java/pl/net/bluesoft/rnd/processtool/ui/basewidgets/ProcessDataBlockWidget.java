@@ -89,7 +89,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                            ProcessToolBpmSession bpmSession, Application application, Set<String> permissions, boolean isOwner) {
         super.setContext(state, configuration, i18NSource, bpmSession,
                 application, permissions, isOwner);
-        ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
+        ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
         processDictionaryRegistry = ctx.getProcessDictionaryRegistry();
     }
 

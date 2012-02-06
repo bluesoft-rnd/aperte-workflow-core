@@ -4,7 +4,6 @@ import com.vaadin.data.validator.IntegerValidator;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 import pl.net.bluesoft.rnd.processtool.i18n.DefaultI18NSource;
-import pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages;
 import pl.net.bluesoft.rnd.util.i18n.I18NProvider;
 
 import java.util.List;
@@ -36,10 +35,6 @@ public class WidgetConfigFormFieldFactory extends DefaultFieldFactory {
         if (field instanceof AbstractTextField) {
             AbstractTextField textField = (AbstractTextField) field;
             textField.setNullRepresentation("");
-
-            if (Property.PropertyType.PERMISSION.equals(property.getPropertyType())) {
-                textField.setInputPrompt(Messages.getString("form.permissions.roles"));
-            }
         }
 
         if (field instanceof RichTextArea) {

@@ -47,8 +47,8 @@
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin</artifactId>
-            <version>${vaadin.version}</version>
-			<scope>compile</scope>
+			<version>${vaadin.version}</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>commons-lang</groupId>

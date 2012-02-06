@@ -1,16 +1,15 @@
 package pl.net.bluesoft.rnd.pt.ext.widget.property;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Panel;
+import com.vaadin.ui.VerticalLayout;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.user.Property;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.user.WidgetConfigFormFieldFactory;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Panel;
-import com.vaadin.ui.VerticalLayout;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class PropertiesPanel extends Panel {
 

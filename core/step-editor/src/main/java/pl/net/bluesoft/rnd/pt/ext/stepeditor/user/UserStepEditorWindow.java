@@ -1,29 +1,6 @@
 package pl.net.bluesoft.rnd.pt.ext.stepeditor.user;
 
 
-import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.htmlLabel;
-import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.styled;
-import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import org.aperteworkflow.editor.domain.Permission;
-import org.aperteworkflow.editor.ui.permission.PermissionDefinition;
-import org.aperteworkflow.editor.ui.permission.PermissionEditor;
-import org.aperteworkflow.editor.ui.permission.PermissionProvider;
-import org.vaadin.dialogs.ConfirmDialog;
-
-import pl.net.bluesoft.rnd.pt.ext.stepeditor.AbstractStepEditorWindow;
-import pl.net.bluesoft.rnd.pt.ext.stepeditor.StepEditorApplication;
-import pl.net.bluesoft.rnd.pt.ext.stepeditor.user.JSONHandler.ParsingFailedException;
-import pl.net.bluesoft.rnd.pt.ext.stepeditor.user.JSONHandler.WidgetNotFoundException;
-import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -45,6 +22,27 @@ import com.vaadin.ui.*;
 import com.vaadin.ui.Tree.TreeDragMode;
 import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.themes.Reindeer;
+import org.aperteworkflow.editor.domain.Permission;
+import org.aperteworkflow.editor.ui.permission.PermissionDefinition;
+import org.aperteworkflow.editor.ui.permission.PermissionEditor;
+import org.aperteworkflow.editor.ui.permission.PermissionProvider;
+import org.vaadin.dialogs.ConfirmDialog;
+import pl.net.bluesoft.rnd.pt.ext.stepeditor.AbstractStepEditorWindow;
+import pl.net.bluesoft.rnd.pt.ext.stepeditor.StepEditorApplication;
+import pl.net.bluesoft.rnd.pt.ext.stepeditor.user.JSONHandler.ParsingFailedException;
+import pl.net.bluesoft.rnd.pt.ext.stepeditor.user.JSONHandler.WidgetNotFoundException;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.htmlLabel;
+import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.styled;
+import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
 public class UserStepEditorWindow extends AbstractStepEditorWindow implements Handler, ValueChangeListener, ClickListener {
 

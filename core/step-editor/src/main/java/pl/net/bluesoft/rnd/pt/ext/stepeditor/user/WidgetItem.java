@@ -1,13 +1,12 @@
 package pl.net.bluesoft.rnd.pt.ext.stepeditor.user;
 
 
-import java.io.Serializable;
-import java.util.*;
-
 import org.aperteworkflow.editor.ui.permission.PermissionDefinition;
-
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.Permission;
 import pl.net.bluesoft.rnd.pt.ext.widget.property.AperteProcessClassInfo;
+
+import java.io.Serializable;
+import java.util.*;
 
 public class WidgetItem implements Serializable {
 	private static final long								serialVersionUID	= -8907544816596058014L;

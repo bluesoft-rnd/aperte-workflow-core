@@ -1,15 +1,14 @@
 package pl.net.bluesoft.rnd.pt.ext.widget.property;
 
-import java.lang.reflect.Field;
-import java.util.*;
-
 import org.apache.commons.lang.StringUtils;
 import org.aperteworkflow.editor.ui.permission.PermissionDefinition;
-
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.*;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.user.Property;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.util.lang.Classes;
+
+import java.lang.reflect.Field;
+import java.util.*;
 
 public class AperteProcessClassInfo {
 

@@ -733,7 +733,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
 
         ArrayList<GraphElement> res = new ArrayList<GraphElement>();
         for (HistoryActivityInstance hpi : list) {
-            System.out.println(hpi.getActivityName());
+            LOGGER.fine("Handling: " + hpi.getActivityName());
             if (hpi instanceof HistoryActivityInstanceImpl) {
                 HistoryActivityInstanceImpl activity = (HistoryActivityInstanceImpl) hpi;
                 String activityName = activity.getActivityName();
@@ -1052,9 +1052,10 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
                     }
                     return bos2.toByteArray();
                 }
-            }
-            finally {
-                oldStream.close();
+            } finally {
+                if (oldStream != null) {
+                    oldStream.close();
+                }
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

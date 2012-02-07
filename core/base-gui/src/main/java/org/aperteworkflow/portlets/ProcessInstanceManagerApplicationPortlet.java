@@ -22,11 +22,15 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * @author tlipski@bluesoft.net.pl
  */
 public class ProcessInstanceManagerApplicationPortlet extends ApplicationPortlet2 {
+
+    private static final Logger logger = Logger.getLogger(ProcessInstanceManagerApplicationPortlet.class.getName());
+
     @Override
     protected void handleRequest(final PortletRequest request, final PortletResponse response) throws PortletException, IOException {
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
@@ -46,7 +50,7 @@ public class ProcessInstanceManagerApplicationPortlet extends ApplicationPortlet
                                 ResourceRequest rr = (ResourceRequest) request;
                                 ResourceResponse resp = (ResourceResponse) response;
                                 if (rr.getParameter("instanceId") != null) { //special handling
-                                    System.out.println("Image request!");
+                                    logger.info("Image request");
                                     ProcessToolBpmSession session = ctx.getProcessToolSessionFactory()
                                             .createSession(new UserData("admin", "admin@aperteworkflow.org", "Admin admin"),
                                                     new ArrayList<String>());
@@ -58,7 +62,7 @@ public class ProcessInstanceManagerApplicationPortlet extends ApplicationPortlet
                                     }
                                     return;
                                 } else if (rr.getParameter("svg") != null) { //to use svg inside of a window
-                                    System.out.println("SVG request!");
+                                    logger.info("SVG request");
 
                                     ProcessToolBpmSession session = ctx.getProcessToolSessionFactory()
                                             .createSession(new UserData("admin", "admin@aperteworkflow.org", "Admin admin"), 

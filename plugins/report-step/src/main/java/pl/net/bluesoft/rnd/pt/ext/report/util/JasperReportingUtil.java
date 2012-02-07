@@ -12,12 +12,16 @@ import pl.net.bluesoft.rnd.pt.ext.report.model.ReportTemplate;
 
 import java.io.ByteArrayInputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author tlipski@bluesoft.net.pl
  */
 public class JasperReportingUtil {
 
+    private static final Logger logger = Logger.getLogger(JasperReportingUtil.class.getName());
+    
 	public static Object attributeByKeyPath(ProcessInstance pi, String key, String path) {
 		ProcessInstanceAttribute attributeByKey = findAttributeByKey(pi, key);
 		return expandPath(path, attributeByKey);
@@ -74,7 +78,7 @@ public class JasperReportingUtil {
 //            t.setContextClassLoader(newClassLoader);
             jasperReport = JasperCompileManager.compileReport(contentInputStream);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, e.getMessage(), e);
 //        } finally {
 //            if (previousLoader != null)
 //                t.setContextClassLoader(previousLoader);

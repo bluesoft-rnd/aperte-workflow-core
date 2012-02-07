@@ -351,7 +351,6 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements V
             }
             svg.append("</svg>");
 
-            System.out.println(svg);
             Window w = new Window(getLocalizedMessage("process.image-map"));
             w.setWidth(read.getWidth() + "px");
             w.setHeight(read.getHeight() + "px");

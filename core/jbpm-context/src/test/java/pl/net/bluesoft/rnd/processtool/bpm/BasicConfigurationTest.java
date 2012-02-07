@@ -27,6 +27,8 @@ import java.io.ByteArrayOutputStream;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -34,6 +36,8 @@ import java.util.Set;
 
 public class BasicConfigurationTest {
 
+    private static final Logger logger = Logger.getLogger(BasicConfigurationTest.class.getName());
+    
 	ProcessToolContextFactory ptcf = new ProcessToolContextFactoryImpl(new ProcessToolRegistryImpl());
 
 	@Test
@@ -85,7 +89,7 @@ public class BasicConfigurationTest {
 			serializer.setOutputProperty(OutputKeys.INDENT,"yes");
 			serializer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 			serializer.transform(domSource, streamResult);
-			System.out.println(baos.toString());
+			logger.info(baos.toString());
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -157,7 +161,7 @@ public class BasicConfigurationTest {
 					}
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+                logger.log(Level.SEVERE, e.getMessage(), e);
 			}
 		}
 	}

@@ -15,8 +15,13 @@ import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistryImpl;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class DictionaryTest {
+    
+    private static final Logger logger = Logger.getLogger(DictionaryTest.class.getName());
+    
     private ProcessToolRegistry registry;
 
     @Before
@@ -48,7 +53,7 @@ public class DictionaryTest {
             if (sess != null) {
                 sess.close();
             }
-            e.printStackTrace();
+            logger.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 

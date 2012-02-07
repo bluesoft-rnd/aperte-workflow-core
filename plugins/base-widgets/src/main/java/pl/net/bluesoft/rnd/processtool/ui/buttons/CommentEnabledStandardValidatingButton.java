@@ -26,9 +26,6 @@ public class CommentEnabledStandardValidatingButton extends StandardValidatingBu
 
 	private ProcessComment pc;
 
-	@AutoWiredProperty
-	protected String testProperty;
-	
 	@Override
 	public void onButtonPress(final ProcessInstance processInstance,
 	                          final ProcessToolContext ctx,
@@ -172,12 +169,4 @@ public class CommentEnabledStandardValidatingButton extends StandardValidatingBu
 		return comments;
 	}
 
-
-    public String getTestProperty() {
-        return testProperty;
-    }
-
-    public void setTestProperty(String testProperty) {
-        this.testProperty = testProperty;
-    }
 }

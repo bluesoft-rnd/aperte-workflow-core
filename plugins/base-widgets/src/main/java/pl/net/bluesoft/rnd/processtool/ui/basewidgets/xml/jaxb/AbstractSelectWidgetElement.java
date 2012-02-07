@@ -13,8 +13,8 @@ import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 //@XmlRootElement(name = "select")
-@XStreamAlias("select")
-public class SelectWidgetElement extends WidgetElement {
+
+public abstract class AbstractSelectWidgetElement extends WidgetElement {
     @XmlElements({
             @XmlElement(name = "item", type = ItemElement.class)
     })

@@ -7,6 +7,7 @@ import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceSimpleAttribute;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 
 import java.util.*;
 
@@ -15,9 +16,12 @@ import java.util.*;
  */
 @AliasName(name = "DroolsStep")
 public class DroolsStep implements ProcessToolProcessStep {
-	@Override
+
+    @AutoWiredProperty
+    private String ruleUrl;
+
+    @Override
 	public String invoke(ProcessInstance processInstance, Map params) throws Exception {
-		String ruleUrl = (String) params.get("ruleUrl");
 
 		ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
         if (ruleUrl.startsWith("/")) {
@@ -34,7 +38,7 @@ public class DroolsStep implements ProcessToolProcessStep {
         Map<String, Object> globals = new HashMap<String, Object>();
         HashMap resultMap = new HashMap();
         globals.put("result", resultMap);
-        DroolsUtils.processRules(facts,globals,ruleUrl);
+        DroolsUtils.processRules(facts,globals, ruleUrl);
 		String logEntryVal = (String) resultMap.get("logEntry");
 		if (logEntryVal != null) {
 			ProcessInstanceLog logEntry = new ProcessInstanceLog();
@@ -46,4 +50,11 @@ public class DroolsStep implements ProcessToolProcessStep {
 		}
 		return (String) resultMap.get("value");
 	}
+    public String getRuleUrl() {
+        return ruleUrl;
+    }
+
+    public void setRuleUrl(String ruleUrl) {
+        this.ruleUrl = ruleUrl;
+    }
 }

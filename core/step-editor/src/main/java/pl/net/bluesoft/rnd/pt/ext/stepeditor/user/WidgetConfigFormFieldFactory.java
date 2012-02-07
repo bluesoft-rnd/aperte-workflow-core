@@ -3,13 +3,14 @@ package pl.net.bluesoft.rnd.pt.ext.stepeditor.user;
 import com.vaadin.data.validator.IntegerValidator;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class WidgetConfigFormFieldFactory extends DefaultFieldFactory {
-	private static final long	serialVersionUID	= 1840386215211557588L;
-    private static final Logger logger              = Logger.getLogger(WidgetConfigFormFieldFactory.class.getName());
+
+    private static final Logger logger = Logger.getLogger(WidgetConfigFormFieldFactory.class.getName());
 
 	public Field createField(Property<?> property) {
         Field field = createBaseField(property);
@@ -42,7 +43,6 @@ public class WidgetConfigFormFieldFactory extends DefaultFieldFactory {
 		if (property.getPropertyFieldClass() != null) {
             try {
                 field = property.getPropertyFieldClass().newInstance();
-
             } catch (InstantiationException e) {
                 logger.log(Level.WARNING, "Failed to create field using class from property", e);
             } catch (IllegalAccessException e) {
@@ -55,10 +55,27 @@ public class WidgetConfigFormFieldFactory extends DefaultFieldFactory {
 		}
 
 		field.setPropertyDataSource(property);
-        field.setCaption(createCaptionByPropertyId(property.getName()));
-        field.setDescription(property.getDescription());
         field.setRequired(property.isRequired());
         field.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+
+        if (property.getName() == null) {
+            field.setCaption(createCaptionByPropertyId(property.getPropertyId()));
+        } else {
+            field.setCaption(property.getName());
+        }
+
+        I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
+        if (property.getDescription() == null) {
+            field.setDescription(messages.getMessage(
+                    "property.field.description.short.format",
+                    new Object[] { property.getPropertyId() }
+            ));
+        } else {
+            field.setDescription(messages.getMessage(
+                    "property.field.description.format",
+                    new Object[] { property.getDescription(), property.getPropertyId() }
+            ));
+        }
 
 		return field;
 	}

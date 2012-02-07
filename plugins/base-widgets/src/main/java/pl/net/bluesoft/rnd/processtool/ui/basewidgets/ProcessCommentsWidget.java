@@ -48,13 +48,6 @@ public class ProcessCommentsWidget extends BaseProcessToolVaadinWidget implement
     )
 	private Boolean table;
 
-    @AutoWiredProperty
-    private String caption;
-
-    @AutoWiredProperty
-    @AutoWiredPropertyConfigurator(fieldClass = RichTextArea.class)
-    private String comment;
-
 	private String processState = null;
 	private Panel commentsPanel;
 

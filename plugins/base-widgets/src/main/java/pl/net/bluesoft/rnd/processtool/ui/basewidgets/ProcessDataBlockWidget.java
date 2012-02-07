@@ -72,8 +72,10 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
 
     @AutoWiredProperty(required=true)
     @AutoWiredPropertyConfigurator(fieldClass = ProcessDataWidgetsDefinitionEditor.class)
-    @AperteDoc(humanNameKey="widget.process_data_block.property.widgetsDefinition.name",
-            descriptionKey="widget.process_data_block.property.widgetsDefinition.description")
+    @AperteDoc(
+        humanNameKey="widget.process_data_block.property.widgetsDefinition.name",
+        descriptionKey="widget.process_data_block.property.widgetsDefinition.description"
+    )
     private String widgetsDefinition;
 
     public void setDefinitionLoader(WidgetDefinitionLoader definitionLoader) {

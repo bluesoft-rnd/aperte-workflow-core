@@ -3,6 +3,7 @@ package pl.net.bluesoft.rnd.processtool.ui.widgets.impl;
 
 import com.vaadin.ui.RichTextArea;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinWidget;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredPropertyConfigurator;
 
@@ -16,6 +17,10 @@ public abstract class BaseProcessToolVaadinWidget extends BaseProcessToolWidget 
      * Widget caption text
      */
     @AutoWiredProperty
+    @AperteDoc(
+        humanNameKey = "widget.attribute.caption.humanName",
+        descriptionKey = "widget.attribute.caption.description"
+    )
     protected String caption;
 
     /**
@@ -23,6 +28,10 @@ public abstract class BaseProcessToolVaadinWidget extends BaseProcessToolWidget 
      */
     @AutoWiredProperty
     @AutoWiredPropertyConfigurator(fieldClass = RichTextArea.class)
+    @AperteDoc(
+        humanNameKey = "widget.attribute.comment.humanName",
+        descriptionKey = "widget.attribute.comment.description"
+    )
     protected String comment;
 
     public String getComment() {

@@ -163,8 +163,8 @@ public class ProcessDataHierarchyEditor extends VerticalLayout {
                     widgets.add((WidgetElement) subItemId);
             }
             hasWidgetsElement.setWidgets(widgets);
-        } else if (itemId instanceof SelectWidgetElement) { //special case, but it should be supported in more generic manner
-            SelectWidgetElement selectWidgetElement = (SelectWidgetElement) itemId;
+        } else if (itemId instanceof AbstractSelectWidgetElement) { //special case, but it should be supported in more generic manner
+            AbstractSelectWidgetElement selectWidgetElement = (AbstractSelectWidgetElement) itemId;
             ArrayList<ItemElement> values = new ArrayList<ItemElement>();
             if (children != null) for (Object subItemId : children) {
                 if (subItemId instanceof ItemElement) {

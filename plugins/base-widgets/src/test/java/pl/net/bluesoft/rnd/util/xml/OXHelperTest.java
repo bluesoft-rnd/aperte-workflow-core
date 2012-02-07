@@ -103,7 +103,7 @@ public class OXHelperTest {
         ae.setPos(XmlConstants.ALIGN_POS_RIGHT_TOP);
         ae.getWidgets().add(grid);
 
-        SelectWidgetElement sw = new SelectWidgetElement();
+        AbstractSelectWidgetElement sw = new ComboboxSelectElementWidget();
         sw.setDefaultSelect(2);
         sw.getValues().add(new ItemElement("item1", "value1"));
         sw.getValues().add(new ItemElement("item2", "value2"));
@@ -112,7 +112,7 @@ public class OXHelperTest {
 
         ae.getWidgets().add(sw);
 
-        sw = new SelectWidgetElement();
+        sw = new RadioButtonSelectElementWidget();
         sw.setDefaultSelect(1);
         sw.setDict("test_lang");
         sw.setProvider("db");

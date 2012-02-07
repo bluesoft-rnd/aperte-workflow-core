@@ -22,7 +22,8 @@ public abstract class HasWidgetsElement extends WidgetElement {
             @XmlElement(name = "label", type = LabelWidgetElement.class),
             @XmlElement(name = "link", type = LinkWidgetElement.class),
             @XmlElement(name = "script", type = ScriptElement.class),
-            @XmlElement(name = "select", type = SelectWidgetElement.class),
+            @XmlElement(name = "select", type = ComboboxSelectElementWidget.class),
+            @XmlElement(name = "radioSelect", type = RadioButtonSelectElementWidget.class),
             @XmlElement(name = "text", type = TextAreaWidgetElement.class),
             @XmlElement(name = "vl", type = VerticalLayoutWidgetElement.class),
             @XmlElement(name = "upload", type = UploadWidgetElement.class)

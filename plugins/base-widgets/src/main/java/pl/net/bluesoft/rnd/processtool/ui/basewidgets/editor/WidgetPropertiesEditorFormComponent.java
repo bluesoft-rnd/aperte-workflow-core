@@ -8,6 +8,7 @@ import com.vaadin.ui.*;
 import org.apache.commons.beanutils.BeanUtils;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.jaxb.WidgetElement;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.validation.XmlValidationError;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
 
 import java.util.Arrays;
 import java.util.List;
@@ -32,12 +33,14 @@ public class WidgetPropertiesEditorFormComponent extends VerticalLayout {
 
         final Class classOfItem = itemId.getClass();
         clone = clone(itemId);
+        BeanItem<?> item = new BeanItem<Object>(clone);
+
         form = new Form();
         form.setFormFieldFactory(getFieldFactory(classOfItem));
         form.setWidth("100%");
         form.setWriteThrough(false);
         form.setCaption(itemId.getClass().getSimpleName());
-        form.setItemDataSource(new BeanItem(clone));
+        form.setItemDataSource(item);
 
         final Button commit = new Button(getLocalizedMessage("commit"));
         commit.addListener(new Button.ClickListener() {
@@ -103,7 +106,7 @@ public class WidgetPropertiesEditorFormComponent extends VerticalLayout {
                 java.lang.reflect.Field reflectField = findField(propertyId, classOfItem);
                 if (reflectField != null) {
                     Field field = super.createField(item, propertyId, uiContext);
-                    field.setCaption(getLocalizedMessage((String) propertyId));
+
                     AvailableOptions opts = reflectField.getAnnotation(AvailableOptions.class);
                     if (opts != null && opts.value() != null) {
                         NativeSelect ns = new NativeSelect();
@@ -113,15 +116,36 @@ public class WidgetPropertiesEditorFormComponent extends VerticalLayout {
                             ns.setItemCaption(opt, getLocalizedMessage(propertyId + "." + opt));
                         }
                     }
+
+                    AperteDoc doc = reflectField.getAnnotation(AperteDoc.class);
+                    if (doc != null) {
+                        field.setCaption(getLocalizedMessage(doc.humanNameKey()));
+                        field.setDescription(getParametrizedLocalizedMessage(
+                                "description.format",
+                                getLocalizedMessage(doc.descriptionKey()),
+                                propertyId
+                        ));
+                    } else {
+                        field.setCaption(getLocalizedMessage((String) propertyId));
+                        field.setDescription(getParametrizedLocalizedMessage(
+                                "description.short.format",
+                                propertyId
+                        ));
+                    }
+
                     if (field instanceof AbstractField) {
                         AbstractField abstractField = (AbstractField) field;
                         abstractField.setImmediate(true);
                     }
-
                     if (field instanceof AbstractTextField) {
                         AbstractTextField textField = (AbstractTextField) field;
                         textField.setNullRepresentation("");
                     }
+                    if (field instanceof RichTextArea) {
+                        RichTextArea textArea = (RichTextArea) field;
+                        textArea.setNullRepresentation("");
+                    }
+
                     if (cls.equals(Integer.class)) {
                         field.addValidator(new IntegerValidator(getLocalizedMessage("is.not.an.integer")));
                         field.setWidth("100px");
@@ -134,7 +158,6 @@ public class WidgetPropertiesEditorFormComponent extends VerticalLayout {
                     return field;
                 }
                 return null;
-
             }
         };
     }

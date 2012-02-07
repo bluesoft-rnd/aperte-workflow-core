@@ -5,6 +5,7 @@ import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.AvailableOptions;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.RequiredAttribute;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.validation.XmlValidationError;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
 import pl.net.bluesoft.util.lang.StringUtil;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -22,19 +23,18 @@ public class AlignElement extends HasWidgetsElement {
     @XmlAttribute
     @XStreamAsAttribute
     @RequiredAttribute
-    @AvailableOptions(
-            value = {
-                    ALIGN_POS_LEFT_TOP,
-                    ALIGN_POS_LEFT_BOTTOM,
-                    ALIGN_POS_LEFT_MIDDLE,
-                    ALIGN_POS_CENTER_TOP,
-                    ALIGN_POS_CENTER_BOTTOM,
-                    ALIGN_POS_CENTER_MIDDLE,
-                    ALIGN_POS_RIGHT_TOP,
-                    ALIGN_POS_RIGHT_BOTTOM,
-                    ALIGN_POS_RIGHT_MIDDLE
-            }
-    )
+    @AvailableOptions({
+        ALIGN_POS_LEFT_TOP,
+        ALIGN_POS_LEFT_BOTTOM,
+        ALIGN_POS_LEFT_MIDDLE,
+        ALIGN_POS_CENTER_TOP,
+        ALIGN_POS_CENTER_BOTTOM,
+        ALIGN_POS_CENTER_MIDDLE,
+        ALIGN_POS_RIGHT_TOP,
+        ALIGN_POS_RIGHT_BOTTOM,
+        ALIGN_POS_RIGHT_MIDDLE
+    })
+    @AperteDoc(humanNameKey = "align.pos.humanName", descriptionKey = "align.pos.description")
     private String pos;
 
     public String getPos() {

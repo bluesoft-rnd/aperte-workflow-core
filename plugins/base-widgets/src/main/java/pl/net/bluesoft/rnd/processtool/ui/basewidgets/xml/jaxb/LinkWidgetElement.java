@@ -5,6 +5,7 @@ import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.RequiredAttribute;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.XmlConstants;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.validation.XmlValidationError;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
 import pl.net.bluesoft.util.lang.StringUtil;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -17,9 +18,11 @@ import java.util.List;
 //@XmlRootElement(name = "link")
 @XStreamAlias("link")
 public class LinkWidgetElement extends WidgetElement {
+
     @XmlAttribute
     @XStreamAsAttribute
     @RequiredAttribute
+    @AperteDoc(humanNameKey = "link.url.humanName", descriptionKey = "link.url.description")
     private String url;
 
     public String getUrl() {

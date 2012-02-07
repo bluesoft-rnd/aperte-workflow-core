@@ -3,6 +3,7 @@ package pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.jaxb;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.validation.XmlValidationError;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
 import pl.net.bluesoft.util.lang.StringUtil;
 
 import javax.xml.bind.annotation.*;
@@ -14,38 +15,60 @@ import java.util.List;
 @XmlType
 @XmlTransient
 public abstract class WidgetElement implements Serializable {
+
     @XmlAttribute
     @XStreamAsAttribute
+    @AperteDoc(humanNameKey = "any.width.humanName", descriptionKey = "any.width.description")
     protected String width;
+
     @XmlAttribute
     @XStreamAsAttribute
+    @AperteDoc(humanNameKey = "any.height.humanName", descriptionKey = "any.height.description")
     protected String height;
+
     @XmlAttribute
     @XStreamAsAttribute
+    @AperteDoc(humanNameKey = "any.fullSize.humanName", descriptionKey = "any.fullSize.description")
     protected Boolean fullSize;
+
     @XmlAttribute
     @XStreamAsAttribute
+    @AperteDoc(humanNameKey = "any.undefinedSize.humanName", descriptionKey = "any.undefinedSize.description")
     protected Boolean undefinedSize;
+
     @XmlAttribute
     @XStreamAsAttribute
+    @AperteDoc(humanNameKey = "any.bind.humanName", descriptionKey = "any.bind.description")
     protected String bind;
+
     @XmlAttribute
     @XStreamAsAttribute
+    @AperteDoc(humanNameKey = "any.provider.humanName", descriptionKey = "any.provider.description")
     protected String provider;
+
     @XmlAttribute
     @XStreamAsAttribute
+    @AperteDoc(humanNameKey = "any.dict.humanName", descriptionKey = "any.dict.description")
     protected String dict;
+
     @XmlAttribute
     @XStreamAsAttribute
+    @AperteDoc(humanNameKey = "any.readonly.humanName", descriptionKey = "any.readonly.description")
     protected Boolean readonly;
+
     @XmlAttribute
     @XStreamAsAttribute
+    @AperteDoc(humanNameKey = "any.caption.humanName", descriptionKey = "any.caption.description")
     protected String caption;
+
     @XmlAttribute
     @XStreamAsAttribute
+    @AperteDoc(humanNameKey = "any.style.humanName", descriptionKey = "any.style.description")
     protected String style;
+
     @XmlAttribute
     @XStreamAsAttribute
+    @AperteDoc(humanNameKey = "any.attributeClass.humanName", descriptionKey = "any.attributeClass.description")
     protected String attributeClass;
 
     @XmlTransient
@@ -155,7 +178,9 @@ public abstract class WidgetElement implements Serializable {
     public  List<XmlValidationError> validate() {
         return validateElement();
     }
+
     public List<XmlValidationError> validateElement() {
         return new ArrayList<XmlValidationError>();
     }
+
 }

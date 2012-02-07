@@ -3,6 +3,7 @@ package pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.jaxb;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.validation.XmlValidationError;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
 
 import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ public abstract class HasWidgetsElement extends WidgetElement {
 
     @XmlAttribute
     @XStreamAsAttribute
+    @AperteDoc(humanNameKey = "has.spacing.humanName", descriptionKey = "has.spacing.description")
     protected Boolean spacing;
 
     public List<WidgetElement> getWidgets() {

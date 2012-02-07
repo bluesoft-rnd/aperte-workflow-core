@@ -1,10 +1,10 @@
 package pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.jaxb;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.XmlConstants;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.validation.XmlValidationError;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
 import pl.net.bluesoft.util.lang.StringUtil;
 
 import javax.xml.bind.annotation.*;
@@ -26,6 +26,10 @@ public abstract class AbstractSelectWidgetElement extends WidgetElement {
 
     @XmlAttribute
     @XStreamAsAttribute
+    @AperteDoc(
+            humanNameKey = "abstractSelect.defaultSelect.humanName",
+            descriptionKey = "abstractSelect.defaultSelect.description"
+    )
     private Integer defaultSelect;
 
     @XmlAttribute

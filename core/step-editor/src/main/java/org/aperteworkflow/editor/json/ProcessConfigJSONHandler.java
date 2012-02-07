@@ -1,5 +1,6 @@
 package org.aperteworkflow.editor.json;
 
+import org.apache.commons.codec.binary.Base64;
 import org.aperteworkflow.editor.domain.ProcessConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -9,6 +10,14 @@ import java.io.Serializable;
 
 public class ProcessConfigJSONHandler implements Serializable {
 
+    /**
+     * Charset used when dealing with messages saved in .properties files
+     */
+    private static final String MESSAGES_CHARSET = "US-ASCII";
+
+    /**
+     * Singleton
+     */
     private static ProcessConfigJSONHandler instance;
 
     /**
@@ -35,6 +44,23 @@ public class ProcessConfigJSONHandler implements Serializable {
         }
 
         try {
+            // encode fields with problematic characters as Base64
+            if (processConfig.getComment() != null) {
+                byte[] bytes = processConfig.getComment().getBytes();
+                processConfig.setComment(new String(Base64.encodeBase64URLSafe(bytes)));
+            }
+            if (processConfig.getMessages() != null) {
+                for (String langCode : processConfig.getMessages().keySet()) {
+                    String msg = processConfig.getMessages().get(langCode);
+                    if (msg != null) {
+                        byte[] bytes = msg.getBytes(MESSAGES_CHARSET);
+                        msg = new String(Base64.encodeBase64URLSafe(bytes), MESSAGES_CHARSET);
+                        processConfig.getMessages().put(langCode, msg);
+                    }
+                }
+            }
+
+            // encode as JSON
             return mapper.writeValueAsString(processConfig);
         } catch (IOException e) {
             throw new RuntimeException("Failed to write ProcessConfig to JSON", e);
@@ -47,7 +73,26 @@ public class ProcessConfigJSONHandler implements Serializable {
         }
 
         try {
-            return mapper.readValue(json, ProcessConfig.class);
+            // decode from JSON
+            ProcessConfig processConfig = mapper.readValue(json, ProcessConfig.class);
+
+            // decode Base64 encoded fields
+            if (processConfig.getComment() != null) {
+                byte[] bytes = processConfig.getComment().getBytes();
+                processConfig.setComment(new String(Base64.decodeBase64(bytes)));
+            }
+            if (processConfig.getMessages() != null) {
+                for (String langCode : processConfig.getMessages().keySet()) {
+                    String msg = processConfig.getMessages().get(langCode);
+                    if (msg != null) {
+                        byte[] bytes = msg.getBytes(MESSAGES_CHARSET);
+                        msg = new String(Base64.decodeBase64(bytes), MESSAGES_CHARSET);
+                        processConfig.getMessages().put(langCode, msg);
+                    }
+                }
+            }
+
+            return processConfig;
         } catch (IOException e) {
             throw new RuntimeException("Failed to read ProcessConfig from JSON", e);
         }

@@ -58,6 +58,8 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 	private TextField               assigneeField;
 	private TextField               candidateGroupsField;
 	private TextField               swimlaneField;
+    private TextField               descriptionField;
+    private RichTextArea            commentaryTextArea;
 
 	private WidgetFormWindow		paramPanel;
 
@@ -77,9 +79,6 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
     
     
 	public ComponentContainer init() {
-
-		
-		
 		ComponentContainer comp = buildLayout();
 		
 		if (jsonConfig != null && jsonConfig.trim().length() > 0) {
@@ -160,8 +159,9 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
                 logger.info("removePermission: finished");
             }
         });
-        VerticalLayout assignmentLayout = prepareAssignmentLayout();
 
+        VerticalLayout assignmentLayout = prepareAssignmentLayout();
+        VerticalLayout stepDefinitionLayout = buildStateDefinitionLayout();
         VerticalLayout stepLayout = buildWidgetEditorTabContent();
 
         VerticalLayout vl = new VerticalLayout();
@@ -172,6 +172,7 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
         TabSheet ts = new TabSheet();
         ts.setSizeFull();
         ts.addTab(stepLayout, messages.getMessage("userstep.editor.widgets.tabcaption"));
+        ts.addTab(stepDefinitionLayout, messages.getMessage("userstep.state.tabcaption"));
         ts.addTab(assignmentLayout, messages.getMessage("userstep.editor.assignment.tabcaption"));
         ts.addTab(permissionEditor, messages.getMessage("userstep.editor.permissions.tabcaption")); //TODO step permissions
         ts.setSelectedTab(stepLayout);
@@ -306,6 +307,33 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
         return stepLayout;
     }
 
+    private VerticalLayout buildStateDefinitionLayout() {
+        I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
+
+        descriptionField = new TextField();
+        descriptionField.setNullRepresentation("");
+        descriptionField.setWidth("100%");
+        
+        commentaryTextArea = new RichTextArea();
+        commentaryTextArea.setNullRepresentation("");
+        commentaryTextArea.setWidth("100%");
+
+        VerticalLayout stateLayout = new VerticalLayout();
+        stateLayout.setWidth("100%");
+        stateLayout.setSpacing(true);
+        stateLayout.setMargin(true);
+
+        stateLayout.addComponent(styled(new Label(messages.getMessage("field.description")), "h1"));
+        stateLayout.addComponent(htmlLabel(messages.getMessage("field.description.info")));
+        stateLayout.addComponent(descriptionField);
+
+        stateLayout.addComponent(styled(new Label(messages.getMessage("field.commentary")), "h1"));
+        stateLayout.addComponent(htmlLabel(messages.getMessage("field.commentary.info")));
+        stateLayout.addComponent(commentaryTextArea);
+
+        return stateLayout;
+    }
+
     public void deleteTreeItem(final Object widget) {
     	I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
     	ConfirmDialog.show(application.getMainWindow(),
@@ -397,7 +425,9 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 			assigneeField.setValue(map.get(JSONHandler.ASSIGNEE));
 			swimlaneField.setValue(map.get(JSONHandler.SWIMLANE));
 			candidateGroupsField.setValue(map.get(JSONHandler.CANDIDATE_GROUPS));
-			
+            commentaryTextArea.setValue(map.get(JSONHandler.COMMENTARY));
+            descriptionField.setValue(map.get(JSONHandler.DESCRIPTION));
+
 			for (Object widget : stepTreeContainer.getItemIds()) {
 				if (widget != rootItem)
 					stepTree.getItem(widget).getItemProperty("icon").setValue(getWidgetIcon(((WidgetItemInStep) widget).getWidgetItem()));
@@ -447,8 +477,11 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 	}
 
 	private String dumpTreeToJSON() {
-		return JSONHandler.dumpTreeToJSON(stepTree, rootItem, assigneeField.getValue(), candidateGroupsField.getValue(), swimlaneField.getValue(),
-                stepType, permissions);
+		return JSONHandler.dumpTreeToJSON(stepTree, rootItem,
+                assigneeField.getValue(), candidateGroupsField.getValue(), swimlaneField.getValue(),
+                stepType, descriptionField.getValue(), commentaryTextArea.getValue(),
+                permissions
+        );
 	}
 
     @Override

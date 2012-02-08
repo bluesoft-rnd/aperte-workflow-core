@@ -95,7 +95,7 @@ public class MyProcessesListPane extends ProcessListPane {
         Date createDate = pi.getCreateDate();
         Date deadlineDate = getDeadlineDate(pi);
         String creatorName = pi.getCreator().getRealName();
-        String assignedName = getBpmSession().getUser(ProcessToolContext.Util.getProcessToolContextFromThread()).getRealName();
+        String assignedName = getBpmSession().getUser(ProcessToolContext.Util.getThreadProcessToolContext()).getRealName();
 
         Component cell = createGridCell("/img/user_creator.png", creatorName, "tti-person", getMessage("activity.creator"));
         layout.addComponent(cell, 2, 1, 2, 1);
@@ -197,11 +197,11 @@ public class MyProcessesListPane extends ProcessListPane {
 
     protected List<ProcessInstance> getProcessInstances(String filterExpression, int offset, int limit) {
         if (filterExpression != null && !filterExpression.trim().isEmpty()) {
-            return new ArrayList<ProcessInstance>(ProcessToolContext.Util.getProcessToolContextFromThread().getProcessInstanceDAO()
+            return new ArrayList<ProcessInstance>(ProcessToolContext.Util.getThreadProcessToolContext().getProcessInstanceDAO()
                     .searchProcesses(filterExpression, offset, limit, true, null, getBpmSession().getUserLogin()));
         } else {
             return new ArrayList(getBpmSession()
-                    .getUserProcesses(offset, limit, ProcessToolContext.Util.getProcessToolContextFromThread()));
+                    .getUserProcesses(offset, limit, ProcessToolContext.Util.getThreadProcessToolContext()));
         }
     }
 

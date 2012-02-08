@@ -6,6 +6,7 @@ import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.RequiredAttribute;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.XmlConstants;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.validation.XmlValidationError;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -20,9 +21,12 @@ public class GridWidgetElement extends HasWidgetsElement {
     @XmlAttribute
     @XStreamAsAttribute
     @RequiredAttribute
+    @AperteDoc(humanNameKey = "grid.rows.humanName", descriptionKey = "grid.rows.description")
     private Integer rows;
+
     @XmlAttribute
     @XStreamAsAttribute
+    @AperteDoc(humanNameKey = "grid.cols.humanName", descriptionKey = "grid.cols.description")
     private Integer cols;
 
     public Integer getRows() {

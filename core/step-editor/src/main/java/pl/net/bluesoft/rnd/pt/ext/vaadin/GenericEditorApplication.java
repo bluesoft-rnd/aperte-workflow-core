@@ -81,7 +81,7 @@ public class GenericEditorApplication extends Application implements HttpServlet
             registry.withProcessToolContext(new ProcessToolContextCallback() {
                 @Override
                 public void withContext(ProcessToolContext ctx) {
-                    ProcessToolContext.Util.setProcessToolContextForThread(ctx);
+                    ProcessToolContext.Util.setThreadProcessToolContext(ctx);
                 }
             });
         } finally {
@@ -91,13 +91,8 @@ public class GenericEditorApplication extends Application implements HttpServlet
 
     @Override
     public void onRequestEnd(HttpServletRequest request, HttpServletResponse response) {
-        ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
-        if (ctx != null) {
-            ProcessToolContext.Util.removeProcessToolContextForThread(ctx);
-        }
-
-        I18NSource.ThreadUtil.setThreadI18nSource(null);
-
+        ProcessToolContext.Util.removeThreadProcessToolContext();
+        I18NSource.ThreadUtil.removeThreadI18nSource();
         current.remove();
     }
     

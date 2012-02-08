@@ -6,10 +6,9 @@ import com.vaadin.ui.themes.Reindeer;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.*;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolVaadinWidget;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -27,18 +26,14 @@ import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 @AperteDoc(humanNameKey="widget.process_history.name", descriptionKey="widget.process_history.description")
 @ChildrenAllowed(false)
 @WidgetGroup("base-widgets")
-public class ProcessHistoryWidget extends BaseProcessToolWidget implements ProcessToolDataWidget, ProcessToolVaadinWidget {
+public class ProcessHistoryWidget extends BaseProcessToolVaadinWidget implements ProcessToolDataWidget {
 
     @AutoWiredProperty(required = false)
-    @AperteDoc(humanNameKey="widget.process_history.property.table.name", descriptionKey="widget.process_history.property.table.description")
+    @AperteDoc(
+            humanNameKey="widget.process_history.property.table.name",
+            descriptionKey="widget.process_history.property.table.description"
+    )
 	private Boolean table;
-
-    @AutoWiredProperty
-    private String caption;
-
-    @AutoWiredProperty
-    @AutoWiredPropertyConfigurator(fieldClass = RichTextArea.class)
-    private String comment;
 
 	private List<ProcessLogInfo> logInfos = new ArrayList<ProcessLogInfo>();
 
@@ -217,19 +212,4 @@ public class ProcessHistoryWidget extends BaseProcessToolWidget implements Proce
 		this.table = table;
 	}
 
-    public String getCaption() {
-        return caption;
-    }
-
-    public void setCaption(String caption) {
-        this.caption = caption;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
 }

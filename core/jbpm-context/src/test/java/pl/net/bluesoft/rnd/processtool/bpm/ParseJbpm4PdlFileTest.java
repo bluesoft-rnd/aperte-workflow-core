@@ -3,18 +3,17 @@ package pl.net.bluesoft.rnd.processtool.bpm;
 import com.thoughtworks.xstream.XStream;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.tools.ant.filters.StringInputStream;
-import org.jbpm.api.ProcessDefinition;
 import org.jdom.Document;
 import org.jdom.Element;
-import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-import org.junit.Test;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
-import pl.net.bluesoft.rnd.processtool.model.config.*;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
 
-import javax.lang.model.util.Elements;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -25,17 +24,19 @@ import javax.xml.transform.stream.StreamResult;
 import java.beans.PropertyDescriptor;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author tlipski@bluesoft.net.pl
  */
 public class ParseJbpm4PdlFileTest {
 
+    private static final Logger logger = Logger.getLogger(ParseJbpm4PdlFileTest.class.getName());
+    
     public static void main(String[] args) throws Exception {
 
         ProcessDefinitionConfig pdc = new ProcessDefinitionConfig();
@@ -121,7 +122,7 @@ public class ParseJbpm4PdlFileTest {
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.log(Level.SEVERE, e.getMessage(), e);
             }
         }
     }
@@ -143,7 +144,7 @@ public class ParseJbpm4PdlFileTest {
 			serializer.setOutputProperty(OutputKeys.INDENT,"yes");
 			serializer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 			serializer.transform(domSource, streamResult);
-			System.out.println(baos.toString());
+			logger.info(baos.toString());
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

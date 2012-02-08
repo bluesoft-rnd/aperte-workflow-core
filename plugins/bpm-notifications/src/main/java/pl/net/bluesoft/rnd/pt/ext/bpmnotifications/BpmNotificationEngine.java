@@ -46,7 +46,7 @@ public class BpmNotificationEngine implements TemplateLoader {
 
 	public void onProcessStateChange(ProcessInstance pi, UserData userData) {
 		refreshConfigIfNecessary();
-		Collection<BpmTask> taskList = bpmSession.getTaskList(pi, ProcessToolContext.Util.getProcessToolContextFromThread());
+		Collection<BpmTask> taskList = bpmSession.getTaskList(pi, ProcessToolContext.Util.getThreadProcessToolContext());
 		for (BpmNotificationConfig cfg : configCache) {
 			try {
 				if (hasText(cfg.getProcessTypeRegex()) && !pi.getDefinitionName().matches(cfg.getProcessTypeRegex())) {
@@ -122,7 +122,7 @@ public class BpmNotificationEngine implements TemplateLoader {
 		m.put("process", pi);
 		m.put("user", userData);
 		m.put("session", bpmSession);
-		m.put("context", ProcessToolContext.Util.getProcessToolContextFromThread());
+		m.put("context", ProcessToolContext.Util.getThreadProcessToolContext());
 		m.put("config", cfg);
 
 		template.process(m, sw);
@@ -144,7 +144,7 @@ public class BpmNotificationEngine implements TemplateLoader {
 
 	public synchronized void refreshConfigIfNecessary() {
 		if (cacheUpdateTime + CONFIG_CACHE_REFRESH_INTERVAL < System.currentTimeMillis()) {
-			Session sess = ProcessToolContext.Util.getProcessToolContextFromThread()
+			Session sess = ProcessToolContext.Util.getThreadProcessToolContext()
 					.getHibernateSession();
 			configCache = sess
 					.createCriteria(BpmNotificationConfig.class)
@@ -173,7 +173,7 @@ public class BpmNotificationEngine implements TemplateLoader {
 				throw new RuntimeException(e);
 			}
 
-			bpmSession = ProcessToolContext.Util.getProcessToolContextFromThread().getProcessToolSessionFactory().createSession(autoUser, new HashSet<String>());
+			bpmSession = ProcessToolContext.Util.getThreadProcessToolContext().getProcessToolSessionFactory().createSession(autoUser, new HashSet<String>());
 
 		}
 

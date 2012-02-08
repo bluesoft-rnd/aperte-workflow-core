@@ -58,7 +58,7 @@ public class ActivityQueuesPane extends Panel implements HasRefreshButton {
 	public void refreshData() {
 		taskList.removeAllComponents();
 
-        final ProcessToolContext processToolContextFromThread = ProcessToolContext.Util.getProcessToolContextFromThread();
+        final ProcessToolContext processToolContextFromThread = ProcessToolContext.Util.getThreadProcessToolContext();
 		final ProcessToolBpmSession bpmSession = activityMainPane.getBpmSession();
 		UserData user = bpmSession.getUser(processToolContextFromThread);
 
@@ -203,7 +203,7 @@ public class ActivityQueuesPane extends Panel implements HasRefreshButton {
                                 activityMainPane.displayOtherUserQueue(q, user);
                             }
                         } else {
-                            ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
+                            ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
                             ProcessInstance instance = bpmSession.assignTaskFromQueue(q, ctx);
                             if (instance != null) {
                                 getWindow().executeJavaScript("Liferay.trigger('processtool.bpm.assignProcess', '" + instance.getInternalId() + "');");
@@ -232,7 +232,7 @@ public class ActivityQueuesPane extends Panel implements HasRefreshButton {
     }
 
     private static List<UserData> getSubstitutedUsers(UserData user, Date date) {
-        List<UserSubstitution> substitutions = ProcessToolContext.Util.getProcessToolContextFromThread()
+        List<UserSubstitution> substitutions = ProcessToolContext.Util.getThreadProcessToolContext()
                 .getUserSubstitutionDAO()
                 .getActiveSubstitutions(user, DateUtil.truncHours(new Date()));
         return from(substitutions)

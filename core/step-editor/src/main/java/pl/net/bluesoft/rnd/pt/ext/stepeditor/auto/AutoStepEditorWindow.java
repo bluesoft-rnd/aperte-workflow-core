@@ -3,6 +3,7 @@ package pl.net.bluesoft.rnd.pt.ext.stepeditor.auto;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.VerticalLayout;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.JsonGenerationException;
@@ -27,32 +28,44 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.styled;
+
 public class AutoStepEditorWindow extends AbstractStepEditorWindow {
 
-    private static final long		serialVersionUID	= 2136349026207825108L;
+    private static final long serialVersionUID = 2136349026207825108L;
     private static final Logger	logger = Logger.getLogger(AutoStepEditorWindow.class.getName());
+    private static final ObjectMapper mapper = new ObjectMapper();
 
-	private PropertiesPanel propertiesPanel = new PropertiesPanel();
-	private static final ObjectMapper mapper = new ObjectMapper();
+	private PropertiesPanel propertiesPanel;
+    private TabSheet tabSheet;
+    private Label stepTypeLabel;
 
     public AutoStepEditorWindow(StepEditorApplication application, String jsonConfig, String url, String stepName, String stepType) {
 		super(application, jsonConfig, url, stepName, stepType);
 	}
 
 	public ComponentContainer init() {
-
 		I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
-		VerticalLayout vll = new VerticalLayout();
+
+        VerticalLayout vll = new VerticalLayout();
 		vll.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-        vll.addComponent(new Label(messages.getMessage("jse.instructions"),
-                Label.CONTENT_XHTML));
+        vll.addComponent(new Label(messages.getMessage("jse.instructions"), Label.CONTENT_XHTML));
 		vll.setSpacing(true);
 
 		if (stepType != null) {
-		   Class<?> stepClass = getStepClass(stepType);
-		   propertiesPanel.init(stepClass);
-		   propertiesPanel.refreshForm(true, getLoadedJsonData(jsonConfig));
-		   vll.addComponent(propertiesPanel);
+            propertiesPanel = new PropertiesPanel();
+
+            Class<?> stepClass = getStepClass(stepType);
+		    propertiesPanel.init(stepClass);
+		    propertiesPanel.refreshForm(false, getLoadedJsonData(jsonConfig));
+
+            stepTypeLabel = styled(new Label(propertiesPanel.getClassInfo().getDocName()), "h2");
+            
+            tabSheet = new TabSheet();
+            tabSheet.addTab(propertiesPanel, messages.getMessage("form.properties"));
+
+            vll.addComponent(stepTypeLabel);
+            vll.addComponent(tabSheet);
 		}
 		   
 		return vll;

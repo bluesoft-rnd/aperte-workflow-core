@@ -12,7 +12,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -45,7 +44,7 @@ public class PluginsManagerPane extends VerticalLayout {
                     public void close() throws IOException {
                         super.close();
                         final byte[] bytes = toByteArray();
-                        PluginManager pluginManager = ProcessToolContext.Util.getProcessToolContextFromThread().getRegistry().getPluginManager();
+                        PluginManager pluginManager = ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().getPluginManager();
                         pluginManager.registerPlugin(filename,
                                 new ByteArrayInputStream(bytes));
                         displayBundleList();
@@ -85,7 +84,7 @@ public class PluginsManagerPane extends VerticalLayout {
 
     private void displayBundleList() {
         bundleList.removeAllComponents();
-        final PluginManager pluginManager = ProcessToolContext.Util.getProcessToolContextFromThread().getRegistry().getPluginManager();
+        final PluginManager pluginManager = ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().getPluginManager();
         List<PluginMetadata> registeredPlugins = new ArrayList<PluginMetadata>(pluginManager.getRegisteredPlugins());
         Collections.sort(registeredPlugins);
 
@@ -97,7 +96,7 @@ public class PluginsManagerPane extends VerticalLayout {
                 buttonLayout.addComponent(linkButton(getLocalizedMessage("plugins.console.enable"), new Runnable() {
                     @Override
                     public void run() {
-                        ProcessToolContext.Util.getProcessToolContextFromThread().getRegistry().getPluginManager().enablePlugin(metadata);
+                        ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().getPluginManager().enablePlugin(metadata);
                         String msg = getLocalizedMessage("plugins.console.enable.success");
                                                 Window.Notification n = new Window.Notification(msg);
                                                 n.setDelayMsec(-1);
@@ -110,7 +109,7 @@ public class PluginsManagerPane extends VerticalLayout {
                 buttonLayout.addComponent(linkButton(getLocalizedMessage("plugins.console.disable"), new Runnable() {
                     @Override
                     public void run() {
-                        ProcessToolContext.Util.getProcessToolContextFromThread().getRegistry().getPluginManager().disablePlugin(metadata);
+                        ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().getPluginManager().disablePlugin(metadata);
                         String msg = getLocalizedMessage("plugins.console.disable.success");
                         Window.Notification n = new Window.Notification(msg);
                         n.setDelayMsec(-1);
@@ -124,7 +123,7 @@ public class PluginsManagerPane extends VerticalLayout {
                 buttonLayout.addComponent(linkButton(getLocalizedMessage("plugins.console.uninstall"), new Runnable() {
                     @Override
                     public void run() {
-                        ProcessToolContext.Util.getProcessToolContextFromThread().getRegistry().getPluginManager().uninstallPlugin(metadata);
+                        ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().getPluginManager().uninstallPlugin(metadata);
                         String msg = getLocalizedMessage("plugins.console.uninstall.success");
                         Window.Notification n = new Window.Notification(msg);
                         n.setDelayMsec(-1);

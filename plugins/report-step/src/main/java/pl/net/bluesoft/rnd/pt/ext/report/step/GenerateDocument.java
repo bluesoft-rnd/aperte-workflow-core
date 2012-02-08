@@ -140,8 +140,7 @@ public class GenerateDocument implements ProcessToolProcessStep {
 			defaultLocaleName = (String) params.get("defaultLocaleName");
 			initLocale(processInstance);
 			// BUILD REPORT
-			System.out.println("GenerateDocument start");
-			logger.warning("building report");
+			logger.warning("GenerateDocument start, building report");
 			byte[] report = buildReport(processInstance);
 			logger.warning("report built");
 
@@ -150,10 +149,8 @@ public class GenerateDocument implements ProcessToolProcessStep {
 
 			return "OK";
 		} catch (Exception e) {
-			e.printStackTrace();
 			logger.log(Level.SEVERE, e.getMessage(), e);
 			return "ERROR";
-
 		}
 	}
 
@@ -199,9 +196,8 @@ public class GenerateDocument implements ProcessToolProcessStep {
 		Thread t = Thread.currentThread();
 		ClassLoader previousLoader = t.getContextClassLoader();
 		try {
-			ClassLoader newClassLoader = ProcessToolContext.Util.getProcessToolContextFromThread()
+			ClassLoader newClassLoader = ProcessToolContext.Util.getThreadProcessToolContext()
 					.getRegistry().getModelAwareClassLoader(getClass().getClassLoader());
-//			System.out.println(newClassLoader);
 			t.setContextClassLoader(newClassLoader);
 			sessionFacade = new CmisAtomSessionFacade(repositoryUser, repositoryPassword, repositoryAtomUrl,
 			                                          repositoryId);
@@ -221,7 +217,7 @@ public class GenerateDocument implements ProcessToolProcessStep {
 				outputFileName += "__POPUP_" + POPUP_ALWAYS + "__";
 			
 			sessionFacade.uploadDocument(outputFileName, mainFolder, report, mimeType, null);
-			System.out.println("MAIN_FOLDER_PATH: " + mainFolder.getPath());
+			logger.info("MAIN_FOLDER_PATH: " + mainFolder.getPath());
 		} finally {
 			t.setContextClassLoader(previousLoader);
 		}
@@ -234,7 +230,7 @@ public class GenerateDocument implements ProcessToolProcessStep {
 			throw new ReportException("Report template does not exist!");
 		// COMPILE REPORT
 		JasperReport jasperReport = null;
-		ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
+		ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
 		try {
 			ByteArrayInputStream contentInputStream = getContentInputStream(template.getContent());
 			Thread t = Thread.currentThread();
@@ -247,7 +243,6 @@ public class GenerateDocument implements ProcessToolProcessStep {
 				t.setContextClassLoader(previousLoader);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 			throw new ReportException("Report compilation failed!", e);
 		}
 
@@ -266,7 +261,6 @@ public class GenerateDocument implements ProcessToolProcessStep {
 			try {
 				ClassLoader newClassLoader = ctx
 						.getRegistry().getModelAwareClassLoader(getClass().getClassLoader());
-				System.out.println(newClassLoader);
 				t.setContextClassLoader(newClassLoader);
 				parameters.put(DICTIONARY_HELPER, new DictionaryHelperImpl(processInstance));
 				if (jasperReport.getQuery() != null && jasperReport.getQuery().getLanguage().equals("xPath")) {
@@ -275,7 +269,6 @@ public class GenerateDocument implements ProcessToolProcessStep {
 					xs.omitField(ProcessInstance.class, "definition");
 					xs.omitField(ProcessInstance.class, "processLogs");
 					String s = xs.toXML(processInstance);
-					System.out.println(s);
 
 					jasperPrint = JasperFillManager.fillReport(jasperReport,
 					                                           parameters,
@@ -296,7 +289,6 @@ public class GenerateDocument implements ProcessToolProcessStep {
 				t.setContextClassLoader(previousLoader);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 			throw new ReportException("Report filling failed!", e);
 		}
 
@@ -308,14 +300,12 @@ public class GenerateDocument implements ProcessToolProcessStep {
 			try {
 				ClassLoader newClassLoader = ctx
 						.getRegistry().getModelAwareClassLoader(getClass().getClassLoader());
-				System.out.println(newClassLoader);
 				t.setContextClassLoader(newClassLoader);
 				report = exportReport(jasperPrint, format, encoding);
 			} finally {
 				t.setContextClassLoader(previousLoader);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 			throw new ReportException("Report export failed!", e);
 		}
 		return report;

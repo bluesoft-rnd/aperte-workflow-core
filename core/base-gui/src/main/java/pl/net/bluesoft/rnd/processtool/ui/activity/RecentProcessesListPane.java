@@ -21,7 +21,7 @@ public class RecentProcessesListPane extends MyProcessesListPane {
 	@Override
 	protected List<ProcessInstance> getProcessInstances(String filterExpression, int offset, int limit) {
         //rather straightforward approach
-		ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
+		ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
 		return ctx.getProcessInstanceDAO().getRecentProcesses(getBpmSession().getUser(ctx), minDate, filterExpression,
                 offset, limit);
 	}

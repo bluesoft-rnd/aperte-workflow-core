@@ -73,4 +73,11 @@ class EditorHelper {
                 (key.startsWith("processdata") ? "" : "widget.process_data_block.editor.") + key);
     }
     
+    public static String getParametrizedLocalizedMessage(String key, Object... parameters) {
+        return I18NSource.ThreadUtil.getThreadI18nSource().getMessage(
+                (key.startsWith("processdata") ? "" : "widget.process_data_block.editor.") + key,
+                parameters
+        );
+    }
+    
 }

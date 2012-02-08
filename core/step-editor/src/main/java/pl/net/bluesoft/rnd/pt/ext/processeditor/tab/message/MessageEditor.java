@@ -1,8 +1,6 @@
 package pl.net.bluesoft.rnd.pt.ext.processeditor.tab.message;
 
 import com.vaadin.ui.*;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.binary.StringUtils;
 import org.aperteworkflow.editor.domain.Language;
 import pl.net.bluesoft.rnd.pt.ext.vaadin.DataHandler;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
@@ -156,7 +154,7 @@ public class MessageEditor extends VerticalLayout implements TabSheet.CloseHandl
         languageProperties.put(language, area);
 
         TabSheet.Tab tab = languageTabs.addTab(area, language.getCode());
-        tab.setClosable(true);;
+        tab.setClosable(true);
     }
     
     private void removeLanguageTab(Component c) {
@@ -178,7 +176,7 @@ public class MessageEditor extends VerticalLayout implements TabSheet.CloseHandl
         }
 
         for (Language lang : languageMessages.keySet()) {
-            String messagesContent = decodeMessageContent(languageMessages.get(lang));
+            String messagesContent = Native2AsciiUtil.ascii2Native(languageMessages.get(lang));
             addLanguageTab(lang, messagesContent);
         }
     }
@@ -195,7 +193,7 @@ public class MessageEditor extends VerticalLayout implements TabSheet.CloseHandl
         languageMessages = new HashMap<Language, String>();
         for (Language lang : languageProperties.keySet()) {
             PropertiesArea area = languageProperties.get(lang);
-            String messagesContent = encodeMessagesContent((String) area.getValue());
+            String messagesContent = Native2AsciiUtil.native2Ascii((String) area.getValue());
             languageMessages.put(lang, messagesContent);
         }
     }
@@ -204,23 +202,5 @@ public class MessageEditor extends VerticalLayout implements TabSheet.CloseHandl
     public Collection<String> validateData() {
         return null;
     }
-    
-    private String decodeMessageContent(String messagesContent) {
-        if (messagesContent == null) {
-            return null;
-        }
-        byte[] decoded = Base64.decodeBase64(messagesContent);
-        String ascii = StringUtils.newStringUsAscii(decoded);
-        String utf8 = Native2AsciiUtil.ascii2Native(ascii);
-        return utf8.trim();
-    }
-    
-    private String encodeMessagesContent(String messagesContent) {
-        if (messagesContent == null) {
-            return null;
-        }
-        String ascii = Native2AsciiUtil.native2Ascii(messagesContent);
-        byte[] encoded = Base64.encodeBase64(ascii.getBytes());
-        return StringUtils.newStringUsAscii(encoded).trim();
-    }
+
 }

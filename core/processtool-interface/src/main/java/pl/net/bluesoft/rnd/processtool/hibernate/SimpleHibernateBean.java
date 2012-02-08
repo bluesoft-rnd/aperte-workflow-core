@@ -17,7 +17,7 @@ public abstract class SimpleHibernateBean<T> implements HibernateBean<T> {
     protected Class<T> entityType;
 
     public SimpleHibernateBean() {
-        this(ProcessToolContext.Util.getProcessToolContextFromThread().getHibernateSession());
+        this(ProcessToolContext.Util.getThreadProcessToolContext().getHibernateSession());
     }
 
 	public SimpleHibernateBean(Session session) {

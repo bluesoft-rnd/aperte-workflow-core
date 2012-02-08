@@ -33,10 +33,9 @@ import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.WidgetDefinitionLoader
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.XmlConstants;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.jaxb.*;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.*;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.util.lang.StringUtil;
@@ -56,7 +55,8 @@ import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 @AperteDoc(humanNameKey="widget.process_data_block.name", descriptionKey="widget.process_data_block.description")
 @ChildrenAllowed(false)
 @WidgetGroup("base-widgets")
-public class ProcessDataBlockWidget extends BaseProcessToolWidget implements ProcessToolDataWidget, ProcessToolVaadinWidget {
+public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implements ProcessToolDataWidget {
+
     private static final Logger logger = Logger.getLogger(ProcessDataBlockWidget.class.getName());
     private static final Resolver resolver = new DefaultResolver();
 
@@ -72,16 +72,11 @@ public class ProcessDataBlockWidget extends BaseProcessToolWidget implements Pro
 
     @AutoWiredProperty(required=true)
     @AutoWiredPropertyConfigurator(fieldClass = ProcessDataWidgetsDefinitionEditor.class)
-    @AperteDoc(humanNameKey="widget.process_data_block.property.widgetsDefinition.name",
-            descriptionKey="widget.process_data_block.property.widgetsDefinition.description")
+    @AperteDoc(
+        humanNameKey="widget.process_data_block.property.widgetsDefinition.name",
+        descriptionKey="widget.process_data_block.property.widgetsDefinition.description"
+    )
     private String widgetsDefinition;
-
-    @AutoWiredProperty
-    private String caption;
-
-    @AutoWiredProperty
-    @AutoWiredPropertyConfigurator(fieldClass = RichTextArea.class)
-    private String comment;
 
     public void setDefinitionLoader(WidgetDefinitionLoader definitionLoader) {
         this.definitionLoader = definitionLoader;
@@ -96,7 +91,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolWidget implements Pro
                            ProcessToolBpmSession bpmSession, Application application, Set<String> permissions, boolean isOwner) {
         super.setContext(state, configuration, i18NSource, bpmSession,
                 application, permissions, isOwner);
-        ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
+        ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
         processDictionaryRegistry = ctx.getProcessDictionaryRegistry();
     }
 
@@ -280,8 +275,8 @@ public class ProcessDataBlockWidget extends BaseProcessToolWidget implements Pro
                         ProcessDictionaryItem itemProcess = (ProcessDictionaryItem) o;
                         component.addItem(itemProcess.getKey());
                         component.setItemCaption(itemProcess.getKey(), getMessage((String) itemProcess.getValue()));
-                        if (element instanceof SelectWidgetElement) {
-                            SelectWidgetElement select = (SelectWidgetElement) element;
+                        if (element instanceof AbstractSelectWidgetElement) {
+                            AbstractSelectWidgetElement select = (AbstractSelectWidgetElement) element;
                             if (select.getDefaultSelect() != null && i == select.getDefaultSelect()) {
                                 component.setValue(itemProcess.getKey());
                             }
@@ -349,8 +344,10 @@ public class ProcessDataBlockWidget extends BaseProcessToolWidget implements Pro
             component = createGrid((GridWidgetElement) element);
         } else if (element instanceof LinkWidgetElement) {
             component = createLink((LinkWidgetElement) element);
-        } else if (element instanceof SelectWidgetElement) {
-            component = createSelectField((SelectWidgetElement) element);
+        } else if (element instanceof ComboboxSelectElementWidget) {
+            component = createComboSelectField((ComboboxSelectElementWidget) element);
+        } else if (element instanceof RadioButtonSelectElementWidget) {
+            component = createRadioButtonSelectField((RadioButtonSelectElementWidget) element);
         } else if (element instanceof TextAreaWidgetElement) {
             component = createTextAreaField((TextAreaWidgetElement) element);
         } else if (element instanceof CheckBoxWidgetElement) {
@@ -373,6 +370,30 @@ public class ProcessDataBlockWidget extends BaseProcessToolWidget implements Pro
         return component;
     }
 
+    private AbstractComponent createRadioButtonSelectField(RadioButtonSelectElementWidget element) {
+        OptionGroup radioSelect = new OptionGroup();
+        radioSelect.setNullSelectionAllowed(false);
+        radioSelect.setCaption(element.getCaption());
+//        if(element.getValues().isEmpty())
+        for(int i=0; i < element.getValues().size(); i++){
+            ItemElement item = element.getValues().get(i);
+            radioSelect.addItem(item.getKey());
+            radioSelect.setItemCaption(item.getKey(), item.getValue());
+            if (element.getDefaultSelect() != null && i == element.getDefaultSelect()) {
+                radioSelect.setValue(item.getKey());
+            }
+        }
+        if (nvl(element.getRequired(), false)) {
+            radioSelect.setRequired(true);
+            if (hasText(element.getCaption())) {
+                radioSelect.setRequiredError(getMessage("processdata.block.field-required-error") + " " + element.getCaption());
+            } else {
+                radioSelect.setRequiredError(getMessage("processdata.block.field-required-error"));
+            }
+        }
+        return radioSelect;
+    }
+
     private AbstractComponent createFileUploadField(UploadWidgetElement element) {
         FileUploadComponent upload = new FileUploadComponent(i18NSource);
         return upload;
@@ -386,7 +407,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolWidget implements Pro
         return cb;
     }
 
-    private Select createSelectField(SelectWidgetElement swe) {
+    private Select createComboSelectField(ComboboxSelectElementWidget swe) {
         Select select = new Select();
         if (!swe.getValues().isEmpty()) {
             for (int i = 0; i < swe.getValues().size(); ++i) {
@@ -704,14 +725,6 @@ public class ProcessDataBlockWidget extends BaseProcessToolWidget implements Pro
         }
     }
 
-    public String getCaption() {
-        return caption;
-    }
-
-    public void setCaption(String caption) {
-        this.caption = caption;
-    }
-
     public String getWidgetsDefinition() {
         return widgetsDefinition;
     }
@@ -720,11 +733,4 @@ public class ProcessDataBlockWidget extends BaseProcessToolWidget implements Pro
         this.widgetsDefinition = widgetsDefinition;
     }
 
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
 }

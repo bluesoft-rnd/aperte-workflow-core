@@ -1,11 +1,5 @@
 package pl.net.bluesoft.rnd.awf.mule;
 
-import java.io.File;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.mule.MuleServer;
 import org.mule.api.MuleContext;
 import org.mule.api.MuleException;
@@ -19,12 +13,23 @@ import org.mule.context.DefaultMuleContextFactory;
 import org.mule.util.ClassUtils;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 
+import java.io.File;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * Created by IntelliJ IDEA.
  *
  * @author tlipski@bluesoft.net.pl
  */
 public class MulePluginManager {
+    
+    private static final Logger logger = Logger.getLogger(MulePluginManager.class.getName());
+    
     private MuleContext muleContext = null;
     private Map<String, SpringXmlConfigurationBuilder> builderMap = new HashMap<String, SpringXmlConfigurationBuilder>();
 
@@ -43,15 +48,15 @@ public class MulePluginManager {
             }
             while (muleContext != null) {
                 if (muleContext.isDisposed()) {
-                    System.out.println("Mule disposed!");
+                    logger.warning("Mule already disposed!");
                     muleContext = null;
                     break;
                 }
-                System.out.println("Waiting 1s for mule to stop and dispose itself");
+                logger.info("Waiting 1s for mule to stop and dispose itself");
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                    logger.log(Level.SEVERE, e.getMessage(), e);
                 }
 
             }
@@ -70,22 +75,15 @@ public class MulePluginManager {
 
             muleContext = muleContextFactory.createMuleContext(new ArrayList(builderMap.values()), muleContextBuilder);
             muleContext.start();
-        } catch (MuleException e) {
-            e.printStackTrace();
-            throw e;
         } finally {
             Thread.currentThread().setContextClassLoader(contextClassLoader);
         }
     }
 
     public void shutdown() throws MuleException {
-        try {
-            if (muleContext != null) {
-                muleContext.stop();
-                muleContext.dispose();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (muleContext != null) {
+            muleContext.stop();
+            muleContext.dispose();
         }
     }
 

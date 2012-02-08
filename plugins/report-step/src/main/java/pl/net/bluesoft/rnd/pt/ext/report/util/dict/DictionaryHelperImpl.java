@@ -51,7 +51,7 @@ public class DictionaryHelperImpl implements DictionaryHelper {
     }
     
     private void init(ProcessInstance processInstance) {
-        ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
+        ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
         processDictionaryRegistry = ctx.getProcessDictionaryRegistry();
         processDefinitionConfig = processInstance.getDefinition();
         dictionaryMap = new HashMap<String, Map<String, String>>();

@@ -7,14 +7,13 @@
     <parent>
         <artifactId>aperteworkflow-core</artifactId>
         <groupId>org.aperteworkflow</groupId>
-        <version>0.1</version>
+        <version>1.0-SNAPSHOT</version>
     </parent>
 
     <name>Aperte Workflow Samples</name>
 
     <packaging>pom</packaging>
     <artifactId>samples</artifactId>
-    <version>0.1</version>
 
     <modules>
         <module>liferay-poc-process</module>

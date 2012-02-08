@@ -4,7 +4,7 @@
     <parent>
         <artifactId>plugins</artifactId>
         <groupId>org.aperteworkflow</groupId>
-        <version>0.1</version>
+        <version>1.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.aperteworkflow</groupId>
@@ -13,11 +13,15 @@
     <packaging>bundle</packaging>
 
     <dependencies>
-
+        <dependency>
+            <artifactId>cmis-interface</artifactId>
+            <groupId>org.aperteworkflow</groupId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>integration-interface</artifactId>
-            <version>0.1</version>
+            <version>1.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -25,11 +29,6 @@
              <artifactId>hibernate-core</artifactId>
             <version>${hibernate.version}</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <artifactId>cmis-interface</artifactId>
-            <groupId>org.aperteworkflow</groupId>
-            <version>0.1</version>
         </dependency>
         <dependency>
             <groupId>javax.mail</groupId>
@@ -77,8 +76,6 @@
                     </instructions>
                 </configuration>
             </plugin>
-
         </plugins>
     </build>
-
 </project>

@@ -5,12 +5,11 @@
     <parent>
         <artifactId>plugins</artifactId>
         <groupId>org.aperteworkflow</groupId>
-        <version>0.1</version>
+        <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>base-widgets</artifactId>
-    <version>0.1</version>
     <packaging>bundle</packaging>
 
      <repositories>
@@ -32,19 +31,19 @@
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>integration-interface</artifactId>
-            <version>0.1</version>
+            <version>1.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>base-gui</artifactId>
-            <version>0.1</version>
+            <version>1.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>xml-utils</artifactId>
-            <version>0.1</version>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -69,7 +68,6 @@
                 <configuration>
                     <useDefaultManifestFile>true</useDefaultManifestFile>
                 </configuration>
-
             </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>
@@ -103,9 +101,6 @@
                     </instructions>
                 </configuration>
             </plugin>
-
         </plugins>
     </build>
-    
-
 </project>

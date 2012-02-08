@@ -5,22 +5,18 @@
     <parent>
         <artifactId>plugins</artifactId>
         <groupId>org.aperteworkflow</groupId>
-        <version>0.1</version>
+        <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>bpm-notifications</artifactId>
-
-    <version>0.1</version>
-
     <packaging>bundle</packaging>
 
     <dependencies>
-
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>integration-interface</artifactId>
-            <version>0.1</version>
+            <version>1.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -76,7 +72,6 @@
                     </instructions>
                 </configuration>
             </plugin>
-
         </plugins>
     </build>
 </project>

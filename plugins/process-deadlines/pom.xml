@@ -6,12 +6,11 @@
     <parent>
         <artifactId>plugins</artifactId>
         <groupId>org.aperteworkflow</groupId>
-        <version>0.1</version>
+        <version>1.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.aperteworkflow</groupId>
     <artifactId>process-deadlines</artifactId>
-    <version>0.1</version>
 
     <packaging>bundle</packaging>
 
@@ -24,13 +23,13 @@
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>integration-interface</artifactId>
-            <version>0.1</version>
+            <version>1.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>model</artifactId>
-            <version>0.1</version>
+            <version>1.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -48,7 +47,7 @@
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>template-utils</artifactId>
-            <version>0.1</version>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
@@ -62,7 +61,6 @@
                     <useDefaultManifestFile>true</useDefaultManifestFile>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>

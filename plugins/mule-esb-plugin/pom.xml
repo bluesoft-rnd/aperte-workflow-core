@@ -5,12 +5,11 @@
     <parent>
         <artifactId>plugins</artifactId>
         <groupId>org.aperteworkflow</groupId>
-        <version>0.1</version>
+        <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>mule-esb-plugin</artifactId>
-    <version>0.1</version>
     <packaging>bundle</packaging>
 
     <properties>
@@ -27,7 +26,7 @@
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>integration-interface</artifactId>
-            <version>0.1</version>
+            <version>1.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -35,6 +34,7 @@
             <artifactId>mule-core</artifactId>
             <version>${mule.version}</version>
         </dependency>
+
         <!-- Xml configuration -->
         <dependency>
             <groupId>org.mule.modules</groupId>
@@ -159,37 +159,37 @@
 
     </dependencies>
 
-    <repositories>
+    <!--<repositories>-->
+        <!--&lt;!&ndash;<repository>&ndash;&gt;-->
+        <!--&lt;!&ndash;<id>ibeans-repo</id>&ndash;&gt;-->
+        <!--&lt;!&ndash;<name>iBeans Repository</name>&ndash;&gt;-->
+        <!--&lt;!&ndash;<url>http://repository.ibeans.muleforge.org</url>&ndash;&gt;-->
+        <!--&lt;!&ndash;<layout>default</layout>&ndash;&gt;-->
+        <!--&lt;!&ndash;</repository>&ndash;&gt;-->
         <!--<repository>-->
-        <!--<id>ibeans-repo</id>-->
-        <!--<name>iBeans Repository</name>-->
-        <!--<url>http://repository.ibeans.muleforge.org</url>-->
-        <!--<layout>default</layout>-->
+            <!--<id>muleforge-repo</id>-->
+            <!--<name>MuleForge Repository</name>-->
+            <!--<url>http://repository.muleforge.org</url>-->
+            <!--<layout>default</layout>-->
         <!--</repository>-->
-        <repository>
-            <id>muleforge-repo</id>
-            <name>MuleForge Repository</name>
-            <url>http://repository.muleforge.org</url>
-            <layout>default</layout>
-        </repository>
+        <!--&lt;!&ndash;<repository>&ndash;&gt;-->
+        <!--&lt;!&ndash;<id>mulesoft-repo</id>&ndash;&gt;-->
+        <!--&lt;!&ndash;<name>mulesoft Repository</name>&ndash;&gt;-->
+        <!--&lt;!&ndash;<url>http://repository.mulesoft.org</url>&ndash;&gt;-->
+        <!--&lt;!&ndash;<layout>default</layout>&ndash;&gt;-->
+        <!--&lt;!&ndash;</repository>&ndash;&gt;-->
         <!--<repository>-->
-        <!--<id>mulesoft-repo</id>-->
-        <!--<name>mulesoft Repository</name>-->
-        <!--<url>http://repository.mulesoft.org</url>-->
-        <!--<layout>default</layout>-->
+            <!--<id>mulesoft.releases</id>-->
+            <!--<name>Muleforge Releases Repository</name>-->
+            <!--<url>https://repository.mulesoft.org/releases/</url>-->
         <!--</repository>-->
-        <repository>
-            <id>mulesoft.releases</id>
-            <name>Muleforge Releases Repository</name>
-            <url>https://repository.mulesoft.org/releases/</url>
-        </repository>
-        <repository>
-            <id>codehaus-repo</id>
-            <name>Codehaus Repository</name>
-            <url>http://dist.codehaus.org/mule/dependencies/maven2</url>
-            <layout>default</layout>
-        </repository>
-    </repositories>
+        <!--<repository>-->
+            <!--<id>codehaus-repo</id>-->
+            <!--<name>Codehaus Repository</name>-->
+            <!--<url>http://dist.codehaus.org/mule/dependencies/maven2</url>-->
+            <!--<layout>default</layout>-->
+        <!--</repository>-->
+    <!--</repositories>-->
     <build>
         <plugins>
             <plugin>

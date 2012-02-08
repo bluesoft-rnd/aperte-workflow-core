@@ -23,6 +23,11 @@ public interface I18NSource {
         public static I18NSource getThreadI18nSource() {
             return i18nSource.get();
         }
+        
+        public static void removeThreadI18nSource() {
+            i18nSource.remove();
+        }
+        
         public static String getLocalizedMessage(String key) {
             return getThreadI18nSource().getMessage(key);
         }

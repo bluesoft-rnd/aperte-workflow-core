@@ -280,10 +280,6 @@
     </filter-mapping>
 	<filter-mapping>
         <filter-name>PermissionFilter</filter-name>
-        <url-pattern>/queue_editor/*</url-pattern>
-    </filter-mapping>
-	<filter-mapping>
-        <filter-name>PermissionFilter</filter-name>
         <url-pattern>/action_editor/*</url-pattern>
     </filter-mapping>
     <filter-mapping>
@@ -359,15 +355,7 @@
         </init-param>
         <load-on-startup>3</load-on-startup>
     </servlet>
-    <servlet>
-        <servlet-name>QueueEditorServlet</servlet-name>
-        <servlet-class>com.vaadin.terminal.gwt.server.ApplicationServlet</servlet-class>
-        <init-param>
-            <param-name>application</param-name>
-            <param-value>pl.net.bluesoft.rnd.pt.ext.queueeditor.QueueEditorApplication</param-value>
-        </init-param>
-        <load-on-startup>4</load-on-startup>
-    </servlet>
+
     <servlet>
         <servlet-name>ProcessEditorServlet</servlet-name>
         <servlet-class>com.vaadin.terminal.gwt.server.ApplicationServlet</servlet-class>
@@ -433,11 +421,6 @@
         <url-pattern>/VAADIN/*</url-pattern>
     </servlet-mapping>
 
-    <servlet-mapping>
-        <servlet-name>QueueEditorServlet</servlet-name>
-        <url-pattern>/queue_editor/*</url-pattern>
-    </servlet-mapping>
-	
 	<servlet-mapping>
         <servlet-name>ActionEditorServlet</servlet-name>
         <url-pattern>/action_editor/*</url-pattern>

@@ -47,7 +47,7 @@ public class ProcessDefinitionManagerPane extends VerticalLayout {
 
     private void displayDefinitionList() {
         definitionList.removeAllComponents();
-        ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
+        ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
         ProcessToolRegistry registry = ctx.getRegistry();
         ProcessDefinitionDAO dao = registry.getProcessDefinitionDAO(ctx.getHibernateSession());
         List<ProcessDefinitionConfig> latestConfigurations = new ArrayList(dao.getLatestConfigurations());
@@ -61,7 +61,7 @@ public class ProcessDefinitionManagerPane extends VerticalLayout {
                     new Runnable() {
                         @Override
                         public void run() {
-                            ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
+                            ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
                             final ProcessToolRegistry registry = ctx.getRegistry();
                             final ProcessDefinitionDAO dao = registry.getProcessDefinitionDAO(ctx.getHibernateSession());
                             dao.setConfigurationEnabled(cfg, !cfg.getEnabled());
@@ -136,7 +136,7 @@ public class ProcessDefinitionManagerPane extends VerticalLayout {
     }
 
     private VerticalLayout getHistoryPanel(ProcessDefinitionConfig cfg) {
-        ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
+        ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
         final ProcessToolRegistry registry = ctx.getRegistry();
         final ProcessDefinitionDAO dao = registry.getProcessDefinitionDAO(ctx.getHibernateSession());
         List<ProcessDefinitionConfig> configurationVersions = new ArrayList<ProcessDefinitionConfig>(dao.getConfigurationVersions(cfg));

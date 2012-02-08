@@ -11,8 +11,8 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
-import pl.net.bluesoft.rnd.pt.ext.stepeditor.Messages;
 import pl.net.bluesoft.rnd.pt.ext.stepeditor.TaskConfig;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import java.io.IOException;
 import java.util.*;
@@ -34,6 +34,8 @@ public class JSONHandler {
 	public static final String ASSIGNEE = "assignee";
 	public static final String SWIMLANE = "swimlane";
 	public static final String CANDIDATE_GROUPS = "candidate_groups";
+    public static final String DESCRIPTION = "description";
+    public static final String COMMENTARY = "commentary";
 
 	public static class ParsingFailedException extends Exception {
 		public ParsingFailedException(Exception e) {
@@ -70,6 +72,14 @@ public class JSONHandler {
 			if(map.containsKey(CANDIDATE_GROUPS)){
 				resultMap.put(CANDIDATE_GROUPS, map.get(CANDIDATE_GROUPS).toString());
 			}
+            if (map.containsKey(DESCRIPTION)) {
+                resultMap.put(DESCRIPTION, map.get(DESCRIPTION).toString());
+            }
+            if (map.containsKey(COMMENTARY) && map.get(COMMENTARY) != null) {
+                byte[] bytes = ((String) map.get(COMMENTARY)).getBytes();
+                resultMap.put(COMMENTARY, new String(Base64.decodeBase64(bytes)));
+            }
+            
             if (map.containsKey(STEP_PERMISSIONS)) {
                 Collection<Map> jsonPermissions = (Collection<Map>) map.get(STEP_PERMISSIONS);
                 for (Map m : jsonPermissions) {
@@ -187,8 +197,10 @@ public class JSONHandler {
 	}
 
 	protected static String dumpTreeToJSON(Tree tree, WidgetItemInStep rootItem, Object assignee, 
-                                           Object candidateGroups, Object swimlane, String stepName, 
+                                           Object candidateGroups, Object swimlane, String stepName,
+                                           Object description, Object commentary,
                                            Collection<Permission> permissions) {
+		I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
 		TaskConfig tc = new TaskConfig();
 		tc.setTaskName(stepName);
 		
@@ -197,6 +209,12 @@ public class JSONHandler {
 		treeMap.put(CANDIDATE_GROUPS, candidateGroups);
 		treeMap.put(SWIMLANE, swimlane);
         treeMap.put(STEP_PERMISSIONS, permissions);
+        treeMap.put(DESCRIPTION, description);
+
+        if (commentary != null) {
+            byte[] bytes = commentary.toString().getBytes();
+            treeMap.put(COMMENTARY, Base64.encodeBase64URLSafeString(bytes));
+        }
 		
         tc.setParams(treeMap);
         
@@ -211,7 +229,7 @@ public class JSONHandler {
 		} catch (IOException e) {
             logger.log(Level.SEVERE, "Error dumping tree", e);
 		}
-		return Messages.getString("dump.failed");
+		return messages.getMessage("dump.failed");
 	}
 
 }

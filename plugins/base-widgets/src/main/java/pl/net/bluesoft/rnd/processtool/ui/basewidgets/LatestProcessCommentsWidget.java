@@ -6,10 +6,9 @@ import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComment;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComments;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.*;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolVaadinWidget;
 import pl.net.bluesoft.util.lang.FormatUtil;
 
 import java.util.*;
@@ -20,18 +19,14 @@ import static pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessHistoryWidge
 @AperteDoc(humanNameKey="widget.latest_process_comments.name", descriptionKey="widget.latest_process_comments.description")
 @ChildrenAllowed(false)
 @WidgetGroup("base-widgets")
-public class LatestProcessCommentsWidget extends BaseProcessToolWidget implements ProcessToolVaadinWidget, ProcessToolDataWidget {
+public class LatestProcessCommentsWidget extends BaseProcessToolVaadinWidget implements ProcessToolDataWidget {
 
     @AutoWiredProperty(required = false)
-    @AperteDoc(humanNameKey="widget.latest_process_comments.property.displayed_comments.name", descriptionKey="widget.latest_process_comments.property.displayed_comments.description")
+    @AperteDoc(
+            humanNameKey="widget.latest_process_comments.property.displayed_comments.name",
+            descriptionKey="widget.latest_process_comments.property.displayed_comments.description"
+    )
     private Integer displayedComments = 1;
-
-    @AutoWiredProperty
-    private String caption;
-
-    @AutoWiredProperty
-    @AutoWiredPropertyConfigurator(fieldClass = RichTextArea.class)
-    private String comment;
 
     private BeanItemContainer<ProcessComment> bic = new BeanItemContainer<ProcessComment>(ProcessComment.class);
 
@@ -129,19 +124,4 @@ public class LatestProcessCommentsWidget extends BaseProcessToolWidget implement
         this.displayedComments = displayedComments;
     }
 
-    public String getCaption() {
-        return caption;
-    }
-
-    public void setCaption(String caption) {
-        this.caption = caption;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
 }

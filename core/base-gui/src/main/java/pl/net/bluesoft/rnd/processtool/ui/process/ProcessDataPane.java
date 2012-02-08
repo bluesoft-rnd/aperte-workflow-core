@@ -57,8 +57,8 @@ public class ProcessDataPane extends VerticalLayout {
         this.displayProcessContext = hideProcessHandler;
         setSpacing(true);
         setMargin(new MarginInfo(false, false, true, true));
-        ProcessDataPane.this.process = bpmSession.getProcessData(process.getInternalId(), ProcessToolContext.Util.getProcessToolContextFromThread());
-        initLayout(ProcessToolContext.Util.getProcessToolContextFromThread(), false);
+        ProcessDataPane.this.process = bpmSession.getProcessData(process.getInternalId(), ProcessToolContext.Util.getThreadProcessToolContext());
+        initLayout(ProcessToolContext.Util.getThreadProcessToolContext(), false);
 
     }
 
@@ -192,7 +192,7 @@ public class ProcessDataPane extends VerticalLayout {
             button.addListener(new Button.ClickListener() {
                 @Override
                 public void buttonClick(Button.ClickEvent event) {
-                    final ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
+                    final ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
                     ProcessInstance pd = bpmSession.getProcessData(process.getInternalId(), ctx);
                     Map<ProcessToolDataWidget, Collection<String>> validationErrors = getValidationErrors(pd);
                     actionButton.onButtonPress(pd, ctx, dataWidgets, validationErrors, new ProcessToolActionCallback() {
@@ -200,7 +200,7 @@ public class ProcessDataPane extends VerticalLayout {
                         public boolean saveProcessData() {
                             withErrorHandling(application, new Runnable() {
                                 public void run() {
-                                    final ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
+                                    final ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
                                     ProcessInstance pi = bpmSession.getProcessData(process.getInternalId(), ctx);
                                     for (ProcessToolDataWidget w : dataWidgets) {
                                         w.saveData(pi);
@@ -216,7 +216,7 @@ public class ProcessDataPane extends VerticalLayout {
                         public void performAction(final ProcessStateAction a) {
                             withErrorHandling(application, new Runnable() {
                                 public void run() {
-                                    final ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
+                                    final ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
                                     ProcessDataPane.this.performAction(ctx, a);
                                     initLayout(ctx, actionButton.isAutoHide());
                                 }
@@ -267,8 +267,8 @@ public class ProcessDataPane extends VerticalLayout {
     private ProcessToolActionButton makeButton(ProcessStateAction a) {
         ProcessToolActionButton actionButton = null;
         try {
-            actionButton = ProcessToolContext.Util.getProcessToolContextFromThread().getRegistry().makeButton(a.getButtonName());
-            actionButton.setLoggedUser(bpmSession.getUser(ProcessToolContext.Util.getProcessToolContextFromThread()));
+            actionButton = ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().makeButton(a.getButtonName());
+            actionButton.setLoggedUser(bpmSession.getUser(ProcessToolContext.Util.getThreadProcessToolContext()));
             processAutowiredProperties(actionButton, a);
             if (actionButton instanceof ProcessToolVaadinActionButton) {
                 ProcessToolVaadinActionButton vButton = (ProcessToolVaadinActionButton) actionButton;
@@ -425,7 +425,7 @@ public class ProcessDataPane extends VerticalLayout {
                 }
             }
             String v = nvl(m.get(autoName),
-                    ProcessToolContext.Util.getProcessToolContextFromThread().getSetting("autowire." + autoName));
+                    ProcessToolContext.Util.getThreadProcessToolContext().getSetting("autowire." + autoName));
             if (autoName != null && v != null) {
                 try {
                     logger.fine("Setting attribute " + autoName + " to " + v);

@@ -2,7 +2,7 @@ package pl.net.bluesoft.rnd.pt.ext.processeditor;
 
 import com.vaadin.ui.*;
 import org.aperteworkflow.editor.domain.ProcessConfig;
-import org.aperteworkflow.editor.domain.ProcessModelConfig;
+import pl.net.bluesoft.rnd.pt.ext.processeditor.tab.definition.ProcessDefinitionTab;
 import pl.net.bluesoft.rnd.pt.ext.processeditor.tab.message.MessageTab;
 import pl.net.bluesoft.rnd.pt.ext.processeditor.tab.other.OtherTab;
 import pl.net.bluesoft.rnd.pt.ext.processeditor.tab.permission.ProcessPermissionTab;
@@ -12,6 +12,7 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 
 import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * Main panel for process editor application
@@ -19,10 +20,13 @@ import java.util.Collection;
 public class ProcessEditorPanel extends GridLayout implements DataHandler {
 
     private TabSheet tabSheet;
+
     private OtherTab otherTab;
     private QueueTab queueTab;
     private ProcessPermissionTab permissionTab;
     private MessageTab messageTab;
+    private ProcessDefinitionTab processDefinitionTab;
+
     private Label titleLabel;
     private Button saveButton;
 
@@ -53,6 +57,7 @@ public class ProcessEditorPanel extends GridLayout implements DataHandler {
         tabSheet = new TabSheet();
         tabSheet.setSizeFull();
         tabSheet.addTab(permissionTab = new ProcessPermissionTab(), messages.getMessage("process.editor.process.permissions"));
+        tabSheet.addTab(processDefinitionTab = new ProcessDefinitionTab(), messages.getMessage("process.editor.process.definition"));
         tabSheet.addTab(queueTab = new QueueTab(), messages.getMessage("process.editor.queues"));
         tabSheet.addTab(messageTab = new MessageTab(), messages.getMessage("process.editor.messages"));
         tabSheet.addTab(otherTab = new OtherTab(), messages.getMessage("process.editor.other"));
@@ -70,18 +75,24 @@ public class ProcessEditorPanel extends GridLayout implements DataHandler {
 
     @Override
     public void loadData() {
-        permissionTab.loadData();
-        queueTab.loadData();
-        otherTab.loadData();
-        messageTab.loadData();
+        Iterator<Component> it = tabSheet.getComponentIterator();
+        while (it.hasNext()) {
+            Component c = it.next();
+            if (c instanceof DataHandler) {
+                ((DataHandler) c).loadData();
+            }
+        }
     }
 
     @Override
     public void saveData() {
-        permissionTab.saveData();
-        queueTab.saveData();
-        otherTab.saveData();
-        messageTab.saveData();
+        Iterator<Component> it = tabSheet.getComponentIterator();
+        while (it.hasNext()) {
+            Component c = it.next();
+            if (c instanceof DataHandler) {
+                ((DataHandler) c).saveData();
+            }
+        }
     }
 
     @Override
@@ -89,13 +100,11 @@ public class ProcessEditorPanel extends GridLayout implements DataHandler {
         return null;
     }
 
-    public void setProcessModelConfig(ProcessModelConfig processModelConfig) {
-        otherTab.setProcessModelConfig(processModelConfig);
-    }
-
     public void setProcessConfig(ProcessConfig processConfig) {
         permissionTab.setProcessConfig(processConfig);
         queueTab.setProcessConfig(processConfig);
         messageTab.setProcessConfig(processConfig);
+        otherTab.setProcessConfig(processConfig);
+        processDefinitionTab.setProcessConfig(processConfig);
     }
 }

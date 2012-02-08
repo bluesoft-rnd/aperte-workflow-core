@@ -1,23 +1,26 @@
 package pl.net.bluesoft.rnd.pt.ext.processeditor.tab.message;
 
 import com.vaadin.ui.VerticalLayout;
+import org.aperteworkflow.editor.domain.Language;
 import org.aperteworkflow.editor.domain.ProcessConfig;
 import pl.net.bluesoft.rnd.pt.ext.vaadin.DataHandler;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MessageTab extends VerticalLayout implements DataHandler {
 
     private ProcessConfig processConfig;
 
-    private TrivialMessageEditor editor;
+    private MessageEditor editor;
 
     public MessageTab() {
         initComponent();
     }
 
     private void initComponent() {
-        editor = new TrivialMessageEditor();
+        editor = new MessageEditor();
 
         setMargin(true);
         addComponent(editor);
@@ -25,7 +28,17 @@ public class MessageTab extends VerticalLayout implements DataHandler {
 
     @Override
     public void loadData() {
-        editor.setMessagesContent(processConfig.getMessages());
+        if (processConfig.getMessages() == null) {
+            editor.setLanguageMessages(null);
+        } else {
+            Map<Language, String> messages = new HashMap<Language, String>();
+            for (String langCode : processConfig.getMessages().keySet()) {
+                Language lang = new Language();
+                lang.setCode(langCode);
+                messages.put(lang, processConfig.getMessages().get(langCode));
+            }
+            editor.setLanguageMessages(messages);
+        }
 
         editor.loadData();
     }
@@ -34,12 +47,20 @@ public class MessageTab extends VerticalLayout implements DataHandler {
     public void saveData() {
         editor.saveData();
 
-        processConfig.setMessages(editor.getMessagesContent());
+        if (editor.getLanguageMessages() == null) {
+            processConfig.setMessages(null);
+        } else {
+            Map<String, String> messages = new HashMap<String, String>();
+            for (Language lang : editor.getLanguageMessages().keySet()) {
+                messages.put(lang.getCode(), editor.getLanguageMessages().get(lang));
+            }
+            processConfig.setMessages(messages);
+        }
     }
 
     @Override
     public Collection<String> validateData() {
-        return null;
+        return editor.validateData();
     }
 
     public void setProcessConfig(ProcessConfig processConfig) {

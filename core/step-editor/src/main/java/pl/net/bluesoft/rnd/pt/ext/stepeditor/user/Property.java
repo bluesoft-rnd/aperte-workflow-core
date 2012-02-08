@@ -7,19 +7,12 @@ import java.io.Serializable;
 
 public class Property<T> extends ObjectProperty<T> implements Serializable, Cloneable, Comparable<Property<?>> {
 
-    public enum PropertyType {
-        PROPERTY,
-        PERMISSION
-    }
-	
-	private static final long serialVersionUID = -6913191546296165712L;
+    private static final long serialVersionUID = -6913191546296165712L;
 	private String name;
 	private String description;
-	private String[] allowedValues;
 	private String propertyId;
 	private boolean required;
-	private PropertyType propertyType;
-    private Class<? extends Field> propertyField;
+	private Class<? extends Field> propertyField;
 
     public Property(Class<T> type) {
         this(null, type);
@@ -61,14 +54,6 @@ public class Property<T> extends ObjectProperty<T> implements Serializable, Clon
 		this.name = name;
 	}
 	
-	public String[] getAllowedValues() {
-		return allowedValues;
-	}
-
-	public void setAllowedValues(String[] allowedValues) {
-		this.allowedValues = allowedValues;
-	}
-
 	public String getPropertyId() {
 		return propertyId;
 	}
@@ -91,14 +76,6 @@ public class Property<T> extends ObjectProperty<T> implements Serializable, Clon
 
 	public void setRequired(boolean required) {
 		this.required = required;
-	}
-
-	public PropertyType getPropertyType() {
-		return propertyType;
-	}
-
-	public void setPropertyType(PropertyType propertyType) {
-		this.propertyType = propertyType;
 	}
 
     public Class<? extends Field> getPropertyFieldClass() {

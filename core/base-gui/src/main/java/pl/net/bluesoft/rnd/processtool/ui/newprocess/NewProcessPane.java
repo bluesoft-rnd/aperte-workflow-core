@@ -29,7 +29,7 @@ public class NewProcessPane extends VerticalLayout {
 
 		BeanItemContainer<ProcessDefinitionConfig> bic = new BeanItemContainer<ProcessDefinitionConfig>(ProcessDefinitionConfig.class);
 		final ComboBox l = new ComboBox(getMessage("tasks.processType"), bic);
-		ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
+		ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
 
 		for (ProcessDefinitionConfig cfg : session.getAvailableConfigurations(ctx)) {
 			bic.addItem(cfg);
@@ -51,7 +51,7 @@ public class NewProcessPane extends VerticalLayout {
 				if (l.getValue() == null) return;
 				withErrorHandling(getApplication(), new Runnable() {
 					public void run() {
-						ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
+						ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
 
 						ProcessDefinitionConfig cfg = (ProcessDefinitionConfig) l.getValue();
 						//find latest definition

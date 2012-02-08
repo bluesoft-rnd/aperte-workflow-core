@@ -57,7 +57,7 @@ public class DeadlineEngine implements ProcessToolTemplateLoader {
         autoUser.setEmail("none@none.none");
         autoUser.setRealName("Deadline Notify user");
 
-        ProcessToolContext context = ProcessToolContext.Util.getProcessToolContextFromThread();
+        ProcessToolContext context = ProcessToolContext.Util.getThreadProcessToolContext();
         ProcessToolBpmSession bpmSession = context.getProcessToolSessionFactory().createSession(autoUser, new HashSet<String>());
 
         Session session = context.getHibernateSession();
@@ -135,15 +135,13 @@ public class DeadlineEngine implements ProcessToolTemplateLoader {
         registry.withProcessToolContext(new ProcessToolContextCallback() {
             @Override
             public void withContext(ProcessToolContext ctx) {
-                ProcessToolContext.Util.setProcessToolContextForThread(ctx);
+                ProcessToolContext.Util.setThreadProcessToolContext(ctx);
                 try {
                     processDeadlineJob(ctx, processInstanceId, userLogin, taskName, templateName);
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     logger.log(Level.SEVERE, "Exception while sending deadline notification", e);
-                }
-                finally {
-                    ProcessToolContext.Util.removeProcessToolContextForThread(ctx);
+                } finally {
+                    ProcessToolContext.Util.removeThreadProcessToolContext();
                 }
             }
         });
@@ -165,7 +163,7 @@ public class DeadlineEngine implements ProcessToolTemplateLoader {
     @Override
     public List<ProcessToolNotificationTemplate> loadTemplates() {
         List<ProcessToolNotificationTemplate> templates = new ArrayList<ProcessToolNotificationTemplate>();
-        Session session = ProcessToolContext.Util.getProcessToolContextFromThread().getHibernateSession();
+        Session session = ProcessToolContext.Util.getThreadProcessToolContext().getHibernateSession();
         templates.addAll(session.createCriteria(DeadlineNotificationTemplate.class).list());
         return templates;
     }

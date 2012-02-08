@@ -51,7 +51,6 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory 
         }
     }
 	public void withProcessToolContextNonJta(ProcessToolContextCallback callback) {
-		long t = System.currentTimeMillis();
 		Session session = registry.getSessionFactory().openSession();
 		try {
 			ProcessEngine pi = getProcessEngine();
@@ -64,9 +63,8 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory 
 					logger.log(Level.SEVERE, e.getMessage(), e);
 					try {
 						tx.rollback();
-					}
-					catch (Exception e1) {
-						logger.log(Level.WARNING, e1.getMessage(), e);
+					} catch (Exception e1) {
+						logger.log(Level.WARNING, e1.getMessage(), e1);
 					}
 					throw e;
 				}
@@ -78,8 +76,6 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory 
 		} finally {
 			session.close();
 		}
-
-
     }
 
     public void withProcessToolContextJta(ProcessToolContextCallback callback) {
@@ -93,7 +89,7 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory 
                 ut = (UserTransaction) new InitialContext().lookup("UserTransaction");
             }
 
-            System.out.println("ut.getStatus() = " + ut.getStatus());
+            logger.fine("ut.getStatus() = " + ut.getStatus());
             if (ut.getStatus() == Status.STATUS_MARKED_ROLLBACK) {
                 ut.rollback();
             }
@@ -111,7 +107,7 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory 
                         try {
                             ut.rollback();
                         } catch (Exception e1) {
-                            logger.log(Level.WARNING, e1.getMessage(), e);
+                            logger.log(Level.WARNING, e1.getMessage(), e1);
                         }
                         throw e;
                     }
@@ -133,7 +129,6 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory 
         ClassLoader previousLoader = t.getContextClassLoader();
         try {
             ClassLoader newClassLoader = getClass().getClassLoader();
-            System.out.println(newClassLoader);
             t.setContextClassLoader(newClassLoader);
             return configuration.buildProcessEngine();
         } finally {
@@ -157,7 +152,7 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory 
             @Override
             public void withContext(ProcessToolContext processToolContext) {
 
-                ProcessToolContext.Util.setProcessToolContextForThread(processToolContext);
+                ProcessToolContext.Util.setThreadProcessToolContext(processToolContext);
                 try {
                     boolean skipJbpm = false;
                     InputStream is = bpmStream;
@@ -187,7 +182,7 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory 
                         logger.log(Level.INFO, "created/updated " + queues.length + " queues");
                     }
                 } finally {
-                    ProcessToolContext.Util.removeProcessToolContextForThread(processToolContext);
+                    ProcessToolContext.Util.removeThreadProcessToolContext();
                 }
             }
         });
@@ -250,7 +245,6 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory 
         ClassLoader previousLoader = t.getContextClassLoader();
         try {
             ClassLoader newClassLoader = getClass().getClassLoader();
-            System.out.println(newClassLoader);
             t.setContextClassLoader(newClassLoader);
             configuration = new Configuration();
             configuration.setHibernateSessionFactory(registry.getSessionFactory());

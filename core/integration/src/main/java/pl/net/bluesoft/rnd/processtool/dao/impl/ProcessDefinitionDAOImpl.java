@@ -103,6 +103,7 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 		if (!cfg.getDescription().equals(c.getDescription())) return false;
 		if (!cfg.getProcessName().equals(c.getProcessName())) return false;
 		if (cfg.getStates().size() != c.getStates().size()) return false;
+        if (!Arrays.equals(cfg.getProcessLogo(), c.getProcessLogo())) return false;
 
 		Map<String,ProcessStateConfiguration> oldMap = new HashMap();
 		for (ProcessStateConfiguration s : cfg.getStates()) {

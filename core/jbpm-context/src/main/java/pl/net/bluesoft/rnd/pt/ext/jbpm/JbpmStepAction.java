@@ -32,7 +32,7 @@ public class JbpmStepAction {
     public Map params = new HashMap();
 
     public String invoke() {
-        ProcessToolContext ptc = ProcessToolContext.Util.getProcessToolContextFromThread();
+        ProcessToolContext ptc = ProcessToolContext.Util.getThreadProcessToolContext();
         ProcessInstanceDAO dao = ptc.getProcessInstanceDAO();
         ProcessInstance pi = dao.getProcessInstance(Long.parseLong(processInstanceId));
 
@@ -81,7 +81,7 @@ public class JbpmStepAction {
                 }
             }
             String v = nvl(m.get(autoName),
-                           ProcessToolContext.Util.getProcessToolContextFromThread().getSetting("autowire." + autoName));
+                           ProcessToolContext.Util.getThreadProcessToolContext().getSetting("autowire." + autoName));
             if (autoName != null && v != null) {
                 try {
                     logger.warning("Setting attribute " + autoName + " to " + v);

@@ -18,40 +18,35 @@ import java.io.IOException;
 public class ProcessToolVaadinApplicationPortlet2 extends ApplicationPortlet2 {
 
 	@Override
-	protected void handleRequest(final PortletRequest request, final PortletResponse response) throws PortletException, IOException {
-
+	protected void handleRequest(final PortletRequest request, final PortletResponse response)
+            throws PortletException, IOException {
 
 		ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
 		try {
-
 			ProcessToolRegistry registry = (ProcessToolRegistry) getPortletConfig()
 					.getPortletContext().getAttribute(ProcessToolRegistry.class.getName());
 			registry.withProcessToolContext(new ProcessToolContextCallback() {
 				@Override
 				public void withContext(ProcessToolContext ctx) {
-					ProcessToolContext.Util.setProcessToolContextForThread(ctx);
+					ProcessToolContext.Util.setThreadProcessToolContext(ctx);
 					try {
-//						request.setAttribute(ProcessToolContextImpl.class.getName(), ctx);
                         try {
                             I18NSource.ThreadUtil.setThreadI18nSource(new DefaultI18NSource(request.getLocale()));
 						    ProcessToolVaadinApplicationPortlet2.super.handleRequest(request, response);
-                        }
-                        finally {
-                            I18NSource.ThreadUtil.setThreadI18nSource(null);
+                        } finally {
+                            I18NSource.ThreadUtil.removeThreadI18nSource();
                         }
 					} catch (Exception e) {
 						throw new RuntimeException(e);
 					} finally {
-						ProcessToolContext.Util.removeProcessToolContextForThread(ctx);
+						ProcessToolContext.Util.removeThreadProcessToolContext();
 					}
 				}
 			});
-		}
-		finally {
+		} finally {
 			Thread.currentThread().setContextClassLoader(contextClassLoader);
 		}
-
 
 	}
 }

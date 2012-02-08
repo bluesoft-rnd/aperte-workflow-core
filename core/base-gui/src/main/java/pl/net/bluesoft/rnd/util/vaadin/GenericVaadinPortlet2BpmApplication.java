@@ -69,7 +69,7 @@ public abstract class GenericVaadinPortlet2BpmApplication extends Application im
 
 	@Override
 	public void withTransaction(final ProcessToolGuiCallback r) {
-		ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
+		ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
 		r.callback(ctx, bpmSession);
 	}
 
@@ -94,7 +94,7 @@ public abstract class GenericVaadinPortlet2BpmApplication extends Application im
 			PortletSession session = ((PortletApplicationContext2) (getContext())).getPortletSession();
 			bpmSession = (ProcessToolBpmSession) session.getAttribute("bpmSession", PortletSession.APPLICATION_SCOPE);
 			if (bpmSession == null) {
-				ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
+				ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
 				session.setAttribute("bpmSession",
 						bpmSession = ctx.getProcessToolSessionFactory().createSession(user, userRoles),
 						PortletSession.APPLICATION_SCOPE);

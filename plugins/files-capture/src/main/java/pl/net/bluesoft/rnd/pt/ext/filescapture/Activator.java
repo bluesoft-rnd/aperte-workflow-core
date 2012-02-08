@@ -6,8 +6,8 @@ import org.osgi.framework.ServiceReference;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
-import pl.net.bluesoft.rnd.pt.ext.filescapture.model.FilesCheckerRuleConfiguration;
 import pl.net.bluesoft.rnd.pt.ext.filescapture.model.FilesCheckerConfiguration;
+import pl.net.bluesoft.rnd.pt.ext.filescapture.model.FilesCheckerRuleConfiguration;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -41,11 +41,11 @@ public class Activator implements BundleActivator {
                             toolRegistry.withProcessToolContext(new ProcessToolContextCallback() {
                                 @Override
                                 public void withContext(ProcessToolContext ctx) {
-                                    ProcessToolContext.Util.setProcessToolContextForThread(ctx);
+                                    ProcessToolContext.Util.setThreadProcessToolContext(ctx);
                                     try {
                                         new FilesChecker(ctx).run();
                                     } finally {
-                                        ProcessToolContext.Util.removeProcessToolContextForThread(ctx);
+                                        ProcessToolContext.Util.removeThreadProcessToolContext();
                                     }
                                 }
                             });

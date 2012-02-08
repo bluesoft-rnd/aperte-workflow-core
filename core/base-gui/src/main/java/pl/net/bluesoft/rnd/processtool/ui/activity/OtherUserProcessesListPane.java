@@ -4,13 +4,7 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
-import pl.net.bluesoft.rnd.processtool.ui.tasks.TasksMainPane;
 import pl.net.bluesoft.rnd.util.liferay.LiferayBridge;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static pl.net.bluesoft.rnd.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
 
 /**
  * User: POlszewski
@@ -35,7 +29,7 @@ public class OtherUserProcessesListPane extends MyProcessesListPane {
     @Override
     protected ProcessToolBpmSession getBpmSession() {
         if (bmpSession == null) {
-            ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
+            ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
             bmpSession = activityMainPane.getBpmSession().createSession(userData, LiferayBridge.getUserRoles(userData), ctx);
         }
         return bmpSession;

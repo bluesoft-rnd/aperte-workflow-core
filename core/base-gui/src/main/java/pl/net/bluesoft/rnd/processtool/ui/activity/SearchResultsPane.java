@@ -29,7 +29,7 @@ public class SearchResultsPane extends ProcessListPane {
     protected List<ProcessInstance> getProcessInstances(String filterExpression, int offset, int limit) {
 
         Collection<String> roleNames = activityMainPane.getBpmSession().getRoleNames();
-        return new ArrayList<ProcessInstance>(ProcessToolContext.Util.getProcessToolContextFromThread()
+        return new ArrayList<ProcessInstance>(ProcessToolContext.Util.getThreadProcessToolContext()
                 .getProcessInstanceDAO().searchProcesses(filterExpression, offset, limit,
                         true,
                         roleNames.toArray(new String[roleNames.size()]),

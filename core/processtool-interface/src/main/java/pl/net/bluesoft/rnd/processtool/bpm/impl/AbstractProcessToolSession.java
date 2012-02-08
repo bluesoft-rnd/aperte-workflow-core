@@ -200,6 +200,7 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
                 }
             }
         }
+        Collections.sort(res);
         return res;
     }
 

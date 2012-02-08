@@ -12,6 +12,8 @@ public class ProcessConfig implements Serializable {
     private List<Permission> processPermissions;
     private List<Queue> queues;
 
+    private String comment;
+    
     // This Map should be parametrized as <Language, String> however Jackson does not support
     // this out of the box, @see http://stackoverflow.com/questions/6371092/can-not-find-a-map-key-deserializer-for-type-simple-type-class-com-comcast-i
     // we use this dirty approach instead of registering custom module for Language class serialization
@@ -49,5 +51,13 @@ public class ProcessConfig implements Serializable {
 
     public void setMessages(Map<String, String> messages) {
         this.messages = messages;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 }

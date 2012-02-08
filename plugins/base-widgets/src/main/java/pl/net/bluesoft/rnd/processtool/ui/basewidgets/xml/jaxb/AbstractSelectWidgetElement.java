@@ -13,7 +13,6 @@ import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 //@XmlRootElement(name = "select")
-
 public abstract class AbstractSelectWidgetElement extends WidgetElement {
     @XmlElements({
             @XmlElement(name = "item", type = ItemElement.class)
@@ -34,6 +33,7 @@ public abstract class AbstractSelectWidgetElement extends WidgetElement {
 
     @XmlAttribute
     @XStreamAsAttribute
+    @AperteDoc(humanNameKey = "any.required.humanName", descriptionKey = "any.required.description")
     private Boolean required;
 
     public List<ItemElement> getValues() {

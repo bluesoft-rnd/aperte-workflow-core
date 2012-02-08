@@ -10,8 +10,7 @@
         <version>0.1</version>
     </parent>
 
-    <name>samples</name>
-    <description>Aperte Workflow Samples</description>
+    <name>Aperte Workflow Samples</name>
 
     <packaging>pom</packaging>
     <artifactId>samples</artifactId>

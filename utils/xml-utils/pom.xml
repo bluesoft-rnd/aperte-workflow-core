@@ -9,8 +9,6 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <name>xml-utils</name>
-
     <packaging>jar</packaging>
     <artifactId>xml-utils</artifactId>
     <groupId>org.aperteworkflow</groupId>

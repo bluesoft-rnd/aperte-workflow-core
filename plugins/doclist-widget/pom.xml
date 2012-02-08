@@ -10,7 +10,6 @@
     <groupId>org.aperteworkflow</groupId>
     <artifactId>doclist-widget</artifactId>
     <version>0.1</version>
-    <name>doclist-widget</name>
 
     <packaging>bundle</packaging>
 
@@ -18,7 +17,7 @@
 
         <dependency>
             <groupId>org.aperteworkflow</groupId>
-            <artifactId>processtool-interface</artifactId>
+            <artifactId>integration-interface</artifactId>
             <version>0.1</version>
             <scope>provided</scope>
         </dependency>
@@ -33,12 +32,6 @@
             <!--<groupId>org.aperteworkflow</groupId>-->
             <!--<version>0.1</version>-->
         <!--</dependency>-->
-        <dependency>
-            <artifactId>junit</artifactId>
-            <groupId>junit</groupId>
-            <version>4.8.2</version>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>com.liferay.portal</groupId>
             <artifactId>portal-service</artifactId>

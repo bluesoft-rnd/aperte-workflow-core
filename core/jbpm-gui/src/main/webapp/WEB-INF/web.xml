@@ -351,7 +351,7 @@
         <servlet-class>com.vaadin.terminal.gwt.server.ApplicationServlet</servlet-class>
         <init-param>
             <param-name>application</param-name>
-            <param-value>pl.net.bluesoft.rnd.pt.ext.stepeditor.StepEditorApplication</param-value>
+            <param-value>org.aperteworkflow.editor.stepeditor.StepEditorApplication</param-value>
         </init-param>
         <load-on-startup>3</load-on-startup>
     </servlet>
@@ -361,7 +361,7 @@
         <servlet-class>com.vaadin.terminal.gwt.server.ApplicationServlet</servlet-class>
         <init-param>
             <param-name>application</param-name>
-            <param-value>pl.net.bluesoft.rnd.pt.ext.processeditor.ProcessEditorApplication</param-value>
+            <param-value>org.aperteworkflow.editor.processeditor.ProcessEditorApplication</param-value>
         </init-param>
         <load-on-startup>5</load-on-startup>
     </servlet>
@@ -370,7 +370,7 @@
         <servlet-class>com.vaadin.terminal.gwt.server.ApplicationServlet</servlet-class>
         <init-param>
             <param-name>application</param-name>
-            <param-value>pl.net.bluesoft.rnd.pt.ext.stepeditor.DummyApplication</param-value>
+            <param-value>org.aperteworkflow.editor.stepeditor.DummyApplication</param-value>
         </init-param>
         <load-on-startup>6</load-on-startup>
     </servlet>
@@ -384,7 +384,7 @@
         <servlet-class>com.vaadin.terminal.gwt.server.ApplicationServlet</servlet-class>
         <init-param>
             <param-name>application</param-name>
-            <param-value>pl.net.bluesoft.rnd.pt.ext.actioneditor.ActionEditorApplication</param-value>
+            <param-value>org.aperteworkflow.editor.actioneditor.ActionEditorApplication</param-value>
         </init-param>
         <load-on-startup>8</load-on-startup>
     </servlet>

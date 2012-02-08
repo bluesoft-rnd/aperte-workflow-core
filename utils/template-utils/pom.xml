@@ -9,8 +9,6 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <name>template-utils</name>
-
     <packaging>jar</packaging>
     <artifactId>template-utils</artifactId>
 
@@ -28,7 +26,7 @@
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
-            <artifactId>processtool-interface</artifactId>
+            <artifactId>integration-interface</artifactId>
             <version>0.1</version>
         </dependency>
     </dependencies>

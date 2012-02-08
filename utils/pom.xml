@@ -10,7 +10,8 @@
         <version>0.1</version>
     </parent>
 
-    <name>utils</name>
+    <name>Aperte Workflow Utils</name>
+
     <artifactId>utils</artifactId>
     <packaging>pom</packaging>
 

@@ -34,7 +34,7 @@ public class AlignElement extends HasWidgetsElement {
         ALIGN_POS_RIGHT_BOTTOM,
         ALIGN_POS_RIGHT_MIDDLE
     })
-    @AperteDoc(humanNameKey = "align.pos.humanName", descriptionKey = "align.pos.description")
+    @AperteDoc(humanNameKey = "align.pos", descriptionKey = "align.pos.description")
     private String pos;
 
     public String getPos() {

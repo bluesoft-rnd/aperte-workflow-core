@@ -10,8 +10,7 @@
         <version>0.1</version>
     </parent>
 
-    <name>core</name>
-    <description>Aperte Workflow Core</description>
+    <name>Aperte Workflow Core</name>
 
     <packaging>pom</packaging>
     <artifactId>core</artifactId>
@@ -21,10 +20,11 @@
         <module>model</module>
         <module>base-gui</module>
         <module>integration</module>
+        <module>integration-interface</module>
         <module>jbpm-context</module>
         <module>jbpm-gui</module>
-        <module>processtool-interface</module>
-        <module>step-editor</module>
+        <module>editor</module>
+        <module>editor-interface</module>
     </modules>
 
 </project>

@@ -9,8 +9,6 @@
 
     <groupId>org.aperteworkflow</groupId>
     <artifactId>email-capture</artifactId>
-    <version>0.1</version>
-    <name>email-capture</name>
 
     <packaging>bundle</packaging>
 
@@ -18,7 +16,7 @@
 
         <dependency>
             <groupId>org.aperteworkflow</groupId>
-            <artifactId>processtool-interface</artifactId>
+            <artifactId>integration-interface</artifactId>
             <version>0.1</version>
             <scope>provided</scope>
         </dependency>

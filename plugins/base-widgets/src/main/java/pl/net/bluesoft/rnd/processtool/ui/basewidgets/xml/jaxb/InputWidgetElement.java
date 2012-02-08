@@ -21,38 +21,38 @@ public class InputWidgetElement extends WidgetElement {
 
     @XmlAttribute
     @XStreamAsAttribute
-    @AperteDoc(humanNameKey = "input.secret.humanName", descriptionKey = "input.secret.description")
+    @AperteDoc(humanNameKey = "input.secret", descriptionKey = "input.secret.description")
     private Boolean secret;
 
     @XmlAttribute
     @XStreamAsAttribute
     @RequiredAttribute
-    @AperteDoc(humanNameKey = "any.maxLength.humanName", descriptionKey = "any.maxLength.description")
+    @AperteDoc(humanNameKey = "any.maxLength", descriptionKey = "any.maxLength.description")
     private Integer maxLength;
 
     @XmlAttribute
     @XStreamAsAttribute
-    @AperteDoc(humanNameKey = "input.regexp.humanName", descriptionKey = "input.regexp.description")
+    @AperteDoc(humanNameKey = "input.regexp", descriptionKey = "input.regexp.description")
     private String regexp;
 
     @XmlAttribute
     @XStreamAsAttribute
-    @AperteDoc(humanNameKey = "input.prompt.humanName", descriptionKey = "input.prompt.description")
+    @AperteDoc(humanNameKey = "input.prompt", descriptionKey = "input.prompt.description")
     private String prompt;
 
     @XmlAttribute
     @XStreamAsAttribute
-    @AperteDoc(humanNameKey = "input.errorKey.humanName", descriptionKey = "input.errorKey.description")
+    @AperteDoc(humanNameKey = "input.errorKey", descriptionKey = "input.errorKey.description")
     private String errorKey;
 
     @XmlAttribute
     @XStreamAsAttribute
-    @AperteDoc(humanNameKey = "input.baseText.humanName", descriptionKey = "input.baseText.description")
+    @AperteDoc(humanNameKey = "input.baseText", descriptionKey = "input.baseText.description")
     private String baseText;
 
     @XmlAttribute
     @XStreamAsAttribute
-    @AperteDoc(humanNameKey = "any.required.humanName", descriptionKey = "any.required.description")
+    @AperteDoc(humanNameKey = "any.required", descriptionKey = "any.required.description")
     private Boolean required;
 
     public String getPrompt() {

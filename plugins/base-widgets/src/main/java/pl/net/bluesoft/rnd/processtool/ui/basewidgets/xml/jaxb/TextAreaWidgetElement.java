@@ -16,23 +16,23 @@ public class TextAreaWidgetElement extends WidgetElement {
 
     @XmlAttribute
     @XStreamAsAttribute
-    @AperteDoc(humanNameKey = "textArea.rich.humanName", descriptionKey = "textArea.rich.description")
+    @AperteDoc(humanNameKey = "textArea.rich", descriptionKey = "textArea.rich.description")
     private Boolean rich;
 
     @XmlAttribute
     @XStreamAsAttribute
-    @AperteDoc(humanNameKey = "textArea.visibleLines.humanName", descriptionKey = "textArea.visibleLines.description")
+    @AperteDoc(humanNameKey = "textArea.visibleLines", descriptionKey = "textArea.visibleLines.description")
     private Integer visibleLines;
 
     @XmlAttribute
     @XStreamAsAttribute
     @RequiredAttribute
-    @AperteDoc(humanNameKey = "any.maxLength.humanName", descriptionKey = "any.maxLength.description")
+    @AperteDoc(humanNameKey = "any.maxLength", descriptionKey = "any.maxLength.description")
     private Integer limit;
 
     @XmlAttribute
     @XStreamAsAttribute
-    @AperteDoc(humanNameKey = "any.required.humanName", descriptionKey = "any.required.description")
+    @AperteDoc(humanNameKey = "any.required", descriptionKey = "any.required.description")
     private Boolean required;
 
     public Boolean getRich() {

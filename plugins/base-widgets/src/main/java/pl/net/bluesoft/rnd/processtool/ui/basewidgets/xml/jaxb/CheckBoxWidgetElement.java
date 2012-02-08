@@ -14,7 +14,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 public class CheckBoxWidgetElement extends WidgetElement {
     @XmlAttribute
     @XStreamAsAttribute
-    @AperteDoc(humanNameKey = "checkbox.defaultSelect.humanName", descriptionKey = "checkbox.defaultSelect.description")
+    @AperteDoc(humanNameKey = "checkbox.defaultSelect", descriptionKey = "checkbox.defaultSelect.description")
     private Boolean defaultSelect;
 
     public Boolean getDefaultSelect() {

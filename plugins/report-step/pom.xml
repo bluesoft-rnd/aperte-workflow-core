@@ -12,7 +12,6 @@
     <artifactId>report-step</artifactId>
     <version>0.1</version>
     <packaging>bundle</packaging>
-    <name>report-step</name>
 
     <dependencies>
         <dependency>
@@ -32,14 +31,8 @@
             <version>0.5</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.osgi.core</artifactId>
-            <version>1.4.0</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>org.aperteworkflow</groupId>
-            <artifactId>processtool-interface</artifactId>
+            <artifactId>integration-interface</artifactId>
             <version>0.1</version>
             <scope>provided</scope>
         </dependency>
@@ -141,12 +134,6 @@
             <groupId>org.aperteworkflow</groupId>
             <artifactId>integration</artifactId>
             <version>0.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>${postgres.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

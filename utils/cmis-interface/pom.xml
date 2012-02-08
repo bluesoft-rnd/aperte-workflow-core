@@ -12,8 +12,6 @@
     <packaging>jar</packaging>
     <artifactId>cmis-interface</artifactId>
 
-    <name>cmis-interface</name>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.felix</groupId>

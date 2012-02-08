@@ -10,7 +10,6 @@
 
     <artifactId>jbpm-gui</artifactId>
     <packaging>war</packaging>
-    <name>Aperte Workflow GUI (jBPM)</name>
 
     <build>
         <resources>
@@ -79,7 +78,7 @@
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
-            <artifactId>step-editor</artifactId>
+            <artifactId>editor</artifactId>
             <version>0.1</version>
         </dependency>
         <dependency>
@@ -97,10 +96,9 @@
         <dependency>
             <groupId>com.liferay.portal</groupId>
             <artifactId>portal-service</artifactId>
-            <version>6.0.5</version>
+            <version>${liferay.version}</version>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <artifactId>slf4j-api</artifactId>
             <groupId>org.slf4j</groupId>

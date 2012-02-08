@@ -10,7 +10,6 @@
     <artifactId>userdata-widget</artifactId>
     <version>0.1</version>
     <packaging>bundle</packaging>
-    <name>userdata-widget</name>
 
     <dependencies>
         <dependency>
@@ -36,14 +35,14 @@
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
-            <artifactId>processtool-interface</artifactId>
+            <artifactId>integration-interface</artifactId>
             <version>0.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.liferay.portal</groupId>
             <artifactId>portal-service</artifactId>
-            <version>6.0.5</version>
+            <version>${liferay.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -69,7 +68,6 @@
                 <configuration>
                     <useDefaultManifestFile>true</useDefaultManifestFile>
                 </configuration>
-
             </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>

@@ -8,12 +8,11 @@
     </parent>
 
     <artifactId>liferay-poc-process</artifactId>
-    <name>liferay-poc-process</name>
 
     <dependencies>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
-            <artifactId>processtool-interface</artifactId>
+            <artifactId>integration-interface</artifactId>
             <version>0.1</version>
         </dependency>
     </dependencies>

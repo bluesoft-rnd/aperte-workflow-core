@@ -16,12 +16,12 @@ import javax.xml.bind.annotation.XmlValue;
 public class ScriptElement extends WidgetElement {
     @XmlAttribute
     @XStreamAsAttribute
-    @AperteDoc(humanNameKey = "script.lang.humanName", descriptionKey = "script.lang.description")
+    @AperteDoc(humanNameKey = "script.lang", descriptionKey = "script.lang.description")
     private String lang;
 
     @XmlValue
     @XStreamAsAttribute
-    @AperteDoc(humanNameKey = "script.script.humanName", descriptionKey = "script.script.description")
+    @AperteDoc(humanNameKey = "script.script", descriptionKey = "script.script.description")
     private String script;
 
     public String getLang() {

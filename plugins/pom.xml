@@ -10,8 +10,7 @@
         <version>0.1</version>
     </parent>
 
-    <name>plugins</name>
-    <description>Aperte Workflow OSGi Plugins</description>
+    <name>Aperte Workflow OSGi Plugins</name>
 
     <packaging>pom</packaging>
     <artifactId>plugins</artifactId>

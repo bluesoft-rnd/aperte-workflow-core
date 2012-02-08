@@ -2,7 +2,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>org.sonatype.oss</groupId>
         <artifactId>oss-parent</artifactId>
@@ -15,7 +14,9 @@
     <packaging>pom</packaging>
 
     <name>Aperte Workflow</name>
-    <description>Aperte Workflow is a compilation of well-known, stable and mature frameworks into a complete BPM solution</description>
+    <description>Aperte Workflow is a compilation of well-known, stable and mature frameworks into a
+        complete BPM solution developed by BlueSoft sp. z o.o. - Polish independent software vendor.
+        Project home page is available at http://www.aperteworkflow.org/</description>
 
     <modules>
         <module>core</module>
@@ -37,6 +38,42 @@
         <developerConnection>scm:git:git@github.com:bluesoft-rnd/aperte-workflow-core.git</developerConnection>
         <url>git@github.com:bluesoft-rnd/aperte-workflow-core.git</url>
     </scm>
+
+    <developers>
+        <developer>
+            <id>tlipski</id>
+            <name>Tomek Lipski</name>
+            <email>tlipski@bluesoft.net.pl</email>
+            <roles>
+                <role>Developer</role>
+                <role>Designer</role>
+            </roles>
+            <organization>BlueSoft</organization>
+            <timezone>+1</timezone>
+        </developer>
+        <developer>
+            <id>lbortlik</id>
+            <name>Łukasz Bortlik</name>
+            <email>lbortlik@bluesoft.net.pl</email>
+            <roles>
+                <role>Developer</role>
+                <role>Designer</role>
+            </roles>
+            <organization>BlueSoft</organization>
+            <timezone>+1</timezone>
+        </developer>
+        <developer>
+            <id>kdowbecki</id>
+            <name>Karol Dowbecki</name>
+            <email>kdowbecki@bluesoft.net.pl</email>
+            <roles>
+                <role>Developer</role>
+                <role>Designer</role>
+            </roles>
+            <organization>BlueSoft</organization>
+            <timezone>+1</timezone>
+        </developer>
+    </developers>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

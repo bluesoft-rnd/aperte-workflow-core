@@ -9,9 +9,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.aperteworkflow</groupId>
     <artifactId>process-deadlines</artifactId>
-
     <packaging>bundle</packaging>
 
     <dependencies>

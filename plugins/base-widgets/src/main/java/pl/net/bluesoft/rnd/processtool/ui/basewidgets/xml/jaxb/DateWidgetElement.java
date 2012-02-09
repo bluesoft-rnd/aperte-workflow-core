@@ -22,29 +22,29 @@ public class DateWidgetElement extends WidgetElement {
     @XmlAttribute
     @XStreamAsAttribute
     @RequiredAttribute
-    @AperteDoc(humanNameKey = "date.format.humanName", descriptionKey = "date.format.description")
+    @AperteDoc(humanNameKey = "date.format", descriptionKey = "date.format.description")
     private String format;
 
     @XmlAttribute(name = "not-before")
     @XStreamAsAttribute
     @XStreamAlias("not-before")
-    @AperteDoc(humanNameKey = "date.notBefore.humanName", descriptionKey = "date.notBefore.description")
+    @AperteDoc(humanNameKey = "date.notBefore", descriptionKey = "date.notBefore.description")
     private String notBefore;
 
     @XmlAttribute(name = "not-after")
     @XStreamAsAttribute
     @XStreamAlias("not-after")
-    @AperteDoc(humanNameKey = "date.notAfter.humanName", descriptionKey = "date.notAfter.description")
+    @AperteDoc(humanNameKey = "date.notAfter", descriptionKey = "date.notAfter.description")
     private String notAfter;
 
     @XmlAttribute
     @XStreamAsAttribute
-    @AperteDoc(humanNameKey = "date.showMinutes.humanName", descriptionKey = "date.showMinutes.description")
+    @AperteDoc(humanNameKey = "date.showMinutes", descriptionKey = "date.showMinutes.description")
     private Boolean showMinutes;
 
     @XmlAttribute
     @XStreamAsAttribute
-    @AperteDoc(humanNameKey = "any.required.humanName", descriptionKey = "any.required.description")
+    @AperteDoc(humanNameKey = "any.required", descriptionKey = "any.required.description")
     private Boolean required;
 
     public Boolean getShowMinutes() {

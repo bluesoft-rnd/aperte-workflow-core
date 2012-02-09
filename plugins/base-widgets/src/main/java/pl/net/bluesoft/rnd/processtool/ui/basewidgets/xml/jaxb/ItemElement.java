@@ -24,13 +24,13 @@ public class ItemElement implements Serializable {
     @XmlAttribute
     @XStreamAsAttribute
     @RequiredAttribute
-    @AperteDoc(humanNameKey = "item.key.humanName", descriptionKey = "item.key.description")
+    @AperteDoc(humanNameKey = "item.key", descriptionKey = "item.key.description")
     private String key;
 
     @XmlAttribute
     @XStreamAsAttribute
     @RequiredAttribute
-    @AperteDoc(humanNameKey = "item.value.humanName", descriptionKey = "item.value.description")
+    @AperteDoc(humanNameKey = "item.value", descriptionKey = "item.value.description")
     private String value;
 
     public ItemElement() {

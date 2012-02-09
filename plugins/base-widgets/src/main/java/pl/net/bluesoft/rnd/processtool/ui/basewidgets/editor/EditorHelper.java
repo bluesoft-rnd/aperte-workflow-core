@@ -63,7 +63,7 @@ class EditorHelper {
     public static String joinValidationErrors(List<XmlValidationError> xmlValidationErrors) {
         String msg = "";
         for (XmlValidationError err : xmlValidationErrors) {
-            msg += getLocalizedMessage(err.getMessageKey()).replace("%s", getLocalizedMessage(err.getField())) + " \n";
+            msg += getLocalizedMessage(err.getMessageKey()).replace("%s", getLocalizedMessage(err.getParent() + "." + err.getField())) + " \n";
         }
         return msg;
     }

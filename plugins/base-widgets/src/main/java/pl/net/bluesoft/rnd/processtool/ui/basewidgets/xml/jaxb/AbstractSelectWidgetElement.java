@@ -26,7 +26,7 @@ public abstract class AbstractSelectWidgetElement extends WidgetElement {
     @XmlAttribute
     @XStreamAsAttribute
     @AperteDoc(
-            humanNameKey = "abstractSelect.defaultSelect.humanName",
+            humanNameKey = "abstractSelect.defaultSelect",
             descriptionKey = "abstractSelect.defaultSelect.description"
     )
     private Integer defaultSelect;

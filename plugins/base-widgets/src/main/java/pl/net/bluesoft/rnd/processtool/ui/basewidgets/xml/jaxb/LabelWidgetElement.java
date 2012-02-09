@@ -22,13 +22,13 @@ public class LabelWidgetElement extends WidgetElement {
     @XmlAttribute
     @XStreamAsAttribute
     @AvailableOptions({"0", "1", "2", "3", "4", "5"})
-    @AperteDoc(humanNameKey = "label.mode.humanName", descriptionKey = "label.mode.description")
+    @AperteDoc(humanNameKey = "label.mode", descriptionKey = "label.mode.description")
     private Integer mode;
 
     @XmlAttribute
     @XStreamAsAttribute
     @RequiredAttribute
-    @AperteDoc(humanNameKey = "label.text.humanName", descriptionKey = "label.text.description")
+    @AperteDoc(humanNameKey = "label.text", descriptionKey = "label.text.description")
     private String text;
 
     public String getText() {

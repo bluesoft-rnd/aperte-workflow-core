@@ -18,57 +18,57 @@ public abstract class WidgetElement implements Serializable {
 
     @XmlAttribute
     @XStreamAsAttribute
-    @AperteDoc(humanNameKey = "any.width.humanName", descriptionKey = "any.width.description")
+    @AperteDoc(humanNameKey = "any.width", descriptionKey = "any.width.description")
     protected String width;
 
     @XmlAttribute
     @XStreamAsAttribute
-    @AperteDoc(humanNameKey = "any.height.humanName", descriptionKey = "any.height.description")
+    @AperteDoc(humanNameKey = "any.height", descriptionKey = "any.height.description")
     protected String height;
 
     @XmlAttribute
     @XStreamAsAttribute
-    @AperteDoc(humanNameKey = "any.fullSize.humanName", descriptionKey = "any.fullSize.description")
+    @AperteDoc(humanNameKey = "any.fullSize", descriptionKey = "any.fullSize.description")
     protected Boolean fullSize;
 
     @XmlAttribute
     @XStreamAsAttribute
-    @AperteDoc(humanNameKey = "any.undefinedSize.humanName", descriptionKey = "any.undefinedSize.description")
+    @AperteDoc(humanNameKey = "any.undefinedSize", descriptionKey = "any.undefinedSize.description")
     protected Boolean undefinedSize;
 
     @XmlAttribute
     @XStreamAsAttribute
-    @AperteDoc(humanNameKey = "any.bind.humanName", descriptionKey = "any.bind.description")
+    @AperteDoc(humanNameKey = "any.bind", descriptionKey = "any.bind.description")
     protected String bind;
 
     @XmlAttribute
     @XStreamAsAttribute
-    @AperteDoc(humanNameKey = "any.provider.humanName", descriptionKey = "any.provider.description")
+    @AperteDoc(humanNameKey = "any.provider", descriptionKey = "any.provider.description")
     protected String provider;
 
     @XmlAttribute
     @XStreamAsAttribute
-    @AperteDoc(humanNameKey = "any.dict.humanName", descriptionKey = "any.dict.description")
+    @AperteDoc(humanNameKey = "any.dict", descriptionKey = "any.dict.description")
     protected String dict;
 
     @XmlAttribute
     @XStreamAsAttribute
-    @AperteDoc(humanNameKey = "any.readonly.humanName", descriptionKey = "any.readonly.description")
+    @AperteDoc(humanNameKey = "any.readonly", descriptionKey = "any.readonly.description")
     protected Boolean readonly;
 
     @XmlAttribute
     @XStreamAsAttribute
-    @AperteDoc(humanNameKey = "any.caption.humanName", descriptionKey = "any.caption.description")
+    @AperteDoc(humanNameKey = "any.caption", descriptionKey = "any.caption.description")
     protected String caption;
 
     @XmlAttribute
     @XStreamAsAttribute
-    @AperteDoc(humanNameKey = "any.style.humanName", descriptionKey = "any.style.description")
+    @AperteDoc(humanNameKey = "any.style", descriptionKey = "any.style.description")
     protected String style;
 
     @XmlAttribute
     @XStreamAsAttribute
-    @AperteDoc(humanNameKey = "any.attributeClass.humanName", descriptionKey = "any.attributeClass.description")
+    @AperteDoc(humanNameKey = "any.attributeClass", descriptionKey = "any.attributeClass.description")
     protected String attributeClass;
 
     @XmlTransient

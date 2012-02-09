@@ -34,7 +34,7 @@ public abstract class HasWidgetsElement extends WidgetElement {
 
     @XmlAttribute
     @XStreamAsAttribute
-    @AperteDoc(humanNameKey = "has.spacing.humanName", descriptionKey = "has.spacing.description")
+    @AperteDoc(humanNameKey = "has.spacing", descriptionKey = "has.spacing.description")
     protected Boolean spacing;
 
     public List<WidgetElement> getWidgets() {

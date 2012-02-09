@@ -22,7 +22,7 @@ public class LinkWidgetElement extends WidgetElement {
     @XmlAttribute
     @XStreamAsAttribute
     @RequiredAttribute
-    @AperteDoc(humanNameKey = "link.url.humanName", descriptionKey = "link.url.description")
+    @AperteDoc(humanNameKey = "link.url", descriptionKey = "link.url.description")
     private String url;
 
     public String getUrl() {

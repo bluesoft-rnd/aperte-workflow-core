@@ -7,8 +7,9 @@ import com.liferay.portal.security.permission.PermissionThreadLocal;
 import com.liferay.portal.service.RoleServiceUtil;
 import com.liferay.portal.service.UserServiceUtil;
 import com.liferay.portal.util.PortalUtil;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.WidgetGroup;
 
 import javax.portlet.PortletRequest;
@@ -23,6 +24,10 @@ import java.util.HashSet;
 public class LiferayUserDataWidget extends UserDataWidget {
 
 	@AutoWiredProperty
+    @AperteDoc(
+            humanNameKey = "userdata.widget.liferay.liferayRoleName",
+            descriptionKey = "userdata.widget.liferay.liferayRoleName.description"
+    )
 	public String liferayRoleName = "User";
 
 	@Override

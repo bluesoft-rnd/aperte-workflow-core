@@ -19,14 +19,16 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
-
 public class WidgetFormWindow extends Panel  {
 
 	private static final long serialVersionUID = -916309904329553267L;
     private static final Logger logger = Logger.getLogger(WidgetFormWindow.class.getName());
-	
+
+    private WidgetItemInStep widget;
+
 	public void loadWidget(final WidgetItemInStep widget) {
-		I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
+        this.widget = widget;
+        I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
 		removeAllComponents();
         setStyleName(Reindeer.PANEL_LIGHT);
 		if (widget == null) {
@@ -41,10 +43,12 @@ public class WidgetFormWindow extends Panel  {
             TabSheet ts = new TabSheet();
             ts.setWidth("100%");
             if (widget.hasProperties()) {
-                PropertiesPanel form = new PropertiesPanel();
-            	form.init(widget.getWidgetItem().getClassInfo());
-            	form.refreshForm(false, widget.getProperties());
-                ts.addTab(form, messages.getMessage("form.properties"));
+                PropertiesPanel propertiesPanel = new PropertiesPanel();
+                propertiesPanel.init(widget.getWidgetItem().getClassInfo());
+                propertiesPanel.refreshForm(false, widget.getProperties());
+                ts.addTab(propertiesPanel, messages.getMessage("form.properties"));
+
+                widget.setWidgetPropertiesPanel(propertiesPanel);
             }
             if (widget.hasPermissions()) {
                 PermissionEditor permissionEditor = new PermissionEditor();
@@ -95,7 +99,9 @@ public class WidgetFormWindow extends Panel  {
             }
             layout.addComponent(ts);
 		}
-
 	}
 
+    public WidgetItemInStep getWidget() {
+        return widget;
+    }
 }

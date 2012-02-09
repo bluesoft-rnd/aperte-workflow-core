@@ -1,25 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>plugins</artifactId>
         <groupId>org.aperteworkflow</groupId>
-        <version>0.1</version>
+        <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.aperteworkflow</groupId>
     <artifactId>doclist-widget</artifactId>
-    <version>0.1</version>
-    <name>doclist-widget</name>
-
     <packaging>bundle</packaging>
 
     <dependencies>
-
         <dependency>
             <groupId>org.aperteworkflow</groupId>
-            <artifactId>processtool-interface</artifactId>
-            <version>0.1</version>
+            <artifactId>integration-interface</artifactId>
+            <version>1.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -33,12 +30,6 @@
             <!--<groupId>org.aperteworkflow</groupId>-->
             <!--<version>0.1</version>-->
         <!--</dependency>-->
-        <dependency>
-            <artifactId>junit</artifactId>
-            <groupId>junit</groupId>
-            <version>4.8.2</version>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>com.liferay.portal</groupId>
             <artifactId>portal-service</artifactId>

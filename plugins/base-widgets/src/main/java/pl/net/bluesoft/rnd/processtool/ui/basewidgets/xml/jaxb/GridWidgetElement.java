@@ -21,12 +21,12 @@ public class GridWidgetElement extends HasWidgetsElement {
     @XmlAttribute
     @XStreamAsAttribute
     @RequiredAttribute
-    @AperteDoc(humanNameKey = "grid.rows.humanName", descriptionKey = "grid.rows.description")
+    @AperteDoc(humanNameKey = "grid.rows", descriptionKey = "grid.rows.description")
     private Integer rows;
 
     @XmlAttribute
     @XStreamAsAttribute
-    @AperteDoc(humanNameKey = "grid.cols.humanName", descriptionKey = "grid.cols.description")
+    @AperteDoc(humanNameKey = "grid.cols", descriptionKey = "grid.cols.description")
     private Integer cols;
 
     public Integer getRows() {

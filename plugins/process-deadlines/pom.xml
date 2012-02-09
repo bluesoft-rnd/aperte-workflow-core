@@ -31,6 +31,12 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>org.aperteworkflow</groupId>
+            <artifactId>aperte-utils</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
             <version>${hibernate.version}</version>
@@ -41,11 +47,6 @@
             <artifactId>mail</artifactId>
             <version>1.4.3</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.aperteworkflow</groupId>
-            <artifactId>template-utils</artifactId>
-            <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

@@ -89,6 +89,7 @@
                         <Bundle-Version>0.1</Bundle-Version>
                         <Embed-Directory>lib</Embed-Directory>
                         <Embed-Transitive>true</Embed-Transitive>
+                        <ProcessTool-I18N-Property>userdata-messages</ProcessTool-I18N-Property>
                         <ProcessTool-Model-Enhancement>pl.net.bluesoft.rnd.pt.ext.userdata.model.ProcessInstanceUserAssignment</ProcessTool-Model-Enhancement>
                         <ProcessTool-Widget-Enhancement>pl.net.bluesoft.rnd.pt.ext.userdata.widget.LdapUserDataWidget,pl.net.bluesoft.rnd.pt.ext.userdata.widget.LiferayUserDataWidget</ProcessTool-Widget-Enhancement>
                     </instructions>

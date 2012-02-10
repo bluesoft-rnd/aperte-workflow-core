@@ -7,11 +7,8 @@ import com.vaadin.ui.Form;
 import com.vaadin.ui.FormLayout;
 
 public class PropertiesForm extends Form {
-	
-	
+
 	private FormLayout mainLayout;
-	
-	
 
 	public PropertiesForm() {
 		super();
@@ -31,6 +28,5 @@ public class PropertiesForm extends Form {
 	public void addComponent(Component c) {
 		mainLayout.addComponent(c);
 	}
-	
-	
+
 }

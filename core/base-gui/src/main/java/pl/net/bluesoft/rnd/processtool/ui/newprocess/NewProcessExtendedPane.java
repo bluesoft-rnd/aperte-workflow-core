@@ -40,9 +40,10 @@ public class NewProcessExtendedPane extends VerticalLayout implements HasRefresh
         this.session = session;
         this.i18NSource = i18NSource;
 
-        addComponent(horizontalLayout(title = new Label(getMessage("newProcess.caption-simple"), Label.CONTENT_XHTML) {{
-            addStyleName("small");
-        }}, refreshIcon(activityMainPane.getApplication(), this)));
+        title = new Label(getMessage("newProcess.caption-simple"), Label.CONTENT_XHTML);
+        title.addStyleName("small");
+
+        addComponent(horizontalLayout(title, refreshIcon(activityMainPane.getApplication(), this)));
 
         processesLayout = new VerticalLayout();
         processesLayout.setWidth("100%");
@@ -58,7 +59,7 @@ public class NewProcessExtendedPane extends VerticalLayout implements HasRefresh
     public void refreshData() {
         processesLayout.removeAllComponents();
         title.setValue(getMessage("newProcess.caption-simple"));
-        ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
+        ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
         for (final ProcessDefinitionConfig cfg2 : session.getAvailableConfigurations(ctx)) {
             final Button b = new Button(getMessage("newProcess.start-simple"));
             b.addStyleName("small default");
@@ -68,7 +69,7 @@ public class NewProcessExtendedPane extends VerticalLayout implements HasRefresh
                 public void buttonClick(Button.ClickEvent event) {
                     withErrorHandling(getApplication(), new Runnable() {
                         public void run() {
-                            ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
+                            ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
                             //find latest definition
                             ProcessDefinitionConfig cfg = ctx.getProcessDefinitionDAO()
                                     .getActiveConfigurationByKey(cfg2.getBpmDefinitionKey());

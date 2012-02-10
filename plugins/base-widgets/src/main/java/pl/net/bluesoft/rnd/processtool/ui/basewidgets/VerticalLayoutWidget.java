@@ -3,8 +3,11 @@ package pl.net.bluesoft.rnd.processtool.ui.basewidgets;
 import com.vaadin.ui.*;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.*;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.ChildrenAllowed;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.WidgetGroup;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolVaadinWidget;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
@@ -22,15 +25,8 @@ import static com.vaadin.ui.Label.CONTENT_XHTML;
 @AperteDoc(humanNameKey="widget.vertical_layout.name", descriptionKey="widget.vertical_layout.description")
 @ChildrenAllowed(true)
 @WidgetGroup("base-widgets")
-public class VerticalLayoutWidget extends BaseProcessToolWidget implements ProcessToolVaadinWidget {
+public class VerticalLayoutWidget extends BaseProcessToolVaadinWidget {
     private static final Logger logger = Logger.getLogger(VerticalLayout.class.getName());
-
-    @AutoWiredProperty
-    private String caption;
-
-    @AutoWiredProperty
-    @AutoWiredPropertyConfigurator(fieldClass = RichTextArea.class)
-    private String comment;
 
     VerticalLayout vl = new VerticalLayout();
 
@@ -93,19 +89,4 @@ public class VerticalLayoutWidget extends BaseProcessToolWidget implements Proce
         widgets.add(vChild);
     }
 
-    public String getCaption() {
-        return caption;
-    }
-
-    public void setCaption(String caption) {
-        this.caption = caption;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
 }

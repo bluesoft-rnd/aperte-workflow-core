@@ -6,6 +6,7 @@ import pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.AvailableOptions;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.RequiredAttribute;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.XmlConstants;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.validation.XmlValidationError;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
 import pl.net.bluesoft.util.lang.StringUtil;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -20,14 +21,14 @@ import java.util.List;
 public class LabelWidgetElement extends WidgetElement {
     @XmlAttribute
     @XStreamAsAttribute
-    @AvailableOptions(
-            value = {"0", "1", "2", "3", "4", "5"}
-    )
+    @AvailableOptions({"0", "1", "2", "3", "4", "5"})
+    @AperteDoc(humanNameKey = "label.mode", descriptionKey = "label.mode.description")
     private Integer mode;
 
     @XmlAttribute
     @XStreamAsAttribute
     @RequiredAttribute
+    @AperteDoc(humanNameKey = "label.text", descriptionKey = "label.text.description")
     private String text;
 
     public String getText() {

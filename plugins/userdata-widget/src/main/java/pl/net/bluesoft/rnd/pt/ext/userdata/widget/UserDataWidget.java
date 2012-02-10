@@ -8,10 +8,10 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.pt.ext.userdata.model.ProcessInstanceUserAssignment;
 
 import java.util.Collection;
@@ -23,18 +23,32 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
  * @author tlipski@bluesoft.net.pl
  */
 public abstract class UserDataWidget
-		extends BaseProcessToolWidget
-		implements ProcessToolDataWidget, ProcessToolVaadinWidget, Property.ValueChangeListener {
+		extends BaseProcessToolVaadinWidget
+		implements ProcessToolDataWidget, Property.ValueChangeListener {
 
 	UserData selectedUser = null;
 	private ComboBox combo;
 	private Collection<UserData> users;
 
 	@AutoWiredProperty
+    @AperteDoc(
+            humanNameKey = "userdata.widget.bpmVariableName",
+            descriptionKey = "userdata.widget.bpmVariableName.description"
+    )
 	private String bpmVariableName;
+
     @AutoWiredProperty(required = true)
+    @AperteDoc(
+            humanNameKey = "userdata.widget.roleInProcess",
+            descriptionKey = "userdata.widget.roleInProcess.description"
+    )
     private String roleInProcess;
+
     @AutoWiredProperty
+    @AperteDoc(
+            humanNameKey = "userdata.widget.required",
+            descriptionKey = "userdata.widget.required.description"
+    )
     private Boolean required;
 
 	@Override

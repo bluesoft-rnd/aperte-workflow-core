@@ -72,7 +72,7 @@ public class QueueListPane extends ProcessListPane {
 				withErrorHandling(getApplication(), new Runnable() {
 					public void run() {
 						ProcessInstance processInstance = getBpmSession().assignTaskFromQueue(q, tti.getProcessInstance(),
-						                                                                                       ProcessToolContext.Util.getProcessToolContextFromThread());
+						                                                                                       ProcessToolContext.Util.getThreadProcessToolContext());
 						if (processInstance != null) {
 							getApplication().getMainWindow().showNotification(getMessage("process-tool.task.assigned"),
 							                                                  Window.Notification.TYPE_HUMANIZED_MESSAGE);
@@ -106,9 +106,9 @@ public class QueueListPane extends ProcessListPane {
 		if (q == null) return new ArrayList();
         if (filterExpression == null || filterExpression.trim().isEmpty()) {
             return new ArrayList(getBpmSession().getQueueContents(q, offset, limit,
-                    ProcessToolContext.Util.getProcessToolContextFromThread()));
+                    ProcessToolContext.Util.getThreadProcessToolContext()));
         } else {
-            return new ArrayList<ProcessInstance>(ProcessToolContext.Util.getProcessToolContextFromThread().getProcessInstanceDAO()
+            return new ArrayList<ProcessInstance>(ProcessToolContext.Util.getThreadProcessToolContext().getProcessInstanceDAO()
                                 .searchProcesses(filterExpression, offset, limit, true, null, null, q.getName()));
         }
 	}

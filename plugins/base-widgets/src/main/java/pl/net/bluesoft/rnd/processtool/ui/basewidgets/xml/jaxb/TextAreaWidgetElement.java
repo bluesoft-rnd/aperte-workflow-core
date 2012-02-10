@@ -3,6 +3,7 @@ package pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.jaxb;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.RequiredAttribute;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -12,18 +13,26 @@ import javax.xml.bind.annotation.XmlAttribute;
 //@XmlRootElement(name = "text")
 @XStreamAlias("text")
 public class TextAreaWidgetElement extends WidgetElement {
+
     @XmlAttribute
     @XStreamAsAttribute
+    @AperteDoc(humanNameKey = "textArea.rich", descriptionKey = "textArea.rich.description")
     private Boolean rich;
+
     @XmlAttribute
     @XStreamAsAttribute
+    @AperteDoc(humanNameKey = "textArea.visibleLines", descriptionKey = "textArea.visibleLines.description")
     private Integer visibleLines;
+
     @XmlAttribute
     @XStreamAsAttribute
     @RequiredAttribute
+    @AperteDoc(humanNameKey = "any.maxLength", descriptionKey = "any.maxLength.description")
     private Integer limit;
+
     @XmlAttribute
     @XStreamAsAttribute
+    @AperteDoc(humanNameKey = "any.required", descriptionKey = "any.required.description")
     private Boolean required;
 
     public Boolean getRich() {

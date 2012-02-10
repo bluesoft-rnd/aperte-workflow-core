@@ -46,18 +46,36 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
  */
 public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 
-	private static Logger logger = Logger.getLogger(ProcessToolRegistryImpl.class.getName());
+	private static final Logger logger = Logger.getLogger(ProcessToolRegistryImpl.class.getName());
 
     private final List<ProcessToolServiceBridge> SERVICE_BRIDGE_REGISTRY = new LinkedList<ProcessToolServiceBridge>();
-	private final Map<String, Class<? extends ProcessToolWidget>> WIDGET_REGISTRY = new HashMap();
-	private final Map<String, Class<? extends ProcessToolActionButton>> BUTTON_REGISTRY = new HashMap();
+	private final Map<String, Class<? extends ProcessToolWidget>> WIDGET_REGISTRY = new HashMap<String, Class<? extends ProcessToolWidget>>();
+	private final Map<String, Class<? extends ProcessToolActionButton>> BUTTON_REGISTRY = new HashMap<String, Class<? extends ProcessToolActionButton>>();
+    private final Map<String, I18NProvider> PROVIDERS_REGISTRY = new HashMap<String, I18NProvider>();
+    private final Map<String, Func<? extends ProcessToolProcessStep>> STEP_REGISTRY = new HashMap<String, Func<? extends ProcessToolProcessStep>>();
+
+    private Map<String, Class> annotatedClasses = new HashMap<String, Class>();
+    private Map<String, byte[]> hibernateResources = new HashMap<String, byte[]>();
+    private Map<String, ClassLoader> classLoaders = new HashMap<String, ClassLoader>();
+
+    private ProcessToolContextFactory processToolContextFactory;
 	private SessionFactory sessionFactory;
 	private EventBusManager eventBusManager = new EventBusManager();
     private PluginManager pluginManager;
     private SearchProvider searchProvider;
-
     private boolean jta;
     private BundleContext bundleContext;
+
+    {
+        //init default provider, regardless of OSGi stuff
+        final ClassLoader classloader = getClass().getClassLoader();
+        PROVIDERS_REGISTRY.put("", new PropertiesBasedI18NProvider(new PropertyLoader() {
+            @Override
+            public InputStream loadProperty(String path) throws IOException {
+                return classloader.getResourceAsStream(path);
+            }
+        }, "messages"));
+    }
 
 	public synchronized void unregisterWidget(String name) {
 		WIDGET_REGISTRY.remove(name);
@@ -90,10 +108,6 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 		buildSessionFactory();
 	}
 
-    private Map<String,Class> annotatedClasses = new HashMap<String, Class>();
-	private Map<String,byte[]> hibernateResources = new HashMap<String, byte[]>();
-	private Map<String,ClassLoader> classloaders = new HashMap();
-
 	public ClassLoader getModelAwareClassLoader(ClassLoader parent) {
 		return new ExtClassLoader(parent);
 	}
@@ -113,23 +127,23 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 			if (aClass != null) {
 				return aClass;
 			}
-			for (ClassLoader loader : classloaders.values()) {
+			for (ClassLoader loader : classLoaders.values()) {
 				try {
 					Class<?> aClass1 = loader.loadClass(name);
 					if (aClass1 != null) return aClass1;
-				}
-				catch (Exception e) { //do nothing
+				} catch (Exception e) {
+				    //do nothing
 				}
 			}
-			return super.loadClass(name);    //To change body of overridden methods use File | Settings | File Templates.
+			return super.loadClass(name);
 		}
 	}
 
 	public synchronized void addClassLoader(String name, ClassLoader loader) {
-		classloaders.put(name, loader);
+		classLoaders.put(name, loader);
 	}
 	public synchronized void removeClassLoader(String name) {
-		classloaders.remove(name);
+		classLoaders.remove(name);
 	}
 
 	@Override
@@ -267,8 +281,7 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 		try {
 			Thread.currentThread().setContextClassLoader(new ExtClassLoader(cl));
 			sessionFactory = configuration.buildSessionFactory();
-		}
-		finally {
+		} finally {
 			Thread.currentThread().setContextClassLoader(cl);
 		}
 		if (processToolContextFactory != null) {
@@ -284,24 +297,21 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
         if (dataSourceName == null) {
             logger.severe("Aperte Workflow runs using embedded datasource. This approach is useful only for development and demoing purposes.");
         }
-
-
     }
 
     /*
         <!--<property name="hibernate.connection.datasource">java:comp/env/jdbc/aperte-workflow-ds</property>-->
      */
     private String checkForDataSource() {
-
         String dsName = nvl(System.getProperty("org.aperteworkflow.datasource"), "java:comp/env/jdbc/aperte-workflow-ds");
         try {
             DataSource lookup = (DataSource) new InitialContext().lookup(dsName);
             lookup.getConnection().close();
             return dsName;
-        }
-        catch (Exception e) {
-            logger.log(Level.SEVERE, "Aperte Workflow datasource bound to name: " + dsName +
-                    " not found or is badly configured, falling back to preconfigured HSQLDB. DO NOT USE THAT IN PRODUCTION!", e);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Aperte Workflow datasource bound to name " + dsName +
+                    " not found or is badly configured, falling back to preconfigured HSQLDB." +
+                    " DO NOT USE THAT IN PRODUCTION ENVIRONMENT!", e);
         }
         return null;
     }
@@ -315,8 +325,7 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
                 logger.warning("java:comp/UserTransaction not found, looking for UserTransaction");
                 try {
                     ut = (UserTransaction) new InitialContext().lookup("UserTransaction");
-                }
-                catch (Exception e1) {
+                } catch (Exception e1) {
                     logger.warning("UserTransaction not found in JNDI, JTA not available!");
                 }
             }
@@ -328,34 +337,21 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 		return (T) aClass.newInstance();
 	}
 
-
-	private final Map<String, I18NProvider> registeredI18NProviders = new HashMap();
-
-    {   //init default provider, regardless of OSGi stuff
-		final ClassLoader classloader = getClass().getClassLoader();
-		registeredI18NProviders.put("", new PropertiesBasedI18NProvider(new PropertyLoader() {
-			@Override
-			public InputStream loadProperty(String path) throws IOException {
-				return classloader.getResourceAsStream(path);
-			}
-		}, "messages"));
-	}
-
 	public void registerI18NProvider(I18NProvider i18Provider, String providerId) {
-		registeredI18NProviders.put(providerId, i18Provider);
-	}
+		PROVIDERS_REGISTRY.put(providerId, i18Provider);
+    }
 
-	public void unregisterI18NProvider(String providerId) {
-		registeredI18NProviders.remove(providerId);
+    public void unregisterI18NProvider(String providerId) {
+		PROVIDERS_REGISTRY.remove(providerId);
 	}
 
 	public Collection<I18NProvider> getI18NProviders() {
-		return registeredI18NProviders.values();
+		return PROVIDERS_REGISTRY.values();
 	}
 
     @Override
     public boolean hasI18NProvider(String providerId) {
-        return registeredI18NProviders.containsKey(providerId);
+        return PROVIDERS_REGISTRY.containsKey(providerId);
     }
 
     @Override
@@ -390,8 +386,6 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	public ProcessDefinitionDAO getProcessDefinitionDAO(Session hibernateSession) {
 		return new ProcessDefinitionDAOImpl(hibernateSession);
 	}
-
-	ProcessToolContextFactory processToolContextFactory;
 
 	@Override
 	public boolean registerModelExtension(Class<?>... cls) {
@@ -459,7 +453,6 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 		}
 	}
 
-
 	@Override
 	public void registerButton(Class<?> cls) {
 		AliasName annotation = cls.getAnnotation(AliasName.class);
@@ -483,8 +476,6 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
         return new HashMap<String, Class<? extends ProcessToolActionButton>>(BUTTON_REGISTRY);
     }
 
-	private final Map<String, Func<? extends ProcessToolProcessStep>> STEP_REGISTRY = new HashMap<String, Func<? extends ProcessToolProcessStep>>();
-
     private class StepClassFunc implements Func<ProcessToolProcessStep> {
 
         private Class<? extends ProcessToolProcessStep> cls;
@@ -502,6 +493,7 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
             }
         }
     }
+
     public void registerStep(String name, Func<? extends ProcessToolProcessStep> f) {
         STEP_REGISTRY.put(name, f);
         logger.info("Registered step extension: " + name);

@@ -63,7 +63,7 @@ class EditorHelper {
     public static String joinValidationErrors(List<XmlValidationError> xmlValidationErrors) {
         String msg = "";
         for (XmlValidationError err : xmlValidationErrors) {
-            msg += getLocalizedMessage(err.getMessageKey()).replace("%s", getLocalizedMessage(err.getField())) + " \n";
+            msg += getLocalizedMessage(err.getMessageKey()).replace("%s", getLocalizedMessage(err.getParent() + "." + err.getField())) + " \n";
         }
         return msg;
     }
@@ -71,6 +71,13 @@ class EditorHelper {
     public static String getLocalizedMessage(String key) {
         return I18NSource.ThreadUtil.getLocalizedMessage(
                 (key.startsWith("processdata") ? "" : "widget.process_data_block.editor.") + key);
+    }
+    
+    public static String getParametrizedLocalizedMessage(String key, Object... parameters) {
+        return I18NSource.ThreadUtil.getThreadI18nSource().getMessage(
+                (key.startsWith("processdata") ? "" : "widget.process_data_block.editor.") + key,
+                parameters
+        );
     }
     
 }

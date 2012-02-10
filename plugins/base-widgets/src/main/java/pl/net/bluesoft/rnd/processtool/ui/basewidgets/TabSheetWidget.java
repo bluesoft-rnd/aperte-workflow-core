@@ -3,8 +3,11 @@ package pl.net.bluesoft.rnd.processtool.ui.basewidgets;
 import com.vaadin.ui.*;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.*;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.ChildrenAllowed;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.WidgetGroup;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolVaadinWidget;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
@@ -20,17 +23,11 @@ import static com.vaadin.ui.Label.CONTENT_XHTML;
 @AperteDoc(humanNameKey="widget.tab_sheet.name", descriptionKey="widget.tab_sheet.description")
 @ChildrenAllowed(true)
 @WidgetGroup("base-widgets")
-public class TabSheetWidget extends BaseProcessToolWidget implements ProcessToolVaadinWidget {
+public class TabSheetWidget extends BaseProcessToolVaadinWidget {
 
 	private static final Logger logger = Logger.getLogger(TabSheetWidget.class.getName());
 	private TabSheet ts = new TabSheet();
 
-    @AutoWiredProperty
-    private String caption;
-
-    @AutoWiredProperty
-    @AutoWiredPropertyConfigurator(fieldClass = RichTextArea.class)
-    private String comment;
 
 	@Override
 	public Component render() {
@@ -68,19 +65,4 @@ public class TabSheetWidget extends BaseProcessToolWidget implements ProcessTool
 
 	}
 
-    public String getCaption() {
-        return caption;
-    }
-
-    public void setCaption(String caption) {
-        this.caption = caption;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
 }

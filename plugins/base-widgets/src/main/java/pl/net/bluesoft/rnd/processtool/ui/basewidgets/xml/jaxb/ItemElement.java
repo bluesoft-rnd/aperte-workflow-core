@@ -5,6 +5,7 @@ import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.RequiredAttribute;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.XmlConstants;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.validation.XmlValidationError;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
 import pl.net.bluesoft.util.lang.StringUtil;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -19,13 +20,17 @@ import java.util.List;
 @XmlType(name = "item")
 @XStreamAlias("item")
 public class ItemElement implements Serializable {
+
     @XmlAttribute
     @XStreamAsAttribute
     @RequiredAttribute
+    @AperteDoc(humanNameKey = "item.key", descriptionKey = "item.key.description")
     private String key;
+
     @XmlAttribute
     @XStreamAsAttribute
     @RequiredAttribute
+    @AperteDoc(humanNameKey = "item.value", descriptionKey = "item.value.description")
     private String value;
 
     public ItemElement() {

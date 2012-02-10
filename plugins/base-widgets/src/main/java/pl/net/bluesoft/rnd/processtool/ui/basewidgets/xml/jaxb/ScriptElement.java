@@ -3,6 +3,7 @@ package pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.jaxb;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -15,10 +16,12 @@ import javax.xml.bind.annotation.XmlValue;
 public class ScriptElement extends WidgetElement {
     @XmlAttribute
     @XStreamAsAttribute
+    @AperteDoc(humanNameKey = "script.lang", descriptionKey = "script.lang.description")
     private String lang;
 
     @XmlValue
     @XStreamAsAttribute
+    @AperteDoc(humanNameKey = "script.script", descriptionKey = "script.script.description")
     private String script;
 
     public String getLang() {

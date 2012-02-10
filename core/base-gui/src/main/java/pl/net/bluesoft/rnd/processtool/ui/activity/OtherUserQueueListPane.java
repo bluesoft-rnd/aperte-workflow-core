@@ -30,7 +30,7 @@ public class OtherUserQueueListPane extends QueueListPane {
     @Override
     protected ProcessToolBpmSession getBpmSession() {
         if (bmpSession == null) {
-            ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
+            ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
             bmpSession = activityMainPane.getBpmSession().createSession(userData, LiferayBridge.getUserRoles(userData), ctx);
         }
         return bmpSession;

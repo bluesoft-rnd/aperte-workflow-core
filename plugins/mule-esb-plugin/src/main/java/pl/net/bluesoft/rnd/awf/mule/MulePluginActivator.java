@@ -1,11 +1,5 @@
 package pl.net.bluesoft.rnd.awf.mule;
 
-import org.mule.api.MuleContext;
-import org.mule.api.service.Service;
-import org.mule.config.builders.SimpleConfigurationBuilder;
-import org.mule.config.dsl.ServiceBuilder;
-import org.mule.config.spring.SpringXmlConfigurationBuilder;
-import org.mule.context.DefaultMuleContextFactory;
 import org.osgi.framework.*;
 import pl.net.bluesoft.rnd.awf.mule.step.MuleStep;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
@@ -18,6 +12,8 @@ import java.net.URL;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 import static pl.net.bluesoft.util.lang.StringUtil.hasText;
@@ -28,11 +24,13 @@ import static pl.net.bluesoft.util.lang.StringUtil.hasText;
  * @author tlipski@bluesoft.net.pl
  */
 public class MulePluginActivator implements BundleActivator {
+    
+    private static final Logger logger = Logger.getLogger(MulePluginActivator.class.getName());
+    
     private MulePluginManager mulePluginManager;
 
     @Override
     public void start(BundleContext bundleContext) throws Exception {
-
         try {
             mulePluginManager = new MulePluginManager();
 //            mulePluginManager.initialize();
@@ -120,7 +118,7 @@ public class MulePluginActivator implements BundleActivator {
                                                 }
                                             });
                                 } catch (IOException e) {
-                                    e.printStackTrace();
+                                    logger.log(Level.SEVERE, "Error registering entry in mule plugin manager", e);
                                 }
                             } else if (state == BundleEvent.STOPPED) {
                                 mulePluginManager.unregisterEntry(name);
@@ -130,8 +128,7 @@ public class MulePluginActivator implements BundleActivator {
                 }
             });
         } catch (Exception e) {
-            e.printStackTrace();
-//            throw e;
+            logger.log(Level.SEVERE, "Error starting bundle", e);
         }
     }
 
@@ -139,15 +136,16 @@ public class MulePluginActivator implements BundleActivator {
     public void stop(BundleContext bundleContext) throws Exception {
         try {
             mulePluginManager.shutdown();
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error shutting down mule plugin manager", e);
         }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-         getRegistry(bundleContext).unregisterStep("MuleStep");
+
+        getRegistry(bundleContext).unregisterStep("MuleStep");
     }
 
     private ProcessToolRegistry getRegistry(BundleContext context) {
 		ServiceReference ref = context.getServiceReference(ProcessToolRegistry.class.getName());
 		return (ProcessToolRegistry) context.getService(ref);
 	}
+
 }

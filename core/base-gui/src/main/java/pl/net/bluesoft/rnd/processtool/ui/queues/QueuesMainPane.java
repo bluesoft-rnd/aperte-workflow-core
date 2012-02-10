@@ -42,7 +42,7 @@ public class QueuesMainPane extends VerticalLayout implements HasRefreshButton {
 
 	
 	private void initUI() {
-		ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
+		ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
 
 		Table table = getUserTasksTable(ctx);
 
@@ -77,7 +77,7 @@ public class QueuesMainPane extends VerticalLayout implements HasRefreshButton {
                         public void run() {
                              if (event.isDoubleClick()) {
                                  BeanItem<ProcessQueue> instanceBeanItem = bic.getItem(event.getItemId());
-                                 ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
+                                 ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
                                  ProcessInstance instance = session.assignTaskFromQueue(instanceBeanItem.getBean(), ctx);
         //						 getWindow().showNotification(instance != null ? instance.getInternalId() : "NIL");
                                  if (instance != null) {
@@ -110,7 +110,7 @@ public class QueuesMainPane extends VerticalLayout implements HasRefreshButton {
 
 	public void refreshData() {
 		bic.removeAllItems();
-		ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
+		ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
 		for (ProcessQueue pq : session.getUserAvailableQueues(ctx)) {
 			bic.addBean(pq);
 		}

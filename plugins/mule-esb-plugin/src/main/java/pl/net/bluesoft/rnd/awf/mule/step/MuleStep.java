@@ -1,24 +1,17 @@
 package pl.net.bluesoft.rnd.awf.mule.step;
 
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.converters.MarshallingContext;
-import com.thoughtworks.xstream.converters.collections.CollectionConverter;
-import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
-import com.thoughtworks.xstream.mapper.Mapper;
-import org.hibernate.collection.PersistentSet;
 import org.mule.api.MuleMessage;
 import org.mule.api.client.LocalMuleClient;
 import pl.net.bluesoft.rnd.awf.mule.MulePluginManager;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceSimpleAttribute;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
@@ -30,6 +23,8 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 @AliasName(name = "MuleStep")
 public class MuleStep implements ProcessToolProcessStep {
 
+    private static final Logger logger = Logger.getLogger(MuleStep.class.getName());
+    
     @AutoWiredProperty
     private String destinationEndpointUrl;
 
@@ -102,7 +97,7 @@ public class MuleStep implements ProcessToolProcessStep {
             }
             return "OK";
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Error invoking MuleStep: " + e.getMessage(), e);
             return "FAIL";
         }
 

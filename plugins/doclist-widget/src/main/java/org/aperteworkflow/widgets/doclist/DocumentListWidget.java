@@ -1,39 +1,28 @@
 package org.aperteworkflow.widgets.doclist;
 
 import com.vaadin.Application;
-import com.vaadin.terminal.ClassResource;
-import com.vaadin.terminal.StreamResource;
-import com.vaadin.ui.*;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.themes.BaseTheme;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.VerticalLayout;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.util.lang.StringUtil;
 
-import java.io.*;
-import java.math.BigInteger;
-import java.util.*;
-
-import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portlet.documentlibrary.model.DLFileEntry;
-import com.liferay.portlet.documentlibrary.service.DLFileEntryServiceUtil;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Set;
 /**
  * @author tlipski@bluesoft.net.pl
  */
 @AliasName(name = "CmisDocumentList")
-public class DocumentListWidget extends BaseProcessToolWidget implements ProcessToolDataWidget,
-		ProcessToolVaadinWidget {
+public class DocumentListWidget extends BaseProcessToolVaadinWidget implements ProcessToolDataWidget {
 
 	@AutoWiredProperty
 	private String rootFolderPath = "/docs";

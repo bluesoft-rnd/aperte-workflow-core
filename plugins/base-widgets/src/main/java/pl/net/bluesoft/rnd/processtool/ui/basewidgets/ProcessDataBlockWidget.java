@@ -30,10 +30,9 @@ import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.WidgetDefinitionLoader
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.XmlConstants;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.jaxb.*;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.*;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.util.lang.StringUtil;
@@ -53,7 +52,8 @@ import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 @AperteDoc(humanNameKey = "widget.process_data_block.name", descriptionKey = "widget.process_data_block.description")
 @ChildrenAllowed(false)
 @WidgetGroup("base-widgets")
-public class ProcessDataBlockWidget extends BaseProcessToolWidget implements ProcessToolDataWidget, ProcessToolVaadinWidget {
+public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implements ProcessToolDataWidget {
+
     private static final Logger logger = Logger.getLogger(ProcessDataBlockWidget.class.getName());
     private static final Resolver resolver = new DefaultResolver();
 
@@ -70,16 +70,11 @@ public class ProcessDataBlockWidget extends BaseProcessToolWidget implements Pro
 
     @AutoWiredProperty(required = true)
     @AutoWiredPropertyConfigurator(fieldClass = ProcessDataWidgetsDefinitionEditor.class)
-    @AperteDoc(humanNameKey = "widget.process_data_block.property.widgetsDefinition.name",
-            descriptionKey = "widget.process_data_block.property.widgetsDefinition.description")
+    @AperteDoc(
+        humanNameKey="widget.process_data_block.property.widgetsDefinition.name",
+        descriptionKey="widget.process_data_block.property.widgetsDefinition.description"
+    )
     private String widgetsDefinition;
-
-    @AutoWiredProperty
-    private String caption;
-
-    @AutoWiredProperty
-    @AutoWiredPropertyConfigurator(fieldClass = RichTextArea.class)
-    private String comment;
 
     public void setDefinitionLoader(WidgetDefinitionLoader definitionLoader) {
         this.definitionLoader = definitionLoader;
@@ -94,7 +89,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolWidget implements Pro
                            ProcessToolBpmSession bpmSession, Application application, Set<String> permissions, boolean isOwner) {
         super.setContext(state, configuration, i18NSource, bpmSession,
                 application, permissions, isOwner);
-        ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
+        ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
         processDictionaryRegistry = ctx.getProcessDictionaryRegistry();
     }
 
@@ -766,14 +761,6 @@ public class ProcessDataBlockWidget extends BaseProcessToolWidget implements Pro
         }
     }
 
-    public String getCaption() {
-        return caption;
-    }
-
-    public void setCaption(String caption) {
-        this.caption = caption;
-    }
-
     public String getWidgetsDefinition() {
         return widgetsDefinition;
     }
@@ -782,11 +769,4 @@ public class ProcessDataBlockWidget extends BaseProcessToolWidget implements Pro
         this.widgetsDefinition = widgetsDefinition;
     }
 
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
 }

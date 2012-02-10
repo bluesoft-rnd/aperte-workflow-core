@@ -5,6 +5,7 @@ import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.RequiredAttribute;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.XmlConstants;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.validation.XmlValidationError;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
 import pl.net.bluesoft.util.lang.StringUtil;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -17,23 +18,33 @@ import java.util.List;
 //@XmlRootElement(name = "date")
 @XStreamAlias("date")
 public class DateWidgetElement extends WidgetElement {
+
     @XmlAttribute
     @XStreamAsAttribute
     @RequiredAttribute
+    @AperteDoc(humanNameKey = "date.format", descriptionKey = "date.format.description")
     private String format;
+
     @XmlAttribute(name = "not-before")
     @XStreamAsAttribute
     @XStreamAlias("not-before")
+    @AperteDoc(humanNameKey = "date.notBefore", descriptionKey = "date.notBefore.description")
     private String notBefore;
+
     @XmlAttribute(name = "not-after")
     @XStreamAsAttribute
     @XStreamAlias("not-after")
+    @AperteDoc(humanNameKey = "date.notAfter", descriptionKey = "date.notAfter.description")
     private String notAfter;
+
     @XmlAttribute
     @XStreamAsAttribute
+    @AperteDoc(humanNameKey = "date.showMinutes", descriptionKey = "date.showMinutes.description")
     private Boolean showMinutes;
+
     @XmlAttribute
     @XStreamAsAttribute
+    @AperteDoc(humanNameKey = "any.required", descriptionKey = "any.required.description")
     private Boolean required;
 
     public Boolean getShowMinutes() {

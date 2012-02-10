@@ -571,7 +571,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
         eventBusManager.publish(new BpmEvent(signalProcess,
                                              processInstance,
                                              user));
-        ProcessToolContext.Util.getProcessToolContextFromThread().getEventBusManager().publish(new BpmEvent(signalProcess,
+        ProcessToolContext.Util.getThreadProcessToolContext().getEventBusManager().publish(new BpmEvent(signalProcess,
                                                       processInstance,
                                                       user));
     }
@@ -638,7 +638,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
     @Override
     public void adminCancelProcessInstance(ProcessInstance pi) {
         log.severe("User: " + user.getLogin() + " attempting to cancel process: " + pi.getInternalId());
-        ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
+        ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
         pi = getProcessData(pi.getInternalId(), ctx);
         ProcessEngine processEngine = getProcessEngine(ctx);
         processEngine.getExecutionService().endProcessInstance(pi.getInternalId(), "admin-cancelled");
@@ -654,7 +654,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
     public void adminReassignProcessTask(ProcessInstance pi, BpmTask bpmTask, String userLogin) {
         log.severe("User: " + user.getLogin() + " attempting to reassign task " + bpmTask.getInternalTaskId() + " for process: " + pi.getInternalId() + " to user: " + userLogin);
 
-        ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
+        ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
         pi = getProcessData(pi.getInternalId(), ctx);
         ProcessEngine processEngine = getProcessEngine(ctx);
         TaskService ts = processEngine.getTaskService();
@@ -675,7 +675,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
     @Override
     public void adminCompleteTask(ProcessInstance pi, BpmTask bpmTask, ProcessStateAction action) {
         log.severe("User: " + user.getLogin() + " attempting to complete task " + bpmTask.getInternalTaskId() + " for process: " + pi.getInternalId() + " to outcome: " + action);
-        performAction(action, pi, ProcessToolContext.Util.getProcessToolContextFromThread(), bpmTask);
+        performAction(action, pi, ProcessToolContext.Util.getThreadProcessToolContext(), bpmTask);
         log.severe("User: " + user.getLogin() + " has completed task " + bpmTask.getInternalTaskId() + " for process: " + pi.getInternalId() + " to outcome: " + action);
 
     }
@@ -712,7 +712,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
                 return (List<User>) q.execute(environment);
             }
         };
-        List<User> users = getProcessEngine(ProcessToolContext.Util.getProcessToolContextFromThread()).execute(cmd);
+        List<User> users = getProcessEngine(ProcessToolContext.Util.getThreadProcessToolContext()).execute(cmd);
         List<String> res = new ArrayList<String>();
         for (User u : users) {
             res.add(u.getId());
@@ -724,7 +724,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
 
     @Override
     public List<GraphElement> getProcessHistory(final ProcessInstance pi) {
-        ProcessEngine processEngine = getProcessEngine(ProcessToolContext.Util.getProcessToolContextFromThread());
+        ProcessEngine processEngine = getProcessEngine(ProcessToolContext.Util.getThreadProcessToolContext());
         HistoryService service = processEngine.getHistoryService();
         HistoryActivityInstanceQuery activityInstanceQuery = service.createHistoryActivityInstanceQuery().executionId(pi.getInternalId());
         List<HistoryActivityInstance> list = activityInstanceQuery.list();
@@ -733,7 +733,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
 
         ArrayList<GraphElement> res = new ArrayList<GraphElement>();
         for (HistoryActivityInstance hpi : list) {
-            System.out.println(hpi.getActivityName());
+            LOGGER.fine("Handling: " + hpi.getActivityName());
             if (hpi instanceof HistoryActivityInstanceImpl) {
                 HistoryActivityInstanceImpl activity = (HistoryActivityInstanceImpl) hpi;
                 String activityName = activity.getActivityName();
@@ -1005,7 +1005,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
     }
 
     private byte[] fetchLatestProcessResource(String definitionKey, String resourceName) {
-        RepositoryService service = getProcessEngine(ProcessToolContext.Util.getProcessToolContextFromThread())
+        RepositoryService service = getProcessEngine(ProcessToolContext.Util.getThreadProcessToolContext())
                 .getRepositoryService();
         List<ProcessDefinition> latestList = service.createProcessDefinitionQuery()
                 .processDefinitionKey(definitionKey).orderDesc("deployment.dbid").page(0, 1).list();
@@ -1016,7 +1016,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
         return null;
     }
     private byte[] fetchProcessResource(ProcessInstance pi, String resourceName) {
-        ProcessEngine processEngine = getProcessEngine(ProcessToolContext.Util.getProcessToolContextFromThread());
+        ProcessEngine processEngine = getProcessEngine(ProcessToolContext.Util.getThreadProcessToolContext());
         RepositoryService service = processEngine.getRepositoryService();
 
         ExecutionService executionService = processEngine.getExecutionService();
@@ -1040,7 +1040,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
     }
 
     private byte[] getDeploymentResource(String resourceName, String oldDeploymentId) {
-        RepositoryService service = getProcessEngine(ProcessToolContext.Util.getProcessToolContextFromThread()).getRepositoryService();;
+        RepositoryService service = getProcessEngine(ProcessToolContext.Util.getThreadProcessToolContext()).getRepositoryService();;
         try {
             InputStream oldStream = service.getResourceAsStream(oldDeploymentId, resourceName);
             try {
@@ -1052,9 +1052,10 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
                     }
                     return bos2.toByteArray();
                 }
-            }
-            finally {
-                oldStream.close();
+            } finally {
+                if (oldStream != null) {
+                    oldStream.close();
+                }
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -1063,7 +1064,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
     }
 
     public String deployProcessDefinition(String processName, InputStream definitionStream, InputStream processMapImageStream) {
-        RepositoryService service = getProcessEngine(ProcessToolContext.Util.getProcessToolContextFromThread())
+        RepositoryService service = getProcessEngine(ProcessToolContext.Util.getThreadProcessToolContext())
                 .getRepositoryService();
         NewDeployment deployment = service.createDeployment();
         deployment.addResourceFromInputStream(processName + ".jpdl.xml", definitionStream);

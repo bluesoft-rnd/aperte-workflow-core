@@ -2,6 +2,7 @@ package pl.net.bluesoft.rnd.pt.ext.userdata.widget;
 
 import com.novell.ldap.*;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.WidgetGroup;
 
@@ -16,22 +17,59 @@ import java.util.HashSet;
 public class LdapUserDataWidget extends UserDataWidget {
 
 	@AutoWiredProperty(required = true)
+    @AperteDoc(
+            humanNameKey = "userdata.widget.ldap.ip",
+            descriptionKey = "userdata.widget.ldap.ip.description"
+    )
 	public String ip;
-	@AutoWiredProperty
-	public Integer port = 389;
-	@AutoWiredProperty(required = true)
-	public String loginDN;
-	@AutoWiredProperty(required = true)
-	public String password;
 
 	@AutoWiredProperty
-	public String searchBase = "";
+    @AperteDoc(
+            humanNameKey = "userdata.widget.ldap.port",
+            descriptionKey = "userdata.widget.ldap.port.description"
+    )
+    public Integer port = 389;
+
+	@AutoWiredProperty(required = true)
+    @AperteDoc(
+            humanNameKey = "userdata.widget.ldap.loginDN",
+            descriptionKey = "userdata.widget.ldap.loginDN.description"
+    )
+	public String loginDN;
+
+	@AutoWiredProperty(required = true)
+    @AperteDoc(
+            humanNameKey = "userdata.widget.ldap.password",
+            descriptionKey = "userdata.widget.ldap.password.description"
+    )
+    public String password;
+
 	@AutoWiredProperty
+    @AperteDoc(
+            humanNameKey = "userdata.widget.ldap.searchBase",
+            descriptionKey = "userdata.widget.ldap.searchBase.description"
+    )
+	public String searchBase = "";
+
+	@AutoWiredProperty
+    @AperteDoc(
+            humanNameKey = "userdata.widget.ldap.searchFilter",
+            descriptionKey = "userdata.widget.ldap.searchFilter.description"
+    )
 	public String searchFilter = "(objectClass=inetOrgPerson)";
 
 	@AutoWiredProperty
+    @AperteDoc(
+            humanNameKey = "userdata.widget.ldap.loginAttr",
+            descriptionKey = "userdata.widget.ldap.loginAttr.description"
+    )
 	public String loginAttr = "uid";
+
 	@AutoWiredProperty
+    @AperteDoc(
+            humanNameKey = "userdata.widget.ldap.descriptionAttr",
+            descriptionKey = "userdata.widget.ldap.descriptionAttr.description"
+    )
 	public String descriptionAttr = "cn";
 	
 

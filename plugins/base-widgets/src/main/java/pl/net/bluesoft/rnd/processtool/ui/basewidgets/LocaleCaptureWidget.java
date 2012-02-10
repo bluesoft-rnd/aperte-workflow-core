@@ -2,13 +2,11 @@ package pl.net.bluesoft.rnd.processtool.ui.basewidgets;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.RichTextArea;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.*;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolVaadinWidget;
 
 import java.util.Collection;
 import java.util.Locale;
@@ -20,20 +18,20 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
  */
 @AliasName(name="LocaleCapture")
 @ChildrenAllowed(false)
-@AperteDoc(humanNameKey="widget.locale_capture.name", descriptionKey="widget.locale_capture.description", icon="locale.png")
+@AperteDoc(
+        humanNameKey="widget.locale_capture.name",
+        descriptionKey="widget.locale_capture.description",
+        icon="locale.png"
+)
 @WidgetGroup("base-widgets")
-public class LocaleCaptureWidget extends BaseProcessToolWidget implements ProcessToolVaadinWidget, ProcessToolDataWidget {
+public class LocaleCaptureWidget extends BaseProcessToolVaadinWidget implements ProcessToolDataWidget {
 
     @AutoWiredProperty(required=false)
-    @AperteDoc(humanNameKey="widget.locale_capture.property.local_key.name", descriptionKey="widget.locale_capture.property.local_key.description")
+    @AperteDoc(
+            humanNameKey="widget.locale_capture.property.local_key.name",
+            descriptionKey="widget.locale_capture.property.local_key.description"
+    )
 	private String localeKey = "java.util.Locale";
-
-    @AutoWiredProperty
-    private String caption;
-
-    @AutoWiredProperty
-    @AutoWiredPropertyConfigurator(fieldClass = RichTextArea.class)
-    private String comment;
 
 	private Label lbl = new Label();
 
@@ -72,19 +70,4 @@ public class LocaleCaptureWidget extends BaseProcessToolWidget implements Proces
 		this.localeKey = localeKey;
 	}
 
-    public String getCaption() {
-        return caption;
-    }
-
-    public void setCaption(String caption) {
-        this.caption = caption;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
 }

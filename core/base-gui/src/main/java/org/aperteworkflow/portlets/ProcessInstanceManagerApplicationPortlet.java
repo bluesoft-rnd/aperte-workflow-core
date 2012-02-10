@@ -22,11 +22,15 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * @author tlipski@bluesoft.net.pl
  */
 public class ProcessInstanceManagerApplicationPortlet extends ApplicationPortlet2 {
+
+    private static final Logger logger = Logger.getLogger(ProcessInstanceManagerApplicationPortlet.class.getName());
+
     @Override
     protected void handleRequest(final PortletRequest request, final PortletResponse response) throws PortletException, IOException {
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
@@ -38,7 +42,7 @@ public class ProcessInstanceManagerApplicationPortlet extends ApplicationPortlet
             registry.withProcessToolContext(new ProcessToolContextCallback() {
                 @Override
                 public void withContext(ProcessToolContext ctx) {
-                    ProcessToolContext.Util.setProcessToolContextForThread(ctx);
+                    ProcessToolContext.Util.setThreadProcessToolContext(ctx);
                     try {
                         try {
                             I18NSource.ThreadUtil.setThreadI18nSource(new DefaultI18NSource(request.getLocale()));
@@ -46,7 +50,7 @@ public class ProcessInstanceManagerApplicationPortlet extends ApplicationPortlet
                                 ResourceRequest rr = (ResourceRequest) request;
                                 ResourceResponse resp = (ResourceResponse) response;
                                 if (rr.getParameter("instanceId") != null) { //special handling
-                                    System.out.println("Image request!");
+                                    logger.info("Image request");
                                     ProcessToolBpmSession session = ctx.getProcessToolSessionFactory()
                                             .createSession(new UserData("admin", "admin@aperteworkflow.org", "Admin admin"),
                                                     new ArrayList<String>());
@@ -58,7 +62,7 @@ public class ProcessInstanceManagerApplicationPortlet extends ApplicationPortlet
                                     }
                                     return;
                                 } else if (rr.getParameter("svg") != null) { //to use svg inside of a window
-                                    System.out.println("SVG request!");
+                                    logger.info("SVG request");
 
                                     ProcessToolBpmSession session = ctx.getProcessToolSessionFactory()
                                             .createSession(new UserData("admin", "admin@aperteworkflow.org", "Admin admin"), 
@@ -87,12 +91,12 @@ public class ProcessInstanceManagerApplicationPortlet extends ApplicationPortlet
                                             throw new RuntimeException(e);
                                         }                                        
 
-                                        String strokeStyle = "stroke:#C14F45;stroke-width:3;stroke-opacity:0.25;";
+                                        String strokeStyle = "stroke:#1B59E0;stroke-width:4;opacity: 1;";
 
                                         for (GraphElement el : processHistory) {
                                             if (el instanceof StateNode) {
                                                 StateNode sn = (StateNode) el;
-                                                String fill = sn.isUnfinished() ? "fill:#C14F45;fill-opacity:0.15" : "fill-opacity:0.0";
+                                                String fill = sn.isUnfinished() ? "fill:#1B59E0;fill-opacity:0.3" : "fill-opacity:0.0";
                                                 svg.append(String.format("<rect x=\"%d\" y=\"%d\" height=\"%d\" width=\"%d\"\n" +
                                                                     " rx=\"5\" ry=\"5\"\n" +
                                                                     " style=\"" + strokeStyle + fill + "\"/>\n",
@@ -125,12 +129,12 @@ public class ProcessInstanceManagerApplicationPortlet extends ApplicationPortlet
                             }
                             ProcessInstanceManagerApplicationPortlet.super.handleRequest(request, response);
                         } finally {
-                            I18NSource.ThreadUtil.setThreadI18nSource(null);
+                            I18NSource.ThreadUtil.removeThreadI18nSource();
                         }
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     } finally {
-                        ProcessToolContext.Util.removeProcessToolContextForThread(ctx);
+                        ProcessToolContext.Util.removeThreadProcessToolContext();
                     }
                 }
             });

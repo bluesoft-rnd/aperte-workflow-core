@@ -24,33 +24,54 @@ http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/em
         <scripting:component doc:name="Groovy">
             <scripting:script engine="Groovy">
                 <scripting:text >
-                    try {
-                    def from = payload.getSimpleAttributeValue("from");
-                    def to = payload.getSimpleAttributeValue("to");
-                    def dDate = payload.getSimpleAttributeValue("departureDate");
-                    def rDate = payload.getSimpleAttributeValue("returnDate");
-                    def p = Integer.valueOf(payload.getSimpleAttributeValue("passengers"));
-                    def c = Integer.valueOf(payload.getSimpleAttributeValue("clazz"));
-                    def hours1 = ["10:00", "14:30", "20:10"];
-                    def hours2 = ["12:15", "17:35", "23:55"];
-                    def format = "Price:  %s EUR &#160; &#160; &#160; &lt;b&gt;%s - %s&lt;/b&gt; %s %s &#160; &#160; &#160; &lt;b&gt;%s - %s&lt;/b&gt; %s %s"  ;
-                    def formatOneWay = "Price:  %s EUR &#160; &#160; &#160; &lt;b&gt;%s - %s&lt;/b&gt; %s %s ";
-                    def prices = [WAW:100, JFK:1000, BCN:200, CDG:150];
-                    for (i in 0..hours1.size()-1){
-                        def h1 = hours1[i];
-                        def h2 = hours2[i];
-                        def price = prices[from];
-                        if(rDate != null)
-                            price += prices[to];
-                        price *= p * c;
-                        def flight = "" ;
-                        if(rDate == null)
-                            flight = String.format(formatOneWay, price, from, to, dDate, h1);
-                        else
-                            flight = String.format(format, price, from, to, dDate, h1, to, from, rDate, h2 );
-                        payload.addDictionaryAttributeItem("flights", flight, flight);
-                    }
-                        return "OK";
+                        try {
+                        def dDate = payload.getSimpleAttributeValue("departureDate");
+                        def rDate = payload.getSimpleAttributeValue("returnDate");
+                        def from = payload.getSimpleAttributeValue("from");
+                        def to = payload.getSimpleAttributeValue("to");
+                        def invalidDates = '&lt;font color=&quot;red&quot;&gt;Invalid dates!&lt;/font&gt;';
+                        def invalidDestination = '&lt;font color=&quot;red&quot;&gt;Invalid destination!&lt;/font&gt;';
+                        if(from.equals(to)){
+                            payload.setSimpleAttribute("valid", "false");
+                            payload.setSimpleAttribute("validationError", invalidDestination);
+                            return "FAIL";
+                        }
+                        if(rDate != null){
+                            def df = new java.text.SimpleDateFormat("dd-MM-yyyy");
+                            if(!df.parse(rDate).after(df.parse(dDate))){
+                                payload.setSimpleAttribute("valid", "false");
+                                payload.setSimpleAttribute("validationError", invalidDates);
+                                return "FAIL";
+                            }
+                        }
+                        payload.setSimpleAttribute("valid", "true");
+                        def dict = payload.findAttributeByKey("flights");
+                        if(dict != null){
+                            payload.removeAttribute(dict);
+                        }
+                        def p = Integer.valueOf(payload.getSimpleAttributeValue("passengers"));
+                        def c = Integer.valueOf(payload.getSimpleAttributeValue("clazz"));
+                        def hours1 = ["10:00", "14:30", "20:10"];
+                        def hours2 = ["12:15", "17:35", "23:55"];
+                        def format = " &#160;  &#160; Price:  %s EUR &#160; &#160; &#160; &lt;b&gt;%s - %s&lt;/b&gt; %s %s &#160; &#160; &#160; &lt;b&gt;%s - %s&lt;/b&gt; %s %s"  ;
+                        def formatOneWay = "Price:  %s EUR &#160; &#160; &#160; &lt;b&gt;%s - %s&lt;/b&gt; %s %s ";
+                        def prices = [WAW:100, JFK:1000, BCN:200, CDG:150];
+                        for (i in 0..hours1.size()-1){
+                            def h1 = hours1[i];
+                            def h2 = hours2[i];
+                            def price = prices[from];
+                            if(rDate != null)
+                                price += prices[to];
+                            price *= p * c;
+                            price += 50*i;
+                            def flight = "" ;
+                            if(rDate == null)
+                                flight = String.format(formatOneWay, price, from, to, dDate, h1);
+                            else
+                                flight = String.format(format, price, from, to, dDate, h1, to, from, rDate, h2 );
+                            payload.addDictionaryAttributeItem("flights", flight, flight);
+                        }
+                        return payload;
                     } catch (Exception e) {
                     e.printStackTrace();
                     throw e;
@@ -69,15 +90,15 @@ http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/em
             <script:script engine="groovy">
                 <script:text>
                     //fake class to get class loader
-                    def text = "&lt;h3&gt;Dear %s %s, &lt;/h3&gt;"
+                    def text = "&lt;h3&gt;Dear %s %s %s, &lt;/h3&gt;"
                     text += "Your have just booked flight:"
                     text += "&lt;h2&gt;%s&lt;/h2&gt;"
                     text += "Your reservation number:"
                     text += "&lt;h2&gt;%s&lt;/h2&gt;"
                     text += "Thank you for flying &lt;b&gt;Aperte Air&lt;/b&gt;!"
                     def getReservationNumber(){
-                        String validChars ="ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_"
-                        int length = 10
+                        String validChars ="ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+                        int length = 6
                         String resNr = ""
                         java.util.Random rnd = new java.util.Random()
                         for (i in 0..length){
@@ -86,11 +107,13 @@ http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/em
                     }
                     return resNr
                     }
-                    def username = payload.getSimpleAttributeValue("username")
+                    def firstName = payload.getSimpleAttributeValue("firstName")
+                    def lastName = payload.getSimpleAttributeValue("lastName")
                     def salutation = payload.getSimpleAttributeValue("salutation")
                     def flight = payload.getSimpleAttributeValue("flight")
                     def reservationNr =  getReservationNumber()
-                    def msg = String.format(text, salutation, username, flight, reservationNr)
+                    payload.setSimpleAttribute("reservationNr", reservationNr)
+                    def msg = String.format(text, salutation, firstName, lastName, flight, reservationNr)
                     payload.setSimpleAttribute("msg", msg)
                     return payload
                 </script:text>
@@ -107,29 +130,7 @@ http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/em
             <scripting:script engine="Groovy">
                 <scripting:text >
                     try {
-                    def dDate = payload.getSimpleAttributeValue("departureDate");
-                    def rDate = payload.getSimpleAttributeValue("returnDate");
-                    def from = payload.getSimpleAttributeValue("from");
-                    def to = payload.getSimpleAttributeValue("to");
-                    def invalidDates = "&lt;h1&gt;Invalid dates!&lt;/h1&gt;";
-                    def invalidDestination = "&lt;h1&gt;Invalid destination!&lt;/h1&gt;";
-                    if(from.equals(to)){
-                        payload.setSimpleAttribute("valid", "false");
-                        payload.setSimpleAttribute("validationError", invalidDestination);
-                        return "FAIL";
-                    }
-                    if(rDate == null){
-                        payload.setSimpleAttribute("valid", "true");
-                        return "OK";
-                    }
-                    def df = new java.text.SimpleDateFormat("dd-MM-yyyy");
-                    if(!df.parse(rDate).after(df.parse(dDate))){
-                        payload.setSimpleAttribute("valid", "false");
-                        payload.setSimpleAttribute("validationError", invalidDates);
-                        return "FAIL";
-                    }
-                    payload.setSimpleAttribute("valid", "true");
-                    return "OK";
+                     return payload;
                     } catch (Exception e) {
                         e.printStackTrace();
                         throw e;

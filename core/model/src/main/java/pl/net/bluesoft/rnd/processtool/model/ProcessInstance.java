@@ -240,6 +240,15 @@ public class ProcessInstance extends PersistentEntity {
             addAttribute(new ProcessInstanceSimpleAttribute(key, value));
         }
     }
+    
+    public void addDictionaryAttributeItem(String dictionary, String key, String value){
+        ProcessInstanceDictionaryAttribute attr = (ProcessInstanceDictionaryAttribute)findAttributeByKey(dictionary);
+        if (attr == null) {
+            addAttribute(attr = new ProcessInstanceDictionaryAttribute(dictionary));
+        }
+        attr.put(key, value);
+
+    }
 
 
     public String[] getAssignees() {

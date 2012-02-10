@@ -62,12 +62,12 @@
                             pl.net.bluesoft.rnd.util.i18n,javassist.util.proxy,org.hibernate.proxy,org.osgi.framework,pl.net.bluesoft.rnd.processtool.plugins,pl.net.bluesoft.rnd.processtool.plugins.osgi,pl.net.bluesoft.rnd.processtool.model,javax.persistence,pl.net.bluesoft.rnd.processtool.ui.widgets,com.vaadin.data,com.vaadin.ui,com.vaadin,pl.net.bluesoft.rnd.processtool.ui.widgets.impl,org.hibernate,*
                         </Import-Package>
                         <Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>
-                        <Bundle-SymbolicName>pl.net.bluesoft.rnd.pt.ext.cmis</Bundle-SymbolicName>
+                        <Bundle-SymbolicName>org.aperteworkflow.widgets.doclist</Bundle-SymbolicName>
                         <Bundle-Version>0.1</Bundle-Version>
                         <Embed-Directory>lib</Embed-Directory>
                         <Embed-Transitive>true</Embed-Transitive>
-                        <ProcessTool-Widget-Enhancement>pl.net.bluesoft.rnd.pt.ext.cmis.widget.CmisDocumentListWidget</ProcessTool-Widget-Enhancement>
-                        <ProcessTool-I18N-Property>cmis-messages</ProcessTool-I18N-Property>
+                        <!--<ProcessTool-Widget-Enhancement>pl.net.bluesoft.rnd.pt.ext.cmis.widget.CmisDocumentListWidget</ProcessTool-Widget-Enhancement>-->
+                        <!--<ProcessTool-I18N-Property>cmis-messages</ProcessTool-I18N-Property>-->
                     </instructions>
                 </configuration>
             </plugin>

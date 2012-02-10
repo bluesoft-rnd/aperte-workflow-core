@@ -261,7 +261,6 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
             logger.log(Level.SEVERE, "Error loading available widgets", e);
         }
         for (Entry<BundleItem, Collection<WidgetItem>> entry : availableWidgets.entrySet()) {
-//            final BundleItem bundle = entry.getKey();
             final Collection<WidgetItem> widgets = entry.getValue();
             for (WidgetItem widgetItem : widgets) {
                 widgetItems.add(widgetItem);
@@ -338,7 +337,6 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
                             HierarchicalContainer hc = (HierarchicalContainer) stepTree.getContainerDataSource();
                             hc.removeItemRecursively(widget);
                             showParams(null);
-//                            removeFromStepTreeButton.setEnabled(false);
                         }
                     }
                 }
@@ -460,7 +458,7 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 	}
 
 	private void showParams(WidgetItemInStep widget) {
-        paramPanel.loadWidget(widget);
+        paramPanel.loadWidget(widget, true);
 	}
 
     @Override
@@ -469,8 +467,11 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
         Collection<?> itemIds = stepTreeContainer.getItemIds();
         for (Object itemId : itemIds) {
             WidgetItemInStep widgetInStep = (WidgetItemInStep) itemId;
+
             PropertiesPanel propertiesPanel = widgetInStep.getWidgetPropertiesPanel();
-            if (propertiesPanel != null) { // why is tree root a WidgetInStep in first place?
+            if (propertiesPanel != null) {
+                widgetInStep.getWidgetPropertiesPanel().ensureForm();
+
                 PropertiesForm propertiesForm = propertiesPanel.getPropertiesForm();
                 if (!propertiesForm.isValid()) {
                     I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
@@ -481,7 +482,7 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
                     );
 
                     // switch to problematic widget
-                    showParams(widgetInStep);
+                    paramPanel.loadWidget(widgetInStep, false);
                     stepTree.setValue(widgetInStep);
                     return;
                 }

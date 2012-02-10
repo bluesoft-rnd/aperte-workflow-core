@@ -28,7 +28,6 @@ public class WidgetItemInStep implements Serializable {
 	}
 
 	public WidgetItemInStep(WidgetItem widgetItem) {
-		super();
 		this.widgetItem = widgetItem;
 		if (widgetItem.getProperties() != null) {
 			for (Property<?> property : widgetItem.getProperties()) {
@@ -42,6 +41,7 @@ public class WidgetItemInStep implements Serializable {
 				}
 			}
 		}
+
 		if (widgetItem.getPermissions() != null) {
 			for (PermissionDefinition perm : widgetItem.getPermissions()) {
                 permissionDefinitions.add(perm);
@@ -49,6 +49,8 @@ public class WidgetItemInStep implements Serializable {
 		}
 
         widgetPropertiesPanel = new PropertiesPanel();
+        widgetPropertiesPanel.init(widgetItem.getClassInfo());
+        widgetPropertiesPanel.refreshForm(false, properties);
 	}
 
 	public WidgetItem getWidgetItem() {

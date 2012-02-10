@@ -17,16 +17,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.logging.Logger;
 
 public class WidgetFormWindow extends Panel  {
 
-	private static final long serialVersionUID = -916309904329553267L;
-    private static final Logger logger = Logger.getLogger(WidgetFormWindow.class.getName());
-
     private WidgetItemInStep widget;
 
-	public void loadWidget(final WidgetItemInStep widget) {
+    // TODO this class and method needs a a major rework
+	public void loadWidget(final WidgetItemInStep widget, boolean reloadProperties) {
         this.widget = widget;
         I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
 		removeAllComponents();
@@ -43,12 +40,13 @@ public class WidgetFormWindow extends Panel  {
             TabSheet ts = new TabSheet();
             ts.setWidth("100%");
             if (widget.hasProperties()) {
-                PropertiesPanel propertiesPanel = new PropertiesPanel();
-                propertiesPanel.init(widget.getWidgetItem().getClassInfo());
-                propertiesPanel.refreshForm(false, widget.getProperties());
-                ts.addTab(propertiesPanel, messages.getMessage("form.properties"));
-
-                widget.setWidgetPropertiesPanel(propertiesPanel);
+                if (reloadProperties) {
+                    PropertiesPanel propertiesPanel = new PropertiesPanel();
+                    propertiesPanel.init(widget.getWidgetItem().getClassInfo());
+                    propertiesPanel.refreshForm(false, widget.getProperties());
+                    widget.setWidgetPropertiesPanel(propertiesPanel);
+                }
+                ts.addTab(widget.getWidgetPropertiesPanel(), messages.getMessage("form.properties"));
             }
             if (widget.hasPermissions()) {
                 PermissionEditor permissionEditor = new PermissionEditor();
@@ -73,11 +71,6 @@ public class WidgetFormWindow extends Panel  {
                     public void addPermission(Permission permission) {
                         Set<Permission> newPermissions = new LinkedHashSet<Permission>(widget.getPermissions());
                         newPermissions.add(permission);
-                        logger.info("addPermission: ");
-                        for (Permission pp : newPermissions) {
-                            logger.info(pp.toString());
-                        }
-                        logger.info("addPermission: finished");
                         widget.setPermissions(new ArrayList<Permission>(newPermissions));
                     }
 
@@ -85,11 +78,6 @@ public class WidgetFormWindow extends Panel  {
                     public void removePermission(Permission permission) {
                         Set<Permission> newPermissions = new LinkedHashSet<Permission>(widget.getPermissions());
                         newPermissions.remove(permission);
-                        logger.info("removePermission: ");
-                        for (Permission pp : newPermissions) {
-                            logger.info(pp.toString());
-                        }
-                        logger.info("removePermission: finished");
                         widget.setPermissions(new ArrayList<Permission>(newPermissions));
                     }
                 });

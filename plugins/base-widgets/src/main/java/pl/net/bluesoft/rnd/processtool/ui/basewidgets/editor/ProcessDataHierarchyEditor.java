@@ -79,15 +79,17 @@ public class ProcessDataHierarchyEditor extends VerticalLayout {
                         formComponent.commit();
                         renderForm(itemId);
                     } else {
-                        ConfirmDialog.show(getApplication().getMainWindow(),
+                        ConfirmDialog.show(
+                                getApplication().getMainWindow(),
                                 getLocalizedMessage("unsaved-data-warning"),
                                 new ConfirmDialog.Listener() {
                                     @Override
                                     public void onClose(ConfirmDialog confirmDialog) {
-                                        if (confirmDialog.isConfirmed())
+                                        if (confirmDialog.isConfirmed()) {
                                             renderForm(itemId);
-                                        else
+                                        } else {
                                             widgetTree.select(formComponent.getItemId());
+                                        }
                                     }
                                 });
                     }
@@ -131,13 +133,15 @@ public class ProcessDataHierarchyEditor extends VerticalLayout {
                     Tree target1 = (Tree) target;
                     final Object itemId = target1.getValue();
                     if (itemId != null) {
-                        ConfirmDialog.show(getApplication().getMainWindow(),
+                        ConfirmDialog.show(
+                                getApplication().getMainWindow(),
                                 getLocalizedMessage("remove-item-confirm"),
                                 new ConfirmDialog.Listener() {
                                     @Override
                                     public void onClose(ConfirmDialog confirmDialog) {
-                                        if (confirmDialog.isConfirmed())
+                                        if (confirmDialog.isConfirmed()) {
                                             removeItemFromTreeRecursively(itemId);
+                                        }
                                         refreshRawXmlAndPreview();
                                     }
                                 });

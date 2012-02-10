@@ -2,6 +2,7 @@ package org.aperteworkflow.editor.stepeditor.user;
 
 import org.aperteworkflow.editor.domain.Permission;
 import org.aperteworkflow.editor.ui.permission.PermissionDefinition;
+import org.aperteworkflow.editor.ui.property.PropertiesPanel;
 
 import java.io.Serializable;
 import java.util.LinkedList;
@@ -14,18 +15,19 @@ public class WidgetItemInStep implements Serializable {
     private static final Logger logger = Logger.getLogger(WidgetItemInStep.class.getName());
 
 	private WidgetItem widgetItem;
+    private PropertiesPanel widgetPropertiesPanel;
 	private List<Property<?>> properties = new LinkedList<Property<?>>();
 	private List<Permission> permissions = new LinkedList<Permission>();
 	private List<PermissionDefinition> permissionDefinitions = new LinkedList<PermissionDefinition>();
 
-	public WidgetItemInStep(WidgetItem widgetItem, List<Property<?>> properties, List<PermissionDefinition> permissionDefinitions) {
+	public WidgetItemInStep(WidgetItem widgetItem, PropertiesPanel widgetPropertiesPanel, List<Property<?>> properties, List<PermissionDefinition> permissionDefinitions) {
 		this.widgetItem = widgetItem;
 		this.properties = properties;
 		this.permissionDefinitions = permissionDefinitions;
+        this.widgetPropertiesPanel = widgetPropertiesPanel;
 	}
 
 	public WidgetItemInStep(WidgetItem widgetItem) {
-		super();
 		this.widgetItem = widgetItem;
 		if (widgetItem.getProperties() != null) {
 			for (Property<?> property : widgetItem.getProperties()) {
@@ -39,11 +41,16 @@ public class WidgetItemInStep implements Serializable {
 				}
 			}
 		}
+
 		if (widgetItem.getPermissions() != null) {
 			for (PermissionDefinition perm : widgetItem.getPermissions()) {
                 permissionDefinitions.add(perm);
 			}
 		}
+
+        widgetPropertiesPanel = new PropertiesPanel();
+        widgetPropertiesPanel.init(widgetItem.getClassInfo());
+        widgetPropertiesPanel.refreshForm(false, properties);
 	}
 
 	public WidgetItem getWidgetItem() {
@@ -85,4 +92,12 @@ public class WidgetItemInStep implements Serializable {
 	public boolean hasPermissions() {
 		return permissionDefinitions != null && !permissionDefinitions.isEmpty();
 	}
+
+    public PropertiesPanel getWidgetPropertiesPanel() {
+        return widgetPropertiesPanel;
+    }
+
+    public void setWidgetPropertiesPanel(PropertiesPanel widgetPropertiesPanel) {
+        this.widgetPropertiesPanel = widgetPropertiesPanel;
+    }
 }

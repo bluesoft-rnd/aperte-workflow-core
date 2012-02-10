@@ -26,7 +26,13 @@ public class PropertiesPanel extends Panel {
 	public void init(Class<?> aperteClass) {
 		this.classInfo = new AperteProcessClassInfo(aperteClass);
 	}
-	
+
+    public void ensureForm() {
+        if (propertiesForm == null) {
+            refreshForm(true);
+        }
+    }
+
 	private void refreshForm(boolean setCaption) {
 		I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
 		removeAllComponents();

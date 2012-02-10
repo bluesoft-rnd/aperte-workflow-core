@@ -159,7 +159,7 @@ public class JSONHandler {
         return p;
     }
 
-    static Map<String, Object> collectNode(final Tree tree, Object node, Integer priority) {
+    private static Map<String, Object> collectNode(final Tree tree, Object node, Integer priority) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		final WidgetItemInStep widgetItemInStep = (WidgetItemInStep) node;
 
@@ -219,9 +219,7 @@ public class JSONHandler {
         tc.setParams(treeMap);
         
 		try {
-            String s = mapper.writeValueAsString(tc);
-//            logger.info("Dumped result: " +s);
-            return s;
+            return mapper.writeValueAsString(tc);
 		} catch (JsonGenerationException e) {
             logger.log(Level.SEVERE, "Error dumping tree", e);
 		} catch (JsonMappingException e) {

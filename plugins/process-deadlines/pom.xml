@@ -77,7 +77,7 @@
                             javax.mail.search;version=!,
                             *;resolution:=optional,
                             pl.net.bluesoft.util.eventbus,
-                            pl.net.bluesoft.rnd.processtool.template,
+                            pl.net.bluesoft.rnd.pt.utils.template,
                             pl.net.bluesoft.rnd.processtool.model
                         </Import-Package>
                         <Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>

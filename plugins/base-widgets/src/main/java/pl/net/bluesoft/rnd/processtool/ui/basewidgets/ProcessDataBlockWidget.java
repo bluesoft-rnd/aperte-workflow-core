@@ -20,10 +20,7 @@ import org.apache.commons.beanutils.expression.Resolver;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.dict.ProcessDictionaryRegistry;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttachmentAttribute;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceSimpleAttribute;
+import pl.net.bluesoft.rnd.processtool.model.*;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionary;
@@ -52,7 +49,7 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 
 @AliasName(name = "ProcessData")
-@AperteDoc(humanNameKey="widget.process_data_block.name", descriptionKey="widget.process_data_block.description")
+@AperteDoc(humanNameKey = "widget.process_data_block.name", descriptionKey = "widget.process_data_block.description")
 @ChildrenAllowed(false)
 @WidgetGroup("base-widgets")
 public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implements ProcessToolDataWidget {
@@ -66,11 +63,12 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
 
     private Map<Property, WidgetElement> boundProperties = new HashMap<Property, WidgetElement>();
     private Map<AbstractSelect, WidgetElement> dictContainers = new HashMap<AbstractSelect, WidgetElement>();
+    private Map<AbstractSelect, WidgetElement> instanceDictContainers = new HashMap<AbstractSelect, WidgetElement>();
     private Map<String, ProcessInstanceAttribute> processAttributes = new HashMap<String, ProcessInstanceAttribute>();
     protected WidgetsDefinitionElement widgetsDefinitionElement;
     private ProcessInstance processInstance;
 
-    @AutoWiredProperty(required=true)
+    @AutoWiredProperty(required = true)
     @AutoWiredPropertyConfigurator(fieldClass = ProcessDataWidgetsDefinitionEditor.class)
     @AperteDoc(
         humanNameKey="widget.process_data_block.property.widgetsDefinition.name",
@@ -108,7 +106,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                 }
             } catch (Exception e) {
                 logException(getMessage("processdata.block.error.eval.other")
-                        .replaceFirst("%s", nvl(currentComponent.toString(),"NIL"))
+                        .replaceFirst("%s", nvl(currentComponent.toString(), "NIL"))
                         .replaceFirst("%s", nvl(currentElement.getBind(), "NIL")), e);
             }
         }
@@ -189,13 +187,13 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                 if (!component.isReadOnly()) {
                     ProcessInstanceAttribute attribute = fetchOrCreateAttribute(element);
                     if (attribute instanceof ProcessInstanceSimpleAttribute) {
-	                    if (element instanceof DateWidgetElement) {
-		                   ((ProcessInstanceSimpleAttribute) attribute).setValue(
-				            	new SimpleDateFormat(((DateWidgetElement)element).getFormat()).format(component.getValue())
-		                   );
-	                    } else if (component.getValue() != null) {
-		                    ((ProcessInstanceSimpleAttribute) attribute).setValue(component.getValue().toString());
-	                    }
+                        if (element instanceof DateWidgetElement) {
+                            ((ProcessInstanceSimpleAttribute) attribute).setValue(
+                                    new SimpleDateFormat(((DateWidgetElement) element).getFormat()).format(component.getValue())
+                            );
+                        } else if (component.getValue() != null) {
+                            ((ProcessInstanceSimpleAttribute) attribute).setValue(component.getValue().toString());
+                        }
                     } else {
                         if (component instanceof FileUploadComponent) {
                             ProcessInstanceAttachmentAttribute attachment = (ProcessInstanceAttachmentAttribute) component.getValue();
@@ -243,18 +241,45 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                     if (readonly) {
                         component.setReadOnly(false);
                     }
-	                value = value instanceof ProcessInstanceSimpleAttribute ?
-			                ((ProcessInstanceSimpleAttribute) value).getValue() : value;
+                    value = value instanceof ProcessInstanceSimpleAttribute ?
+                            ((ProcessInstanceSimpleAttribute) value).getValue() : value;
                     if (Date.class.isAssignableFrom(component.getType())) {
-		                Date v = new SimpleDateFormat(((DateWidgetElement) element).getFormat()).parse(String.valueOf(
-				                value));
-		                component.setValue(v);
+                        Date v = new SimpleDateFormat(((DateWidgetElement) element).getFormat()).parse(String.valueOf(
+                                value));
+                        component.setValue(v);
 
-	                } else if (String.class.isAssignableFrom(component.getType())) {
+                    } else if (String.class.isAssignableFrom(component.getType())) {
                         component.setValue(nvl(value, ""));
-	                }
+                    }
                     if (readonly) {
                         component.setReadOnly(true);
+                    }
+                }
+            }
+        };
+    }
+
+    private void loadProcessInstanceDictionaries() {
+        new ComponentEvaluator<AbstractSelect>(instanceDictContainers) {
+
+            @Override
+            public void evaluate(AbstractSelect component, WidgetElement element) throws Exception {
+                AbstractSelectWidgetElement aswe = (AbstractSelectWidgetElement) element;
+                String dictAttribute = aswe.getDictionaryAttribute();
+                ProcessInstanceDictionaryAttribute dict = (ProcessInstanceDictionaryAttribute) processInstance.findAttributeByKey(dictAttribute);
+                if (dict != null) {
+                    int i = 0;
+                    for (Object o : dict.getItems()) {
+                        ProcessInstanceDictionaryItem itemProcess = (ProcessInstanceDictionaryItem) o;
+                        component.addItem(itemProcess.getKey());
+                        component.setItemCaption(itemProcess.getKey(), itemProcess.getValue());
+                        if (element instanceof AbstractSelectWidgetElement) {
+                            AbstractSelectWidgetElement select = (AbstractSelectWidgetElement) element;
+                            if (select.getDefaultSelect() != null && i == select.getDefaultSelect()) {
+                                component.setValue(itemProcess.getKey());
+                            }
+                        }
+                        ++i;
                     }
                 }
             }
@@ -319,6 +344,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         }
 
         loadDictionaries();
+        loadProcessInstanceDictionaries();
         loadBindings();
 
         return mainPanel;
@@ -358,7 +384,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
 
         if (component != null) {
             component.setImmediate(true);
-	        component.setEnabled(hasPermission("EDIT"));
+            component.setEnabled(hasPermission("EDIT"));
             if (component.isReadOnly() || !component.isEnabled()) {
                 component.setHeight(null);
             }
@@ -374,8 +400,9 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         OptionGroup radioSelect = new OptionGroup();
         radioSelect.setNullSelectionAllowed(false);
         radioSelect.setCaption(element.getCaption());
+        radioSelect.setHtmlContentAllowed(true);
 //        if(element.getValues().isEmpty())
-        for(int i=0; i < element.getValues().size(); i++){
+        for (int i = 0; i < element.getValues().size(); i++) {
             ItemElement item = element.getValues().get(i);
             radioSelect.addItem(item.getKey());
             radioSelect.setItemCaption(item.getKey(), item.getValue());
@@ -447,27 +474,27 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
     private AbstractComponent createTextAreaField(TextAreaWidgetElement taw) {
         AbstractComponent component;
         if (taw.getRich() != null && taw.getRich()) {
-			RichTextArea rta = new RichTextArea();
-			if (taw.getVisibleLines() != null) {
-				rta.setHeight(taw.getVisibleLines()*2+4, Sizeable.UNITS_EM);
-			}
-			if (taw.getLimit() != null) {
-				rta.addValidator(new StringLengthValidator(getMessage("processdata.block.error.text.exceeded").replaceFirst("%s",
-						"" + taw.getLimit()), 0, taw.getLimit(), true));
-			}
-			if (nvl(taw.getRequired(), false)) {
-				rta.setRequired(true);
-				if (hasText(taw.getCaption())) {
-					rta.setRequiredError(getMessage("processdata.block.field-required-error") + " " + taw.getCaption());
-				} else {
-					rta.setRequiredError(getMessage("processdata.block.field-required-error"));
-				}
-			}
-	        if (!hasPermission("EDIT")) {
-		        rta.setReadOnly(true);
-		        rta.setHeight(null);
-	        }
-			component = rta;
+            RichTextArea rta = new RichTextArea();
+            if (taw.getVisibleLines() != null) {
+                rta.setHeight(taw.getVisibleLines() * 2 + 4, Sizeable.UNITS_EM);
+            }
+            if (taw.getLimit() != null) {
+                rta.addValidator(new StringLengthValidator(getMessage("processdata.block.error.text.exceeded").replaceFirst("%s",
+                        "" + taw.getLimit()), 0, taw.getLimit(), true));
+            }
+            if (nvl(taw.getRequired(), false)) {
+                rta.setRequired(true);
+                if (hasText(taw.getCaption())) {
+                    rta.setRequiredError(getMessage("processdata.block.field-required-error") + " " + taw.getCaption());
+                } else {
+                    rta.setRequiredError(getMessage("processdata.block.field-required-error"));
+                }
+            }
+            if (!hasPermission("EDIT")) {
+                rta.setReadOnly(true);
+                rta.setHeight(null);
+            }
+            component = rta;
         } else {
             TextArea ta = new TextArea();
             if (taw.getVisibleLines() != null) {
@@ -722,6 +749,15 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         if (hasText(we.getDict()) && hasText(we.getProvider()) && component instanceof AbstractSelect) {
             AbstractSelect select = (AbstractSelect) component;
             dictContainers.put(select, we);
+        }
+
+        if (we instanceof AbstractSelectWidgetElement) {
+            AbstractSelectWidgetElement aswe = (AbstractSelectWidgetElement) we;
+            if (!hasText(we.getDict()) && !hasText(we.getProvider()) && hasText(aswe.getDictionaryAttribute())) {
+                AbstractSelect select = (AbstractSelect) component;
+                instanceDictContainers.put(select, aswe);
+
+            }
         }
     }
 

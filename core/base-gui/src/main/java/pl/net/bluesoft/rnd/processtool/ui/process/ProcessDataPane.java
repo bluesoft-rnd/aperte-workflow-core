@@ -4,7 +4,7 @@ import com.vaadin.Application;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.ShortcutListener;
 import com.vaadin.ui.*;
-import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.beanutils.BeanUtils;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
@@ -33,10 +33,10 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
  * @author tlipski@bluesoft.net.pl
  */
 public class ProcessDataPane extends VerticalLayout {
+    private static final Logger logger = Logger.getLogger(ProcessDataPane.class.getName());
+
     private ProcessToolBpmSession bpmSession;
     private I18NSource i18NSource;
-
-    private Logger logger = Logger.getLogger(ProcessDataPane.class.getName());
     private ProcessInstance process;
 
     private Set<ProcessToolDataWidget> dataWidgets = new HashSet<ProcessToolDataWidget>();
@@ -418,41 +418,20 @@ public class ProcessDataPane extends VerticalLayout {
                     AutoWiredProperty awp = (AutoWiredProperty) a;
                     if (AutoWiredProperty.DEFAULT.equals(awp.name())) {
                         autoName = f.getName();
-                    }
-                    else {
+                    } else {
                         autoName = awp.name();
                     }
                 }
             }
-            String v = nvl(m.get(autoName),
-                    ProcessToolContext.Util.getThreadProcessToolContext().getSetting("autowire." + autoName));
-            if (autoName != null && v != null) {
+            String value = nvl(
+                    m.get(autoName),
+                    ProcessToolContext.Util.getThreadProcessToolContext().getSetting("autowire." + autoName)
+            );
+            if (autoName != null && value != null) {
                 try {
-                    logger.fine("Setting attribute " + autoName + " to " + v);
-                    if (f.getType().equals(String.class)) {
-                        PropertyUtils.setProperty(object, autoName, v);
-                    } else if (f.getType().equals(Integer.class)) {
-                    	PropertyUtils.setProperty(object, autoName, Integer.parseInt(v));
-                    } else if (f.getType().equals(Boolean.class)) {
-                    	PropertyUtils.setProperty(object, autoName, Boolean.parseBoolean(v));
-                    }
-                    else if (f.getType().isPrimitive()) {
-                        String name = f.getType().getName();
-                        if (name.equals("int")) {
-                            PropertyUtils.setProperty(object, autoName, Integer.parseInt(v));
-                        }
-                        else if (name.equals("boolean")) {
-                            PropertyUtils.setProperty(object, autoName, Boolean.parseBoolean(v));
-                        }
-                        else {
-                            PropertyUtils.setProperty(object, autoName, v);
-                        }
-                    }
-                    else {
-                        logger.warning("attribute " + autoName + " with type " + f.getType() + " is not supported!");
-                    }
-                }
-                catch (Exception e) {
+                    logger.fine("Setting attribute " + autoName + " to " + value);
+                    BeanUtils.setProperty(object, autoName, value);
+                } catch (Exception e) {
                     logger.log(Level.SEVERE, e.getMessage(), e);
                 }
             }

@@ -17,7 +17,7 @@
     <modules>
         <module>liferay-poc-process</module>
         <module>sample-mule-step</module>
-        <module>sample-mule-step-flightsearch</module>
+        <module>mule-flightsearch-sample</module>
     </modules>
 
     <dependencies>

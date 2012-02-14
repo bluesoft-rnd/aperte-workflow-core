@@ -9,30 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>sample-mule-step-flightsearch</artifactId>
-    <name>sample-mule-step-flightsearch</name>
-    <properties>
-        <mule.version>3.2.0</mule.version>
-    </properties>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.aperteworkflow</groupId>
-            <artifactId>processtool-interface</artifactId>
-            <version>0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mule</groupId>
-            <artifactId>mule-core</artifactId>
-            <version>${mule.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mule.transports</groupId>
-            <artifactId>mule-transport-email</artifactId>
-            <version>${mule.version}</version>
-        </dependency>
-    </dependencies>
-
+    <artifactId>mule-flightsearch-sample</artifactId>
     <build>
         <plugins>
             <plugin>

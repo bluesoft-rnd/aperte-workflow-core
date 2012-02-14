@@ -223,7 +223,8 @@ public class ProcessInstance extends PersistentEntity {
     }
 
     public String getSimpleAttributeValue(String key) {
-        return ((ProcessInstanceSimpleAttribute)findAttributeByKey(key)).getValue();
+        ProcessInstanceAttribute attr = findAttributeByKey(key);
+        return attr != null ?  ((ProcessInstanceSimpleAttribute)attr).getValue() : null;
     }
 
     public String getSimpleAttributeValue(String key, String default_) {

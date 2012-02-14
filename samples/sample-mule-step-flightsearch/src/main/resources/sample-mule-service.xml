@@ -20,7 +20,7 @@ http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/em
        http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd ">
 
     <flow name="flights" >
-        <vm:inbound-endpoint address="vm://flightSearch"/>
+        <vm:inbound-endpoint address="vm://flightSearch" exchange-pattern="request-response"/>
         <scripting:component doc:name="Groovy">
             <scripting:script engine="Groovy">
                 <scripting:text >
@@ -85,7 +85,7 @@ http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/em
                           subject="AW TEST">
     </smtp:gmail-connector>
     <flow name="confirmation" doc:name="confirmation">
-        <vm:inbound-endpoint address="vm://confirmation"/>
+        <vm:inbound-endpoint address="vm://confirmation" exchange-pattern="request-response"/>
         <script:component>
             <script:script engine="groovy">
                 <script:text>

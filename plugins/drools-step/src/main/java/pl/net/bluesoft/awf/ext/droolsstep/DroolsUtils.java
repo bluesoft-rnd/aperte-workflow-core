@@ -2,11 +2,11 @@ package pl.net.bluesoft.awf.ext.droolsstep;
 
 import org.drools.KnowledgeBase;
 import org.drools.KnowledgeBaseFactory;
-import org.drools.definition.KnowledgePackage;
 import org.drools.builder.KnowledgeBuilder;
 import org.drools.builder.KnowledgeBuilderFactory;
 import org.drools.builder.ResourceType;
 import org.drools.compiler.PackageBuilderConfiguration;
+import org.drools.definition.KnowledgePackage;
 import org.drools.io.ResourceFactory;
 import org.drools.logger.KnowledgeRuntimeLoggerFactory;
 import org.drools.rule.builder.dialect.mvel.MVELDialectConfiguration;
@@ -36,7 +36,7 @@ public class DroolsUtils {
 	public static List processRulesStafeful(String rulesUrl, List objects) {
 		final List res = new ArrayList();
 
-		HashMap map = new HashMap();
+		HashMap<String, Object> map = new HashMap<String, Object>();
 		map.put("result", res);
 		processCachedRulesAndReturnFacts(objects, map, rulesUrl);
 		return res;
@@ -62,72 +62,50 @@ public class DroolsUtils {
     }
 
 	public static List processRulesWithSession(List facts, Map<String, Object> globals, StatefulKnowledgeSession session) {
-		int cnt = 0;
 		try {
-			while (cnt++ < 10) {
-				try {
-					for (Map.Entry<String, Object> e : globals.entrySet()) {
-						session.setGlobal(e.getKey(), e.getValue());
-					}
-					for (Object o : facts) {
-						synchronized (session) {
-							session.insert(o);
-						}
-                    }
-					session.fireAllRules();
-					return new ArrayList(session.getObjects());
-				}
-				catch (ConcurrentModificationException e) {
-					session.dispose();
-				}
-			}
-			throw new RuntimeException("drools failed to initialize session 10 times in a row!");
-		}
-		finally {
-			session.dispose();
+            for (Map.Entry<String, Object> e : globals.entrySet()) {
+                session.setGlobal(e.getKey(), e.getValue());
+            }
+            for (Object o : facts) {
+                synchronized (session) {
+                    session.insert(o);
+                }
+            }
+            session.fireAllRules();
+            return new ArrayList(session.getObjects());
+		} finally {
+		    session.dispose();
 		}
 	}
 
 
 	private static List processRules(final String resultName, List objects, String... rulesUrls) {
 		final List result = new ArrayList();
-		HashMap map = new HashMap();
+		HashMap<String, Object> map = new HashMap<String, Object>();
 		map.put(resultName, result);
 		processRules(objects, map, rulesUrls);
 		return result;
 	}
 
-	public static Collection processCachedRulesAndReturnFacts(List objects, Map<String, Object> globals,
-	                                                          String rulesUrl) {
+	public static Collection processCachedRulesAndReturnFacts(List objects, Map<String, Object> globals,                                                      String rulesUrl) {
 		StatefulKnowledgeSession session = getCachedSession(rulesUrl);
-		try {
-			if (session != null) {
-				int cnt = 0;
-				while (cnt++ < 10) {
-					try {
-						for (Map.Entry<String, Object> e : globals.entrySet()) {
-							session.setGlobal(e.getKey(), e.getValue());
-						}
-						for (Object o : objects)
-							synchronized (session) {
-								session.insert(o);
-							}
-						session.fireAllRules();
-						return session.getObjects();
-					}
-					catch (ConcurrentModificationException e) {
-						session.dispose();
-						session = getCachedSession(rulesUrl);
-					}
-				}
-				throw new RuntimeException("drools failed to initialize session 10 times in a row!");
-			} else {
-				return null;
-			}
-		}
-		finally {
-			if (session != null) session.dispose();
-		}
+        if (session != null) {
+            try {
+                for (Map.Entry<String, Object> e : globals.entrySet()) {
+                    session.setGlobal(e.getKey(), e.getValue());
+                }
+                for (Object o : objects) {
+                    synchronized (session) {
+                        session.insert(o);
+                    }
+                    session.fireAllRules();
+                }
+                return session.getObjects();
+            } finally {
+                session.dispose();
+            }
+        }
+        return null;
 	}
 
 	private static final Map<String, KnowledgeBase> BASE_CACHE = new HashMap();
@@ -155,7 +133,7 @@ public class DroolsUtils {
 
 		KnowledgeBase kb;
 		synchronized (BASE_CACHE) {
-			//nowy sposób, bazujący na cache knowledge package a nie knowledge base
+            // new way, use cache for KnowledgePackage and not for entire KnowledgeBase
 			Collection<KnowledgePackage> knowledgePackages = PACK_CACHE.get(key);
 
 			kb = BASE_CACHE.get(key);
@@ -223,8 +201,9 @@ public class DroolsUtils {
 		if (kbase != null) {
 			synchronized (kbase) {
 				session = kbase.newStatelessKnowledgeSession();
-				if (log.isLoggable(Level.FINEST))
+				if (log.isLoggable(Level.FINEST)) {
 					KnowledgeRuntimeLoggerFactory.newConsoleLogger(session);
+                }
 			}
 		}
 		return session;
@@ -232,7 +211,6 @@ public class DroolsUtils {
 
 	private static KnowledgeBase getKbase(String... rulesUrls) {
 		Collection<KnowledgePackage> knowledgePackages = getPackages(rulesUrls);
-
 		return getKbase(knowledgePackages);
 	}
 

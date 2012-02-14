@@ -63,19 +63,19 @@ public class JSONHandler {
 			analyzeChildren(map, hc, rootItem);
 			
 			HashMap<String, String> resultMap = new HashMap<String, String>();
-			if(map.containsKey(ASSIGNEE)){
+			if(map.get(ASSIGNEE) != null){
 				resultMap.put(ASSIGNEE, map.get(ASSIGNEE).toString());
 			}
-			if(map.containsKey(SWIMLANE)){
+			if(map.get(SWIMLANE) != null){
 				resultMap.put(SWIMLANE, map.get(SWIMLANE).toString());
 			}
-			if(map.containsKey(CANDIDATE_GROUPS)){
+			if(map.get(CANDIDATE_GROUPS) != null){
 				resultMap.put(CANDIDATE_GROUPS, map.get(CANDIDATE_GROUPS).toString());
 			}
-            if (map.containsKey(DESCRIPTION)) {
+            if (map.get(DESCRIPTION) != null) {
                 resultMap.put(DESCRIPTION, map.get(DESCRIPTION).toString());
             }
-            if (map.containsKey(COMMENTARY) && map.get(COMMENTARY) != null) {
+            if (map.get(COMMENTARY) != null) {
                 byte[] bytes = ((String) map.get(COMMENTARY)).getBytes();
                 resultMap.put(COMMENTARY, new String(Base64.decodeBase64(bytes)));
             }
@@ -85,7 +85,6 @@ public class JSONHandler {
                 for (Map m : jsonPermissions) {
                     permissions.add(parsePrivilege(m));
                 }
-//                permissions.addAll(pp);
             }
 			return resultMap;
 
@@ -176,10 +175,12 @@ public class JSONHandler {
 		map.put(WIDGET_ID, widgetItemInStep.getWidgetItem().getWidgetId());
         map.put(PRIORITY, priority);
 
-		if (!propertiesMap.isEmpty())
+		if (!propertiesMap.isEmpty()) {
 			map.put(PROPERTIES, propertiesMap);
-		if (!widgetItemInStep.getPermissions().isEmpty())
+        }
+		if (!widgetItemInStep.getPermissions().isEmpty()) {
 			map.put(PERMISSIONS, widgetItemInStep.getPermissions());
+        }
 
 		if (tree.hasChildren(node)) {
 			map.put(CHILDREN, CollectionUtils.collect(tree.getChildren(node), new Transformer() {
@@ -205,12 +206,22 @@ public class JSONHandler {
 		tc.setTaskName(stepName);
 		
 		Map<String, Object> treeMap = collectNode(tree, rootItem, 1);
-		treeMap.put(ASSIGNEE, assignee);
-		treeMap.put(CANDIDATE_GROUPS, candidateGroups);
-		treeMap.put(SWIMLANE, swimlane);
-        treeMap.put(STEP_PERMISSIONS, permissions);
-        treeMap.put(DESCRIPTION, description);
 
+        if (assignee != null) {
+		    treeMap.put(ASSIGNEE, assignee);
+        }
+        if (candidateGroups != null) {
+		    treeMap.put(CANDIDATE_GROUPS, candidateGroups);
+        }
+        if (swimlane != null) {
+	    	treeMap.put(SWIMLANE, swimlane);
+        }
+        if (permissions != null) {
+            treeMap.put(STEP_PERMISSIONS, permissions);
+        }
+        if (description != null) {
+            treeMap.put(DESCRIPTION, description);
+        }
         if (commentary != null) {
             byte[] bytes = commentary.toString().getBytes();
             treeMap.put(COMMENTARY, Base64.encodeBase64URLSafeString(bytes));

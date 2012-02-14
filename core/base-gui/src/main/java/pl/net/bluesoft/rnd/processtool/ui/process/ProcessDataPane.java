@@ -4,7 +4,7 @@ import com.vaadin.Application;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.ShortcutListener;
 import com.vaadin.ui.*;
-import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.beanutils.BeanUtils;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
@@ -33,10 +33,10 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
  * @author tlipski@bluesoft.net.pl
  */
 public class ProcessDataPane extends VerticalLayout {
+    private static final Logger logger = Logger.getLogger(ProcessDataPane.class.getName());
+
     private ProcessToolBpmSession bpmSession;
     private I18NSource i18NSource;
-
-    private Logger logger = Logger.getLogger(ProcessDataPane.class.getName());
     private ProcessInstance process;
 
     private Set<ProcessToolDataWidget> dataWidgets = new HashSet<ProcessToolDataWidget>();
@@ -57,44 +57,11 @@ public class ProcessDataPane extends VerticalLayout {
         this.displayProcessContext = hideProcessHandler;
         setSpacing(true);
         setMargin(new MarginInfo(false, false, true, true));
-        ProcessDataPane.this.process = bpmSession.getProcessData(process.getInternalId(), ProcessToolContext.Util.getThreadProcessToolContext());
+        this.process = bpmSession.getProcessData(process.getInternalId(), ProcessToolContext.Util.getThreadProcessToolContext());
         initLayout(ProcessToolContext.Util.getThreadProcessToolContext(), false);
-
-    }
-
-    public static interface DisplayProcessContext {
-        void hide();
-
-        void setCaption(String newCaption);
-    }
-
-    public static class WindowDisplayProcessContextImpl implements DisplayProcessContext {
-
-        private Window window;
-
-        public WindowDisplayProcessContextImpl(final Window window) {
-            this.window = window;
-            window.addAction(new ShortcutListener("Close window", ShortcutAction.KeyCode.ESCAPE, null) {
-                @Override
-                public void handleAction(Object sender, Object target) {
-                    window.getParent().removeWindow(window);
-                }
-            });
-        }
-
-        @Override
-        public void hide() {
-            window.getParent().removeWindow(window);
-        }
-
-        @Override
-        public void setCaption(String newCaption) {
-            window.setCaption(newCaption);
-        }
     }
 
     private boolean initLayout(ProcessToolContext ctx, boolean autohide) {
-
         failed = false;
 
         removeAllComponents();
@@ -138,7 +105,11 @@ public class ProcessDataPane extends VerticalLayout {
         final VerticalLayout vl = new VerticalLayout();
         vl.setSpacing(true);
 
-        for (ProcessStateWidget w : stateConfiguration.getWidgets()) {
+        // sort the widgets to preserve the displaying order
+        List<ProcessStateWidget> widgets = new ArrayList<ProcessStateWidget>(stateConfiguration.getWidgets());
+        Collections.sort(widgets, new WidgetPriorityComparator());
+
+        for (ProcessStateWidget w : widgets) {
             try {
                 ProcessToolWidget realWidget = getWidget(w, stateConfiguration, ctx);
                 if (realWidget instanceof ProcessToolVaadinWidget && (!nvl(w.getOptional(), false) || realWidget.hasVisibleData())) {
@@ -146,8 +117,7 @@ public class ProcessDataPane extends VerticalLayout {
                     ProcessToolVaadinWidget vaadinW = (ProcessToolVaadinWidget) realWidget;
                     vl.addComponent(vaadinW.render());
                 }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 logger.log(Level.SEVERE, e.getMessage(), e);
                 failed = true;
                 vl.addComponent(new Label(getMessage("process.data.widget.exception-occurred")));
@@ -169,18 +139,11 @@ public class ProcessDataPane extends VerticalLayout {
     }
 
     private HorizontalLayout getButtonsPanel(ProcessStateConfiguration stateConfiguration) {
-        HorizontalLayout buttonLayout = new HorizontalLayout();
+        // sort the actions to preserve the displaying order
         List<ProcessStateAction> actionList = new ArrayList<ProcessStateAction>(stateConfiguration.getActions());
-        Collections.sort(actionList, new Comparator<ProcessStateAction>() {
-            @Override
-            public int compare(ProcessStateAction o1, ProcessStateAction o2) {
-                if (o1.getPriority().equals(o2.getPriority())) {
-                    return new Long(o1.getId()).compareTo(o2.getId());
-                }
-                return o1.getPriority().compareTo(o2.getPriority());
-            }
-        });
+        Collections.sort(actionList, new ActionPriorityComparator());
 
+        HorizontalLayout buttonLayout = new HorizontalLayout();
         buttonLayout.setSpacing(true);
         for (final ProcessStateAction a : actionList) {
 
@@ -257,17 +220,16 @@ public class ProcessDataPane extends VerticalLayout {
         if (errorMap.isEmpty()) {
             saveProcessData(ctx, pd);
             return true;
-        }
-        else {
+        } else {
             displayValidationErrors(errorMap);
             return false;
         }
     }
 
     private ProcessToolActionButton makeButton(ProcessStateAction a) {
-        ProcessToolActionButton actionButton = null;
         try {
-            actionButton = ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().makeButton(a.getButtonName());
+            ProcessToolRegistry registry = ProcessToolContext.Util.getThreadProcessToolContext().getRegistry();
+            ProcessToolActionButton actionButton = registry.makeButton(a.getButtonName());
             actionButton.setLoggedUser(bpmSession.getUser(ProcessToolContext.Util.getThreadProcessToolContext()));
             processAutowiredProperties(actionButton, a);
             if (actionButton instanceof ProcessToolVaadinActionButton) {
@@ -276,15 +238,12 @@ public class ProcessDataPane extends VerticalLayout {
                 vButton.setI18NSource(i18NSource);
             }
             actionButton.setDefinition(a);
-
-        }
-        catch (IllegalAccessException e) {
+            return actionButton;
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (InstantiationException e) {
             throw new RuntimeException(e);
         }
-        catch (InstantiationException e) {
-            throw new RuntimeException(e);
-        }
-        return actionButton;
     }
 
     private void performAction(ProcessToolContext ctx, ProcessStateAction a) {
@@ -303,7 +262,8 @@ public class ProcessDataPane extends VerticalLayout {
     }
 
     private Map<ProcessToolDataWidget, Collection<String>> getValidationErrors(ProcessInstance pd) {
-        Map<ProcessToolDataWidget, Collection<String>> errorMap = new HashMap();
+        Map<ProcessToolDataWidget, Collection<String>> errorMap
+                = new HashMap<ProcessToolDataWidget, Collection<String>>();
         for (ProcessToolDataWidget w : dataWidgets) {
             Collection<String> errors = w.validateData(pd);
             if (errors != null && !errors.isEmpty()) {
@@ -313,7 +273,7 @@ public class ProcessDataPane extends VerticalLayout {
         return errorMap;
     }
 
-    public String getMessage(String key) {
+    private String getMessage(String key) {
         return i18NSource.getMessage(key);
     }
 
@@ -321,36 +281,29 @@ public class ProcessDataPane extends VerticalLayout {
                                        ProcessToolWidget parentWidgetInstance,
                                        ProcessStateConfiguration stateConfiguration,
                                        ProcessToolContext ctx) {
-        Set<ProcessStateWidget> children = parentWidgetConfiguration.getChildren();
-        List<ProcessStateWidget> l = new ArrayList<ProcessStateWidget>(children);
-        Collections.sort(l, new Comparator<ProcessStateWidget>() {
-            @Override
-            public int compare(ProcessStateWidget o1, ProcessStateWidget o2) {
-                if (o1.getPriority().equals(o2.getPriority())) {
-                    return new Long(o1.getId()).compareTo(o2.getId());
-                }
-                return o1.getPriority().compareTo(o2.getPriority());
-            }
-        });
-        for (ProcessStateWidget subW : l) {
-            subW.setParent(parentWidgetConfiguration);
-            ProcessToolWidget widgetInstance = getWidget(subW, stateConfiguration, ctx);
-            if (!nvl(subW.getOptional(), false) || widgetInstance.hasVisibleData()) {
-                processWidgetChildren(subW, widgetInstance, stateConfiguration, ctx);
+        // sort the widgets to preserve the displaying order
+        List<ProcessStateWidget> widgets = new ArrayList<ProcessStateWidget>(parentWidgetConfiguration.getChildren());
+        Collections.sort(widgets, new WidgetPriorityComparator());
+
+        for (ProcessStateWidget widget : widgets) {
+            widget.setParent(parentWidgetConfiguration);
+            ProcessToolWidget widgetInstance = getWidget(widget, stateConfiguration, ctx);
+            if (!nvl(widget.getOptional(), false) || widgetInstance.hasVisibleData()) {
+                processWidgetChildren(widget, widgetInstance, stateConfiguration, ctx);
                 parentWidgetInstance.addChild(widgetInstance);
             }
         }
     }
 
-    private ProcessToolWidget getWidget(ProcessStateWidget w, ProcessStateConfiguration stateConfiguration, ProcessToolContext ctx) {
-
+    private ProcessToolWidget getWidget(ProcessStateWidget w,
+                                        ProcessStateConfiguration stateConfiguration,
+                                        ProcessToolContext ctx) {
         try {
             ProcessToolWidget processToolWidget;
             ProcessToolRegistry toolRegistry = VaadinUtility.getProcessToolContext(application.getContext()).getRegistry();
             if (w.getClassName() == null) {
                 processToolWidget = toolRegistry.makeWidget(w.getName());
-            }
-            else {
+            } else {
                 processToolWidget = toolRegistry.makeWidget(w.getClassName());
             }
             processToolWidget.setContext(stateConfiguration, w, i18NSource, bpmSession, application,
@@ -362,8 +315,7 @@ public class ProcessDataPane extends VerticalLayout {
                 dataWidgets.add((ProcessToolDataWidget) processToolWidget);
             }
             return processToolWidget;
-        }
-        catch (final Exception e) {
+        } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
             failed = true;
             FailedProcessToolVaadinWidget failedProcessToolVaadinWidget = new FailedProcessToolVaadinWidget(e);
@@ -372,24 +324,19 @@ public class ProcessDataPane extends VerticalLayout {
                     isOwner);
             dataWidgets.add(failedProcessToolVaadinWidget);
             return failedProcessToolVaadinWidget;
-
-//			throw new RuntimeException(e);
         }
     }
 
     private void processAutowiredProperties(ProcessToolWidget processToolWidget, ProcessStateWidget w) {
-
-        Map<String, String> m = new HashMap();
+        Map<String, String> m = new HashMap<String, String>();
         for (ProcessStateWidgetAttribute attr : w.getAttributes()) {
             m.put(attr.getName(), attr.getValue());
         }
         processAutowiredProperties(processToolWidget, m);
-
     }
 
     private void processAutowiredProperties(ProcessToolActionButton processToolActionButton, ProcessStateAction a) {
-
-        Map<String, String> m = new HashMap();
+        Map<String, String> m = new HashMap<String, String>();
         m.put("buttonName", a.getButtonName());
         m.put("autoHide", String.valueOf(a.getAutohide()));
         m.put("description", a.getDescription());
@@ -401,8 +348,8 @@ public class ProcessDataPane extends VerticalLayout {
         for (ProcessStateActionAttribute attr : a.getAttributes()) {
             m.put(attr.getName(), attr.getValue());
         }
-        processAutowiredProperties(processToolActionButton, m);
 
+        processAutowiredProperties(processToolActionButton, m);
     }
 
     private void processAutowiredProperties(Object object, Map<String, String> m) {
@@ -418,41 +365,20 @@ public class ProcessDataPane extends VerticalLayout {
                     AutoWiredProperty awp = (AutoWiredProperty) a;
                     if (AutoWiredProperty.DEFAULT.equals(awp.name())) {
                         autoName = f.getName();
-                    }
-                    else {
+                    } else {
                         autoName = awp.name();
                     }
                 }
             }
-            String v = nvl(m.get(autoName),
-                    ProcessToolContext.Util.getThreadProcessToolContext().getSetting("autowire." + autoName));
-            if (autoName != null && v != null) {
+            String value = nvl(
+                    m.get(autoName),
+                    ProcessToolContext.Util.getThreadProcessToolContext().getSetting("autowire." + autoName)
+            );
+            if (autoName != null && value != null) {
                 try {
-                    logger.fine("Setting attribute " + autoName + " to " + v);
-                    if (f.getType().equals(String.class)) {
-                        PropertyUtils.setProperty(object, autoName, v);
-                    } else if (f.getType().equals(Integer.class)) {
-                    	PropertyUtils.setProperty(object, autoName, Integer.parseInt(v));
-                    } else if (f.getType().equals(Boolean.class)) {
-                    	PropertyUtils.setProperty(object, autoName, Boolean.parseBoolean(v));
-                    }
-                    else if (f.getType().isPrimitive()) {
-                        String name = f.getType().getName();
-                        if (name.equals("int")) {
-                            PropertyUtils.setProperty(object, autoName, Integer.parseInt(v));
-                        }
-                        else if (name.equals("boolean")) {
-                            PropertyUtils.setProperty(object, autoName, Boolean.parseBoolean(v));
-                        }
-                        else {
-                            PropertyUtils.setProperty(object, autoName, v);
-                        }
-                    }
-                    else {
-                        logger.warning("attribute " + autoName + " with type " + f.getType() + " is not supported!");
-                    }
-                }
-                catch (Exception e) {
+                    logger.fine("Setting attribute " + autoName + " to " + value);
+                    BeanUtils.setProperty(object, autoName, value);
+                } catch (Exception e) {
                     logger.log(Level.SEVERE, e.getMessage(), e);
                 }
             }
@@ -463,7 +389,92 @@ public class ProcessDataPane extends VerticalLayout {
         processAutowiredProperties(object, m, cls.getSuperclass());
     }
 
-    private class FailedProcessToolVaadinWidget extends BaseProcessToolWidget implements ProcessToolVaadinWidget, ProcessToolDataWidget {
+    public static interface DisplayProcessContext {
+        void hide();
+        void setCaption(String newCaption);
+    }
+
+    public static class WindowDisplayProcessContextImpl implements DisplayProcessContext {
+
+        private Window window;
+
+        public WindowDisplayProcessContextImpl(Window window) {
+            this.window = window;
+
+            window.addAction(new ShortcutListener("Close window", ShortcutAction.KeyCode.ESCAPE, null) {
+                @Override
+                public void handleAction(Object sender, Object target) {
+                    Window w = WindowDisplayProcessContextImpl.this.window;
+                    w.getParent().removeWindow(w);
+                }
+            });
+        }
+
+        @Override
+        public void hide() {
+            window.getParent().removeWindow(window);
+        }
+
+        @Override
+        public void setCaption(String newCaption) {
+            window.setCaption(newCaption);
+        }
+    }
+
+    /**
+     * Comparator for {@link ProcessStateWidget} objects that takes intro account widget priority
+     */
+    private class WidgetPriorityComparator implements Comparator<ProcessStateWidget> {
+        @Override
+        public int compare(ProcessStateWidget w1, ProcessStateWidget w2) {
+            if (w1 == null || w2 == null) {
+                throw new NullPointerException("Can not compare null ProcessStateWidgets");
+            }
+
+            if (w1 == w2) {
+                return 0;
+            }
+
+            if (w1.getPriority() != null) {
+                return w1.getPriority().compareTo(w2.getPriority());
+            } else if (w2.getPriority() != null) {
+                return -1;
+            } else {
+                return w1.getId().compareTo(w2.getId());
+            }
+        }
+    }
+
+    /**
+     * Comparator for {@link ProcessStateAction} object that takes into account action priority
+     */
+    private class ActionPriorityComparator implements Comparator<ProcessStateAction> {
+        @Override
+        public int compare(ProcessStateAction a1, ProcessStateAction a2) {
+            if (a1 == null || a2 == null) {
+                throw new NullPointerException("Can not compare null ProcessStateActions");
+            }
+
+            if (a1 == a2) {
+                return 0;
+            }
+
+            if (a1.getPriority() != null) {
+                return a1.getPriority().compareTo(a2.getPriority());
+            } else if (a2.getPriority() != null) {
+                return -1;
+            } else {
+                return a1.getId().compareTo(a2.getId());
+            }
+        }
+    }
+
+    /**
+     * Widget used to display widgets that failed to be created
+     */
+    private class FailedProcessToolVaadinWidget extends BaseProcessToolWidget
+            implements ProcessToolVaadinWidget, ProcessToolDataWidget {
+
         private final Exception e;
 
         public FailedProcessToolVaadinWidget(Exception e) {
@@ -472,7 +483,7 @@ public class ProcessDataPane extends VerticalLayout {
 
         @Override
         public String getAttributeValue(String key) {
-            return super.getAttributeValue(key);    //To change body of overridden methods use File | Settings | File Templates.
+            return super.getAttributeValue(key);
         }
 
         @Override
@@ -497,17 +508,18 @@ public class ProcessDataPane extends VerticalLayout {
 
         @Override
         public void saveData(ProcessInstance processInstance) {
-            //To change body of implemented methods use File | Settings | File Templates.
+            // do nothing
         }
 
         @Override
         public void loadData(ProcessInstance processInstance) {
-            //To change body of implemented methods use File | Settings | File Templates.
+            // do nothing
         }
 
         @Override
         public void addChild(ProcessToolWidget child) {
-            //To change body of implemented methods use File | Settings | File Templates.
+            // do nothing
         }
+
     }
 }

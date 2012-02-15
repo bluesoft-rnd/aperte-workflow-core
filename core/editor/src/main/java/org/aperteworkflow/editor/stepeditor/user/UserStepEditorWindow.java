@@ -111,11 +111,6 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
         permissionEditor.setProvider(new PermissionProvider() {
             @Override
             public Collection<Permission> getPermissions() {
-                logger.info("getPermissions: ");
-                for (Permission pp : permissions) {
-                    logger.info(pp.toString());
-                }
-                logger.info("getPermissions: finished");
                 return permissions;
             }
 
@@ -135,21 +130,11 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
             @Override
             public void addPermission(Permission permission) {
                 permissions.add(permission);
-                logger.info("addPermission: ");
-                for (Permission pp : permissions) {
-                    logger.info(pp.toString());
-                }
-                logger.info("addPermission: finished");
             }
 
             @Override
             public void removePermission(Permission permission) {
                 permissions.remove(permission);
-                logger.info("removePermission: ");
-                for (Permission pp : permissions) {
-                    logger.info(pp.toString());
-                }
-                logger.info("removePermission: finished");
             }
         });
 

@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>email-capture</artifactId>
+    <name>email-capture</name>
     <packaging>bundle</packaging>
 
     <dependencies>

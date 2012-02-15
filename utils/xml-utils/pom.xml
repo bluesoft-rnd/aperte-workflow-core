@@ -9,8 +9,9 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <packaging>jar</packaging>
     <artifactId>xml-utils</artifactId>
+    <name>xml-utils</name>
+    <packaging>jar</packaging>
 
     <dependencies>
         <dependency>

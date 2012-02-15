@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>liferay-poc-process</artifactId>
+    <name>liferay-poc-process</name>
 
     <dependencies>
         <dependency>

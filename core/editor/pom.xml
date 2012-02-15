@@ -9,6 +9,7 @@
 	</parent>
 
 	<artifactId>editor</artifactId>
+    <name>editor</name>
 	<packaging>jar</packaging>
 
 	<build>

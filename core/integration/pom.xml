@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>integration</artifactId>
+    <name>integration</name>
 
     <dependencies>
         <dependency>

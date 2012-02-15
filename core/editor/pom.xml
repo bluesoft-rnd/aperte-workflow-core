@@ -23,8 +23,8 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
+					<source>${project.build.compiler.source}</source>
+					<target>${project.build.compiler.target}</target>
 				</configuration>
 			</plugin>
             <plugin>
@@ -101,12 +101,5 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
-
-	<repositories>
-		<repository>
-			<id>vaadin-addons</id>
-			<url>http://maven.vaadin.com/vaadin-addons</url>
-		</repository>
-	</repositories>
 
 </project>

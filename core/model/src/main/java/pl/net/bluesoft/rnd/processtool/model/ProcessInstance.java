@@ -223,7 +223,8 @@ public class ProcessInstance extends PersistentEntity {
     }
 
     public String getSimpleAttributeValue(String key) {
-        return ((ProcessInstanceSimpleAttribute)findAttributeByKey(key)).getValue();
+        ProcessInstanceAttribute attr = findAttributeByKey(key);
+        return attr != null ?  ((ProcessInstanceSimpleAttribute)attr).getValue() : null;
     }
 
     public String getSimpleAttributeValue(String key, String default_) {
@@ -239,6 +240,15 @@ public class ProcessInstance extends PersistentEntity {
         else {
             addAttribute(new ProcessInstanceSimpleAttribute(key, value));
         }
+    }
+    
+    public void addDictionaryAttributeItem(String dictionary, String key, String value){
+        ProcessInstanceDictionaryAttribute attr = (ProcessInstanceDictionaryAttribute)findAttributeByKey(dictionary);
+        if (attr == null) {
+            addAttribute(attr = new ProcessInstanceDictionaryAttribute(dictionary));
+        }
+        attr.put(key, value);
+
     }
 
 

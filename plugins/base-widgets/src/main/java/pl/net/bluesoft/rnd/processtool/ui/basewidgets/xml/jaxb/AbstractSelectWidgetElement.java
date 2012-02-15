@@ -20,6 +20,12 @@ public abstract class AbstractSelectWidgetElement extends WidgetElement {
     @XStreamImplicit
     private List<ItemElement> values;
 
+
+
+    @XmlAttribute
+    @XStreamAsAttribute
+    protected String dictionaryAttribute;
+
 //    @XmlElement
 //    private ScriptElement script;
 
@@ -68,6 +74,14 @@ public abstract class AbstractSelectWidgetElement extends WidgetElement {
         this.required = required;
     }
 
+    public String getDictionaryAttribute() {
+        return dictionaryAttribute;
+    }
+
+    public void setDictionaryAttribute(String dictionaryAttribute) {
+        this.dictionaryAttribute = dictionaryAttribute;
+    }
+
     @Override
     public List<XmlValidationError> validate() {
         List<XmlValidationError> errors = new ArrayList<XmlValidationError>();
@@ -77,8 +91,8 @@ public abstract class AbstractSelectWidgetElement extends WidgetElement {
             errors.add(new XmlValidationError("select", "provider", XmlConstants.XML_TAG_EMPTY));
         } else if (!(StringUtil.hasText(provider) && StringUtil.hasText(dict)) &&
 //                script == null &&
-                getValues().isEmpty()) {
-            errors.add(new XmlValidationError("select", "[dict & provider | values ]", XmlConstants.XML_TAG_EMPTY));
+                getValues().isEmpty() && !StringUtil.hasText(dictionaryAttribute)) {
+            errors.add(new XmlValidationError("select", "[dict & provider | values | dictionaryAttribute]", XmlConstants.XML_TAG_EMPTY));
 //        } else if (script != null) {
 //            errors.addAll(script.validate());
         } else if (!getValues().isEmpty()) {
@@ -97,8 +111,8 @@ public abstract class AbstractSelectWidgetElement extends WidgetElement {
             errors.add(new XmlValidationError("select", "provider", XmlConstants.XML_TAG_EMPTY));
         } else if (!(StringUtil.hasText(provider) && StringUtil.hasText(dict)) &&
 //                script == null &&
-                getValues().isEmpty()) {
-            errors.add(new XmlValidationError("select", "[dict & provider | values]", XmlConstants.XML_TAG_EMPTY));
+                getValues().isEmpty() && !StringUtil.hasText(dictionaryAttribute)) {
+            errors.add(new XmlValidationError("select", "[dict & provider | values | dictionaryAttribute]", XmlConstants.XML_TAG_EMPTY));
         }
         return errors;
     }

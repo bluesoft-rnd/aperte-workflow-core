@@ -47,56 +47,47 @@ public class PermissionFilter implements Filter {
             chain.doFilter(request, response);
             return;
         }
-        //try to authorize user using Liferay API            
-        String authHeader = req.getHeader("authorization");
-        if (authHeader != null && authHeader.toUpperCase().startsWith("BASIC ")) {
-            String userpassEncoded = authHeader.substring(6);
-            sun.misc.BASE64Decoder dec = new sun.misc.BASE64Decoder();
-            String userpassDecoded = new String(dec.decodeBuffer(userpassEncoded));
-            String username = userpassDecoded.split(":")[0];
-            String password = userpassDecoded.split(":")[1];
-            logger.info("Attempting to authorize user: " + username);
-            try {
-                if (authenticateUser(username, password) >= Authenticator.SUCCESS) {
-                    logger.info("Successfully authorized user: " + username);
-                    User userByScreenName = UserLocalServiceUtil.getUserByScreenName(PortalUtil.getDefaultCompanyId(), username);
-                    List<Role> roles = userByScreenName.getRoles();
-                    boolean found = false;
-                    for (Role role : roles) {
-                        if (!role.isTeam() && ROLE_NAMES.contains(role.getName().toUpperCase())) {
-                            found = true;
-                            logger.info("Matched role " + role.getName() + " for user " + username);
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        logger.info("User " + username + " has insufficient privileges.");
-                    } else {
-                        session.setAttribute(AUTHORIZED, username);
-                        chain.doFilter(request, response);
-                        return;                        
-                    }
 
-                } else {
-                    logger.warning("Failed to authorize user: " + username);                    
+        try {
+            //check for user session
+            User userByScreenName = null;
+            //try to authorize user using Liferay API
+            long basicAuthUserId = PortalUtil.getBasicAuthUserId(req);
+            if (basicAuthUserId != 0)
+                userByScreenName  = UserLocalServiceUtil.getUserById(basicAuthUserId);
+            if (userByScreenName != null) {
+                String username = userByScreenName.getScreenName();
+                logger.info("Successfully authorized user: " + username);
+                List<Role> roles = userByScreenName.getRoles();
+                boolean found = false;
+                for (Role role : roles) {
+                    if (!role.isTeam() && ROLE_NAMES.contains(role.getName().toUpperCase())) {
+                        found = true;
+                        logger.info("Matched role " + role.getName() + " for user " + username);
+                        break;
+                    }
                 }
-            } catch (PortalException e) {
-                logger.log(Level.SEVERE, e.getMessage(), e);
-                throw new ServletException(e);
-            } catch (SystemException e) {
-                logger.log(Level.SEVERE, e.getMessage(), e);
-                throw new ServletException(e);
+                if (!found) {
+                    logger.info("User " + username + " has insufficient privileges.");
+                } else {
+                    session.setAttribute(AUTHORIZED, username);
+                    chain.doFilter(request, response);
+                    return;
+                }
+
+            } else {
+                logger.warning("Failed to authorize user");
             }
+        } catch (PortalException e) {
+            logger.log(Level.SEVERE, e.getMessage(), e);
+            throw new ServletException(e);
+        } catch (SystemException e) {
+            logger.log(Level.SEVERE, e.getMessage(), e);
+            throw new ServletException(e);
         }
         //if we are here, then authentication has failed or no username/password has been supplied
         res.setHeader("WWW-Authenticate", "Basic realm=\"Aperte Modeler\"");
         res.setStatus(401);
-    }
-
-    private int authenticateUser(String username, String password) throws PortalException, SystemException {
-        return (int)UserLocalServiceUtil.authenticateForBasic(PortalUtil.getDefaultCompanyId(),
-                CompanyConstants.AUTH_TYPE_SN,
-                username, password);
     }
 
     @Override

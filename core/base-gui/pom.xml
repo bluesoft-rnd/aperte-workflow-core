@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>base-gui</artifactId>
+    <packaging>war</packaging>
 
     <dependencies>
         <dependency>
@@ -62,7 +63,6 @@
             <artifactId>jackson-mapper-asl</artifactId>
             <version>1.9.0</version>
         </dependency>
-
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>integration</artifactId>

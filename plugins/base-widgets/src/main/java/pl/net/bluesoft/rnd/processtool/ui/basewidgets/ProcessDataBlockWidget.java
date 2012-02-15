@@ -700,7 +700,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                         if (value != null && value instanceof Date) {
                             if (notBefore.after((Date) value)) {
                                 VaadinUtility.validationNotification(getApplication(), i18NSource,
-                                        getMessage("processdata.block.error.date.notbefore").replaceFirst("%s", dwe.getNotAfter()));
+                                        getMessage("processdata.block.error.date.notbefore").replaceFirst("%s", dwe.getNotBefore()));
                                 field.setValue(notBefore);
                             }
                         }

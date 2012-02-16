@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>sample-mule-step</artifactId>
+    <name>sample-mule-step</name>
 
     <dependencies>
         <dependency>

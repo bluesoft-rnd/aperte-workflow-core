@@ -12,6 +12,7 @@ public class ProcessConfig implements Serializable {
     private List<Permission> processPermissions;
     private List<Queue> queues;
 
+    private String description;
     private String comment;
     
     // This Map should be parametrized as <Language, String> however Jackson does not support
@@ -60,4 +61,13 @@ public class ProcessConfig implements Serializable {
     public void setComment(String comment) {
         this.comment = comment;
     }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
 }

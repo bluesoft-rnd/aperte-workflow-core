@@ -82,7 +82,7 @@ public class PropertiesPanel extends Panel {
 			com.vaadin.ui.Field field = propertiesForm.getField(propertyId);
             Object obj = field.getValue();
             
-        	if (obj == null) {
+        	if (obj == null) { // TODO this is at least strange and should be reconsidered
         		if (Boolean.class.equals(prop.getType()))
         			obj = Boolean.FALSE;
         		else if (String.class.equals(prop.getType()))

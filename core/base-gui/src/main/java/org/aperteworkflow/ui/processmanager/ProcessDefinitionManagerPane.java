@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.*;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.*;
 import static pl.net.bluesoft.util.lang.FormatUtil.formatFullDate;
 
 /**

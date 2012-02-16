@@ -11,15 +11,15 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.ui.activity.ActivityMainPane;
 import pl.net.bluesoft.rnd.processtool.ui.process.ProcessDataPane;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.HasRefreshButton;
+import org.aperteworkflow.util.vaadin.VaadinUtility.HasRefreshButton;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
-import static pl.net.bluesoft.rnd.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
-import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.embedded;
-import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.horizontalLayout;
-import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.refreshIcon;
+import static org.aperteworkflow.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.embedded;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.horizontalLayout;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.refreshIcon;
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
 /**

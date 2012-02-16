@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>report-step</artifactId>
+    <name>report-step</name>
     <packaging>bundle</packaging>
 
     <dependencies>

@@ -16,6 +16,7 @@
 
     <modules>
         <module>model</module>
+        <module>gui-commons</module>
         <module>base-gui</module>
         <module>integration</module>
         <module>integration-interface</module>

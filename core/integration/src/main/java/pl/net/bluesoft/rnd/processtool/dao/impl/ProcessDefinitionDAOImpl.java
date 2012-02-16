@@ -186,12 +186,31 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 	}
 
 	private boolean compareActions(ProcessStateAction newAction, ProcessStateAction oldAction) {
-		return nvl(newAction.getDescription(),"").equals(nvl(oldAction.getDescription(), "")) &&
+		return
+                nvl(newAction.getDescription(),"").equals(nvl(oldAction.getDescription(), "")) &&
+                nvl(newAction.getButtonName(),"").equals(nvl(oldAction.getButtonName(), "")) &&
+                nvl(newAction.getBpmName(),"").equals(nvl(oldAction.getBpmName(), "")) &&
+                nvl(newAction.getAutohide(),false).equals(nvl(oldAction.getAutohide(),false)) &&
+                nvl(newAction.getSkipSaving(),false).equals(nvl(oldAction.getSkipSaving(),false)) &&
+                nvl(newAction.getLabel(),"").equals(nvl(oldAction.getLabel(), "")) &&
+                nvl(newAction.getPriority(),0).equals(nvl(oldAction.getPriority(), 0)) &&
+                compareAttributes(newAction.getAttributes(), oldAction.getAttributes()) &&
 				comparePermissions(newAction.getPermissions(), oldAction.getPermissions());
 
 	}
 
-	private boolean comparePermissions(Set<? extends AbstractPermission> newPermissions, Set<? extends AbstractPermission> oldPermissions) {
+    private boolean compareAttributes(Set<ProcessStateActionAttribute> attributes, Set<ProcessStateActionAttribute> attributes1) {
+        Map<String,String> attrVals = new HashMap();
+        for (ProcessStateActionAttribute a : attributes) {
+            attrVals.put(a.getName(), a.getValue());
+        }
+        for (ProcessStateActionAttribute a : attributes1) {
+            if (!attrVals.containsKey(a.getName()) || !attrVals.get(a.getName()).equals(a.getValue())) return false;
+        }
+        return true;
+    }
+
+    private boolean comparePermissions(Set<? extends AbstractPermission> newPermissions, Set<? extends AbstractPermission> oldPermissions) {
 		if (newPermissions.size() != oldPermissions.size()) return false;
 		Set<String> permissionSet = new HashSet();
 		for (AbstractPermission p : newPermissions) {

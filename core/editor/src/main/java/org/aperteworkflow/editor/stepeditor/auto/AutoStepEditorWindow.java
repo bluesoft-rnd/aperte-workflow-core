@@ -5,12 +5,14 @@ import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.VerticalLayout;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.aperteworkflow.editor.stepeditor.AbstractStepEditorWindow;
 import org.aperteworkflow.editor.stepeditor.StepEditorApplication;
 import org.aperteworkflow.editor.stepeditor.TaskConfig;
 import org.aperteworkflow.editor.ui.property.PropertiesPanel;
 import org.aperteworkflow.editor.vaadin.GenericEditorApplication;
+import org.aperteworkflow.util.vaadin.VaadinUtility;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -19,16 +21,16 @@ import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.util.lang.Classes;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.styled;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.styled;
 
 public class AutoStepEditorWindow extends AbstractStepEditorWindow {
 
@@ -76,8 +78,32 @@ public class AutoStepEditorWindow extends AbstractStepEditorWindow {
 		if (StringUtils.isEmpty(jsonConfig))
 			return new HashMap<String,Object>();
 		try {
-			return mapper.readValue(jsonConfig, new TypeReference<HashMap<String, Object>>() {
-            });
+            Map<String,Object> propertiesMap =  mapper.readValue(
+                    jsonConfig,
+                    new TypeReference<HashMap<String, Object>>() {}
+            );
+            // decode base64 and drop empty properties
+            if (propertiesMap != null && !propertiesMap.isEmpty()) {
+                Iterator<String> it = propertiesMap.keySet().iterator();
+                while (it.hasNext()) {
+                    String propertyName = it.next();
+                    Object encodedValue = propertiesMap.get(propertyName);
+                    if (encodedValue == null) {
+                        it.remove();
+                        continue;
+                    }
+
+                    if (encodedValue instanceof String) {
+                        if (encodedValue.toString().trim().isEmpty()) {
+                            it.remove();
+                            continue;
+                        }
+                        byte[] decoded = Base64.decodeBase64(encodedValue.toString().getBytes());
+                        propertiesMap.put(propertyName, new String(decoded));
+                    }
+                }
+            }
+            return propertiesMap;
 		} catch (JsonMappingException e) {
 			logger.log(Level.SEVERE, "Error parsing JSON data", e);
 		} catch (JsonGenerationException e) {
@@ -88,12 +114,40 @@ public class AutoStepEditorWindow extends AbstractStepEditorWindow {
 		application.getMainWindow().showNotification(messages.getMessage("jse.error.read"));
 		return null;
 	}
-	
+
+    private boolean isPropertyEmpty(Object value) {
+        return (value == null || value.toString().trim().isEmpty());
+    }
+
 	private String getJsonToSave() {
+        // encode the properties with base64 and drop the empty values
+        Map<String, Object> propertiesMap = propertiesPanel.getPropertiesMap();
+        if (propertiesMap != null && !propertiesMap.isEmpty()) {
+            Iterator<String> it = propertiesMap.keySet().iterator();
+            while (it.hasNext()) {
+                String propertyName = it.next();
+                Object propertyValue = propertiesMap.get(propertyName);
+                if (propertyValue == null) {
+                    it.remove();
+                    continue;
+                }
+
+                if (propertyValue instanceof String) {
+                    if (propertyValue.toString().trim().isEmpty()) {
+                        it.remove();
+                        continue;
+                    }
+
+                    String encodedValue = Base64.encodeBase64URLSafeString(propertyValue.toString().getBytes());
+                    propertiesMap.put(propertyName, encodedValue);
+                }
+            }
+        }
+
 		I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
 		TaskConfig tc = new TaskConfig();
 		tc.setTaskName(propertiesPanel.getClassInfo().getAliasName());
-		tc.setParams(propertiesPanel.getPropertiesMap());
+		tc.setParams(propertiesMap);
 		
 		try {
 			return mapper.writeValueAsString(tc);
@@ -113,7 +167,7 @@ public class AutoStepEditorWindow extends AbstractStepEditorWindow {
 	public void save() {
 		if (!propertiesPanel.getPropertiesForm().isValid()) {
 			GenericEditorApplication.getCurrent()
-                    .getMainWindow().showNotification(VaadinUtility.validationNotification("Validation error","Correct data"));
+                    .getMainWindow().showNotification(VaadinUtility.validationNotification("Validation error", "Correct data"));
 			return;
 		}
 		String json = getJsonToSave();

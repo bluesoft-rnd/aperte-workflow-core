@@ -3,7 +3,7 @@ package org.aperteworkflow.editor.processeditor.tab.other;
 import com.vaadin.ui.Upload;
 import org.aperteworkflow.editor.signavio.ModelConstants;
 import org.aperteworkflow.editor.vaadin.GenericEditorApplication;
-import org.aperteworkflow.ui.base.BaseUploader;
+import org.aperteworkflow.util.vaadin.BaseUploader;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;

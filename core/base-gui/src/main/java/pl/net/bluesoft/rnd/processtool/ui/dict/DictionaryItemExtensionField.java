@@ -14,8 +14,7 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.util.lang.StringUtil;
 
 import java.util.*;
-
-import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.*;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.*;
 
 public class DictionaryItemExtensionField extends CustomField {
     private I18NSource source;

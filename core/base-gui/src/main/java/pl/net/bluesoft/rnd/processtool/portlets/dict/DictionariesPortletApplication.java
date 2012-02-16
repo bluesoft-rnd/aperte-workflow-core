@@ -1,7 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.portlets.dict;
 
+import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
 import pl.net.bluesoft.rnd.processtool.ui.dict.DictionariesMainPane;
-import pl.net.bluesoft.rnd.util.vaadin.GenericVaadinPortlet2BpmApplication;
 
 public class DictionariesPortletApplication extends GenericVaadinPortlet2BpmApplication {
 

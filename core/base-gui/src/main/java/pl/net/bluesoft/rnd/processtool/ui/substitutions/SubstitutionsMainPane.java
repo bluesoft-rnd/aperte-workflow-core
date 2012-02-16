@@ -9,17 +9,18 @@ import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.data.util.PropertyFormatter;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.ui.*;
+import org.aperteworkflow.util.liferay.LiferayBridge;
+import org.aperteworkflow.util.vaadin.TransactionProvider;
+import org.aperteworkflow.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.UserSubstitution;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolGuiCallback;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import pl.net.bluesoft.rnd.util.liferay.LiferayBridge;
-import pl.net.bluesoft.rnd.util.vaadin.TransactionProvider;
-import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
-import pl.net.bluesoft.rnd.util.vaadin.ui.LocalizedPagedTable;
+import org.aperteworkflow.util.vaadin.ui.LocalizedPagedTable;
 import pl.net.bluesoft.util.lang.MapUtil;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.*;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -28,8 +29,7 @@ import java.util.Map;
 
 import static pl.net.bluesoft.rnd.poutils.DateUtil.truncHours;
 import static pl.net.bluesoft.rnd.poutils.cquery.CQuery.from;
-import static pl.net.bluesoft.rnd.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
-import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.*;
+import static org.aperteworkflow.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
 
 /**
  * User: POlszewski

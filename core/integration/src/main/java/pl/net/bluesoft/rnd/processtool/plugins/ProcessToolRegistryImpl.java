@@ -329,6 +329,8 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
                     logger.warning("UserTransaction not found in JNDI, JTA not available!");
                 }
             }
+        } else {
+            logger.warning("User transaction lookup disabled via org.aperteworkflow.nojta setting");
         }
         return ut;
     }

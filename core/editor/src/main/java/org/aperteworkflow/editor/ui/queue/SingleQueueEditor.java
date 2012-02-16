@@ -10,8 +10,8 @@ import com.vaadin.ui.*;
 import org.aperteworkflow.editor.domain.Queue;
 import org.aperteworkflow.editor.domain.QueueRolePermission;
 import org.aperteworkflow.editor.vaadin.DataHandler;
+import org.aperteworkflow.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 
 import java.util.ArrayList;
 import java.util.Collection;

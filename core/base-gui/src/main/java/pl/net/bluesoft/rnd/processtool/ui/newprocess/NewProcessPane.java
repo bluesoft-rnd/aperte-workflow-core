@@ -10,7 +10,7 @@ import pl.net.bluesoft.rnd.processtool.ui.activity.ActivityMainPane;
 import pl.net.bluesoft.rnd.processtool.ui.process.ProcessDataPane;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
-import static pl.net.bluesoft.rnd.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
+import static org.aperteworkflow.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
 
 /**
  * @author tlipski@bluesoft.net.pl

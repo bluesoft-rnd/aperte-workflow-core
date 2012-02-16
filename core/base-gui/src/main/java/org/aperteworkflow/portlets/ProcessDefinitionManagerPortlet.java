@@ -1,7 +1,7 @@
 package org.aperteworkflow.portlets;
 
 import org.aperteworkflow.ui.processmanager.ProcessDefinitionManagerPane;
-import pl.net.bluesoft.rnd.util.vaadin.GenericVaadinPortlet2BpmApplication;
+import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
 
 /**
  * @author tlipski@bluesoft.net.pl

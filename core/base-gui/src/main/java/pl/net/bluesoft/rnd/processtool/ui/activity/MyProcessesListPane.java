@@ -8,13 +8,13 @@ import com.vaadin.terminal.StreamResource.StreamSource;
 import com.vaadin.ui.*;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import org.aperteworkflow.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessDeadline;
 import pl.net.bluesoft.rnd.processtool.ui.tasks.TasksMainPane;
 import pl.net.bluesoft.rnd.processtool.ui.tasks.TasksMainPane.TaskTableItem;
-import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -24,7 +24,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import static pl.net.bluesoft.rnd.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
+import org.aperteworkflow.util.vaadin.VaadinUtility;
+import static org.aperteworkflow.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
 /**

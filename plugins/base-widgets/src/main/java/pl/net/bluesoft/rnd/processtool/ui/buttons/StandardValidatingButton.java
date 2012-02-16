@@ -2,6 +2,7 @@ package pl.net.bluesoft.rnd.processtool.ui.buttons;
 
 import com.vaadin.Application;
 import com.vaadin.ui.*;
+import org.aperteworkflow.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
@@ -12,7 +13,6 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinActionButton;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 
 import java.util.Collection;
 import java.util.Map;

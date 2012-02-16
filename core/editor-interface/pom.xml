@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>editor-interface</artifactId>
+    <name>editor-interface</name>
 
     <dependencies>
         <dependency>

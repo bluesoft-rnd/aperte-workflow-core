@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>files-capture</artifactId>
+    <name>files-capture</name>
     <packaging>bundle</packaging>
 
     <dependencies>

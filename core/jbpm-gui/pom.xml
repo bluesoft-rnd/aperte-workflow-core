@@ -9,6 +9,7 @@
     </parent>
 
     <artifactId>jbpm-gui</artifactId>
+    <name>jbpm-gui</name>
     <packaging>war</packaging>
 
     <build>

@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>userdata-widget</artifactId>
+    <name>userdata-widget</name>
     <packaging>bundle</packaging>
 
     <dependencies>

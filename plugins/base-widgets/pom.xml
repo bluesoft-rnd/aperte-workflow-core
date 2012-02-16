@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>base-widgets</artifactId>
+    <name>base-widgets</name>
     <packaging>bundle</packaging>
 
      <repositories>

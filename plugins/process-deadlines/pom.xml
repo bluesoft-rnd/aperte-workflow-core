@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>process-deadlines</artifactId>
+    <name>process-deadlines</name>
     <packaging>bundle</packaging>
 
     <dependencies>

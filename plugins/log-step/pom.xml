@@ -9,8 +9,8 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>bpm-notifications</artifactId>
-    <name>bpm-notifications</name>
+    <artifactId>log-step</artifactId>
+    <name>log-step</name>
     <packaging>bundle</packaging>
 
     <dependencies>
@@ -21,34 +21,15 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-core</artifactId>
-            <version>${hibernate.version}</version>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin</artifactId>
+            <version>${vaadin.version}</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.mail</groupId>
-            <artifactId>mail</artifactId>
-            <version>1.4.3</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.freemarker</groupId>
-            <artifactId>freemarker</artifactId>
-            <version>2.3.16</version>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>2.2</version>
-                <configuration>
-                    <useDefaultManifestFile>true</useDefaultManifestFile>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
@@ -56,23 +37,21 @@
                 <version>2.1.0</version>
                 <configuration>
                     <instructions>
-                        <Export-Package>
-                        </Export-Package>
                         <Import-Package>
-                            javax.mail;version=!,
-                            javax.mail.internet;version=!,
-                            *;resolution:=optional,
-                            pl.net.bluesoft.util.eventbus
+                            *;resolution:=optional
                         </Import-Package>
                         <Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>
-                        <Bundle-Activator>pl.net.bluesoft.rnd.pt.ext.bpmnotifications.Activator</Bundle-Activator>
-                        <Bundle-SymbolicName>pl.net.bluesoft.rnd.pt.ext.bpmnotifications</Bundle-SymbolicName>
-                        <Bundle-Version>0.1</Bundle-Version>
+                        <Bundle-SymbolicName>org.aperteworkflow.plugin.ext.log</Bundle-SymbolicName>
+                        <Bundle-Version>${version}</Bundle-Version>
                         <Embed-Directory>lib</Embed-Directory>
                         <Embed-Transitive>true</Embed-Transitive>
+                        <ProcessTool-Step-Enhancement>org.aperteworkflow.plugin.ext.log.LogStep</ProcessTool-Step-Enhancement>
+                        <ProcessTool-I18N-Property>log-step-messages</ProcessTool-I18N-Property>
                     </instructions>
                 </configuration>
             </plugin>
+
         </plugins>
     </build>
+
 </project>

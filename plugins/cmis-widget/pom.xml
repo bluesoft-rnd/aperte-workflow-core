@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>cmis-widget</artifactId>
+    <name>cmis-widget</name>
     <packaging>bundle</packaging>
 
     <properties>

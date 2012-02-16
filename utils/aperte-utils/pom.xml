@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>aperte-utils</artifactId>
+    <name>aperte-utils</name>
 
     <dependencies>
         <dependency>

@@ -1,6 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.ui.basewidgets;
 
 import com.vaadin.Application;
+import com.vaadin.data.Container;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -245,14 +246,21 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                         component.setReadOnly(false);
                     }
 
+                    // TODO reconsider this approach, perhaps it's easier to check component.getType() and when it returns Object catch possible exception from component.setValue()
+
                     if (Date.class.isAssignableFrom(component.getType())) {
                         Date v = new SimpleDateFormat(((DateWidgetElement) element).getFormat()).parse(String.valueOf(
                                 value));
                         component.setValue(v);
-
                     } else if (String.class.isAssignableFrom(component.getType())) {
                         component.setValue(nvl(value, ""));
+                    } else if (component instanceof Container &&
+                               component.getType().isAssignableFrom(value.getClass())) {
+                        if (((Container) component).containsId(value)) {
+                            component.setValue(value);
+                        }
                     }
+
                     if (readonly) {
                         component.setReadOnly(true);
                     }
@@ -692,7 +700,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                         if (value != null && value instanceof Date) {
                             if (notBefore.after((Date) value)) {
                                 VaadinUtility.validationNotification(getApplication(), i18NSource,
-                                        getMessage("processdata.block.error.date.notbefore").replaceFirst("%s", dwe.getNotAfter()));
+                                        getMessage("processdata.block.error.date.notbefore").replaceFirst("%s", dwe.getNotBefore()));
                                 field.setValue(notBefore);
                             }
                         }

@@ -1,11 +1,14 @@
 package pl.net.bluesoft.rnd.awf.mule;
 
+import org.apache.commons.io.IOUtils;
 import org.osgi.framework.*;
 import pl.net.bluesoft.rnd.awf.mule.step.MuleStep;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.util.func.Func;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -59,7 +62,9 @@ public class MulePluginActivator implements BundleActivator {
                             name = name.trim();
                             if (state == BundleEvent.STARTED) {
                                 try {
-                                    mulePluginManager.registerEntry(name, bundle.getResource(name).openStream(),
+                                    InputStream is = bundle.getResource(name).openStream();
+
+                                    mulePluginManager.registerEntry(name, new ByteArrayInputStream(IOUtils.toByteArray(is)),
                                             new ClassLoader() {
                                                 @Override
                                                 public URL getResource(String s) {

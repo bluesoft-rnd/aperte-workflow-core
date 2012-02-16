@@ -10,15 +10,15 @@ import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.ui.tasks.TasksMainPane;
-import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.HasRefreshButton;
+import org.aperteworkflow.util.vaadin.VaadinUtility.HasRefreshButton;
 
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static pl.net.bluesoft.rnd.util.i18n.I18NSource.ThreadUtil.getLocalizedMessage;
-import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.horizontalLayout;
-import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.refreshIcon;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.horizontalLayout;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.refreshIcon;
 
 /**
  * Created by IntelliJ IDEA.

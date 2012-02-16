@@ -1,4 +1,4 @@
-package pl.net.bluesoft.rnd.util.vaadin;
+package org.aperteworkflow.util.vaadin;
 
 /**
  * Created by IntelliJ IDEA.

@@ -1,4 +1,4 @@
-package pl.net.bluesoft.rnd.util.vaadin.ui;
+package org.aperteworkflow.util.vaadin.ui;
 
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;

@@ -1,11 +1,10 @@
-package org.aperteworkflow.ui.base;
+package org.aperteworkflow.util.vaadin;
 
 import com.vaadin.Application;
 import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.VerticalLayout;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 
 import java.io.File;
 import java.io.FileOutputStream;

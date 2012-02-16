@@ -1,4 +1,4 @@
-package pl.net.bluesoft.rnd.util.vaadin;
+package org.aperteworkflow.util.vaadin;
 
 import com.vaadin.terminal.gwt.server.ApplicationPortlet2;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;

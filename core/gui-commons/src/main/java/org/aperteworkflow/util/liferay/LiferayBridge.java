@@ -1,4 +1,4 @@
-package pl.net.bluesoft.rnd.util.liferay;
+package org.aperteworkflow.util.liferay;
 
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.model.Role;

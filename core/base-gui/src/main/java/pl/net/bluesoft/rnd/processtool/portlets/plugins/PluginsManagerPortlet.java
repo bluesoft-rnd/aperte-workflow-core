@@ -1,7 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.portlets.plugins;
 
+import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
 import pl.net.bluesoft.rnd.processtool.ui.plugins.PluginsManagerPane;
-import pl.net.bluesoft.rnd.util.vaadin.GenericVaadinPortlet2BpmApplication;
 
 /**
  * @author tlipski@bluesoft.net.pl

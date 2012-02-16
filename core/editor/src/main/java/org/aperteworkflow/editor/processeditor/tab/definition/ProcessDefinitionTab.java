@@ -10,8 +10,8 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import java.util.Collection;
 
-import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.htmlLabel;
-import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.styled;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.htmlLabel;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.styled;
 
 public class ProcessDefinitionTab extends VerticalLayout implements DataHandler {
 

@@ -6,8 +6,8 @@ import org.aperteworkflow.editor.domain.ProcessConfig;
 import org.aperteworkflow.editor.signavio.ModelConstants;
 import org.aperteworkflow.editor.vaadin.DataHandler;
 import org.aperteworkflow.editor.vaadin.GenericEditorApplication;
+import org.aperteworkflow.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;

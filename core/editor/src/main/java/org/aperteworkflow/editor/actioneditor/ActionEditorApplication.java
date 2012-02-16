@@ -10,6 +10,7 @@ import org.aperteworkflow.editor.stepeditor.JavaScriptHelper;
 import org.aperteworkflow.editor.stepeditor.user.Property;
 import org.aperteworkflow.editor.ui.property.PropertiesPanel;
 import org.aperteworkflow.editor.vaadin.GenericEditorApplication;
+import org.aperteworkflow.util.vaadin.VaadinUtility;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -19,7 +20,6 @@ import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolActionButton;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.util.lang.Classes;
 
 import java.io.IOException;
@@ -140,7 +140,7 @@ public class ActionEditorApplication extends GenericEditorApplication implements
 		if (event.getComponent() == saveButton) {
 			
 			if (!propertiesPanel.getPropertiesForm().isValid()) {
-				getCurrent().getMainWindow().showNotification(VaadinUtility.validationNotification("Validation error","Correct data"));
+				getCurrent().getMainWindow().showNotification(VaadinUtility.validationNotification("Validation error", "Correct data"));
 				return;
 			}
 			ActionDef actionDef = new ActionDef();

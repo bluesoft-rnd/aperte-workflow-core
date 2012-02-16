@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.getLocalizedMessage;
-import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.horizontalLayout;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.getLocalizedMessage;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.horizontalLayout;
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
 /**

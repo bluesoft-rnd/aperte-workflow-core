@@ -14,6 +14,7 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.PopupView.PopupVisibilityEvent;
 import com.vaadin.ui.PopupView.PopupVisibilityListener;
 import com.vaadin.ui.Table.ColumnGenerator;
+import org.aperteworkflow.util.vaadin.TransactionProvider;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.dict.ProcessDictionaryProvider;
@@ -24,15 +25,15 @@ import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDBDictionaryItemExtensi
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItem;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolGuiCallback;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import pl.net.bluesoft.rnd.util.vaadin.TransactionProvider;
-import pl.net.bluesoft.rnd.util.vaadin.ui.LocalizedPagedTable;
+import org.aperteworkflow.util.vaadin.ui.LocalizedPagedTable;
 import pl.net.bluesoft.util.lang.StringUtil;
 
 import java.util.*;
 
-import static pl.net.bluesoft.rnd.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
-import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.*;
-import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.horizontalLayout;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.*;
+
+import static org.aperteworkflow.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.horizontalLayout;
 
 public class DictionariesMainPane extends VerticalLayout {
     private Application application;

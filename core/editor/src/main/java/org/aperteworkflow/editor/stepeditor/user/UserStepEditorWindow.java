@@ -30,9 +30,9 @@ import org.aperteworkflow.editor.ui.permission.PermissionEditor;
 import org.aperteworkflow.editor.ui.permission.PermissionProvider;
 import org.aperteworkflow.editor.ui.property.PropertiesForm;
 import org.aperteworkflow.editor.ui.property.PropertiesPanel;
+import org.aperteworkflow.util.vaadin.VaadinUtility;
 import org.vaadin.dialogs.ConfirmDialog;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,8 +41,8 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.htmlLabel;
-import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.styled;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.htmlLabel;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.styled;
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
 public class UserStepEditorWindow extends AbstractStepEditorWindow implements Handler, ValueChangeListener {

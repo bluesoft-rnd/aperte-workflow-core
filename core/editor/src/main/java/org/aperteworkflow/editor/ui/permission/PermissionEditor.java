@@ -3,8 +3,8 @@ package org.aperteworkflow.editor.ui.permission;
 import com.vaadin.ui.*;
 import org.aperteworkflow.editor.domain.Permission;
 import org.aperteworkflow.editor.vaadin.DataHandler;
+import org.aperteworkflow.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 
 import java.util.*;
 

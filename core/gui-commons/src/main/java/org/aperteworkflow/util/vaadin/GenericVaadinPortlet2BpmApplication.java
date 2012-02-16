@@ -1,4 +1,4 @@
-package pl.net.bluesoft.rnd.util.vaadin;
+package org.aperteworkflow.util.vaadin;
 
 import com.vaadin.Application;
 import com.vaadin.service.ApplicationContext;
@@ -6,13 +6,13 @@ import com.vaadin.terminal.Terminal;
 import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Window;
+import org.aperteworkflow.util.liferay.LiferayBridge;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.i18n.DefaultI18NSource;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolGuiCallback;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import pl.net.bluesoft.rnd.util.liferay.LiferayBridge;
 
 import javax.portlet.*;
 import java.io.ByteArrayOutputStream;

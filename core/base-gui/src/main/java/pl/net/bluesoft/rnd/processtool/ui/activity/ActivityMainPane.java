@@ -13,7 +13,7 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import java.util.Calendar;
 
-import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.*;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.*;
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
 /**

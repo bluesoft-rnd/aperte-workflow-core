@@ -4,6 +4,7 @@ import com.vaadin.data.Item;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
+import org.aperteworkflow.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
@@ -12,8 +13,6 @@ import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComments;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolActionCallback;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
-import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 
 import java.util.*;
 

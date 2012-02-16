@@ -1,4 +1,4 @@
-package pl.net.bluesoft.rnd.util.vaadin;
+package org.aperteworkflow.util.vaadin;
 
 import com.vaadin.Application;
 import com.vaadin.data.Container;
@@ -18,14 +18,14 @@ import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import pl.net.bluesoft.rnd.util.vaadin.ui.LocalizedPagedTable;
+import org.aperteworkflow.util.vaadin.ui.LocalizedPagedTable;
 
 import java.io.File;
 import java.util.Collection;
 import java.util.Map;
 
 import static com.vaadin.ui.Window.Notification.*;
-import static pl.net.bluesoft.rnd.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
+import static org.aperteworkflow.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -156,7 +156,7 @@ public class VaadinUtility {
     }
 
     public static Notification validationNotification(String caption, String description) {
-        Notification notification = new Notification(caption, description, Notification.TYPE_ERROR_MESSAGE);
+        Notification notification = new Notification(caption, description, TYPE_ERROR_MESSAGE);
         notification.setStyleName("invalid");
         return notification;
     }
@@ -218,7 +218,7 @@ public class VaadinUtility {
     public static void validationNotification(Application application, I18NSource messageSource, String errorMessage) {
         Notification notification = new Notification(messageSource.getMessage("process.data.data-error"),
                 "<br/>" + errorMessage,
-                Notification.TYPE_ERROR_MESSAGE);
+                TYPE_ERROR_MESSAGE);
         notification.setStyleName("invalid");
         application.getMainWindow().showNotification(notification);
     }

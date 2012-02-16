@@ -12,6 +12,7 @@ import org.aperteworkflow.editor.stepeditor.StepEditorApplication;
 import org.aperteworkflow.editor.stepeditor.TaskConfig;
 import org.aperteworkflow.editor.ui.property.PropertiesPanel;
 import org.aperteworkflow.editor.vaadin.GenericEditorApplication;
+import org.aperteworkflow.util.vaadin.VaadinUtility;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -20,7 +21,6 @@ import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.util.lang.Classes;
 
 import java.io.IOException;
@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static pl.net.bluesoft.rnd.util.vaadin.VaadinUtility.styled;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.styled;
 
 public class AutoStepEditorWindow extends AbstractStepEditorWindow {
 
@@ -167,7 +167,7 @@ public class AutoStepEditorWindow extends AbstractStepEditorWindow {
 	public void save() {
 		if (!propertiesPanel.getPropertiesForm().isValid()) {
 			GenericEditorApplication.getCurrent()
-                    .getMainWindow().showNotification(VaadinUtility.validationNotification("Validation error","Correct data"));
+                    .getMainWindow().showNotification(VaadinUtility.validationNotification("Validation error", "Correct data"));
 			return;
 		}
 		String json = getJsonToSave();

@@ -18,6 +18,7 @@ import org.apache.commons.beanutils.NestedNullException;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.beanutils.expression.DefaultResolver;
 import org.apache.commons.beanutils.expression.Resolver;
+import org.aperteworkflow.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.dict.ProcessDictionaryRegistry;
@@ -35,7 +36,6 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.*;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.util.lang.StringUtil;
 
 import java.lang.reflect.InvocationTargetException;

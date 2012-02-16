@@ -10,13 +10,13 @@ import javax.persistence.*;
  */
 
 @Entity
-@Table(name = "pt_process_instance_dictionary_item")
+@Table(name = "pt_pi_dict_item")
 public class ProcessInstanceDictionaryItem extends PersistentEntity{
 
-    @Column(name = "_key")
+    @Column(name = "key_")
     private String key;
 
-    @Column(name = "_value")
+    @Column(name = "value_")
     private String value;
 
     @ManyToOne
@@ -38,8 +38,6 @@ public class ProcessInstanceDictionaryItem extends PersistentEntity{
     public void setDictionary(ProcessInstanceDictionaryAttribute dictionary) {
         this.dictionary = dictionary;
     }
-
-
 
     public String getKey() {
         return key;

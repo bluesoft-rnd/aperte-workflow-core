@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:cmis="http://www.mulesoft.org/schema/mule/cmis"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:spring="http://www.springframework.org/schema/beans" xmlns:smtp="http://www.mulesoft.org/schema/mule/smtp"
+      xmlns:email="http://www.mulesoft.org/schema/mule/email"
+      xsi:schemaLocation="
+	http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/3.1/mule-email.xsd
+       http://www.mulesoft.org/schema/mule/smtp http://www.mulesoft.org/schema/mule/smtp/3.1/mule-smtp.xsd
+       http://www.mulesoft.org/schema/mule/cmis    http://www.mulesoft.org/schema/mule/cmis/1.1/mule-cmis.xsd
+       http://www.mulesoft.org/schema/mule/core    http://www.mulesoft.org/schema/mule/core/3.1/mule.xsd
+       http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/3.0/mule-http.xsd
+       ">
+
+    <global-property name="cmis.repository.base"
+                     value="http://pirx:8080/nuxeo/atom/cmis"></global-property>
+    <global-property name="cmis.repository.id" value="default"></global-property>
+    <global-property name="cmis.demo.baseDirectory" value="/test"></global-property>
+    <global-property name="cmis.username" value="Administrator"></global-property>
+    <global-property name="cmis.password" value="Administrator"></global-property>
+    <global-property name="cmis.fileName" value="card.pdf"></global-property>
+
+    <global-property name="mail.address" value="aperteworkflow@gmail.com"></global-property>
+    <global-property name="mail.password" value="osiemznakow"></global-property>
+
+    <cmis:config name="cmisConfig" username="${cmis.username}" password="${cmis.password}"
+                 repositoryId="${cmis.repository.id}" baseUrl="${cmis.repository.base}"/>
+
+    <custom-transformer name="orderAttachementTransformer"
+                        class="org.mule.example.echo.OrderAttachementTransformer">
+        <spring:property name="templateURL" value="card.pdf"/>
+    </custom-transformer>
+
+    <smtp:gmail-connector name="gmailConn"
+                          contentType="text/plain" fromAddress="${mail.address}"
+                          replyToAddresses="${mail.address}" subject="Business Card Order">
+    </smtp:gmail-connector>
+
+    <flow name="flow1">
+
+        <vm:inbound-endpoint exchange-pattern="request-response" path="vm://sendToPrint"/>
+
+        <enricher target="#[header:session:filePath]">
+            <expression-transformer>
+                <return-argument evaluator="string"
+                                 expression="${cmis.demo.baseDirectory}/${cmis.fileName}"/>
+            </expression-transformer>
+        </enricher>
+
+        <enricher target="#[header:recipientAddress]">
+            <expression-transformer>
+                <return-argument evaluator="ognl"
+                                 expression="getSimpleAttributeValue('email')"/>
+            </expression-transformer>
+        </enricher>
+
+        <cmis:get-object-by-path config-ref="cmisConfig"
+                                 path="#[header:session:filePath]"/>
+
+        <cmis:get-content-stream config-ref="cmisConfig" objectId="#[ognl:id]"/>
+
+        <message-properties-transformer>
+            <add-message-property key="stream" value="#[ognl:stream]"/>
+        </message-properties-transformer>
+
+        <smtp:outbound-endpoint connector-ref="gmailConn"
+                                host="smtp.gmail.com" port="587" user="${mail.address}" password="${mail.password}"  to="#{header:recipientAddress}"
+                                >
+            <transformer ref="orderAttachementTransformer"/>
+            <email:object-to-mime-transformer
+                    mimeType="application/pdf" useOutboundAttachments="true"/>
+            <email:string-to-email-transformer/>
+        </smtp:outbound-endpoint>
+
+    </flow>
+</mule>

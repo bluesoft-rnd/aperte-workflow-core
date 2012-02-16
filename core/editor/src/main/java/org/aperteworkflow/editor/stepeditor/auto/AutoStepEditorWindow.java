@@ -5,6 +5,7 @@ import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.VerticalLayout;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.aperteworkflow.editor.stepeditor.AbstractStepEditorWindow;
 import org.aperteworkflow.editor.stepeditor.StepEditorApplication;
@@ -24,6 +25,7 @@ import pl.net.bluesoft.util.lang.Classes;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -76,8 +78,25 @@ public class AutoStepEditorWindow extends AbstractStepEditorWindow {
 		if (StringUtils.isEmpty(jsonConfig))
 			return new HashMap<String,Object>();
 		try {
-			return mapper.readValue(jsonConfig, new TypeReference<HashMap<String, Object>>() {
-            });
+            Map<String,Object> propertiesMap =  mapper.readValue(
+                    jsonConfig,
+                    new TypeReference<HashMap<String, Object>>() {}
+            );
+            // decode base64 and drop empty properties
+            if (propertiesMap != null && !propertiesMap.isEmpty()) {
+                Iterator<String> it = propertiesMap.keySet().iterator();
+                while (it.hasNext()) {
+                    String propertyName = it.next();
+                    Object encodedValue = propertiesMap.get(propertyName);
+                    if (isPropertyEmpty(encodedValue)) {
+                        it.remove();
+                        continue;
+                    }
+                    byte[] decoded = Base64.decodeBase64(encodedValue.toString().getBytes());
+                    propertiesMap.put(propertyName, new String(decoded));
+                }
+            }
+            return propertiesMap;
 		} catch (JsonMappingException e) {
 			logger.log(Level.SEVERE, "Error parsing JSON data", e);
 		} catch (JsonGenerationException e) {
@@ -88,12 +107,33 @@ public class AutoStepEditorWindow extends AbstractStepEditorWindow {
 		application.getMainWindow().showNotification(messages.getMessage("jse.error.read"));
 		return null;
 	}
-	
+
+    private boolean isPropertyEmpty(Object value) {
+        return (value == null || value.toString().trim().isEmpty());
+    }
+
 	private String getJsonToSave() {
+        // encode the properties with base64 and drop the empty values
+        Map<String, Object> propertiesMap = propertiesPanel.getPropertiesMap();
+        if (propertiesMap != null && !propertiesMap.isEmpty()) {
+            Iterator<String> it = propertiesMap.keySet().iterator();
+            while (it.hasNext()) {
+                String propertyName = it.next();
+                Object propertyValue = propertiesMap.get(propertyName);
+                if (isPropertyEmpty(propertyValue)) {
+                    it.remove();
+                    continue;
+                }
+
+                String encodedValue = Base64.encodeBase64URLSafeString(propertyValue.toString().getBytes());
+                propertiesMap.put(propertyName, encodedValue);
+            }
+        }
+
 		I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
 		TaskConfig tc = new TaskConfig();
 		tc.setTaskName(propertiesPanel.getClassInfo().getAliasName());
-		tc.setParams(propertiesPanel.getPropertiesMap());
+		tc.setParams(propertiesMap);
 		
 		try {
 			return mapper.writeValueAsString(tc);

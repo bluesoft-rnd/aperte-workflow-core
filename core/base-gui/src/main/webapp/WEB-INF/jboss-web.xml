@@ -9,7 +9,7 @@
         </loader-repository>
     </class-loading>
 
-    <context-root>/jbpm-gui-0.1</context-root>
+    <context-root>/aperteworkflow</context-root>
 
     <resource-ref>
         <res-ref-name>jdbc/aperte-workflow-ds</res-ref-name>

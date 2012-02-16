@@ -435,9 +435,11 @@ public class ProcessDataPane extends VerticalLayout {
                 return 0;
             }
 
-            if (w1.getPriority() != null) {
+            if (w1.getPriority() != null && w2.getPriority() != null) {
                 return w1.getPriority().compareTo(w2.getPriority());
-            } else if (w2.getPriority() != null) {
+            } else if (w1.getPriority() != null && w2.getPriority() == null) {
+                return 1;
+            } else if (w1.getPriority() == null && w2.getPriority() != null) {
                 return -1;
             } else {
                 return w1.getId().compareTo(w2.getId());
@@ -459,9 +461,11 @@ public class ProcessDataPane extends VerticalLayout {
                 return 0;
             }
 
-            if (a1.getPriority() != null) {
+            if (a1.getPriority() != null && a1.getPriority() != null) {
                 return a1.getPriority().compareTo(a2.getPriority());
-            } else if (a2.getPriority() != null) {
+            } else if (a1.getPriority() != null && a2.getPriority() == null) {
+                return 1;
+            } else if (a1.getPriority() == null && a2.getPriority() != null) {
                 return -1;
             } else {
                 return a1.getId().compareTo(a2.getId());

@@ -1,11 +1,13 @@
 package org.aperteworkflow.plugin.ext.log;
 
+import com.vaadin.ui.TextArea;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredPropertyConfigurator;
 
 import java.util.Map;
 import java.util.logging.Level;
@@ -31,6 +33,7 @@ public class LogStep implements ProcessToolProcessStep {
             descriptionKey = "log-step.attribute.message.description"
     )
     @AutoWiredProperty(required = true)
+    @AutoWiredPropertyConfigurator(fieldClass = TextArea.class)
     private String message;
 
     @AperteDoc(

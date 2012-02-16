@@ -88,12 +88,19 @@ public class AutoStepEditorWindow extends AbstractStepEditorWindow {
                 while (it.hasNext()) {
                     String propertyName = it.next();
                     Object encodedValue = propertiesMap.get(propertyName);
-                    if (isPropertyEmpty(encodedValue)) {
+                    if (encodedValue == null) {
                         it.remove();
                         continue;
                     }
-                    byte[] decoded = Base64.decodeBase64(encodedValue.toString().getBytes());
-                    propertiesMap.put(propertyName, new String(decoded));
+
+                    if (encodedValue instanceof String) {
+                        if (encodedValue.toString().trim().isEmpty()) {
+                            it.remove();
+                            continue;
+                        }
+                        byte[] decoded = Base64.decodeBase64(encodedValue.toString().getBytes());
+                        propertiesMap.put(propertyName, new String(decoded));
+                    }
                 }
             }
             return propertiesMap;
@@ -120,13 +127,20 @@ public class AutoStepEditorWindow extends AbstractStepEditorWindow {
             while (it.hasNext()) {
                 String propertyName = it.next();
                 Object propertyValue = propertiesMap.get(propertyName);
-                if (isPropertyEmpty(propertyValue)) {
+                if (propertyValue == null) {
                     it.remove();
                     continue;
                 }
 
-                String encodedValue = Base64.encodeBase64URLSafeString(propertyValue.toString().getBytes());
-                propertiesMap.put(propertyName, encodedValue);
+                if (propertyValue instanceof String) {
+                    if (propertyValue.toString().trim().isEmpty()) {
+                        it.remove();
+                        continue;
+                    }
+
+                    String encodedValue = Base64.encodeBase64URLSafeString(propertyValue.toString().getBytes());
+                    propertiesMap.put(propertyName, encodedValue);
+                }
             }
         }
 

@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>drools-step</artifactId>
+    <name>drools-step</name>
     <packaging>bundle</packaging>
 
     <dependencies>

@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>mule-flightsearch-sample</artifactId>
+    <name>mule-flightsearch-sample</name>
 
     <build>
         <plugins>

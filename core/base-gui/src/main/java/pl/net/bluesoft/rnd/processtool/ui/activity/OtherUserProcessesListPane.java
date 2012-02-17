@@ -1,10 +1,10 @@
 package pl.net.bluesoft.rnd.processtool.ui.activity;
 
+import org.aperteworkflow.util.liferay.LiferayBridge;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
-import pl.net.bluesoft.rnd.util.liferay.LiferayBridge;
 
 /**
  * User: POlszewski

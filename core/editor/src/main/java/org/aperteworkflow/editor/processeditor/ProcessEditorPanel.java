@@ -8,8 +8,8 @@ import org.aperteworkflow.editor.processeditor.tab.other.OtherTab;
 import org.aperteworkflow.editor.processeditor.tab.permission.ProcessPermissionTab;
 import org.aperteworkflow.editor.processeditor.tab.queue.QueueTab;
 import org.aperteworkflow.editor.vaadin.DataHandler;
+import org.aperteworkflow.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 
 import java.util.Collection;
 import java.util.Iterator;

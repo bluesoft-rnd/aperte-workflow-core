@@ -5,6 +5,7 @@ import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.ShortcutListener;
 import com.vaadin.ui.*;
 import org.apache.commons.beanutils.BeanUtils;
+import org.aperteworkflow.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
@@ -14,7 +15,6 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.*;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.util.lang.StringUtil;
 
 import java.io.ByteArrayOutputStream;
@@ -26,7 +26,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.vaadin.ui.Label.CONTENT_XHTML;
-import static pl.net.bluesoft.rnd.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
+import static org.aperteworkflow.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
 /**
@@ -435,9 +435,11 @@ public class ProcessDataPane extends VerticalLayout {
                 return 0;
             }
 
-            if (w1.getPriority() != null) {
+            if (w1.getPriority() != null && w2.getPriority() != null) {
                 return w1.getPriority().compareTo(w2.getPriority());
-            } else if (w2.getPriority() != null) {
+            } else if (w1.getPriority() != null && w2.getPriority() == null) {
+                return 1;
+            } else if (w1.getPriority() == null && w2.getPriority() != null) {
                 return -1;
             } else {
                 return w1.getId().compareTo(w2.getId());
@@ -459,9 +461,11 @@ public class ProcessDataPane extends VerticalLayout {
                 return 0;
             }
 
-            if (a1.getPriority() != null) {
+            if (a1.getPriority() != null && a1.getPriority() != null) {
                 return a1.getPriority().compareTo(a2.getPriority());
-            } else if (a2.getPriority() != null) {
+            } else if (a1.getPriority() != null && a2.getPriority() == null) {
+                return 1;
+            } else if (a1.getPriority() == null && a2.getPriority() != null) {
                 return -1;
             } else {
                 return a1.getId().compareTo(a2.getId());

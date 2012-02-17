@@ -13,26 +13,11 @@ import java.util.logging.Logger;
  * @author tlipski@bluesoft.net.pl
  */
 public class ProcessToolRegistryContextLoader implements ServletContextListener {
-
-
-	//moved back to hibernate.cfg.xml
-//	String[] resources = new String[]{
-//			"/jbpm.repository.hbm.xml",
-//			"/jbpm.execution.hbm.xml",
-//			"/jbpm.history.hbm.xml",
-//			"/jbpm.task.hbm.xml",
-//			"/jbpm.identity.hbm.xml"
-//	};
-
 	@Override
 	public void contextInitialized(ServletContextEvent sce) {
 
 		try {
 			ProcessToolRegistryImpl toolRegistry = new ProcessToolRegistryImpl();
-//			for (String resource : resources) {
-//				toolRegistry.addHibernateResource(resource, slurp(getClass().getResourceAsStream(resource)));
-//
-//			}
 			toolRegistry.commitModelExtensions();
 			toolRegistry.setProcessToolContextFactory(new ProcessToolContextFactoryImpl(toolRegistry));
 			sce.getServletContext().setAttribute(ProcessToolRegistry.class.getName(),
@@ -46,13 +31,4 @@ public class ProcessToolRegistryContextLoader implements ServletContextListener 
 	public void contextDestroyed(ServletContextEvent sce) {
 		sce.getServletContext().removeAttribute(ProcessToolRegistry.class.getName());
 	}
-
-//	private byte[] slurp(InputStream is) throws IOException {
-//		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//		int c=0;
-//		while ((c = is.read()) > 0) {
-//			baos.write(c);
-//		}
-//		return baos.toByteArray();
-//	}
 }

@@ -3,7 +3,7 @@ package org.aperteworkflow.portlets;
 import com.vaadin.Application;
 import com.vaadin.ui.Window;
 import org.aperteworkflow.ui.processadmin.ProcessInstanceAdminManagerPane;
-import pl.net.bluesoft.rnd.util.vaadin.GenericVaadinPortlet2BpmApplication;
+import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
 
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;

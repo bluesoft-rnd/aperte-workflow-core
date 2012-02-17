@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jboss-web>
+    <!-- jboss 5.1 comes with some prehistoric hibernate jars -->
+    <class-loading java2ClassLoadingCompliance="false">
+        <loader-repository>
+            org.aperteworkflow:loader=aperte-workflow-web
+            <loader-repository-config>java2ParentDelegation=false</loader-repository-config>
+        </loader-repository>
+    </class-loading>
+
+    <context-root>/aperteworkflow</context-root>
+
+    <resource-ref>
+        <res-ref-name>jdbc/aperte-workflow-ds</res-ref-name>
+        <res-type>javax.sql.DataSource</res-type>
+        <jndi-name>java:jdbc/aperte-workflow-ds</jndi-name>
+    </resource-ref>
+
+</jboss-web>

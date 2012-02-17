@@ -3,8 +3,8 @@ package org.aperteworkflow.editor.ui.permission;
 import com.vaadin.ui.*;
 import org.aperteworkflow.editor.domain.Permission;
 import org.aperteworkflow.editor.vaadin.DataHandler;
+import org.aperteworkflow.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import pl.net.bluesoft.rnd.util.vaadin.VaadinUtility;
 
 import java.util.*;
 
@@ -107,23 +107,26 @@ public class PermissionEditor extends VerticalLayout implements DataHandler {
     private Set<PermissionDefinition> getUniqueProvidedPermissionDefinitions() {
         // use set to get unique permission definitions
         Set<PermissionDefinition> set = new TreeSet<PermissionDefinition>();
+
+        // first add the definitions, they are more important
+        if (provider.getPermissionDefinitions() != null) {
+            set.addAll(provider.getPermissionDefinitions());
+        }
+
+        // now add all the definitions that are provided by the actual permissions
+        // if a definition exists it is not replaced by new object
         if (provider.getPermissions() != null) {
             for (Permission permission : provider.getPermissions()) {
                 set.add(new PermissionDefinition(permission));
             }
         }
 
-        if (provider.getPermissionDefinitions() != null) {
-            set.addAll(provider.getPermissionDefinitions());
-        }
-
-
         return set;
     }
 
     @Override
     public void saveData() {
-
+        // do nothing
     }
 
     @Override

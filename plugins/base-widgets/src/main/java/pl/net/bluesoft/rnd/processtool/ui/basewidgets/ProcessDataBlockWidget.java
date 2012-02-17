@@ -668,11 +668,14 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         }
 
         final PopupDateField field = new PopupDateField();
+        final boolean fieldMinResolution = dwe.getShowMinutes() != null && dwe.getShowMinutes();
+
         field.setDateFormat(dwe.getFormat());
-        field.setResolution(dwe.getShowMinutes() != null && dwe.getShowMinutes() ? DateField.RESOLUTION_MIN : DateField.RESOLUTION_DAY);
+        field.setResolution(fieldMinResolution ? DateField.RESOLUTION_MIN : DateField.RESOLUTION_DAY);
         if (hasText(dwe.getNotAfter())) {
             try {
-                final Date notAfter = XmlConstants.DATE_CURRENT.equalsIgnoreCase(dwe.getNotAfter()) ? new Date() : sdf.parse(dwe.getNotAfter());
+                boolean usesCurrent = XmlConstants.DATE_CURRENT.equalsIgnoreCase(dwe.getNotAfter());
+                final Date notAfter = (usesCurrent) ? sdf.parse(sdf.format(new Date())) : sdf.parse(dwe.getNotAfter());
                 field.addListener(new ValueChangeListener() {
                     @Override
                     public void valueChange(ValueChangeEvent event) {
@@ -692,7 +695,8 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         }
         if (hasText(dwe.getNotBefore())) {
             try {
-                final Date notBefore = XmlConstants.DATE_CURRENT.equalsIgnoreCase(dwe.getNotBefore()) ? new Date() : sdf.parse(dwe.getNotBefore());
+                boolean usesCurrent = XmlConstants.DATE_CURRENT.equalsIgnoreCase(dwe.getNotBefore());
+                final Date notBefore  = (usesCurrent) ? sdf.parse(sdf.format(new Date())) : sdf.parse(dwe.getNotBefore());
                 field.addListener(new ValueChangeListener() {
                     @Override
                     public void valueChange(ValueChangeEvent event) {

@@ -404,3 +404,4 @@ com.vaadin.data.util,
 com.vaadin.data,
 org.vaadin.dialogs,
 org.vaadin.addon.customfield,
+org.jboss.logging.appender

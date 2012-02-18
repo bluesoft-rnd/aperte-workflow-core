@@ -49,12 +49,12 @@
             <!-- provided by Liferay -->
         </dependency>
 
-        <dependency>
-            <groupId>com.liferay.portal</groupId>
-            <artifactId>portal-impl</artifactId>
-            <version>${liferay.version}</version>
-            <scope>provided</scope>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.liferay.portal</groupId>-->
+            <!--<artifactId>portal-impl</artifactId>-->
+            <!--<version>${liferay.version}</version>-->
+            <!--<scope>provided</scope>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>com.google.gwt</groupId>
             <artifactId>gwt-user</artifactId>

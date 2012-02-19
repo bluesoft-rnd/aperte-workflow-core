@@ -495,12 +495,20 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
 
     public List<String> getAvailableLogins(final String filter) {
         IdentityService is = getProcessEngine().getIdentityService();
-        List<User> users = is.createUserQuery().userFirstNameLike(filter).list();
+        User user1 = is.createUserQuery().userId(filter).singleResult();
+
+        List<User> users = is.createUserQuery()
+                .userEmailLike("%" + filter + "%")
+                .orderByUserId().asc()
+                .listPage(0, 100);
         List<String> res = new ArrayList<String>();
         for (User u : users) {
             res.add(u.getId());
         }
         Collections.sort(res);
+        if (user1 != null) {
+            res.add(0, user1.getId());
+        }
         return res;
 
     }

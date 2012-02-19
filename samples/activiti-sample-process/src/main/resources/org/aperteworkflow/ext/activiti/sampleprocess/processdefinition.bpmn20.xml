@@ -49,7 +49,7 @@
          <outgoing>sid-92E6DBF4-6E3B-4DCA-ADDF-DD1C1D591400</outgoing>
          <humanPerformer id="sid-6d3cd863-39c8-4010-bf8b-21486d0f7e5f">
             <resourceAssignmentExpression id="sid-78c387d2-e819-4924-89b9-f8eb1dd371db">
-               <formalExpression id="sid-65471700-ccdf-463a-af95-4d6fc5b2bd29">${employeeName}</formalExpression>
+               <formalExpression id="sid-65471700-ccdf-463a-af95-4d6fc5b2bd29">${creator}</formalExpression>
             </resourceAssignmentExpression>
          </humanPerformer>
       </userTask>
@@ -83,11 +83,15 @@
       <sequenceFlow id="sid-9F799F35-6DCE-47C8-B1C5-793D3936F5F2" name="" sourceRef="sid-E2CC4D54-9C99-46CB-A145-3E44807A50F8" targetRef="sid-E9027EA2-10EE-4B5E-98DD-3BC86CFA3486"/>
       <sequenceFlow id="sid-A7BB7780-9518-4515-B496-1B0B5A5EBAA1" name="" sourceRef="sid-E9027EA2-10EE-4B5E-98DD-3BC86CFA3486" targetRef="sid-92436D48-1474-4223-8BE7-D5E341076373"/>
       <sequenceFlow id="sid-F9079A6D-ED44-4D87-906A-7E7A3F9E94E9" name="" sourceRef="sid-1B2EA8CC-6CFB-417D-9E64-0A753E7E3CF5" targetRef="sid-E62A67D2-32F2-4E3D-9397-0386C43D91D7"/>
-      <sequenceFlow id="sid-02320A54-EB16-43F7-AB1D-D0ACA32345F7" name="${vacationApproved}" sourceRef="sid-92436D48-1474-4223-8BE7-D5E341076373" targetRef="sid-1B2EA8CC-6CFB-417D-9E64-0A753E7E3CF5"/>
-      <sequenceFlow id="sid-F32BE919-CAC7-4555-AD77-389B6FE265AE" name="${!vacationApproved}" sourceRef="sid-92436D48-1474-4223-8BE7-D5E341076373" targetRef="sid-42F64CC2-974B-48EC-B770-4F189D31B9D1"/>
+      <sequenceFlow id="sid-02320A54-EB16-43F7-AB1D-D0ACA32345F7" name="${ACTION!='Continue'}" sourceRef="sid-92436D48-1474-4223-8BE7-D5E341076373" targetRef="sid-1B2EA8CC-6CFB-417D-9E64-0A753E7E3CF5">
+          <conditionExpression xsi:type="tFormalExpression">${ACTION!='Continue'}</conditionExpression>
+      </sequenceFlow>
+      <sequenceFlow id="sid-F32BE919-CAC7-4555-AD77-389B6FE265AE" name="${ACTION=='Continue'}" sourceRef="sid-92436D48-1474-4223-8BE7-D5E341076373" targetRef="sid-42F64CC2-974B-48EC-B770-4F189D31B9D1">
+          <conditionExpression xsi:type="tFormalExpression">${ACTION=='Continue'}</conditionExpression>
+        </sequenceFlow>
       <sequenceFlow id="sid-92E6DBF4-6E3B-4DCA-ADDF-DD1C1D591400" name="" sourceRef="sid-42F64CC2-974B-48EC-B770-4F189D31B9D1" targetRef="sid-32173968-C77C-4BD7-ADB0-4EB7DBFE3DEB"/>
-      <sequenceFlow id="sid-F50530D8-28A7-4F4E-A950-42E5BD5A6AEC" name="${resendRequest}" sourceRef="sid-32173968-C77C-4BD7-ADB0-4EB7DBFE3DEB" targetRef="sid-E9027EA2-10EE-4B5E-98DD-3BC86CFA3486"/>
-      <sequenceFlow id="sid-3FCE8675-C827-4E30-9066-4BB007804C87" name="${!resendRequest}" sourceRef="sid-32173968-C77C-4BD7-ADB0-4EB7DBFE3DEB" targetRef="sid-72B34C3D-69BF-41C7-8B83-6559EAEA969E"/>
+      <sequenceFlow id="sid-F50530D8-28A7-4F4E-A950-42E5BD5A6AEC" name="${ACTION=='Continue'}" sourceRef="sid-32173968-C77C-4BD7-ADB0-4EB7DBFE3DEB" targetRef="sid-E9027EA2-10EE-4B5E-98DD-3BC86CFA3486"/>
+      <sequenceFlow id="sid-3FCE8675-C827-4E30-9066-4BB007804C87" name="${ACTION!='Continue'}" sourceRef="sid-32173968-C77C-4BD7-ADB0-4EB7DBFE3DEB" targetRef="sid-72B34C3D-69BF-41C7-8B83-6559EAEA969E"/>
    </process>
    <bpmndi:BPMNDiagram id="sid-4dabe680-fe92-40c3-aedf-5a01e75f6351">
       <bpmndi:BPMNPlane bpmnElement="activitisample" id="sid-cbc429b7-0062-410d-8876-c17fea3a7bba">

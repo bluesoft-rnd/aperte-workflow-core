@@ -84,8 +84,10 @@ public class QueueListPane extends ProcessListPane {
 				});
 			}
 		});
-		vl.addComponent(horizontalLayout(new Label(nvl(getMessage(tti.getStateConfiguration().getCommentary()), ""),
-                Label.CONTENT_XHTML), button));
+        if (tti.getStateConfiguration() != null) {
+            vl.addComponent(horizontalLayout(new Label(nvl(getMessage(tti.getStateConfiguration().getCommentary()), ""),
+                    Label.CONTENT_XHTML), button));
+        }
 		vl.setWidth("100%");
 		if (pi.getKeyword() != null) {
 			vl.addComponent(new Label(pi.getKeyword()));

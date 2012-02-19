@@ -302,6 +302,7 @@
         <listener-class>com.liferay.portal.kernel.servlet.PortletContextListener</listener-class>
     </listener>
     <listener>
+        <!-- each gui for each BPM engine should provide its own implementation of this class -->
         <listener-class>pl.net.bluesoft.rnd.util.ProcessToolRegistryContextLoader</listener-class>
     </listener>
 

@@ -13,6 +13,7 @@
     <artifactId>samples</artifactId>
 
     <modules>
+        <module>activiti-sample-process</module>
         <module>liferay-poc-process</module>
         <module>sample-mule-step</module>
         <module>mule-flightsearch-sample</module>

@@ -341,7 +341,9 @@ public class PluginHelper implements PluginManager, SearchProvider {
             if (eventType == Bundle.ACTIVE) {
                 try {
                     String basePath = "/" + processPackage.replace(".", "/") + "/";
-                    toolRegistry.deployOrUpdateProcessDefinition(bundleHelper.getBundleResourceStream(basePath + "processdefinition.jpdl.xml"),
+                    toolRegistry.deployOrUpdateProcessDefinition(
+                            nvl(bundleHelper.getBundleResourceStream(basePath + "processdefinition.jpdl.xml"),
+                                    bundleHelper.getBundleResourceStream(basePath + "processdefinition.bpmn20.xml")),
                             bundleHelper.getBundleResourceStream(basePath + "processtool-config.xml"),
                             bundleHelper.getBundleResourceStream(basePath + "queues-config.xml"),
                             bundleHelper.getBundleResourceStream(basePath + "processdefinition.png"),
@@ -997,7 +999,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
         }
         results = search(query, 0, 1000, addQueries.toArray(new Query[addQueries.size()]));
         //always check 1000 first results - larger limit means no sense and Lucene provides the results
-        //with no sort guarantees (the same result can appear on two pages)
+        //with no sort guarantees
 
         List<Long> res = new ArrayList<Long>(results.size());
         for (Document doc : results) {

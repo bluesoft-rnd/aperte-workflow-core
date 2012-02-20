@@ -51,14 +51,24 @@
                 e.printStackTrace();
                 }
                 System.out.println("Document Attached")
-                return "Hello world";
+                return payload;
             </script:text>
         </script:script>
     </script:transformer>
 
-    <smtp:gmail-connector name="gmailConn"
+    <smtp:gmail-connector name="gmailOrderConnector"
                           contentType="text/html" fromAddress="${mail.address}"
                           replyToAddresses="${mail.address}" subject="Business Card Order">
+    </smtp:gmail-connector>
+
+    <smtp:gmail-connector name="gmailConfirmationConnector"
+                          contentType="text/html" fromAddress="${mail.address}"
+                          replyToAddresses="${mail.address}" subject="Business Card Order - Confirmation">
+    </smtp:gmail-connector>
+
+    <smtp:gmail-connector name="gmailRejectConnector"
+                          contentType="text/html" fromAddress="${mail.address}"
+                          replyToAddresses="${mail.address}" subject="Business Card Order - Rejected">
     </smtp:gmail-connector>
 
     <flow name="sendOrder">
@@ -66,11 +76,11 @@
         <vm:inbound-endpoint exchange-pattern="request-response" path="sendToPrint"/>
 
 
-
         <script:component>
             <script:script engine="groovy">
                 <script:text>
-                    System.out.println("Path: ${cmis.demo.baseDirectory}" + payload.getInternalId() + "/${cmis.filename}] ")
+                    System.out.println("Path: ${cmis.demo.baseDirectory}" + payload.getInternalId() +
+                    "/${cmis.filename}] ")
                     return payload
                 </script:text>
             </script:script>
@@ -83,7 +93,6 @@
             </expression-transformer>
         </enricher>
 
-        <!--<logger level="INFO" message="#[header:session:filePath]" />-->
 
         <enricher target="#[header:recipientAddress]">
             <expression-transformer>
@@ -92,7 +101,19 @@
             </expression-transformer>
         </enricher>
 
-        <!--<logger level="INFO" message="#[header:session:recipientAddress]" />-->
+        <enricher target="#[header:confirmationAddress]">
+            <expression-transformer>
+                <return-argument evaluator="groovy"
+                                 expression="payload.getSimpleAttributeValue('email')"/>
+            </expression-transformer>
+        </enricher>
+
+        <enricher target="#[header:mailBody]">
+            <expression-transformer>
+                <return-argument evaluator="groovy"
+                                 expression="payload.getSimpleAttributeValue('mailBody')"/>
+            </expression-transformer>
+        </enricher>
 
         <cmis:get-object-by-path config-ref="cmisConfig"
                                  path="#[header:outbound:filePath]"/>
@@ -106,18 +127,63 @@
         <script:component>
             <script:script engine="groovy">
                 <script:text>
-                    System.out.println("Sending... ")
-                    return "Hello world"
+                    import org.mule.api.MuleMessage;
+                    import org.mule.api.transformer.TransformerException;
+                    import org.mule.api.transport.PropertyScope;
+                    System.out.println("Sending project... ")
+                    return message.getProperty("mailBody", PropertyScope.OUTBOUND);
                 </script:text>
             </script:script>
         </script:component>
 
-        <smtp:outbound-endpoint connector-ref="gmailConn"
+        <smtp:outbound-endpoint connector-ref="gmailOrderConnector"
                                 host="smtp.gmail.com" port="587" user="${mail.username}" password="${mail.password}"
                                 to="#[header:recipientAddress]">
             <transformer ref="orderAttachementTransformer"/>
             <email:object-to-mime-transformer
                     mimeType="application/pdf" useOutboundAttachments="true"/>
+            <email:string-to-email-transformer/>
+        </smtp:outbound-endpoint>
+
+        <script:component>
+            <script:script engine="groovy">
+                <script:text>
+                    System.out.println("Sending confirmation... ")
+                    return "Your business card order was placed."
+                </script:text>
+            </script:script>
+        </script:component>
+
+        <smtp:outbound-endpoint connector-ref="gmailConfirmationConnector"
+                                host="smtp.gmail.com" port="587" user="${mail.username}" password="${mail.password}"
+                                to="#[header:confirmationAddress]">
+            <email:string-to-email-transformer/>
+        </smtp:outbound-endpoint>
+    </flow>
+
+    <flow name="rejectNotify">
+
+        <vm:inbound-endpoint exchange-pattern="request-response" path="rejectNotify"/>
+
+        <enricher target="#[header:confirmationAddress]">
+            <expression-transformer>
+                <return-argument evaluator="groovy"
+                                 expression="payload.getSimpleAttributeValue('email')"/>
+            </expression-transformer>
+        </enricher>
+
+        <script:component>
+            <script:script engine="groovy">
+                <script:text>
+                    System.out.println("Sending notification... ")
+                    return "Your business card order was rejected. Please verify data you entered"
+                </script:text>
+            </script:script>
+        </script:component>
+
+        <smtp:outbound-endpoint connector-ref="gmailRejectConnector"
+                                host="smtp.gmail.com" port="587" user="${mail.username}" password="${mail.password}"
+                                to="#[header:confirmationAddress]">
             <email:string-to-email-transformer/>
         </smtp:outbound-endpoint>
 

@@ -342,8 +342,8 @@ public class PluginHelper implements PluginManager, SearchProvider {
                 try {
                     String basePath = "/" + processPackage.replace(".", "/") + "/";
                     toolRegistry.deployOrUpdateProcessDefinition(
-                            nvl(bundleHelper.getBundleResourceStream(basePath + "processdefinition.jpdl.xml"),
-                                    bundleHelper.getBundleResourceStream(basePath + "processdefinition.bpmn20.xml")),
+                            bundleHelper.getBundleResourceStream(basePath + "processdefinition." +
+                                    toolRegistry.getBpmDefinitionLanguage() + ".xml"),
                             bundleHelper.getBundleResourceStream(basePath + "processtool-config.xml"),
                             bundleHelper.getBundleResourceStream(basePath + "queues-config.xml"),
                             bundleHelper.getBundleResourceStream(basePath + "processdefinition.png"),

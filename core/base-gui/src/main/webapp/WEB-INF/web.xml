@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-        <!--  xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"-->
 <web-app id="AperteWorkflow"
          version="2.4"
          >
@@ -380,6 +378,11 @@
         <servlet-class>pl.net.bluesoft.rnd.processtool.plugins.ButtonExposureServlet</servlet-class>
         <load-on-startup>7</load-on-startup>
     </servlet>
+    <servlet>
+        <servlet-name>AperteWorkflowConfigurationExposureServlet</servlet-name>
+        <servlet-class>pl.net.bluesoft.rnd.processtool.plugins.AperteWorkflowConfigurationExposureServlet</servlet-class>
+        <load-on-startup>8</load-on-startup>
+    </servlet>
 	<servlet>
         <servlet-name>ActionEditorServlet</servlet-name>
         <servlet-class>com.vaadin.terminal.gwt.server.ApplicationServlet</servlet-class>
@@ -410,7 +413,12 @@
         <url-pattern>/osgiex/buttons</url-pattern>
     </servlet-mapping>
 
-	
+	<servlet-mapping>
+        <servlet-name>AperteWorkflowConfigurationExposureServlet</servlet-name>
+        <url-pattern>/osgiex/configuration</url-pattern>
+    </servlet-mapping>
+
+
     <servlet-mapping>
         <servlet-name>StepEditorServlet</servlet-name>
         <url-pattern>/step_editor/*</url-pattern>

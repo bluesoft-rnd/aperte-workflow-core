@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
-             xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
-             xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI"
-             xmlns:signavio="http://www.signavio.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI"
+             xmlns:signavio="http://www.signavio.com"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              exporter="Signavio Process Editor, http://www.signavio.com" exporterVersion=""
              expressionLanguage="http://www.w3.org/1999/XPath" id="sid-28da1acc-280f-4b03-aa50-7165b8bf3e85"
              targetNamespace="http://www.signavio.com/bpmn20" typeLanguage="http://www.w3.org/2001/XMLSchema"
@@ -61,13 +64,25 @@
          <outgoing>sid-02320A54-EB16-43F7-AB1D-D0ACA32345F7</outgoing>
          <outgoing>sid-F32BE919-CAC7-4555-AD77-389B6FE265AE</outgoing>
       </exclusiveGateway>
-      <task completionQuantity="1" id="sid-1B2EA8CC-6CFB-417D-9E64-0A753E7E3CF5" isForCompensation="false" name="Send confirmation email" startQuantity="1">
+      <serviceTask completionQuantity="1" id="sid-1B2EA8CC-6CFB-417D-9E64-0A753E7E3CF5"
+                   isForCompensation="false" name="Call automatic step" startQuantity="1"
+                   activiti:class="org.aperteworkflow.ext.activiti.ActivitiStepAction">
          <extensionElements>
             <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffcc"/>
+             <activiti:field name="stepName" stringValue="LogStep"/>
+             <activiti:field name="params">
+                 <activiti:expression>
+                     <![CDATA[
+                     <map>
+                         <message>This is a test!!! ${ACTION}</message>
+                     </map>
+                     ]]>
+                 </activiti:expression>
+             </activiti:field>
          </extensionElements>
          <incoming>sid-02320A54-EB16-43F7-AB1D-D0ACA32345F7</incoming>
          <outgoing>sid-F9079A6D-ED44-4D87-906A-7E7A3F9E94E9</outgoing>
-      </task>
+      </serviceTask>
       <endEvent id="sid-E62A67D2-32F2-4E3D-9397-0386C43D91D7" name="">
          <extensionElements>
             <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffff"/>

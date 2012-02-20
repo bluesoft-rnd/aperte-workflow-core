@@ -69,12 +69,12 @@
                    activiti:class="org.aperteworkflow.ext.activiti.ActivitiStepAction">
          <extensionElements>
             <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffcc"/>
-             <activiti:field name="stepName" stringValue="LogStep"/>
+             <activiti:field name="stepName" stringValue="MuleStep"/>
              <activiti:field name="params">
                  <activiti:expression>
                      <![CDATA[
                      <map>
-                         <message>This is a test!!! ${ACTION}</message>
+                         <destinationEndpointUrl>vm://twitter</destinationEndpointUrl>
                      </map>
                      ]]>
                  </activiti:expression>

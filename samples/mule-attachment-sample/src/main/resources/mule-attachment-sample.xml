@@ -2,60 +2,100 @@
 
 <mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:cmis="http://www.mulesoft.org/schema/mule/cmis"
       xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xmlns:spring="http://www.springframework.org/schema/beans" xmlns:smtp="http://www.mulesoft.org/schema/mule/smtp"
+      xmlns:smtp="http://www.mulesoft.org/schema/mule/smtp"
       xmlns:email="http://www.mulesoft.org/schema/mule/email"
+      xmlns:vm="http://www.mulesoft.org/schema/mule/vm"
+      xmlns:script="http://www.mulesoft.org/schema/mule/scripting"
       xsi:schemaLocation="
 	http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/3.1/mule-email.xsd
        http://www.mulesoft.org/schema/mule/smtp http://www.mulesoft.org/schema/mule/smtp/3.1/mule-smtp.xsd
        http://www.mulesoft.org/schema/mule/cmis    http://www.mulesoft.org/schema/mule/cmis/1.1/mule-cmis.xsd
        http://www.mulesoft.org/schema/mule/core    http://www.mulesoft.org/schema/mule/core/3.1/mule.xsd
        http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/3.0/mule-http.xsd
+       http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
+       http://www.mulesoft.org/schema/mule/scripting 
+       http://www.mulesoft.org/schema/mule/scripting/3.2/mule-scripting.xsd
        ">
 
-    <global-property name="cmis.repository.base"
-                     value="http://pirx:8080/nuxeo/atom/cmis"></global-property>
+    <global-property name="cmis.repository.base" value="http://pirx:8080/nuxeo/atom/cmis"></global-property>
     <global-property name="cmis.repository.id" value="default"></global-property>
-    <global-property name="cmis.demo.baseDirectory" value="/test"></global-property>
+    <global-property name="cmis.demo.baseDirectory" value="/businessCards/pt_"></global-property>
     <global-property name="cmis.username" value="Administrator"></global-property>
     <global-property name="cmis.password" value="Administrator"></global-property>
     <global-property name="cmis.fileName" value="card.pdf"></global-property>
-
     <global-property name="mail.address" value="aperteworkflow@gmail.com"></global-property>
+    <global-property name="mail.username" value="aperteworkflow"></global-property>
     <global-property name="mail.password" value="osiemznakow"></global-property>
+    <global-property name="cmis.filename" value="card.pdf"></global-property>
 
     <cmis:config name="cmisConfig" username="${cmis.username}" password="${cmis.password}"
                  repositoryId="${cmis.repository.id}" baseUrl="${cmis.repository.base}"/>
 
-    <custom-transformer name="orderAttachementTransformer"
-                        class="org.mule.example.echo.OrderAttachementTransformer">
-        <spring:property name="templateURL" value="card.pdf"/>
-    </custom-transformer>
+    <script:transformer name="orderAttachementTransformer">
+        <script:script engine="groovy">
+            <script:text>
+                import java.io.InputStream;
+                import javax.activation.DataHandler;
+                import javax.mail.util.ByteArrayDataSource;
+                import org.mule.api.MuleMessage;
+                import org.mule.api.transformer.TransformerException;
+                import org.mule.api.transport.PropertyScope;
+                InputStream s = (InputStream) message.getProperty("stream", PropertyScope.OUTBOUND);
+                try {
+                ByteArrayDataSource document = new ByteArrayDataSource(s, "application/pdf");
+                document.setName("card.pdf");
+                DataHandler attachement = new DataHandler(document);
+                message.addOutboundAttachment("UTF-8", attachement);
+                } catch (Exception e) {
+                System.out.println("Failed")
+                e.printStackTrace();
+                }
+                System.out.println("Document Attached")
+                return "Hello world";
+            </script:text>
+        </script:script>
+    </script:transformer>
 
     <smtp:gmail-connector name="gmailConn"
-                          contentType="text/plain" fromAddress="${mail.address}"
+                          contentType="text/html" fromAddress="${mail.address}"
                           replyToAddresses="${mail.address}" subject="Business Card Order">
     </smtp:gmail-connector>
 
-    <flow name="flow1">
+    <flow name="sendOrder">
 
-        <vm:inbound-endpoint exchange-pattern="request-response" path="vm://sendToPrint"/>
+        <vm:inbound-endpoint exchange-pattern="request-response" path="sendToPrint"/>
 
-        <enricher target="#[header:session:filePath]">
+
+
+        <script:component>
+            <script:script engine="groovy">
+                <script:text>
+                    System.out.println("Path: ${cmis.demo.baseDirectory}" + payload.getInternalId() + "/${cmis.filename}] ")
+                    return payload
+                </script:text>
+            </script:script>
+        </script:component>
+
+        <enricher target="#[header:filePath]">
             <expression-transformer>
-                <return-argument evaluator="string"
-                                 expression="${cmis.demo.baseDirectory}/${cmis.fileName}"/>
+                <return-argument evaluator="groovy"
+                                 expression="'${cmis.demo.baseDirectory}' + payload.getInternalId() + '/${cmis.filename}'"/>
             </expression-transformer>
         </enricher>
+
+        <!--<logger level="INFO" message="#[header:session:filePath]" />-->
 
         <enricher target="#[header:recipientAddress]">
             <expression-transformer>
-                <return-argument evaluator="ognl"
-                                 expression="getSimpleAttributeValue('email')"/>
+                <return-argument evaluator="groovy"
+                                 expression="payload.getSimpleAttributeValue('sendToAddress')"/>
             </expression-transformer>
         </enricher>
 
+        <!--<logger level="INFO" message="#[header:session:recipientAddress]" />-->
+
         <cmis:get-object-by-path config-ref="cmisConfig"
-                                 path="#[header:session:filePath]"/>
+                                 path="#[header:outbound:filePath]"/>
 
         <cmis:get-content-stream config-ref="cmisConfig" objectId="#[ognl:id]"/>
 
@@ -63,9 +103,18 @@
             <add-message-property key="stream" value="#[ognl:stream]"/>
         </message-properties-transformer>
 
+        <script:component>
+            <script:script engine="groovy">
+                <script:text>
+                    System.out.println("Sending... ")
+                    return "Hello world"
+                </script:text>
+            </script:script>
+        </script:component>
+
         <smtp:outbound-endpoint connector-ref="gmailConn"
-                                host="smtp.gmail.com" port="587" user="${mail.address}" password="${mail.password}"  to="#{header:recipientAddress}"
-                                >
+                                host="smtp.gmail.com" port="587" user="${mail.username}" password="${mail.password}"
+                                to="#[header:recipientAddress]">
             <transformer ref="orderAttachementTransformer"/>
             <email:object-to-mime-transformer
                     mimeType="application/pdf" useOutboundAttachments="true"/>

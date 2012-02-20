@@ -11,6 +11,13 @@
 
     <artifactId>mule-attachment-sample</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.mule</groupId>
+            <artifactId>mule-core</artifactId>
+            <version>3.3-M1</version>
+        </dependency>
+    </dependencies>
     <build>
         <plugins>
             <plugin>

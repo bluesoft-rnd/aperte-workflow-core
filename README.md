@@ -1,14 +1,15 @@
 Aperte Workflow
 -----------------
-
-Aperte Workflow BETA2 has been released on Feb 2nd, 2012. More information: [https://github.com/bluesoft-rnd/aperte-workflow-core/wiki/Beta2-release-notes](https://github.com/bluesoft-rnd/aperte-workflow-core/wiki/Beta2-release-notes).
-
 Aperte Workflow is a compilation of well-known, stable and mature frameworks into a complete BPM solution developed by
 [BlueSoft sp. z o.o.](http://www.bluesoft.net.pl/) - Polish independent software vendor. Project home page is available
 at [http://www.aperteworkflow.org/](http://www.aperteworkflow.org/).
 
+# Version history
+* 2011-02-17: Aperte Workflow 1.0 [[https://github.com/bluesoft-rnd/aperte-workflow-core/wiki/1.0-release-notes]] | [Download](https://sourceforge.net/projects/aperteworkflow/files/AW1.0/)
+* 2011-02-02: Aperte Workflow BETA2 [[https://github.com/bluesoft-rnd/aperte-workflow-core/wiki/Beta2-release-notes]] | [Download](https://sourceforge.net/projects/aperteworkflow/files/BETA2/)
+
 If you want to see Aperte Workflow in action, 
-there is a live demo available at [https://demo.aperteworkflow.org](https://demo.aperteworkflow.org). 
+there is also a live demo available at [https://demo.aperteworkflow.org](https://demo.aperteworkflow.org). 
 
 Installation bundle
 -------------------

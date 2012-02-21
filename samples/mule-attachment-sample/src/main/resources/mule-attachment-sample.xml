@@ -176,7 +176,13 @@
             <script:script engine="groovy">
                 <script:text>
                     System.out.println("Sending notification... ")
-                    return "Your business card order was rejected. Please verify data you entered"
+                    Set comments = payload.findAttributeByKey("pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComments").getComments()
+                    def comment = comments.asList().get(0)
+                    String format = "&lt;p&gt;Your business card order was rejected by %s.&lt;/p&gt;"
+                    format += "&lt;p&gt;Reason:\n\n %s &lt;/p&gt;"
+                    def msg = String.format(format, comment.getAuthor().getRealName(), comment.getBody())
+                    System.out.println(msg)
+                    return msg
                 </script:text>
             </script:script>
         </script:component>

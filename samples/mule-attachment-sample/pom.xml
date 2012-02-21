@@ -10,16 +10,27 @@
     </parent>
 
     <artifactId>mule-attachment-sample</artifactId>
+    <packaging>bundle</packaging>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.mule</groupId>
-            <artifactId>mule-core</artifactId>
-            <version>3.3-M1</version>
-        </dependency>
-    </dependencies>
+
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <version>2.1.0</version>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>pl.net.bluesoft.awf.sample.mulestep.attachment</Bundle-SymbolicName>
+                        <Bundle-Version>1</Bundle-Version>
+                        <Bundle-Name>pl.net.bluesoft.awf.sample.mulestep.attachment</Bundle-Name>
+                        <Bundle-Description>pl.net.bluesoft.awf.sample.mulestep.attachment</Bundle-Description>
+                        <Mule-Config-Files>/mule-attachment-sample.xml</Mule-Config-Files>
+                    </instructions>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>

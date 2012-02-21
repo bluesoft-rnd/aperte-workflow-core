@@ -73,12 +73,12 @@
             <version>2.0</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>com.liferay.portal</groupId>
-            <artifactId>portal-impl</artifactId>
-            <version>${liferay.version}</version>
-            <scope>provided</scope>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.liferay.portal</groupId>-->
+            <!--<artifactId>portal-impl</artifactId>-->
+            <!--<version>${liferay.version}</version>-->
+            <!--<scope>provided</scope>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>editor-interface</artifactId>

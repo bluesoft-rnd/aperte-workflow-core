@@ -57,17 +57,17 @@
     </script:transformer>
 
     <smtp:gmail-connector name="gmailOrderConnector"
-                          contentType="text/html" fromAddress="${mail.address}"
+                          contentType="text/html; charset=UTF-8" fromAddress="${mail.address}"
                           replyToAddresses="${mail.address}" subject="Business Card Order">
     </smtp:gmail-connector>
 
     <smtp:gmail-connector name="gmailConfirmationConnector"
-                          contentType="text/html" fromAddress="${mail.address}"
+                          contentType="text/html; charset=UTF-8" fromAddress="${mail.address}"
                           replyToAddresses="${mail.address}" subject="Business Card Order - Confirmation">
     </smtp:gmail-connector>
 
     <smtp:gmail-connector name="gmailRejectConnector"
-                          contentType="text/html" fromAddress="${mail.address}"
+                          contentType="text/html; charset=UTF-8" fromAddress="${mail.address}"
                           replyToAddresses="${mail.address}" subject="Business Card Order - Rejected">
     </smtp:gmail-connector>
 
@@ -130,13 +130,13 @@
                     import org.mule.api.MuleMessage;
                     import org.mule.api.transformer.TransformerException;
                     import org.mule.api.transport.PropertyScope;
-                    System.out.println("Sending project... ")
+                    System.out.println("Sending order... ")
                     return message.getProperty("mailBody", PropertyScope.OUTBOUND);
                 </script:text>
             </script:script>
         </script:component>
 
-        <smtp:outbound-endpoint connector-ref="gmailOrderConnector"
+        <smtp:outbound-endpoint connector-ref="gmailOrderConnector"   encoding="UTF-8"
                                 host="smtp.gmail.com" port="587" user="${mail.username}" password="${mail.password}"
                                 to="#[header:recipientAddress]">
             <transformer ref="orderAttachementTransformer"/>
@@ -149,12 +149,12 @@
             <script:script engine="groovy">
                 <script:text>
                     System.out.println("Sending confirmation... ")
-                    return "Your business card order was placed."
+                    return "Twój wniosek o wizytówkę został zaakceptowany i wysłany do drukarni."
                 </script:text>
             </script:script>
         </script:component>
 
-        <smtp:outbound-endpoint connector-ref="gmailConfirmationConnector"
+        <smtp:outbound-endpoint connector-ref="gmailConfirmationConnector"  encoding="UTF-8"
                                 host="smtp.gmail.com" port="587" user="${mail.username}" password="${mail.password}"
                                 to="#[header:confirmationAddress]">
             <email:string-to-email-transformer/>
@@ -172,14 +172,14 @@
             </expression-transformer>
         </enricher>
 
-        <script:component>
-            <script:script engine="groovy">
+        <script:component >
+            <script:script engine="groovy" >
                 <script:text>
                     System.out.println("Sending notification... ")
                     Set comments = payload.findAttributeByKey("pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComments").getComments()
                     def comment = comments.asList().get(0)
-                    String format = "&lt;p&gt;Your business card order was rejected by %s.&lt;/p&gt;"
-                    format += "&lt;p&gt;Reason:\n\n %s &lt;/p&gt;"
+                    String format = "&lt;p&gt;Twój wniosek o wizytówkę został odrzucony przez %s.&lt;/p&gt;"
+                    format += "&lt;p&gt;Powód:\n\n %s &lt;/p&gt;"
                     def msg = String.format(format, comment.getAuthor().getRealName(), comment.getBody())
                     System.out.println(msg)
                     return msg
@@ -187,7 +187,7 @@
             </script:script>
         </script:component>
 
-        <smtp:outbound-endpoint connector-ref="gmailRejectConnector"
+        <smtp:outbound-endpoint connector-ref="gmailRejectConnector"   encoding="UTF-8"
                                 host="smtp.gmail.com" port="587" user="${mail.username}" password="${mail.password}"
                                 to="#[header:confirmationAddress]">
             <email:string-to-email-transformer/>

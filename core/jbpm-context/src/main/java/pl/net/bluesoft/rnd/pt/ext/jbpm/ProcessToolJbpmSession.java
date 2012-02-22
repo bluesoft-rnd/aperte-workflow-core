@@ -173,15 +173,38 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
     public List<String> getOutgoingTransitionNames(String internalId, ProcessToolContext ctx) {
         ProcessEngine engine = getProcessEngine(ctx);
         org.jbpm.api.ProcessInstance pi = engine.getExecutionService().findProcessInstanceById(internalId);
-        ExecutionImpl execution = (ExecutionImpl) pi.getProcessInstance();
-        List<String> transitionNames = new ArrayList<String>();
-        for (Transition transition : execution.getActivity().getOutgoingTransitions()) {
-            transitionNames.add(transition.getDestination().getName());
-        }
+        final ExecutionImpl execution = (ExecutionImpl) pi.getProcessInstance();
+        final List<String> transitionNames = new ArrayList<String>();
+        engine.execute(new Command() {
+            public Object execute(Environment env) {
+                for (Transition transition : execution.getActivity().getOutgoingTransitions()) {
+                    transitionNames.add(transition.getName());
+                }
+                return null;
+            }
+        });
+
         return transitionNames;
     }
 
-	protected ProcessEngine getProcessEngine(ProcessToolContext ctx) {
+    public List<String> getOutgoingTransitionDestinationNames(String internalId, ProcessToolContext ctx) {
+        ProcessEngine engine = getProcessEngine(ctx);
+        org.jbpm.api.ProcessInstance pi = engine.getExecutionService().findProcessInstanceById(internalId);
+        final ExecutionImpl execution = (ExecutionImpl) pi.getProcessInstance();
+        final List<String> transitionNames = new ArrayList<String>();
+        engine.execute(new Command() {
+            public Object execute(Environment env) {
+                for (Transition transition : execution.getActivity().getOutgoingTransitions()) {
+                    transitionNames.add(transition.getDestination().getName());
+                }
+                return null;
+            }
+        });
+
+        return transitionNames;
+    }
+
+    protected ProcessEngine getProcessEngine(ProcessToolContext ctx) {
 		if (ctx instanceof ProcessToolContextImpl) {
 			ProcessEngine engine = ((ProcessToolContextImpl) ctx).getProcessEngine();
 			if (user != null && user.getLogin() != null) engine.setAuthenticatedUserId(user.getLogin());
@@ -552,9 +575,16 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
         addActionLogEntry(action, processInstance, ctx);
 		ctx.getProcessInstanceDAO().saveProcessInstance(processInstance);
         ProcessEngine processEngine = getProcessEngine(ctx);
+        Map<String, Object> vars = new HashMap<String, Object>();
+        vars.put("ACTION", action.getBpmName());
 
-        processEngine.getTaskService().completeTask(task.getId(), action.getBpmName());
-        
+
+        List<String> outgoingTransitionNames = getOutgoingTransitionNames(processInstance.getInternalId(), ctx);
+        if (outgoingTransitionNames.size() == 1)
+            processEngine.getTaskService().completeTask(task.getId(), outgoingTransitionNames.get(0), vars); //BPMN2.0 style, decision is taken on the XOR gateway
+        else
+            processEngine.getTaskService().completeTask(task.getId(), action.getBpmName(), vars);
+
 		String s = getProcessState(processInstance, ctx);
         fillProcessAssignmentData(processEngine, processInstance, ctx);
         processInstance.setState(s);

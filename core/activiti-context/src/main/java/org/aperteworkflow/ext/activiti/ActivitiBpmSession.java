@@ -137,6 +137,19 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
         ExecutionImpl execution = (ExecutionImpl) pi;
         List<String> transitionNames = new ArrayList<String>();
         for (PvmTransition transition : execution.getActivity().getOutgoingTransitions()) {
+            transitionNames.add(transition.getId());
+        }
+        return transitionNames;
+    }
+
+    @Override
+    public List<String> getOutgoingTransitionDestinationNames(String internalId, ProcessToolContext ctx) {
+        ProcessEngine engine = getProcessEngine();
+        org.activiti.engine.runtime.ProcessInstance pi =
+                engine.getRuntimeService().createProcessInstanceQuery().processInstanceId(internalId).singleResult();
+        ExecutionImpl execution = (ExecutionImpl) pi;
+        List<String> transitionNames = new ArrayList<String>();
+        for (PvmTransition transition : execution.getActivity().getOutgoingTransitions()) {
             transitionNames.add(transition.getDestination().getId());
         }
         return transitionNames;

@@ -18,6 +18,7 @@ import org.apache.commons.beanutils.NestedNullException;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.beanutils.expression.DefaultResolver;
 import org.apache.commons.beanutils.expression.Resolver;
+import org.aperteworkflow.scripting.ScriptProcessorRegistry;
 import org.aperteworkflow.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
@@ -28,6 +29,7 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionary;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItem;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.ProcessDataWidgetsDefinitionEditor;
+import org.aperteworkflow.scripting.ScriptProcessor;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.WidgetDefinitionLoader;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.XmlConstants;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.jaxb.*;
@@ -68,12 +70,40 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
     private Map<String, ProcessInstanceAttribute> processAttributes = new HashMap<String, ProcessInstanceAttribute>();
     protected WidgetsDefinitionElement widgetsDefinitionElement;
     private ProcessInstance processInstance;
+    private Map<String, Object> fields = new HashMap<String, Object>();
+
+    @AutoWiredProperty
+    @AutoWiredPropertyConfigurator(fieldClass = ProcessDataWidgetsDefinitionEditor.class)
+    @AperteDoc(
+            humanNameKey = "widget.process_data_block.property.scriptType.name",
+            descriptionKey = "widget.process_data_block.property.scriptType.description"
+    )
+    private String scriptType;
+
+    @AutoWiredProperty
+    @AutoWiredPropertyConfigurator(fieldClass = ProcessDataWidgetsDefinitionEditor.class)
+    @AperteDoc(
+            humanNameKey = "widget.process_data_block.property.sciptUrl.name",
+            descriptionKey = "widget.process_data_block.property.sciptUrl.description"
+    )
+    private String sciptUrl;
+
+    @AutoWiredProperty
+    @AutoWiredPropertyConfigurator(fieldClass = ProcessDataWidgetsDefinitionEditor.class)
+    @AperteDoc(
+            humanNameKey = "widget.process_data_block.property.scriptCode.name",
+            descriptionKey = "widget.process_data_block.property.scriptCode.description"
+    )
+    private String scriptCode;
+
+
+    private ScriptProcessor scriptProcessor;
 
     @AutoWiredProperty(required = true)
     @AutoWiredPropertyConfigurator(fieldClass = ProcessDataWidgetsDefinitionEditor.class)
     @AperteDoc(
-        humanNameKey="widget.process_data_block.property.widgetsDefinition.name",
-        descriptionKey="widget.process_data_block.property.widgetsDefinition.description"
+            humanNameKey = "widget.process_data_block.property.widgetsDefinition.name",
+            descriptionKey = "widget.process_data_block.property.widgetsDefinition.description"
     )
     private String widgetsDefinition;
 
@@ -83,6 +113,30 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
 
     public void setProcessDictionaryRegistry(ProcessDictionaryRegistry processDictionaryRegistry) {
         this.processDictionaryRegistry = processDictionaryRegistry;
+    }
+
+    public String getScriptType() {
+        return scriptType;
+    }
+
+    public void setScriptType(String scriptType) {
+        this.scriptType = scriptType;
+    }
+
+    public String getSciptUrl() {
+        return sciptUrl;
+    }
+
+    public void setSciptUrl(String sciptUrl) {
+        this.sciptUrl = sciptUrl;
+    }
+
+    public String getScriptCode() {
+        return scriptCode;
+    }
+
+    public void setScriptCode(String scriptCode) {
+        this.scriptCode = scriptCode;
     }
 
     @Override
@@ -189,10 +243,10 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                     ProcessInstanceAttribute attribute = fetchOrCreateAttribute(element);
                     if (attribute instanceof ProcessInstanceSimpleAttribute) {
                         if (element instanceof DateWidgetElement) {
-                            if(component.getValue() != null)
-                            ((ProcessInstanceSimpleAttribute) attribute).setValue(
-                                    new SimpleDateFormat(((DateWidgetElement) element).getFormat()).format(component.getValue())
-                            );
+                            if (component.getValue() != null)
+                                ((ProcessInstanceSimpleAttribute) attribute).setValue(
+                                        new SimpleDateFormat(((DateWidgetElement) element).getFormat()).format(component.getValue())
+                                );
                         } else if (component.getValue() != null) {
                             ((ProcessInstanceSimpleAttribute) attribute).setValue(component.getValue().toString());
                         }
@@ -255,7 +309,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                     } else if (String.class.isAssignableFrom(component.getType())) {
                         component.setValue(nvl(value, ""));
                     } else if (component instanceof Container &&
-                               component.getType().isAssignableFrom(value.getClass())) {
+                            component.getType().isAssignableFrom(value.getClass())) {
                         if (((Container) component).containsId(value)) {
                             component.setValue(value);
                         }
@@ -267,6 +321,15 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                 }
             }
         };
+    }
+
+    private void loadScriptProcessor(){
+        if(scriptType == null || scriptCode == null && sciptUrl == null)
+            return;
+        ScriptProcessorRegistry registry = ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().lookupService(
+                ScriptProcessorRegistry.class.getName());
+        scriptProcessor = registry.getScriptProcessor(scriptType, sciptUrl, scriptCode);
+
     }
 
     private void loadProcessInstanceDictionaries() {
@@ -350,7 +413,24 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         setupWidget(widgetsDefinitionElement, mainPanel);
 
         for (WidgetElement we : widgetsDefinitionElement.getWidgets()) {
-            processWidgetElement(widgetsDefinitionElement, we, mainPanel);
+            AbstractComponent component = processWidgetElement(widgetsDefinitionElement, we, mainPanel);
+            if (component instanceof Field) {
+                Field field = (Field) component;
+                fields.put(we.getId(), field);
+                if (we.getDynamicValidation() == Boolean.TRUE && scriptProcessor != null)
+                    field.addListener(new ValueChangeListener() {
+                        @Override
+                        public void valueChange(ValueChangeEvent event) {
+                            try {
+                                scriptProcessor.processFields(fields);
+                            } catch (Exception e) {
+                                logException(getMessage("processdata.block.error.script"), e);
+                            }
+                        }
+                    });
+            }
+
+
         }
 
         loadDictionaries();
@@ -696,7 +776,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         if (hasText(dwe.getNotBefore())) {
             try {
                 boolean usesCurrent = XmlConstants.DATE_CURRENT.equalsIgnoreCase(dwe.getNotBefore());
-                final Date notBefore  = (usesCurrent) ? sdf.parse(sdf.format(new Date())) : sdf.parse(dwe.getNotBefore());
+                final Date notBefore = (usesCurrent) ? sdf.parse(sdf.format(new Date())) : sdf.parse(dwe.getNotBefore());
                 field.addListener(new ValueChangeListener() {
                     @Override
                     public void valueChange(ValueChangeEvent event) {

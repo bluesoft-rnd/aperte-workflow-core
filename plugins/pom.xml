@@ -25,6 +25,7 @@
         <module>mule-esb-plugin</module>
         <module>doclist-widget</module>
         <module>log-step</module>
+        <module>scripting</module>
     </modules>
 
     <dependencies>

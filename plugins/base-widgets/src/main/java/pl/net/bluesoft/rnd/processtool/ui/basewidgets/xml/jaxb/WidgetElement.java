@@ -71,6 +71,17 @@ public abstract class WidgetElement implements Serializable {
     @AperteDoc(humanNameKey = "any.attributeClass", descriptionKey = "any.attributeClass.description")
     protected String attributeClass;
 
+
+    @XmlAttribute
+    @XStreamAsAttribute
+    @AperteDoc(humanNameKey = "any.id", descriptionKey = "any.id.description")
+    protected String id;
+
+    @XmlAttribute
+    @XStreamAsAttribute
+    @AperteDoc(humanNameKey = "any.dynamicValidation", descriptionKey = "any.dynamicValidation.description")
+    protected Boolean dynamicValidation;
+
     @XmlTransient
     @XStreamOmitField
     protected WidgetElement parent;
@@ -79,8 +90,24 @@ public abstract class WidgetElement implements Serializable {
         return parent;
     }
 
+    public Boolean getDynamicValidation() {
+        return dynamicValidation;
+    }
+
+    public void setDynamicValidation(Boolean dynamicValidation) {
+        this.dynamicValidation = dynamicValidation;
+    }
+
     public void setParent(WidgetElement parent) {
         this.parent = parent;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getAttributeClass() {

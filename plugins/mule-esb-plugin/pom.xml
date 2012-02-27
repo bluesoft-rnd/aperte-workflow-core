@@ -12,7 +12,7 @@
     <packaging>bundle</packaging>
 
     <properties>
-        <mule.version>3.2.0</mule.version>
+        <mule.version>3.2.1</mule.version>
     </properties>
 
     <dependencies>
@@ -39,6 +39,10 @@
                     <groupId>commons-collections</groupId>
                     <artifactId>commons-collections</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>javax.activation</groupId>
+                    <artifactId>activation</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -51,6 +55,12 @@
             <groupId>org.mule.transports</groupId>
             <artifactId>mule-transport-email</artifactId>
             <version>${mule.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.mail</groupId>
+                    <artifactId>mail</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- Xml configuration -->
@@ -129,6 +139,16 @@
             <groupId>org.mule.modules</groupId>
             <artifactId>mule-module-xml</artifactId>
             <version>${mule.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.codehaus.woodstox</groupId>
+                    <artifactId>woodstox-core-asl</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.geronimo.specs</groupId>
+                    <artifactId>geronimo-stax-api_1.0_spec</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.mule.modules</groupId>
@@ -221,6 +241,10 @@
                             pl.net.bluesoft.rnd.awf.mule,org.mule.config.spring,org.mule.context.notification
                         </Export-Package>
                         <Import-Package>
+                            javax.mail;version=!,
+                            javax.mail.internet;version=!,
+                            com.sun.mail.smtp;version=!,
+                            javax.activation;version=!,
                             org.apache.commons.collections.comparators;version=!,
                             org.w3c.dom,
                             *;resolution:=optional

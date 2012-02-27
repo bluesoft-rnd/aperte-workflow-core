@@ -1,5 +1,6 @@
 package pl.net.bluesoft.rnd.awf.mule.step;
 
+import org.mule.api.ExceptionPayload;
 import org.mule.api.MuleMessage;
 import org.mule.api.client.LocalMuleClient;
 import pl.net.bluesoft.rnd.awf.mule.MulePluginManager;
@@ -59,6 +60,11 @@ public class MuleStep implements ProcessToolProcessStep {
                                                       payload != null ? payload : processInstance,
                                                       null, timeout);
                 if (muleMessage != null) {
+                    ExceptionPayload exceptionPayload = muleMessage.getExceptionPayload();
+                    if (exceptionPayload != null) {
+                        logger.log(Level.SEVERE, "Mule step has failed: " + exceptionPayload.getMessage(), exceptionPayload.getException());
+                        return "FAIL";
+                    }
                     Object payload = muleMessage.getPayload();
                     if (payload instanceof String) {
                         return (String)payload;

@@ -942,6 +942,15 @@ public class PluginHelper implements PluginManager, SearchProvider {
                     LOGGER.severe("Created Default lucene index directory: " + luceneDir);
                 }
             }
+            try { if (indexSearcher != null) {
+                indexSearcher.close();
+            } } catch (Exception e) { LOGGER.log(Level.SEVERE, e.getMessage(), e); }
+            try { if (indexReader != null) {
+                indexReader.close();
+            } } catch (Exception e) { LOGGER.log(Level.SEVERE, e.getMessage(), e); }
+            try { if (index != null) {
+                index.close();
+            } } catch (Exception e) { LOGGER.log(Level.SEVERE, e.getMessage(), e); }
             index = FSDirectory.open(path);
             indexReader = IndexReader.open(index);
             indexSearcher = new IndexSearcher(indexReader);
@@ -1065,7 +1074,14 @@ public class PluginHelper implements PluginManager, SearchProvider {
             indexWriter.commit();
             indexWriter.close();
             LOGGER.info("reindexing Lucene... DONE!");
-            
+
+            try { if (indexSearcher != null) {
+                indexSearcher.close();
+            } } catch (Exception e) { LOGGER.log(Level.SEVERE, e.getMessage(), e); }
+            try { if (indexReader != null) {
+                indexReader.close();
+            } } catch (Exception e) { LOGGER.log(Level.SEVERE, e.getMessage(), e); }
+
             indexReader = IndexReader.open(index);
             indexSearcher = new IndexSearcher(indexReader);
             LOGGER.info("reopened Lucene index handles");

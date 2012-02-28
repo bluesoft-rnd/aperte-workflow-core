@@ -40,7 +40,11 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolVaadinWidg
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.util.lang.StringUtil;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -70,10 +74,9 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
     private Map<String, ProcessInstanceAttribute> processAttributes = new HashMap<String, ProcessInstanceAttribute>();
     protected WidgetsDefinitionElement widgetsDefinitionElement;
     private ProcessInstance processInstance;
-    private Map<String, Object> fields = new HashMap<String, Object>();
 
     @AutoWiredProperty
-    @AutoWiredPropertyConfigurator(fieldClass = ProcessDataWidgetsDefinitionEditor.class)
+    @AutoWiredPropertyConfigurator(fieldClass = TextField.class)
     @AperteDoc(
             humanNameKey = "widget.process_data_block.property.scriptType.name",
             descriptionKey = "widget.process_data_block.property.scriptType.description"
@@ -81,7 +84,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
     private String scriptType;
 
     @AutoWiredProperty
-    @AutoWiredPropertyConfigurator(fieldClass = ProcessDataWidgetsDefinitionEditor.class)
+    @AutoWiredPropertyConfigurator(fieldClass = TextField.class)
     @AperteDoc(
             humanNameKey = "widget.process_data_block.property.sciptUrl.name",
             descriptionKey = "widget.process_data_block.property.sciptUrl.description"
@@ -89,15 +92,12 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
     private String sciptUrl;
 
     @AutoWiredProperty
-    @AutoWiredPropertyConfigurator(fieldClass = ProcessDataWidgetsDefinitionEditor.class)
+    @AutoWiredPropertyConfigurator(fieldClass = TextArea.class)
     @AperteDoc(
             humanNameKey = "widget.process_data_block.property.scriptCode.name",
             descriptionKey = "widget.process_data_block.property.scriptCode.description"
     )
     private String scriptCode;
-
-
-    private ScriptProcessor scriptProcessor;
 
     @AutoWiredProperty(required = true)
     @AutoWiredPropertyConfigurator(fieldClass = ProcessDataWidgetsDefinitionEditor.class)
@@ -208,6 +208,8 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                     : new ProcessInstanceSimpleAttribute();
             attribute.setProcessInstance(processInstance);
             attribute.setKey(attributeName);
+            if(hasText(element.getContent()) && attribute instanceof ProcessInstanceSimpleAttribute)
+                ((ProcessInstanceSimpleAttribute) attribute).setValue(element.getContent());
             processAttributes.put(attributeName, attribute);
         }
         if (index != -1) {
@@ -323,15 +325,6 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         };
     }
 
-    private void loadScriptProcessor(){
-        if(scriptType == null || scriptCode == null && sciptUrl == null)
-            return;
-        ScriptProcessorRegistry registry = ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().lookupService(
-                ScriptProcessorRegistry.class.getName());
-        scriptProcessor = registry.getScriptProcessor(scriptType, sciptUrl, scriptCode);
-
-    }
-
     private void loadProcessInstanceDictionaries() {
         new ComponentEvaluator<AbstractSelect>(instanceDictContainers) {
 
@@ -414,22 +407,6 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
 
         for (WidgetElement we : widgetsDefinitionElement.getWidgets()) {
             AbstractComponent component = processWidgetElement(widgetsDefinitionElement, we, mainPanel);
-            if (component instanceof Field) {
-                Field field = (Field) component;
-                fields.put(we.getId(), field);
-                if (we.getDynamicValidation() == Boolean.TRUE && scriptProcessor != null)
-                    field.addListener(new ValueChangeListener() {
-                        @Override
-                        public void valueChange(ValueChangeEvent event) {
-                            try {
-                                scriptProcessor.processFields(fields);
-                            } catch (Exception e) {
-                                logException(getMessage("processdata.block.error.script"), e);
-                            }
-                        }
-                    });
-            }
-
 
         }
 
@@ -438,6 +415,65 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         loadBindings();
 
         return mainPanel;
+    }
+
+    private void handleValueChange() {
+        try {
+            if(scriptType == null || scriptCode == null && sciptUrl == null)
+                return;
+            
+            Map<String, Object> fields = getFieldsMap(widgetsDefinitionElement.getWidgets());
+
+            ScriptProcessorRegistry registry = ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().lookupService(
+                    ScriptProcessorRegistry.class.getName());
+//          TODO: some smart cacheing
+            InputStream is = loadSciptCode();
+            ScriptProcessor scriptProcessor = registry.getScriptProcessor(scriptType);
+            if(scriptProcessor == null){
+                logger.severe("Script processor not found: " + scriptType + ", skipping script execution. ");
+                return;
+            }
+            Map<String, Object> updateFields = scriptProcessor.process(fields, is);
+            if(updateFields == null)
+                return;
+            List<WidgetElement> widgetElements = new LinkedList<WidgetElement>();
+            for(Object o : updateFields.values()){
+                if(o instanceof WidgetElement)
+                    widgetElements.add((WidgetElement) o);
+            }
+            widgetsDefinitionElement.setWidgets(widgetElements);
+//            TODO: force render
+        } catch (Exception e) {
+            //TODO add to messages
+            logException(getMessage("processdata.block.error.script.exec"), e);
+        }
+    }
+
+    private Map<String, Object> getFieldsMap(List<WidgetElement> widgets) {
+//        TODO: throw validation error if id already exists
+        Map<String, Object> map = new HashMap<String, Object>();
+        for(WidgetElement we : widgets){
+            if(we.getId() != null)
+                map.put(we.getId(), we);
+            if(we instanceof  HasWidgetsElement)
+                map.putAll(getFieldsMap(((HasWidgetsElement) we).getWidgets()));
+
+        }
+        return map;
+    }
+
+    private InputStream loadSciptCode() {
+
+        if(scriptCode != null)
+            return new ByteArrayInputStream(scriptCode.getBytes());
+        if(sciptUrl != null)
+            try {
+                return new URL(sciptUrl).openStream();
+            } catch (IOException e) {
+                //TODO add to messages
+                logException(getMessage("processdata.block.error.script.url"), e);
+            }
+        return null;
     }
 
     private AbstractComponent processWidgetElement(WidgetElement parent, WidgetElement element, ComponentContainer container) {
@@ -482,7 +518,17 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
             container.addComponent(component);
         }
         element.setParent(parent);
-
+        if (component instanceof Field) {
+            Field field = (Field) component;
+            element.setField(field);
+            if (element.getDynamicValidation() == Boolean.TRUE )
+                field.addListener(new ValueChangeListener() {
+                    @Override
+                    public void valueChange(ValueChangeEvent event) {
+                        handleValueChange();
+                    }
+                });
+        }
         return component;
     }
 

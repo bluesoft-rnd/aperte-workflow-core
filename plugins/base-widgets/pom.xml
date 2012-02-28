@@ -70,6 +70,7 @@
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets,pl.net.bluesoft.rnd.processtool.ui.buttons
                         </Export-Package>
                         <Import-Package>
+                            org.aperteworkflow.scripting,
                             com.vaadin.event.dd.acceptcriteria,
                             com.vaadin.event.dd,
                             com.vaadin.event,

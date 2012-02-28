@@ -1,5 +1,8 @@
 package org.aperteworkflow.scripting;
 
+import com.sun.corba.se.spi.orbutil.fsm.Input;
+
+import java.io.InputStream;
 import java.util.Map;
 
 /**
@@ -10,7 +13,7 @@ import java.util.Map;
  */
 public interface ScriptProcessor {
 
-    void processFields(Map<String, Object> fields) throws Exception;
+    Map<String, Object> process(Map<String, Object> vars, InputStream script) throws Exception;
+    void validate(InputStream script) throws ScriptValidationException;
 
-    void configure(String url, String code) throws InstantiationException, IllegalAccessException;
 }

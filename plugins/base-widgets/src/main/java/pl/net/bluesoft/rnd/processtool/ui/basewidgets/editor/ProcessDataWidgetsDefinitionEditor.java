@@ -2,15 +2,14 @@ package pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor;
 
 import com.vaadin.data.Property;
 import com.vaadin.data.Validator;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.TabSheet;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
+import com.vaadin.ui.*;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.WidgetDefinitionLoader;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.jaxb.WidgetsDefinitionElement;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.validation.XmlValidationError;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.form.FormAwareField;
 
 import java.util.List;
+import java.util.Map;
 
 import static pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.EditorHelper.getLocalizedMessage;
 import static pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.EditorHelper.joinValidationErrors;
@@ -18,13 +17,15 @@ import static pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.EditorHelper
 /**
  * @author tlipski@bluesoft.net.pl
  */
-public class ProcessDataWidgetsDefinitionEditor extends CustomTextAreaFieldWrapper {
+public class ProcessDataWidgetsDefinitionEditor extends CustomTextAreaFieldWrapper
+        implements FormAwareField {
 
     private WidgetDefinitionLoader definitionLoader = WidgetDefinitionLoader.getInstance();
     private ProcessDataHierarchyEditor hierarchyEditor;
 
     private ProcessDataPreviewer processDataPreviewer = new ProcessDataPreviewer();
     private VerticalLayout processPreview = new VerticalLayout();
+    private Map<String, Object> formProperties;
 
     public ProcessDataWidgetsDefinitionEditor() {
         hierarchyEditor = new ProcessDataHierarchyEditor(this);
@@ -92,7 +93,7 @@ public class ProcessDataWidgetsDefinitionEditor extends CustomTextAreaFieldWrapp
         processPreview.removeAllComponents();
         processPreview.setWidth("100%");
         try {
-            processPreview.addComponent(processDataPreviewer.render(widgetsDefinitionElement));
+            processPreview.addComponent(processDataPreviewer.render(widgetsDefinitionElement, formProperties));
             getApplication().getMainWindow().showNotification(getLocalizedMessage("preview-success"),
                     Window.Notification.TYPE_TRAY_NOTIFICATION);
         } catch (Throwable t) {
@@ -175,6 +176,8 @@ public class ProcessDataWidgetsDefinitionEditor extends CustomTextAreaFieldWrapp
         validateXmlSyntaxAndCorrectness();
     }
 
-
-
+    @Override
+    public void setFormProperties(Map<String, Object> map) {
+        this.formProperties = map;
+    }
 }

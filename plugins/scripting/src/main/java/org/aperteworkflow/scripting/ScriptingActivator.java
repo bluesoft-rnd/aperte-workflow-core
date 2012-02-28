@@ -33,14 +33,16 @@ public class ScriptingActivator implements BundleActivator {
             }
 
             private void processBundleExtensions(Bundle bundle, int state, ScriptProcessorRegistry registry) {
-                String scriptCfgs = (String) bundle.getHeaders().get("Script-Processor-Config-Files");
+                String scriptCfgs = (String) bundle.getHeaders().get("Script-Processor-Classes");
                 if (hasText(scriptCfgs)) {
                     String[] names = scriptCfgs.split(",");
                     for (String name : names) {
                         name = name.trim();
                         if (state == BundleEvent.STARTED) {
                             try {
-                                final Class<? extends ScriptProcessor> scriptProcessorClass = (Class<? extends ScriptProcessor>) Class.forName(name);
+
+                                final Class<? extends ScriptProcessor> scriptProcessorClass
+                                        = (Class<? extends ScriptProcessor>) bundle.loadClass(name);
                                 final String finalName = name;
                                 registry.registerProcessor(scriptProcessorClass.getSimpleName(), new Func<ScriptProcessor>() {
                                     @Override
@@ -48,9 +50,9 @@ public class ScriptingActivator implements BundleActivator {
                                         try {
                                             return scriptProcessorClass.newInstance();
                                         } catch (InstantiationException e) {
-                                            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                                            e.printStackTrace();
                                         } catch (IllegalAccessException e) {
-                                            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                                            e.printStackTrace();
                                         }
                                         logger.severe("Cannot register script processor: " + finalName);
                                         return null;
@@ -60,6 +62,7 @@ public class ScriptingActivator implements BundleActivator {
 
                             } catch (Exception e) {
 //                          TODO: exception
+                                e.printStackTrace();
                             }
 
 

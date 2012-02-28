@@ -2,6 +2,8 @@ package pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor;
 
 import com.vaadin.Application;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.Field;
+import com.vaadin.ui.Form;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
@@ -9,9 +11,7 @@ import pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDataBlockWidget;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.jaxb.WidgetsDefinitionElement;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Locale;
+import java.util.*;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -68,9 +68,15 @@ public class ProcessDataPreviewer extends ProcessDataBlockWidget {
         };
     }
 
-    public Component render(WidgetsDefinitionElement element) {
+    public Component render(WidgetsDefinitionElement element, Map<String, Object> form) {
+        setSciptUrl((String) form.get("scriptUrl"));
+        setScriptCode((String) form.get("scriptCode"));
+        setScriptType((String) form.get("scriptType"));
+
         loadData(new ProcessInstance());
         widgetsDefinitionElement = element;
         return render();
     }
+
+
 }

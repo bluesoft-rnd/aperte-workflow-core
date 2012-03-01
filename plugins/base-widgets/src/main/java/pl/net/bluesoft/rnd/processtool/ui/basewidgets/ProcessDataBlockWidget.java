@@ -86,10 +86,10 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
     @AutoWiredProperty
     @AutoWiredPropertyConfigurator(fieldClass = TextField.class)
     @AperteDoc(
-            humanNameKey = "widget.process_data_block.property.sciptUrl.name",
-            descriptionKey = "widget.process_data_block.property.sciptUrl.description"
+            humanNameKey = "widget.process_data_block.property.scriptUrl.name",
+            descriptionKey = "widget.process_data_block.property.scriptUrl.description"
     )
-    private String sciptUrl;
+    private String scriptUrl;
 
     @AutoWiredProperty
     @AutoWiredPropertyConfigurator(fieldClass = TextArea.class)
@@ -106,6 +106,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
             descriptionKey = "widget.process_data_block.property.widgetsDefinition.description"
     )
     private String widgetsDefinition;
+    private ComponentContainer mainPanel = null;
 
     public void setDefinitionLoader(WidgetDefinitionLoader definitionLoader) {
         this.definitionLoader = definitionLoader;
@@ -123,12 +124,12 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         this.scriptType = scriptType;
     }
 
-    public String getSciptUrl() {
-        return sciptUrl;
+    public String getScriptUrl() {
+        return scriptUrl;
     }
 
-    public void setSciptUrl(String sciptUrl) {
-        this.sciptUrl = sciptUrl;
+    public void setScriptUrl(String scriptUrl) {
+        this.scriptUrl = scriptUrl;
     }
 
     public String getScriptCode() {
@@ -395,7 +396,6 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
     }
 
     private Component renderInternal() {
-        ComponentContainer mainPanel = null;
         try {
             mainPanel = !hasText(widgetsDefinitionElement.getClassName()) ? new VerticalLayout()
                     : (ComponentContainer) getClass().getClassLoader().loadClass(widgetsDefinitionElement.getClassName()).newInstance();
@@ -419,7 +419,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
 
     private void handleValueChange() {
         try {
-            if(scriptType == null || scriptCode == null && sciptUrl == null)
+            if(scriptType == null || scriptCode == null && scriptUrl == null)
                 return;
             
             Map<String, Object> fields = getFieldsMap(widgetsDefinitionElement.getWidgets());
@@ -433,21 +433,45 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                 logger.severe("Script processor not found: " + scriptType + ", skipping script execution. ");
                 return;
             }
-            Map<String, Object> updateFields = scriptProcessor.process(fields, is);
-            if(updateFields == null)
-                return;
-            List<WidgetElement> widgetElements = new LinkedList<WidgetElement>();
-            for(Object o : updateFields.values()){
-                if(o instanceof WidgetElement)
-                    widgetElements.add((WidgetElement) o);
+            scriptProcessor.process(fields, is);
+//            if(updatedFields == null)
+//                updatedFields = fields;
+//            updateTree(updatedFields);
+
+            mainPanel.removeAllComponents();
+            setupWidget(widgetsDefinitionElement, mainPanel);
+
+            for (WidgetElement we : widgetsDefinitionElement.getWidgets()) {
+                AbstractComponent component = processWidgetElement(widgetsDefinitionElement, we, mainPanel);
+
             }
-            widgetsDefinitionElement.setWidgets(widgetElements);
-//            TODO: force render
+
+            loadDictionaries();
+            loadProcessInstanceDictionaries();
+            loadBindings();
+
         } catch (Exception e) {
             //TODO add to messages
             logException(getMessage("processdata.block.error.script.exec"), e);
         }
     }
+
+
+
+    private WidgetElement findElementInTree(String id, List<WidgetElement> widgetsTree){
+        for(WidgetElement we: widgetsTree){
+            if(we.getId().equals(id))
+                return we;
+            if(we instanceof HasWidgetsElement) {
+                WidgetElement child = findElementInTree(id, ((HasWidgetsElement) we).getWidgets());
+                if(child != null){
+                    return child;
+                }
+            }
+        }
+        return null;
+    }
+
 
     private Map<String, Object> getFieldsMap(List<WidgetElement> widgets) {
 //        TODO: throw validation error if id already exists
@@ -466,9 +490,9 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
 
         if(scriptCode != null)
             return new ByteArrayInputStream(scriptCode.getBytes());
-        if(sciptUrl != null)
+        if(scriptUrl != null)
             try {
-                return new URL(sciptUrl).openStream();
+                return new URL(scriptUrl).openStream();
             } catch (IOException e) {
                 //TODO add to messages
                 logException(getMessage("processdata.block.error.script.url"), e);
@@ -542,7 +566,10 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
             ItemElement item = element.getValues().get(i);
             radioSelect.addItem(item.getKey());
             radioSelect.setItemCaption(item.getKey(), item.getValue());
-            if (element.getDefaultSelect() != null && i == element.getDefaultSelect()) {
+            if(element.getField() != null && item.getKey().equals(element.getField().getValue()))
+                radioSelect.setValue(item.getKey());
+
+            if (radioSelect.getValue()== null && element.getDefaultSelect() != null && i == element.getDefaultSelect()) {
                 radioSelect.setValue(item.getKey());
             }
         }
@@ -879,6 +906,10 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
             if (hwe.getSpacing() != null && hwe.getSpacing()) {
                 ((SpacingHandler) component).setSpacing(hwe.getSpacing());
             }
+        }
+
+        if(we.getVisible() == Boolean.FALSE){
+            component.setVisible(false);
         }
 
         if (hasText(we.getBind()) && component instanceof Property) {

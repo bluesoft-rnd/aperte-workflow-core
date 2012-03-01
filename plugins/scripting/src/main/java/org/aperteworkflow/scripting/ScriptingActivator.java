@@ -61,10 +61,19 @@ public class ScriptingActivator implements BundleActivator {
 
 
                             } catch (Exception e) {
-//                          TODO: exception
                                 e.printStackTrace();
                             }
 
+
+                        } else if (state == BundleEvent.UNINSTALLED) {
+                            final Class<? extends ScriptProcessor> scriptProcessorClass;
+                            try {
+                                scriptProcessorClass = (Class<? extends ScriptProcessor>) bundle.loadClass(name);
+                                registry.unregisterProcessor(scriptProcessorClass.getSimpleName());
+                            } catch (ClassNotFoundException e) {
+                                e.printStackTrace();
+                                logger.severe("Cannot unregister script processor: " + name);
+                            }
 
                         }
                     }

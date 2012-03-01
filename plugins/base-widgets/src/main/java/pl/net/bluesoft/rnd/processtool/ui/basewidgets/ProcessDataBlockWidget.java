@@ -434,16 +434,12 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                 return;
             }
             scriptProcessor.process(fields, is);
-//            if(updatedFields == null)
-//                updatedFields = fields;
-//            updateTree(updatedFields);
 
             mainPanel.removeAllComponents();
             setupWidget(widgetsDefinitionElement, mainPanel);
 
             for (WidgetElement we : widgetsDefinitionElement.getWidgets()) {
                 AbstractComponent component = processWidgetElement(widgetsDefinitionElement, we, mainPanel);
-
             }
 
             loadDictionaries();
@@ -544,6 +540,8 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         element.setParent(parent);
         if (component instanceof Field) {
             Field field = (Field) component;
+            if(element.getField() != null)
+                field.setValue(element.getField().getValue());
             element.setField(field);
             if (element.getDynamicValidation() == Boolean.TRUE )
                 field.addListener(new ValueChangeListener() {

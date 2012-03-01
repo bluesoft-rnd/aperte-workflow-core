@@ -410,7 +410,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
             AbstractComponent component = processWidgetElement(widgetsDefinitionElement, we, mainPanel);
 
         }
-
+        executeScript();
         loadDictionaries();
         loadProcessInstanceDictionaries();
         loadBindings();
@@ -418,7 +418,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         return mainPanel;
     }
 
-    private void handleValueChange() {
+    private void executeScript() {
         try {
             if(scriptType == null || scriptCode == null && scriptUrl == null)
                 return;
@@ -436,16 +436,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
             }
             scriptProcessor.process(fields, is);
 
-            mainPanel.removeAllComponents();
-            setupWidget(widgetsDefinitionElement, mainPanel);
 
-            for (WidgetElement we : widgetsDefinitionElement.getWidgets()) {
-                AbstractComponent component = processWidgetElement(widgetsDefinitionElement, we, mainPanel);
-            }
-
-            loadDictionaries();
-            loadProcessInstanceDictionaries();
-            loadBindings();
 
         } catch (Exception e) {
             //TODO add to messages
@@ -454,31 +445,13 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
     }
 
 
-
-    private WidgetElement findElementInTree(String id, List<WidgetElement> widgetsTree){
-        for(WidgetElement we: widgetsTree){
-            if(we.getId().equals(id))
-                return we;
-            if(we instanceof HasWidgetsElement) {
-                WidgetElement child = findElementInTree(id, ((HasWidgetsElement) we).getWidgets());
-                if(child != null){
-                    return child;
-                }
-            }
-        }
-        return null;
-    }
-
-
     private Map<String, Object> getFieldsMap(List<WidgetElement> widgets) {
-//        TODO: throw validation error if id already exists
         Map<String, Object> map = new HashMap<String, Object>();
         for(WidgetElement we : widgets){
             if(we.getId() != null)
                 map.put(we.getId(), we);
             if(we instanceof  HasWidgetsElement)
                 map.putAll(getFieldsMap(((HasWidgetsElement) we).getWidgets()));
-
         }
         return map;
     }
@@ -548,7 +521,17 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                 field.addListener(new ValueChangeListener() {
                     @Override
                     public void valueChange(ValueChangeEvent event) {
-                        handleValueChange();
+                        executeScript();
+                        mainPanel.removeAllComponents();
+                        setupWidget(widgetsDefinitionElement, mainPanel);
+
+                        for (WidgetElement we : widgetsDefinitionElement.getWidgets()) {
+                            AbstractComponent component = processWidgetElement(widgetsDefinitionElement, we, mainPanel);
+                        }
+
+                        loadDictionaries();
+                        loadProcessInstanceDictionaries();
+                        loadBindings();
                     }
                 });
         }

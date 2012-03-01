@@ -30,6 +30,7 @@ import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionary;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItem;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.ProcessDataWidgetsDefinitionEditor;
 import org.aperteworkflow.scripting.ScriptProcessor;
+import pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.ScriptingEnginesComboBox;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.WidgetDefinitionLoader;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.XmlConstants;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.jaxb.*;
@@ -76,7 +77,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
     private ProcessInstance processInstance;
 
     @AutoWiredProperty
-    @AutoWiredPropertyConfigurator(fieldClass = TextField.class)
+    @AutoWiredPropertyConfigurator(fieldClass = ScriptingEnginesComboBox.class)
     @AperteDoc(
             humanNameKey = "widget.process_data_block.property.scriptType.name",
             descriptionKey = "widget.process_data_block.property.scriptType.description"

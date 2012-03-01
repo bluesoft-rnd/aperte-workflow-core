@@ -2,7 +2,6 @@ package pl.net.bluesoft.rnd.pt.ext.jbpm;
 
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.MySQL5InnoDBDialect;
-import org.hibernate.dialect.MySQLDialect;
 import org.hibernate.dialect.MySQLInnoDBDialect;
 import org.hibernate.dialect.resolver.AbstractDialectResolver;
 

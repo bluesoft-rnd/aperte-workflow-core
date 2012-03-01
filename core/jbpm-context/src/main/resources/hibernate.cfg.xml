@@ -17,7 +17,6 @@
         <property name="hibernate.format_sql">true</property>
         <property name="hibernate.use_outer_join">true</property>
         <property name="hibernate.cglib.use_reflection_optimizer">true</property>
-        <!--<property name="hibernate.dialect_resolvers">pl.net.bluesoft.rnd.pt.ext.jbpm.MySQLDialectResolver</property>-->
 
         <!--
          validator brakes deploy on jboss 5.1 as it reaches Validator provided with JBoss AS

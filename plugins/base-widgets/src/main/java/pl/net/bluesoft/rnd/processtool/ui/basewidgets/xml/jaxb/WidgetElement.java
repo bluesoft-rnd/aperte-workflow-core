@@ -2,6 +2,7 @@ package pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.jaxb;
 
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
+import com.vaadin.data.Property;
 import com.vaadin.ui.Field;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.validation.XmlValidationError;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
@@ -83,10 +84,6 @@ public abstract class WidgetElement implements Serializable {
     @AperteDoc(humanNameKey = "any.visible", descriptionKey = "any.visible.description")
     protected Boolean visible;
 
-    @XmlTransient
-    @XStreamOmitField
-    protected String content;
-
     @XmlAttribute
     @XStreamAsAttribute
     @AperteDoc(humanNameKey = "any.dynamicValidation", descriptionKey = "any.dynamicValidation.description")
@@ -98,14 +95,14 @@ public abstract class WidgetElement implements Serializable {
 
     @XmlTransient
     @XStreamOmitField
-    protected Field field;
+    protected Object value;
 
-    public Field getField() {
-        return field;
+    public Object getValue() {
+        return value;
     }
 
-    public void setField(Field field) {
-        this.field = field;
+    public void setValue(Object value) {
+        this.value = value;
     }
 
     public Boolean getVisible() {
@@ -114,14 +111,6 @@ public abstract class WidgetElement implements Serializable {
 
     public void setVisible(Boolean visible) {
         this.visible = visible;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
     }
 
     public WidgetElement getParent() {

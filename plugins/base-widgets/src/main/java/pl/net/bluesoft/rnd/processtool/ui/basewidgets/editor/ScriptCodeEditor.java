@@ -16,6 +16,8 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
 
+import static pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.EditorHelper.getLocalizedMessage;
+
 /**
  * Created by IntelliJ IDEA.
  * User: zmalinowski
@@ -37,7 +39,7 @@ public class ScriptCodeEditor extends CustomField implements FormAwareField{
 
         compositionRoot.addComponent(code);
         HorizontalLayout hl = new HorizontalLayout();
-        Button save = new Button("processdata.block.script.editor.save");
+        Button save = new Button(getLocalizedMessage("processdata.block.script.editor.save"));
         save.addListener(new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent event) {
@@ -53,6 +55,7 @@ public class ScriptCodeEditor extends CustomField implements FormAwareField{
             commit();
             return;
         }
+        try{
         ScriptProcessorRegistry registry = ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().lookupService(
                 ScriptProcessorRegistry.class.getName());
         Property scriptType = formProperties.get("scriptEngineType");
@@ -63,11 +66,20 @@ public class ScriptCodeEditor extends CustomField implements FormAwareField{
             throw new Validator.InvalidValueException("processdata.block.error.script.processor.not.found");
 
         InputStream is = new ByteArrayInputStream(((String) code.getValue()).getBytes());
-        try {
+
             scriptProcessor.validate(is);
             code.commit();
+            getApplication().getMainWindow().showNotification(getLocalizedMessage("validation.script.ok"),
+                    Window.Notification.TYPE_HUMANIZED_MESSAGE);
+        }catch (Validator.InvalidValueException e){
+            getApplication().getMainWindow().showNotification(getLocalizedMessage(e.getMessage()),
+                    Window.Notification.TYPE_WARNING_MESSAGE);
         } catch (ScriptValidationException e) {
-            throw new Validator.InvalidValueException(e.getMessage());
+            getApplication().getMainWindow().showNotification(getLocalizedMessage("validation.script.parser-exception") + e.getMessage(),
+                    Window.Notification.TYPE_WARNING_MESSAGE);
+        } catch (Exception e) {
+            getApplication().getMainWindow().showNotification(getLocalizedMessage("validation.script.exception") + e.getMessage(),
+                    Window.Notification.TYPE_WARNING_MESSAGE);
         }
     }
 

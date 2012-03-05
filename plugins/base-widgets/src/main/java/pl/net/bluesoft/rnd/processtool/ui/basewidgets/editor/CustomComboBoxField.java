@@ -4,9 +4,10 @@ import com.vaadin.data.Container;
 import com.vaadin.data.Property;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import org.vaadin.addon.customfield.CustomField;
+
+import static pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.EditorHelper.getLocalizedMessage;
 
 /**
  * Created by IntelliJ IDEA.
@@ -14,7 +15,7 @@ import org.vaadin.addon.customfield.CustomField;
  * Date: 3/1/12
  * Time: 4:44 PM
  */
-public abstract class CustomComboBoxField extends CustomField{
+public abstract class CustomComboBoxField extends CustomField {
 
     private ComboBox comboBox;
 
@@ -35,7 +36,7 @@ public abstract class CustomComboBoxField extends CustomField{
         compositionRoot.setSpacing(true);
         compositionRoot.setWidth("100%");
 
-        Button save = new Button("processdata.block.combo.editor.save");
+        Button save = new Button(getLocalizedMessage("processdata.block.combo.editor.save"));
         compositionRoot.addComponent(save);
         save.addListener(new Button.ClickListener() {
             @Override
@@ -57,7 +58,7 @@ public abstract class CustomComboBoxField extends CustomField{
         comboBox.setPropertyDataSource(newDataSource);
     }
 
-    protected void save(){
+    protected void save() {
         comboBox.commit();
     }
 

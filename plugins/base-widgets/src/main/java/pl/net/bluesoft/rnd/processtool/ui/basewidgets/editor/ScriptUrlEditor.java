@@ -43,7 +43,7 @@ public class ScriptUrlEditor extends CustomField implements FormAwareField {
         hl.addComponent(url);
         hl.setExpandRatio(url, 1.0f);
 
-        Button save = new Button(getLocalizedMessage("processdata.block.script.url.editor.save"));
+        Button save = new Button(getLocalizedMessage("script.url.editor.save"));
         hl.addComponent(save);
         save.addListener(new Button.ClickListener() {
             @Override
@@ -66,10 +66,10 @@ public class ScriptUrlEditor extends CustomField implements FormAwareField {
             Property scriptType = formProperties.get("scriptEngineType");
 
             if (scriptType == null || scriptType.getValue() == null || ((String) scriptType.getValue()).isEmpty())
-                throw new Validator.InvalidValueException("processdata.block.error.script.undefined.type");
+                throw new Validator.InvalidValueException("script.undefined.type");
             ScriptProcessor scriptProcessor = registry.getScriptProcessor((String) scriptType.getValue());
             if (scriptProcessor == null)
-                throw new Validator.InvalidValueException("processdata.block.error.script.processor.not.found");
+                throw new Validator.InvalidValueException("script.processor.not.found");
             InputStream is = new URL((String) url.getValue()).openStream();
             scriptProcessor.validate(is);
             url.commit();

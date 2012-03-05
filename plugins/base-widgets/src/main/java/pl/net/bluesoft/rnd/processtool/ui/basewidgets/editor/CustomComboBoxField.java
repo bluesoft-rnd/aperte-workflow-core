@@ -36,7 +36,7 @@ public abstract class CustomComboBoxField extends CustomField {
         compositionRoot.setSpacing(true);
         compositionRoot.setWidth("100%");
 
-        Button save = new Button(getLocalizedMessage("processdata.block.combo.editor.save"));
+        Button save = new Button(getLocalizedMessage("custom.combo.editor.save"));
         compositionRoot.addComponent(save);
         save.addListener(new Button.ClickListener() {
             @Override

@@ -39,7 +39,7 @@ public class ScriptCodeEditor extends CustomField implements FormAwareField{
 
         compositionRoot.addComponent(code);
         HorizontalLayout hl = new HorizontalLayout();
-        Button save = new Button(getLocalizedMessage("processdata.block.script.editor.save"));
+        Button save = new Button(getLocalizedMessage("script.editor.save"));
         save.addListener(new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent event) {
@@ -60,10 +60,10 @@ public class ScriptCodeEditor extends CustomField implements FormAwareField{
                 ScriptProcessorRegistry.class.getName());
         Property scriptType = formProperties.get("scriptEngineType");
         if(scriptType == null || scriptType.getValue() == null || ((String) scriptType.getValue()).isEmpty())
-            throw new Validator.InvalidValueException("processdata.block.error.script.undefined.type");
+            throw new Validator.InvalidValueException("script.undefined.type");
         ScriptProcessor scriptProcessor = registry.getScriptProcessor((String) scriptType.getValue());
         if(scriptProcessor == null)
-            throw new Validator.InvalidValueException("processdata.block.error.script.processor.not.found");
+            throw new Validator.InvalidValueException("script.processor.not.found");
 
         InputStream is = new ByteArrayInputStream(((String) code.getValue()).getBytes());
 

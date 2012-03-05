@@ -66,10 +66,10 @@ public class WidgetConfigFormFieldFactory extends DefaultFieldFactory {
 
         if (field instanceof FormAwareField) {
             Collection<?> itemPropertyIds = form.getItemPropertyIds();
-            Map<String, Object> map = new HashMap<String, Object>();
+            Map<String, com.vaadin.data.Property> map = new HashMap<String, com.vaadin.data.Property>();
             for (Object o : itemPropertyIds){
                  Property p = (Property) o;
-                map.put(p.getPropertyId(), p.getValue());
+                map.put(p.getPropertyId(), p);
             }
                 
             ((FormAwareField)field).setFormProperties(map);

@@ -25,7 +25,7 @@ public class ProcessDataWidgetsDefinitionEditor extends CustomTextAreaFieldWrapp
 
     private ProcessDataPreviewer processDataPreviewer = new ProcessDataPreviewer();
     private VerticalLayout processPreview = new VerticalLayout();
-    private Map<String, Object> formProperties;
+    private Map<String, Property> formProperties;
 
     public ProcessDataWidgetsDefinitionEditor() {
         hierarchyEditor = new ProcessDataHierarchyEditor(this);
@@ -177,7 +177,7 @@ public class ProcessDataWidgetsDefinitionEditor extends CustomTextAreaFieldWrapp
     }
 
     @Override
-    public void setFormProperties(Map<String, Object> map) {
+    public void setFormProperties(Map<String, Property> map) {
         this.formProperties = map;
     }
 }

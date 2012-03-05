@@ -1,6 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor;
 
 import com.vaadin.Application;
+import com.vaadin.data.Property;
 import com.vaadin.ui.Component;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
@@ -66,10 +67,10 @@ public class ProcessDataPreviewer extends ProcessDataBlockWidget {
         };
     }
 
-    public Component render(WidgetsDefinitionElement element, Map<String, Object> form) {
-        setScriptUrl((String) form.get("scriptUrl"));
-        setScriptCode((String) form.get("scriptCode"));
-        setScriptType((String) form.get("scriptType"));
+    public Component render(WidgetsDefinitionElement element, Map<String, Property> form) {
+        setScriptUrl((String) form.get("scriptUrl").getValue());
+        setScriptSourceCode((String) form.get("scriptCode").getValue());
+        setScriptEngineType((String) form.get("scriptType").getValue());
 
         loadData(new ProcessInstance());
         widgetsDefinitionElement = element;

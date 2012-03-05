@@ -30,6 +30,8 @@ import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionary;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItem;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.ProcessDataWidgetsDefinitionEditor;
 import org.aperteworkflow.scripting.ScriptProcessor;
+import pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.ScriptCodeEditor;
+import pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.ScriptUrlEditor;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.ScriptingEnginesComboBox;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.WidgetDefinitionLoader;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.XmlConstants;
@@ -80,13 +82,13 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
     @AutoWiredProperty
     @AutoWiredPropertyConfigurator(fieldClass = ScriptingEnginesComboBox.class)
     @AperteDoc(
-            humanNameKey = "widget.process_data_block.property.scriptType.name",
-            descriptionKey = "widget.process_data_block.property.scriptType.description"
+            humanNameKey = "widget.process_data_block.property.scriptEngineType.name",
+            descriptionKey = "widget.process_data_block.property.scriptEngineType.description"
     )
-    private String scriptType;
+    private String scriptEngineType;
 
     @AutoWiredProperty
-    @AutoWiredPropertyConfigurator(fieldClass = TextField.class)
+    @AutoWiredPropertyConfigurator(fieldClass = ScriptUrlEditor.class)
     @AperteDoc(
             humanNameKey = "widget.process_data_block.property.scriptUrl.name",
             descriptionKey = "widget.process_data_block.property.scriptUrl.description"
@@ -94,12 +96,12 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
     private String scriptUrl;
 
     @AutoWiredProperty
-    @AutoWiredPropertyConfigurator(fieldClass = TextArea.class)
+    @AutoWiredPropertyConfigurator(fieldClass = ScriptCodeEditor.class)
     @AperteDoc(
-            humanNameKey = "widget.process_data_block.property.scriptCode.name",
-            descriptionKey = "widget.process_data_block.property.scriptCode.description"
+            humanNameKey = "widget.process_data_block.property.scriptSourceCode.name",
+            descriptionKey = "widget.process_data_block.property.scriptSourceCode.description"
     )
-    private String scriptCode;
+    private String scriptSourceCode;
 
     @AutoWiredProperty(required = true)
     @AutoWiredPropertyConfigurator(fieldClass = ProcessDataWidgetsDefinitionEditor.class)
@@ -118,12 +120,12 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         this.processDictionaryRegistry = processDictionaryRegistry;
     }
 
-    public String getScriptType() {
-        return scriptType;
+    public String getScriptEngineType() {
+        return scriptEngineType;
     }
 
-    public void setScriptType(String scriptType) {
-        this.scriptType = scriptType;
+    public void setScriptEngineType(String scriptEngineType) {
+        this.scriptEngineType = scriptEngineType;
     }
 
     public String getScriptUrl() {
@@ -134,12 +136,12 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         this.scriptUrl = scriptUrl;
     }
 
-    public String getScriptCode() {
-        return scriptCode;
+    public String getScriptSourceCode() {
+        return scriptSourceCode;
     }
 
-    public void setScriptCode(String scriptCode) {
-        this.scriptCode = scriptCode;
+    public void setScriptSourceCode(String scriptSourceCode) {
+        this.scriptSourceCode = scriptSourceCode;
     }
 
     @Override
@@ -433,7 +435,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
 
     private void executeScript() {
         try {
-            if(scriptType == null || scriptCode == null && scriptUrl == null)
+            if(scriptEngineType == null || scriptSourceCode == null && scriptUrl == null)
                 return;
             
             Map<String, Object> fields = getFieldsMap(widgetsDefinitionElement.getWidgets());
@@ -442,9 +444,9 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                     ScriptProcessorRegistry.class.getName());
 //          TODO: some smart cacheing
             InputStream is = loadSciptCode();
-            ScriptProcessor scriptProcessor = registry.getScriptProcessor(scriptType);
+            ScriptProcessor scriptProcessor = registry.getScriptProcessor(scriptEngineType);
             if(scriptProcessor == null){
-                logger.severe("Script processor not found: " + scriptType + ", skipping script execution. ");
+                logger.severe("Script processor not found: " + scriptEngineType + ", skipping script execution. ");
                 return;
             }
             scriptProcessor.process(fields, is);
@@ -471,8 +473,8 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
 
     private InputStream loadSciptCode() {
 
-        if(scriptCode != null)
-            return new ByteArrayInputStream(scriptCode.getBytes());
+        if(scriptSourceCode != null)
+            return new ByteArrayInputStream(scriptSourceCode.getBytes());
         if(scriptUrl != null)
             try {
                 return new URL(scriptUrl).openStream();

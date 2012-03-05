@@ -21,10 +21,13 @@ public class ScriptingEnginesComboBox extends CustomComboBoxField{
         ScriptProcessorRegistry registry = ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().lookupService(
                 ScriptProcessorRegistry.class.getName());
         Collection<String> registeredProcessors = registry.getRegisteredProcessors();
-//        setEnabled(!registeredProcessors.isEmpty());
-        setTextInputAllowed(false);
-        setNewItemsAllowed(false);
-        setNullSelectionAllowed(true);
+
         return new BeanItemContainer<String>(String.class, registeredProcessors);
+    }
+
+
+    @Override
+    public Class<?> getType() {
+        return String.class;
     }
 }

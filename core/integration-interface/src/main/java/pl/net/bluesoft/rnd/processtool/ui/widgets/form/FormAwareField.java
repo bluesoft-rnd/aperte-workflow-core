@@ -1,5 +1,6 @@
 package pl.net.bluesoft.rnd.processtool.ui.widgets.form;
 
+import com.vaadin.data.Property;
 import com.vaadin.ui.Field;
 import com.vaadin.ui.Form;
 
@@ -13,5 +14,5 @@ import java.util.Map;
  */
 public interface FormAwareField extends Field{
 
-    void setFormProperties(Map<String,Object> map);
+    void setFormProperties(Map<String,Property> map);
 }

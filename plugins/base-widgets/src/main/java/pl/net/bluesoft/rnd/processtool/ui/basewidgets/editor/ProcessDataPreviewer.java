@@ -2,19 +2,18 @@ package pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor;
 
 import com.vaadin.Application;
 import com.vaadin.data.Property;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.*;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDataBlockWidget;
+import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.jaxb.WidgetElement;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.jaxb.WidgetsDefinitionElement;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import java.util.*;
 import static pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.EditorHelper.*;
+import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -27,7 +26,7 @@ public class ProcessDataPreviewer extends ProcessDataBlockWidget {
     private VerticalLayout compositionRoot;
     
     public ProcessDataPreviewer() {
-        
+
         //fake context initialization
         setContext(new ProcessStateConfiguration(),
                 new ProcessStateWidget(), getDumbI18nSource(), null, getDumbApplication(),
@@ -76,6 +75,17 @@ public class ProcessDataPreviewer extends ProcessDataBlockWidget {
                 return key;
             }
         };
+    }
+
+    /**
+     * Add element's id as component's description
+     * @param element
+     * @param component
+     */
+    @Override
+    protected void performAdditionalProcessing(WidgetElement element, AbstractComponent component) {
+        if(hasText(element.getId()))
+            component.setDescription(element.getId());
     }
 
     public Component render(WidgetsDefinitionElement element, Map<String, Property> form) {

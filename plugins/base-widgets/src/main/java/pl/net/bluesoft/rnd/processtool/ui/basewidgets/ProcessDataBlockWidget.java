@@ -429,7 +429,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
 
                 }
             } catch (Exception e) {
-                handleException(getMessage("processdata.block.error.script.execution"), e);
+                handleException(getMessage("validation.script.exception"), e);
                 mainPanel = null;
             }
         }
@@ -459,8 +459,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
 
 
         } catch (Exception e) {
-            //TODO add to messages
-            handleException(getMessage("processdata.block.error.script.exec"), e);
+            handleException(getMessage("validation.script.exception"), e);
             executed = false;
         }
         return executed;
@@ -490,8 +489,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
             try {
                 return new URL(getScriptUrl()).openStream();
             } catch (IOException e) {
-                //TODO add to messages
-                handleException(getMessage("processdata.block.error.script.url"), e);
+                handleException(getMessage("validation.script.url-io-exception"), e);
             }
         return null;
     }
@@ -538,6 +536,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
             container.addComponent(component);
         }
         element.setParent(parent);
+
         if (component instanceof Field) {
             Property property = (Property) component;
             widgetDataSources.put(element, property);
@@ -557,7 +556,19 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                     }
                 });
         }
+
+        performAdditionalProcessing(element, component);
+
         return component;
+    }
+
+    /**
+     * Override in subclasses for additional element/component processing
+     * @param element
+     * @param component
+     */
+    protected void performAdditionalProcessing(WidgetElement element, AbstractComponent component) {
+//      NOOP
     }
 
     private AbstractComponent createRadioButtonSelectField(RadioButtonSelectElementWidget element) {
@@ -853,6 +864,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                         Object value = event.getProperty().getValue();
                         if (value != null && value instanceof Date) {
                             if (notAfter.before((Date) value)) {
+//                                TODO: TODO: notification fails on preview, because application object is only a stub
                                 VaadinUtility.validationNotification(getApplication(), i18NSource,
                                         getMessage("processdata.block.error.date.notafter").replaceFirst("%s", dwe.getNotAfter()));
                                 field.setValue(notAfter);
@@ -874,6 +886,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                         Object value = event.getProperty().getValue();
                         if (value != null && value instanceof Date) {
                             if (notBefore.after((Date) value)) {
+//                                TODO: notification fails on preview, because application object is only a stub
                                 VaadinUtility.validationNotification(getApplication(), i18NSource,
                                         getMessage("processdata.block.error.date.notbefore").replaceFirst("%s", dwe.getNotBefore()));
                                 field.setValue(notBefore);

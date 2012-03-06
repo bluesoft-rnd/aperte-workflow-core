@@ -9,9 +9,11 @@ import com.vaadin.ui.Window;
 import org.aperteworkflow.scripting.ScriptProcessor;
 import org.aperteworkflow.scripting.ScriptProcessorRegistry;
 import org.aperteworkflow.scripting.ScriptValidationException;
+import org.aperteworkflow.util.vaadin.VaadinUtility;
 import org.vaadin.addon.customfield.CustomField;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.form.FormAwareField;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -73,25 +75,32 @@ public class ScriptUrlEditor extends CustomField implements FormAwareField {
             InputStream is = new URL((String) url.getValue()).openStream();
             scriptProcessor.validate(is);
             url.commit();
-            getApplication().getMainWindow().showNotification(getLocalizedMessage("validation.script.ok"),
-                    Window.Notification.TYPE_HUMANIZED_MESSAGE);
+            showInfoNotification("validation.script.ok");
         } catch (Validator.InvalidValueException e) {
-            getApplication().getMainWindow().showNotification(getLocalizedMessage(e.getMessage()),
-                    Window.Notification.TYPE_WARNING_MESSAGE);
+            showWarningNotification(e.getMessage(), null);
         } catch (ScriptValidationException e) {
-            getApplication().getMainWindow().showNotification(getLocalizedMessage("validation.script.parser-exception") + e.getMessage(),
-                    Window.Notification.TYPE_WARNING_MESSAGE);
+            showWarningNotification("validation.script.parse-error", e.getMessage());
         } catch (MalformedURLException e) {
-            getApplication().getMainWindow().showNotification(getLocalizedMessage("validation.script.malformed-url"),
-                    Window.Notification.TYPE_WARNING_MESSAGE);
+            showWarningNotification("validation.script.url-error", e.getMessage());
         } catch (IOException e) {
-            getApplication().getMainWindow().showNotification(getLocalizedMessage("validation.script.url-io-exception"),
-                    Window.Notification.TYPE_WARNING_MESSAGE);
+            showWarningNotification("validation.script.io-error", e.getMessage());
         } catch (Exception e) {
-            getApplication().getMainWindow().showNotification(getLocalizedMessage("validation.script.exception") + e.getMessage(),
-                    Window.Notification.TYPE_WARNING_MESSAGE);
+            showWarningNotification("validation.script.error", e.getMessage());
         }
     }
+
+    private void showWarningNotification(String code, String message) {
+        if(message == null)
+            message = "";
+        getApplication().getMainWindow().showNotification(getLocalizedMessage(code) + message,
+                Window.Notification.TYPE_WARNING_MESSAGE);
+    }
+
+    private void showInfoNotification(String message) {
+        getApplication().getMainWindow().showNotification(getLocalizedMessage(message),
+                Window.Notification.TYPE_HUMANIZED_MESSAGE);
+    }
+
 
     @Override
     public Class<?> getType() {

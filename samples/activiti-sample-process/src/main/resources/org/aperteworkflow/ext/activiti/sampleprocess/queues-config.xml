@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list>
+    <config.ProcessQueueConfig name="management" description="Management">
+        <rights>
+            <config.ProcessQueueRight roleName=".*" browseAllowed="true"/>
+        </rights>
+    </config.ProcessQueueConfig>
+</list>

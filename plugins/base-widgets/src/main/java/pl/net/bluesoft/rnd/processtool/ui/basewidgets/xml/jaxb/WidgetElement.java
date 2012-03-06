@@ -2,6 +2,8 @@ package pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.jaxb;
 
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
+import com.vaadin.data.Property;
+import com.vaadin.ui.Field;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.validation.XmlValidationError;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
 import pl.net.bluesoft.util.lang.StringUtil;
@@ -71,16 +73,68 @@ public abstract class WidgetElement implements Serializable {
     @AperteDoc(humanNameKey = "any.attributeClass", descriptionKey = "any.attributeClass.description")
     protected String attributeClass;
 
+
+    @XmlAttribute
+    @XStreamAsAttribute
+    @AperteDoc(humanNameKey = "any.id", descriptionKey = "any.id.description")
+    protected String id;
+
+    @XmlAttribute
+    @XStreamAsAttribute
+    @AperteDoc(humanNameKey = "any.visible", descriptionKey = "any.visible.description")
+    protected Boolean visible;
+
+    @XmlAttribute
+    @XStreamAsAttribute
+    @AperteDoc(humanNameKey = "any.dynamicValidation", descriptionKey = "any.dynamicValidation.description")
+    protected Boolean dynamicValidation;
+
     @XmlTransient
     @XStreamOmitField
     protected WidgetElement parent;
+
+    @XmlTransient
+    @XStreamOmitField
+    protected Object value;
+
+    public Object getValue() {
+        return value;
+    }
+
+    public void setValue(Object value) {
+        this.value = value;
+    }
+
+    public Boolean getVisible() {
+        return visible;
+    }
+
+    public void setVisible(Boolean visible) {
+        this.visible = visible;
+    }
 
     public WidgetElement getParent() {
         return parent;
     }
 
+    public Boolean getDynamicValidation() {
+        return dynamicValidation;
+    }
+
+    public void setDynamicValidation(Boolean dynamicValidation) {
+        this.dynamicValidation = dynamicValidation;
+    }
+
     public void setParent(WidgetElement parent) {
         this.parent = parent;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getAttributeClass() {
@@ -183,4 +237,20 @@ public abstract class WidgetElement implements Serializable {
         return new ArrayList<XmlValidationError>();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof WidgetElement)) return false;
+
+        WidgetElement that = (WidgetElement) o;
+
+        if (id != null && id.equals(that.id)) return true;
+
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
 }

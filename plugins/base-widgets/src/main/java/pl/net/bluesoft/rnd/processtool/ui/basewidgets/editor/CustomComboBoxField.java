@@ -2,12 +2,9 @@ package pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor;
 
 import com.vaadin.data.Container;
 import com.vaadin.data.Property;
-import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
 import org.vaadin.addon.customfield.CustomField;
-
-import static pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.EditorHelper.getLocalizedMessage;
 
 /**
  * Created by IntelliJ IDEA.
@@ -28,6 +25,8 @@ public abstract class CustomComboBoxField extends CustomField {
         comboBox.setTextInputAllowed(false);
         comboBox.setNewItemsAllowed(false);
         comboBox.setNullSelectionAllowed(true);
+        comboBox.setImmediate(true);
+        comboBox.setWriteThrough(true);
 
         HorizontalLayout compositionRoot = new HorizontalLayout();
         setCompositionRoot(compositionRoot);
@@ -35,16 +34,6 @@ public abstract class CustomComboBoxField extends CustomField {
         compositionRoot.setExpandRatio(comboBox, 1.0f);
         compositionRoot.setSpacing(true);
         compositionRoot.setWidth("100%");
-
-        Button save = new Button(getLocalizedMessage("custom.combo.editor.save"));
-        compositionRoot.addComponent(save);
-        save.addListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent event) {
-                save();
-            }
-        });
-
 
     }
 
@@ -56,10 +45,6 @@ public abstract class CustomComboBoxField extends CustomField {
     @Override
     public void setPropertyDataSource(Property newDataSource) {
         comboBox.setPropertyDataSource(newDataSource);
-    }
-
-    protected void save() {
-        comboBox.commit();
     }
 
 

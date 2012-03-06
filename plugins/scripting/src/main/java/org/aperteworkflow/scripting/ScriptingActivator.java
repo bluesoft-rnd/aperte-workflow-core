@@ -50,9 +50,9 @@ public class ScriptingActivator implements BundleActivator {
                                         try {
                                             return scriptProcessorClass.newInstance();
                                         } catch (InstantiationException e) {
-                                            e.printStackTrace();
+                                            logger.severe(e.getMessage());
                                         } catch (IllegalAccessException e) {
-                                            e.printStackTrace();
+                                            logger.severe(e.getMessage());
                                         }
                                         logger.severe("Cannot register script processor: " + finalName);
                                         return null;
@@ -61,7 +61,7 @@ public class ScriptingActivator implements BundleActivator {
 
 
                             } catch (Exception e) {
-                                e.printStackTrace();
+                                logger.severe(e.getMessage());
                             }
 
 
@@ -71,7 +71,7 @@ public class ScriptingActivator implements BundleActivator {
                                 scriptProcessorClass = (Class<? extends ScriptProcessor>) bundle.loadClass(name);
                                 registry.unregisterProcessor(scriptProcessorClass.getSimpleName());
                             } catch (ClassNotFoundException e) {
-                                e.printStackTrace();
+                                logger.severe(e.getMessage());
                                 logger.severe("Cannot unregister script processor: " + name);
                             }
 

@@ -2,7 +2,10 @@ package pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor;
 
 import com.vaadin.data.Property;
 import com.vaadin.data.Validator;
-import com.vaadin.ui.*;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.TabSheet;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.WidgetDefinitionLoader;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.jaxb.WidgetsDefinitionElement;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.validation.XmlValidationError;
@@ -77,7 +80,6 @@ public class ProcessDataWidgetsDefinitionEditor extends CustomTextAreaFieldWrapp
     }
 
 
-
     public void updateFromWidgetsDefinitionElement(WidgetsDefinitionElement widgetsDefinitionElement) {
         String marshall = definitionLoader.marshall(widgetsDefinitionElement);
         rawText.setValue(marshall);
@@ -108,8 +110,7 @@ public class ProcessDataWidgetsDefinitionEditor extends CustomTextAreaFieldWrapp
     private void validateXmlSyntaxAndCorrectness() throws Validator.InvalidValueException {
         try {
             definitionLoader.unmarshall((String) rawText.getValue());
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             throw new Validator.InvalidValueException(t.getMessage());
         }
 
@@ -169,9 +170,8 @@ public class ProcessDataWidgetsDefinitionEditor extends CustomTextAreaFieldWrapp
     }
 
 
-
     @Override
-    public void validate() throws Validator.InvalidValueException {        
+    public void validate() throws Validator.InvalidValueException {
         rawText.validate();
         validateXmlSyntaxAndCorrectness();
     }

@@ -11,20 +11,25 @@ import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.jaxb.WidgetElement;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.jaxb.WidgetsDefinitionElement;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
-import java.util.*;
-import static pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.EditorHelper.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Map;
+import java.util.logging.Logger;
+
+import static pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.EditorHelper.getLocalizedMessage;
 import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 
 /**
  * @author tlipski@bluesoft.net.pl
  */
 public class ProcessDataPreviewer extends ProcessDataBlockWidget {
-   
-   
-//  workaround necessary to access scripting properties
+
+    private static final Logger logger = Logger.getLogger(ProcessDataPreviewer.class.getName());
+    //  workaround necessary to access scripting properties
     private Map<String, Property> formProperties;
     private VerticalLayout compositionRoot;
-    
+
     public ProcessDataPreviewer() {
 
         //fake context initialization
@@ -79,12 +84,13 @@ public class ProcessDataPreviewer extends ProcessDataBlockWidget {
 
     /**
      * Add element's id as component's description
+     *
      * @param element
      * @param component
      */
     @Override
     protected void performAdditionalProcessing(WidgetElement element, AbstractComponent component) {
-        if(hasText(element.getId()))
+        if (hasText(element.getId()))
             component.setDescription(element.getId());
     }
 
@@ -101,8 +107,11 @@ public class ProcessDataPreviewer extends ProcessDataBlockWidget {
         } catch (Exception e) {
             String message = e.getMessage();
 //            get wrapped exception
-            if(e.getCause() != null)
+            if (e.getCause() != null)
                 message = e.getCause().getMessage();
+
+            logger.severe("Could not render preview: " + message);
+
             rendered = new Label(getLocalizedMessage("preview.script.error") + message, Label.CONTENT_XHTML);
         }
         VerticalLayout vl = new VerticalLayout();
@@ -124,26 +133,27 @@ public class ProcessDataPreviewer extends ProcessDataBlockWidget {
 
     /**
      * Wrap and rethrow exceptions
+     *
      * @param message
      * @param e
      */
     @Override
     protected void handleException(String message, Exception e) {
-         throw new RuntimeException(e);
+        throw new RuntimeException(e);
     }
 
     @Override
     public String getScriptEngineType() {
-        return formProperties.get("scriptEngineType") !=null ? (String) formProperties.get("scriptEngineType").getValue() : null;
+        return formProperties.get("scriptEngineType") != null ? (String) formProperties.get("scriptEngineType").getValue() : null;
     }
 
     @Override
     public String getScriptSourceCode() {
-        return formProperties.get("scriptSourceCode") !=null ? (String) formProperties.get("scriptSourceCode").getValue() : null;
+        return formProperties.get("scriptSourceCode") != null ? (String) formProperties.get("scriptSourceCode").getValue() : null;
     }
 
     @Override
-    public String getScriptUrl() {
-        return formProperties.get("scriptUrl") !=null ? (String) formProperties.get("scriptUrl").getValue() : null;
+    public String getScriptExternalUrl() {
+        return formProperties.get("scriptExternalUrl") != null ? (String) formProperties.get("scriptExternalUrl").getValue() : null;
     }
 }

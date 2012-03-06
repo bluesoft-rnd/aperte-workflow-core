@@ -83,18 +83,6 @@ public class ProcessDataPreviewer extends ProcessDataBlockWidget {
         };
     }
 
-    /**
-     * Add element's id as component's description
-     *
-     * @param element
-     * @param component
-     */
-    @Override
-    protected void performAdditionalProcessing(WidgetElement element, AbstractComponent component) {
-        if (hasText(element.getId()))
-            component.setDescription(element.getId());
-    }
-
     public Component render(WidgetsDefinitionElement element, Map<String, Property> form) {
 
         formProperties = form;

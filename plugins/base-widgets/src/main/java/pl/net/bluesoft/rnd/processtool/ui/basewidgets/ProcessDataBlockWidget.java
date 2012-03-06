@@ -484,14 +484,15 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
 
     private InputStream loadScriptCode() {
 
-        if (getScriptSourceCode() != null)
-            return new ByteArrayInputStream(getScriptSourceCode().getBytes());
-        if (getScriptExternalUrl() != null)
+
+        if (hasText(getScriptExternalUrl()))
             try {
                 return new URL(getScriptExternalUrl()).openStream();
             } catch (IOException e) {
                 handleException(getMessage("validation.script.url-io-exception"), e);
             }
+        if (hasText(getScriptSourceCode()))
+            return new ByteArrayInputStream(getScriptSourceCode().getBytes());
         return null;
     }
 

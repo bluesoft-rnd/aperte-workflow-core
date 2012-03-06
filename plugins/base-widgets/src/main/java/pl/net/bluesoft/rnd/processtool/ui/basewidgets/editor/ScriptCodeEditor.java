@@ -73,8 +73,6 @@ public class ScriptCodeEditor extends CustomField implements FormAwareField {
             showInfoNotification("validation.script.ok");
         } catch (Validator.InvalidValueException e) {
             showWarningNotification(e.getMessage(), null);
-        } catch (ScriptValidationException e) {
-            showWarningNotification("validation.script.parse-error", e.getMessage());
         } catch (Exception e) {
             showWarningNotification("validation.script.error", e.getMessage());
         }

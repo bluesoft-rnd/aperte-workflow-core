@@ -77,26 +77,28 @@ public class ScriptUrlEditor extends CustomField implements FormAwareField {
             url.commit();
             showInfoNotification("validation.script.ok");
         } catch (Validator.InvalidValueException e) {
-            showErrorNotification(e.getMessage());
+            showWarningNotification(e.getMessage(), null);
         } catch (ScriptValidationException e) {
-            showErrorNotification(e.getMessage());
+            showWarningNotification("validation.script.parse-error", e.getMessage());
         } catch (MalformedURLException e) {
-            showErrorNotification(e.getMessage());
+            showWarningNotification("validation.script.url-error", e.getMessage());
         } catch (IOException e) {
-            showErrorNotification(e.getMessage());
+            showWarningNotification("validation.script.io-error", e.getMessage());
         } catch (Exception e) {
-            showErrorNotification(e.getMessage());
+            showWarningNotification("validation.script.error", e.getMessage());
         }
     }
 
-    private void showErrorNotification(String message) {
-        VaadinUtility.errorNotification(getApplication(), I18NSource.ThreadUtil.getThreadI18nSource(),
-                message);
+    private void showWarningNotification(String code, String message) {
+        if(message == null)
+            message = "";
+        getApplication().getMainWindow().showNotification(getLocalizedMessage(code) + message,
+                Window.Notification.TYPE_WARNING_MESSAGE);
     }
 
     private void showInfoNotification(String message) {
-        VaadinUtility.informationNotification(getApplication(), I18NSource.ThreadUtil.getThreadI18nSource(),
-                message);
+        getApplication().getMainWindow().showNotification(getLocalizedMessage(message),
+                Window.Notification.TYPE_HUMANIZED_MESSAGE);
     }
 
 

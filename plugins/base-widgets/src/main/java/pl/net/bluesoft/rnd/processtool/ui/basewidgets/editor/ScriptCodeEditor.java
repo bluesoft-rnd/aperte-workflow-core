@@ -2,10 +2,7 @@ package pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor;
 
 import com.vaadin.data.Property;
 import com.vaadin.data.Validator;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.TextArea;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.*;
 import org.aperteworkflow.scripting.ScriptProcessor;
 import org.aperteworkflow.scripting.ScriptProcessorRegistry;
 import org.aperteworkflow.scripting.ScriptValidationException;
@@ -74,22 +71,24 @@ public class ScriptCodeEditor extends CustomField implements FormAwareField {
             code.commit();
             showInfoNotification("validation.script.ok");
         } catch (Validator.InvalidValueException e) {
-            showErrorNotification(e.getMessage());
+            showWarningNotification(e.getMessage(), null);
         } catch (ScriptValidationException e) {
-            showErrorNotification(e.getMessage());
+            showWarningNotification("validation.script.parse-error", e.getMessage());
         } catch (Exception e) {
-            showErrorNotification(e.getMessage());
+            showWarningNotification("validation.script.error", e.getMessage());
         }
     }
 
-    private void showErrorNotification(String message) {
-        VaadinUtility.errorNotification(getApplication(), I18NSource.ThreadUtil.getThreadI18nSource(),
-                message);
+    private void showWarningNotification(String code, String message) {
+        if(message == null)
+            message = "";
+        getApplication().getMainWindow().showNotification(getLocalizedMessage(code) + message,
+                Window.Notification.TYPE_WARNING_MESSAGE);
     }
 
     private void showInfoNotification(String message) {
-        VaadinUtility.informationNotification(getApplication(), I18NSource.ThreadUtil.getThreadI18nSource(),
-                message);
+        getApplication().getMainWindow().showNotification(getLocalizedMessage(message),
+                Window.Notification.TYPE_HUMANIZED_MESSAGE);
     }
 
     @Override

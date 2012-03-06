@@ -136,4 +136,6 @@ public interface ProcessToolRegistry {
     Map<String,Class<? extends ProcessToolActionButton>> getAvailableButtons();
     
     <T> T lookupService(String name);
+
+    String getBpmDefinitionLanguage();
 }

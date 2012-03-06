@@ -91,7 +91,7 @@ public class ProcessInstanceManagerApplicationPortlet extends ApplicationPortlet
                                             throw new RuntimeException(e);
                                         }                                        
 
-                                        String strokeStyle = "stroke:#1B59E0;stroke-width:4;opacity: 1;";
+                                        String strokeStyle = "stroke:#1B59E0;stroke-width:5;opacity: 1;";
 
                                         for (GraphElement el : processHistory) {
                                             if (el instanceof StateNode) {

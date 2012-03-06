@@ -5,6 +5,7 @@ package org.aperteworkflow.bpm.graph;
  */
 public class StateNode implements GraphElement {
     private String label;
+    private String id;
     private boolean unfinished;
     private int x,y;
     private int width,height;
@@ -64,13 +65,23 @@ public class StateNode implements GraphElement {
         clone.y = y;
         clone.width = width;
         clone.height = height;
+        clone.id = id;
         return clone;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override
     public String toString() {
         return "StateNode{" +
                 "label='" + label + '\'' +
+                ", id='" + id + '\'' +
                 ", unfinished=" + unfinished +
                 ", x=" + x +
                 ", y=" + y +

@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config.ProcessDefinitionConfig
+        bpmDefinitionKey="activitisample"
+        description="Liferay Symposium Submissions"
+        processName="activitisample">
+    <comment>
+        <![CDATA[
+                Actitivi example process.
+        ]]>
+    </comment>
+    <permissions>
+        <config.ProcessDefinitionPermission privilegeName="RUN" roleName="Power User"/>
+        <config.ProcessDefinitionPermission privilegeName="SEARCH" roleName="Power User"/>
+    </permissions>
+    <states>
+        <config.ProcessStateConfiguration description="Provide submission details" name="Handle vacation request">
+            <commentary>
+                <![CDATA[
+                        It is possible to enter submission details manually.<br/>
+                ]]>
+            </commentary>
+            <permissions>
+                <config.ProcessStatePermission privilegeName="SEARCH" roleName=".*"/>
+            </permissions>
+            <widgets>
+                <config.ProcessStateWidget className="TabSheet">
+                    <children>
+                        <config.ProcessStateWidget className="VerticalLayout" priority="1">
+                            <attributes>
+                                <config.ProcessStateWidgetAttribute name="caption" value="Submission data"/>
+                            </attributes>
+                            <children>
+                                <config.ProcessStateWidget className="ProcessData" priority="15">
+                                    <permissions>
+                                        <config.ProcessStateWidgetPermission privilegeName="EDIT" roleName=".*"/>
+                                    </permissions>
+                                    <attributes>
+                                        <config.ProcessStateWidgetAttribute name="caption" value="Submission data"/>
+                                        <config.ProcessStateWidgetAttribute name="widgetsDefinition">
+                                            <value>
+                                                <![CDATA[<widgetsDefinition>
+    <input caption="Submitter's email" bind="email_from" width="100%" required="true"/>
+    <input caption="Submission subject" bind="email_subject" width="100%" required="true"/>
+    <text caption="Submission agenda" bind="email_body" width="100%" required="true"/>
+    <input caption="Twitter id:" bind="twitter_login" width="100%" required="true"/>
+</widgetsDefinition>]]>
+                                            </value>
+                                        </config.ProcessStateWidgetAttribute>
+                                    </attributes>
+                                </config.ProcessStateWidget>
+
+
+                            </children>
+                        </config.ProcessStateWidget>
+                        <config.ProcessStateWidget className="VerticalLayout" priority="5">
+                            <attributes>
+                                <config.ProcessStateWidgetAttribute name="caption" value="Process data"/>
+                            </attributes>
+                            <children>
+                                <config.ProcessStateWidget className="LiferayUserData" priority="10">
+                                    <permissions>
+                                        <config.ProcessStateWidgetPermission privilegeName="EDIT"
+                                                                             roleName=".*"/>
+                                    </permissions>
+                                    <attributes>
+                                        <config.ProcessStateWidgetAttribute name="role-name" value="analyst"/>
+                                        <config.ProcessStateWidgetAttribute name="caption" value="Analyst"/>
+                                        <config.ProcessStateWidgetAttribute name="required" value="false"/>
+                                        <config.ProcessStateWidgetAttribute name="comment"
+                                                                            value="This widget does nothing, except showing us integration with Liferay - fetching users list. The select user's login will be available to the BPM engine."/>
+                                    </attributes>
+                                </config.ProcessStateWidget>
+                                <config.ProcessStateWidget className="ProcessHistory" priority="98">
+                                    <permissions>
+                                        <config.ProcessStateWidgetPermission privilegeName="VIEW" roleName=".*"/>
+                                    </permissions>
+                                    <attributes>
+                                        <config.ProcessStateWidgetAttribute name="caption" value="Process history"/>
+                                    </attributes>
+                                </config.ProcessStateWidget>
+
+                                <config.ProcessStateWidget className="ProcessComments" priority="99">
+                                    <permissions>
+                                        <config.ProcessStateWidgetPermission privilegeName="ADD" roleName=".*"/>
+                                    </permissions>
+                                    <attributes>
+                                        <config.ProcessStateWidgetAttribute name="caption" value="Comments"/>
+                                        <config.ProcessStateWidgetAttribute name="comment">
+                                            <value>
+                                                <![CDATA[
+                                                <i>If you have any comments about this process, please enter them here.</i>
+                                        ]]>
+                                            </value>
+                                        </config.ProcessStateWidgetAttribute>
+                                    </attributes>
+                                </config.ProcessStateWidget>
+                            </children>
+                        </config.ProcessStateWidget>
+                    </children>
+                </config.ProcessStateWidget>
+            </widgets>
+            <actions>
+                <config.ProcessStateAction bpmName="Continue" label="Continue"
+                                           description="Confirm data and process with submission review"
+                                           priority="10" autohide="true">
+                    <permissions>
+                        <config.ProcessStateActionPermission roleName=".*"/>
+                    </permissions>
+                </config.ProcessStateAction>
+                <config.ProcessStateAction bpmName="Cancel" label="Cancel"
+                                           description="Cancel"
+                                           priority="5" autohide="true">
+                    <permissions>
+                        <config.ProcessStateActionPermission roleName=".*"/>
+                    </permissions>
+                </config.ProcessStateAction>
+            </actions>
+        </config.ProcessStateConfiguration>
+        <config.ProcessStateConfiguration description="Provide submission details" name="Adjust vacation request">
+            <commentary>
+                <![CDATA[
+                        Adjust vacation request.<br/>
+                ]]>
+            </commentary>
+            <permissions>
+                <config.ProcessStatePermission privilegeName="SEARCH" roleName=".*"/>
+            </permissions>
+            <widgets>
+                <config.ProcessStateWidget className="TabSheet">
+                    <children>
+                        <config.ProcessStateWidget className="VerticalLayout" priority="1">
+                            <attributes>
+                                <config.ProcessStateWidgetAttribute name="caption" value="Submission data"/>
+                            </attributes>
+                            <children>
+                                <config.ProcessStateWidget className="ProcessData" priority="15">
+                                    <permissions>
+                                        <config.ProcessStateWidgetPermission privilegeName="EDIT" roleName=".*"/>
+                                    </permissions>
+                                    <attributes>
+                                        <config.ProcessStateWidgetAttribute name="caption" value="Submission data"/>
+                                        <config.ProcessStateWidgetAttribute name="widgetsDefinition">
+                                            <value>
+                                                <![CDATA[<widgetsDefinition>
+    <input caption="Submitter's email" bind="email_from" width="100%" required="true"/>
+    <input caption="Submission subject" bind="email_subject" width="100%" required="true"/>
+    <text caption="Submission agenda" bind="email_body" width="100%" required="true"/>
+    <input caption="Twitter id:" bind="twitter_login" width="100%" required="true"/>
+</widgetsDefinition>]]>
+                                            </value>
+                                        </config.ProcessStateWidgetAttribute>
+                                    </attributes>
+                                </config.ProcessStateWidget>
+
+
+                            </children>
+                        </config.ProcessStateWidget>
+                        <config.ProcessStateWidget className="VerticalLayout" priority="5">
+                            <attributes>
+                                <config.ProcessStateWidgetAttribute name="caption" value="Process data"/>
+                            </attributes>
+                            <children>
+                                <config.ProcessStateWidget className="LiferayUserData" priority="10">
+                                    <permissions>
+                                        <config.ProcessStateWidgetPermission privilegeName="EDIT"
+                                                                             roleName=".*"/>
+                                    </permissions>
+                                    <attributes>
+                                        <config.ProcessStateWidgetAttribute name="role-name" value="analyst"/>
+                                        <config.ProcessStateWidgetAttribute name="caption" value="Analyst"/>
+                                        <config.ProcessStateWidgetAttribute name="required" value="false"/>
+                                        <config.ProcessStateWidgetAttribute name="comment"
+                                                                            value="This widget does nothing, except showing us integration with Liferay - fetching users list. The select user's login will be available to the BPM engine."/>
+                                    </attributes>
+                                </config.ProcessStateWidget>
+                                <config.ProcessStateWidget className="ProcessHistory" priority="98">
+                                    <permissions>
+                                        <config.ProcessStateWidgetPermission privilegeName="VIEW" roleName=".*"/>
+                                    </permissions>
+                                    <attributes>
+                                        <config.ProcessStateWidgetAttribute name="caption" value="Process history"/>
+                                    </attributes>
+                                </config.ProcessStateWidget>
+
+                                <config.ProcessStateWidget className="ProcessComments" priority="99">
+                                    <permissions>
+                                        <config.ProcessStateWidgetPermission privilegeName="ADD" roleName=".*"/>
+                                    </permissions>
+                                    <attributes>
+                                        <config.ProcessStateWidgetAttribute name="caption" value="Comments"/>
+                                        <config.ProcessStateWidgetAttribute name="comment">
+                                            <value>
+                                                <![CDATA[
+                                                <i>If you have any comments about this process, please enter them here.</i>
+                                        ]]>
+                                            </value>
+                                        </config.ProcessStateWidgetAttribute>
+                                    </attributes>
+                                </config.ProcessStateWidget>
+                            </children>
+                        </config.ProcessStateWidget>
+                    </children>
+                </config.ProcessStateWidget>
+            </widgets>
+            <actions>
+                <config.ProcessStateAction bpmName="to REVIEW_SUBMISSION" label="Continue"
+                                           description="Confirm data and process with submission review"
+                                           priority="10" autohide="true">
+                    <permissions>
+                        <config.ProcessStateActionPermission roleName=".*"/>
+                    </permissions>
+                </config.ProcessStateAction>
+            </actions>
+        </config.ProcessStateConfiguration>
+
+    </states>
+</config.ProcessDefinitionConfig>

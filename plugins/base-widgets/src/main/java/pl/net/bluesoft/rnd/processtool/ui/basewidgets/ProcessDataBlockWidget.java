@@ -18,6 +18,8 @@ import org.apache.commons.beanutils.NestedNullException;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.beanutils.expression.DefaultResolver;
 import org.apache.commons.beanutils.expression.Resolver;
+import org.aperteworkflow.scripting.ScriptProcessor;
+import org.aperteworkflow.scripting.ScriptProcessorRegistry;
 import org.aperteworkflow.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
@@ -28,6 +30,9 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionary;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItem;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.ProcessDataWidgetsDefinitionEditor;
+import pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.ScriptCodeEditor;
+import pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.ScriptUrlEditor;
+import pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.ScriptingEnginesComboBox;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.WidgetDefinitionLoader;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.XmlConstants;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.jaxb.*;
@@ -38,7 +43,11 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolVaadinWidg
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.util.lang.StringUtil;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -68,14 +77,40 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
     private Map<String, ProcessInstanceAttribute> processAttributes = new HashMap<String, ProcessInstanceAttribute>();
     protected WidgetsDefinitionElement widgetsDefinitionElement;
     private ProcessInstance processInstance;
+    private Map<WidgetElement, Property> widgetDataSources = new HashMap<WidgetElement, Property>();
+
+    @AutoWiredProperty
+    @AutoWiredPropertyConfigurator(fieldClass = ScriptingEnginesComboBox.class)
+    @AperteDoc(
+            humanNameKey = "widget.process_data_block.property.scriptEngineType.name",
+            descriptionKey = "widget.process_data_block.property.scriptEngineType.description"
+    )
+    private String scriptEngineType;
+
+    @AutoWiredProperty
+    @AutoWiredPropertyConfigurator(fieldClass = ScriptUrlEditor.class)
+    @AperteDoc(
+            humanNameKey = "widget.process_data_block.property.scriptUrl.name",
+            descriptionKey = "widget.process_data_block.property.scriptUrl.description"
+    )
+    private String scriptUrl;
+
+    @AutoWiredProperty
+    @AutoWiredPropertyConfigurator(fieldClass = ScriptCodeEditor.class)
+    @AperteDoc(
+            humanNameKey = "widget.process_data_block.property.scriptSourceCode.name",
+            descriptionKey = "widget.process_data_block.property.scriptSourceCode.description"
+    )
+    private String scriptSourceCode;
 
     @AutoWiredProperty(required = true)
     @AutoWiredPropertyConfigurator(fieldClass = ProcessDataWidgetsDefinitionEditor.class)
     @AperteDoc(
-        humanNameKey="widget.process_data_block.property.widgetsDefinition.name",
-        descriptionKey="widget.process_data_block.property.widgetsDefinition.description"
+            humanNameKey = "widget.process_data_block.property.widgetsDefinition.name",
+            descriptionKey = "widget.process_data_block.property.widgetsDefinition.description"
     )
     private String widgetsDefinition;
+    protected ComponentContainer mainPanel = null;
 
     public void setDefinitionLoader(WidgetDefinitionLoader definitionLoader) {
         this.definitionLoader = definitionLoader;
@@ -83,6 +118,30 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
 
     public void setProcessDictionaryRegistry(ProcessDictionaryRegistry processDictionaryRegistry) {
         this.processDictionaryRegistry = processDictionaryRegistry;
+    }
+
+    public String getScriptEngineType() {
+        return scriptEngineType;
+    }
+
+    public void setScriptEngineType(String scriptEngineType) {
+        this.scriptEngineType = scriptEngineType;
+    }
+
+    public String getScriptUrl() {
+        return scriptUrl;
+    }
+
+    public void setScriptUrl(String scriptUrl) {
+        this.scriptUrl = scriptUrl;
+    }
+
+    public String getScriptSourceCode() {
+        return scriptSourceCode;
+    }
+
+    public void setScriptSourceCode(String scriptSourceCode) {
+        this.scriptSourceCode = scriptSourceCode;
     }
 
     @Override
@@ -106,7 +165,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                     }
                 }
             } catch (Exception e) {
-                logException(getMessage("processdata.block.error.eval.other")
+                handleException(getMessage("processdata.block.error.eval.other")
                         .replaceFirst("%s", nvl(currentComponent.toString(), "NIL"))
                         .replaceFirst("%s", nvl(currentElement.getBind(), "NIL")), e);
             }
@@ -154,6 +213,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                     : new ProcessInstanceSimpleAttribute();
             attribute.setProcessInstance(processInstance);
             attribute.setKey(attributeName);
+
             processAttributes.put(attributeName, attribute);
         }
         if (index != -1) {
@@ -189,10 +249,10 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                     ProcessInstanceAttribute attribute = fetchOrCreateAttribute(element);
                     if (attribute instanceof ProcessInstanceSimpleAttribute) {
                         if (element instanceof DateWidgetElement) {
-                            if(component.getValue() != null)
-                            ((ProcessInstanceSimpleAttribute) attribute).setValue(
-                                    new SimpleDateFormat(((DateWidgetElement) element).getFormat()).format(component.getValue())
-                            );
+                            if (component.getValue() != null)
+                                ((ProcessInstanceSimpleAttribute) attribute).setValue(
+                                        new SimpleDateFormat(((DateWidgetElement) element).getFormat()).format(component.getValue())
+                                );
                         } else if (component.getValue() != null) {
                             ((ProcessInstanceSimpleAttribute) attribute).setValue(component.getValue().toString());
                         }
@@ -255,7 +315,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                     } else if (String.class.isAssignableFrom(component.getType())) {
                         component.setValue(nvl(value, ""));
                     } else if (component instanceof Container &&
-                               component.getType().isAssignableFrom(value.getClass())) {
+                            component.getType().isAssignableFrom(value.getClass())) {
                         if (((Container) component).containsId(value)) {
                             component.setValue(value);
                         }
@@ -333,31 +393,105 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         return widgetsDefinitionElement != null ? renderInternal() : new Label(getMessage("processdata.block.nothing.to.render"));
     }
 
-    private void logException(String message, Exception e) {
+    /**
+     * In subclasses without access to proper application object this method should be overridden
+     * TODO: rethink this approach
+     */
+    protected void handleException(String message, Exception e) {
         logger.severe(message + "<br/>" + e.getMessage());
         VaadinUtility.validationNotification(getApplication(), i18NSource, message + "<br/>" + e.getMessage());
     }
 
     private Component renderInternal() {
-        ComponentContainer mainPanel = null;
         try {
             mainPanel = !hasText(widgetsDefinitionElement.getClassName()) ? new VerticalLayout()
                     : (ComponentContainer) getClass().getClassLoader().loadClass(widgetsDefinitionElement.getClassName()).newInstance();
         } catch (Exception e) {
-            logException(getMessage("processdata.block.error.load.class").replaceFirst("%s", widgetsDefinitionElement.getClassName()), e);
+            handleException(getMessage("processdata.block.error.load.class").replaceFirst("%s", widgetsDefinitionElement.getClassName()), e);
         }
 
         setupWidget(widgetsDefinitionElement, mainPanel);
 
         for (WidgetElement we : widgetsDefinitionElement.getWidgets()) {
-            processWidgetElement(widgetsDefinitionElement, we, mainPanel);
-        }
+            AbstractComponent component = processWidgetElement(widgetsDefinitionElement, we, mainPanel);
 
+        }
         loadDictionaries();
         loadProcessInstanceDictionaries();
         loadBindings();
 
+        if (executeScript()) {
+
+            mainPanel.removeAllComponents();
+            try {
+                for (WidgetElement we : widgetsDefinitionElement.getWidgets()) {
+                    AbstractComponent component = processWidgetElement(widgetsDefinitionElement, we, mainPanel);
+
+                }
+            } catch (Exception e) {
+                handleException(getMessage("validation.script.exception"), e);
+                mainPanel = null;
+            }
+        }
+
         return mainPanel;
+    }
+
+    private boolean executeScript() {
+        boolean executed = false;
+        try {
+            if (!hasText(getScriptEngineType()) || !hasText(getScriptSourceCode()) && !hasText(getScriptUrl()))
+                return executed;
+
+            Map<String, Object> fields = getFieldsMap(widgetsDefinitionElement.getWidgets());
+
+            ScriptProcessorRegistry registry = ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().lookupService(
+                    ScriptProcessorRegistry.class.getName());
+//          TODO: some smart cacheing
+            InputStream is = loadSciptCode();
+            ScriptProcessor scriptProcessor = registry.getScriptProcessor(getScriptEngineType());
+            if (scriptProcessor == null) {
+                logger.severe("Script processor not found: " + getScriptEngineType() + ", skipping script execution. ");
+                return executed;
+            }
+            scriptProcessor.process(fields, is);
+            executed = true;
+
+
+        } catch (Exception e) {
+            handleException(getMessage("validation.script.exception"), e);
+            executed = false;
+        }
+        return executed;
+    }
+
+
+    private Map<String, Object> getFieldsMap(List<WidgetElement> widgets) {
+        Map<String, Object> map = new HashMap<String, Object>();
+        for (WidgetElement we : widgets) {
+            Property property = widgetDataSources.get(we);
+            if(property!= null && property.getValue() != null)
+                we.setValue(property.getValue());
+            if (we.getId() != null) {
+                map.put(we.getId(), we);
+            }
+            if (we instanceof HasWidgetsElement)
+                map.putAll(getFieldsMap(((HasWidgetsElement) we).getWidgets()));
+        }
+        return map;
+    }
+
+    private InputStream loadSciptCode() {
+
+        if (getScriptSourceCode() != null)
+            return new ByteArrayInputStream(getScriptSourceCode().getBytes());
+        if (getScriptUrl() != null)
+            try {
+                return new URL(getScriptUrl()).openStream();
+            } catch (IOException e) {
+                handleException(getMessage("validation.script.url-io-exception"), e);
+            }
+        return null;
     }
 
     private AbstractComponent processWidgetElement(WidgetElement parent, WidgetElement element, ComponentContainer container) {
@@ -403,7 +537,38 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         }
         element.setParent(parent);
 
+        if (component instanceof Field) {
+            Property property = (Property) component;
+            widgetDataSources.put(element, property);
+
+            if (element.getDynamicValidation() == Boolean.TRUE)
+                ((Field) component).addListener(new ValueChangeListener() {
+                    @Override
+                    public void valueChange(ValueChangeEvent event) {
+                        if(!executeScript())
+                            return;
+
+                        mainPanel.removeAllComponents();
+                        for (WidgetElement we : widgetsDefinitionElement.getWidgets()) {
+                            AbstractComponent component = processWidgetElement(widgetsDefinitionElement, we, mainPanel);
+
+                        }
+                    }
+                });
+        }
+
+        performAdditionalProcessing(element, component);
+
         return component;
+    }
+
+    /**
+     * Override in subclasses for additional element/component processing
+     * @param element
+     * @param component
+     */
+    protected void performAdditionalProcessing(WidgetElement element, AbstractComponent component) {
+//      NOOP
     }
 
     private AbstractComponent createRadioButtonSelectField(RadioButtonSelectElementWidget element) {
@@ -416,9 +581,15 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
             ItemElement item = element.getValues().get(i);
             radioSelect.addItem(item.getKey());
             radioSelect.setItemCaption(item.getKey(), item.getValue());
-            if (element.getDefaultSelect() != null && i == element.getDefaultSelect()) {
+
+
+            if (radioSelect.getValue() == null && element.getDefaultSelect() != null && i == element.getDefaultSelect()) {
                 radioSelect.setValue(item.getKey());
             }
+
+        }
+        if (element.getValue() != null) {
+            radioSelect.setValue(element.getValue());
         }
         if (nvl(element.getRequired(), false)) {
             radioSelect.setRequired(true);
@@ -441,6 +612,8 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         if (we.getDefaultSelect() != null && we.getDefaultSelect()) {
             cb.setValue(we.getDefaultSelect());
         }
+        if (we.getValue() != null)
+            cb.setValue(we.getValue());
         return cb;
     }
 
@@ -455,10 +628,10 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                     select.setValue(item.getKey());
                 }
             }
+            if (swe.getValue() != null)
+                select.setValue(swe.getValue());
         }
-//        else if (swe.getScript() != null) {
-//            processScriptElement(select, swe.getScript());
-//        }
+
         if (nvl(swe.getRequired(), false)) {
             select.setRequired(true);
             if (hasText(swe.getCaption())) {
@@ -504,6 +677,9 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                 rta.setReadOnly(true);
                 rta.setHeight(null);
             }
+            if (taw.getValue() != null)
+                rta.setValue(taw.getValue());
+
             component = rta;
         } else {
             TextArea ta = new TextArea();
@@ -523,6 +699,8 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                     ta.setRequiredError(getMessage("processdata.block.field-required-error"));
                 }
             }
+            if (taw.getValue() != null)
+                ta.setValue(taw.getValue());
 
             component = ta;
         }
@@ -644,6 +822,8 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         if (hasText(iwe.getPrompt())) {
             field.setInputPrompt(getMessage(iwe.getPrompt()));
         }
+        if (iwe.getValue() != null)
+            field.setValue(iwe.getValue());
         return field;
     }
 
@@ -655,6 +835,8 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         if (hasText(lwe.getText())) {
             label.setValue(WidgetDefinitionLoader.removeCDATATag(WidgetDefinitionLoader.replaceXmlEscapeCharacters(lwe.getText())));
         }
+        if (lwe.getValue() != null)
+            label.setValue(lwe.getValue());
         return label;
     }
 
@@ -663,22 +845,26 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         try {
             sdf = new SimpleDateFormat(dwe.getFormat());
         } catch (Exception e) {
-            logException(getMessage("processdata.block.error.unparsable.format").replaceFirst("%s", dwe.getFormat()), e);
+            handleException(getMessage("processdata.block.error.unparsable.format").replaceFirst("%s", dwe.getFormat()), e);
             return null;
         }
 
         final PopupDateField field = new PopupDateField();
+        final boolean fieldMinResolution = dwe.getShowMinutes() != null && dwe.getShowMinutes();
+
         field.setDateFormat(dwe.getFormat());
-        field.setResolution(dwe.getShowMinutes() != null && dwe.getShowMinutes() ? DateField.RESOLUTION_MIN : DateField.RESOLUTION_DAY);
+        field.setResolution(fieldMinResolution ? DateField.RESOLUTION_MIN : DateField.RESOLUTION_DAY);
         if (hasText(dwe.getNotAfter())) {
             try {
-                final Date notAfter = XmlConstants.DATE_CURRENT.equalsIgnoreCase(dwe.getNotAfter()) ? new Date() : sdf.parse(dwe.getNotAfter());
+                boolean usesCurrent = XmlConstants.DATE_CURRENT.equalsIgnoreCase(dwe.getNotAfter());
+                final Date notAfter = (usesCurrent) ? sdf.parse(sdf.format(new Date())) : sdf.parse(dwe.getNotAfter());
                 field.addListener(new ValueChangeListener() {
                     @Override
                     public void valueChange(ValueChangeEvent event) {
                         Object value = event.getProperty().getValue();
                         if (value != null && value instanceof Date) {
                             if (notAfter.before((Date) value)) {
+//                                TODO: TODO: notification fails on preview, because application object is only a stub
                                 VaadinUtility.validationNotification(getApplication(), i18NSource,
                                         getMessage("processdata.block.error.date.notafter").replaceFirst("%s", dwe.getNotAfter()));
                                 field.setValue(notAfter);
@@ -687,18 +873,20 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                     }
                 });
             } catch (ParseException e) {
-                logException(getMessage("processdata.block.error.unparsable.date").replaceFirst("%s", dwe.getNotAfter()), e);
+                handleException(getMessage("processdata.block.error.unparsable.date").replaceFirst("%s", dwe.getNotAfter()), e);
             }
         }
         if (hasText(dwe.getNotBefore())) {
             try {
-                final Date notBefore = XmlConstants.DATE_CURRENT.equalsIgnoreCase(dwe.getNotBefore()) ? new Date() : sdf.parse(dwe.getNotBefore());
+                boolean usesCurrent = XmlConstants.DATE_CURRENT.equalsIgnoreCase(dwe.getNotBefore());
+                final Date notBefore = (usesCurrent) ? sdf.parse(sdf.format(new Date())) : sdf.parse(dwe.getNotBefore());
                 field.addListener(new ValueChangeListener() {
                     @Override
                     public void valueChange(ValueChangeEvent event) {
                         Object value = event.getProperty().getValue();
                         if (value != null && value instanceof Date) {
                             if (notBefore.after((Date) value)) {
+//                                TODO: notification fails on preview, because application object is only a stub
                                 VaadinUtility.validationNotification(getApplication(), i18NSource,
                                         getMessage("processdata.block.error.date.notbefore").replaceFirst("%s", dwe.getNotBefore()));
                                 field.setValue(notBefore);
@@ -707,7 +895,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                     }
                 });
             } catch (ParseException e) {
-                logException(getMessage("processdata.block.error.unparsable.date").replaceFirst("%s", dwe.getNotBefore()), e);
+                handleException(getMessage("processdata.block.error.unparsable.date").replaceFirst("%s", dwe.getNotBefore()), e);
             }
         }
         if (nvl(dwe.getRequired(), false)) {
@@ -718,6 +906,9 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                 field.setRequiredError(getMessage("processdata.block.field-required-error"));
             }
         }
+        if (dwe.getValue() != null)
+            field.setValue(dwe.getValue());
+
 
         return field;
     }
@@ -749,6 +940,10 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
             if (hwe.getSpacing() != null && hwe.getSpacing()) {
                 ((SpacingHandler) component).setSpacing(hwe.getSpacing());
             }
+        }
+
+        if (we.getVisible() == Boolean.FALSE) {
+            component.setVisible(false);
         }
 
         if (hasText(we.getBind()) && component instanceof Property) {

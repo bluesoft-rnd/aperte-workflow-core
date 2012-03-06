@@ -12,8 +12,8 @@
         <!--
             RUN is the only process-level permission supported at this moment
         -->
-        <config.ProcessDefinitionPermission privilegeName="RUN" roleName="Power User"/>
-        <config.ProcessDefinitionPermission privilegeName="SEARCH" roleName="Power User"/>
+        <config.ProcessDefinitionPermission privilegeName="RUN" roleName="User"/>
+        <config.ProcessDefinitionPermission privilegeName="SEARCH" roleName="User"/>
     </permissions>
     <states>
         <config.ProcessStateConfiguration description="Provide submission details" name="ENTER_SUBMISSION">

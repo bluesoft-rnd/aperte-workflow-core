@@ -13,7 +13,7 @@ import java.util.*;
  * Time: 3:18 PM
  */
 @Entity
-@Table(name = "pt_process_instance_dictionary_attribute")
+@Table(name = "pt_pi_dict_attr")
 public class ProcessInstanceDictionaryAttribute extends ProcessInstanceAttribute implements Searchable{
 
     @OneToMany(cascade = {CascadeType.ALL})

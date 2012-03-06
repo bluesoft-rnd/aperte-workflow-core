@@ -8,6 +8,8 @@ import java.util.List;
  */
 public class TransitionArc implements GraphElement{
     private String name;
+    private String id;
+
     private List<TransitionArcPoint> path = new ArrayList<TransitionArcPoint>();
 
     public String getName() {
@@ -32,20 +34,31 @@ public class TransitionArc implements GraphElement{
     public GraphElement cloneNode() {
         TransitionArc clone = new TransitionArc();
         clone.name = name;
+        clone.id = id;
         for (TransitionArcPoint tap : path) {
             clone.addPoint(tap.getX(), tap.getY());
         }
         return clone;
     }
 
+    public String getId() {
+        return id;
+    }
+    public void setId(String id) {
+            this.id = id;
+        }
+
     @Override
     public String toString() {
         String s = "TransitionArc{" +
                 "name='" + name + '\'' +
+                ", id='" + id + '\'' +
                 ",\n path=";
         for (TransitionArcPoint p : path) {
             s+= p + " ";
         }
         return s + '}';
     }
+
+
 }

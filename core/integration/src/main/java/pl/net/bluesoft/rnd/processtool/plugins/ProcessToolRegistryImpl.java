@@ -65,6 +65,7 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
     private SearchProvider searchProvider;
     private boolean jta;
     private BundleContext bundleContext;
+    private String bpmDefinitionLanguage;
 
     {
         //init default provider, regardless of OSGi stuff
@@ -167,7 +168,16 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
         if (serviceReference == null) return null;
         return (T) bundleContext.getService(serviceReference);
     }
-    
+
+    public void setBpmDefinitionLanguage(String bpmDefinitionLanguage) {
+        this.bpmDefinitionLanguage = bpmDefinitionLanguage;
+    }
+
+    @Override
+    public String getBpmDefinitionLanguage() {
+        return bpmDefinitionLanguage;
+    }
+
 
     public synchronized boolean addAnnotatedClass(Class<?>... classes) {
          boolean needUpdate = false;

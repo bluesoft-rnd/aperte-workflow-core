@@ -13,12 +13,13 @@ import java.util.Collection;
  * Date: 3/1/12
  * Time: 4:52 PM
  */
-public class ScriptingEnginesComboBox extends CustomComboBoxField{
+public class ScriptingEnginesComboBox extends CustomComboBoxField {
 
 
     @Override
     protected Container getValues() {
-        ScriptProcessorRegistry registry = ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().lookupService(
+        ScriptProcessorRegistry registry =  ProcessToolContext.Util.getThreadProcessToolContext().getRegistry()
+                .lookupService(
                 ScriptProcessorRegistry.class.getName());
         Collection<String> registeredProcessors = registry.getRegisteredProcessors();
 

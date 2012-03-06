@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:vm="http://www.mulesoft.org/schema/mule/vm"
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:vm="http://www.mulesoft.org/schema/mule/vm"
       xmlns:smtps="http://www.mulesoft.org/schema/mule/smtps"
       xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting"
       xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
@@ -18,7 +19,6 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/3.1/mule-email.xsd
        http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd ">
-
     <flow name="flights" >
         <vm:inbound-endpoint address="vm://flightSearch" exchange-pattern="request-response"/>
         <scripting:component doc:name="Groovy">
@@ -89,54 +89,40 @@ http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/em
         <script:component>
             <script:script engine="groovy">
                 <script:text>
-                    //fake class to get class loader
-                    def text = "&lt;h3&gt;Dear %s %s %s, &lt;/h3&gt;"
-                    text += "Your have just booked flight:"
-                    text += "&lt;h2&gt;%s&lt;/h2&gt;"
-                    text += "Your reservation number:"
-                    text += "&lt;h2&gt;%s&lt;/h2&gt;"
-                    text += "Thank you for flying &lt;b&gt;Aperte Air&lt;/b&gt;!"
-                    def getReservationNumber(){
-                        String validChars ="ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
-                        int length = 6
-                        String resNr = ""
-                        java.util.Random rnd = new java.util.Random()
-                        for (i in 0..length){
-                        int rndPos = Math.abs(rnd.nextInt() % validChars.length());
-                        resNr += validChars.charAt(rndPos)
-                    }
-                    return resNr
-                    }
-                    def firstName = payload.getSimpleAttributeValue("firstName")
-                    def lastName = payload.getSimpleAttributeValue("lastName")
-                    def salutation = payload.getSimpleAttributeValue("salutation")
-                    def flight = payload.getSimpleAttributeValue("flight")
-                    def reservationNr =  getReservationNumber()
-                    payload.setSimpleAttribute("reservationNr", reservationNr)
-                    def msg = String.format(text, salutation, firstName, lastName, flight, reservationNr)
-                    payload.setSimpleAttribute("msg", msg)
-                    return payload
+                        def text = "&lt;h3&gt;Dear %s %s %s, &lt;/h3&gt;"
+                        text += "Your have just booked flight:"
+                        text += "&lt;h2&gt;%s&lt;/h2&gt;"
+                        text += "Your reservation number:"
+                        text += "&lt;h2&gt;%s&lt;/h2&gt;"
+                        text += "Thank you for flying &lt;b&gt;Aperte Air&lt;/b&gt;!"
+                        def getReservationNumber(){
+                            String validChars ="ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+                            int length = 6
+                            String resNr = ""
+                            java.util.Random rnd = new java.util.Random()
+                            for (i in 0..length){
+                                int rndPos = Math.abs(rnd.nextInt() % validChars.length());
+                                resNr += validChars.charAt(rndPos)
+                            }
+                            return resNr
+                        }
+                        def firstName = payload.getSimpleAttributeValue("firstName")
+                        def lastName = payload.getSimpleAttributeValue("lastName")
+                        def salutation = payload.getSimpleAttributeValue("salutation")
+                        def flight = payload.getSimpleAttributeValue("flight")
+                        def reservationNr =  getReservationNumber()
+                        payload.setSimpleAttribute("reservationNr", reservationNr)
+                        def msg = String.format(text, salutation, firstName, lastName, flight, reservationNr)
+                        payload.setSimpleAttribute("msg", msg)
+                        System.out.println("uncomment smtp tag in mule-flightsearch-sample.xml to send emails");
+                        return payload;
                 </script:text>
             </script:script>
         </script:component>
-        <smtp:outbound-endpoint connector-ref="gmailConn" host="smtp.gmail.com" port="587" user="aperteworkflow" password="awtest123"  doc:name="SMTP">
-            <custom-transformer class="pl.net.bluesoft.rnd.awf.mule.transformer.ProcessInstanceToEmailTransformer"/>
-            <email:string-to-email-transformer/>
-        </smtp:outbound-endpoint>
-    </flow>
-    <flow name="validation" >
-        <vm:inbound-endpoint address="vm://flightValidation"/>
-        <scripting:component doc:name="Groovy">
-            <scripting:script engine="Groovy">
-                <scripting:text >
-                    try {
-                     return payload;
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        throw e;
-                    }
-                </scripting:text>
-            </scripting:script>
-        </scripting:component>
+        <!--To enable emails, one has to povide correct user and password-->
+        <!--<smtp:outbound-endpoint connector-ref="gmailConn" host="smtp.gmail.com" port="587" user="[YOUR PASSWORD]" password="[***PROTECTED***]"  doc:name="SMTP">-->
+            <!--<custom-transformer class="pl.net.bluesoft.rnd.awf.mule.transformer.ProcessInstanceToEmailTransformer"/>-->
+            <!--<email:string-to-email-transformer/>-->
+        <!--</smtp:outbound-endpoint>-->
     </flow>
 </mule>

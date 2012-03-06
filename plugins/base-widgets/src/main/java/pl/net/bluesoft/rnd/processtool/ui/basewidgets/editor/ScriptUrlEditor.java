@@ -109,4 +109,14 @@ public class ScriptUrlEditor extends CustomField implements FormAwareField {
     public void setFormProperties(Map<String, Property> map) {
         this.formProperties = map;
     }
+
+    @Override
+    public Property getPropertyDataSource() {
+        return url.getPropertyDataSource();
+    }
+
+    @Override
+    public void setPropertyDataSource(Property newDataSource) {
+        url.setPropertyDataSource(newDataSource);
+    }
 }

@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.EditorHelper.getLocalizedMessage;
@@ -110,7 +111,7 @@ public class ProcessDataPreviewer extends ProcessDataBlockWidget {
             if (e.getCause() != null)
                 message = e.getCause().getMessage();
 
-            logger.severe("Could not render preview: " + message);
+            logger.log(Level.SEVERE, message, e);
 
             rendered = new Label(getLocalizedMessage("preview.script.error") + message, Label.CONTENT_XHTML);
         }

@@ -3,6 +3,7 @@ package org.aperteworkflow.scripting;
 import org.osgi.framework.*;
 import pl.net.bluesoft.rnd.util.func.Func;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static pl.net.bluesoft.util.lang.StringUtil.hasText;
@@ -50,9 +51,9 @@ public class ScriptingActivator implements BundleActivator {
                                         try {
                                             return scriptProcessorClass.newInstance();
                                         } catch (InstantiationException e) {
-                                            logger.severe(e.getMessage());
+                                            logger.log(Level.SEVERE, e.getMessage(), e);
                                         } catch (IllegalAccessException e) {
-                                            logger.severe(e.getMessage());
+                                            logger.log(Level.SEVERE, e.getMessage(), e);
                                         }
                                         logger.severe("Cannot register script processor: " + finalName);
                                         return null;
@@ -61,7 +62,7 @@ public class ScriptingActivator implements BundleActivator {
 
 
                             } catch (Exception e) {
-                                logger.severe(e.getMessage());
+                                logger.log(Level.SEVERE, e.getMessage(), e);
                             }
 
 
@@ -71,7 +72,7 @@ public class ScriptingActivator implements BundleActivator {
                                 scriptProcessorClass = (Class<? extends ScriptProcessor>) bundle.loadClass(name);
                                 registry.unregisterProcessor(scriptProcessorClass.getSimpleName());
                             } catch (ClassNotFoundException e) {
-                                logger.severe(e.getMessage());
+                                logger.log(Level.SEVERE, e.getMessage(), e);
                                 logger.severe("Cannot unregister script processor: " + name);
                             }
 

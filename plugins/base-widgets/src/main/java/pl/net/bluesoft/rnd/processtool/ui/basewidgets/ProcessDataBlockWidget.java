@@ -52,6 +52,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.vaadin.ui.Alignment.*;
@@ -398,7 +399,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
      * TODO: rethink this approach
      */
     protected void handleException(String message, Exception e) {
-        logger.severe(message + "<br/>" + e.getMessage());
+        logger.log(Level.SEVERE, message, e);
         VaadinUtility.validationNotification(getApplication(), i18NSource, message + "<br/>" + e.getMessage());
     }
 

@@ -1,10 +1,15 @@
 package org.aperteworkflow.editor.stepeditor.user;
 
+import com.vaadin.data.util.ObjectProperty;
 import com.vaadin.data.validator.IntegerValidator;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.form.FormAwareField;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -12,8 +17,11 @@ public class WidgetConfigFormFieldFactory extends DefaultFieldFactory {
 
     private static final Logger logger = Logger.getLogger(WidgetConfigFormFieldFactory.class.getName());
 
-	public Field createField(Property<?> property) {
-        Field field = createBaseField(property);
+    
+	public Field createField(Property<?> property, Form form) {
+
+
+        Field field = createBaseField(property, form);
 
         if (property.getType() == Integer.class) {
             field.addValidator(new IntegerValidator("is.not.an.integer"));
@@ -34,11 +42,13 @@ public class WidgetConfigFormFieldFactory extends DefaultFieldFactory {
             RichTextArea textArea = (RichTextArea) field;
             textArea.setNullRepresentation("");
         }
+        
+
 
         return field;
 	}
 
-	protected Field createBaseField(Property<?> property) {
+	protected Field createBaseField(Property<?> property, Form form) {
 		Field field = null;
 		if (property.getPropertyFieldClass() != null) {
             try {
@@ -54,7 +64,19 @@ public class WidgetConfigFormFieldFactory extends DefaultFieldFactory {
 			field = createFieldByPropertyType(property.getType());
 		}
 
-		field.setPropertyDataSource(property);
+        if (field instanceof FormAwareField) {
+            Collection<?> itemPropertyIds = form.getItemPropertyIds();
+            Map<String, com.vaadin.data.Property> map = new HashMap<String, com.vaadin.data.Property>();
+            for (Object o : itemPropertyIds){
+                 Property p = (Property) o;
+                map.put(p.getPropertyId(), p);
+            }
+                
+            ((FormAwareField)field).setFormProperties(map);
+        }
+
+
+        field.setPropertyDataSource(property);
         field.setRequired(property.isRequired());
         field.setWidth(100, Sizeable.UNITS_PERCENTAGE);
 

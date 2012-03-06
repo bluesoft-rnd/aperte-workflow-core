@@ -10,13 +10,14 @@ import org.aperteworkflow.util.vaadin.VaadinUtility;
 import org.vaadin.addon.customfield.CustomField;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.form.FormAwareField;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.Map;
 
 import static pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.EditorHelper.getLocalizedMessage;
+import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
 /**
  * Created by IntelliJ IDEA.
@@ -24,7 +25,7 @@ import static pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.EditorHelper
  * Date: 3/5/12
  * Time: 9:57 AM
  */
-public class ScriptCodeEditor extends CustomField implements FormAwareField{
+public class ScriptCodeEditor extends CustomField implements FormAwareField {
 
     private Map<String, Property> formProperties;
     private final TextArea code;
@@ -50,37 +51,43 @@ public class ScriptCodeEditor extends CustomField implements FormAwareField{
         compositionRoot.addComponent(hl);
     }
 
-    private void validateAndSave() throws Validator.InvalidValueException{
-        if(code.getValue() == null || ((String) code.getValue()).trim().isEmpty()){
+    private void validateAndSave() throws Validator.InvalidValueException {
+        if (code.getValue() == null || ((String) code.getValue()).trim().isEmpty()) {
             commit();
             return;
         }
-        try{
-        ScriptProcessorRegistry registry = ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().lookupService(
-                ScriptProcessorRegistry.class.getName());
-        Property scriptType = formProperties.get("scriptEngineType");
-        if(scriptType == null || scriptType.getValue() == null || ((String) scriptType.getValue()).isEmpty())
-            throw new Validator.InvalidValueException("script.undefined.type");
-        ScriptProcessor scriptProcessor = registry.getScriptProcessor((String) scriptType.getValue());
-        if(scriptProcessor == null)
-            throw new Validator.InvalidValueException("script.processor.not.found");
+        try {
+            ScriptProcessorRegistry registry = ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().lookupService(
+                    ScriptProcessorRegistry.class.getName());
+            Property scriptType = formProperties.get("scriptEngineType");
+            if (scriptType == null || scriptType.getValue() == null || ((String) scriptType.getValue()).isEmpty())
+                throw new Validator.InvalidValueException("script.undefined.type");
+            ScriptProcessor scriptProcessor = registry.getScriptProcessor((String) scriptType.getValue());
+            if (scriptProcessor == null)
+                throw new Validator.InvalidValueException("script.processor.not.found");
 
-        InputStream is = new ByteArrayInputStream(((String) code.getValue()).getBytes());
+            InputStream is = new ByteArrayInputStream(((String) code.getValue()).getBytes());
 
             scriptProcessor.validate(is);
             code.commit();
-            getApplication().getMainWindow().showNotification(getLocalizedMessage("validation.script.ok"),
-                    Window.Notification.TYPE_HUMANIZED_MESSAGE);
-        }catch (Validator.InvalidValueException e){
-            getApplication().getMainWindow().showNotification(getLocalizedMessage(e.getMessage()),
-                    Window.Notification.TYPE_WARNING_MESSAGE);
+            showInfoNotification("validation.script.ok");
+        } catch (Validator.InvalidValueException e) {
+            showWarningNotification(e.getMessage(), null);
         } catch (ScriptValidationException e) {
-            getApplication().getMainWindow().showNotification(getLocalizedMessage("validation.script.parser-exception") + e.getMessage(),
-                    Window.Notification.TYPE_WARNING_MESSAGE);
+            showWarningNotification("validation.script.parse-error", e.getMessage());
         } catch (Exception e) {
-            getApplication().getMainWindow().showNotification(getLocalizedMessage("validation.script.exception") + e.getMessage(),
-                    Window.Notification.TYPE_WARNING_MESSAGE);
+            showWarningNotification("validation.script.error", e.getMessage());
         }
+    }
+
+    private void showWarningNotification(String code, String message) {
+       getApplication().getMainWindow().showNotification(getLocalizedMessage(code) + nvl(message),
+                Window.Notification.TYPE_WARNING_MESSAGE);
+    }
+
+    private void showInfoNotification(String message) {
+        getApplication().getMainWindow().showNotification(getLocalizedMessage(message),
+                Window.Notification.TYPE_HUMANIZED_MESSAGE);
     }
 
     @Override

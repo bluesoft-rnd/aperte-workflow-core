@@ -52,6 +52,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.vaadin.ui.Alignment.*;
@@ -90,10 +91,10 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
     @AutoWiredProperty
     @AutoWiredPropertyConfigurator(fieldClass = ScriptUrlEditor.class)
     @AperteDoc(
-            humanNameKey = "widget.process_data_block.property.scriptUrl.name",
-            descriptionKey = "widget.process_data_block.property.scriptUrl.description"
+            humanNameKey = "widget.process_data_block.property.scriptExternalUrl.name",
+            descriptionKey = "widget.process_data_block.property.scriptExternalUrl.description"
     )
-    private String scriptUrl;
+    private String scriptExternalUrl;
 
     @AutoWiredProperty
     @AutoWiredPropertyConfigurator(fieldClass = ScriptCodeEditor.class)
@@ -128,12 +129,12 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         this.scriptEngineType = scriptEngineType;
     }
 
-    public String getScriptUrl() {
-        return scriptUrl;
+    public String getScriptExternalUrl() {
+        return scriptExternalUrl;
     }
 
-    public void setScriptUrl(String scriptUrl) {
-        this.scriptUrl = scriptUrl;
+    public void setScriptExternalUrl(String scriptExternalUrl) {
+        this.scriptExternalUrl = scriptExternalUrl;
     }
 
     public String getScriptSourceCode() {
@@ -398,7 +399,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
      * TODO: rethink this approach
      */
     protected void handleException(String message, Exception e) {
-        logger.severe(message + "<br/>" + e.getMessage());
+        logger.log(Level.SEVERE, message, e);
         VaadinUtility.validationNotification(getApplication(), i18NSource, message + "<br/>" + e.getMessage());
     }
 
@@ -440,7 +441,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
     private boolean executeScript() {
         boolean executed = false;
         try {
-            if (!hasText(getScriptEngineType()) || !hasText(getScriptSourceCode()) && !hasText(getScriptUrl()))
+            if (!hasText(getScriptEngineType()) || !hasText(getScriptSourceCode()) && !hasText(getScriptExternalUrl()))
                 return executed;
 
             Map<String, Object> fields = getFieldsMap(widgetsDefinitionElement.getWidgets());
@@ -448,7 +449,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
             ScriptProcessorRegistry registry = ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().lookupService(
                     ScriptProcessorRegistry.class.getName());
 //          TODO: some smart cacheing
-            InputStream is = loadSciptCode();
+            InputStream is = loadScriptCode();
             ScriptProcessor scriptProcessor = registry.getScriptProcessor(getScriptEngineType());
             if (scriptProcessor == null) {
                 logger.severe("Script processor not found: " + getScriptEngineType() + ", skipping script execution. ");
@@ -470,7 +471,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         Map<String, Object> map = new HashMap<String, Object>();
         for (WidgetElement we : widgets) {
             Property property = widgetDataSources.get(we);
-            if(property!= null && property.getValue() != null)
+            if (property != null && property.getValue() != null)
                 we.setValue(property.getValue());
             if (we.getId() != null) {
                 map.put(we.getId(), we);
@@ -481,13 +482,13 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         return map;
     }
 
-    private InputStream loadSciptCode() {
+    private InputStream loadScriptCode() {
 
         if (getScriptSourceCode() != null)
             return new ByteArrayInputStream(getScriptSourceCode().getBytes());
-        if (getScriptUrl() != null)
+        if (getScriptExternalUrl() != null)
             try {
-                return new URL(getScriptUrl()).openStream();
+                return new URL(getScriptExternalUrl()).openStream();
             } catch (IOException e) {
                 handleException(getMessage("validation.script.url-io-exception"), e);
             }
@@ -545,7 +546,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                 ((Field) component).addListener(new ValueChangeListener() {
                     @Override
                     public void valueChange(ValueChangeEvent event) {
-                        if(!executeScript())
+                        if (!executeScript())
                             return;
 
                         mainPanel.removeAllComponents();
@@ -564,6 +565,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
 
     /**
      * Override in subclasses for additional element/component processing
+     *
      * @param element
      * @param component
      */

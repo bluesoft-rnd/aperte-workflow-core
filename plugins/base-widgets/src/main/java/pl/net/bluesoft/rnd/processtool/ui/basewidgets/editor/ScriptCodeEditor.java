@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.util.Map;
 
 import static pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.EditorHelper.getLocalizedMessage;
+import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
 /**
  * Created by IntelliJ IDEA.
@@ -80,9 +81,7 @@ public class ScriptCodeEditor extends CustomField implements FormAwareField {
     }
 
     private void showWarningNotification(String code, String message) {
-        if(message == null)
-            message = "";
-        getApplication().getMainWindow().showNotification(getLocalizedMessage(code) + message,
+       getApplication().getMainWindow().showNotification(getLocalizedMessage(code) + nvl(message),
                 Window.Notification.TYPE_WARNING_MESSAGE);
     }
 

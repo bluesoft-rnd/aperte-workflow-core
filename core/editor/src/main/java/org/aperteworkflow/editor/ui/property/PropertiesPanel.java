@@ -58,7 +58,7 @@ public class PropertiesPanel extends Panel {
 		refreshForm(setCaption);
 		
 		for (Property<?> property : properties) {
-			final com.vaadin.ui.Field field = fieldFactory.createField(property);
+			final com.vaadin.ui.Field field = fieldFactory.createField(property, propertiesForm);
 			propertiesForm.addField(property, field);
 		}
 	}
@@ -68,7 +68,7 @@ public class PropertiesPanel extends Panel {
 	    
     	List<Property<?>> properties = classInfo.getProperties();
 		for (Property<?> property : properties) {
-			final com.vaadin.ui.Field field = fieldFactory.createField(property);
+			final com.vaadin.ui.Field field = fieldFactory.createField(property, propertiesForm);
 			propertiesForm.addField(property, field);
 			field.setValue(valuesMap.get(property.getPropertyId()));
 		}

@@ -76,14 +76,9 @@ public class ScriptUrlEditor extends CustomField implements FormAwareField {
             scriptProcessor.validate(is);
             url.commit();
             showInfoNotification("validation.script.ok");
+
         } catch (Validator.InvalidValueException e) {
             showWarningNotification(e.getMessage(), null);
-        } catch (ScriptValidationException e) {
-            showWarningNotification("validation.script.parse-error", e.getMessage());
-        } catch (MalformedURLException e) {
-            showWarningNotification("validation.script.url-error", e.getMessage());
-        } catch (IOException e) {
-            showWarningNotification("validation.script.io-error", e.getMessage());
         } catch (Exception e) {
             showWarningNotification("validation.script.error", e.getMessage());
         }
@@ -108,5 +103,15 @@ public class ScriptUrlEditor extends CustomField implements FormAwareField {
     @Override
     public void setFormProperties(Map<String, Property> map) {
         this.formProperties = map;
+    }
+
+    @Override
+    public Property getPropertyDataSource() {
+        return url.getPropertyDataSource();
+    }
+
+    @Override
+    public void setPropertyDataSource(Property newDataSource) {
+        url.setPropertyDataSource(newDataSource);
     }
 }

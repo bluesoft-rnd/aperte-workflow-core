@@ -52,6 +52,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -72,7 +73,8 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
 
     private ProcessDictionaryRegistry processDictionaryRegistry;
 
-    private Map<Property, WidgetElement> boundProperties = new HashMap<Property, WidgetElement>();
+    //during re-rendering widget, this map could be modified while is iterated - it must be thread safe
+    private Map<Property, WidgetElement> boundProperties = new ConcurrentHashMap<Property, WidgetElement> ();
     private Map<AbstractSelect, WidgetElement> dictContainers = new HashMap<AbstractSelect, WidgetElement>();
     private Map<AbstractSelect, WidgetElement> instanceDictContainers = new HashMap<AbstractSelect, WidgetElement>();
     private Map<String, ProcessInstanceAttribute> processAttributes = new HashMap<String, ProcessInstanceAttribute>();
@@ -297,7 +299,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                 try {
                     value = PropertyUtils.getProperty(processAttributes, element.getBind());
                 } catch (NestedNullException e) {
-                    logger.info(e.getMessage());
+                    logger.log(Level.SEVERE, e.getMessage(),e);
                 }
                 value = value instanceof ProcessInstanceSimpleAttribute ?
                         ((ProcessInstanceSimpleAttribute) value).getValue() : value;
@@ -430,7 +432,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
 
                 }
             } catch (Exception e) {
-                handleException(getMessage("validation.script.exception"), e);
+                handleException(getMessage("widget.process_data_block.editor.validation.script.error"), e);
                 mainPanel = null;
             }
         }
@@ -457,10 +459,11 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
             }
             scriptProcessor.process(fields, is);
             executed = true;
-
+            boundProperties.clear();
+            dictContainers.clear();
 
         } catch (Exception e) {
-            handleException(getMessage("validation.script.exception"), e);
+            handleException(getMessage("widget.process_data_block.editor.validation.script.error"), e);
             executed = false;
         }
         return executed;

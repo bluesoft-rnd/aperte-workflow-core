@@ -20,6 +20,8 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.EditorHelper.getLocalizedMessage;
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
@@ -34,6 +36,7 @@ public class ScriptUrlEditor extends CustomField implements FormAwareField {
 
     private final TextField url;
     private Map<String, Property> formProperties;
+    private static final Logger logger = Logger.getLogger(ScriptUrlEditor.class.getName());
 
     public ScriptUrlEditor() {
         HorizontalLayout hl = new HorizontalLayout();
@@ -78,8 +81,10 @@ public class ScriptUrlEditor extends CustomField implements FormAwareField {
             showInfoNotification("validation.script.ok");
 
         } catch (Validator.InvalidValueException e) {
+            logger.log(Level.SEVERE, e.getMessage(), e);
             showWarningNotification(e.getMessage(), null);
         } catch (Exception e) {
+            logger.log(Level.SEVERE, e.getMessage(), e);
             showWarningNotification("validation.script.error", e.getMessage());
         }
     }

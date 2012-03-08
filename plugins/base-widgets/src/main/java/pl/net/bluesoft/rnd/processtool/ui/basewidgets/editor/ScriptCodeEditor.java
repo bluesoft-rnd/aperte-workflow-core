@@ -15,6 +15,8 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.EditorHelper.getLocalizedMessage;
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
@@ -29,6 +31,7 @@ public class ScriptCodeEditor extends CustomField implements FormAwareField {
 
     private Map<String, Property> formProperties;
     private final TextArea code;
+    private static final Logger logger = Logger.getLogger(ScriptCodeEditor.class.getName());
 
     public ScriptCodeEditor() {
 
@@ -72,8 +75,10 @@ public class ScriptCodeEditor extends CustomField implements FormAwareField {
             code.commit();
             showInfoNotification("validation.script.ok");
         } catch (Validator.InvalidValueException e) {
+            logger.log(Level.SEVERE, e.getMessage(), e);
             showWarningNotification(e.getMessage(), null);
         } catch (Exception e) {
+            logger.log(Level.SEVERE, e.getMessage(), e);
             showWarningNotification("validation.script.error", e.getMessage());
         }
     }

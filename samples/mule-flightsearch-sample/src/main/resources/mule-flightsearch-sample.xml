@@ -24,6 +24,7 @@ http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/em
         <scripting:component doc:name="Groovy">
             <scripting:script engine="Groovy">
                 <scripting:text >
+                        //search engine emulation and validation
                         try {
                         def dDate = payload.getSimpleAttributeValue("departureDate");
                         def rDate = payload.getSimpleAttributeValue("returnDate");
@@ -84,11 +85,45 @@ http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/em
                           fromAddress="aperteworkflow@gmail.com" replyToAddresses="aperteworkflow@gmail.com"
                           subject="AW TEST">
     </smtp:gmail-connector>
+
+    <script:transformer name="orderAttachementTransformer">
+        <script:script engine="groovy">
+            <script:text>
+                //tranformer attaching a file to an email
+                import java.io.InputStream;
+                import javax.activation.DataHandler;
+                import javax.mail.util.ByteArrayDataSource;
+                import org.mule.api.MuleMessage;
+                import org.mule.api.transformer.TransformerException;
+                import org.mule.api.transport.PropertyScope;
+                InputStream s = (InputStream) message.getProperty("stream", PropertyScope.OUTBOUND);
+                try {
+                ByteArrayDataSource document = new ByteArrayDataSource(s, "application/pdf");
+                document.setName("card.pdf");
+                DataHandler attachement = new DataHandler(document);
+                message.addOutboundAttachment("UTF-8", attachement);
+                } catch (Exception e) {
+                System.out.println("Failed")
+                e.printStackTrace();
+                }
+                System.out.println("Document Attached")
+                return payload;
+            </script:text>
+        </script:script>
+    </script:transformer>
+
     <flow name="confirmation" doc:name="confirmation">
         <vm:inbound-endpoint address="vm://confirmation" exchange-pattern="request-response"/>
+        <enricher target="#[header:confirmationAddress]">
+            <expression-transformer>
+                <return-argument evaluator="groovy"
+                                 expression="payload.getSimpleAttributeValue('email')"/>
+            </expression-transformer>
+        </enricher>
         <script:component>
             <script:script engine="groovy">
                 <script:text>
+                        //generating reservation number and sending and email
                         def text = "&lt;h3&gt;Dear %s %s %s, &lt;/h3&gt;"
                         text += "Your have just booked flight:"
                         text += "&lt;h2&gt;%s&lt;/h2&gt;"
@@ -115,14 +150,20 @@ http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/em
                         def msg = String.format(text, salutation, firstName, lastName, flight, reservationNr)
                         payload.setSimpleAttribute("msg", msg)
                         System.out.println("uncomment smtp tag in mule-flightsearch-sample.xml to send emails");
-                        return payload;
+                        return msg;
                 </script:text>
             </script:script>
         </script:component>
         <!--To enable emails, one has to povide correct user and password-->
-        <!--<smtp:outbound-endpoint connector-ref="gmailConn" host="smtp.gmail.com" port="587" user="[YOUR PASSWORD]" password="[***PROTECTED***]"  doc:name="SMTP">-->
-            <!--<custom-transformer class="pl.net.bluesoft.rnd.awf.mule.transformer.ProcessInstanceToEmailTransformer"/>-->
+
+        <!--<smtp:outbound-endpoint connector-ref="gmailConn"   encoding="UTF-8"-->
+                                <!--host="smtp.gmail.com" port="587" user="[USER]" password="[***PROTECTED***]"-->
+                                <!--to="#[header:confirmationAddress]">-->
+            <!--<transformer ref="orderAttachementTransformer"/>-->
+            <!--<email:object-to-mime-transformer-->
+                    <!--mimeType="application/pdf" useOutboundAttachments="true"/>-->
             <!--<email:string-to-email-transformer/>-->
         <!--</smtp:outbound-endpoint>-->
+
     </flow>
 </mule>

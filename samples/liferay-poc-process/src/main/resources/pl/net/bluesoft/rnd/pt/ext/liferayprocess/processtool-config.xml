@@ -231,7 +231,7 @@
                 <config.ProcessStateAction bpmName="to ACCEPTED" label="Accept"
                                            description="Accept this submission"
                                            buttonName="CommentButton"
-                                           priority="10" autohide="true">
+                                           priority="20" autohide="true">
                     <permissions>
                         <config.ProcessStateActionPermission roleName=".*"/>
                     </permissions>
@@ -239,7 +239,7 @@
                 <config.ProcessStateAction bpmName="REJECT" label="Reject"
                                            description="Reject this submission"
                                            buttonName="CommentButton"
-                                           priority="10" autohide="true">
+                                           priority="30" autohide="true">
                     <permissions>
                         <config.ProcessStateActionPermission roleName=".*"/>
                     </permissions>

@@ -252,10 +252,10 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                     ProcessInstanceAttribute attribute = fetchOrCreateAttribute(element);
                     if (attribute instanceof ProcessInstanceSimpleAttribute) {
                         if (element instanceof DateWidgetElement) {
-                            if (component.getValue() != null)
-                                ((ProcessInstanceSimpleAttribute) attribute).setValue(
-                                        new SimpleDateFormat(((DateWidgetElement) element).getFormat()).format(component.getValue())
-                                );
+                            String dateString = null;
+							if (component.getValue() != null)
+                                dateString = new SimpleDateFormat(((DateWidgetElement) element).getFormat()).format(component.getValue());
+                            ((ProcessInstanceSimpleAttribute) attribute).setValue(dateString);
                         } else if (component.getValue() != null) {
                             ((ProcessInstanceSimpleAttribute) attribute).setValue(component.getValue().toString());
                         }

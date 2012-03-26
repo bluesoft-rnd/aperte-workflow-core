@@ -818,7 +818,10 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         if (nvl(iwe.getRequired(), false)) {
             field.setRequired(true);
             if (hasText(iwe.getCaption())) {
-                field.setRequiredError(getMessage("processdata.block.field-required-error") + " " + iwe.getCaption());
+            	String caption = iwe.getCaption();
+            	if(caption.endsWith(":"))
+            		caption = caption.substring(0, caption.length() - 1);
+                field.setRequiredError(getMessage("processdata.block.field-required-error") + " " + caption);
             } else {
                 field.setRequiredError(getMessage("processdata.block.field-required-error"));
             }

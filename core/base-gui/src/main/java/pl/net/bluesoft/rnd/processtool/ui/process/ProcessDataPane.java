@@ -1,33 +1,63 @@
 package pl.net.bluesoft.rnd.processtool.ui.process;
 
-import com.vaadin.Application;
-import com.vaadin.event.ShortcutAction;
-import com.vaadin.event.ShortcutListener;
-import com.vaadin.ui.*;
-import org.apache.commons.beanutils.BeanUtils;
-import org.aperteworkflow.util.vaadin.VaadinUtility;
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.model.config.*;
-import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.*;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
-import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import pl.net.bluesoft.util.lang.StringUtil;
+import static com.vaadin.ui.Label.CONTENT_XHTML;
+import static org.aperteworkflow.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
+import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.vaadin.ui.Label.CONTENT_XHTML;
-import static org.aperteworkflow.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
-import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang.StringUtils;
+import org.aperteworkflow.util.vaadin.VaadinUtility;
+
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateActionAttribute;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidgetAttribute;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolActionButton;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolActionCallback;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinActionButton;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinWidget;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+import pl.net.bluesoft.util.lang.StringUtil;
+
+import com.vaadin.Application;
+import com.vaadin.event.ShortcutAction;
+import com.vaadin.event.ShortcutListener;
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Panel;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
+import com.vaadin.ui.themes.BaseTheme;
+import com.vaadin.ui.themes.ChameleonTheme;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -149,6 +179,9 @@ public class ProcessDataPane extends VerticalLayout {
 
             final ProcessToolActionButton actionButton = makeButton(a);
             Button button = new Button(getMessage(actionButton.getLabel(process)));
+            if(ProcessStateAction.SECONDARY_ACTION.equals(a.getActionType()))
+            	button.setStyleName(BaseTheme.BUTTON_LINK);
+            button.addStyleName(a.getActionType());
             button.addStyleName("default");
             button.setDescription(getMessage(actionButton.getDescription(process)));
 
@@ -191,6 +224,7 @@ public class ProcessDataPane extends VerticalLayout {
             });
             button.setEnabled(isOwner);
             buttonLayout.addComponent(button);
+            buttonLayout.setComponentAlignment(button, Alignment.MIDDLE_CENTER);
         }
 
         HorizontalLayout masterLayout = new HorizontalLayout();
@@ -461,14 +495,22 @@ public class ProcessDataPane extends VerticalLayout {
                 return 0;
             }
 
-            if (a1.getPriority() != null && a1.getPriority() != null) {
-                return a1.getPriority().compareTo(a2.getPriority());
-            } else if (a1.getPriority() != null && a2.getPriority() == null) {
-                return 1;
-            } else if (a1.getPriority() == null && a2.getPriority() != null) {
+            if (a1.getActionType() != null && a1.getActionType() != null && !a1.getActionType().equals(a2.getActionType())) {
+                return ProcessStateAction.SECONDARY_ACTION.equals(a1.getActionType()) ? -1 : 1;
+            } else if (a1.getActionType() != null && a2.getActionType() == null) {
                 return -1;
+            } else if (a1.getActionType() == null && a2.getActionType() != null) {
+                return 1;
             } else {
-                return a1.getId().compareTo(a2.getId());
+                if (a1.getPriority() != null && a1.getPriority() != null) {
+                    return a1.getPriority().compareTo(a2.getPriority());
+                } else if (a1.getPriority() != null && a2.getPriority() == null) {
+                    return 1;
+                } else if (a1.getPriority() == null && a2.getPriority() != null) {
+                    return -1;
+                } else {
+                    return a1.getId().compareTo(a2.getId());
+                }
             }
         }
     }

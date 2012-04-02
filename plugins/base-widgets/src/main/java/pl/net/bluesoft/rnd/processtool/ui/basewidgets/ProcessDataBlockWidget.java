@@ -7,6 +7,7 @@ import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.Validatable;
 import com.vaadin.data.Validator.InvalidValueException;
+import com.vaadin.data.validator.AbstractValidator;
 import com.vaadin.data.validator.RegexpValidator;
 import com.vaadin.data.validator.StringLengthValidator;
 import com.vaadin.terminal.ExternalResource;
@@ -868,20 +869,29 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
             try {
                 boolean usesCurrent = XmlConstants.DATE_CURRENT.equalsIgnoreCase(dwe.getNotAfter());
                 final Date notAfter = (usesCurrent) ? sdf.parse(sdf.format(new Date())) : sdf.parse(dwe.getNotAfter());
-                field.addListener(new ValueChangeListener() {
-                    @Override
-                    public void valueChange(ValueChangeEvent event) {
-                        Object value = event.getProperty().getValue();
-                        if (value != null && value instanceof Date) {
-                            if (notAfter.before((Date) value)) {
-//                                TODO: TODO: notification fails on preview, because application object is only a stub
-                                VaadinUtility.validationNotification(getApplication(), i18NSource,
-                                        getMessage("processdata.block.error.date.notafter").replaceFirst("%s", dwe.getNotAfter()));
-                                field.setValue(notAfter);
-                            }
-                        }
-                    }
-                });
+                field.addValidator(new AbstractValidator(getMessage("processdata.block.error.date.notafter").replaceFirst("%s", dwe.getNotAfter())) {
+					@Override
+					public boolean isValid(Object value) {
+						return value == null || !notAfter.before((Date) value);
+					}
+				});
+                //why notify and interrupt?
+                //we already have a perfect validation mechanisms
+                //so let's use classic validators
+//                field.addListener(new ValueChangeListener() {
+//                    @Override
+//                    public void valueChange(ValueChangeEvent event) {
+//                        Object value = event.getProperty().getValue();
+//                        if (value != null && value instanceof Date) {
+//                            if (notAfter.before((Date) value)) {
+////                                TODO: TODO: notification fails on preview, because application object is only a stub
+//                                VaadinUtility.validationNotification(getApplication(), i18NSource,
+//                                        getMessage("processdata.block.error.date.notafter").replaceFirst("%s", dwe.getNotAfter()));
+//                                field.setValue(notAfter);
+//                            }
+//                        }
+//                    }
+//                });
             } catch (ParseException e) {
                 handleException(getMessage("processdata.block.error.unparsable.date").replaceFirst("%s", dwe.getNotAfter()), e);
             }
@@ -890,20 +900,26 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
             try {
                 boolean usesCurrent = XmlConstants.DATE_CURRENT.equalsIgnoreCase(dwe.getNotBefore());
                 final Date notBefore = (usesCurrent) ? sdf.parse(sdf.format(new Date())) : sdf.parse(dwe.getNotBefore());
-                field.addListener(new ValueChangeListener() {
-                    @Override
-                    public void valueChange(ValueChangeEvent event) {
-                        Object value = event.getProperty().getValue();
-                        if (value != null && value instanceof Date) {
-                            if (notBefore.after((Date) value)) {
-//                                TODO: notification fails on preview, because application object is only a stub
-                                VaadinUtility.validationNotification(getApplication(), i18NSource,
-                                        getMessage("processdata.block.error.date.notbefore").replaceFirst("%s", dwe.getNotBefore()));
-                                field.setValue(notBefore);
-                            }
-                        }
-                    }
-                });
+                field.addValidator(new AbstractValidator(getMessage("processdata.block.error.date.notbefore").replaceFirst("%s", dwe.getNotBefore())) {
+					@Override
+					public boolean isValid(Object value) {
+						return value == null || !notBefore.after((Date) value);
+					}
+				});
+//                field.addListener(new ValueChangeListener() {
+//                    @Override
+//                    public void valueChange(ValueChangeEvent event) {
+//                        Object value = event.getProperty().getValue();
+//                        if (value != null && value instanceof Date) {
+//                            if (notBefore.after((Date) value)) {
+////                                TODO: notification fails on preview, because application object is only a stub
+//                                VaadinUtility.validationNotification(getApplication(), i18NSource,
+//                                        getMessage("processdata.block.error.date.notbefore").replaceFirst("%s", dwe.getNotBefore()));
+//                                field.setValue(notBefore);
+//                            }
+//                        }
+//                    }
+//                });
             } catch (ParseException e) {
                 handleException(getMessage("processdata.block.error.unparsable.date").replaceFirst("%s", dwe.getNotBefore()), e);
             }

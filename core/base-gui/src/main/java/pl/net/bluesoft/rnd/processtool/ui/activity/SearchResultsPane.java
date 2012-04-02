@@ -5,7 +5,6 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.ui.tasks.TasksMainPane;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -39,9 +38,7 @@ public class SearchResultsPane extends ProcessListPane {
     @Override
     protected Component getTaskItem(TasksMainPane.TaskTableItem tti) {
         final ProcessInstance pi = tti.getProcessInstance();
-        Panel p = new Panel(getMessage(pi.getDefinition().getDescription()) + " " +
-                nvl(pi.getExternalKey(), pi.getInternalId()) + " " +
-                new SimpleDateFormat("yyyy-MM-dd").format(pi.getCreateDate()));
+        Panel p = new Panel(buildTaskItemHeader(pi));
         VerticalLayout vl = new VerticalLayout();
         Label titleLabel = new Label(getMessage(tti.getState()));
         titleLabel.addStyleName("h2 color processtool-title");

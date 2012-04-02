@@ -45,7 +45,10 @@ public class MyProcessesListPane extends ProcessListPane {
 
     @Override
     protected Component getTaskItem(final TasksMainPane.TaskTableItem tti) {
-		Panel p = new Panel();
+    	ProcessInstance pi = tti.getProcessInstance();
+
+		Panel p = new Panel(buildTaskItemHeader(pi));
+
         p.setWidth("100%");
         p.addStyleName("tti-panel");
 
@@ -60,9 +63,6 @@ public class MyProcessesListPane extends ProcessListPane {
         });
 
         // the icon
-
-        ProcessInstance pi = tti.getProcessInstance();
-
         Embedded taskIcon = new Embedded(null, createTaskIcon(tti));
         taskIcon.setDescription(getMessage(pi.getDefinition().getDescription()));
 

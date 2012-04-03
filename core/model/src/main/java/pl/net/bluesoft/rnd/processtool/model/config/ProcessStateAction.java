@@ -14,6 +14,9 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 @Entity
 @Table(name="pt_process_state_action")
 public class ProcessStateAction extends PersistentEntity {
+	final static public String PRIMARY_ACTION="primary";
+	final static public String SECONDARY_ACTION="secondary";
+
 	@ManyToOne
 	@JoinColumn(name="state_id")
 	private ProcessStateConfiguration config;
@@ -22,6 +25,7 @@ public class ProcessStateAction extends PersistentEntity {
 	private String label;
 	private String description;
 	private String buttonName = "Default";
+	private String actionType = "primary";
 
 	@OneToMany(cascade = CascadeType.ALL)
 	@JoinColumn(name="action_id")
@@ -119,4 +123,12 @@ public class ProcessStateAction extends PersistentEntity {
     public void setLabel(String label) {
         this.label = label;
     }
+
+	public String getActionType() {
+		return actionType;
+	}
+
+	public void setActionType(String actionType) {
+		this.actionType = actionType;
+	}
 }

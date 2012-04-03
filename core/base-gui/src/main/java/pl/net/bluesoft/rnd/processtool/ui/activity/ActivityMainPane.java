@@ -83,7 +83,7 @@ public class ActivityMainPane extends HorizontalLayout {
 	}
 
     public void displaySearchResults(String query) {
-        SearchResultsPane toDisplay = new SearchResultsPane(query, this);
+        ProcessListPane toDisplay = new SearchResultsPane(query, this);
         toDisplay.refreshData();
         show(toDisplay);
     }

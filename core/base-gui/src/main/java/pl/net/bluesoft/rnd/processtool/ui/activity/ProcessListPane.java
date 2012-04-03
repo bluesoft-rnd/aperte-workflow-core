@@ -12,11 +12,13 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.ui.tasks.TasksMainPane;
 import org.aperteworkflow.util.vaadin.VaadinUtility.HasRefreshButton;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static pl.net.bluesoft.rnd.util.i18n.I18NSource.ThreadUtil.getLocalizedMessage;
+import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 import static org.aperteworkflow.util.vaadin.VaadinUtility.horizontalLayout;
 import static org.aperteworkflow.util.vaadin.VaadinUtility.refreshIcon;
 
@@ -221,4 +223,10 @@ public abstract class ProcessListPane extends VerticalLayout implements HasRefre
         }
         return resourceCache.get(path);
     }
+
+	protected String buildTaskItemHeader(final ProcessInstance pi) {
+		return getMessage(pi.getDefinition().getDescription()) + " " +
+	            nvl(pi.getExternalKey(), pi.getInternalId()) + " " +
+	            new SimpleDateFormat("yyyy-MM-dd").format(pi.getCreateDate());
+	}
 }

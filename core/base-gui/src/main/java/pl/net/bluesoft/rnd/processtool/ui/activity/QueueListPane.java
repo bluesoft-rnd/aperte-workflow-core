@@ -50,9 +50,7 @@ public class QueueListPane extends ProcessListPane {
 	@Override
 	protected Component getTaskItem(final TasksMainPane.TaskTableItem tti) {
         final ProcessInstance pi = tti.getProcessInstance();
-		Panel p = new Panel(getMessage(pi.getDefinition().getDescription()) + " " +
-				              nvl(pi.getExternalKey(), pi.getInternalId()) + " " +
-				              new SimpleDateFormat("yyyy-MM-dd").format(pi.getCreateDate()));
+		Panel p = new Panel(buildTaskItemHeader(pi));
 		VerticalLayout vl = new VerticalLayout();
 		Label titleLabel = new Label(getMessage(tti.getState()));
 		titleLabel.addStyleName("h2 color processtool-title");
@@ -101,7 +99,7 @@ public class QueueListPane extends ProcessListPane {
 	}
 
     protected void displayProcessData(ProcessInstance processInstance) {
-        activityMainPane.displayProcessData(processInstance);        
+        activityMainPane.displayProcessData(processInstance);
     }
 
 	protected List<ProcessInstance> getProcessInstances(String filterExpression, int offset, int limit) {

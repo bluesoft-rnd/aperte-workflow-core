@@ -67,7 +67,7 @@ public abstract class PTDictEntryProvider implements DictEntryProvider {
 		}
 		this.i18NSource = params.getI18NSource();
 
-		ProcessToolContext ctx = ProcessToolContext.Util.getProcessToolContextFromThread();
+		ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
 		ProcessDictionaryRegistry processDictionaryRegistry = ctx.getProcessDictionaryRegistry();
 		dict = getDictionary(processDictionaryRegistry, params);
 

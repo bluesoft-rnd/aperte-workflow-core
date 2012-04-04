@@ -2,15 +2,19 @@ package pl.net.bluesoft.rnd.processtool.bpm.impl;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent;
+import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent.Type;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceSimpleAttribute;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.processtool.event.ProcessToolEventBusManager;
+import pl.net.bluesoft.rnd.processtool.hibernate.TransactionFinishedCallback;
+import pl.net.bluesoft.rnd.processtool.model.*;
 import pl.net.bluesoft.rnd.processtool.model.config.*;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.util.eventbus.EventBusManager;
+import pl.net.bluesoft.util.lang.Collections;
 import pl.net.bluesoft.util.lang.Mapcar;
+import pl.net.bluesoft.util.lang.Pair;
+import pl.net.bluesoft.util.lang.Predicate;
 
 import java.io.Serializable;
 import java.util.*;
@@ -19,7 +23,8 @@ import java.util.logging.Logger;
 /**
  * @author tlipski@bluesoft.net.pl
  */
-public abstract class AbstractProcessToolSession implements ProcessToolBpmSession, Serializable {
+public abstract class AbstractProcessToolSession
+        implements ProcessToolBpmSession, Serializable {
 
     protected Logger log = Logger.getLogger(ProcessToolBpmSession.class.getName());
 
@@ -28,22 +33,16 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
      * Of course, the implementation can load the roleNames by itself.
      */
     protected UserData user;
-    protected Collection<String> roleNames;
-    protected UserData substitutingUser;
-
     protected EventBusManager eventBusManager;
+    protected Collection<String> roleNames;
 
-//    protected ProcessDefinitionDAO processDefinitionDAO;
-//    protected ProcessInstanceDAO processInstanceDAO;
+    protected UserData substitutingUser;
+    protected EventBusManager substitutingUserEventBusManager;
 
-    /**
-     * @param user
-     * @param roleNames
-     */
-    public AbstractProcessToolSession(UserData user, Collection<String> roleNames) {
+    public AbstractProcessToolSession(UserData user, Collection<String> roleNames, ProcessToolRegistry registry) {
         this.user = user;
         this.roleNames = new HashSet<String>(roleNames);
-        this.eventBusManager = new EventBusManager();
+        this.eventBusManager = new ProcessToolEventBusManager(registry, registry.getExecutorService());
         log.finest("Created session for user: " + user);
     }
 
@@ -55,13 +54,14 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
             throw new IllegalArgumentException("Process definition has been disabled!");
         }
         ProcessInstance pi = new ProcessInstance();
-	    pi.setDefinition(config);
-	    pi.setCreator(user);
-	    pi.setDefinitionName(config.getBpmDefinitionKey());
-	    pi.setCreateDate(new Date());
-	    pi.setExternalKey(externalKey);
-	    pi.setDescription(description);
-	    pi.setKeyword(keyword);
+        pi.setDefinition(config);
+        pi.setCreator(user);
+        pi.setDefinitionName(config.getBpmDefinitionKey());
+        pi.setCreateDate(new Date());
+        pi.setExternalKey(externalKey);
+        pi.setDescription(description);
+        pi.setKeyword(keyword);
+        pi.setStatus(ProcessStatus.NEW);
 
         if (user != null) {
             ProcessInstanceSimpleAttribute attr = new ProcessInstanceSimpleAttribute();
@@ -80,24 +80,49 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
         pi.addAttribute(attr);
 
         ctx.getProcessInstanceDAO().saveProcessInstance(pi);
-	    pi = startProcessInstance(config, externalKey, ctx, pi);
+        pi = startProcessInstance(config, externalKey, ctx, pi);
 
-	    pi.setState(getProcessState(pi, ctx));
+        user = findOrCreateUser(user, ctx);
 
-	    ProcessInstanceLog log = new ProcessInstanceLog();
-	    log.setState(ctx.getProcessDefinitionDAO().getProcessStateConfiguration(pi));
-	    log.setEntryDate(Calendar.getInstance());
-	    log.setEventI18NKey("process.log.process-started");
-	    log.setUser(ctx.getProcessInstanceDAO().findOrCreateUser(user));
-	    log.setLogType(ProcessInstanceLog.LOG_TYPE_START_PROCESS);
-
-	    pi.addProcessLog(log);
+        ProcessInstanceLog log = new ProcessInstanceLog();
+        log.setState(null);
+        log.setEntryDate(Calendar.getInstance());
+        log.setEventI18NKey("process.log.process-started");
+        log.setUser(user);
+        log.setLogType(ProcessInstanceLog.LOG_TYPE_START_PROCESS);
+        //log.setLogType(LogType.START);
+        pi.addProcessLog(log);
 
         ctx.getProcessInstanceDAO().saveProcessInstance(pi);
-        eventBusManager.publish(new BpmEvent(BpmEvent.Type.NEW_PROCESS, pi, user));
-	    ctx.getEventBusManager().publish(new BpmEvent(BpmEvent.Type.NEW_PROCESS, pi, user));
+
+        List<BpmEvent> events = new ArrayList<BpmEvent>();
+        events.add(new BpmEvent(Type.NEW_PROCESS, pi, user));
+
+        for (BpmTask task : findProcessTasks(pi, ctx)) {
+            events.add(new BpmEvent(Type.ASSIGN_TASK, task, user));
+        }
+
+        for (BpmEvent event : events) {
+            broadcastEvent(ctx, event);
+        }
 
         return pi;
+    }
+
+    protected void broadcastEvent(final ProcessToolContext ctx, final BpmEvent event) {
+        eventBusManager.publish(event);
+        if (substitutingUserEventBusManager != null)
+            substitutingUserEventBusManager.publish(event);
+        ctx.addTransactionCallback(new TransactionFinishedCallback() {
+            @Override
+            public void onFinished() {
+                ctx.getEventBusManager().post(event);
+            }
+        });
+    }
+
+    protected UserData findOrCreateUser(UserData user, ProcessToolContext ctx) {
+        return ctx.getProcessInstanceDAO().findOrCreateUser(user);
     }
 
     public ProcessStateConfiguration getProcessStateConfiguration(ProcessInstance pi, ProcessToolContext ctx) {
@@ -107,7 +132,7 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
         res.setDescription(configuration.getDescription());
         res.setCommentary(configuration.getCommentary());
         res.setName(configuration.getName());
-        Set<ProcessStateWidget> newWidgetList = new HashSet();
+        Set<ProcessStateWidget> newWidgetList = new HashSet<ProcessStateWidget>();
         for (ProcessStateWidget widget : configuration.getWidgets()) {
             Set<ProcessStateWidgetPermission> permissions = widget.getPermissions();
             if (permissions.isEmpty()) {
@@ -122,7 +147,7 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
         res.setWidgets(newWidgetList);
 
         //actions
-        Set<ProcessStateAction> actionList = new HashSet();
+        Set<ProcessStateAction> actionList = new HashSet<ProcessStateAction>();
         for (ProcessStateAction a : configuration.getActions()) {
             if (a.getPermissions().isEmpty()) {
                 actionList.add(a);
@@ -155,21 +180,64 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
         return getPermissions(action.getPermissions());
     }
 
+    public boolean hasPermissionsForDefinitionConfig(ProcessDefinitionConfig config) {
+        if (config.getPermissions() == null || config.getPermissions().isEmpty()) {
+            return true;
+        }
+
+        Pair<Collection<ProcessDefinitionPermission>, Collection<ProcessDefinitionPermission>> pair =
+                Collections.halve(config.getPermissions(), new Predicate<ProcessDefinitionPermission>() {
+                    @Override
+                    public boolean apply(ProcessDefinitionPermission input) {
+                        return PRIVILEGE_EXCLUDE.equalsIgnoreCase(input.getPrivilegeName());
+                    }
+                });
+
+        Collection<ProcessDefinitionPermission> excludes = pair.getFirst();
+        if (!excludes.isEmpty()) {
+            ProcessDefinitionPermission permission = Collections.firstMatching(excludes, new Predicate<ProcessDefinitionPermission>() {
+                @Override
+                public boolean apply(ProcessDefinitionPermission input) {
+                    return hasMatchingRole(input.getRoleName());
+                }
+            });
+            if (permission != null) {
+                return false;
+            }
+        }
+        Collection<ProcessDefinitionPermission> includes = pair.getSecond();
+        ProcessDefinitionPermission permission = Collections.firstMatching(includes, new Predicate<ProcessDefinitionPermission>() {
+            @Override
+            public boolean apply(ProcessDefinitionPermission input) {
+                return hasMatchingRole(input.getRoleName());
+            }
+        });
+
+        return permission != null || includes.isEmpty();
+    }
+
     public EventBusManager getEventBusManager() {
         return eventBusManager;
     }
 
-	public String getUserLogin() {
-		return user.getLogin();
-	}
+    public String getUserLogin() {
+        return user.getLogin();
+    }
+
     @Override
     public UserData getUser(ProcessToolContext ctx) {
-        return ctx.getUserDataDAO().loadOrCreateUserByLogin(user);
+        user = loadOrCreateUser(ctx, user);
+        return user;
+    }
+
+    @Override
+    public UserData loadOrCreateUser(ProcessToolContext ctx, UserData userData) {
+        return findOrCreateUser(userData, ctx);
     }
 
     @Override
     public UserData getSubstitutingUser(ProcessToolContext ctx) {
-        return substitutingUser != null ? ctx.getUserDataDAO().loadOrCreateUserByLogin(substitutingUser) : null;
+        return substitutingUser != null ? findOrCreateUser(substitutingUser, ctx) : null;
     }
 
     @Override
@@ -177,8 +245,14 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
         return ctx.getProcessInstanceDAO().getProcessInstanceByInternalId(internalId);
     }
 
+    public ProcessInstance refreshProcessData(ProcessInstance pi, ProcessToolContext ctx) {
+        return ctx.getProcessInstanceDAO().refreshProcessInstance(pi);
+    }
+
     @Override
-    public void saveProcessInstance(ProcessInstance processInstance, ProcessToolContext ctx) {
+    public void saveProcessInstance(pl.net.bluesoft.rnd.processtool.model.ProcessInstance
+                                                processInstance, ProcessToolContext ctx) {
+        ctx.updateContext(processInstance);
         ctx.getProcessInstanceDAO().saveProcessInstance(processInstance);
     }
 
@@ -191,7 +265,7 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
         for (ProcessDefinitionConfig cfg : activeConfigurations) {
             if (cfg.getPermissions().isEmpty()) {
                 res.add(cfg);
-            }
+    }
             for (ProcessDefinitionPermission permission : cfg.getPermissions()) {
                 String roleName = permission.getRoleName();
                 if ("RUN".equals(permission.getPrivilegeName()) && roleName != null && hasMatchingRole(roleName)) {
@@ -200,7 +274,7 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
                 }
             }
         }
-        Collections.sort(res);
+        java.util.Collections.sort(res);
         return res;
     }
 
@@ -236,8 +310,9 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
                 ProcessQueue pq = new ProcessQueue();
                 pq.setBrowsable(browsable);
                 pq.setName(x.getName());
-	            pq.setDescription(x.getDescription());
+                pq.setDescription(x.getDescription());
                 pq.setProcessCount(0);
+                pq.setUserAdded(x.getUserAdded());
                 return pq;
             }
         }.go();
@@ -251,6 +326,11 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
         }
         return false;
     }
+
+    protected ProcessToolContext getCurrentContext() {
+        return ProcessToolContext.Util.getThreadProcessToolContext();
+    }
+
 
     @Override
     public Collection<String> getRoleNames() {

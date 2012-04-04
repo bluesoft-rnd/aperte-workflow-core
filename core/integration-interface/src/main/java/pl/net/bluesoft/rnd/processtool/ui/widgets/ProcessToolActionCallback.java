@@ -1,11 +1,13 @@
 package pl.net.bluesoft.rnd.processtool.ui.widgets;
 
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
+import pl.net.bluesoft.rnd.processtool.ui.WidgetContextSupport;
 
 /**
- * @author tlipski@bluesoft.net.pl
+ * @author amichalak@bluesoft.net.pl
  */
 public interface ProcessToolActionCallback {
-	boolean saveProcessData();
-	void performAction(ProcessStateAction a);
+    void actionPerformed(ProcessStateAction action);
+    void actionFailed(ProcessStateAction action);
+    WidgetContextSupport getWidgetContextSupport();
 }

@@ -31,4 +31,16 @@ public abstract class PersistentEntity implements Serializable {
     public void setId(Long id) {
         this.id = id;
     }
+
+/*    @Version
+    @Column(name = "optlock")
+    protected Integer optLock;
+
+    public Integer getOptLock() {
+        return optLock;
+    }
+
+    public void setOptLock(Integer optLock) {
+        this.optLock = optLock;
+    }*/
 }

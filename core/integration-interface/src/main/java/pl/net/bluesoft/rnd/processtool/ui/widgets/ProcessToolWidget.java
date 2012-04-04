@@ -1,6 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.ui.widgets;
 
 import com.vaadin.Application;
+
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
@@ -21,6 +22,8 @@ public interface ProcessToolWidget {
 	
 	void setParent(ProcessToolWidget parent);
 	void addChild(ProcessToolWidget child);
+	void setGeneratorKey(String key);
+	String getGeneratorKey();
 	ProcessStateWidget getConfiguration();
 	String getAttributeValue(String key);
 

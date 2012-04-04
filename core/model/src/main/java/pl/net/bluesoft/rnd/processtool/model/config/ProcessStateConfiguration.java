@@ -11,13 +11,15 @@ import java.util.Set;
  */
 
 @Entity
-@Table(name="pt_process_state_configuration")
+@Table(name = "pt_process_state_config")
 public class ProcessStateConfiguration extends PersistentEntity {
 	private String name;
     @Column(length = 2048)
 	private String description;
     @Column(length = 2048)
     private String commentary;
+
+    private Boolean enableManualSave;
 
 	@OneToMany(cascade = CascadeType.ALL)
 	@JoinColumn(name="state_id")
@@ -35,6 +37,14 @@ public class ProcessStateConfiguration extends PersistentEntity {
 	@ManyToOne
 	@JoinColumn(name="definition_id")
 	private ProcessDefinitionConfig definition;
+
+    public Boolean getEnableManualSave() {
+        return enableManualSave;
+    }
+
+    public void setEnableManualSave(Boolean enableManualSave) {
+        this.enableManualSave = enableManualSave;
+    }
 
 	public ProcessDefinitionConfig getDefinition() {
 		return definition;

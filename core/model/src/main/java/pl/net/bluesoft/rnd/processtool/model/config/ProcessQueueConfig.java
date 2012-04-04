@@ -15,6 +15,7 @@ import java.util.Set;
 public class ProcessQueueConfig extends PersistentEntity {
 	private String name;
 	private String description;
+	private Boolean userAdded;
 
 	@OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
 	@JoinColumn(name= "queue_id")
@@ -42,5 +43,13 @@ public class ProcessQueueConfig extends PersistentEntity {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public void setUserAdded(Boolean userAdded) {
+		this.userAdded = userAdded;
+	}
+
+	public Boolean getUserAdded() {
+		return userAdded;
 	}
 }

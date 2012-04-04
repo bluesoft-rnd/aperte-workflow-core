@@ -379,10 +379,10 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
         fillProcessAssignmentData(processEngine, pi2, ctx);
 		ctx.getProcessInstanceDAO().saveProcessInstance(pi2);
 
-		eventBusManager.publish(new BpmEvent(BpmEvent.Type.ASSIGN_PROCESS,
+		eventBusManager.publish(new BpmEvent(BpmEvent.Type.ASSIGN_TASK,
 		                                     pi2, user));
 
-		ctx.getEventBusManager().publish(new BpmEvent(BpmEvent.Type.ASSIGN_PROCESS,
+		ctx.getEventBusManager().publish(new BpmEvent(BpmEvent.Type.ASSIGN_TASK,
 		                                              pi2,
 		                                              user));
 

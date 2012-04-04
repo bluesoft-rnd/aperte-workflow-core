@@ -2,6 +2,7 @@ package pl.net.bluesoft.rnd.processtool.model.config;
 
 import org.hibernate.annotations.Type;
 import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 
 import javax.persistence.*;
@@ -38,6 +39,9 @@ public class ProcessDefinitionConfig extends PersistentEntity implements Seriali
 	@JoinColumn(name="definition_id")
 	private Set<ProcessStateConfiguration> states;
 
+	@OneToMany(mappedBy = "definition")
+	private Set<ProcessInstance> instances;
+
 	@OneToMany(cascade = {CascadeType.ALL})
 	@JoinColumn(name="definition_id")
 	private Set<ProcessDefinitionPermission> permissions = new HashSet<ProcessDefinitionPermission>();
@@ -47,6 +51,7 @@ public class ProcessDefinitionConfig extends PersistentEntity implements Seriali
 	
     private Boolean enabled;
 
+    private String taskItemClass;
 	/**
 	 * latest definition of process with processName ensures uniqueness and versioning of definitions
 	 */
@@ -58,6 +63,14 @@ public class ProcessDefinitionConfig extends PersistentEntity implements Seriali
 
     public void setProcessLogo(byte[] processLogo) {
         this.processLogo = processLogo;
+    }
+
+    public String getTaskItemClass() {
+        return taskItemClass;
+    }
+
+    public void setTaskItemClass(String taskItemClass) {
+        this.taskItemClass = taskItemClass;
     }
 
     public String getProcessName() {

@@ -15,6 +15,10 @@ public class ProcessQueue implements java.io.Serializable {
 	private String description;
 	private boolean browsable=false;
 	private long processCount;
+	/**
+	 * Added by user in queues portlet
+	 */
+	private Boolean userAdded = false;
 
 	private Collection<ProcessInstance> processes;
 
@@ -65,5 +69,13 @@ public class ProcessQueue implements java.io.Serializable {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public void setUserAdded(Boolean userAdded) {
+		this.userAdded = userAdded;
+	}
+
+	public Boolean getUserAdded() {
+		return userAdded;
 	}
 }

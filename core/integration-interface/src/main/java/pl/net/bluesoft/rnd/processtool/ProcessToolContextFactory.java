@@ -11,7 +11,8 @@ import java.io.InputStream;
  * @author tlipski@bluesoft.net.pl
  */
 public interface ProcessToolContextFactory {
-	void withProcessToolContext(ProcessToolContextCallback callback);
+    <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback);
+    <T> T withExistingOrNewContext(ReturningProcessToolContextCallback<T> callback);
 
 	ProcessToolRegistry getRegistry();
 

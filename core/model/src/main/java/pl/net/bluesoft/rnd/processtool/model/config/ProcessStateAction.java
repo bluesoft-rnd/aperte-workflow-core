@@ -12,76 +12,87 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
  * @author tlipski@bluesoft.net.pl
  */
 @Entity
-@Table(name="pt_process_state_action")
+@Table(name = "pt_process_state_action")
 public class ProcessStateAction extends PersistentEntity {
-	final static public String PRIMARY_ACTION="primary";
-	final static public String SECONDARY_ACTION="secondary";
+    final static public String PRIMARY_ACTION = "primary";
+    final static public String SECONDARY_ACTION = "secondary";
 
-	@ManyToOne
-	@JoinColumn(name="state_id")
-	private ProcessStateConfiguration config;
+    @ManyToOne
+    @JoinColumn(name = "state_id")
+    private ProcessStateConfiguration config;
 
-	private String bpmName;
-	private String label;
-	private String description;
-	private String buttonName = "Default";
-	private String actionType = "primary";
+    private String bpmName;
+    private String label;
+    private String description;
+    private String buttonName = "Default";
+    private String actionType = "primary";
 
-	@OneToMany(cascade = CascadeType.ALL)
-	@JoinColumn(name="action_id")
-	private Set<ProcessStateActionPermission> permissions = new HashSet();
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "action_id")
+    private Set<ProcessStateActionPermission> permissions = new HashSet();
 
-	@OneToMany(cascade = CascadeType.ALL)
-	@JoinColumn(name="action_id")
-	private Set<ProcessStateActionAttribute> attributes = new HashSet();
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "action_id")
+    private Set<ProcessStateActionAttribute> attributes = new HashSet();
 
+    private String assignProcessStatus;
 
-	private Boolean skipSaving=false;
+    private Boolean markProcessImportant = false;
 
-	private Boolean autohide=false;
+    private Boolean skipSaving = false;
+
+    private Boolean autohide = false;
 
     private Integer priority;
 
-	public String getButtonName() {
-		return nvl(buttonName, "Default");
-	}
+    public String getAssignProcessStatus() {
+        return assignProcessStatus;
+    }
 
-	public void setButtonName(String buttonName) {
-		this.buttonName = buttonName;
-	}
+    public void setAssignProcessStatus(String assignProcessStatus) {
+        this.assignProcessStatus = assignProcessStatus;
+    }
 
-	public ProcessStateConfiguration getConfig() {
-		return config;
-	}
+    public String getButtonName() {
+        return nvl(buttonName, "Default");
+    }
 
-	public void setConfig(ProcessStateConfiguration config) {
-		this.config = config;
-	}
+    public void setButtonName(String buttonName) {
+        this.buttonName = buttonName;
+    }
 
-	public String getBpmName() {
-		return bpmName;
-	}
+    public ProcessStateConfiguration getConfig() {
+        return config;
+    }
 
-	public void setBpmName(String bpmName) {
-		this.bpmName = bpmName;
-	}
+    public void setConfig(ProcessStateConfiguration config) {
+        this.config = config;
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public String getBpmName() {
+        return bpmName;
+    }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    public void setBpmName(String bpmName) {
+        this.bpmName = bpmName;
+    }
 
-	public Set<ProcessStateActionPermission> getPermissions() {
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Set<ProcessStateActionPermission> getPermissions() {
         if (permissions == null) permissions = new HashSet<ProcessStateActionPermission>();
-		return permissions;
-	}
+        return permissions;
+    }
 
-	public void setPermissions(Set<ProcessStateActionPermission> permissions) {
-		this.permissions = permissions;
-	}
+    public void setPermissions(Set<ProcessStateActionPermission> permissions) {
+        this.permissions = permissions;
+    }
 
     public Integer getPriority() {
         return priority;
@@ -91,30 +102,30 @@ public class ProcessStateAction extends PersistentEntity {
         this.priority = priority;
     }
 
-	public Boolean getSkipSaving() {
-		return nvl(skipSaving, false);
-	}
+    public Boolean getSkipSaving() {
+        return nvl(skipSaving, false);
+    }
 
-	public void setSkipSaving(Boolean skipSaving) {
-		this.skipSaving = skipSaving;
-	}
+    public void setSkipSaving(Boolean skipSaving) {
+        this.skipSaving = skipSaving;
+    }
 
-	public Boolean getAutohide() {
-		return nvl(autohide, true);
-	}
+    public Boolean getAutohide() {
+        return nvl(autohide, true);
+    }
 
-	public void setAutohide(Boolean autohide) {
-		this.autohide = autohide;
-	}
+    public void setAutohide(Boolean autohide) {
+        this.autohide = autohide;
+    }
 
-	public Set<ProcessStateActionAttribute> getAttributes() {
+    public Set<ProcessStateActionAttribute> getAttributes() {
         if (attributes == null) attributes = new HashSet<ProcessStateActionAttribute>();
-		return attributes;
-	}
+        return attributes;
+    }
 
-	public void setAttributes(Set<ProcessStateActionAttribute> attributes) {
-		this.attributes = attributes;
-	}
+    public void setAttributes(Set<ProcessStateActionAttribute> attributes) {
+        this.attributes = attributes;
+    }
 
     public String getLabel() {
         return label;
@@ -124,11 +135,19 @@ public class ProcessStateAction extends PersistentEntity {
         this.label = label;
     }
 
-	public String getActionType() {
-		return actionType;
-	}
+    public String getActionType() {
+        return actionType;
+    }
 
-	public void setActionType(String actionType) {
-		this.actionType = actionType;
-	}
+    public void setActionType(String actionType) {
+        this.actionType = actionType;
+    }
+
+    public Boolean getMarkProcessImportant() {
+        return markProcessImportant;
+    }
+
+    public void setMarkProcessImportant(Boolean markProcessImportant) {
+        this.markProcessImportant = markProcessImportant;
+    }
 }

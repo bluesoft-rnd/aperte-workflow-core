@@ -1,12 +1,24 @@
 package pl.net.bluesoft.rnd.processtool.hibernate;
 
-import org.hibernate.Session;
+import javax.transaction.Status;
+import javax.transaction.Synchronization;
 
 /**
- * @author tlipski@bluesoft.net.pl
+ * @author: amichalak@bluesoft.net.pl
  */
-public interface HibernateTransactionCallback<T> {
+public abstract class HibernateTransactionCallback implements Synchronization {
+    public abstract void onCommit();
+    public abstract void onRollback();
 
-	T doInTransaction(Session s);
+    @Override
+    public void beforeCompletion() {
+    }
 	
+    @Override
+    public void afterCompletion(int status) {
+        switch (status) {
+            case Status.STATUS_COMMITTED: onCommit(); break;
+            case Status.STATUS_ROLLEDBACK: onRollback(); break;
+        }
+    }
 }

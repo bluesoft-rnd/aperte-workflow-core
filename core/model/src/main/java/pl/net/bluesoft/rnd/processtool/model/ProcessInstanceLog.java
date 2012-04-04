@@ -14,12 +14,17 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 @Entity
 @Table(name = "pt_process_instance_log")
 public class ProcessInstanceLog extends PersistentEntity implements Comparable {
+    public enum LogType {
+        START, CLAIM, ACTION, INFO
+    }
 
 	public static final String LOG_TYPE_START_PROCESS = "START_PROCESS";
 	public static final String LOG_TYPE_CLAIM_PROCESS = "CLAIM_PROCESS";
 	public static final String LOG_TYPE_PERFORM_ACTION = "PERFORM_ACTION";
 	public static final String LOG_TYPE_INFO = "INFO";
 
+//	@Field
+//	@CalendarBridge(resolution = Resolution.MINUTE)
 	private Calendar entryDate;
 
 	private String eventI18NKey;

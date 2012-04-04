@@ -42,6 +42,10 @@ public class ProcessStateWidget extends PersistentEntity {
     private Boolean optional;
 	private Integer priority = Integer.valueOf(0);
 
+    private String generateFromCollection;
+	@Transient
+	private String generatorKey;
+
     public String getClassName() {
 		return className;
 	}
@@ -116,5 +120,21 @@ public class ProcessStateWidget extends PersistentEntity {
 
     public void setOptional(Boolean optional) {
         this.optional = optional;
+    }
+
+    public String getGeneratorKey() {
+		return generatorKey;
+	}
+
+	public void setGeneratorKey(String generatorKey) {
+		this.generatorKey = generatorKey;
+	}
+
+	public String getGenerateFromCollection() {
+		return generateFromCollection;
+	}
+
+	public void setGenerateFromCollection(String generateFromCollection) {
+		this.generateFromCollection = generateFromCollection;
     }
 }

@@ -26,6 +26,9 @@ public class ProcessInstance extends PersistentEntity {
 	private String description;
 	private String keyword;
 
+    @Enumerated(EnumType.STRING)
+    private ProcessStatus status;
+
 	@Transient
 	private String taskId;
     @Transient
@@ -274,5 +277,13 @@ public class ProcessInstance extends PersistentEntity {
 
     public void setRunning(Boolean running) {
         this.running = running;
+    }
+
+    public ProcessStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ProcessStatus status) {
+        this.status = status;
     }
 }

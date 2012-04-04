@@ -4,6 +4,7 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 
 import java.lang.reflect.ParameterizedType;
@@ -11,6 +12,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
 
+/**
+ * @author: amichalak@bluesoft.net.pl
+ */
 public abstract class SimpleHibernateBean<T> implements HibernateBean<T> {
     protected Logger logger = Logger.getLogger(getClass().getName());
     protected Session session;
@@ -44,8 +48,16 @@ public abstract class SimpleHibernateBean<T> implements HibernateBean<T> {
     }
 
     @Override
+    public T loadById(Object id) {
+        return id != null ? findUnique(Restrictions.idEq(id)) : null;
+    }
+
+    @Override
     public T findUnique(Criterion... queries) {
-        DetachedCriteria criteria = getDetachedCriteria();
+        return findUnique(getDetachedCriteria(), queries);
+    }
+
+    protected T findUnique(DetachedCriteria criteria, Criterion... queries) {
         if (queries != null) {
             for (Criterion c : queries) {
                 criteria.add(c);
@@ -75,7 +87,9 @@ public abstract class SimpleHibernateBean<T> implements HibernateBean<T> {
 
     @Override
     public void saveOrUpdate(Collection<T> objects) {
-        getSession().saveOrUpdate(objects);
+        for (T object : objects) {
+            saveOrUpdate(object);
+    }
     }
 
     @Override
@@ -85,7 +99,9 @@ public abstract class SimpleHibernateBean<T> implements HibernateBean<T> {
 
     @Override
     public void delete(Collection<T> objects) {
-        getSession().delete(objects);
+        for (T object : objects) {
+            delete(object);
+        }
     }
 
     @Override

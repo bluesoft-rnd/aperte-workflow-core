@@ -9,6 +9,12 @@
 
   <name>Custom widget archetype</name>
 
+  <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>7</version>
+    </parent>
+
   <build>
     <extensions>
       <extension>
@@ -92,7 +98,7 @@
   <scm>
     <connection>scm:git:git@github.com:bluesoft-rnd/aperte-workflow-core.git</connection>
     <developerConnection>scm:git:git@github.com:zmalinowski/aperte-workflow-core.git</developerConnection>
-    <url>git@github.com:bluesoft-rnd/aperte-workflow-core.git</url>
+    <url>git@github.com:bluesoft-rnd/aperte-workflow-core.git/archetypes/custom-widget-component</url>
   </scm>
 
   <distributionManagement>

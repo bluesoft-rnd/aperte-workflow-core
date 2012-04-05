@@ -1,7 +1,8 @@
 package pl.net.bluesoft.rnd.pt.utils.xml;
 
 import com.thoughtworks.xstream.XStream;
-import pl.net.bluesoft.util.lang.StringUtil;
+import com.thoughtworks.xstream.converters.SingleValueConverter;
+import pl.net.bluesoft.util.lang.Strings;
 
 import java.io.InputStream;
 import java.util.Collections;
@@ -37,6 +38,10 @@ public abstract class OXHelper {
         Collections.addAll(supportedClasses, classes);
     }
 
+    public void registerConverter(SingleValueConverter converter) {
+        xstream.registerConverter(converter);
+    }
+
     private XStream xstream;
     private Set<Class> supportedClasses;
 
@@ -48,7 +53,7 @@ public abstract class OXHelper {
     }
 
     public Object unmarshall(String xml) {
-        if (!StringUtil.hasText(xml)) {
+        if (!Strings.hasText(xml)) {
             throw new IllegalArgumentException("Cannot unmarshall an empty string!");
         }
         return xstream.fromXML(xml);

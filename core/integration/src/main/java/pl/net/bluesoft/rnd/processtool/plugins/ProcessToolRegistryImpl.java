@@ -10,24 +10,33 @@ import org.osgi.framework.ServiceReference;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
+import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.dao.*;
 import pl.net.bluesoft.rnd.processtool.dao.impl.*;
 import pl.net.bluesoft.rnd.processtool.dict.DictionaryLoader;
+import pl.net.bluesoft.rnd.processtool.dict.exception.DictionaryLoadingException;
 import pl.net.bluesoft.rnd.processtool.dict.xml.ProcessDictionaries;
+import pl.net.bluesoft.rnd.processtool.event.ProcessToolEventBusManager;
+import pl.net.bluesoft.rnd.processtool.model.Cacheable;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
-import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDBDictionary;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessToolAutowire;
+import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionary;
+import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryPermission;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolActionButton;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.taskitem.TaskItemProvider;
 import pl.net.bluesoft.rnd.util.func.Func;
 import pl.net.bluesoft.rnd.util.i18n.I18NProvider;
 import pl.net.bluesoft.rnd.util.i18n.impl.PropertiesBasedI18NProvider;
 import pl.net.bluesoft.rnd.util.i18n.impl.PropertyLoader;
+import pl.net.bluesoft.util.cache.Caches;
 import pl.net.bluesoft.util.eventbus.EventBusManager;
 import pl.net.bluesoft.util.lang.FormatUtil;
 import pl.net.bluesoft.util.lang.StringUtil;
+import pl.net.bluesoft.util.lang.Strings;
 
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
@@ -36,31 +45,42 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
+import static pl.net.bluesoft.util.lang.Strings.hasText;
 
 /**
  * @author tlipski@bluesoft.net.pl
+ * @author amichalak@bluesoft.net.pl
  */
 public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 
 	private static final Logger logger = Logger.getLogger(ProcessToolRegistryImpl.class.getName());
 
     private final List<ProcessToolServiceBridge> SERVICE_BRIDGE_REGISTRY = new LinkedList<ProcessToolServiceBridge>();
+
 	private final Map<String, Class<? extends ProcessToolWidget>> WIDGET_REGISTRY = new HashMap<String, Class<? extends ProcessToolWidget>>();
 	private final Map<String, Class<? extends ProcessToolActionButton>> BUTTON_REGISTRY = new HashMap<String, Class<? extends ProcessToolActionButton>>();
-    private final Map<String, I18NProvider> PROVIDERS_REGISTRY = new HashMap<String, I18NProvider>();
+    private final Map<String, List<String>> RESOURCE_REGISTRY = new HashMap<String, List<String>>();
+    private final Map<String, I18NProvider> I18N_PROVIDER_REGISTRY = new HashMap<String, I18NProvider>();
     private final Map<String, Func<? extends ProcessToolProcessStep>> STEP_REGISTRY = new HashMap<String, Func<? extends ProcessToolProcessStep>>();
+    private final Map<String, Class<? extends TaskItemProvider>> TASK_ITEM_REGISTRY = new HashMap<String, Class<? extends TaskItemProvider>>();
+
+    private ExecutorService executorService = Executors.newCachedThreadPool();
+	private EventBusManager eventBusManager = new ProcessToolEventBusManager(this, executorService);
 
     private Map<String, Class> annotatedClasses = new HashMap<String, Class>();
     private Map<String, byte[]> hibernateResources = new HashMap<String, byte[]>();
     private Map<String, ClassLoader> classLoaders = new HashMap<String, ClassLoader>();
 
+    private Map<String, Map> caches = new HashMap<String, Map>();
+
     private ProcessToolContextFactory processToolContextFactory;
 	private SessionFactory sessionFactory;
-	private EventBusManager eventBusManager = new EventBusManager();
     private PluginManager pluginManager;
     private SearchProvider searchProvider;
     private boolean jta;
@@ -70,7 +90,7 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
     {
         //init default provider, regardless of OSGi stuff
         final ClassLoader classloader = getClass().getClassLoader();
-        PROVIDERS_REGISTRY.put("", new PropertiesBasedI18NProvider(new PropertyLoader() {
+        I18N_PROVIDER_REGISTRY.put("", new PropertiesBasedI18NProvider(new PropertyLoader() {
             @Override
             public InputStream loadProperty(String path) throws IOException {
                 return classloader.getResourceAsStream(path);
@@ -107,7 +127,9 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	public ProcessToolRegistryImpl() {
 		this.processToolContextFactory = null;
 		buildSessionFactory();
+        updateCaches();
 	}
+
 
 	public ClassLoader getModelAwareClassLoader(ClassLoader parent) {
 		return new ExtClassLoader(parent);
@@ -152,6 +174,10 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 		return eventBusManager;
 	}
 
+    public ExecutorService getExecutorService() {
+        return executorService;
+    }
+
     @Override
     public PluginManager getPluginManager() {
         return pluginManager;
@@ -190,6 +216,7 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
          }
          return needUpdate;
  	}
+
     public synchronized boolean removeAnnotatedClass(Class... classes) {
         boolean needUpdate = false;
         for (Class cls : classes) {
@@ -350,29 +377,39 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	}
 
 	public void registerI18NProvider(I18NProvider i18Provider, String providerId) {
-		PROVIDERS_REGISTRY.put(providerId, i18Provider);
+		I18N_PROVIDER_REGISTRY.put(providerId, i18Provider);
+        logger.warning("Registered I18NProvider: " + providerId);
     }
 
     public void unregisterI18NProvider(String providerId) {
-		PROVIDERS_REGISTRY.remove(providerId);
+		I18N_PROVIDER_REGISTRY.remove(providerId);
+        logger.warning("Registered I18NProvider: " + providerId);
 	}
 
 	public Collection<I18NProvider> getI18NProviders() {
-		return PROVIDERS_REGISTRY.values();
+		return I18N_PROVIDER_REGISTRY.values();
 	}
 
     @Override
     public boolean hasI18NProvider(String providerId) {
-        return PROVIDERS_REGISTRY.containsKey(providerId);
+        return I18N_PROVIDER_REGISTRY.containsKey(providerId);
     }
 
     @Override
-	public void withProcessToolContext(ProcessToolContextCallback callback) {
+    public <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback) {
 		if (processToolContextFactory == null) {
 			throw new RuntimeException("No process tool context factory implementation registered");
 		}
-		processToolContextFactory.withProcessToolContext(callback);
+		return processToolContextFactory.withProcessToolContext(callback);
 	}
+
+    @Override
+       public <T> T withExistingOrNewContext(ReturningProcessToolContextCallback<T> callback) {
+           if (processToolContextFactory == null) {
+               throw new RuntimeException("No process tool context factory implementation registered");
+           }
+           return processToolContextFactory.withExistingOrNewContext(callback);
+       }
 
     @Override
     public ProcessDictionaryDAO getProcessDictionaryDAO(Session hibernateSession) {
@@ -382,6 +419,11 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
     @Override
 	public ProcessInstanceDAO getProcessInstanceDAO(Session hibernateSession) {
 		return new ProcessInstanceDAOImpl(hibernateSession, searchProvider);
+	}
+
+	@Override
+	public ProcessInstanceFilterDAO getProcessInstanceFilterDAO(Session hibernateSession) {
+        return new ProcessInstanceFilterDAOImpl(hibernateSession);
 	}
 
 	@Override
@@ -465,6 +507,7 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 		}
 	}
 
+
 	@Override
 	public void registerButton(Class<?> cls) {
 		AliasName annotation = cls.getAnnotation(AliasName.class);
@@ -547,35 +590,120 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
         return null;
 	}
 
+//    public void registerDictionaries(InputStream dictionariesStream) {
+//        if (dictionariesStream == null) {
+//            return;
+//        }
+//
+//        ProcessDictionaries dictionaries = (ProcessDictionaries) DictionaryLoader.getInstance().unmarshall(dictionariesStream);
+//        String processBpmKey = dictionaries.getProcessBpmDefinitionKey();
+//        if (!StringUtil.hasText(processBpmKey)) {
+//            throw new RuntimeException("No process name specified in the dictionaries XML");
+//        }
+//        Session session = sessionFactory.openSession();
+//        try {
+//            Transaction tx = session.beginTransaction();
+//            ProcessDefinitionConfig definitionConfig = getProcessDefinitionDAO(session).getActiveConfigurationByKey(processBpmKey);
+//            if (definitionConfig == null) {
+//                throw new RuntimeException("No active definition config with BPM key: " + processBpmKey);
+//            }
+//            ProcessDictionaryDAO dao = getProcessDictionaryDAO(session);
+//            List<ProcessDBDictionary> processDBDictionaries = DictionaryLoader.getDictionariesFromXML(dictionaries);
+//            dao.createOrUpdateDictionaries(definitionConfig, processDBDictionaries, dictionaries.getOverwrite() != null
+//                    && dictionaries.getOverwrite());
+//            tx.commit();
+//        }
+//        finally {
+//            session.close();
+//        }
+//    }
     @Override
-    public void registerDictionaries(InputStream dictionariesStream) {
-        if (dictionariesStream == null) {
-            return;
-        }
+       public void registerTaskItemProvider(Class<?> cls) {
+           AliasName annotation = cls.getAnnotation(AliasName.class);
+   		if (annotation != null) {
+   			TASK_ITEM_REGISTRY.put(annotation.name(), (Class<? extends TaskItemProvider>) cls);
+               logger.warning("Registered task item alias: " + annotation.name() + " -> " + cls.getName());
+   		}
+       }
 
-        ProcessDictionaries dictionaries = (ProcessDictionaries) DictionaryLoader.getInstance().unmarshall(dictionariesStream);
-        String processBpmKey = dictionaries.getProcessBpmDefinitionKey();
-        if (!StringUtil.hasText(processBpmKey)) {
-            throw new RuntimeException("No process name specified in the dictionaries XML");
-        }
-        Session session = sessionFactory.openSession();
-        try {
-            Transaction tx = session.beginTransaction();
-            ProcessDefinitionConfig definitionConfig = getProcessDefinitionDAO(session).getActiveConfigurationByKey(processBpmKey);
-            if (definitionConfig == null) {
-                throw new RuntimeException("No active definition config with BPM key: " + processBpmKey);
-            }
-            ProcessDictionaryDAO dao = getProcessDictionaryDAO(session);
-            List<ProcessDBDictionary> processDBDictionaries = DictionaryLoader.getDictionariesFromXML(dictionaries);
-            dao.createOrUpdateProcessDictionaries(definitionConfig, processDBDictionaries, dictionaries.getOverwrite() != null
-                    && dictionaries.getOverwrite());
-            tx.commit();
-        }
-        finally {
-            session.close();
-        }
-    }
+       @Override
+       public void unregisterTaskItemProvider(Class<?> cls) {
+           TASK_ITEM_REGISTRY.remove(cls);
+       }
 
+       @Override
+       public TaskItemProvider makeTaskItemProvider(String name) throws IllegalAccessException, InstantiationException {
+           Class<? extends TaskItemProvider> aClass = TASK_ITEM_REGISTRY.get(name);
+           if (aClass == null) {
+   			throw new IllegalAccessException("No class nicknamed by: " + name);
+   		}
+           return aClass.newInstance();
+       }
+
+       @Override
+       public void registerGlobalDictionaries(InputStream is) {
+           if (is != null) {
+               ProcessDictionaries dictionaries = (ProcessDictionaries) DictionaryLoader.getInstance().unmarshall(is);
+               String processBpmKey = dictionaries.getProcessBpmDefinitionKey();
+               if (Strings.hasText(processBpmKey)) {
+                   logger.warning("Global process dictionary should not be defined for a specific process: "
+                           + dictionaries.getProcessBpmDefinitionKey());
+               }
+               Session session = sessionFactory.openSession();
+               try {
+                   Transaction tx = session.beginTransaction();
+                   saveDictionaryInternal(session, null, dictionaries);
+                   tx.commit();
+                   logger.warning("Registered global dictionaries");
+               }
+               finally {
+                   session.close();
+               }
+           }
+       }
+
+       @Override
+       public void registerProcessDictionaries(InputStream is) {
+           if (is != null) {
+               ProcessDictionaries dictionaries = (ProcessDictionaries) DictionaryLoader.getInstance().unmarshall(is);
+               String processBpmKey = dictionaries.getProcessBpmDefinitionKey();
+               if (!Strings.hasText(processBpmKey)) {
+                   throw new DictionaryLoadingException("No process name specified in the dictionaries XML");
+               }
+               Session session = sessionFactory.openSession();
+               try {
+                   Transaction tx = session.beginTransaction();
+                   ProcessDefinitionConfig definitionConfig = getProcessDefinitionDAO(session).getActiveConfigurationByKey(processBpmKey);
+                   if (definitionConfig == null) {
+                       throw new DictionaryLoadingException("No active definition config with BPM key: " + processBpmKey);
+                   }
+                   saveDictionaryInternal(session, definitionConfig, dictionaries);
+                   tx.commit();
+                   logger.warning("Registered dictionaries for process: " + processBpmKey);
+               }
+               finally {
+                   session.close();
+               }
+           }
+       }
+
+       private void saveDictionaryInternal(Session session, ProcessDefinitionConfig definitionConfig, ProcessDictionaries dictionaries) {
+           ProcessDictionaryDAO dao = getProcessDictionaryDAO(session);
+           List<ProcessDBDictionary> processDBDictionaries = DictionaryLoader.getDictionariesFromXML(dictionaries);
+           for (ProcessDBDictionary dict : processDBDictionaries) {
+               for (ProcessDBDictionaryPermission perm : dict.getPermissions()) {
+                   if (!Strings.hasText(perm.getRoleName())) {
+                       perm.setRoleName(PATTERN_MATCH_ALL);
+                   }
+                   if (!Strings.hasText(perm.getPrivilegeName())) {
+                       perm.setPrivilegeName(PRIVILEGE_EDIT);
+                   }
+               }
+           }
+           DictionaryLoader.validateDictionaries(processDBDictionaries);
+           dao.createOrUpdateDictionaries(definitionConfig, processDBDictionaries,
+                   dictionaries.getOverwrite() != null && dictionaries.getOverwrite());
+       }
     @Override
 	public void deployOrUpdateProcessDefinition(final InputStream jpdlStream,
 	                                            final ProcessDefinitionConfig cfg,
@@ -672,5 +800,102 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
     public void setSearchProvider(SearchProvider searchProvider) {
         this.searchProvider = searchProvider;
     }
+
+    @Override
+    public void registerResource(String bundleSymbolicName, String path) {
+        List<String> resources = RESOURCE_REGISTRY.get(bundleSymbolicName);
+        if (resources == null) {
+            resources = new ArrayList<String>();
+            RESOURCE_REGISTRY.put(bundleSymbolicName, resources);
+        }
+        resources.add(path);
+    }
+
+    @Override
+    public void removeRegisteredResources(String bundleSymbolicName) {
+        RESOURCE_REGISTRY.remove(bundleSymbolicName);
+        logger.warning("Removed resources for bundle: " + bundleSymbolicName);
+    }
+
+    @Override
+    public InputStream loadResource(String bundleSymbolicName, String path) {
+        boolean searchResource = false;
+        if (hasText(bundleSymbolicName)) {
+            if (RESOURCE_REGISTRY.containsKey(bundleSymbolicName)) {
+                List<String> resources = RESOURCE_REGISTRY.get(bundleSymbolicName);
+                if (resources.contains(path)) {
+                    searchResource = true;
+                }
+            }
+        }
+        else {
+            searchResource = true;
+        }
+        if (searchResource) {
+            for (ProcessToolServiceBridge bridge : SERVICE_BRIDGE_REGISTRY) {
+                try {
+                    InputStream stream = bridge.loadResource(bundleSymbolicName, path);
+                    if (stream != null) {
+                        return stream;
+                    }
+                }
+                catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
+        public InputStream loadResource(String path) {
+            return loadResource(null, path);
+        }
+
+        private void updateCaches() {
+            Class<? extends Cacheable<String, String>>[] cachedEntities = new Class[] {ProcessToolAutowire.class};
+
+            Session session = sessionFactory.openSession();
+            try {
+                Transaction tx = session.beginTransaction();
+                for (Class<? extends Cacheable<String, String>> entityClass : cachedEntities) {
+                    Map<String, String> cache = Caches.synchronizedCache(100);
+                    List<Cacheable<String, String>> list = session.createCriteria(entityClass).list();
+                    for (Cacheable<String, String> obj : list) {
+                        cache.put(obj.getKey(), obj.getValue());
+                    }
+                    registerCache(entityClass.getName(), cache);
+                }
+                tx.commit();
+            }
+            finally {
+                session.close();
+            }
+        }
+
+        @Override
+        public <K, V> Map<K, V> getCache(String cacheName) {
+            return caches.get(cacheName);
+        }
+
+        public <K, V> void registerCache(String cacheName, Map<K, V> cache) {
+            caches.put(cacheName, cache);
+            logger.warning("Registered cache named: " + cacheName);
+        }
+
+//        public boolean createRoleIfNotExists(String roleName, String description) {
+//        	try {
+//    			int cnt = RoleLocalServiceUtil.searchCount(PortalUtil.getDefaultCompanyId(), roleName, null, null);
+//    			if (cnt == 0) {
+//    				Map<Locale, String> titles = new HashMap<Locale,  String>();
+//    				RoleLocalServiceUtil.addRole(0, PortalUtil.getDefaultCompanyId(), roleName, titles, description, RoleConstants.TYPE_REGULAR);
+//    				return true;
+//    			}
+//    			return false;
+//    		}
+//    		catch (Exception e) {
+//    			throw new RuntimeException(e);
+//    		}
+//        }
     
 }

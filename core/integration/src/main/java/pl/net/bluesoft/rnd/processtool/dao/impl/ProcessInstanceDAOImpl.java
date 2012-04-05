@@ -6,15 +6,18 @@ import org.aperteworkflow.search.SearchProvider;
 import org.aperteworkflow.search.Searchable;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.CriteriaSpecification;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
+import org.hibernate.criterion.*;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceDAO;
+import pl.net.bluesoft.rnd.processtool.hibernate.ResultsPageWrapper;
 import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
+import pl.net.bluesoft.rnd.processtool.hibernate.transform.NestedAliasToBeanResultTransformer;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.util.lang.Collections;
+import pl.net.bluesoft.util.lang.Transformer;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionPermission;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
@@ -26,6 +29,11 @@ import static org.hibernate.criterion.Restrictions.eq;
 import static org.hibernate.criterion.Restrictions.in;
 import static pl.net.bluesoft.util.lang.FormatUtil.formatShortDate;
 import static pl.net.bluesoft.util.lang.FormatUtil.join;
+
+import static pl.net.bluesoft.util.lang.DateUtil.addDays;
+import static pl.net.bluesoft.util.lang.DateUtil.asCalendar;
+import static pl.net.bluesoft.util.lang.DateUtil.truncHours;
+
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -59,6 +67,7 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
             }
         }
 		session.saveOrUpdate(processInstance);
+        session.flush();
         long time = System.currentTimeMillis();
         //update search indexes
         ProcessInstanceSearchData searchData = new ProcessInstanceSearchData(processInstance.getId());
@@ -149,21 +158,32 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
 		return (ProcessInstance) session.get(ProcessInstance.class, id);
 	}
 
-	@Override
-	public ProcessInstance getProcessInstanceByInternalId(String internalIds) {
+    @Override
+    public List<ProcessInstance> getProcessInstances(Collection<Long> ids) {
+        return getSession().createCriteria(ProcessInstance.class)
+                .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+                .add(Restrictions.in("id", ids)).list();
+    }
 
-		List list = session.createCriteria(ProcessInstance.class)
-						.add(eq("internalId", internalIds)).list();
-		if (list.isEmpty())
-			return null;
-		else
-			return (ProcessInstance) list.get(0);
-	}
+    @Override
+    public ProcessInstance refreshProcessInstance(ProcessInstance processInstance) {
+        return (ProcessInstance) getSession().merge(processInstance);
+    }
+
+    @Override
+    public ProcessInstance getProcessInstanceByInternalId(String internalIds) {
+        return (ProcessInstance) getSession().createCriteria(ProcessInstance.class)
+                .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+                .add(eq("internalId", internalIds))
+                .uniqueResult();
+    }
 
 	@Override
 	public ProcessInstance getProcessInstanceByExternalId(String externalId) {
 		List list = session.createCriteria(ProcessInstance.class)
-						.add(eq("externalKey", externalId)).list();
+						.add(eq("externalKey", externalId))
+                        .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+                        .list();
 		if (list.isEmpty())
 			return null;
 		else
@@ -175,76 +195,249 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
 		return session.createCriteria(ProcessInstance.class)
 						.add(eq("keyword", keyword))
 //						.add(eq("definition.bpmDefinitionKey", processType))
-						.addOrder(Order.desc("id"))						
+						.addOrder(Order.desc("id"))
+                .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
 						.list();
 
 	}
 
 	@Override
-	public Map<String, ProcessInstance> getProcessInstanceByInternalIdMap(List<String> internalId) {
-		if (internalId.isEmpty()) return new HashMap();
-		List<ProcessInstance> list = session.createCriteria(ProcessInstance.class)
-						.add(in("internalId", internalId)).list();
-		Map<String,ProcessInstance> res = new HashMap();
-		for (ProcessInstance pi : list) {
-			res.put(pi.getInternalId(), pi);
-		}
-		return res;
+	public Map<String, ProcessInstance> getProcessInstanceByInternalIdMap(Collection<String> internalId) {
+        if (internalId.isEmpty()) {
+             return new HashMap<String, ProcessInstance>();
+         }
+         List<ProcessInstance> list = getSession().createCriteria(ProcessInstance.class)
+                 .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+                 .add(in("internalId", internalId))
+                 .list();
+         return Collections.transform(list, new Transformer<ProcessInstance, String>() {
+             @Override
+             public String transform(ProcessInstance obj) {
+                 return obj.getInternalId();
+             }
+         });
 	}
 
 	public List<ProcessInstance> getProcessInstancesByIds(List<Long> ids) {
-		if (ids.isEmpty()) return new ArrayList<ProcessInstance>();
-		List<ProcessInstance> list = session.createCriteria(ProcessInstance.class)
-						.add(in("id", ids)).list();
-		return list;
+		return getProcessInstances(ids);
 	}
 
 	public void deleteProcessInstance(ProcessInstance instance) {
 		session.delete(instance);
 	}
 
-	@Override
-	public UserData findOrCreateUser(UserData ud) {
-		List userList = session.createCriteria(UserData.class)
-				.add(Restrictions.eq("login", ud.getLogin())).list();
-		if (userList.isEmpty()) {
-			//create new user
-			session.saveOrUpdate(ud);
-			userList = session.createCriteria(UserData.class).add(Restrictions.eq("login", ud.getLogin())).list();
-		}
-		return (UserData) userList.get(0);
+    public Collection<ProcessInstanceLog> getUserHistory(UserData user, Date startDate, Date endDate) {
+        Criteria criteria = session.createCriteria(ProcessInstanceLog.class)
+                .addOrder(Order.desc("entryDate"));
 
-
-	}
-
-	@Override
-	public List<ProcessInstance> getRecentProcesses(UserData userData, Calendar minDate, 
-                                                    String filter, int offset, int limit) {
-		List<Long> list = session.createCriteria(ProcessInstance.class)
-				.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-				.setProjection(Projections.distinct(Projections.property("id")))
-				.addOrder(Order.desc("id"))
-				.createCriteria("processLogs")
-				.add(Restrictions.gt("entryDate", minDate))
-				.createAlias("user", "u")
-                .createAlias("userSubstitute", "us", CriteriaSpecification.LEFT_JOIN)
-				.add(Restrictions.or(
-                        Restrictions.eq("u.id", userData.getId()),
-                        Restrictions.eq("us.id", userData.getId())))
-				.setMaxResults(100).list();
-        if (filter != null && !filter.trim().isEmpty()) {
-            String query = "+__AWF__ID:(" + join(list, " ")+") +(" + filter + ")";
-            return new ArrayList<ProcessInstance>(searchProcesses(query, offset, limit, false, null, null));
-        } else {
-		    return getProcessInstancesByIds(list);
+        if (user != null) {
+            criteria.add(Restrictions.or(Restrictions.eq("user", user), Restrictions.eq("userSubstitute", user)));
         }
-	}
+
+        if (startDate != null) {
+            criteria.add(Restrictions.ge("entryDate", asCalendar(truncHours(startDate))));
+        }
+        if (endDate != null) {
+            criteria.add(Restrictions.le("entryDate", asCalendar(truncHours(addDays(endDate, 1)))));
+        }
+
+        criteria.createAlias("state", "s", CriteriaSpecification.LEFT_JOIN);
+        criteria.createAlias("processInstance", "pi");
+        criteria.createAlias("pi.definition", "def");
+        criteria.createAlias("pi.creator", "crtr");
+        criteria.createAlias("user", "u");
+        criteria.createAlias("userSubstitute", "us", CriteriaSpecification.LEFT_JOIN);
+
+        ProjectionList pl = Projections.projectionList()
+                .add(Projections.id(), "id")
+                .add(Projections.property("entryDate"), "entryDate")
+                .add(Projections.property("eventI18NKey"), "eventI18NKey")
+                .add(Projections.property("additionalInfo"), "additionalInfo")
+                .add(Projections.property("u.id"), "user.id")
+                .add(Projections.property("u.login"), "user.login")
+                .add(Projections.property("u.firstName"), "user.firstName")
+                .add(Projections.property("u.lastName"), "user.lastName")
+                .add(Projections.property("s.id"), "state.id")
+                .add(Projections.property("s.name"), "state.name")
+                .add(Projections.property("s.description"), "state.description")
+                .add(Projections.property("us.id"), "userSubstitute.id")
+                .add(Projections.property("us.firstName"), "userSubstitute.firstName")
+                .add(Projections.property("us.lastName"), "userSubstitute.lastName")
+                .add(Projections.property("pi.id"), "processInstance.id")
+                .add(Projections.property("pi.internalId"), "processInstance.internalId")
+                .add(Projections.property("pi.externalId"), "processInstance.externalId")
+                .add(Projections.property("pi.status"), "processInstance.status")
+                .add(Projections.property("pi.createDate"), "processInstance.createDate")
+                .add(Projections.property("def.id"), "processInstance.definition.id")
+                .add(Projections.property("def.description"), "processInstance.definition.description")
+                .add(Projections.property("def.comment"), "processInstance.definition.comment")
+                .add(Projections.property("crtr.firstName"), "processInstance.creator.firstName")
+                .add(Projections.property("crtr.lastName"), "processInstance.creator.lastName");
+
+        criteria.setProjection(pl);
+
+        criteria.setResultTransformer(new NestedAliasToBeanResultTransformer(ProcessInstanceLog.class));
+
+        return criteria.list();
+    }
+
+    @Override
+    public UserData findOrCreateUser(UserData ud) {
+        Session session = getSession();
+        UserData user = (UserData) session.createCriteria(UserData.class).add(Restrictions.eq("login", ud.getLogin())).uniqueResult();
+        if (user == null) {
+            session.saveOrUpdate(ud);
+            user = ud;
+        }
+        return user;
+    }
+
+    @Override
+        public Collection<ProcessInstance> getUserProcessesAfterDate(UserData userData, Calendar minDate) {
+            Session session = getSession();
+
+            ProjectionList properties = Projections.projectionList();
+            properties.add(Projections.property("id"));
+            properties.add(Projections.property("internalId"));
+
+            List<Object[]> list = session.createCriteria(ProcessInstance.class)
+                    .setProjection(Projections.distinct(properties))
+                    .createCriteria("processLogs")
+                    .add(Restrictions.gt("entryDate", minDate))
+                    .createAlias("user", "u")
+                    .add(Restrictions.eq("u.id", userData.getId())).list();
+
+            return Collections.collect(list, new Transformer<Object[], ProcessInstance>() {
+                @Override
+                public ProcessInstance transform(Object[] row) {
+                    ProcessInstance pi = new ProcessInstance();
+                    pi.setId((Long) row[0]);
+                    pi.setInternalId((String) row[1]);
+                    return pi;
+                }
+            });
+        }
+
+        @Override
+        public ResultsPageWrapper<ProcessInstance> getRecentProcesses(UserData userData, Calendar minDate, Integer offset, Integer limit) {
+            Session session = getSession();
+            List<ProcessInstance> instances = null;
+            if (offset != null && limit != null) {
+                List<Long> list = session.createCriteria(ProcessInstance.class)
+                        .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+                        .setProjection(Projections.distinct(Projections.property("id")))
+                        .addOrder(Order.desc("id"))
+                        .setFirstResult(offset)
+                        .setMaxResults(limit)
+                        .createCriteria("processLogs")
+                        .add(Restrictions.gt("entryDate", minDate))
+                        .createAlias("user", "u")
+                        .add(Restrictions.eq("u.id", userData.getId()))
+                        .list();
+                instances = getProcessInstancesByIds(list);
+            }
+
+            Number total = (Number) session.createCriteria(ProcessInstance.class)
+                    .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+                    .setProjection(Projections.countDistinct("id"))
+                    .createCriteria("processLogs")
+                    .add(Restrictions.gt("entryDate", minDate))
+                    .createAlias("user", "u")
+                    .add(Restrictions.eq("u.id", userData.getId())).uniqueResult();
+
+            return new ResultsPageWrapper<ProcessInstance>(instances != null ? instances : new ArrayList<ProcessInstance>(),
+                    total == null ? 0 : total.intValue());
+        }
+
+        @Override
+        final public ResultsPageWrapper<ProcessInstance> getProcessInstanceByInternalIdMapWithFilter(final Collection<String> internalIds,
+                                                                                                     final ProcessInstanceFilter filter, Integer offset, Integer limit) {
+            if (internalIds.isEmpty()) {
+                return new ResultsPageWrapper<ProcessInstance>();
+            }
+            Session session = getSession();
+
+            DetachedCriteria detachedCriteriaForIds = buildhibernateQuery(internalIds, session, filter, offset, limit);
+
+            Criteria criteria = detachedCriteriaForIds.getExecutableCriteria(session);
+
+            List result = criteria.list();
+            int resultsCount = result.size();
+
+            List<ProcessInstance> list;
+            if (limit > 0) {
+                criteria.setFirstResult(offset);
+                criteria.setMaxResults(limit);
+                criteria.addOrder(Order.desc("createDate"));
+                criteria.setProjection(Projections.id());//null).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+                List ids = criteria.list();
+
+                if (ids != null && !ids.isEmpty()) {
+                    DetachedCriteria detachedCriteriaForData = DetachedCriteria.forClass(ProcessInstance.class, "data");
+                    detachedCriteriaForData.addOrder(Order.desc("createDate"));
+                    detachedCriteriaForData.add(Property.forName("id").in(ids));
+                    detachedCriteriaForData.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+
+                    list = detachedCriteriaForData.getExecutableCriteria(session).list();
+                }
+                else {
+                    list = new ArrayList<ProcessInstance>(0);
+                }
+            }
+            else {
+                list = new ArrayList<ProcessInstance>(0);
+            }
+
+
+            return new ResultsPageWrapper<ProcessInstance>(list, resultsCount);
+        }
+
+        private DetachedCriteria buildhibernateQuery(Collection<String> internalIds, Session session, ProcessInstanceFilter filter, Integer offset, Integer limit) {
+            DetachedCriteria criteria = DetachedCriteria.forClass(ProcessInstance.class, "ids");
+
+            criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+            criteria.setProjection(Projections.distinct(Projections.property("id")));
+
+            criteria = criteria.add(Restrictions.in("internalId", internalIds));
+
+            if (filter.getCreatedAfter() != null) {
+                criteria = criteria.add(Restrictions.gt("createDate", filter.getCreatedAfter()));
+            }
+
+            if (filter.getCreatedBefore() != null) {
+                criteria = criteria.add(Restrictions.lt("createDate", filter.getCreatedBefore()));
+            }
+
+            if (filter.getCreators() != null && !filter.getCreators().isEmpty()) {
+                criteria = criteria.add(Restrictions.in("creator", filter.getCreators()));
+            }
+
+            if (filter.getNotCreators() != null && !filter.getNotCreators().isEmpty()) {
+                criteria = criteria.add(Restrictions.not(Restrictions.in("creator", filter.getNotCreators())));
+            }
+
+            if (filter.getUpdatedAfter() != null) {
+                criteria = criteria
+                        .createCriteria("processLogs")
+                        .add(Restrictions.gt("entryDate", filter.getUpdatedAfterCalendar()));
+            }
+
+            if (filter.getNotUpdatedAfter() != null) {
+                DetachedCriteria entryDateCriteria = DetachedCriteria.forClass(ProcessInstanceLog.class).add(Restrictions.gt("entryDate", filter.getNotUpdatedAfterCalendar()));
+                criteria = criteria
+                        .createCriteria("processLogs")
+                        .add(Restrictions.not(Subqueries.exists(entryDateCriteria)));
+            }
+
+            return criteria;
+        }
+
 
     @Override
     public Collection<ProcessInstance> searchProcesses(String filter, int offset, int limit, boolean onlyRunning, String[] userRoles, String assignee, String... queues) {
         List<Long> processIds = searchProvider.searchProcesses(filter, offset, limit, onlyRunning, userRoles, assignee, queues);
         List<ProcessInstance> processInstancesByIds = getProcessInstancesByIds(processIds);
-        Collections.sort(processInstancesByIds, new Comparator<ProcessInstance>() {
+        java.util.Collections.sort(processInstancesByIds, new Comparator<ProcessInstance>() {
             @Override
             public int compare(ProcessInstance o1, ProcessInstance o2) {
                 return o2.getId().compareTo(o1.getId());

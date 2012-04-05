@@ -18,14 +18,14 @@ public class DictionaryEntry {
     @XStreamAsAttribute
     private String valueType;
     @XStreamImplicit
-    private List<DictionaryEntryExtension> extensions;
+    private List<DictionaryEntryValue> values;
 
-    public List<DictionaryEntryExtension> getExtensions() {
-        return extensions == null ? (extensions = new ArrayList<DictionaryEntryExtension>()) : extensions;
+    public List<DictionaryEntryValue> getValues() {
+        return values == null ? (values = new ArrayList<DictionaryEntryValue>()) : values;
     }
 
-    public void setExtensions(List<DictionaryEntryExtension> extensions) {
-        this.extensions = extensions;
+    public void setValues(List<DictionaryEntryValue> values) {
+        this.values = values;
     }
 
     public String getValueType() {

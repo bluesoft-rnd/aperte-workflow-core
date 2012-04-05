@@ -11,6 +11,16 @@ public class DictionaryEntryExtension {
     private String value;
     @XStreamAsAttribute
     private String valueType;
+    @XStreamAsAttribute
+    private String description;
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
     public String getValueType() {
         return valueType;

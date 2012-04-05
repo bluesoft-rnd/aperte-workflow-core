@@ -27,6 +27,7 @@ import pl.net.bluesoft.rnd.util.i18n.impl.PropertiesBasedI18NProvider;
 import pl.net.bluesoft.rnd.util.i18n.impl.PropertyLoader;
 
 import java.io.*;
+import java.net.URL;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -56,7 +57,8 @@ public class PluginHelper implements PluginManager, SearchProvider {
     private static final String AWF__ASSIGNEE = "__AWF__assignee";
     private static final String AWF__QUEUE = "__AWF__queue";
 
-    
+    private StringBuffer monitorInfo = new StringBuffer();
+
     
     private static class BundleInfo {
         private Long lastModified;
@@ -244,6 +246,18 @@ public class PluginHelper implements PluginManager, SearchProvider {
         if (bundleHelper.hasHeaderValues(PROCESS_DEPLOYMENT)) {
             handleProcessDeployment(eventType, bundleHelper, registry);
         }
+
+        if (bundleHelper.hasHeaderValues(GLOBAL_DICTIONARY)) {
+            handleGlobalDictionaries(eventType, bundleHelper, registry);
+        }
+
+        if (bundleHelper.hasHeaderValues(RESOURCES)) {
+            handleBundleResources(eventType, bundleHelper, registry);
+        }
+
+        if (bundleHelper.hasHeaderValues(TASK_ITEM_ENHANCEMENT)) {
+           handleTaskItemEnhancement(eventType, bundleHelper, registry);
+       }
     }
 
     private void handleMessageSources(int eventType, OSGiBundleHelper bundleHelper, ProcessToolRegistry toolRegistry) {
@@ -356,11 +370,12 @@ public class PluginHelper implements PluginManager, SearchProvider {
                         }
                     }, "/" + processPackage.replace(".", "/") + "/messages"), providerId);
 
-                    toolRegistry.registerDictionaries(bundleHelper.getBundleResourceStream(basePath + "process-dictionaries.xml"));
+                    toolRegistry.registerProcessDictionaries(bundleHelper.getBundleResourceStream(basePath + "process-dictionaries.xml"));
 
                 }
                 catch (Exception e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    forwardErrorInfoToMonitor(bundle.getSymbolicName(), e);
                 }
             }
             else { // ignore
@@ -368,6 +383,63 @@ public class PluginHelper implements PluginManager, SearchProvider {
             }
         }
     }
+
+    private void handleBundleResources(int eventType, OSGiBundleHelper bundleHelper, ProcessToolRegistry toolRegistry) {
+        Bundle bundle = bundleHelper.getBundle();
+        String[] resources = bundleHelper.getHeaderValues(RESOURCES);
+        for (String pack : resources) {
+            if (eventType == Bundle.ACTIVE) {
+                String basePath = File.separator + pack.replace(".", File.separator);
+                if (!basePath.endsWith(File.separator)) {
+                    basePath += File.separator;
+                }
+                Enumeration<URL> urls = bundle.findEntries(basePath, null, true);
+                while (urls.hasMoreElements()) {
+                    String path = urls.nextElement().getPath();
+                    toolRegistry.registerResource(bundle.getSymbolicName(), path);
+                }
+            }
+            else {
+                toolRegistry.removeRegisteredResources(bundle.getSymbolicName());
+            }
+        }
+    }
+
+    private void handleGlobalDictionaries(int eventType, OSGiBundleHelper bundleHelper, ProcessToolRegistry toolRegistry) {
+        String[] properties = bundleHelper.getHeaderValues(GLOBAL_DICTIONARY);
+        if (eventType == Bundle.ACTIVE) {
+            for (String pack : properties) {
+                try {
+                    String basePath = File.separator + pack.replace(".", File.separator) + File.separator;
+                    InputStream is = bundleHelper.getBundleResourceStream(basePath + "global-dictionaries.xml");
+                    if (is != null) {
+                        toolRegistry.registerGlobalDictionaries(is);
+                    }
+                    else {
+                        LOGGER.log(Level.WARNING, "No global dictionary stream found in package: " + pack);
+                    }
+                }
+                catch (Exception e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    forwardErrorInfoToMonitor(bundleHelper.getBundleMetadata().getDescription() + " global-dictionary", e);
+                }
+            }
+        }
+    }
+
+    private void handleTaskItemEnhancement(int eventType, OSGiBundleHelper bundleHelper, ProcessToolRegistry toolRegistry) throws ClassNotFoundException {
+   		Bundle bundle = bundleHelper.getBundle();
+   		String[] classes = bundleHelper.getHeaderValues(TASK_ITEM_ENHANCEMENT);
+   		for (String cls : classes) {
+   			if (eventType == Bundle.ACTIVE) {
+   				toolRegistry.registerTaskItemProvider(bundle.loadClass(cls));
+   			}
+   			else {
+   				toolRegistry.unregisterTaskItemProvider(bundle.loadClass(cls));
+   			}
+   		}
+   	}
+
 
     public synchronized void initialize(String pluginsDir, 
                                         String storageDir, 
@@ -502,6 +574,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
                 }
                 catch (Exception e) {
                     LOGGER.log(Level.SEVERE, "Bundle install interrupted", e);
+                    forwardErrorInfoToMonitor("Bundle install interrupted", e);
                 }
                 finally {
                     executor.schedule(createBundleInstallTask(pluginsDir), 5, TimeUnit.SECONDS);
@@ -603,6 +676,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
                 }
                 catch (ClassNotFoundException e) {
                     LOGGER.log(Level.SEVERE, "Exception processing bundle", e);
+                    forwardErrorInfoToMonitor(bundle.getSymbolicName(), e);
                 }
             }
         }
@@ -1090,5 +1164,18 @@ public class PluginHelper implements PluginManager, SearchProvider {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new RuntimeException(e);
         }
+    }
+
+
+    protected void forwardErrorInfoToMonitor(String path, Exception e) {
+   		monitorInfo.append("\nSEVERE EXCEPTION: " + path);
+   		monitorInfo.append("\n" + e.getMessage());
+   		//		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+   		//		e.printStackTrace(new PrintWriter(baos));
+   		//		monitorInfo.append(baos.toString());
+   	}
+
+    public StringBuffer getMonitorInfo() {
+        return monitorInfo;
     }
 }

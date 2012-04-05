@@ -15,6 +15,10 @@ public class ProcessDictionaries {
     private Boolean overwrite;
     @XStreamAsAttribute
     private String defaultLanguage;
+    @XStreamImplicit
+    private List<DictionaryPermission> permissions;
+    @XStreamImplicit
+    protected List<Dictionary> dictionaries;
 
     public String getDefaultLanguage() {
         return defaultLanguage;
@@ -40,15 +44,20 @@ public class ProcessDictionaries {
         this.processBpmDefinitionKey = processBpmDefinitionKey;
     }
 
-    @XStreamImplicit
-    protected List<Dictionary> dictionaries;
-
     public List<Dictionary> getDictionaries() {
         return dictionaries == null ? (dictionaries = new ArrayList<Dictionary>()) : dictionaries;
     }
 
     public void setDictionaries(List<Dictionary> dictionaries) {
         this.dictionaries = dictionaries;
+    }
+
+    public List<DictionaryPermission> getPermissions() {
+        return permissions == null ? (permissions = new ArrayList<DictionaryPermission>()) : permissions;
+    }
+
+    public void setPermissions(List<DictionaryPermission> permissions) {
+        this.permissions = permissions;
     }
 }
 

@@ -172,5 +172,6 @@ public interface ProcessToolRegistry extends ProcessToolBpmConstants {
 
     TaskItemProvider makeTaskItemProvider(String name) throws IllegalAccessException, InstantiationException;
 
-    public boolean createRoleIfNotExists(String roleName, String description);
+    //no way!
+//    public boolean createRoleIfNotExists(String roleName, String description);
 }

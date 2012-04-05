@@ -26,7 +26,7 @@
     <global-property name="mail.address" value="aperteworkflow@gmail.com"></global-property>
     <global-property name="mail.username" value="aperteworkflow"></global-property>
     <global-property name="mail.password" value="osiemznakow"></global-property>
-    <global-property name="cmis.filename" value="card.pdf"></global-property>
+
 
     <cmis:config name="cmisConfig" username="${cmis.username}" password="${cmis.password}"
                  repositoryId="${cmis.repository.id}" baseUrl="${cmis.repository.base}"/>
@@ -149,7 +149,7 @@
             <script:script engine="groovy">
                 <script:text>
                     System.out.println("Sending confirmation... ")
-                    return "Twój wniosek o wizytówkę został zaakceptowany i wysłany do drukarni."
+                    return "Your business card order has been accepted and is being sent to the printing house."
                 </script:text>
             </script:script>
         </script:component>
@@ -178,8 +178,8 @@
                     System.out.println("Sending notification... ")
                     Set comments = payload.findAttributeByKey("pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComments").getComments()
                     def comment = comments.asList().get(0)
-                    String format = "&lt;p&gt;Twój wniosek o wizytówkę został odrzucony przez %s.&lt;/p&gt;"
-                    format += "&lt;p&gt;Powód:\n\n %s &lt;/p&gt;"
+                    String format = "&lt;p&gt;Your business card order was rejected by %s.&lt;/p&gt;"
+                    format += "&lt;p&gt;Reason:\n\n %s &lt;/p&gt;"
                     def msg = String.format(format, comment.getAuthor().getRealName(), comment.getBody())
                     System.out.println(msg)
                     return msg

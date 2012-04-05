@@ -4,7 +4,7 @@
 
   <groupId>org.aperteworkflow</groupId>
   <artifactId>custom-widget-archetype</artifactId>
-  <version>1.0</version>
+  <version>1.1-SNAPSHOT</version>
   <packaging>maven-archetype</packaging>
 
   <name>Custom widget archetype</name>

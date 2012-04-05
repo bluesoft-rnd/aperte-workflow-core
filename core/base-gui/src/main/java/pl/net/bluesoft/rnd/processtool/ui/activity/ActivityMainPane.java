@@ -1,75 +1,216 @@
 package pl.net.bluesoft.rnd.processtool.ui.activity;
 
 import com.vaadin.Application;
+import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.UriFragmentUtility.FragmentChangedEvent;
+import com.vaadin.ui.UriFragmentUtility.FragmentChangedListener;
 import com.vaadin.ui.themes.BaseTheme;
+import org.aperteworkflow.util.vaadin.UriChangedCallback;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
+import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
+import pl.net.bluesoft.rnd.processtool.ui.activity.HistoryListPane.HistorySelection;
 import pl.net.bluesoft.rnd.processtool.ui.newprocess.NewProcessExtendedPane;
-import pl.net.bluesoft.rnd.processtool.ui.process.ProcessDataPane;
+import pl.net.bluesoft.rnd.processtool.ui.process.ProcessDataViewComponent;
+import pl.net.bluesoft.rnd.processtool.view.impl.BasicViewController;
+import pl.net.bluesoft.rnd.processtool.view.impl.ComponentPaneRenderer;
+import pl.net.bluesoft.rnd.util.ResourceCache;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+import org.aperteworkflow.util.vaadin.EventHandler;
+import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
+import org.aperteworkflow.util.vaadin.UriChangedCallback;
+import org.aperteworkflow.util.vaadin.VaadinUtility;
+import pl.net.bluesoft.util.lang.Strings;
 
-import java.util.Calendar;
+import java.util.*;
 
-import static org.aperteworkflow.util.vaadin.VaadinUtility.*;
-import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
+//import org.aperteworkflow.util.vaadin.VaadinUtility.verticalLayout;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.verticalLayout;
+import static pl.net.bluesoft.util.lang.Formats.nvl;
 
-/**
- * @author tlipski@bluesoft.net.pl
- */
-public class ActivityMainPane extends HorizontalLayout {
+public class ActivityMainPane extends VerticalLayout {
+
 	private Application application;
 	private I18NSource i18NSource;
 	private ProcessToolBpmSession bpmSession;
-	private Component currentlyDisplayed = null;
-    
-    private TextField searchField = new TextField();
+
+	private UriFragmentUtility uriFragmentUtility = new UriFragmentUtility();
+
+	private List<UriChangedCallback> uriCallbacks = new ArrayList<UriChangedCallback>();
+
+	private BasicViewController viewController;
+	private Button showHideButton1;
+	private LeftPanelVisibilityTrigger leftPanelTrigger;
+	private Button showHideButton2;
+	private HorizontalLayout horizontalLayout;
+	private Button showHideButton0;
+	
+	private ResourceCache resourceCache;
 
 	public ActivityMainPane(Application application, I18NSource i18NSource, ProcessToolBpmSession bpmSession) {
 		this.application = application;
 		this.i18NSource = i18NSource;
 		this.bpmSession = bpmSession;
-//		setWidth("100%");
-//		String width = application.getMainWindow().getWidth() + "px";
+		this.resourceCache = new ResourceCache(application);
 		setWidth("100%");
-//		setHeight("100%");
-//		setHeight(application.getMainWindow().getHeight() + "px");
-//		setSizeFull();
-				setHeight(null);
+		initLayout();
+    }
 
-		initGui();
-		displayMyTasksPane();
-	}
+	private void initLayout() {
+		uriFragmentUtility.addListener(new FragmentChangedListener() {
+			@Override
+			public void fragmentChanged(FragmentChangedEvent source) {
+				String fragment = uriFragmentUtility.getFragment();
+				if (!uriCallbacks.isEmpty() && Strings.hasText(fragment)) {
+					for (UriChangedCallback callback : uriCallbacks) {
+						callback.handle(fragment);
+					}
+				}
+			}
+		});
 
-	private void initGui() {
+		initViewController();
+		viewController.displayCurrentView();
+
 		removeAllComponents();
-        searchField.setInputPrompt(getLocalizedMessage("activity.search"));
-        searchField.setWidth("100%");
-		VerticalLayout c = verticalLayout(panel(getLocalizedMessage("activity.new-process.title"),
-		                                        new NewProcessExtendedPane(bpmSession, i18NSource, this)),
-		                                  new ActivityQueuesPane(this),
-                panel(getLocalizedMessage("activity.search.title"),
-                        verticalLayout(
-                                htmlLabel(getLocalizedMessage("activity.search.info")),
-                                searchField,
-                                button(getLocalizedMessage("activity.search.caption"), new Runnable() {
 
-                                    @Override
-                                    public void run() {
-                                        String text = (String) searchField.getValue();
-                                        if (text != null && !text.trim().isEmpty()) {
-                                            displaySearchResults(text.trim());
-                                        }
-                                    }
-                                }))));
-		c.setWidth("300");
-//		setSplitPosition(310, Sizeable.UNITS_PIXELS);
-		addComponent(c);
-//		setLocked(false);
+		showHideButton0 = new Button();
+		showHideButton0.setStyleName(BaseTheme.BUTTON_LINK);
+		showHideButton0.setIcon(resourceCache.getImage("/img/guzik_1.png"));
+//        showHideButton1 = VaadinUtility.link(i18NSource.getMessage("left_panel.hide"));
+		showHideButton1 = new Button(); //VaadinUtility.button(i18NSource.getMessage("left_panel.hide"), null, null);
+		showHideButton1.setStyleName(BaseTheme.BUTTON_LINK);
+		showHideButton1.setIcon(resourceCache.getImage("/img/guzik_2.png"));
+//		showHideButton2 = VaadinUtility.link(i18NSource.getMessage("left_panel.hide"));
+		showHideButton2 = new Button(); // VaadinUtility.button(i18NSource.getMessage("left_panel.hide"), null, null);
+		showHideButton2.setStyleName(BaseTheme.BUTTON_LINK);
+		showHideButton2.setIcon(resourceCache.getImage("/img/guzik_2.png"));
+		final VerticalLayout leftPanel = verticalLayout(showHideButton1,
+		                                                new NewProcessExtendedPane(bpmSession, i18NSource, this),
+		                                                new ActivityQueuesPane(this),
+		                                                new ActivityFiltersPane(this),
+		                                                showHideButton2);
+
+		leftPanelTrigger = new LeftPanelVisibilityTrigger(leftPanel, true);
+		leftPanel.setWidth("300px");
+		showHideButton0.addListener(leftPanelTrigger);
+		showHideButton1.addListener(leftPanelTrigger);
+		showHideButton2.addListener(leftPanelTrigger);
+
+		ComponentContainer viewContainer = viewController.getViewContainer();
+
+		horizontalLayout = new HorizontalLayout();
+		horizontalLayout.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+		horizontalLayout.addComponent(leftPanel);
+		horizontalLayout.addComponent(viewContainer);
+		horizontalLayout.setExpandRatio(viewContainer, 1.0f);
+		addComponent(showHideButton0);
+		addComponent(horizontalLayout);
+		addComponent(uriFragmentUtility);
 	}
 
+	private void initViewController() {
+		viewController = new BasicViewController(new ComponentPaneRenderer<MyProcessesListPane>(
+				new MyProcessesListPane(this, i18NSource.getMessage("activity.assigned.tasks"))) {
+			@Override
+			public Component render(Map<String, ?> viewData) {
+				ProcessInstanceFilter filter = (ProcessInstanceFilter) viewData.get("filter");
+				if (filter != null) {
+					pane.setTitle(filter.getName());
+					pane.setFilter(filter);
+				}
+				if(leftPanelTrigger != null)
+					leftPanelTrigger.show();
+				return pane.init();
+			}
+		});
+
+		viewController.addView(new ComponentPaneRenderer<ProcessDataViewComponent>(
+				new ProcessDataViewComponent(application, i18NSource, viewController)) {
+			@Override
+			public String getViewId() {
+				return ProcessDataViewComponent.class.getName();
+			}
+			@Override
+			public Component render(Map<String, ?> viewData) {
+				ProcessToolBpmSession bpmSession = (ProcessToolBpmSession) viewData.get("bpmSession");
+				BpmTask task = (BpmTask) viewData.get("task");
+				pane.attachProcessDataPane(task, bpmSession);
+				return pane;
+			}
+		});
+
+		viewController.addView(new ComponentPaneRenderer<OtherUserProcessesListPane>(
+				new OtherUserProcessesListPane(this, i18NSource.getMessage("activity.user.tasks"))) {
+			@Override
+			public Component render(Map<String, ?> viewData) {
+//				UserData user = (UserData) viewData.get("user");
+				ProcessInstanceFilter filter = (ProcessInstanceFilter) viewData.get("filter");
+				if (filter != null) {
+					pane.setTitle(filter.getName());
+				}
+				pane.setFilter(filter);
+				pane.setUserData(filter.getFilterOwner());
+				leftPanelTrigger.show();
+				return pane.init();
+			}
+		});
+
+		viewController.addView(new ComponentPaneRenderer<QueueListPane>(new QueueListPane(this)) {
+			@Override
+			public Component render(Map<String, ?> viewData) {
+				ProcessQueue q = (ProcessQueue) viewData.get("queue");
+				pane.setQueue(q);
+				leftPanelTrigger.show();
+				return pane.init();
+			}
+		});
+
+		viewController.addView(new ComponentPaneRenderer<OtherUserQueueListPane>(new OtherUserQueueListPane(this)) {
+			@Override
+			public Component render(Map<String, ?> viewData) {
+				ProcessQueue queue = (ProcessQueue) viewData.get("queue");
+				UserData user = (UserData) viewData.get("user");
+				pane.setUserData(user);
+				pane.setQueue(queue);
+				leftPanelTrigger.show();
+				return pane.init();
+			}
+		});
+
+		viewController.addView(new ComponentPaneRenderer<RecentProcessesListPane>(
+				new RecentProcessesListPane(this, i18NSource.getMessage("activity.recent.tasks"))) {
+			@Override
+			public Component render(Map<String, ?> viewData) {
+				Calendar minDate = (Calendar) viewData.get("minDate");
+				pane.setMinDate(minDate);
+				leftPanelTrigger.show();
+				return pane.init();
+			}
+		});
+
+        viewController.addView(new ComponentPaneRenderer<HistoryListPane>(new HistoryListPane(this)) {
+            @Override
+            public Component render(Map<String, ?> viewData) {
+                leftPanelTrigger.show();
+                pane.setBpmSession(getBpmSession());
+                pane.setHistorySelection((HistorySelection) viewData.get("historySelection"));
+                return pane.init();
+            }
+        });
+	}
+
+	public void addUriCallback(UriChangedCallback callback) {
+		uriCallbacks.add(callback);
+	}
+
+	@Override
 	public Application getApplication() {
 		return application;
 	}
@@ -82,98 +223,184 @@ public class ActivityMainPane extends HorizontalLayout {
 		return bpmSession;
 	}
 
-    public void displaySearchResults(String query) {
-        ProcessListPane toDisplay = new SearchResultsPane(query, this);
-        toDisplay.refreshData();
-        show(toDisplay);
-    }
 	public void displayMyTasksPane() {
-		MyProcessesListPane toDisplay = new MyProcessesListPane(this, i18NSource.getMessage("activity.my.tasks"));
-		toDisplay.refreshData();
-		show(toDisplay);
-	}
-
-    public void displayOtherUserTasksPane(UserData user) {
-        OtherUserProcessesListPane toDisplay = new OtherUserProcessesListPane(
-                this,
-                i18NSource.getMessage("activity.user.tasks") + " " + user.getRealName(),
-                user
-        );
-		toDisplay.refreshData();
-		show(toDisplay);
-    }
-
-	private void show(Component toDisplay) {
-		if (currentlyDisplayed != null) removeComponent(currentlyDisplayed);
-		currentlyDisplayed = toDisplay;
-		currentlyDisplayed.setWidth("100%");
-		addComponent(currentlyDisplayed);
-//		setLocked(false);
-		setExpandRatio(currentlyDisplayed, 1.0f);
-	}
-
-
-	public void displayQueue(ProcessQueue q) {
-		QueueListPane toDisplay = new QueueListPane(this, q.getDescription(), q);
-		toDisplay.refreshData();
-		show(toDisplay);
-	}
-
-    public void displayOtherUserQueue(ProcessQueue q, UserData user) {
-		QueueListPane toDisplay = new OtherUserQueueListPane(this, q.getDescription(), q, user);
-		toDisplay.refreshData();
-		show(toDisplay);
-	}
-
-	public void displayRecentTasksPane(Calendar minDate) {
-		RecentProcessesListPane toDisplay = new RecentProcessesListPane(this, i18NSource.getMessage("activity.recent.tasks"), minDate);
-		toDisplay.refreshData();
-		show(toDisplay);
-	}
-
-    public void displayProcessData(ProcessInstance processInstance) {
-        displayProcessData(processInstance, null);
-    }
-
-	public void displayProcessData(ProcessInstance processInstance, ProcessToolBpmSession bpmSession) {
-		final Component previousComponent = currentlyDisplayed;
-		final VerticalLayout verticalLayout = new VerticalLayout();
-		verticalLayout.setWidth("100%");
-
-		final Button button = new Button(i18NSource.getMessage("activity.back"));
-		button.setStyleName(BaseTheme.BUTTON_LINK);
-		button.addListener(new Button.ClickListener() {
+		confirmTaskClosing(new EventHandler() {
 			@Override
-			public void buttonClick(Button.ClickEvent event) {
-				show(previousComponent);
+			public void onEvent() {
+				setShowExitWarning(application, false);
+				VaadinUtility.unregisterClosingWarning(application.getMainWindow());
+				viewController.displayView(MyProcessesListPane.class);
 			}
 		});
-
-		final Label l = new Label();
-		HorizontalLayout hl = horizontalLayout("100%", l, button);
-		hl.setComponentAlignment(button, Alignment.TOP_RIGHT);
-		hl.setExpandRatio(l, 1.0f);
-		verticalLayout.addComponent(hl);
-		verticalLayout.setSpacing(true);
-		verticalLayout.setMargin(true);
-
-		ProcessDataPane pdp = new ProcessDataPane(getApplication(),
-		                                          nvl(bpmSession, this.bpmSession),
-		                                          i18NSource,
-		                                          processInstance,
-		                                          new ProcessDataPane.DisplayProcessContext() {
-			                                          @Override
-			                                          public void hide() {
-				                                          show(previousComponent);
-			                                          }
-
-			                                          @Override
-			                                          public void setCaption(String newCaption) {
-				                                          l.setValue(newCaption);
-			                                          }
-		                                          });
-		verticalLayout.addComponent(pdp);
-
-		show(verticalLayout);
 	}
+
+	public void displayFilterPane(final ProcessInstanceFilter filter) {
+		confirmTaskClosing(new EventHandler() {
+			@Override
+			public void onEvent() {
+				setShowExitWarning(application, false);
+				VaadinUtility.unregisterClosingWarning(application.getMainWindow());
+				viewController.displayView(MyProcessesListPane.class, Collections.singletonMap("filter", filter));
+			}
+		});
+	}
+
+	public void displayOtherUserTasksPane(final ProcessInstanceFilter filter) {
+		confirmTaskClosing(new EventHandler() {
+			@Override
+			public void onEvent() {
+				setShowExitWarning(application, false);
+				VaadinUtility.unregisterClosingWarning(application.getMainWindow());
+				viewController.displayView(OtherUserProcessesListPane.class, Collections.singletonMap("filter", filter));
+			}
+		});
+	}
+
+	public void displayQueue(final ProcessQueue q) {
+		confirmTaskClosing(new EventHandler() {
+			@Override
+			public void onEvent() {
+				setShowExitWarning(application, false);
+				VaadinUtility.unregisterClosingWarning(application.getMainWindow());
+				viewController.displayView(QueueListPane.class, Collections.singletonMap("queue", q));
+			}
+		});
+	}
+
+	public void displayOtherUserQueue(final ProcessQueue q, final UserData user) {
+		confirmTaskClosing(new EventHandler() {
+			@Override
+			public void onEvent() {
+				setShowExitWarning(application, false);
+				VaadinUtility.unregisterClosingWarning(application.getMainWindow());
+				viewController.displayView(OtherUserQueueListPane.class, new HashMap<String, Object>() {{
+					put("queue", q);
+					put("user", user);
+				}});
+			}
+		});
+	}
+
+	public void displayRecentTasksPane(final Calendar minDate) {
+		confirmTaskClosing(new EventHandler() {
+			@Override
+			public void onEvent() {
+				setShowExitWarning(application, false);
+				VaadinUtility.unregisterClosingWarning(application.getMainWindow());
+				viewController.displayView(RecentProcessesListPane.class, Collections.singletonMap("minDate", minDate));
+			}
+		});
+	}
+
+    public void displayHistoryPane() {
+        confirmTaskClosing(new EventHandler() {
+            @Override
+            public void onEvent() {
+                setShowExitWarning(application, false);
+                VaadinUtility.unregisterClosingWarning(application.getMainWindow());
+                viewController.displayView(HistoryListPane.class, Collections.singletonMap("historySelection", new HistorySelection()));
+            }
+        });
+    }
+
+	public void displayProcessData(BpmTask task) {
+		displayProcessData(task, null);
+	}
+
+	public void displayProcessData(final BpmTask task, final ProcessToolBpmSession bpmSession) {
+        displayProcessData(task, bpmSession, false);
+	}
+
+    public void displayProcessData(BpmTask task, boolean forward) {
+        displayProcessData(task, null, forward);
+    }
+
+    public void displayProcessData(final BpmTask task, final ProcessToolBpmSession bpmSession, boolean forward) {
+        displayProcessDataInPane(task, bpmSession, forward);
+    }
+
+	private void confirmTaskClosing(EventHandler eventHandler) {
+		BpmTask task;
+		final ProcessToolContext processToolContextFromThread = ProcessToolContext.Util.getThreadProcessToolContext();
+		if(viewController.getCurrentViewId() != null
+				&& viewController.getCurrentViewId().equals(ProcessDataViewComponent.class.getName())
+				&& (task = (BpmTask)viewController.getCurrentViewData().get("task")) != null
+				&& getBpmSession().isProcessRunning(task.getProcessInstance().getInternalId(), processToolContextFromThread)) {
+				//show confirmation if there already is an open process
+				VaadinUtility.displayConfirmationWindow(application, getI18NSource(), i18NSource.getMessage("activity.close.process.confirmation.title"),
+				                                        i18NSource.getMessage("activity.close.process.confirmation.question"), eventHandler, null,
+				                                        "activity.close.process.confirmation.ok", "activity.close.process.confirmation.cancel");
+		} else {
+			eventHandler.onEvent();
+		}
+	}
+
+	private void displayProcessDataInPane(final BpmTask task, final ProcessToolBpmSession bpmSession, boolean forward) {
+		viewController.displayView(ProcessDataViewComponent.class, new HashMap<String, Object>() {{
+			put("bpmSession", nvl(bpmSession, ActivityMainPane.this.bpmSession));
+			put("task", task);
+		}}, forward);
+	}
+
+	public void reloadCurrentViewData() {
+		viewController.refreshCurrentView();
+	}
+
+
+	public final class LeftPanelVisibilityTrigger implements ClickListener {
+		private final VerticalLayout leftPanel;
+		private boolean leftPanelVisible = true;
+
+		public LeftPanelVisibilityTrigger(VerticalLayout leftPanel, boolean leftPanelVisible) {
+			this.leftPanel = leftPanel;
+			this.leftPanelVisible = leftPanelVisible;
+			trigger(leftPanelVisible);
+//			showHideButton0.setCaption(i18NSource.getMessage("left_panel.show"));
+//			showHideButton0.setStyleName(BaseTheme.BUTTON_LINK);
+//			showHideButton1.setCaption(i18NSource.getMessage("left_panel.hide"));
+//			showHideButton1.setStyleName(BaseTheme.BUTTON_LINK);
+//			showHideButton2.setCaption(i18NSource.getMessage("left_panel.hide"));
+//			showHideButton2.setStyleName(BaseTheme.BUTTON_LINK);
+		}
+
+		@Override
+		public void buttonClick(ClickEvent event) {
+			trigger(!leftPanelVisible);
+		}
+
+		public void trigger(boolean showPanel) {
+			if(showPanel){
+				show();
+			} else {
+				hide();
+			}
+		}
+
+		public void hide() {
+			leftPanel.setVisible(false);
+			leftPanelVisible = false;
+			showHideButton0.setVisible(true);
+		}
+
+		public void show() {
+			leftPanel.setVisible(true);
+			leftPanelVisible = true;
+			showHideButton0.setVisible(false);
+		}
+	}
+
+	private void setShowExitWarning(Application application, boolean show) {
+		if (application instanceof GenericVaadinPortlet2BpmApplication)
+			((GenericVaadinPortlet2BpmApplication)application).setShowExitWarning(show);
+	}
+
+    public void displayTaskById(String taskId) {
+        BpmTask task = bpmSession.getTaskData(taskId, ProcessToolContext.Util.getThreadProcessToolContext());
+        if (task != null) {
+            displayProcessData(task);
+        }
+        else {
+            application.getMainWindow().showNotification(i18NSource.getMessage("process.data.task-notfound").replaceFirst("%s", taskId));
+        }
+    }
 }

@@ -3,24 +3,26 @@ package pl.net.bluesoft.rnd.processtool.ui.dict;
 import com.vaadin.Application;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.BeanItem;
-import com.vaadin.data.validator.DoubleValidator;
-import com.vaadin.data.validator.IntegerValidator;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.DefaultFieldFactory;
 import com.vaadin.ui.Field;
 import com.vaadin.ui.TextField;
-import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDBDictionaryItem;
+import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItem;
+import pl.net.bluesoft.rnd.processtool.ui.dict.fields.DictionaryItemValuesField;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
+import java.util.Set;
+
 public class DictionaryItemFormFieldFactory extends DefaultFieldFactory {
-    private Object[] visiblePropertyIds;
-    private Object[] editablePropertyIds;
-    private Object[] requiredPropertyIds;
+    private Set<String> visiblePropertyIds;
+    private Set<String> editablePropertyIds;
+    private Set<String> requiredPropertyIds;
     private I18NSource source;
     private Application application;
 
-    public DictionaryItemFormFieldFactory(Application application, I18NSource source, Object[] visiblePropertyIds,
-                                          Object[] editablePropertyIds, Object[] requiredPropertyIds) {
+    public DictionaryItemFormFieldFactory(Application application, I18NSource source, Set<String> visiblePropertyIds,
+                                          Set<String> editablePropertyIds, Set<String> requiredPropertyIds) {
+        super();
         this.application = application;
         this.visiblePropertyIds = visiblePropertyIds;
         this.editablePropertyIds = editablePropertyIds;
@@ -35,23 +37,12 @@ public class DictionaryItemFormFieldFactory extends DefaultFieldFactory {
         }
         BeanItem<ProcessDBDictionaryItem> beanItem = (BeanItem<ProcessDBDictionaryItem>) item;
         ProcessDBDictionaryItem bean = beanItem.getBean();
-        Field field = "extensions".equals(propertyId) ? new DictionaryItemExtensionField(application, source, bean)
+        Field field = "values".equals(propertyId) ? new DictionaryItemValuesField(application, source, bean.getValueType())
                 : new TextField(source.getMessage("dict.item." + propertyId));
         field.setWidth("100%");
         if (isPropertyEditable(propertyId)) {
             field.setRequired(isPropertyRequired(propertyId));
             field.setRequiredError(source.getMessage("dict.item." + propertyId + ".required"));
-            if ("value".equals(propertyId)) {
-                String type = bean.getValueType();
-                if (type != null) {
-                    if ("int".equalsIgnoreCase(type)) {
-                        field.addValidator(new IntegerValidator(source.getMessage("validate.integer")));
-                    }
-                    else if ("dbl".equalsIgnoreCase(type)) {
-                        field.addValidator(new DoubleValidator(source.getMessage("validate.double")));
-                    }
-                }
-            }
         }
         else {
             field.setReadOnly(true);
@@ -60,35 +51,26 @@ public class DictionaryItemFormFieldFactory extends DefaultFieldFactory {
     }
 
     private boolean isPropertyRequired(Object propertyId) {
-        return findInArray(propertyId, requiredPropertyIds);
+        return requiredPropertyIds.contains(propertyId);
     }
 
     private boolean isPropertyVisible(Object propertyId) {
-        return findInArray(propertyId, visiblePropertyIds);
+        return visiblePropertyIds.contains(propertyId);
     }
 
     private boolean isPropertyEditable(Object propertyId) {
-        return findInArray(propertyId, editablePropertyIds);
-    }
-
-    private boolean findInArray(Object obj, Object[] array) {
-        for (Object o : array) {
-            if (obj.equals(o)) {
-                return true;
-            }
-        }
-        return false;
+        return editablePropertyIds.contains(propertyId);
     }
 
     public Object[] getVisiblePropertyIds() {
-        return visiblePropertyIds;
+        return visiblePropertyIds.toArray();
     }
 
     public Object[] getEditablePropertyIds() {
-        return editablePropertyIds;
+        return editablePropertyIds.toArray();
     }
 
     public Object[] getRequiredPropertyIds() {
-        return requiredPropertyIds;
+        return requiredPropertyIds.toArray();
     }
 }

@@ -1,4 +1,4 @@
-package org.aperteworkflow.util.vaadin.ui;
+package org.aperteworkflow.util.vaadin.ui.table;
 
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;

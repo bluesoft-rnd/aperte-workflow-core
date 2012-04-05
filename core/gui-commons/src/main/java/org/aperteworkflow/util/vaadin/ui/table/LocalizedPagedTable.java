@@ -1,4 +1,4 @@
-package org.aperteworkflow.util.vaadin.ui;
+package org.aperteworkflow.util.vaadin.ui.table;
 
 import com.vaadin.data.Container;
 import com.vaadin.data.validator.IntegerValidator;
@@ -6,6 +6,7 @@ import com.vaadin.ui.*;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.themes.Reindeer;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,16 +46,21 @@ public class LocalizedPagedTable extends Table {
         addStyleName("pagedtable");
     }
 
-    public HorizontalLayout createControls(String itemsPerPageCaption, String pageCaption) {
+    public HorizontalLayout createPageSizeControls(I18NSource messageSource) {
+        return createPageSizeControls(messageSource.getMessage("pagedtable.itemsperpage"));
+    }
+    
+    public HorizontalLayout createPageSizeControls(String itemsPerPageCaption) {
         Label itemsPerPageLabel = new Label(itemsPerPageCaption + ":");
-        final ComboBox itemsPerPageSelect = new ComboBox();
+        itemsPerPageLabel.addStyleName("pagedtable-label pagedtable-itemsperpagecaption");
 
+        final ComboBox itemsPerPageSelect = new ComboBox();
+        itemsPerPageSelect.addStyleName("pagedtable-combobox pagedtable-itemsperpagecombobox");
         itemsPerPageSelect.addItem("5");
         itemsPerPageSelect.addItem("10");
         itemsPerPageSelect.addItem("25");
         itemsPerPageSelect.addItem("50");
         itemsPerPageSelect.addItem("100");
-        itemsPerPageSelect.addItem("600");
         itemsPerPageSelect.setImmediate(true);
         itemsPerPageSelect.setNullSelectionAllowed(false);
         itemsPerPageSelect.setWidth("50px");
@@ -63,7 +69,29 @@ public class LocalizedPagedTable extends Table {
                 setPageLength(Integer.valueOf(String.valueOf(event.getProperty().getValue())));
             }
         });
-        itemsPerPageSelect.select("10");
+        itemsPerPageSelect.select(String.valueOf(getPageLength()));
+
+        HorizontalLayout pageSize = new HorizontalLayout();
+        pageSize.addComponent(itemsPerPageLabel);
+        pageSize.addComponent(itemsPerPageSelect);
+        pageSize.setComponentAlignment(itemsPerPageLabel, Alignment.MIDDLE_LEFT);
+        pageSize.setComponentAlignment(itemsPerPageSelect, Alignment.MIDDLE_LEFT);
+        pageSize.setSpacing(true);
+
+        addListener(new PageChangeListener() {
+            public void pageChanged(PagedTableChangeEvent event) {
+                itemsPerPageSelect.setValue(String.valueOf(getPageLength()));
+            }
+        });
+
+        return pageSize;
+    }
+
+    public HorizontalLayout createPageManagementControls(I18NSource messageSource) {
+        return createPageManagementControls(messageSource.getMessage("pagedtable.page"));
+    }
+
+    public HorizontalLayout createPageManagementControls(String pageCaption) {
         Label pageLabel = new Label(pageCaption + ":&nbsp;", Label.CONTENT_XHTML);
         final TextField currentPageTextField = new TextField();
         currentPageTextField.setValue(String.valueOf(getCurrentPage()));
@@ -85,8 +113,6 @@ public class LocalizedPagedTable extends Table {
         separatorLabel.setWidth(null);
         totalPagesLabel.setWidth(null);
 
-        HorizontalLayout controlBar = new HorizontalLayout();
-        HorizontalLayout pageSize = new HorizontalLayout();
         HorizontalLayout pageManagement = new HorizontalLayout();
         final Button first = new Button("<<", new ClickListener() {
             public void buttonClick(ClickEvent event) {
@@ -113,33 +139,15 @@ public class LocalizedPagedTable extends Table {
         next.setStyleName(Reindeer.BUTTON_LINK);
         last.setStyleName(Reindeer.BUTTON_LINK);
 
-        itemsPerPageLabel.addStyleName("pagedtable-itemsperpagecaption");
-        itemsPerPageSelect.addStyleName("pagedtable-itemsperpagecombobox");
-        pageLabel.addStyleName("pagedtable-pagecaption");
-        currentPageTextField.addStyleName("pagedtable-pagefield");
-        separatorLabel.addStyleName("pagedtable-separator");
-        totalPagesLabel.addStyleName("pagedtable-total");
-        first.addStyleName("pagedtable-first");
-        previous.addStyleName("pagedtable-previous");
-        next.addStyleName("pagedtable-next");
-        last.addStyleName("pagedtable-last");
+        pageLabel.addStyleName("pagedtable-label pagedtable-pagecaption");
+        currentPageTextField.addStyleName("pagedtable-label pagedtable-pagefield");
+        separatorLabel.addStyleName("pagedtable-label pagedtable-separator");
+        totalPagesLabel.addStyleName("pagedtable-label pagedtable-total");
+        first.addStyleName("pagedtable-button pagedtable-first");
+        previous.addStyleName("pagedtable-button pagedtable-previous");
+        next.addStyleName("pagedtable-button pagedtable-next");
+        last.addStyleName("pagedtable-button pagedtable-last");
 
-        itemsPerPageLabel.addStyleName("pagedtable-label");
-        itemsPerPageSelect.addStyleName("pagedtable-combobox");
-        pageLabel.addStyleName("pagedtable-label");
-        currentPageTextField.addStyleName("pagedtable-label");
-        separatorLabel.addStyleName("pagedtable-label");
-        totalPagesLabel.addStyleName("pagedtable-label");
-        first.addStyleName("pagedtable-button");
-        previous.addStyleName("pagedtable-button");
-        next.addStyleName("pagedtable-button");
-        last.addStyleName("pagedtable-button");
-
-        pageSize.addComponent(itemsPerPageLabel);
-        pageSize.addComponent(itemsPerPageSelect);
-        pageSize.setComponentAlignment(itemsPerPageLabel, Alignment.MIDDLE_LEFT);
-        pageSize.setComponentAlignment(itemsPerPageSelect, Alignment.MIDDLE_LEFT);
-        pageSize.setSpacing(true);
         pageManagement.addComponent(first);
         pageManagement.addComponent(previous);
         pageManagement.addComponent(pageLabel);
@@ -158,12 +166,9 @@ public class LocalizedPagedTable extends Table {
         pageManagement.setComponentAlignment(last, Alignment.MIDDLE_LEFT);
         pageManagement.setWidth(null);
         pageManagement.setSpacing(true);
-        controlBar.addComponent(pageSize);
-        controlBar.addComponent(pageManagement);
-        controlBar.setComponentAlignment(pageManagement, Alignment.MIDDLE_CENTER);
-        controlBar.setWidth("100%");
-        controlBar.setExpandRatio(pageSize, 1);
+
         addListener(new PageChangeListener() {
+            @Override
             public void pageChanged(PagedTableChangeEvent event) {
                 first.setEnabled(container.getStartIndex() > 0);
                 previous.setEnabled(container.getStartIndex() > 0);
@@ -173,9 +178,27 @@ public class LocalizedPagedTable extends Table {
                         .getRealSize() - getPageLength());
                 currentPageTextField.setValue(String.valueOf(getCurrentPage()));
                 totalPagesLabel.setValue(getTotalAmountOfPages());
-                itemsPerPageSelect.setValue(String.valueOf(getPageLength()));
             }
         });
+
+        return pageManagement;
+    }
+    
+    public HorizontalLayout createControls(I18NSource messageSource) {
+        return createControls(messageSource.getMessage("pagedtable.itemsperpage"), messageSource.getMessage("pagedtable.page"));
+    }
+
+    public HorizontalLayout createControls(String itemsPerPageCaption, String pageCaption) {
+        HorizontalLayout pageSize = createPageSizeControls(itemsPerPageCaption);
+        HorizontalLayout pageManagement = createPageManagementControls(pageCaption);
+
+        HorizontalLayout controlBar = new HorizontalLayout();
+        controlBar.addComponent(pageSize);
+        controlBar.addComponent(pageManagement);
+        controlBar.setComponentAlignment(pageManagement, Alignment.MIDDLE_CENTER);
+        controlBar.setWidth("100%");
+        controlBar.setExpandRatio(pageSize, 1);
+
         return controlBar;
     }
 
@@ -228,7 +251,7 @@ public class LocalizedPagedTable extends Table {
         }
     }
 
-    private void firePagedChangedEvent() {
+    public void firePagedChangedEvent() {
         if (listeners != null) {
             PagedTableChangeEvent event = new PagedTableChangeEvent(this);
             for (PageChangeListener listener : listeners) {

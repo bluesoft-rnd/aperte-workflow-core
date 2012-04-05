@@ -16,8 +16,8 @@ import org.aperteworkflow.bpm.graph.TransitionArcPoint;
 import org.aperteworkflow.portlets.ProcessInstanceManagerPortlet;
 import org.aperteworkflow.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.bpm.BpmTask;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
+import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
@@ -45,7 +45,7 @@ import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 /**
  * @author tlipski@bluesoft.net.pl
  */
-public class ProcessInstanceAdminManagerPane extends VerticalLayout implements VaadinUtility.HasRefreshButton {
+public class ProcessInstanceAdminManagerPane extends VerticalLayout implements Refreshable {
 
     private Logger logger = Logger.getLogger(ProcessInstanceAdminManagerPane.class.getName());
     
@@ -226,13 +226,13 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements V
 
         vl.addComponent(history);
 
-        List<BpmTask> taskList = 
-                new ArrayList<BpmTask>(bpmSession.getTaskList(pi,
-                        ProcessToolContext.Util.getThreadProcessToolContext(),
-                        false));
+        List<BpmTask> taskList =
+                new ArrayList<BpmTask>(bpmSession.findProcessTasks(pi,
+                        ProcessToolContext.Util.getThreadProcessToolContext()));
         for (final BpmTask task : taskList) {
             vl.addComponent(getTaskStateComponent(pi, task));
-            ProcessStateConfiguration cfg = bpmSession.getProcessStateConfiguration(pi, ProcessToolContext.Util.getThreadProcessToolContext());
+            ProcessStateConfiguration cfg = ProcessToolContext.Util.getThreadProcessToolContext()
+                    .getProcessDefinitionDAO().getProcessStateConfiguration(pi);
             if (cfg != null && !cfg.getActions().isEmpty()) {
                 vl.addComponent(new Label(getLocalizedMessage("processinstances.console.entry.available-actions")));
                 HorizontalLayout hl = new HorizontalLayout();

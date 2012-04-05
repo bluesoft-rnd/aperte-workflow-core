@@ -1,571 +1,424 @@
 package pl.net.bluesoft.rnd.processtool.ui.process;
 
-import static com.vaadin.ui.Label.CONTENT_XHTML;
-import static org.aperteworkflow.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
-import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
+import com.vaadin.Application;
+import com.vaadin.ui.*;
+import org.apache.commons.lang3.StringUtils;
+import org.vaadin.jonatan.contexthelp.ContextHelp;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
+import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.rnd.processtool.ui.WidgetContextSupport;
+import pl.net.bluesoft.rnd.processtool.ui.common.FailedProcessToolWidget;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.*;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+import org.aperteworkflow.util.vaadin.VaadinUtility;
+import org.aperteworkflow.util.vaadin.help.HelpFactory;
+import org.aperteworkflow.util.vaadin.ui.AligningHorizontalLayout;
+import pl.net.bluesoft.util.lang.Strings;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.lang.StringUtils;
-import org.aperteworkflow.util.vaadin.VaadinUtility;
-
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateActionAttribute;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidgetAttribute;
-import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolActionButton;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolActionCallback;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinActionButton;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinWidget;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
-import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import pl.net.bluesoft.util.lang.StringUtil;
-
-import com.vaadin.Application;
-import com.vaadin.event.ShortcutAction;
-import com.vaadin.event.ShortcutListener;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Panel;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
-import com.vaadin.ui.themes.BaseTheme;
-import com.vaadin.ui.themes.ChameleonTheme;
+import static com.vaadin.ui.Label.CONTENT_XHTML;
+import static org.aperteworkflow.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
+import static pl.net.bluesoft.util.lang.Formats.nvl;
 
 /**
  * @author tlipski@bluesoft.net.pl
  */
-public class ProcessDataPane extends VerticalLayout {
-    private static final Logger logger = Logger.getLogger(ProcessDataPane.class.getName());
+public class ProcessDataPane extends VerticalLayout implements WidgetContextSupport {
+	private Logger logger = Logger.getLogger(ProcessDataPane.class.getName());
 
-    private ProcessToolBpmSession bpmSession;
-    private I18NSource i18NSource;
-    private ProcessInstance process;
+	private ProcessToolBpmSession bpmSession;
 
-    private Set<ProcessToolDataWidget> dataWidgets = new HashSet<ProcessToolDataWidget>();
-    private boolean failed = false;
-    private boolean isOwner;
+	private I18NSource i18NSource;
 
-    private Application application;
-    private DisplayProcessContext displayProcessContext;
+	private Set<ProcessToolDataWidget> dataWidgets = new HashSet<ProcessToolDataWidget>();
+	private boolean isOwner;
 
-    public ProcessDataPane(final Application application,
-                           final ProcessToolBpmSession bpmSession,
-                           I18NSource i18NSource,
-                           final ProcessInstance process,
-                           DisplayProcessContext hideProcessHandler) {
-        this.application = application;
-        this.bpmSession = bpmSession;
-        this.i18NSource = i18NSource;
-        this.displayProcessContext = hideProcessHandler;
-        setSpacing(true);
-        setMargin(new MarginInfo(false, false, true, true));
-        this.process = bpmSession.getProcessData(process.getInternalId(), ProcessToolContext.Util.getThreadProcessToolContext());
-        initLayout(ProcessToolContext.Util.getThreadProcessToolContext(), false);
+	private Application application;
+	private ProcessDataDisplayContext displayProcessContext;
+
+	private BpmTask task;
+	private ContextHelp contextHelp;
+	private HelpFactory helpFactory;
+
+	private ProcessToolActionCallback actionCallback;
+	private GuiAction guiAction = null;
+
+	private static enum GuiAction {
+		ACTION_PERFORMED, SAVE_PERFORMED, ACTION_FAILED;
+	}
+
+	public ProcessDataPane(Application application, ProcessToolBpmSession bpmSession, I18NSource i18NSource, BpmTask bpmTask,
+			ProcessDataDisplayContext hideProcessHandler) {
+		this.application = application;
+		this.bpmSession = bpmSession;
+		this.i18NSource = i18NSource;
+		displayProcessContext = hideProcessHandler;
+		task = bpmTask;
+
+		refreshTask();
+		prepare();
+
+		setSpacing(true);
+		setMargin(new MarginInfo(false, false, true, true));
+		initLayout(false);
+	}
+
+	private void prepare() {
+		if (helpFactory == null) {
+			contextHelp = new ContextHelp();
+			application.getMainWindow().getContent().addComponent(contextHelp);
+			helpFactory = new HelpFactory(task.getProcessInstance().getDefinition(), getApplication(), i18NSource, "axa_step_help", contextHelp);
+		}
+		actionCallback = new ProcessToolActionCallback() {
+			private void actionCompleted(GuiAction guiAction, ProcessStateAction action) {
+				ProcessDataPane.this.guiAction = guiAction;
+				refreshTask();
+				initLayout(action.getAutohide());
+			}
+
+			@Override
+			public void actionPerformed(ProcessStateAction action) {
+				actionCompleted(GuiAction.ACTION_PERFORMED, action);
+			}
+
+			@Override
+			public void actionFailed(ProcessStateAction action) {
+				actionCompleted(GuiAction.ACTION_FAILED, action);
+			}
+
+			@Override
+			public WidgetContextSupport getWidgetContextSupport() {
+				return ProcessDataPane.this;
+			}
+		};
+	}
+
+	private void initLayout(boolean autoHide) {
+		ProcessToolContext ctx = getCurrentContext();
+
+		removeAllComponents();
+		setWidth("100%");
+		dataWidgets.clear();
+
+		boolean processRunning = bpmSession.isProcessRunning(task.getInternalProcessId(), ctx);
+		isOwner = processRunning && !task.isFinished();
+		if (!isOwner) {
+			//showProcessStateInformation(processRunning);
+			if (autoHide) {
+				guiAction = null;
+				displayProcessContext.hide();
+				return;
+			}
+		}
+		guiAction = null;
+
+		ProcessStateConfiguration stateConfiguration = ctx.getProcessDefinitionDAO()
+                .getProcessStateConfiguration(task.getProcessInstance());
+
+		Label stateDescription = new Label(getMessage(stateConfiguration.getDescription()));
+		stateDescription.addStyleName("h1 color processtool-title");
+        stateDescription.setWidth("100%");
+
+        addComponent(stateDescription);
+        setComponentAlignment(stateDescription, Alignment.MIDDLE_LEFT);
+
+		if (Strings.hasText(stateConfiguration.getCommentary())) {
+			addComponent(new Label(getMessage(stateConfiguration.getCommentary()), Label.CONTENT_XHTML));
+		}
+		addComponent(helpFactory.helpIcon(task.getTaskName(), "step.help"));
+
+		displayProcessContext.setCaption(task.getExternalProcessId() != null ? task.getExternalProcessId() : task.getInternalProcessId());
+
+		final VerticalLayout vl = new VerticalLayout();
+		vl.setSpacing(true);
+
+		for (ProcessStateWidget w : stateConfiguration.getWidgets()) {
+			try {
+				ProcessToolWidget realWidget = getWidget(w, stateConfiguration, ctx, null);
+				if (realWidget instanceof ProcessToolVaadinRenderable && (!nvl(w.getOptional(), false) || realWidget.hasVisibleData())) {
+					processWidgetChildren(w, realWidget, stateConfiguration, ctx, null);
+					ProcessToolVaadinRenderable vaadinW = (ProcessToolVaadinRenderable) realWidget;
+					vl.addComponent(vaadinW.render());
+				}
+			}
+			catch (Exception e) {
+				logger.log(Level.SEVERE, e.getMessage(), e);
+				vl.addComponent(new Label(getMessage("process.data.widget.exception-occurred")));
+				vl.addComponent(new Label(e.getMessage()));
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				e.printStackTrace(new PrintWriter(baos));
+				vl.addComponent(new Label("<pre>" + baos.toString() + "</pre>", CONTENT_XHTML));
+			}
+
+		}
+
+		addComponent(vl);
+		setExpandRatio(vl, 1.0f);
+
+		if (isOwner) {
+			HorizontalLayout buttonLayout = getButtonsPanel(stateConfiguration);
+			addComponentAsFirst(buttonLayout);
+			setComponentAlignment(buttonLayout, Alignment.BOTTOM_LEFT);
+
+			buttonLayout = getButtonsPanel(stateConfiguration);
+			addComponent(buttonLayout);
+			setComponentAlignment(buttonLayout, Alignment.TOP_LEFT);
+		}
+	}
+
+	/*    private void showProcessStateInformation(boolean processRunning) {
+        String message = null;
+        if (guiAction != null) {
+            message = getMessage(guiAction.equals(GuiAction.ACTION_PERFORMED) ? "process.action.performed" : "process.data.save-success");
+        }
+        if (guiAction == null && !processRunning) {
+            message = getMessage("process.data.process-ended");
+        }
+        else if (task.isFinished()) {
+            message = getMessage("process.data.task-finished");
+        }
+        if (message != null) {
+            VaadinUtility.informationNotification(application, message, 1500);
+        }
+    }*/
+
+	private HorizontalLayout getButtonsPanel(ProcessStateConfiguration stateConfiguration) {
+		AligningHorizontalLayout buttonLayout = new AligningHorizontalLayout(Alignment.MIDDLE_RIGHT);
+		buttonLayout.setMargin(new MarginInfo(false, true, false, true));
+		buttonLayout.setWidth("100%");
+
+		List<ProcessStateAction> actionList = new ArrayList<ProcessStateAction>(stateConfiguration.getActions());
+		Collections.sort(actionList, new Comparator<ProcessStateAction>() {
+			@Override
+			public int compare(ProcessStateAction o1, ProcessStateAction o2) {
+				if (o1.getPriority().equals(o2.getPriority())) {
+					return new Long(o1.getId()).compareTo(o2.getId());
+				}
+				return o1.getPriority().compareTo(o2.getPriority());
+			}
+		});
+
+		for (final ProcessStateAction a : actionList) {
+			final ProcessToolActionButton actionButton = makeButton(a);
+			actionButton.setEnabled(isOwner);
+			actionButton.loadData(task);
+			actionButton.setActionCallback(actionCallback);
+			if (actionButton instanceof ProcessToolVaadinRenderable) {
+				buttonLayout.addComponent(((ProcessToolVaadinRenderable) actionButton).render());
+			}
+		}
+
+		buttonLayout.addComponentAsFirst(new Label() {{
+			setWidth("100%");
+		}});
+
+		buttonLayout.recalculateExpandRatios();
+
+		return buttonLayout;
+	}
+
+    public List<Component> getToolbarButtons() {
+        List<Component> buttons = new ArrayList<Component>();
+
+        Button saveButton = createSaveButton();
+        buttons.add(saveButton);
+
+        return buttons;
     }
 
-    private boolean initLayout(ProcessToolContext ctx, boolean autohide) {
-        failed = false;
-
-        removeAllComponents();
-        if (autohide && !bpmSession.isProcessRunning(process.getInternalId(), ctx)) {
-            application.getMainWindow().showNotification(getMessage("process.data.process-ended"));
-            displayProcessContext.hide();
-            return true;
-        }
-
-        dataWidgets.clear();
-        isOwner = bpmSession.isProcessOwnedByUser(process, ctx);
-
-        if (autohide && !isOwner) {
-            displayProcessContext.hide();
-            return false;
-        }
-        setWidth("100%");
-
-        ProcessStateConfiguration stateConfiguration = bpmSession.getProcessStateConfiguration(process, ctx);
-        if (stateConfiguration == null) {
-            application.getMainWindow().showNotification(getMessage("process.data.no-config"));
-            displayProcessContext.hide();
-            return true;
-
-        }
-        Label l = new Label(getMessage(stateConfiguration.getDescription()));
-        l.addStyleName("h1 color processtool-title");
-
-        addComponent(l);
-        if (StringUtil.hasText(stateConfiguration.getCommentary())) {
-            addComponent(new Label(getMessage(stateConfiguration.getCommentary()), Label.CONTENT_XHTML));
-        }
-
-        setComponentAlignment(l, Alignment.TOP_RIGHT);
-
-        displayProcessContext.setCaption(process.getInternalId());
-        HorizontalLayout buttonLayout = getButtonsPanel(stateConfiguration);
-        addComponent(buttonLayout);
-        setComponentAlignment(buttonLayout, Alignment.BOTTOM_LEFT);
-
-        final VerticalLayout vl = new VerticalLayout();
-        vl.setSpacing(true);
-
-        // sort the widgets to preserve the displaying order
-        List<ProcessStateWidget> widgets = new ArrayList<ProcessStateWidget>(stateConfiguration.getWidgets());
-        Collections.sort(widgets, new WidgetPriorityComparator());
-
-        for (ProcessStateWidget w : widgets) {
-            try {
-                ProcessToolWidget realWidget = getWidget(w, stateConfiguration, ctx);
-                if (realWidget instanceof ProcessToolVaadinWidget && (!nvl(w.getOptional(), false) || realWidget.hasVisibleData())) {
-                    processWidgetChildren(w, realWidget, stateConfiguration, ctx);
-                    ProcessToolVaadinWidget vaadinW = (ProcessToolVaadinWidget) realWidget;
-                    vl.addComponent(vaadinW.render());
-                }
-            } catch (Exception e) {
-                logger.log(Level.SEVERE, e.getMessage(), e);
-                failed = true;
-                vl.addComponent(new Label(getMessage("process.data.widget.exception-occurred")));
-                vl.addComponent(new Label(e.getMessage()));
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                e.printStackTrace(new PrintWriter(baos));
-                vl.addComponent(new Label("<pre>" + baos.toString() + "</pre>", CONTENT_XHTML));
-            }
-
-        }
-        addComponent(vl);
-        setExpandRatio(vl, 1.0f);
-
-        buttonLayout = getButtonsPanel(stateConfiguration);
-        addComponent(buttonLayout);
-        setComponentAlignment(buttonLayout, Alignment.TOP_LEFT);
-
+    public boolean canSaveProcessData() {
         return isOwner;
     }
 
-    private HorizontalLayout getButtonsPanel(ProcessStateConfiguration stateConfiguration) {
-        // sort the actions to preserve the displaying order
-        List<ProcessStateAction> actionList = new ArrayList<ProcessStateAction>(stateConfiguration.getActions());
-        Collections.sort(actionList, new ActionPriorityComparator());
-
-        HorizontalLayout buttonLayout = new HorizontalLayout();
-        buttonLayout.setSpacing(true);
-        for (final ProcessStateAction a : actionList) {
-
-            final ProcessToolActionButton actionButton = makeButton(a);
-            Button button = new Button(getMessage(actionButton.getLabel(process)));
-            if(ProcessStateAction.SECONDARY_ACTION.equals(a.getActionType()))
-            	button.setStyleName(BaseTheme.BUTTON_LINK);
-            button.addStyleName(a.getActionType());
-            button.addStyleName("default");
-            button.setDescription(getMessage(actionButton.getDescription(process)));
-
-            button.addListener(new Button.ClickListener() {
-                @Override
-                public void buttonClick(Button.ClickEvent event) {
-                    final ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-                    ProcessInstance pd = bpmSession.getProcessData(process.getInternalId(), ctx);
-                    Map<ProcessToolDataWidget, Collection<String>> validationErrors = getValidationErrors(pd);
-                    actionButton.onButtonPress(pd, ctx, dataWidgets, validationErrors, new ProcessToolActionCallback() {
-                        @Override
-                        public boolean saveProcessData() {
-                            withErrorHandling(application, new Runnable() {
-                                public void run() {
-                                    final ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-                                    ProcessInstance pi = bpmSession.getProcessData(process.getInternalId(), ctx);
-                                    for (ProcessToolDataWidget w : dataWidgets) {
-                                        w.saveData(pi);
-                                    }
-                                    actionButton.saveData(pi);
-                                    bpmSession.saveProcessInstance(pi, ctx);
-                                }
-                            });
-                            return true;
+	private Button createSaveButton() {
+		Button saveButton = VaadinUtility.link(i18NSource.getMessage("button.save.process.data"), new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent event) {
+                withErrorHandling(application, new Runnable() {
+                    @Override
+                    public void run() {
+                        if (validateWidgetsAndSaveData(task)) {
+                            refreshTask();
+                            guiAction = GuiAction.SAVE_PERFORMED;
+                            initLayout(false);
                         }
-
-                        @Override
-                        public void performAction(final ProcessStateAction a) {
-                            withErrorHandling(application, new Runnable() {
-                                public void run() {
-                                    final ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-                                    ProcessDataPane.this.performAction(ctx, a);
-                                    initLayout(ctx, actionButton.isAutoHide());
-                                }
-                            });
-                        }
-
-                    });
-                }
-            });
-            button.setEnabled(isOwner);
-            buttonLayout.addComponent(button);
-            buttonLayout.setComponentAlignment(button, Alignment.MIDDLE_CENTER);
-        }
-
-        HorizontalLayout masterLayout = new HorizontalLayout();
-        masterLayout.setWidth("100%");
-        masterLayout.setMargin(new MarginInfo(false, true, false, true));
-
-        masterLayout.addComponent(buttonLayout);
-        masterLayout.setComponentAlignment(buttonLayout, Alignment.BOTTOM_RIGHT);
-        return masterLayout;
-    }
-
-    private boolean validateAndSaveData(ProcessToolContext ctx) {
-
-        ProcessInstance pd = bpmSession.getProcessData(process.getInternalId(), ctx);
-        return validateAndSaveData(ctx, pd);
-
-    }
-
-    private void displayValidationErrors(Map<ProcessToolDataWidget, Collection<String>> errorMap) {
-        String errorMessage = VaadinUtility.widgetsErrorMessage(i18NSource, errorMap);
-        application.getMainWindow().showNotification(VaadinUtility.validationNotification(i18NSource.getMessage("process.data.data-error"),
-                errorMessage));
-    }
-
-    private boolean validateAndSaveData(ProcessToolContext ctx, ProcessInstance pd) {
-        Map<ProcessToolDataWidget, Collection<String>> errorMap = getValidationErrors(pd);
-        if (errorMap.isEmpty()) {
-            saveProcessData(ctx, pd);
-            return true;
-        } else {
-            displayValidationErrors(errorMap);
-            return false;
-        }
-    }
-
-    private ProcessToolActionButton makeButton(ProcessStateAction a) {
-        try {
-            ProcessToolRegistry registry = ProcessToolContext.Util.getThreadProcessToolContext().getRegistry();
-            ProcessToolActionButton actionButton = registry.makeButton(a.getButtonName());
-            actionButton.setLoggedUser(bpmSession.getUser(ProcessToolContext.Util.getThreadProcessToolContext()));
-            processAutowiredProperties(actionButton, a);
-            if (actionButton instanceof ProcessToolVaadinActionButton) {
-                ProcessToolVaadinActionButton vButton = (ProcessToolVaadinActionButton) actionButton;
-                vButton.setApplication(application);
-                vButton.setI18NSource(i18NSource);
-            }
-            actionButton.setDefinition(a);
-            return actionButton;
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InstantiationException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void performAction(ProcessToolContext ctx, ProcessStateAction a) {
-        bpmSession.performAction(a, process, ctx);
-        process = bpmSession.getProcessData(process.getInternalId(), ctx);
-        if (!initLayout(ctx, a.getAutohide())) {
-            application.getMainWindow().showNotification(getMessage("process.action.performed"));
-        }
-    }
-
-    public void saveProcessData(ProcessToolContext ctx, ProcessInstance pd) {
-        for (ProcessToolDataWidget w : dataWidgets) {
-            w.saveData(pd);
-        }
-        bpmSession.saveProcessInstance(pd, ctx);
-    }
-
-    private Map<ProcessToolDataWidget, Collection<String>> getValidationErrors(ProcessInstance pd) {
-        Map<ProcessToolDataWidget, Collection<String>> errorMap
-                = new HashMap<ProcessToolDataWidget, Collection<String>>();
-        for (ProcessToolDataWidget w : dataWidgets) {
-            Collection<String> errors = w.validateData(pd);
-            if (errors != null && !errors.isEmpty()) {
-                errorMap.put(w, errors);
-            }
-        }
-        return errorMap;
-    }
-
-    private String getMessage(String key) {
-        return i18NSource.getMessage(key);
-    }
-
-    private void processWidgetChildren(ProcessStateWidget parentWidgetConfiguration,
-                                       ProcessToolWidget parentWidgetInstance,
-                                       ProcessStateConfiguration stateConfiguration,
-                                       ProcessToolContext ctx) {
-        // sort the widgets to preserve the displaying order
-        List<ProcessStateWidget> widgets = new ArrayList<ProcessStateWidget>(parentWidgetConfiguration.getChildren());
-        Collections.sort(widgets, new WidgetPriorityComparator());
-
-        for (ProcessStateWidget widget : widgets) {
-            widget.setParent(parentWidgetConfiguration);
-            ProcessToolWidget widgetInstance = getWidget(widget, stateConfiguration, ctx);
-            if (!nvl(widget.getOptional(), false) || widgetInstance.hasVisibleData()) {
-                processWidgetChildren(widget, widgetInstance, stateConfiguration, ctx);
-                parentWidgetInstance.addChild(widgetInstance);
-            }
-        }
-    }
-
-    private ProcessToolWidget getWidget(ProcessStateWidget w,
-                                        ProcessStateConfiguration stateConfiguration,
-                                        ProcessToolContext ctx) {
-        try {
-            ProcessToolWidget processToolWidget;
-            ProcessToolRegistry toolRegistry = VaadinUtility.getProcessToolContext(application.getContext()).getRegistry();
-            if (w.getClassName() == null) {
-                processToolWidget = toolRegistry.makeWidget(w.getName());
-            } else {
-                processToolWidget = toolRegistry.makeWidget(w.getClassName());
-            }
-            processToolWidget.setContext(stateConfiguration, w, i18NSource, bpmSession, application,
-                    bpmSession.getPermissionsForWidget(w, ctx),
-                    isOwner);
-            processAutowiredProperties(processToolWidget, w);
-            if (processToolWidget instanceof ProcessToolDataWidget) {
-                ((ProcessToolDataWidget) processToolWidget).loadData(process);
-                dataWidgets.add((ProcessToolDataWidget) processToolWidget);
-            }
-            return processToolWidget;
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, e.getMessage(), e);
-            failed = true;
-            FailedProcessToolVaadinWidget failedProcessToolVaadinWidget = new FailedProcessToolVaadinWidget(e);
-            failedProcessToolVaadinWidget.setContext(stateConfiguration, w, i18NSource, bpmSession, application,
-                    bpmSession.getPermissionsForWidget(w, ctx),
-                    isOwner);
-            dataWidgets.add(failedProcessToolVaadinWidget);
-            return failedProcessToolVaadinWidget;
-        }
-    }
-
-    private void processAutowiredProperties(ProcessToolWidget processToolWidget, ProcessStateWidget w) {
-        Map<String, String> m = new HashMap<String, String>();
-        for (ProcessStateWidgetAttribute attr : w.getAttributes()) {
-            m.put(attr.getName(), attr.getValue());
-        }
-        processAutowiredProperties(processToolWidget, m);
-    }
-
-    private void processAutowiredProperties(ProcessToolActionButton processToolActionButton, ProcessStateAction a) {
-        Map<String, String> m = new HashMap<String, String>();
-        m.put("buttonName", a.getButtonName());
-        m.put("autoHide", String.valueOf(a.getAutohide()));
-        m.put("description", a.getDescription());
-        m.put("label", a.getLabel());
-        m.put("bpmAction", a.getBpmName());
-        m.put("skipSaving", String.valueOf(a.getSkipSaving()));
-        m.put("priority", String.valueOf(a.getPriority()));
-
-        for (ProcessStateActionAttribute attr : a.getAttributes()) {
-            m.put(attr.getName(), attr.getValue());
-        }
-
-        processAutowiredProperties(processToolActionButton, m);
-    }
-
-    private void processAutowiredProperties(Object object, Map<String, String> m) {
-        Class cls = object.getClass();
-        processAutowiredProperties(object, m, cls);
-    }
-
-    private void processAutowiredProperties(Object object, Map<String, String> m, Class cls) {
-        for (Field f : cls.getDeclaredFields()) {
-            String autoName = null;
-            for (Annotation a : f.getAnnotations()) {
-                if (a instanceof AutoWiredProperty) {
-                    AutoWiredProperty awp = (AutoWiredProperty) a;
-                    if (AutoWiredProperty.DEFAULT.equals(awp.name())) {
-                        autoName = f.getName();
-                    } else {
-                        autoName = awp.name();
                     }
-                }
-            }
-            String value = nvl(
-                    m.get(autoName),
-                    ProcessToolContext.Util.getThreadProcessToolContext().getSetting("autowire." + autoName)
-            );
-            if (autoName != null && value != null) {
-                try {
-                    logger.fine("Setting attribute " + autoName + " to " + value);
-                    BeanUtils.setProperty(object, autoName, value);
-                } catch (Exception e) {
-                    logger.log(Level.SEVERE, e.getMessage(), e);
-                }
-            }
-        }
-        if (cls.equals(Object.class)) {
-            return;
-        }
-        processAutowiredProperties(object, m, cls.getSuperclass());
-    }
+                });
+			}
+		});
+        saveButton.addStyleName("with_message");
+        saveButton.setDescription(i18NSource.getMessage("button.save.process.desc"));
+        saveButton.setIcon(VaadinUtility.imageResource(application, "save.png"));
+		saveButton.setEnabled(isOwner);
+		return saveButton;
+	}
 
-    public static interface DisplayProcessContext {
-        void hide();
-        void setCaption(String newCaption);
-    }
+	private void refreshTask() {
+		task = refreshTask(bpmSession, task);
+	}
 
-    public static class WindowDisplayProcessContextImpl implements DisplayProcessContext {
+	@Override
+	public void updateTask(BpmTask task) {
+		this.task = task;
+	}
 
-        private Window window;
+	@Override
+	public Set<ProcessToolDataWidget> getWidgets() {
+		return Collections.unmodifiableSet(dataWidgets);
+	}
 
-        public WindowDisplayProcessContextImpl(Window window) {
-            this.window = window;
+	@Override
+	public void displayValidationErrors(Map<ProcessToolDataWidget, Collection<String>> errorMap) {
+		String errorMessage = VaadinUtility.widgetsErrorMessage(i18NSource, errorMap);
+		VaadinUtility.validationNotification(application, i18NSource, errorMessage);
+	}
 
-            window.addAction(new ShortcutListener("Close window", ShortcutAction.KeyCode.ESCAPE, null) {
-                @Override
-                public void handleAction(Object sender, Object target) {
-                    Window w = WindowDisplayProcessContextImpl.this.window;
-                    w.getParent().removeWindow(w);
-                }
-            });
-        }
+	@Override
+	public Map<ProcessToolDataWidget, Collection<String>> getWidgetsErrors(BpmTask bpmTask, boolean skipRequired) {
+		Map<ProcessToolDataWidget, Collection<String>> errorMap = new HashMap();
+		for (ProcessToolDataWidget w : dataWidgets) {
+			Collection<String> errors = w.validateData(bpmTask, skipRequired);
+			if (errors != null && !errors.isEmpty()) {
+				errorMap.put(w, errors);
+			}
+		}
+		return errorMap;
+	}
 
-        @Override
-        public void hide() {
-            window.getParent().removeWindow(window);
-        }
+	@Override
+	public boolean validateWidgetsAndSaveData(BpmTask task) {
+		task = refreshTask(bpmSession, task);
+		Map<ProcessToolDataWidget, Collection<String>> errorMap = getWidgetsErrors(task, true);
+		if (!errorMap.isEmpty()) {
+			displayValidationErrors(errorMap);
+			return false;
+		}
+		saveTaskData(task);
+		return true;
+	}
 
-        @Override
-        public void setCaption(String newCaption) {
-            window.setCaption(newCaption);
-        }
-    }
+	@Override
+	public void saveTaskData(BpmTask task, ProcessToolActionButton... actions) {
+		for (ProcessToolDataWidget w : dataWidgets) {
+			w.saveData(task);
+		}
+		for (ProcessToolActionButton action : actions) {
+			action.saveData(task);
+		}
+		bpmSession.saveProcessInstance(task.getProcessInstance(), getCurrentContext());
+	}
 
-    /**
-     * Comparator for {@link ProcessStateWidget} objects that takes intro account widget priority
-     */
-    private class WidgetPriorityComparator implements Comparator<ProcessStateWidget> {
-        @Override
-        public int compare(ProcessStateWidget w1, ProcessStateWidget w2) {
-            if (w1 == null || w2 == null) {
-                throw new NullPointerException("Can not compare null ProcessStateWidgets");
-            }
+    @Override
+	public void saveTaskWithoutData(BpmTask task, ProcessToolActionButton... actions) {
+		for (ProcessToolActionButton action : actions) {
+			action.saveData(task);
+		}
+	}
 
-            if (w1 == w2) {
-                return 0;
-            }
+	@Override
+	public ProcessToolContext getCurrentContext() {
+		return ProcessToolContext.Util.getThreadProcessToolContext();
+	}
 
-            if (w1.getPriority() != null && w2.getPriority() != null) {
-                return w1.getPriority().compareTo(w2.getPriority());
-            } else if (w1.getPriority() != null && w2.getPriority() == null) {
-                return 1;
-            } else if (w1.getPriority() == null && w2.getPriority() != null) {
-                return -1;
-            } else {
-                return w1.getId().compareTo(w2.getId());
-            }
-        }
-    }
+	@Override
+	public BpmTask refreshTask(ProcessToolBpmSession bpmSession, BpmTask bpmTask) {
+		return bpmSession.refreshTaskData(bpmTask, getCurrentContext());
+	}
 
-    /**
-     * Comparator for {@link ProcessStateAction} object that takes into account action priority
-     */
-    private class ActionPriorityComparator implements Comparator<ProcessStateAction> {
-        @Override
-        public int compare(ProcessStateAction a1, ProcessStateAction a2) {
-            if (a1 == null || a2 == null) {
-                throw new NullPointerException("Can not compare null ProcessStateActions");
-            }
+	public String getMessage(String key) {
+		return i18NSource.getMessage(key);
+	}
 
-            if (a1 == a2) {
-                return 0;
-            }
+	private ProcessToolActionButton makeButton(ProcessStateAction a) {
+		try {
+			ProcessToolContext ctx = getCurrentContext();
+			ProcessToolActionButton actionButton = ctx.getRegistry().makeButton(a.getButtonName());
+			actionButton.setContext(a, bpmSession, application, i18NSource);
+			return actionButton;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-            if (a1.getActionType() != null && a1.getActionType() != null && !a1.getActionType().equals(a2.getActionType())) {
-                return ProcessStateAction.SECONDARY_ACTION.equals(a1.getActionType()) ? -1 : 1;
-            } else if (a1.getActionType() != null && a2.getActionType() == null) {
-                return -1;
-            } else if (a1.getActionType() == null && a2.getActionType() != null) {
-                return 1;
-            } else {
-                if (a1.getPriority() != null && a1.getPriority() != null) {
-                    return a1.getPriority().compareTo(a2.getPriority());
-                } else if (a1.getPriority() != null && a2.getPriority() == null) {
-                    return 1;
-                } else if (a1.getPriority() == null && a2.getPriority() != null) {
-                    return -1;
-                } else {
-                    return a1.getId().compareTo(a2.getId());
-                }
-            }
-        }
-    }
+	private void processWidgetChildren(ProcessStateWidget parentWidgetConfiguration, ProcessToolWidget parentWidgetInstance,
+			ProcessStateConfiguration stateConfiguration, ProcessToolContext ctx, String generatorKey) {
+		Set<ProcessStateWidget> children = parentWidgetConfiguration.getChildren();
+		List<ProcessStateWidget> sortedList = new ArrayList<ProcessStateWidget>(children);
+		Collections.sort(sortedList, new Comparator<ProcessStateWidget>() {
+			@Override
+			public int compare(ProcessStateWidget o1, ProcessStateWidget o2) {
+				if (o1.getPriority().equals(o2.getPriority())) {
+					return new Long(o1.getId()).compareTo(o2.getId());
+				}
+				return o1.getPriority().compareTo(o2.getPriority());
+			}
+		});
 
-    /**
-     * Widget used to display widgets that failed to be created
-     */
-    private class FailedProcessToolVaadinWidget extends BaseProcessToolWidget
-            implements ProcessToolVaadinWidget, ProcessToolDataWidget {
+		for (ProcessStateWidget subW : sortedList) {
+			if(StringUtils.isNotEmpty(subW.getGenerateFromCollection())){
+				generateChildren(parentWidgetInstance, stateConfiguration, ctx, subW);
+			} else {
+			subW.setParent(parentWidgetConfiguration);
+				addWidgetChild(parentWidgetInstance, stateConfiguration, ctx, subW, generatorKey);
+			}
+		}
+	}
 
-        private final Exception e;
+	private void generateChildren(ProcessToolWidget parentWidgetInstance, ProcessStateConfiguration stateConfiguration, ProcessToolContext ctx,
+			ProcessStateWidget subW) {
+		String collection = task.getProcessInstance().getSimpleAttributeValue(subW.getGenerateFromCollection(), null);
+		if(StringUtils.isEmpty(collection))
+			return;
+		String[] items = collection.split("[,; ]");
 
-        public FailedProcessToolVaadinWidget(Exception e) {
-            this.e = e;
-        }
+		for(String item : items){
+			addWidgetChild(parentWidgetInstance, stateConfiguration, ctx, subW, item);
+		}
+	}
 
-        @Override
-        public String getAttributeValue(String key) {
-            return super.getAttributeValue(key);
-        }
+	private void addWidgetChild(ProcessToolWidget parentWidgetInstance, ProcessStateConfiguration stateConfiguration, ProcessToolContext ctx,
+			ProcessStateWidget subW, String generatorKey) {
+		ProcessToolWidget widgetInstance = getWidget(subW, stateConfiguration, ctx, generatorKey);
+			if (!nvl(subW.getOptional(), false) || widgetInstance.hasVisibleData()) {
+			processWidgetChildren(subW, widgetInstance, stateConfiguration, ctx, generatorKey);
+				parentWidgetInstance.addChild(widgetInstance);
+			}
+		}
 
-        @Override
-        public Component render() {
-            Panel p = new Panel();
-            VerticalLayout vl = new VerticalLayout();
-            vl.addComponent(new Label(getMessage("process.data.widget.exception-occurred")));
-            vl.addComponent(new Label(e.getMessage()));
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            e.printStackTrace(new PrintWriter(baos));
-            vl.addComponent(new Label("<pre>" + baos.toString() + "</pre>", CONTENT_XHTML));
-            vl.addStyleName("error");
-            p.addComponent(vl);
-            p.setHeight("150px");
-            return p;
-        }
+	private ProcessToolWidget getWidget(ProcessStateWidget w, ProcessStateConfiguration stateConfiguration, ProcessToolContext ctx, String generatorKey) {
+		ProcessToolWidget processToolWidget;
+		try {
+			ProcessToolRegistry toolRegistry = VaadinUtility.getProcessToolContext(application.getContext()).getRegistry();
+			processToolWidget = w.getClassName() == null ? toolRegistry.makeWidget(w.getName()) : toolRegistry.makeWidget(w.getClassName());
+			processToolWidget.setContext(stateConfiguration, w, i18NSource, bpmSession, application,
+			                             bpmSession.getPermissionsForWidget(w, ctx), isOwner);
+			processToolWidget.setGeneratorKey(generatorKey);
+			if (processToolWidget instanceof ProcessToolDataWidget) {
+				((ProcessToolDataWidget) processToolWidget).loadData(task);
+				dataWidgets.add((ProcessToolDataWidget) processToolWidget);
+			}
+		}
+		catch (final Exception e) {
+			logger.log(Level.SEVERE, e.getMessage(), e);
+			FailedProcessToolWidget failedProcessToolVaadinWidget = new FailedProcessToolWidget(e);
+			failedProcessToolVaadinWidget.setContext(stateConfiguration, w, i18NSource, bpmSession, application,
+			                                         bpmSession.getPermissionsForWidget(w, ctx),
+			                                         isOwner);
+			dataWidgets.add(failedProcessToolVaadinWidget);
+			processToolWidget = failedProcessToolVaadinWidget;
+		}
+		return processToolWidget;
+	}
 
-        @Override
-        public Collection<String> validateData(ProcessInstance processInstance) {
-            return Arrays.asList("process.data.widget.exception-occurred");
-        }
-
-        @Override
-        public void saveData(ProcessInstance processInstance) {
-            // do nothing
-        }
-
-        @Override
-        public void loadData(ProcessInstance processInstance) {
-            // do nothing
-        }
-
-        @Override
-        public void addChild(ProcessToolWidget child) {
-            // do nothing
-        }
-
-    }
 }

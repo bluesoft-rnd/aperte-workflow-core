@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!--tested on mule 3.3-M1, schema problems on mule 3.2!-->
+
 <mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:cmis="http://www.mulesoft.org/schema/mule/cmis"
       xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xmlns:smtp="http://www.mulesoft.org/schema/mule/smtp"
@@ -17,15 +19,17 @@
        http://www.mulesoft.org/schema/mule/scripting/3.2/mule-scripting.xsd
        ">
 
-    <global-property name="cmis.repository.base" value="http://pirx:8080/nuxeo/atom/cmis"></global-property>
-    <global-property name="cmis.repository.id" value="default"></global-property>
-    <global-property name="cmis.demo.baseDirectory" value="/businessCards/pt_"></global-property>
-    <global-property name="cmis.username" value="Administrator"></global-property>
-    <global-property name="cmis.password" value="Administrator"></global-property>
-    <global-property name="cmis.fileName" value="card.pdf"></global-property>
-    <global-property name="mail.address" value="aperteworkflow@gmail.com"></global-property>
-    <global-property name="mail.username" value="aperteworkflow"></global-property>
-    <global-property name="mail.password" value="osiemznakow"></global-property>
+    <!--example configuration, uncomment and provide proper values in order to make it work!-->
+
+    <!--<global-property name="cmis.repository.base" value="http://localhost:8080/nuxeo/atom/cmis"></global-property>-->
+    <!--<global-property name="cmis.repository.id" value="default"></global-property>-->
+    <!--<global-property name="cmis.demo.baseDirectory" value="/bc/pt_"></global-property>-->
+    <!--<global-property name="cmis.username" value="Administrator"></global-property>-->
+    <!--<global-property name="cmis.password" value="Administrator"></global-property>-->
+    <!--<global-property name="cmis.fileName" value="card.pdf"></global-property>-->
+    <!--<global-property name="mail.address" value="username@gmail.com"></global-property>-->
+    <!--<global-property name="mail.username" value="username"></global-property>-->
+    <!--<global-property name="mail.password" value="password"></global-property>-->
 
 
     <cmis:config name="cmisConfig" username="${cmis.username}" password="${cmis.password}"

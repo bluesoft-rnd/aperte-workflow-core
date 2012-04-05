@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>plugins</artifactId>
@@ -12,7 +13,7 @@
     <packaging>bundle</packaging>
 
     <properties>
-        <mule.version>3.2.1</mule.version>
+        <mule.version>3.3-M1</mule.version>
     </properties>
 
     <dependencies>
@@ -61,6 +62,12 @@
                     <artifactId>mail</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mule.modules</groupId>
+            <artifactId>mule-module-cmis</artifactId>
+            <version>1.5.1</version>
         </dependency>
 
         <!-- Xml configuration -->
@@ -198,35 +205,35 @@
     </dependencies>
 
     <!--<repositories>-->
-        <!--&lt;!&ndash;<repository>&ndash;&gt;-->
-        <!--&lt;!&ndash;<id>ibeans-repo</id>&ndash;&gt;-->
-        <!--&lt;!&ndash;<name>iBeans Repository</name>&ndash;&gt;-->
-        <!--&lt;!&ndash;<url>http://repository.ibeans.muleforge.org</url>&ndash;&gt;-->
-        <!--&lt;!&ndash;<layout>default</layout>&ndash;&gt;-->
-        <!--&lt;!&ndash;</repository>&ndash;&gt;-->
-        <!--<repository>-->
-            <!--<id>muleforge-repo</id>-->
-            <!--<name>MuleForge Repository</name>-->
-            <!--<url>http://repository.muleforge.org</url>-->
-            <!--<layout>default</layout>-->
-        <!--</repository>-->
-        <!--&lt;!&ndash;<repository>&ndash;&gt;-->
-        <!--&lt;!&ndash;<id>mulesoft-repo</id>&ndash;&gt;-->
-        <!--&lt;!&ndash;<name>mulesoft Repository</name>&ndash;&gt;-->
-        <!--&lt;!&ndash;<url>http://repository.mulesoft.org</url>&ndash;&gt;-->
-        <!--&lt;!&ndash;<layout>default</layout>&ndash;&gt;-->
-        <!--&lt;!&ndash;</repository>&ndash;&gt;-->
-        <!--<repository>-->
-            <!--<id>mulesoft.releases</id>-->
-            <!--<name>Muleforge Releases Repository</name>-->
-            <!--<url>https://repository.mulesoft.org/releases/</url>-->
-        <!--</repository>-->
-        <!--<repository>-->
-            <!--<id>codehaus-repo</id>-->
-            <!--<name>Codehaus Repository</name>-->
-            <!--<url>http://dist.codehaus.org/mule/dependencies/maven2</url>-->
-            <!--<layout>default</layout>-->
-        <!--</repository>-->
+    <!--&lt;!&ndash;<repository>&ndash;&gt;-->
+    <!--&lt;!&ndash;<id>ibeans-repo</id>&ndash;&gt;-->
+    <!--&lt;!&ndash;<name>iBeans Repository</name>&ndash;&gt;-->
+    <!--&lt;!&ndash;<url>http://repository.ibeans.muleforge.org</url>&ndash;&gt;-->
+    <!--&lt;!&ndash;<layout>default</layout>&ndash;&gt;-->
+    <!--&lt;!&ndash;</repository>&ndash;&gt;-->
+    <!--<repository>-->
+    <!--<id>muleforge-repo</id>-->
+    <!--<name>MuleForge Repository</name>-->
+    <!--<url>http://repository.muleforge.org</url>-->
+    <!--<layout>default</layout>-->
+    <!--</repository>-->
+    <!--&lt;!&ndash;<repository>&ndash;&gt;-->
+    <!--&lt;!&ndash;<id>mulesoft-repo</id>&ndash;&gt;-->
+    <!--&lt;!&ndash;<name>mulesoft Repository</name>&ndash;&gt;-->
+    <!--&lt;!&ndash;<url>http://repository.mulesoft.org</url>&ndash;&gt;-->
+    <!--&lt;!&ndash;<layout>default</layout>&ndash;&gt;-->
+    <!--&lt;!&ndash;</repository>&ndash;&gt;-->
+    <!--<repository>-->
+    <!--<id>mulesoft.releases</id>-->
+    <!--<name>Muleforge Releases Repository</name>-->
+    <!--<url>https://repository.mulesoft.org/releases/</url>-->
+    <!--</repository>-->
+    <!--<repository>-->
+    <!--<id>codehaus-repo</id>-->
+    <!--<name>Codehaus Repository</name>-->
+    <!--<url>http://dist.codehaus.org/mule/dependencies/maven2</url>-->
+    <!--<layout>default</layout>-->
+    <!--</repository>-->
     <!--</repositories>-->
     <build>
         <plugins>

@@ -18,8 +18,9 @@
         <module>base-gui</module>
         <module>integration</module>
         <module>integration-interface</module>
-        <module>activiti-gui</module>
-        <module>activiti-context</module>
+        <!-- first we have to make jbpm compile and work -->
+        <!--<module>activiti-gui</module>-->
+        <!--<module>activiti-context</module>-->
         <module>jbpm-context</module>
         <module>jbpm-gui</module>
         <module>editor</module>

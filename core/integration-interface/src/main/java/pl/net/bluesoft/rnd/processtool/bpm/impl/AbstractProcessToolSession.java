@@ -46,7 +46,9 @@ public abstract class AbstractProcessToolSession
         log.finest("Created session for user: " + user);
     }
 
-    public ProcessInstance createProcessInstance(ProcessDefinitionConfig config, String externalKey, ProcessToolContext ctx,
+    public ProcessInstance createProcessInstance(ProcessDefinitionConfig config,
+                                                 String externalKey,
+                                                 ProcessToolContext ctx,
                                                  String description,
                                                  String keyword,
                                                  String source) {

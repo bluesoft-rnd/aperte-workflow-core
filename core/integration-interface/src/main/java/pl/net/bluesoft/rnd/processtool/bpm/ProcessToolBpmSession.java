@@ -31,8 +31,12 @@ import java.util.Set;
 public interface ProcessToolBpmSession extends ProcessToolBpmConstants {
     ProcessToolBpmSession createSession(UserData user, Collection<String> roleNames, ProcessToolContext ctx);
 
-    ProcessInstance createProcessInstance(ProcessDefinitionConfig config, String externalKey, ProcessToolContext ctx,
-                                          String description, String keyword);
+    ProcessInstance createProcessInstance(ProcessDefinitionConfig config,
+                                          String externalKey,
+                                          ProcessToolContext ctx,
+                                          String description,
+                                          String keyword,
+                                          String source);
 
     ProcessInstance getProcessData(String internalId, ProcessToolContext ctx);
 
@@ -41,8 +45,6 @@ public interface ProcessToolBpmSession extends ProcessToolBpmConstants {
     boolean isProcessRunning(String internalId, ProcessToolContext ctx);
 
     void saveProcessInstance(ProcessInstance processInstance, ProcessToolContext ctx);
-
-    ProcessStateConfiguration getProcessStateConfiguration(String stateName, ProcessDefinitionConfig config, ProcessToolContext ctx);
 
     Collection<ProcessDefinitionConfig> getAvailableConfigurations(ProcessToolContext ctx);
 
@@ -105,7 +107,7 @@ public interface ProcessToolBpmSession extends ProcessToolBpmConstants {
     EventBusManager getEventBusManager();
 
 
-    Collection<BpmTask> getTaskList(ProcessInstance pi, final ProcessToolContext ctx, final boolean mustHaveAssignee);
+//    Collection<BpmTask> getTaskList(ProcessInstance pi, final ProcessToolContext ctx, final boolean mustHaveAssignee);
 
     List<String> getOutgoingTransitionDestinationNames(String executionId, ProcessToolContext ctx);
 

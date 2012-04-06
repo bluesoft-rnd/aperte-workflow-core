@@ -1,4 +1,4 @@
-package pl.net.bluesoft.rnd.processtool.i18n;
+package pl.net.bluesoft.rnd.util.i18n.impl;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.util.i18n.I18NProvider;

@@ -10,17 +10,44 @@ import javax.persistence.*;
 @Entity
 @Table(name="pt_ext_bpm_notify_config")
 public class BpmNotificationConfig extends PersistentEntity {
-	private String processTypeRegex, stateRegex;
+    private String profileName;
+	private String processTypeRegex;
+    private String stateRegex;
 	private boolean notifyTaskAssignee;
     @Column(name = "skipNotification")
 	private boolean skipNotificationWhenTriggeredByAssignee;
 	private boolean active;
 	private String notifyEmailAddresses;
-
 	private String templateName;
 	private boolean sendHtml;
+    private String locale;
+    private boolean notifyOnProcessStart;
 
-	public String getProcessTypeRegex() {
+    public boolean isNotifyOnProcessStart() {
+        return notifyOnProcessStart;
+    }
+
+    public void setNotifyOnProcessStart(boolean notifyOnProcessStart) {
+        this.notifyOnProcessStart = notifyOnProcessStart;
+    }
+
+    public String getLocale() {
+        return locale;
+    }
+
+    public void setLocale(String locale) {
+        this.locale = locale;
+    }
+
+    public String getProfileName() {
+        return profileName;
+    }
+
+    public void setProfileName(String profileName) {
+        this.profileName = profileName;
+    }
+
+    public String getProcessTypeRegex() {
 		return processTypeRegex;
 	}
 

@@ -3,7 +3,7 @@ package org.aperteworkflow.util.vaadin;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.exception.ProcessToolException;
-import pl.net.bluesoft.rnd.processtool.i18n.DefaultI18NSource;
+import pl.net.bluesoft.rnd.util.i18n.impl.DefaultI18NSource;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 

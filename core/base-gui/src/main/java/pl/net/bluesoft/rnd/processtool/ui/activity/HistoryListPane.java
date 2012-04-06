@@ -550,7 +550,7 @@ public class HistoryListPane extends AbstractListPane implements DateRangeListen
         vl.setSpacing(false);
         vl.setMargin(false);
         for (BpmTask task : tasks) {
-            ProcessStateConfiguration state = ctx.getProcessDefinitionDAO().getProcessStateConfiguration(task.getProcessInstance());
+            ProcessStateConfiguration state = ctx.getProcessDefinitionDAO().getProcessStateConfiguration(task);
             vl.addComponent(createTaskComponent(task, state));
         }
         return vl;

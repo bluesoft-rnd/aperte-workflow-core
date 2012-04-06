@@ -5,6 +5,7 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
 import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
+import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.config.*;
 import pl.net.bluesoft.util.lang.Lang;
@@ -49,11 +50,11 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 		return getSession().createCriteria(ProcessQueueConfig.class).list();
 	}
 
-	public ProcessStateConfiguration getProcessStateConfiguration(ProcessInstance pi) {
+	public ProcessStateConfiguration getProcessStateConfiguration(BpmTask task) {
 //		HibernateTemplate ht = getHibernateTemplate();
         List res = getSession().createCriteria(ProcessStateConfiguration.class)
-				.add(Restrictions.eq("definition", pi.getDefinition()))
-				.add(Restrictions.eq("name", pi.getState())).list();
+				.add(Restrictions.eq("definition", task.getProcessInstance().getDefinition()))
+				.add(Restrictions.eq("name", task.getTaskName())).list();
 		if (res.isEmpty())
 			return null;
 		return (ProcessStateConfiguration) res.get(0);

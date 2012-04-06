@@ -232,7 +232,7 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements R
         for (final BpmTask task : taskList) {
             vl.addComponent(getTaskStateComponent(pi, task));
             ProcessStateConfiguration cfg = ProcessToolContext.Util.getThreadProcessToolContext()
-                    .getProcessDefinitionDAO().getProcessStateConfiguration(pi);
+                    .getProcessDefinitionDAO().getProcessStateConfiguration(task);
             if (cfg != null && !cfg.getActions().isEmpty()) {
                 vl.addComponent(new Label(getLocalizedMessage("processinstances.console.entry.available-actions")));
                 HorizontalLayout hl = new HorizontalLayout();

@@ -856,7 +856,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
                     }
                     sb.append((char) c);
                 }
-                return sb.toString().replaceAll("\\s*", "");
+                return sb.toString().replaceAll("\\s*", "").replaceAll(",+", ",");
             } finally {
                 if (is != null) {
                     is.close();

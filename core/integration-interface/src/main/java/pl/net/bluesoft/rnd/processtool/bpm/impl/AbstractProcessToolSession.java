@@ -127,42 +127,42 @@ public abstract class AbstractProcessToolSession
         return ctx.getProcessInstanceDAO().findOrCreateUser(user);
     }
 
-    public ProcessStateConfiguration getProcessStateConfiguration(ProcessInstance pi, ProcessToolContext ctx) {
-        ProcessStateConfiguration configuration = ctx.getProcessDefinitionDAO().getProcessStateConfiguration(pi);
-        if (configuration == null) return null;
-        ProcessStateConfiguration res = new ProcessStateConfiguration();
-        res.setDescription(configuration.getDescription());
-        res.setCommentary(configuration.getCommentary());
-        res.setName(configuration.getName());
-        Set<ProcessStateWidget> newWidgetList = new HashSet<ProcessStateWidget>();
-        for (ProcessStateWidget widget : configuration.getWidgets()) {
-            Set<ProcessStateWidgetPermission> permissions = widget.getPermissions();
-            if (permissions.isEmpty()) {
-                newWidgetList.add(widget);
-            }
-            else {
-                if (!getPermissionsForWidget(widget, ctx).isEmpty()) {
-                    newWidgetList.add(widget);
-                }
-            }
-        }
-        res.setWidgets(newWidgetList);
-
-        //actions
-        Set<ProcessStateAction> actionList = new HashSet<ProcessStateAction>();
-        for (ProcessStateAction a : configuration.getActions()) {
-            if (a.getPermissions().isEmpty()) {
-                actionList.add(a);
-            }
-            else {
-                if (!getPermissionsForAction(a, ctx).isEmpty()) {
-                    actionList.add(a);
-                }
-            }
-        }
-        res.setActions(actionList);
-        return res;
-    }
+//    public ProcessStateConfiguration getProcessStateConfiguration(ProcessInstance pi, ProcessToolContext ctx) {
+//        ProcessStateConfiguration configuration = ctx.getProcessDefinitionDAO().getProcessStateConfiguration(pi);
+//        if (configuration == null) return null;
+//        ProcessStateConfiguration res = new ProcessStateConfiguration();
+//        res.setDescription(configuration.getDescription());
+//        res.setCommentary(configuration.getCommentary());
+//        res.setName(configuration.getName());
+//        Set<ProcessStateWidget> newWidgetList = new HashSet<ProcessStateWidget>();
+//        for (ProcessStateWidget widget : configuration.getWidgets()) {
+//            Set<ProcessStateWidgetPermission> permissions = widget.getPermissions();
+//            if (permissions.isEmpty()) {
+//                newWidgetList.add(widget);
+//            }
+//            else {
+//                if (!getPermissionsForWidget(widget, ctx).isEmpty()) {
+//                    newWidgetList.add(widget);
+//                }
+//            }
+//        }
+//        res.setWidgets(newWidgetList);
+//
+//        //actions
+//        Set<ProcessStateAction> actionList = new HashSet<ProcessStateAction>();
+//        for (ProcessStateAction a : configuration.getActions()) {
+//            if (a.getPermissions().isEmpty()) {
+//                actionList.add(a);
+//            }
+//            else {
+//                if (!getPermissionsForAction(a, ctx).isEmpty()) {
+//                    actionList.add(a);
+//                }
+//            }
+//        }
+//        res.setActions(actionList);
+//        return res;
+//    }
 
     protected Set<String> getPermissions(Collection<? extends AbstractPermission> col) {
         Set<String> res = new HashSet<String>();

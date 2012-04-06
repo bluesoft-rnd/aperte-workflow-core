@@ -7,15 +7,12 @@ import org.aperteworkflow.search.Searchable;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.*;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceDAO;
 import pl.net.bluesoft.rnd.processtool.hibernate.ResultsPageWrapper;
 import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
 import pl.net.bluesoft.rnd.processtool.hibernate.transform.NestedAliasToBeanResultTransformer;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.processtool.model.*;
 import pl.net.bluesoft.util.lang.Collections;
 import pl.net.bluesoft.util.lang.Transformer;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
@@ -33,6 +30,7 @@ import static pl.net.bluesoft.util.lang.FormatUtil.join;
 import static pl.net.bluesoft.util.lang.DateUtil.addDays;
 import static pl.net.bluesoft.util.lang.DateUtil.asCalendar;
 import static pl.net.bluesoft.util.lang.DateUtil.truncHours;
+import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
 
 /**
@@ -103,21 +101,24 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
             }
         }
         //lookup process state configuration
-        ProcessStateConfiguration psc
-                = new ProcessDefinitionDAOImpl(session).getProcessStateConfiguration(processInstance);
-        if (psc != null) {
-            searchData.addSearchAttributes(new String[][]{
-                            {"state_commentary", psc.getCommentary()},
-                            {"state_description", psc.getDescription()},
-                            {"state_name", psc.getName()},
-                    });
-            for (ProcessStatePermission perm : psc.getPermissions()) {
-                if ("SEARCH".equals(perm.getPrivilegeName())) {
-                    String roleName = perm.getRoleName();
-                    if (roleName.equals(".*"))
-                        roleName = "__AWF__ROLE_ALL";
-                    roleName = roleName.replace(' ', '_');
-                    searchData.addSearchAttribute("__AWF__ROLE", roleName, true);
+
+        for (BpmTask t : nvl(processInstance.getActiveTasks(), new BpmTask[0])) {
+            ProcessStateConfiguration psc
+                    = new ProcessDefinitionDAOImpl(session).getProcessStateConfiguration(t);
+            if (psc != null) {
+                searchData.addSearchAttributes(new String[][]{
+                                {"state_commentary", psc.getCommentary()},
+                                {"state_description", psc.getDescription()},
+                                {"state_name", psc.getName()},
+                        });
+                for (ProcessStatePermission perm : psc.getPermissions()) {
+                    if ("SEARCH".equals(perm.getPrivilegeName())) {
+                        String roleName = perm.getRoleName();
+                        if (roleName.equals(".*"))
+                            roleName = "__AWF__ROLE_ALL";
+                        roleName = roleName.replace(' ', '_');
+                        searchData.addSearchAttribute("__AWF__ROLE", roleName, true);
+                    }
                 }
             }
         }

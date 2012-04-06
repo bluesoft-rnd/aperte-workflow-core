@@ -212,7 +212,7 @@ public class DeadlineEngine implements ProcessToolTemplateLoader {
 
                 Locale locale = Strings.hasText(defaultLocale) ? new Locale(defaultLocale) : Locale.getDefault();
                 messageSource.setLocale(locale);
-                ProcessStateConfiguration st = ctx.getProcessDefinitionDAO().getProcessStateConfiguration(task.getProcessInstance());
+                ProcessStateConfiguration st = ctx.getProcessDefinitionDAO().getProcessStateConfiguration(task);
                 String taskName = messageSource.getMessage(st.getDescription());
 
                 for (UserData user : notifyUsers.values()) {

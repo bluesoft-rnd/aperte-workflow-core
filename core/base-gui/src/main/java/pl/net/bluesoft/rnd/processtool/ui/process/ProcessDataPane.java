@@ -123,7 +123,7 @@ public class ProcessDataPane extends VerticalLayout implements WidgetContextSupp
 		guiAction = null;
 
 		ProcessStateConfiguration stateConfiguration = ctx.getProcessDefinitionDAO()
-                .getProcessStateConfiguration(task.getProcessInstance());
+                .getProcessStateConfiguration(task);
 
 		Label stateDescription = new Label(getMessage(stateConfiguration.getDescription()));
 		stateDescription.addStyleName("h1 color processtool-title");

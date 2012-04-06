@@ -35,6 +35,9 @@ public class ProcessInstance extends PersistentEntity {
     private String[] assignees;
     @Transient
     private String[] taskQueues;
+
+    @Transient
+    private BpmTask[] activeTasks;
     
     private Boolean running;
 
@@ -285,5 +288,13 @@ public class ProcessInstance extends PersistentEntity {
 
     public void setStatus(ProcessStatus status) {
         this.status = status;
+    }
+
+    public BpmTask[] getActiveTasks() {
+        return activeTasks;
+    }
+
+    public void setActiveTasks(BpmTask[] activeTasks) {
+        this.activeTasks = activeTasks;
     }
 }

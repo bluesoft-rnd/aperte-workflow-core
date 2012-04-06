@@ -1,6 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.dao;
 
 import pl.net.bluesoft.rnd.processtool.hibernate.HibernateBean;
+import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
@@ -19,7 +20,7 @@ public interface ProcessDefinitionDAO extends HibernateBean<ProcessDefinitionCon
 	ProcessDefinitionConfig getActiveConfigurationByKey(String key);
 
 	Collection<ProcessQueueConfig> getQueueConfigs();
-	ProcessStateConfiguration getProcessStateConfiguration(ProcessInstance pi);
+	ProcessStateConfiguration getProcessStateConfiguration(BpmTask task);
 
 	void updateOrCreateProcessDefinitionConfig(ProcessDefinitionConfig cfg);
 //	void updateOrCreateQueueConfigs(ProcessQueueConfig[] cfgs);

@@ -12,9 +12,7 @@ public class DeadlineNotificationTemplate extends PersistentEntity implements Pr
     private String sender;
     private String templateName;
     private String subjectTemplate;
-
     @Lob
-//    @Type(type = "org.hibernate.type.MaterializedClobType")
     @Type(type = "org.hibernate.type.StringClobType")
     @Column(length = Integer.MAX_VALUE)
     private String bodyTemplate;

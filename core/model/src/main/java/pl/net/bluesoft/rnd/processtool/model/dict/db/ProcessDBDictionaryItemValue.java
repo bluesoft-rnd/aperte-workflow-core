@@ -1,7 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.model.dict.db;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
+//import org.hibernate.annotations.OnDelete;
+//import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.Type;
 import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItemExtension;
@@ -26,7 +26,7 @@ public class ProcessDBDictionaryItemValue extends PersistentEntity implements Pr
     private Date validEndDate;
 
     @OneToMany(mappedBy = "itemValue", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-    @OnDelete(action = OnDeleteAction.CASCADE)
+//    @OnDelete(action = OnDeleteAction.CASCADE)
     @MapKey(name = "name")
     private Map<String, ProcessDBDictionaryItemExtension> extensions = new HashMap<String, ProcessDBDictionaryItemExtension>();
 

@@ -1,12 +1,8 @@
 package pl.net.bluesoft.rnd.pt.ext.emailcapture;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.bpm.BpmTask;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceSimpleAttribute;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.processtool.model.*;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.pt.ext.emailcapture.model.EmailCheckerConfiguration;
 import pl.net.bluesoft.rnd.pt.ext.emailcapture.model.EmailCheckerRuleConfiguration;
@@ -197,13 +193,13 @@ public class EmailChecker {
             }
 
             if (existingPi != null && hasText(rule.getRunningProcessActionName())) {
-                Collection<BpmTask> taskList = toolBpmSession.getTaskList(existingPi, context);
+                Collection<BpmTask> taskList = toolBpmSession.findProcessTasks(existingPi, context);
                 for (BpmTask t : taskList) {
                     if (!hasText(rule.getProcessTaskName()) || rule.getProcessTaskName().equalsIgnoreCase(t.getTaskName())) {
                         Set<ProcessStateAction> actions = context.getProcessDefinitionDAO().getProcessStateConfiguration(existingPi).getActions();
                         for (ProcessStateAction a : actions) {
                             if (rule.getRunningProcessActionName().equals(a.getBpmName())) {
-                                toolBpmSession.performAction(a, existingPi, context, t);
+                                toolBpmSession.performAction(a, t, context);
                                 logger.info("Performed action " + rule.getId() + " on matched message " + description +
                                         ", process code: " + rule.getProcessCode() + " process id: " + existingPi.getInternalId());
                                 break;

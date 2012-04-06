@@ -1,8 +1,8 @@
 package pl.net.bluesoft.rnd.processtool.dict;
 
 import com.thoughtworks.xstream.converters.basic.DateConverter;
-import pl.net.bluesoft.rnd.processtool.dict.exception.DictionaryLoadingException;
 import pl.net.bluesoft.rnd.processtool.dict.xml.Dictionary;
+import pl.net.bluesoft.rnd.processtool.dict.exception.DictionaryLoadingException;
 import pl.net.bluesoft.rnd.processtool.dict.xml.*;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.*;
 import pl.net.bluesoft.rnd.pt.utils.xml.OXHelper;

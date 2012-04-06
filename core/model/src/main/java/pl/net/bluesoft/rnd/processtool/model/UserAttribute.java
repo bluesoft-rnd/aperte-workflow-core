@@ -1,7 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.model;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
+//import org.hibernate.annotations.OnDelete;
+//import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -22,7 +22,7 @@ public class UserAttribute extends UserAttributesSupport {
     private UserAttribute parent;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @OnDelete(action = OnDeleteAction.CASCADE)
+//    @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<UserAttribute> attributes;
 
     public UserAttribute() {

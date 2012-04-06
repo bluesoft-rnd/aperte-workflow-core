@@ -15,17 +15,22 @@
     <modules>
         <module>base-widgets</module>
         <module>bpm-notifications</module>
-        <module>cmis-widget</module>
+        <!-- to be replaced by more elegant solution -->
+        <!--<module>cmis-widget</module>-->
+        <!--<module>doclist-widget</module>-->
+
         <module>drools-step</module>
         <module>email-capture</module>
         <module>files-capture</module>
-        <module>process-deadlines</module>
-        <module>report-step</module>
-        <module>userdata-widget</module>
         <module>mule-esb-plugin</module>
-        <module>doclist-widget</module>
         <module>log-step</module>
+        <module>process-deadlines</module>
+        <!--<module>report-step</module>-->
+        <module>userdata-widget</module>
+        <module>userdata-service</module>
         <module>scripting</module>
+        <module>scheduler-integration</module>
+        <module>global-dictionaries</module>
     </modules>
 
     <dependencies>

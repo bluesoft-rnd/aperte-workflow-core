@@ -2,24 +2,26 @@ package pl.net.bluesoft.rnd.pt.ext.deadline.step;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.bpm.exception.ProcessToolException;
+import pl.net.bluesoft.rnd.processtool.model.BpmStep;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessDeadline;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
-import pl.net.bluesoft.util.lang.StringUtil;
+import pl.net.bluesoft.util.lang.Strings;
 
 import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.Logger;
 
 @AliasName(name = "SetupDeadlineStep")
 public class SetupDeadlineStep implements ProcessToolProcessStep {
     public static final String DEFAULT_TEMPLATE_NAME = "deadlineEmailTemplate";
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
     private static final Logger logger = Logger.getLogger(SetupDeadlineStep.class.getName());
 
@@ -31,25 +33,24 @@ public class SetupDeadlineStep implements ProcessToolProcessStep {
     private String unit = "day";
     @AutoWiredProperty
     private String value;
+    @AutoWiredProperty
+    private String notifyUsersWithLogin;
+    @AutoWiredProperty
+    private String notifyUsersWithRole;
+    @AutoWiredProperty
+    private String skipAssignee;
 
     @Override
-    public String invoke(ProcessInstance processInstance, Map params) throws Exception {
+    public String invoke(BpmStep step, Map<String, String> params) throws Exception {
+        ProcessInstance processInstance = step.getProcessInstance();
         ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
 
-        List<String> taskNames = new ArrayList<String>();
-        if (StringUtil.hasText(taskName)) {
-            taskNames.addAll(Arrays.asList(taskName.split(",")));
-        }
-        else {
-            ProcessToolBpmSession bpmSession = ctx.getProcessToolSessionFactory().createSession(new UserData("system", "System", "awf@bluesoft.net.pl"),
-                    new HashSet<String>());
-            taskNames.addAll(bpmSession.getOutgoingTransitionNames(processInstance.getInternalId(), ctx));
-        }
+        List<String> taskNames = Strings.hasText(taskName) ? Arrays.asList(taskName.split(",")) : step.getOutgoingTransitions();
 
         Date dueDate = extractDate("dueDate", processInstance, params);
         if (dueDate == null) {
             Date baseDate = extractDate("baseDate", processInstance, params);
-            if (!StringUtil.hasText(value)) {
+            if (!Strings.hasText(value)) {
                 throw new ProcessToolException("Unable to calculate due date");
             }
             Calendar cal = Calendar.getInstance();
@@ -68,8 +69,7 @@ public class SetupDeadlineStep implements ProcessToolProcessStep {
             ProcessDeadline pid = null;
             for (ProcessInstanceAttribute attr : processInstance.getProcessAttributes()) {
                 if (attr.getKey() == null) {
-                    logger.info("Attribute key is null! Process instance: "
-                            + processInstance.getInternalId() + " state: " + processInstance.getState());
+                    logger.info("Attribute key is null! Process instance: " + processInstance.getInternalId());
                 }
                 if (attrKey.equals(attr.getKey())) {
                     pid = (ProcessDeadline) attr;
@@ -82,8 +82,12 @@ public class SetupDeadlineStep implements ProcessToolProcessStep {
                 pid.setProcessInstance(processInstance);
                 processInstance.getProcessAttributes().add(pid);
             }
+            pid.setNotifyUsersWithLogin(notifyUsersWithLogin);
+            pid.setNotifyUsersWithRole(notifyUsersWithRole);
+            pid.setSkipAssignee("true".equalsIgnoreCase(skipAssignee));
             pid.setTemplateName(templateName);
             pid.setTaskName(tn);
+            pid.setAlreadyNotified(false);
             pid.setDueDate(dueDate);
         }
 
@@ -92,14 +96,14 @@ public class SetupDeadlineStep implements ProcessToolProcessStep {
         return STATUS_OK;
     }
 
-    private Date extractDate(String prefix, ProcessInstance processInstance, Map params) throws InvocationTargetException,
-            NoSuchMethodException, IllegalAccessException {
+    private Date extractDate(String prefix, ProcessInstance processInstance, Map<String, String> params) throws InvocationTargetException,
+            NoSuchMethodException, IllegalAccessException, ParseException {
         Date date = null;
         if (params.containsKey(prefix)) {
-            date = (Date) params.get(prefix);
+            date = DATE_FORMAT.parse(params.get(prefix));
         }
         else if (params.containsKey(prefix + "Attribute")) {
-            String[] paramValue = ((String) params.get(prefix + "Attribute")).split("\\.", 2);
+            String[] paramValue = params.get(prefix + "Attribute").split("\\.", 2);
             for (ProcessInstanceAttribute attr : processInstance.getProcessAttributes()) {
                 if (attr.getKey().equals(paramValue[0])) {
                     date = (Date) PropertyUtils.getProperty(attr, paramValue.length > 1 ? paramValue[1] : "value");
@@ -108,37 +112,5 @@ public class SetupDeadlineStep implements ProcessToolProcessStep {
             }
         }
         return date;
-    }
-
-    public String getTaskName() {
-        return taskName;
-    }
-
-    public void setTaskName(String taskName) {
-        this.taskName = taskName;
-    }
-
-    public String getTemplateName() {
-        return templateName;
-    }
-
-    public void setTemplateName(String templateName) {
-        this.templateName = templateName;
-    }
-
-    public String getUnit() {
-        return unit;
-    }
-
-    public void setUnit(String unit) {
-        this.unit = unit;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
     }
 }

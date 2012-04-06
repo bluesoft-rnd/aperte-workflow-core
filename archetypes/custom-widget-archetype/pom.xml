@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.aperteworkflow</groupId>
+  <artifactId>custom-widget-archetype</artifactId>
+  <version>1.1-SNAPSHOT</version>
+  <packaging>maven-archetype</packaging>
+
+  <name>Custom widget archetype</name>
+
+  <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>7</version>
+    </parent>
+
+  <build>
+    <extensions>
+      <extension>
+        <groupId>org.apache.maven.archetype</groupId>
+        <artifactId>archetype-packaging</artifactId>
+        <version>2.2</version>
+      </extension>
+    </extensions>
+
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <artifactId>maven-archetype-plugin</artifactId>
+          <version>2.2</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+
+  <description>Aperte Workflow is a compilation of well-known, stable and mature frameworks into a
+        complete BPM solution developed by BlueSoft sp. z o.o. - Polish independent software vendor.
+        Project home page is available at http://www.aperteworkflow.org/</description>
+
+  <url>http://nexus.sonatype.org/oss-repository-hosting.html/aperteworkflow-core/widget</url>
+
+  <developers>
+    <developer>
+      <id>tlipski</id>
+      <name>Tomek Lipski</name>
+      <email>tlipski@bluesoft.net.pl</email>
+      <organization>BlueSoft</organization>
+      <roles>
+        <role>Developer</role>
+        <role>Designer</role>
+      </roles>
+      <timezone>+1</timezone>
+    </developer>
+    <developer>
+      <id>lbortlik</id>
+      <name>Łukasz Bortlik</name>
+      <email>lbortlik@bluesoft.net.pl</email>
+      <organization>BlueSoft</organization>
+      <roles>
+        <role>Developer</role>
+        <role>Designer</role>
+      </roles>
+      <timezone>+1</timezone>
+    </developer>
+    <developer>
+      <id>kdowbecki</id>
+      <name>Karol Dowbecki</name>
+      <email>kdowbecki@bluesoft.net.pl</email>
+      <organization>BlueSoft</organization>
+      <roles>
+        <role>Developer</role>
+        <role>Designer</role>
+      </roles>
+      <timezone>+1</timezone>
+    </developer>
+     <developer>
+      <id>zmalinowski</id>
+      <name>Zbigniew Malinowski</name>
+      <email>zmalinowski@bluesoft.net.pl</email>
+      <organization>BlueSoft</organization>
+      <roles>
+        <role>Developer</role>
+        <role>Designer</role>
+      </roles>
+      <timezone>+1</timezone>
+    </developer>
+  </developers>
+
+  <licenses>
+    <license>
+      <name>GNU Lesser General Public License, Version 2.1</name>
+      <url>http://www.gnu.org/licenses/lgpl-2.1.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <scm>
+    <connection>scm:git:git@github.com:bluesoft-rnd/aperte-workflow-core.git</connection>
+    <developerConnection>scm:git:git@github.com:zmalinowski/aperte-workflow-core.git</developerConnection>
+    <url>git@github.com:bluesoft-rnd/aperte-workflow-core.git/archetypes/custom-widget-component</url>
+  </scm>
+
+  <distributionManagement>
+    <repository>
+      <id>sonatype-nexus-staging</id>
+      <name>Nexus Release Repository</name>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+    <snapshotRepository>
+      <id>sonatype-nexus-snapshots</id>
+      <name>Sonatype Nexus Snapshots</name>
+      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+    </snapshotRepository>
+  </distributionManagement>
+</project>

@@ -97,6 +97,28 @@ public abstract class WidgetElement implements Serializable {
     @XStreamOmitField
     protected Object value;
 
+    @XmlAttribute
+    @XStreamAsAttribute
+    protected Boolean global;
+    @XmlAttribute
+    @XStreamAsAttribute
+    protected String validFor;
+    public String getValidFor() {
+        return validFor;
+    }
+
+    public void setValidFor(String validFor) {
+        this.validFor = validFor;
+    }
+
+    public Boolean getGlobal() {
+        return global;
+    }
+
+    public void setGlobal(Boolean global) {
+        this.global = global;
+    }
+
     public Object getValue() {
         return value;
     }

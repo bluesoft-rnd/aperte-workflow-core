@@ -4,7 +4,7 @@
     <parent>
         <artifactId>plugins</artifactId>
         <groupId>org.aperteworkflow</groupId>
-        <version>1.1-SNAPSHOT</version>
+        <version>1.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>base-widgets</artifactId>
@@ -15,24 +15,24 @@
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>integration-interface</artifactId>
-            <version>1.1-SNAPSHOT</version>
+            <version>1.2-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>gui-commons</artifactId>
-            <version>1.1-SNAPSHOT</version>
+            <version>1.2-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>xml-utils</artifactId>
-            <version>1.1-SNAPSHOT</version>
+            <version>1.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>scripting</artifactId>
-            <version>1.1-SNAPSHOT</version>
+            <version>1.2-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -87,8 +87,24 @@
                         <Bundle-Version>0.1</Bundle-Version>
                         <Embed-Directory>lib</Embed-Directory>
                         <Embed-Transitive>true</Embed-Transitive>
-                        <ProcessTool-Widget-Enhancement>pl.net.bluesoft.rnd.processtool.ui.basewidgets.LocaleCaptureWidget,pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessHistoryWidget,pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessCommentsWidget,pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDataBlockWidget,pl.net.bluesoft.rnd.processtool.ui.basewidgets.LatestProcessCommentsWidget,pl.net.bluesoft.rnd.processtool.ui.basewidgets.TabSheetWidget,pl.net.bluesoft.rnd.processtool.ui.basewidgets.VerticalLayoutWidget</ProcessTool-Widget-Enhancement>
-                        <ProcessTool-Button-Enhancement>pl.net.bluesoft.rnd.processtool.ui.buttons.StandardValidatingButton,pl.net.bluesoft.rnd.processtool.ui.buttons.CommentEnabledStandardValidatingButton</ProcessTool-Button-Enhancement>
+                        <ProcessTool-Widget-Enhancement>
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.LatestProcessCommentsWidget,
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.LocaleCaptureWidget,
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.PanelWidget,
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessCommentsWidget,
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDataBlockWidget,
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessHistoryWidget,
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.TabSheetWidget,
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.VerticalLayoutWidget
+                        </ProcessTool-Widget-Enhancement>
+                        <ProcessTool-Button-Enhancement>
+                            pl.net.bluesoft.rnd.processtool.ui.buttons.AssignUserTaskButton,
+                            pl.net.bluesoft.rnd.processtool.ui.buttons.CancelTaskButton,
+                            pl.net.bluesoft.rnd.processtool.ui.buttons.CommentRequiredValidatingButton,
+                            pl.net.bluesoft.rnd.processtool.ui.buttons.StandardValidatingButton,
+                            pl.net.bluesoft.rnd.processtool.ui.buttons.YesNoButton,
+                            pl.net.bluesoft.rnd.processtool.ui.buttons.YesNoCommentButton
+                        </ProcessTool-Button-Enhancement>
                         <ProcessTool-I18N-Property>basewidgets-messages</ProcessTool-I18N-Property>
                     </instructions>
                 </configuration>

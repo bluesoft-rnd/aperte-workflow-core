@@ -3,12 +3,18 @@ package pl.net.bluesoft.rnd.processtool.ui.basewidgets;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.Reindeer;
+import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinRenderable;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.*;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolVaadinWidget;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.ChildrenAllowed;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
+import pl.net.bluesoft.util.lang.Strings;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -16,8 +22,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
-import static pl.net.bluesoft.util.lang.StringUtil.hasText;
+import static pl.net.bluesoft.util.lang.Formats.nvl;
+import static pl.net.bluesoft.util.lang.Strings.hasText;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -25,8 +31,7 @@ import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 @AliasName(name = "ProcessHistory")
 @AperteDoc(humanNameKey="widget.process_history.name", descriptionKey="widget.process_history.description")
 @ChildrenAllowed(false)
-@WidgetGroup("base-widgets")
-public class ProcessHistoryWidget extends BaseProcessToolVaadinWidget implements ProcessToolDataWidget {
+public class ProcessHistoryWidget extends BaseProcessToolWidget implements ProcessToolDataWidget, ProcessToolVaadinRenderable {
 
     @AutoWiredProperty(required = false)
     @AperteDoc(
@@ -43,22 +48,22 @@ public class ProcessHistoryWidget extends BaseProcessToolVaadinWidget implements
 	}
 
 	@Override
-	public Collection<String> validateData(ProcessInstance processInstance) {
+	public Collection<String> validateData(BpmTask task, boolean skipRequired) {
 		return null;
 	}
 
 	@Override
-	public void saveData(ProcessInstance processInstance) {
+	public void saveData(BpmTask task) {
 		//nothing
 	}
 
 	@Override
-	public void loadData(ProcessInstance processInstance) {
-		List<ProcessInstanceLog> processLogs = new ArrayList(processInstance.getProcessLogs());
+	public void loadData(BpmTask task) {
+        ProcessInstance pi = task.getProcessInstance();
+		List<ProcessInstanceLog> processLogs = new ArrayList(pi.getProcessLogs());
 		Collections.sort(processLogs);
 		for (ProcessInstanceLog pl : processLogs) {
-            ProcessLogInfo plInfo = getProcessLogInfo(pl);
-			logInfos.add(plInfo);
+			logInfos.add(getProcessLogInfo(pl));
 		}
 	}
 
@@ -81,7 +86,8 @@ public class ProcessHistoryWidget extends BaseProcessToolVaadinWidget implements
         plInfo.performDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(pl.getEntryDate().getTime());
         plInfo.stateDescription = pl.getState() != null ? nvl(pl.getState().getDescription(), pl.getState().getName()) : "";
         return plInfo;
-    }
+
+	}
 
     public class ProcessLogInfo {
 		public String userDescription;
@@ -183,8 +189,10 @@ public class ProcessHistoryWidget extends BaseProcessToolVaadinWidget implements
 					hl.addComponent(label("<b>System</b>", 150));
 
 				hl.addComponent(label("<b>" + pli.getPerformDate() + "</b>", 130));
-				hl.addComponent(new Label("<b>" + getMessage("awf.basewidgets.process-history.stateDescription") + "</b>", Label.CONTENT_XHTML));
-				hl.addComponent(label(getMessage(pli.getStateDescription()), 350));
+                if (Strings.hasText(pli.getStateDescription())) {
+                    hl.addComponent(new Label("<b>" + getMessage("awf.basewidgets.process-history.stateDescription") + "</b>", Label.CONTENT_XHTML));
+                    hl.addComponent(label(getMessage(pli.getStateDescription()), 350));
+                }
 				layout.addComponent(hl);
 				hl = new HorizontalLayout();
 				hl.setSpacing(true);

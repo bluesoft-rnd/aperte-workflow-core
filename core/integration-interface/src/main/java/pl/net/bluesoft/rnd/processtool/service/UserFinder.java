@@ -1,7 +1,6 @@
-package pl.net.bluesoft.rnd.processtool.ui.common;
+package pl.net.bluesoft.rnd.processtool.service;
 
 import pl.net.bluesoft.rnd.processtool.model.UserData;
-import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
 
 /**
  * User: POlszewski

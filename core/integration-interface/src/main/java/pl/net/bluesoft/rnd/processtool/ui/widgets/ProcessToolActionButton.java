@@ -18,28 +18,28 @@ import java.util.Set;
  * @author tlipski@bluesoft.net.pl
  */
 public interface ProcessToolActionButton {
-//	void onButtonPress(ProcessInstance processInstance,
-//	                     ProcessToolContext ctx,
-//	                     Set<ProcessToolDataWidget> dataWidgets,
-//	                     Map<ProcessToolDataWidget, Collection<String>> validationErrors,
-//	                     ProcessToolActionCallback callback);
-    void setContext(ProcessStateAction processStateAction, ProcessToolBpmSession bpmSession,
-                    Application application, I18NSource messageSource);
+    void setContext(ProcessStateAction processStateAction,
+                    ProcessToolBpmSession bpmSession,
+                    Application application,
+                    I18NSource messageSource);
+
+    boolean isEnabled();
+
     void setActionCallback(ProcessToolActionCallback callback);
 
-	boolean isVisible(ProcessInstance processInstance);
-	boolean isEnabled(ProcessInstance processInstance);
+	boolean isVisible(BpmTask task);
+	boolean isEnabled(BpmTask task);
     void setEnabled(boolean enabled);
 	void changeButton(Button button);
 
-	String getLabel(ProcessInstance processInstance);
-	String getDescription(ProcessInstance processInstance);
+	String getLabel(BpmTask task);
+	String getDescription(BpmTask task);
 	void setLoggedUser(UserData userData);
 	boolean isAutoHide();
 
 	void setDefinition(ProcessStateAction psa);
 
-	void saveData(BpmTask pi);
+	void saveData(BpmTask task);
 
     void loadData(BpmTask task);
 }

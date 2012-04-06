@@ -1,10 +1,11 @@
-package pl.net.bluesoft.rnd.processtool.ui.common;
+package pl.net.bluesoft.rnd.processtool.ui.basewidgets;
 
 import org.vaadin.jonatan.contexthelp.ContextHelp;
 import org.vaadin.jonatan.contexthelp.Placement;
 
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
+import pl.net.bluesoft.rnd.processtool.service.UserFinder;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
 import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
 import org.aperteworkflow.util.vaadin.help.HelpFactory;

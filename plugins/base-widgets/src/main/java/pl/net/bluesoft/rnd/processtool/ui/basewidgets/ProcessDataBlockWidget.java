@@ -30,6 +30,7 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionary;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItem;
+import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItemValue;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.ProcessDataWidgetsDefinitionEditor;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.ScriptCodeEditor;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.ScriptUrlEditor;
@@ -38,17 +39,21 @@ import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.WidgetDefinitionLoader
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.XmlConstants;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.jaxb.*;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinRenderable;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.*;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolVaadinWidget;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.util.lang.StringUtil;
+import pl.net.bluesoft.util.lang.Strings;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -65,8 +70,7 @@ import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 @AperteDoc(humanNameKey = "widget.process_data_block.name", descriptionKey = "widget.process_data_block.description")
 @ChildrenAllowed(false)
 @WidgetGroup("base-widgets")
-public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implements ProcessToolDataWidget {
-
+public class ProcessDataBlockWidget extends BaseProcessToolWidget implements ProcessToolDataWidget, ProcessToolVaadinRenderable {
     private static final Logger logger = Logger.getLogger(ProcessDataBlockWidget.class.getName());
     private static final Resolver resolver = new DefaultResolver();
 
@@ -179,7 +183,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
     }
 
     @Override
-    public Collection<String> validateData(final ProcessInstance processInstance) {
+    public Collection<String> validateData(final BpmTask task, boolean skipRequired) {
         final List<String> errors = new ArrayList<String>();
         new ComponentEvaluator<Property>(boundProperties) {
             @Override
@@ -240,9 +244,10 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
     }
 
     @Override
-    public void saveData(final ProcessInstance processInstance) {
+    public void saveData(final BpmTask task) {
+        ProcessInstance pi = task.getProcessInstance();
         processAttributes.clear();
-        for (ProcessInstanceAttribute attribute : processInstance.getProcessAttributes()) {
+        for (ProcessInstanceAttribute attribute : pi.getProcessAttributes()) {
             processAttributes.put(attribute.getKey(), attribute);
         }
 
@@ -263,8 +268,8 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                     } else {
                         if (component instanceof FileUploadComponent) {
                             ProcessInstanceAttachmentAttribute attachment = (ProcessInstanceAttachmentAttribute) component.getValue();
-                            attachment.setProcessState(processInstance.getState());
-                            attachment.setProcessInstance(processInstance);
+                            attachment.setProcessState(task.getTaskName());
+                            attachment.setProcessInstance(task.getProcessInstance());
                             attachment.setKey(attribute.getKey());
                         }
                         PropertyUtils.setProperty(processAttributes, element.getBind(), component.getValue());
@@ -272,20 +277,17 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                 }
             }
         };
-        processInstance.setProcessAttributes(new HashSet<ProcessInstanceAttribute>(processAttributes.values()));
-
+        pi.setProcessAttributes(new HashSet<ProcessInstanceAttribute>(processAttributes.values()));
     }
 
     @Override
-    public void loadData(final ProcessInstance processInstance) {
+    public void loadData(final BpmTask task) {
         boundProperties.clear();
         dictContainers.clear();
-
-        if (StringUtil.hasText(widgetsDefinition)) {
+        if (Strings.hasText(widgetsDefinition)) {
             widgetsDefinitionElement = (WidgetsDefinitionElement) definitionLoader.unmarshall(widgetsDefinition);
         }
-
-        this.processInstance = processInstance;
+        this.processInstance = task.getProcessInstance();
         processAttributes.clear();
         for (ProcessInstanceAttribute attribute : processInstance.getProcessAttributes()) {
             processAttributes.put(attribute.getKey(), attribute);
@@ -293,45 +295,74 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
     }
 
     private void loadBindings() {
-        new ComponentEvaluator<Property>(boundProperties) {
-            @Override
-            public void evaluate(Property component, WidgetElement element) throws Exception {
-                Object value = null;
-                try {
-                    value = PropertyUtils.getProperty(processAttributes, element.getBind());
-                } catch (NestedNullException e) {
-                    logger.log(Level.SEVERE, e.getMessage(),e);
-                }
-                value = value instanceof ProcessInstanceSimpleAttribute ?
-                        ((ProcessInstanceSimpleAttribute) value).getValue() : value;
-                if (value != null) {
-                    boolean readonly = component.isReadOnly();
-                    if (readonly) {
-                        component.setReadOnly(false);
+            new ComponentEvaluator<Property>(boundProperties) {
+                @Override
+                public void evaluate(Property component, WidgetElement element) throws Exception {
+                    Object value = null;
+                    try {
+                        value = PropertyUtils.getProperty(processAttributes, element.getBind());
                     }
-
-                    // TODO reconsider this approach, perhaps it's easier to check component.getType() and when it returns Object catch possible exception from component.setValue()
-
-                    if (Date.class.isAssignableFrom(component.getType())) {
-                        Date v = new SimpleDateFormat(((DateWidgetElement) element).getFormat()).parse(String.valueOf(
-                                value));
-                        component.setValue(v);
-                    } else if (String.class.isAssignableFrom(component.getType())) {
-                        component.setValue(nvl(value, ""));
-                    } else if (component instanceof Container &&
-                            component.getType().isAssignableFrom(value.getClass())) {
-                        if (((Container) component).containsId(value)) {
+                    catch (NestedNullException e) {
+                        logger.info(e.getMessage());
+                    }
+                    if (value != null) {
+                        boolean readonly = component.isReadOnly();
+                        if (readonly) {
+                            component.setReadOnly(false);
+                        }
+                        value = value instanceof ProcessInstanceSimpleAttribute ?
+                                ((ProcessInstanceSimpleAttribute) value).getValue() : value;
+                        if (Date.class.isAssignableFrom(component.getType())) {
+                            Date v = new SimpleDateFormat(((DateWidgetElement) element).getFormat()).parse(value.toString());
+                            component.setValue(v);
+                        }
+                        else if (String.class.isAssignableFrom(component.getType())) {
+                            component.setValue(nvl(value, ""));
+                        }
+                        else {
                             component.setValue(value);
                         }
-                    }
-
-                    if (readonly) {
-                        component.setReadOnly(true);
+                        if (readonly) {
+                            component.setReadOnly(true);
+                        }
                     }
                 }
-            }
-        };
-    }
+            };
+        }
+
+        private void loadDictionaries() {
+            new ComponentEvaluator<AbstractSelect>(dictContainers) {
+                @Override
+                public void evaluate(AbstractSelect component, WidgetElement element) throws Exception {
+                    ProcessDictionary dict = nvl(element.getGlobal(), false) ?
+                            processDictionaryRegistry.getSpecificOrDefaultGlobalDictionary(element.getProvider(),
+                                    element.getDict(), i18NSource.getLocale().toString()) :
+                            processDictionaryRegistry.getSpecificOrDefaultProcessDictionary(
+                            processInstance.getDefinition(), element.getProvider(),
+                            element.getDict(), i18NSource.getLocale().toString());
+
+                    if (dict != null) {
+                        Date validForDate = getValidForDate(element);
+                        int i = 0;
+                        for (Object o : dict.items()) {
+                            ProcessDictionaryItem item = (ProcessDictionaryItem) o;
+                            component.addItem(item.getKey());
+                            ProcessDictionaryItemValue val = item.getValueForDate(validForDate);
+                            component.setItemCaption(item.getKey(), getMessage(
+                                    (String) (val != null ? val.getValue() : item.getKey())));
+                            if (element instanceof AbstractSelectWidgetElement) {
+                                AbstractSelectWidgetElement select = (AbstractSelectWidgetElement) element;
+                                if (select.getDefaultSelect() != null && i == select.getDefaultSelect()) {
+                                    component.setValue(item.getKey());
+                                }
+                            }
+                            ++i;
+                        }
+                    }
+                }
+            };
+        }
+
 
     private void loadProcessInstanceDictionaries() {
         new ComponentEvaluator<AbstractSelect>(instanceDictContainers) {
@@ -360,32 +391,40 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         };
     }
 
-    private void loadDictionaries() {
-        new ComponentEvaluator<AbstractSelect>(dictContainers) {
-            @Override
-            public void evaluate(AbstractSelect component, WidgetElement element) throws Exception {
 
-                ProcessDictionary dict = processDictionaryRegistry.getSpecificOrDefaultDictionary(
-                        processInstance.getDefinition(), element.getProvider(),
-                        element.getDict(), i18NSource.getLocale().toString());
-                if (dict != null) {
-                    int i = 0;
-                    for (Object o : dict.items()) {
-                        ProcessDictionaryItem itemProcess = (ProcessDictionaryItem) o;
-                        component.addItem(itemProcess.getKey());
-                        component.setItemCaption(itemProcess.getKey(), getMessage((String) itemProcess.getValue()));
-                        if (element instanceof AbstractSelectWidgetElement) {
-                            AbstractSelectWidgetElement select = (AbstractSelectWidgetElement) element;
-                            if (select.getDefaultSelect() != null && i == select.getDefaultSelect()) {
-                                component.setValue(itemProcess.getKey());
-                            }
-                        }
-                        ++i;
+        private Date getValidForDate(WidgetElement element) throws Exception {
+            Date validForDate = processInstance.getCreateDate();
+            if (Strings.hasText(element.getValidFor())) {
+                String[] splits = element.getValidFor().split(":");
+                if (splits.length != 2) {
+                    throw new IllegalArgumentException("Error while loading values for "
+                            + (nvl(element.getGlobal(), false) ? "global" : "process") + " dictionary["
+                            + element.getDict() + "], provider[" + element.getProvider() + "]: "
+                            + "Illegal argument: " + element.getValidFor()
+                            + " for element: " + element.getClass().getName());
+                }
+                String controlChar = splits[0];
+                String validFor = splits[1];
+                DateFormat dateFormat = VaadinUtility.simpleDateFormat();
+                if ("d".equalsIgnoreCase(controlChar) && !"current".equalsIgnoreCase(validFor)) {
+                    validForDate = dateFormat.parse(validFor);
+                }
+                else if ("a".equalsIgnoreCase(controlChar)) {
+                    Object attributeValue = PropertyUtils.getProperty(processAttributes, validFor);
+                    if (attributeValue instanceof String) {
+                        validForDate = dateFormat.parse(validFor);
+                    }
+                    else if (attributeValue instanceof Date) {
+                        validForDate = (Date) attributeValue;
+                    }
+                    else {
+                        throw new IllegalArgumentException("Unable to date from property: " + validFor
+                            + "for element: " + element.getClass().getName());
                     }
                 }
             }
-        };
-    }
+            return validForDate;
+        }
 
     @Override
     public void addChild(ProcessToolWidget child) {
@@ -788,24 +827,6 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
             }
         }
     }
-
-/*    private AbstractTextField createInputField(InputWidgetElement iwe) {
-        AbstractTextField field = iwe.getSecret() != null && iwe.getSecret() ? new PasswordField() : new TextField();
-        if (iwe.getMaxLength() != null) {
-            field.setMaxLength(iwe.getMaxLength());
-        }
-        if (hasText(iwe.getRegexp()) && hasText(iwe.getRegexp())) {
-            field.addValidator(new RegexpValidator(OXHelper.replaceXmlEscapeCharacters(iwe.getRegexp()), iwe.getErrorKey() != null ?
-                iwe.getErrorKey() : getMessage("processdata.block.error.regexp").replaceFirst("%s", iwe.getRegexp())));
-        }
-        if (hasText(iwe.getBaseText())) {
-            field.setValue(getMessage(iwe.getBaseText()));
-        }
-        if (hasText(iwe.getPrompt())) {
-            field.setInputPrompt(getMessage(iwe.getPrompt()));
-        }
-        return field;
-    }*/
 
     private AbstractTextField createInputField(InputWidgetElement iwe) {
         AbstractTextField field = iwe.getSecret() != null && iwe.getSecret() ? new PasswordField() : new TextField();

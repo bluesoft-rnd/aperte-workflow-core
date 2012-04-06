@@ -1,4 +1,4 @@
-package pl.net.bluesoft.rnd.processtool.ui.common;
+package pl.net.bluesoft.rnd.processtool.ui.buttons;
 
 import static org.aperteworkflow.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
 
@@ -86,4 +86,6 @@ public abstract class BaseProcessToolVaadinActionButton extends BaseProcessToolA
 			renderedComponent.setEnabled(enabled);
 		}
 	}
+
+
 }

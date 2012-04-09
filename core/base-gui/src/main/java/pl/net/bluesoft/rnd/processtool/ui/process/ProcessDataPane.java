@@ -77,7 +77,12 @@ public class ProcessDataPane extends VerticalLayout implements WidgetContextSupp
 		if (helpFactory == null) {
 			contextHelp = new ContextHelp();
 			application.getMainWindow().getContent().addComponent(contextHelp);
-			helpFactory = new HelpFactory(task.getProcessInstance().getDefinition(), getApplication(), i18NSource, "axa_step_help", contextHelp);
+			helpFactory = new HelpFactory(
+                    task.getProcessInstance().getDefinition(),
+                    getApplication(),
+                    i18NSource,
+                    "step_help",
+                    contextHelp);
 		}
 		actionCallback = new ProcessToolActionCallback() {
 			private void actionCompleted(GuiAction guiAction, ProcessStateAction action) {

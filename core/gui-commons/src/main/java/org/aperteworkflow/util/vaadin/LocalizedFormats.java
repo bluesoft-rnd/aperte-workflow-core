@@ -1,4 +1,4 @@
-package pl.net.bluesoft.rnd.util;
+package org.aperteworkflow.util.vaadin;
 
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 

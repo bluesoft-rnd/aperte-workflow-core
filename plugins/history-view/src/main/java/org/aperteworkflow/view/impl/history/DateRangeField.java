@@ -1,11 +1,12 @@
-package org.aperteworkflow.util.vaadin.ui.date;
+package org.aperteworkflow.view.impl.history;
 
 import com.vaadin.data.Property;
 import com.vaadin.ui.*;
 import org.aperteworkflow.util.vaadin.VaadinUtility;
 import org.aperteworkflow.util.vaadin.ui.AligningHorizontalLayout;
-import org.aperteworkflow.util.vaadin.ui.ConfigurableOptionGroupField;
+import org.aperteworkflow.view.impl.history.ConfigurableOptionGroupField;
 import org.aperteworkflow.util.vaadin.ui.OrderedLayoutFactory;
+import org.aperteworkflow.util.vaadin.ui.date.OptionalDateField;
 import org.vaadin.addon.customfield.CustomField;
 import org.vaadin.hene.flexibleoptiongroup.FlexibleOptionGroup;
 import org.vaadin.hene.flexibleoptiongroup.FlexibleOptionGroupItemComponent;

@@ -22,6 +22,7 @@
         <module>drools-step</module>
         <module>email-capture</module>
         <module>files-capture</module>
+        <module>history-view</module>
         <module>mule-esb-plugin</module>
         <module>log-step</module>
         <module>process-deadlines</module>

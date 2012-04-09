@@ -1,5 +1,6 @@
-package pl.net.bluesoft.rnd.processtool.ui.activity;
+package org.aperteworkflow.view.impl.history;
 
+import com.vaadin.Application;
 import com.vaadin.data.Container;
 import com.vaadin.data.Container.Filter;
 import com.vaadin.data.Item;
@@ -20,7 +21,11 @@ import com.vaadin.ui.*;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Table.ColumnGenerator;
+import org.aperteworkflow.ui.view.ViewCallback;
+import org.aperteworkflow.ui.view.ViewRenderer;
+import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
 import org.aperteworkflow.util.vaadin.text.TextValueChangeListener;
+import org.aperteworkflow.util.view.AbstractListPane;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.*;
@@ -28,27 +33,43 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import org.aperteworkflow.util.vaadin.VaadinUtility;
 import org.aperteworkflow.util.vaadin.ui.OrderedLayoutFactory;
-import org.aperteworkflow.util.vaadin.ui.date.DateRangeField;
-import org.aperteworkflow.util.vaadin.ui.date.DateRangeField.DateRange;
-import org.aperteworkflow.util.vaadin.ui.date.DateRangeField.DateRangeChangedEvent;
-import org.aperteworkflow.util.vaadin.ui.date.DateRangeField.DateRangeListener;
+import org.aperteworkflow.view.impl.history.DateRangeField.DateRange;
+import org.aperteworkflow.view.impl.history.DateRangeField.DateRangeChangedEvent;
+import org.aperteworkflow.view.impl.history.DateRangeField.DateRangeListener;
 import org.aperteworkflow.util.vaadin.ui.table.LocalizedPagedTable;
 import org.aperteworkflow.util.vaadin.ui.table.LocalizedPagedTable.PageChangeListener;
 import org.aperteworkflow.util.vaadin.ui.table.LocalizedPagedTable.PagedTableChangeEvent;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+import pl.net.bluesoft.util.lang.Formats;
 import pl.net.bluesoft.util.lang.Strings;
 
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.util.*;
 
-import static org.aperteworkflow.util.vaadin.VaadinUtility.*;
-import static pl.net.bluesoft.util.lang.Formats.nvl;
 
 /**
- * @author: amichalak@bluesoft.net.pl
+ * @author amichalak@bluesoft.net.pl
+ * @author tlipski@bluesoft.net.pl
  */
-public class HistoryListPane extends AbstractListPane implements DateRangeListener {
+public class HistoryListPane extends AbstractListPane implements DateRangeListener, ViewRenderer {
     private static final String HISTORY_SUPERUSER_ROLE_NAME = "AWF_HISTORY_SUPERUSER";
+
+    @Override
+    public String getViewId() {
+        return HistoryListPane.class.getName();
+    }
+
+    @Override
+    public Component render(Map<String, ?> viewData) {
+        return this;
+    }
+
+    @Override
+    public void setViewCallback(ViewCallback viewCallback) {
+        this.viewCallback = viewCallback;
+    }
+
     private static final String HISTORY_SUPERUSER_CONFIG_KEY = "history.superuser.roles";
 
     private static final String[] allPropertyNames = new String[] {
@@ -64,7 +85,7 @@ public class HistoryListPane extends AbstractListPane implements DateRangeListen
             "log.entryDate", "state.desc", "log.eventName", "log.actionName", "log.author", "log.substitutedBy"
     };
 
-    private ActivityMainPane activityMainPane;
+    private ViewCallback viewCallback;
 
     private TextField searchField;
     private String filterExpression = "";
@@ -96,12 +117,30 @@ public class HistoryListPane extends AbstractListPane implements DateRangeListen
         }
     }
 
-    public HistoryListPane(ActivityMainPane activityMainPane) {
-        super(activityMainPane.getApplication(), activityMainPane.getI18NSource(), "activity.task.history");
-        this.activityMainPane = activityMainPane;
+    public void setUp(Application app) {
+        super.setUp(app, I18NSource.ThreadUtil.getThreadI18nSource(), "activity.task.history");
         init();
     }
 
+    @Override
+    public Object getViewData() {
+        return getData();
+    }
+
+    @Override
+    public String getTitle() {
+        return I18NSource.ThreadUtil.getLocalizedMessage("activity.task.history");
+    }
+
+    @Override
+    public void handleDisplayAction() {
+        if (application instanceof GenericVaadinPortlet2BpmApplication)
+      			((GenericVaadinPortlet2BpmApplication)application).setShowExitWarning(false);
+        VaadinUtility.unregisterClosingWarning(application.getMainWindow());
+        setData(Collections.singletonMap("historySelection", new HistorySelection()));
+    }
+
+    @Override
     public void setBpmSession(ProcessToolBpmSession bpmSession) {
         this.bpmSession = bpmSession;
     }
@@ -159,7 +198,7 @@ public class HistoryListPane extends AbstractListPane implements DateRangeListen
             marginPanel.addComponent(hl);
         }
 
-        table = pagedTable(logContainer = createLogContainer(), allPropertyNames, createColumnHeaders(allPropertyNames), null, new ItemClickListener() {
+        table = VaadinUtility.pagedTable(logContainer = createLogContainer(), allPropertyNames, createColumnHeaders(allPropertyNames), null, new ItemClickListener() {
             @Override
             public void itemClick(ItemClickEvent event) {
                 showDetailedView((ProcessInstanceLog) event.getItemId());
@@ -181,7 +220,7 @@ public class HistoryListPane extends AbstractListPane implements DateRangeListen
         });
         table.setSortAscending(false);
 
-        VerticalLayout tableLayout = verticalLayout(dateRangeField, hr(), createTableControls(), table, createTableControls());
+        VerticalLayout tableLayout = VaadinUtility.verticalLayout(dateRangeField, VaadinUtility.hr(), createTableControls(), table, createTableControls());
         tableLayout.setMargin(true, false, false, false);
 
         marginPanel.addComponent(tableLayout);
@@ -393,7 +432,7 @@ public class HistoryListPane extends AbstractListPane implements DateRangeListen
         detailsView.setWidth("100%");
         detailsView.setMargin(false, true, false, true);
         detailsView.setSpacing(true);
-        detailsView.addComponent(hr());
+        detailsView.addComponent(VaadinUtility.hr());
         addComponent(detailsView);
 
         Table taskTable = attachTitledTable(detailsView, "log.details", taskDetailsContainer, new Object[] {"title", "component"},
@@ -406,16 +445,16 @@ public class HistoryListPane extends AbstractListPane implements DateRangeListen
                             if (property != null && property.getValue() != null) {
                                 String value = (String) property.getValue();
                                 if (Strings.hasText(value) && ("log.substitutedBy".equals(itemId) || "log.author".equals(itemId))) {
-                                    return labelWithIcon(getImage("/img/user_standard.png"), value, null, getMessagePrefixed(itemId.toString()));
+                                    return VaadinUtility.labelWithIcon(getImage("/img/user_standard.png"), value, null, getMessagePrefixed(itemId.toString()));
                                 }
-                                return boldLabel(value);
+                                return VaadinUtility.boldLabel(value);
                             }
                             return null;
                         }
                     });
                 }});
         // being stupid is its own reward
-        taskTable.setHeight(22 * (taskDetailsPropertyNames.length - 2) + 50, UNITS_PIXELS);
+        taskTable.setHeight(22 * (taskDetailsPropertyNames.length - 2) + 50, Sizeable.UNITS_PIXELS);
 
         Collection<Button> taskButtons = createTaskButtons(log);
         HorizontalLayout buttons = VaadinUtility.horizontalLayout(Alignment.MIDDLE_LEFT, taskButtons.toArray(new Component[taskButtons.size()]));
@@ -431,25 +470,25 @@ public class HistoryListPane extends AbstractListPane implements DateRangeListen
                             ProcessInstance pi = log.getProcessInstance();
                             ProcessDefinitionConfig def = pi.getDefinition();
                             if ("def.desc".equals(itemId)) {
-                                return boldLabel(getMessage(nvl(def.getDescription())));
+                                return VaadinUtility.boldLabel(getMessage(Formats.nvl(def.getDescription())));
                             }
                             else if ("def.cmnt".equals(itemId)) {
-                                return boldLabel(getMessage(nvl(def.getComment())));
+                                return VaadinUtility.boldLabel(getMessage(Formats.nvl(def.getComment())));
                             }
                             else if ("pi.externalKey".equals(itemId)) {
-                                return boldLabel(getMessage(nvl(pi.getExternalKey())));
+                                return VaadinUtility.boldLabel(getMessage(Formats.nvl(pi.getExternalKey())));
                             }
                             else if ("pi.internalId".equals(itemId)) {
-                                return boldLabel(getMessage(pi.getInternalId()));
+                                return VaadinUtility.boldLabel(getMessage(pi.getInternalId()));
                             }
                             else if ("pi.status".equals(itemId)) {
-                                return boldLabel(getProcessStatus(pi));
+                                return VaadinUtility.boldLabel(getProcessStatus(pi));
                             }
                             else if ("pi.createDate".equals(itemId)) {
-                                return boldLabel(dateFormat.format(pi.getCreateDate()));
+                                return VaadinUtility.boldLabel(dateFormat.format(pi.getCreateDate()));
                             }
                             else if ("pi.creator".equals(itemId)) {
-                                return boldLabel(pi.getCreator() != null ? pi.getCreator().getRealName() : "");
+                                return VaadinUtility.boldLabel(pi.getCreator() != null ? pi.getCreator().getRealName() : "");
                             }
                             else if ("pi.currentTasks".equals(itemId)) {
                                 return getProcessCurrentTasksView(pi);
@@ -460,7 +499,7 @@ public class HistoryListPane extends AbstractListPane implements DateRangeListen
                 }});
 
         // i say no to drugs, but they don’t listen
-        processTable.setHeight(22 * (processDetailsPropertyNames.length - 1) + Math.max(taskCount, 1) * 35, UNITS_PIXELS);
+        processTable.setHeight(22 * (processDetailsPropertyNames.length - 1) + Math.max(taskCount, 1) * 35, Sizeable.UNITS_PIXELS);
         detailsView.setExpandRatio(processTable, 1.0f);
     }
 
@@ -486,14 +525,14 @@ public class HistoryListPane extends AbstractListPane implements DateRangeListen
 
     private Button createOpenInstanceButton(final ProcessInstanceLog log, String caption, final String notFoundMessage,
                                             final boolean finalTask, boolean enabled, String notEnabledDescription) {
-        Button b = button(caption, null, "default", new ClickListener() {
+        Button b = VaadinUtility.button(caption, null, "default", new ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
                 openHistoryInstance(log, notFoundMessage, finalTask);
             }
         });
         b.setWidth(b.getWidth() + 20, Sizeable.UNITS_PIXELS);
-        b.setIcon(imageResource(application, finalTask ? "green-flag.png" : "task.png"));
+        b.setIcon(VaadinUtility.imageResource(application, finalTask ? "green-flag.png" : "task.png"));
         b.setEnabled(enabled);
         b.setDescription(enabled ? caption : notEnabledDescription);
         return b;
@@ -506,10 +545,10 @@ public class HistoryListPane extends AbstractListPane implements DateRangeListen
         log.setProcessInstance(pi);
         BpmTask task = finalTask ? bpmSession.getPastEndTask(log, ctx) : bpmSession.getPastOrActualTask(log, ctx);
         if (task != null) {
-            activityMainPane.displayProcessData(task, true);
+            viewCallback.displayProcessData(task, true);
         }
         else {
-            validationNotification(application, messageSource, notFoundMessage);
+            VaadinUtility.validationNotification(application, messageSource, notFoundMessage);
         }
     }
 
@@ -526,7 +565,7 @@ public class HistoryListPane extends AbstractListPane implements DateRangeListen
         hl.setExpandRatio(titleLabel, 1.0f);
         layout.addComponent(hl);
 
-        Table table = simpleTable(dataSource, visiblePropertyIds, customColumns);
+        Table table = VaadinUtility.simpleTable(dataSource, visiblePropertyIds, customColumns);
 
         layout.addComponent(table);
 
@@ -543,7 +582,7 @@ public class HistoryListPane extends AbstractListPane implements DateRangeListen
         List<BpmTask> tasks = bpmSession.findProcessTasks(pi, ctx);
         taskCount = tasks.size();
         if (tasks.isEmpty()) {
-            return boldLabel(getMessagePrefixed("pi.currentTasks.empty"));
+            return VaadinUtility.boldLabel(getMessagePrefixed("pi.currentTasks.empty"));
         }
         VerticalLayout vl = new VerticalLayout();
         vl.setWidth("100%");
@@ -561,10 +600,10 @@ public class HistoryListPane extends AbstractListPane implements DateRangeListen
         hl.setSpacing(true);
         hl.setMargin(false);
 
-        hl.addComponent(boldLabel(getMessage(state.getDescription())));
+        hl.addComponent(VaadinUtility.boldLabel(getMessage(state.getDescription())));
 
         String assignedName = "<b>" + (task.getOwner() != null ? task.getOwner().getRealName() : getMessage("activity.assigned.empty")) + "</b>";
-        Component assignedComponent = labelWithIcon(getImage("/img/user_assigned.png"), assignedName, null, getMessage("activity.assigned"));
+        Component assignedComponent = VaadinUtility.labelWithIcon(getImage("/img/user_assigned.png"), assignedName, null, getMessage("activity.assigned"));
         hl.addComponent(assignedComponent);
 
         Iterator<Component> it = hl.getComponentIterator();

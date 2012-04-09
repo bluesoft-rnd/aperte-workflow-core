@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>plugins</artifactId>
+        <groupId>org.aperteworkflow</groupId>
+        <version>1.2-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>history-view</artifactId>
+    <name>history-view</name>
+    <packaging>bundle</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin</artifactId>
+            <version>${vaadin.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.vaadin.addons</groupId>
+            <artifactId>flexibleoptiongroup</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.aperteworkflow</groupId>
+            <artifactId>gui-commons</artifactId>
+            <version>1.2-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <useDefaultManifestFile>true</useDefaultManifestFile>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <version>2.1.0</version>
+                <configuration>
+                    <instructions>
+                        <Export-Package>
+                            org.aperteworkflow.view.impl.history
+                        </Export-Package>
+                        <Import-Package>
+                            *
+                        </Import-Package>
+                        <Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>
+                        <Bundle-SymbolicName>org.aperteworkflow.view.impl.history</Bundle-SymbolicName>
+                        <Bundle-Version>${version}</Bundle-Version>
+                        <Embed-Directory>lib</Embed-Directory>
+                        <Embed-Transitive>true</Embed-Transitive>
+                        <Bundle-Activator>org.aperteworkflow.view.impl.history.HistoryViewBundleActivator</Bundle-Activator>
+                        <!--<ProcessTool-I18N-Property>userdata-messages</ProcessTool-I18N-Property>-->
+                        <!--<ProcessTool-Model-Enhancement>pl.net.bluesoft.rnd.pt.ext.userdata.model.ProcessInstanceUserAssignment</ProcessTool-Model-Enhancement>-->
+                        <!--<ProcessTool-Widget-Enhancement>pl.net.bluesoft.rnd.pt.ext.userdata.widget.LdapUserDataWidget,pl.net.bluesoft.rnd.pt.ext.userdata.widget.LiferayUserDataWidget</ProcessTool-Widget-Enhancement>-->
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

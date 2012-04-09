@@ -3,6 +3,7 @@ package pl.net.bluesoft.rnd.processtool.ui.activity;
 import com.vaadin.terminal.Resource;
 import com.vaadin.terminal.StreamResource;
 import com.vaadin.ui.*;
+import org.aperteworkflow.util.view.AbstractListPane;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.hibernate.ResultsPageWrapper;

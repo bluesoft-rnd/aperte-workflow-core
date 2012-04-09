@@ -5,9 +5,9 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.net.bluesoft.rnd.processtool.view.ViewController;
-import pl.net.bluesoft.rnd.processtool.view.ViewListener;
-import pl.net.bluesoft.rnd.processtool.view.ViewRenderer;
+import org.aperteworkflow.ui.view.ViewController;
+import org.aperteworkflow.ui.view.ViewListener;
+import org.aperteworkflow.ui.view.ViewRenderer;
 
 import java.util.ArrayList;
 import java.util.HashMap;

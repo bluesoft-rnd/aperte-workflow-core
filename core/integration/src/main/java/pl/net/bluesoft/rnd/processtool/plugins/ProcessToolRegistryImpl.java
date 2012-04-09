@@ -1,6 +1,8 @@
 package pl.net.bluesoft.rnd.processtool.plugins;
 
 import org.aperteworkflow.search.SearchProvider;
+import org.aperteworkflow.ui.view.ViewRegistry;
+import org.aperteworkflow.ui.view.impl.DefaultViewRegistryImpl;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -8,7 +10,6 @@ import org.hibernate.cfg.Configuration;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.dao.*;
@@ -35,7 +36,6 @@ import pl.net.bluesoft.rnd.util.i18n.impl.PropertyLoader;
 import pl.net.bluesoft.util.cache.Caches;
 import pl.net.bluesoft.util.eventbus.EventBusManager;
 import pl.net.bluesoft.util.lang.FormatUtil;
-import pl.net.bluesoft.util.lang.StringUtil;
 import pl.net.bluesoft.util.lang.Strings;
 
 import javax.naming.InitialContext;
@@ -96,6 +96,12 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
                 return classloader.getResourceAsStream(path);
             }
         }, "messages"));
+    }
+
+    {
+        //init default view registry
+        ViewRegistry vr = new DefaultViewRegistryImpl();
+        registerService(ViewRegistry.class, vr, new Properties());
     }
 
 	public synchronized void unregisterWidget(String name) {

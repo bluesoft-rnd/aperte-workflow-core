@@ -109,8 +109,20 @@ public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshab
 		taskList.addComponent(createUserTasksButton(bpmSession, ctx, myTasksClosed, false));
 		
 		//Historia
-		taskList.addComponent(createHistoryButton());
+//		taskList.addComponent(createHistoryButton());
 	}
+
+    public void addButton(String title, final Runnable r) {
+        Button b = new Button(title);
+        b.setStyleName(BaseTheme.BUTTON_LINK);
+        b.addListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent event) {
+                withErrorHandling(getApplication(), r);
+            }
+        });
+        taskList.addComponent(b);
+    }
 	
 	private List<ProcessQueue> buildUserQueues(ProcessToolContext ctx, final ProcessToolBpmSession bpmSession) {
 		final List<ProcessQueue> userAvailableQueues = new ArrayList(bpmSession.getUserAvailableQueues(ctx));
@@ -333,22 +345,9 @@ public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshab
 		return pif;
 	}
 
-    private Button createHistoryButton() {
-        Button b = new Button(getMessage("activity.task.history"));
-        b.setStyleName(BaseTheme.BUTTON_LINK);
-        b.addListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent event) {
-                withErrorHandling(getApplication(), new Runnable() {
-                    @Override
-                    public void run() {
-                        activityMainPane.displayHistoryPane();
-                    }
-                });
-            }
-        });
-        return b;
-    }
+//    private Button createHistoryButton() {
+//
+//    }
 
 
     private Button createRecentTasksButton(ProcessToolContext ctx) {

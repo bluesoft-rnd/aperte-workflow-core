@@ -1,4 +1,4 @@
-package org.aperteworkflow.util.vaadin.ui;
+package org.aperteworkflow.view.impl.history;
 
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
@@ -7,6 +7,8 @@ import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.event.LayoutEvents.LayoutClickEvent;
 import com.vaadin.event.LayoutEvents.LayoutClickListener;
 import com.vaadin.ui.*;
+import org.aperteworkflow.util.vaadin.ui.AligningHorizontalLayout;
+import org.aperteworkflow.util.vaadin.ui.OrderedLayoutFactory;
 import org.vaadin.addon.customfield.CustomField;
 import org.vaadin.hene.flexibleoptiongroup.FlexibleOptionGroup;
 import org.vaadin.hene.flexibleoptiongroup.FlexibleOptionGroupItemComponent;

@@ -1,11 +1,11 @@
-package pl.net.bluesoft.rnd.processtool.ui.activity;
+package org.aperteworkflow.util.view;
 
 import com.vaadin.Application;
 import com.vaadin.terminal.Resource;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
+import org.aperteworkflow.util.vaadin.ResourceCache;
 import org.aperteworkflow.util.vaadin.VaadinUtility;
-import pl.net.bluesoft.rnd.util.ResourceCache;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import static org.aperteworkflow.util.vaadin.VaadinUtility.horizontalLayout;
@@ -24,11 +24,17 @@ public abstract class AbstractListPane extends VerticalLayout implements VaadinU
 
     private ResourceCache resourceCache;
 
-    protected AbstractListPane(Application application, I18NSource messageSource, String title) {
+    protected AbstractListPane() {
+
+    }
+    protected void setUp(Application application, I18NSource messageSource, String title) {
         this.application = application;
         this.messageSource = messageSource;
         this.title = title;
 		this.resourceCache = new ResourceCache(application);
+    }
+    protected AbstractListPane(Application application, I18NSource messageSource, String title) {
+        setUp(application, messageSource, title);
     }
 
     public AbstractListPane init() {

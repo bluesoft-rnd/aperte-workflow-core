@@ -8,6 +8,9 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.UriFragmentUtility.FragmentChangedEvent;
 import com.vaadin.ui.UriFragmentUtility.FragmentChangedListener;
 import com.vaadin.ui.themes.BaseTheme;
+import org.aperteworkflow.ui.view.ViewCallback;
+import org.aperteworkflow.ui.view.ViewRegistry;
+import org.aperteworkflow.ui.view.ViewRenderer;
 import org.aperteworkflow.util.vaadin.UriChangedCallback;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
@@ -15,16 +18,14 @@ import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
-import pl.net.bluesoft.rnd.processtool.ui.activity.HistoryListPane.HistorySelection;
 import pl.net.bluesoft.rnd.processtool.ui.newprocess.NewProcessExtendedPane;
 import pl.net.bluesoft.rnd.processtool.ui.process.ProcessDataViewComponent;
 import pl.net.bluesoft.rnd.processtool.view.impl.BasicViewController;
 import pl.net.bluesoft.rnd.processtool.view.impl.ComponentPaneRenderer;
-import pl.net.bluesoft.rnd.util.ResourceCache;
+import org.aperteworkflow.util.vaadin.ResourceCache;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import org.aperteworkflow.util.vaadin.EventHandler;
 import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
-import org.aperteworkflow.util.vaadin.UriChangedCallback;
 import org.aperteworkflow.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.util.lang.Strings;
 
@@ -34,7 +35,7 @@ import java.util.*;
 import static org.aperteworkflow.util.vaadin.VaadinUtility.verticalLayout;
 import static pl.net.bluesoft.util.lang.Formats.nvl;
 
-public class ActivityMainPane extends VerticalLayout {
+public class ActivityMainPane extends VerticalLayout implements ViewCallback {
 
 	private Application application;
 	private I18NSource i18NSource;
@@ -52,8 +53,9 @@ public class ActivityMainPane extends VerticalLayout {
 	private Button showHideButton0;
 	
 	private ResourceCache resourceCache;
+    private ActivityQueuesPane activityQueuesPane;
 
-	public ActivityMainPane(Application application, I18NSource i18NSource, ProcessToolBpmSession bpmSession) {
+    public ActivityMainPane(Application application, I18NSource i18NSource, ProcessToolBpmSession bpmSession) {
 		this.application = application;
 		this.i18NSource = i18NSource;
 		this.bpmSession = bpmSession;
@@ -91,9 +93,10 @@ public class ActivityMainPane extends VerticalLayout {
 		showHideButton2 = new Button(); // VaadinUtility.button(i18NSource.getMessage("left_panel.hide"), null, null);
 		showHideButton2.setStyleName(BaseTheme.BUTTON_LINK);
 		showHideButton2.setIcon(resourceCache.getImage("/img/guzik_2.png"));
-		final VerticalLayout leftPanel = verticalLayout(showHideButton1,
+        activityQueuesPane = new ActivityQueuesPane(this);
+        final VerticalLayout leftPanel = verticalLayout(showHideButton1,
 		                                                new NewProcessExtendedPane(bpmSession, i18NSource, this),
-		                                                new ActivityQueuesPane(this),
+                                                        activityQueuesPane,
 		                                                new ActivityFiltersPane(this),
 		                                                showHideButton2);
 
@@ -195,15 +198,38 @@ public class ActivityMainPane extends VerticalLayout {
 			}
 		});
 
-        viewController.addView(new ComponentPaneRenderer<HistoryListPane>(new HistoryListPane(this)) {
-            @Override
-            public Component render(Map<String, ?> viewData) {
-                leftPanelTrigger.show();
-                pane.setBpmSession(getBpmSession());
-                pane.setHistorySelection((HistorySelection) viewData.get("historySelection"));
-                return pane.init();
+        //to remove "strange" views, depending on external addons. Such approach also gives us much greater flexibility
+        ViewRegistry registeredService = ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().getRegisteredService(ViewRegistry.class);
+        if (registeredService != null) {
+            for (final ViewRenderer viewRenderer: registeredService.getViews()) {
+                viewRenderer.setUp(application);
+                viewRenderer.setViewCallback(this);
+                viewController.addView(viewRenderer);
+                activityQueuesPane.addButton(viewRenderer.getTitle(),
+                        new Runnable() {
+                            @Override
+                            public void run() {
+//                                leftPanelTrigger.show();
+                                viewRenderer.setBpmSession(getBpmSession());
+                                viewRenderer.handleDisplayAction();
+                                viewController.displayView(viewRenderer.getViewId(), null);
+                            }
+                        });
             }
-        });
+        }
+        /*
+        viewController.addView(new ComponentPaneRenderer<HistoryListPane>(new HistoryListPane(this)) {
+                            @Override
+                            public Component render(Map<String, ?> viewData) {
+                                leftPanelTrigger.show();
+                                pane.setBpmSession(getBpmSession());
+                                pane.setHistorySelection((HistorySelection) viewData.get("historySelection"));
+                                return pane.init();
+                            }
+                        });
+                                  */
+
+
 	}
 
 	public void addUriCallback(UriChangedCallback callback) {
@@ -291,7 +317,7 @@ public class ActivityMainPane extends VerticalLayout {
 			}
 		});
 	}
-
+   /*
     public void displayHistoryPane() {
         confirmTaskClosing(new EventHandler() {
             @Override
@@ -302,6 +328,7 @@ public class ActivityMainPane extends VerticalLayout {
             }
         });
     }
+    */
 
 	public void displayProcessData(BpmTask task) {
 		displayProcessData(task, null);

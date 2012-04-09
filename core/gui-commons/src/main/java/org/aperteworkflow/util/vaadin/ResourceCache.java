@@ -1,4 +1,4 @@
-package pl.net.bluesoft.rnd.util;
+package org.aperteworkflow.util.vaadin;
 
 import com.vaadin.Application;
 import com.vaadin.terminal.ClassResource;

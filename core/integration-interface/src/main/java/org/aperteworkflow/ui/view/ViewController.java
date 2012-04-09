@@ -1,4 +1,4 @@
-package pl.net.bluesoft.rnd.processtool.view;
+package org.aperteworkflow.ui.view;
 
 import java.util.Map;
 

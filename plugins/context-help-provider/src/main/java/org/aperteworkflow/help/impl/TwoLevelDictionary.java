@@ -1,4 +1,4 @@
-package org.aperteworkflow.util.vaadin.help;
+package org.aperteworkflow.help.impl;
 
 import org.apache.commons.collections.CollectionUtils;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionary;

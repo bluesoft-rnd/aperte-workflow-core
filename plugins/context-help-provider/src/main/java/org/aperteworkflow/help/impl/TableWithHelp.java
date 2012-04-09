@@ -1,4 +1,4 @@
-package org.aperteworkflow.util.vaadin.help;
+package org.aperteworkflow.help.impl;
 
 import com.vaadin.data.Container;
 import com.vaadin.ui.Component;

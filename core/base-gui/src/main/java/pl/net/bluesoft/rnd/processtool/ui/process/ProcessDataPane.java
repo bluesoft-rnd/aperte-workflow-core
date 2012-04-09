@@ -3,7 +3,8 @@ package pl.net.bluesoft.rnd.processtool.ui.process;
 import com.vaadin.Application;
 import com.vaadin.ui.*;
 import org.apache.commons.lang3.StringUtils;
-import org.vaadin.jonatan.contexthelp.ContextHelp;
+import org.aperteworkflow.ui.help.HelpProvider;
+import org.aperteworkflow.ui.help.HelpProviderFactory;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
@@ -16,7 +17,6 @@ import pl.net.bluesoft.rnd.processtool.ui.common.FailedProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.*;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import org.aperteworkflow.util.vaadin.VaadinUtility;
-import org.aperteworkflow.util.vaadin.help.HelpFactory;
 import org.aperteworkflow.util.vaadin.ui.AligningHorizontalLayout;
 import pl.net.bluesoft.util.lang.Strings;
 
@@ -47,8 +47,7 @@ public class ProcessDataPane extends VerticalLayout implements WidgetContextSupp
 	private ProcessDataDisplayContext displayProcessContext;
 
 	private BpmTask task;
-	private ContextHelp contextHelp;
-	private HelpFactory helpFactory;
+	private HelpProvider helpFactory;
 
 	private ProcessToolActionCallback actionCallback;
 	private GuiAction guiAction = null;
@@ -74,16 +73,11 @@ public class ProcessDataPane extends VerticalLayout implements WidgetContextSupp
 	}
 
 	private void prepare() {
-		if (helpFactory == null) {
-			contextHelp = new ContextHelp();
-			application.getMainWindow().getContent().addComponent(contextHelp);
-			helpFactory = new HelpFactory(
-                    task.getProcessInstance().getDefinition(),
-                    getApplication(),
-                    i18NSource,
-                    "step_help",
-                    contextHelp);
-		}
+        HelpProviderFactory helpProviderFactory =
+                ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().lookupService(HelpProviderFactory.class.getName());
+        if (helpProviderFactory != null)
+            helpFactory = helpProviderFactory.getInstance(application, task.getProcessDefinition());
+
 		actionCallback = new ProcessToolActionCallback() {
 			private void actionCompleted(GuiAction guiAction, ProcessStateAction action) {
 				ProcessDataPane.this.guiAction = guiAction;
@@ -140,7 +134,8 @@ public class ProcessDataPane extends VerticalLayout implements WidgetContextSupp
 		if (Strings.hasText(stateConfiguration.getCommentary())) {
 			addComponent(new Label(getMessage(stateConfiguration.getCommentary()), Label.CONTENT_XHTML));
 		}
-		addComponent(helpFactory.helpIcon(task.getTaskName(), "step.help"));
+        if (helpFactory != null)
+		    addComponent(helpFactory.helpIcon(task.getTaskName(), "step.help"));
 
 		displayProcessContext.setCaption(task.getExternalProcessId() != null ? task.getExternalProcessId() : task.getInternalProcessId());
 

@@ -1,5 +1,6 @@
-package org.aperteworkflow.util.vaadin.help;
+package org.aperteworkflow.help.impl;
 
+import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Field;
@@ -22,7 +23,7 @@ public class FieldWithHelp<T> extends FieldWrapper {
 		setCaption(wrappedField.getCaption());
 		wrappedField.setCaption(null);
 		wrappedField.addStyleName("fieldhelp wrappedfield");
-		wrappedField.setWidth(100, UNITS_PERCENTAGE);
+		wrappedField.setWidth(100, Sizeable.UNITS_PERCENTAGE);
 
 		HorizontalLayout layout = (HorizontalLayout) getCompositionRoot();
 		layout.setMargin(false);

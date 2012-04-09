@@ -11,6 +11,8 @@
     <name>gui-commons</name>
 
     <dependencies>
+
+        <!-- these add-ons do not require widgetset recompilation -->
         <dependency>
             <groupId>org.vaadin.addons</groupId>
             <artifactId>customfield</artifactId>
@@ -47,11 +49,6 @@
             <!-- provided by Liferay -->
         </dependency>
 
-        <dependency>
-             <groupId>org.vaadin.addons</groupId>
-             <artifactId>stepper</artifactId>
-             <version>1.1.0</version>
-         </dependency>
 
 
         <dependency>

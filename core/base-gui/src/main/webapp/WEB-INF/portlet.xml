@@ -98,7 +98,7 @@
     </portlet>
 
     <portlet>
-		<portlet-name>ProcessTool User Substitutions</portlet-name>
+		<portlet-name>AperteWorkflow User Substitutions</portlet-name>
 		<display-name>Aperte Workflow User Substitutions</display-name>
         <portlet-class>org.aperteworkflow.util.vaadin.ProcessToolVaadinApplicationPortlet2</portlet-class>
 		<init-param>

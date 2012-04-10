@@ -15,7 +15,8 @@
     <end g="177,447,48,48" name="end1"/>
     <end name="end2" g="378,143,48,48"/>
 
-    <java auto-wire="true" cache="false" class="pl.net.bluesoft.rnd.pt.ext.jbpm.JbpmStepAction" g="114,347,172,38" method="invoke" name="HANDLE_ACCEPTANCE" var="result">
+    <java auto-wire="true" cache="false" class="pl.net.bluesoft.rnd.pt.ext.jbpm.JbpmStepAction" g="114,347,172,38"
+          method="invoke" name="HANDLE_ACCEPTANCE" var="result">
         <field name="stepName">
             <string value="HandleSubstitutionAcceptanceStep"/>
         </field>

@@ -405,4 +405,7 @@ com.vaadin.data,
 org.vaadin.dialogs,
 org.vaadin.addon.customfield,
 org.jboss.logging.appender,
-com.sun.mail.smtp
+com.sun.mail.smtp,
+
+org.aperteworkflow.view,
+org.aperteworkflow.ui.help

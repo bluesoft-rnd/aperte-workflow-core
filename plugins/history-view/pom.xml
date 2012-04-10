@@ -26,7 +26,7 @@
         <dependency>
            <groupId>org.vaadin.addons</groupId>
            <artifactId>stepper</artifactId>
-           <version>1.1.0</version>
+           <version>1.2.0</version>
        </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
@@ -56,7 +56,7 @@
                             org.aperteworkflow.view.impl.history
                         </Export-Package>
                         <Import-Package>
-                            *
+                            *;resolution=optional
                         </Import-Package>
                         <Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>
                         <Bundle-SymbolicName>org.aperteworkflow.view.impl.history</Bundle-SymbolicName>

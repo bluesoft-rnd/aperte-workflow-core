@@ -28,6 +28,8 @@
         <module>log-step</module>
         <module>process-deadlines</module>
         <!--<module>report-step</module>-->
+        <module>user-substitution-process</module>
+        <module>user-substitution-step</module>
         <module>userdata-widget</module>
         <module>userdata-service</module>
         <module>scripting</module>

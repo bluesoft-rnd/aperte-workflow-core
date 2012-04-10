@@ -93,8 +93,8 @@ public class HistoryListPane extends AbstractListPane implements DateRangeListen
     private ProcessToolBpmSession bpmSession;
 
     private DirectIndexedContainer logContainer;
-    private IndexedContainer processDetailsContainer = createProcessDetailsContainer();
-    private IndexedContainer taskDetailsContainer = createTaskDetailsContainer();
+    private IndexedContainer processDetailsContainer;
+    private IndexedContainer taskDetailsContainer;
 
     private VerticalLayout detailsView;
     private LocalizedPagedTable table;
@@ -119,6 +119,8 @@ public class HistoryListPane extends AbstractListPane implements DateRangeListen
 
     public void setUp(Application app) {
         super.setUp(app, I18NSource.ThreadUtil.getThreadI18nSource(), "activity.task.history");
+        application = app;
+        messageSource = I18NSource.ThreadUtil.getThreadI18nSource();
         init();
     }
 
@@ -156,6 +158,8 @@ public class HistoryListPane extends AbstractListPane implements DateRangeListen
     @Override
     public HistoryListPane init() {
         super.init();
+        processDetailsContainer = createProcessDetailsContainer();
+        taskDetailsContainer = createTaskDetailsContainer();
 
         setupHistorySuperuserFlag();
 

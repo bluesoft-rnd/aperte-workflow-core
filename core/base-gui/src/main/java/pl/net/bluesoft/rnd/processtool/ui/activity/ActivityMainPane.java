@@ -77,6 +77,7 @@ public class ActivityMainPane extends VerticalLayout implements ViewCallback {
 			}
 		});
 
+        activityQueuesPane = new ActivityQueuesPane(this);
 		initViewController();
 		viewController.displayCurrentView();
 
@@ -93,7 +94,6 @@ public class ActivityMainPane extends VerticalLayout implements ViewCallback {
 		showHideButton2 = new Button(); // VaadinUtility.button(i18NSource.getMessage("left_panel.hide"), null, null);
 		showHideButton2.setStyleName(BaseTheme.BUTTON_LINK);
 		showHideButton2.setIcon(resourceCache.getImage("/img/guzik_2.png"));
-        activityQueuesPane = new ActivityQueuesPane(this);
         final VerticalLayout leftPanel = verticalLayout(showHideButton1,
 		                                                new NewProcessExtendedPane(bpmSession, i18NSource, this),
                                                         activityQueuesPane,

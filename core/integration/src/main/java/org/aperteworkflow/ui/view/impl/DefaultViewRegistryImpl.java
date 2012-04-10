@@ -20,7 +20,6 @@ public class DefaultViewRegistryImpl implements ViewRegistry {
             res.add(f.invoke());
         }
         return res;
-//        return new HashSet<ViewRenderer>(views);
     }
 
     @Override

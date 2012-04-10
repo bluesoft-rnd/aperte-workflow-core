@@ -98,12 +98,6 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
         }, "messages"));
     }
 
-    {
-        //init default view registry
-        ViewRegistry vr = new DefaultViewRegistryImpl();
-        registerService(ViewRegistry.class, vr, new Properties());
-    }
-
 	public synchronized void unregisterWidget(String name) {
 		WIDGET_REGISTRY.remove(name);
 	}

@@ -407,5 +407,11 @@ org.vaadin.addon.customfield,
 org.jboss.logging.appender,
 com.sun.mail.smtp,
 
-org.aperteworkflow.view,
+org.aperteworkflow.ui.view,
+org.aperteworkflow.util.view,
+org.aperteworkflow.util.vaadin.ui,
+org.aperteworkflow.util.vaadin.text,
+org.aperteworkflow.util.vaadin,
+org.aperteworkflow.util.vaadin.ui.table,
+org.aperteworkflow.util.vaadin.ui.date,
 org.aperteworkflow.ui.help

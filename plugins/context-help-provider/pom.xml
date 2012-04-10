@@ -56,14 +56,14 @@
                 <configuration>
                     <instructions>
                         <Export-Package>
-                            org.aperteworkflow.view.impl.history
+                            org.aperteworkflow.help.impl
                         </Export-Package>
                         <Import-Package>
                             *;resolution:=optional,
                             org.aperteworkflow.ui.help
                         </Import-Package>
                         <Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>
-                        <Bundle-SymbolicName>org.aperteworkflow.view.impl.history</Bundle-SymbolicName>
+                        <Bundle-SymbolicName>org.aperteworkflow.help.impl</Bundle-SymbolicName>
                         <Bundle-Version>${version}</Bundle-Version>
                         <Embed-Directory>lib</Embed-Directory>
                         <Embed-Transitive>true</Embed-Transitive>

@@ -201,10 +201,10 @@ public class ProcessDataPane extends VerticalLayout implements WidgetContextSupp
 		Collections.sort(actionList, new Comparator<ProcessStateAction>() {
 			@Override
 			public int compare(ProcessStateAction o1, ProcessStateAction o2) {
-				if (o1.getPriority().equals(o2.getPriority())) {
+				if (nvl(o1.getPriority(),0).equals(nvl(o2.getPriority(),0))) {
 					return new Long(o1.getId()).compareTo(o2.getId());
 				}
-				return o1.getPriority().compareTo(o2.getPriority());
+				return nvl(o1.getPriority(),0).compareTo(nvl(o2.getPriority(),0));
 			}
 		});
 

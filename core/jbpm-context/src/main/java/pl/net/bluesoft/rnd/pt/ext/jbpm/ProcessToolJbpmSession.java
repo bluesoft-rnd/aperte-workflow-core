@@ -952,75 +952,74 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
    	}
 
    	@Override
-   	public BpmTask performAction(ProcessStateAction action, BpmTask task, ProcessToolContext ctx) {
-   		BpmTask bpmTask = getTaskData(task.getInternalTaskId(), ctx);
-   		if (bpmTask == null || bpmTask.isFinished()) {
-   			return bpmTask;
-   		}
-   		ProcessInstance pi = bpmTask.getProcessInstance();
-        ProcessInstanceLog log = addActionLogEntry(action, task, ctx);
-        Map<String, Object> vars = new HashMap<String, Object>();
-        vars.put("ACTION", action.getBpmName());
-        List<String> outgoingTransitionNames = getOutgoingTransitionNames(pi.getInternalId(), ctx);
-        ProcessEngine processEngine = getProcessEngine(ctx);
+       public BpmTask performAction(ProcessStateAction action, BpmTask task, ProcessToolContext ctx) {
+           BpmTask bpmTask = getTaskData(task.getInternalTaskId(), ctx);
+           if (bpmTask == null || bpmTask.isFinished()) {
+               return bpmTask;
+           }
+           ProcessInstance pi = bpmTask.getProcessInstance();
+           ProcessInstanceLog log = addActionLogEntry(action, task, ctx);
+           Map<String, Object> vars = new HashMap<String, Object>();
+           vars.put("ACTION", action.getBpmName());
+           List<String> outgoingTransitionNames = getOutgoingTransitionNames(pi.getInternalId(), ctx);
+           ProcessEngine processEngine = getProcessEngine(ctx);
 
-        if (outgoingTransitionNames.size() == 1)
-            processEngine.getTaskService().completeTask(task.getInternalTaskId(), outgoingTransitionNames.get(0), vars); //BPMN2.0 style, decision is taken on the XOR gateway
-        else
-            processEngine.getTaskService().completeTask(task.getInternalTaskId(), action.getBpmName(), vars);
 
-        String s = getProcessState(pi, ctx);
-        fillProcessAssignmentData(processEngine, pi, ctx);
-        pi.setState(s);
-        if (s == null && pi.getRunning() && !isProcessRunning(pi.getInternalId(), ctx)) {
-            pi.setRunning(false);
-        }
-   		ctx.getProcessInstanceDAO().saveProcessInstance(pi);
 
-   		Set<String> taskIdsBeforeCompletion = new HashSet<String>();
-   		pl.net.bluesoft.util.lang.Collections.collect(findProcessTasks(pi, ctx), new Transformer<BpmTask, String>() {
+           Set<String> taskIdsBeforeCompletion = new HashSet<String>();
+           pl.net.bluesoft.util.lang.Collections.collect(findProcessTasks(pi, ctx), new Transformer<BpmTask, String>() {
                @Override
                public String transform(BpmTask obj) {
                    return obj.getInternalTaskId();
                }
-           }, taskIdsBeforeCompletion) ;
+           }, taskIdsBeforeCompletion);
 
-           processEngine.getTaskService().completeTask(bpmTask.getInternalTaskId(), action.getBpmName());
-   		if(log.getUserSubstitute() == null)
-   			broadcastEvent(ctx, new BpmEvent(BpmEvent.Type.SIGNAL_PROCESS, bpmTask, user));
-   		else
-   			broadcastEvent(ctx, new BpmEvent(BpmEvent.Type.SIGNAL_PROCESS, bpmTask, log.getUserSubstitute()));
+           if (outgoingTransitionNames.size() == 1)
+              processEngine.getTaskService().completeTask(task.getInternalTaskId(), outgoingTransitionNames.get(0), vars); //BPMN2.0 style, decision is taken on the XOR gateway
+          else
+              processEngine.getTaskService().completeTask(task.getInternalTaskId(), action.getBpmName(), vars);
+
+          String s = getProcessState(pi, ctx);
+          fillProcessAssignmentData(processEngine, pi, ctx);
+          pi.setState(s);
+          if (s == null && pi.getRunning() && !isProcessRunning(pi.getInternalId(), ctx)) {
+              pi.setRunning(false);
+          }
+          ctx.getProcessInstanceDAO().saveProcessInstance(pi);
+           if (log.getUserSubstitute() == null)
+               broadcastEvent(ctx, new BpmEvent(BpmEvent.Type.SIGNAL_PROCESS, bpmTask, user));
+           else
+               broadcastEvent(ctx, new BpmEvent(BpmEvent.Type.SIGNAL_PROCESS, bpmTask, log.getUserSubstitute()));
 
            if (Strings.hasText(action.getAssignProcessStatus())) {
                String processStatus = action.getAssignProcessStatus();
                ProcessStatus ps = processStatus.length() == 1 ? ProcessStatus.fromChar(processStatus.charAt(0)) : ProcessStatus.fromString(processStatus);
                pi.setStatus(ps);
-           }
-           else {
+           } else {
                pi.setStatus(isProcessRunning(pi.getInternalId(), ctx) ? ProcessStatus.RUNNING : ProcessStatus.FINISHED);
            }
 
-   		BpmTask userTask = null;
-   		List<BpmTask> tasksAfterCompletion = findProcessTasks(pi, ctx);
-   		for (BpmTask createdTask : tasksAfterCompletion) {
-   			if (!taskIdsBeforeCompletion.contains(createdTask.getInternalTaskId())) {
-   				broadcastEvent(ctx, new BpmEvent(BpmEvent.Type.ASSIGN_TASK, createdTask, user));
-   			}
-   			if (Lang.equals(user.getId(), createdTask.getOwner().getId())) {
-   				userTask = createdTask;
-   			}
-   		}
+           BpmTask userTask = null;
+           List<BpmTask> tasksAfterCompletion = findProcessTasks(pi, ctx);
+           for (BpmTask createdTask : tasksAfterCompletion) {
+               if (!taskIdsBeforeCompletion.contains(createdTask.getInternalTaskId())) {
+                   broadcastEvent(ctx, new BpmEvent(BpmEvent.Type.ASSIGN_TASK, createdTask, user));
+               }
+               if (Lang.equals(user.getId(), createdTask.getOwner().getId())) {
+                   userTask = createdTask;
+               }
+           }
 
-   		if (userTask == null) {
-   			MutableBpmTask t = new MutableBpmTask(task);
-   			t.setFinished(true);
-   			t.setProcessInstance(pi);
-   			userTask = t;
-   		}
-   		return userTask;
-   	}
+           if (userTask == null) {
+               MutableBpmTask t = new MutableBpmTask(task);
+               t.setFinished(true);
+               t.setProcessInstance(pi);
+               userTask = t;
+           }
+           return userTask;
+       }
 
-   	@Override
+    @Override
    	public boolean isProcessRunning(String internalId, ProcessToolContext ctx) {
    		if (internalId == null) {
    			return false;

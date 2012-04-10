@@ -30,7 +30,7 @@ public abstract class BaseProcessToolActionButton implements ProcessToolActionBu
 	@AutoWiredProperty
 	protected boolean autoHide = false;
 
-	@AutoWiredProperty
+//	@AutoWiredProperty
 	protected String bpmAction;
 
 	@AutoWiredProperty
@@ -38,6 +38,9 @@ public abstract class BaseProcessToolActionButton implements ProcessToolActionBu
 
 	@AutoWiredProperty
 	protected String styleName = "default";
+
+    @AutoWiredProperty
+    protected Integer priority = 0;
 
     protected Application application;
 	protected I18NSource messageSource;
@@ -122,4 +125,116 @@ public abstract class BaseProcessToolActionButton implements ProcessToolActionBu
 	public I18NSource getApplicationI18NSource() {
 		return (I18NSource)application;
 	}
+
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public boolean isSkipSaving() {
+        return skipSaving;
+    }
+
+    public void setSkipSaving(boolean skipSaving) {
+        this.skipSaving = skipSaving;
+    }
+
+    public boolean isAutoHide() {
+        return autoHide;
+    }
+
+    public void setAutoHide(boolean autoHide) {
+        this.autoHide = autoHide;
+    }
+
+    public String getBpmAction() {
+        return bpmAction;
+    }
+
+    public void setBpmAction(String bpmAction) {
+        this.bpmAction = bpmAction;
+    }
+
+    public String getMarkProcessImportant() {
+        return markProcessImportant;
+    }
+
+    public void setMarkProcessImportant(String markProcessImportant) {
+        this.markProcessImportant = markProcessImportant;
+    }
+
+    public String getStyleName() {
+        return styleName;
+    }
+
+    public void setStyleName(String styleName) {
+        this.styleName = styleName;
+    }
+
+    public Integer getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Integer priority) {
+        this.priority = priority;
+    }
+
+    public Application getApplication() {
+        return application;
+    }
+
+    public void setApplication(Application application) {
+        this.application = application;
+    }
+
+    public ProcessToolBpmSession getBpmSession() {
+        return bpmSession;
+    }
+
+    public void setBpmSession(ProcessToolBpmSession bpmSession) {
+        this.bpmSession = bpmSession;
+    }
+
+    public ProcessStateAction getDefinition() {
+        return definition;
+    }
+
+    public void setDefinition(ProcessStateAction definition) {
+        this.definition = definition;
+    }
+
+    public UserData getLoggedUser() {
+        return loggedUser;
+    }
+
+    public void setLoggedUser(UserData loggedUser) {
+        this.loggedUser = loggedUser;
+    }
+
+    public UserData getSubstitutingUser() {
+        return substitutingUser;
+    }
+
+    public void setSubstitutingUser(UserData substitutingUser) {
+        this.substitutingUser = substitutingUser;
+    }
+
+    public ProcessToolActionCallback getCallback() {
+        return callback;
+    }
+
+    public void setCallback(ProcessToolActionCallback callback) {
+        this.callback = callback;
+    }
 }

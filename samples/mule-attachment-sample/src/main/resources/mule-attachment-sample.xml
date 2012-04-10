@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--tested on mule 3.3-M1, schema problems on mule 3.2!-->
+
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:cmis="http://www.mulesoft.org/schema/mule/cmis"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:smtp="http://www.mulesoft.org/schema/mule/smtp"
+      xmlns:email="http://www.mulesoft.org/schema/mule/email"
+      xmlns:vm="http://www.mulesoft.org/schema/mule/vm"
+      xmlns:script="http://www.mulesoft.org/schema/mule/scripting"
+      xsi:schemaLocation="
+	http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/3.1/mule-email.xsd
+       http://www.mulesoft.org/schema/mule/smtp http://www.mulesoft.org/schema/mule/smtp/3.1/mule-smtp.xsd
+       http://www.mulesoft.org/schema/mule/cmis    http://www.mulesoft.org/schema/mule/cmis/1.1/mule-cmis.xsd
+       http://www.mulesoft.org/schema/mule/core    http://www.mulesoft.org/schema/mule/core/3.1/mule.xsd
+       http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/3.0/mule-http.xsd
+       http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
+       http://www.mulesoft.org/schema/mule/scripting 
+       http://www.mulesoft.org/schema/mule/scripting/3.2/mule-scripting.xsd
+       ">
+
+    <!--example configuration, uncomment and provide proper values in order to make it work!-->
+
+    <!--<global-property name="cmis.repository.base" value="http://localhost:8080/nuxeo/atom/cmis"></global-property>-->
+    <!--<global-property name="cmis.repository.id" value="default"></global-property>-->
+    <!--<global-property name="cmis.demo.baseDirectory" value="/bc/pt_"></global-property>-->
+    <!--<global-property name="cmis.username" value="Administrator"></global-property>-->
+    <!--<global-property name="cmis.password" value="Administrator"></global-property>-->
+    <!--<global-property name="cmis.fileName" value="card.pdf"></global-property>-->
+    <!--<global-property name="mail.address" value="username@gmail.com"></global-property>-->
+    <!--<global-property name="mail.username" value="username"></global-property>-->
+    <!--<global-property name="mail.password" value="password"></global-property>-->
+
+
+    <cmis:config name="cmisConfig" username="${cmis.username}" password="${cmis.password}"
+                 repositoryId="${cmis.repository.id}" baseUrl="${cmis.repository.base}"/>
+
+    <script:transformer name="orderAttachementTransformer">
+        <script:script engine="groovy">
+            <script:text>
+                import java.io.InputStream;
+                import javax.activation.DataHandler;
+                import javax.mail.util.ByteArrayDataSource;
+                import org.mule.api.MuleMessage;
+                import org.mule.api.transformer.TransformerException;
+                import org.mule.api.transport.PropertyScope;
+                InputStream s = (InputStream) message.getProperty("stream", PropertyScope.OUTBOUND);
+                try {
+                ByteArrayDataSource document = new ByteArrayDataSource(s, "application/pdf");
+                document.setName("card.pdf");
+                DataHandler attachement = new DataHandler(document);
+                message.addOutboundAttachment("UTF-8", attachement);
+                } catch (Exception e) {
+                System.out.println("Failed")
+                e.printStackTrace();
+                }
+                System.out.println("Document Attached")
+                return payload;
+            </script:text>
+        </script:script>
+    </script:transformer>
+
+    <smtp:gmail-connector name="gmailOrderConnector"
+                          contentType="text/html; charset=UTF-8" fromAddress="${mail.address}"
+                          replyToAddresses="${mail.address}" subject="Business Card Order">
+    </smtp:gmail-connector>
+
+    <smtp:gmail-connector name="gmailConfirmationConnector"
+                          contentType="text/html; charset=UTF-8" fromAddress="${mail.address}"
+                          replyToAddresses="${mail.address}" subject="Business Card Order - Confirmation">
+    </smtp:gmail-connector>
+
+    <smtp:gmail-connector name="gmailRejectConnector"
+                          contentType="text/html; charset=UTF-8" fromAddress="${mail.address}"
+                          replyToAddresses="${mail.address}" subject="Business Card Order - Rejected">
+    </smtp:gmail-connector>
+
+    <flow name="sendOrder">
+
+        <vm:inbound-endpoint exchange-pattern="request-response" path="sendToPrint"/>
+
+
+        <script:component>
+            <script:script engine="groovy">
+                <script:text>
+                    System.out.println("Path: ${cmis.demo.baseDirectory}" + payload.getInternalId() +
+                    "/${cmis.filename}] ")
+                    return payload
+                </script:text>
+            </script:script>
+        </script:component>
+
+        <enricher target="#[header:filePath]">
+            <expression-transformer>
+                <return-argument evaluator="groovy"
+                                 expression="'${cmis.demo.baseDirectory}' + payload.getInternalId() + '/${cmis.filename}'"/>
+            </expression-transformer>
+        </enricher>
+
+
+        <enricher target="#[header:recipientAddress]">
+            <expression-transformer>
+                <return-argument evaluator="groovy"
+                                 expression="payload.getSimpleAttributeValue('sendToAddress')"/>
+            </expression-transformer>
+        </enricher>
+
+        <enricher target="#[header:confirmationAddress]">
+            <expression-transformer>
+                <return-argument evaluator="groovy"
+                                 expression="payload.getSimpleAttributeValue('email')"/>
+            </expression-transformer>
+        </enricher>
+
+        <enricher target="#[header:mailBody]">
+            <expression-transformer>
+                <return-argument evaluator="groovy"
+                                 expression="payload.getSimpleAttributeValue('mailBody')"/>
+            </expression-transformer>
+        </enricher>
+
+        <cmis:get-object-by-path config-ref="cmisConfig"
+                                 path="#[header:outbound:filePath]"/>
+
+        <cmis:get-content-stream config-ref="cmisConfig" objectId="#[ognl:id]"/>
+
+        <message-properties-transformer>
+            <add-message-property key="stream" value="#[ognl:stream]"/>
+        </message-properties-transformer>
+
+        <script:component>
+            <script:script engine="groovy">
+                <script:text>
+                    import org.mule.api.MuleMessage;
+                    import org.mule.api.transformer.TransformerException;
+                    import org.mule.api.transport.PropertyScope;
+                    System.out.println("Sending order... ")
+                    return message.getProperty("mailBody", PropertyScope.OUTBOUND);
+                </script:text>
+            </script:script>
+        </script:component>
+
+        <smtp:outbound-endpoint connector-ref="gmailOrderConnector"   encoding="UTF-8"
+                                host="smtp.gmail.com" port="587" user="${mail.username}" password="${mail.password}"
+                                to="#[header:recipientAddress]">
+            <transformer ref="orderAttachementTransformer"/>
+            <email:object-to-mime-transformer
+                    mimeType="application/pdf" useOutboundAttachments="true"/>
+            <email:string-to-email-transformer/>
+        </smtp:outbound-endpoint>
+
+        <script:component>
+            <script:script engine="groovy">
+                <script:text>
+                    System.out.println("Sending confirmation... ")
+                    return "Your business card order has been accepted and is being sent to the printing house."
+                </script:text>
+            </script:script>
+        </script:component>
+
+        <smtp:outbound-endpoint connector-ref="gmailConfirmationConnector"  encoding="UTF-8"
+                                host="smtp.gmail.com" port="587" user="${mail.username}" password="${mail.password}"
+                                to="#[header:confirmationAddress]">
+            <email:string-to-email-transformer/>
+        </smtp:outbound-endpoint>
+    </flow>
+
+    <flow name="rejectNotify">
+
+        <vm:inbound-endpoint exchange-pattern="request-response" path="rejectNotify"/>
+
+        <enricher target="#[header:confirmationAddress]">
+            <expression-transformer>
+                <return-argument evaluator="groovy"
+                                 expression="payload.getSimpleAttributeValue('email')"/>
+            </expression-transformer>
+        </enricher>
+
+        <script:component >
+            <script:script engine="groovy" >
+                <script:text>
+                    System.out.println("Sending notification... ")
+                    Set comments = payload.findAttributeByKey("pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComments").getComments()
+                    def comment = comments.asList().get(0)
+                    String format = "&lt;p&gt;Your business card order was rejected by %s.&lt;/p&gt;"
+                    format += "&lt;p&gt;Reason:\n\n %s &lt;/p&gt;"
+                    def msg = String.format(format, comment.getAuthor().getRealName(), comment.getBody())
+                    System.out.println(msg)
+                    return msg
+                </script:text>
+            </script:script>
+        </script:component>
+
+        <smtp:outbound-endpoint connector-ref="gmailRejectConnector"   encoding="UTF-8"
+                                host="smtp.gmail.com" port="587" user="${mail.username}" password="${mail.password}"
+                                to="#[header:confirmationAddress]">
+            <email:string-to-email-transformer/>
+        </smtp:outbound-endpoint>
+
+    </flow>
+</mule>

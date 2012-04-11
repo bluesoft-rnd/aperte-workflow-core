@@ -33,7 +33,7 @@ public interface HelpProvider {
     Field getFieldWithHelp(final Field wrappedField, Component helpButton);
     void makeTableHelpEnabled(Table t);
     void addHelpForColumn(Table t, Object propertyId, String key);
-    boolean isFieldWithHelp(Field f);
+    Field stripFieldFromHelp(Field f);
 
     void makeTableHelpEnabled(Table t, Component helpPosition);
 }

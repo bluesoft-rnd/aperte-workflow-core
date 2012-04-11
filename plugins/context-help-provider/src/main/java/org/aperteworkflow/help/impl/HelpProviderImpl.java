@@ -1,11 +1,9 @@
 package org.aperteworkflow.help.impl;
 
 import com.vaadin.Application;
-import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 import com.vaadin.ui.Field;
 import org.aperteworkflow.ui.help.HelpProvider;
-import org.vaadin.addon.customfield.FieldWrapper;
 import org.vaadin.jonatan.contexthelp.ContextHelp;
 import org.vaadin.jonatan.contexthelp.Placement;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
@@ -13,7 +11,6 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -120,6 +117,14 @@ public class HelpProviderImpl implements HelpProvider {
     }
 
     @Override
+    public Field stripFieldFromHelp(Field f) {
+        if (isFieldWithHelp(f)) {
+            return ((FieldWithHelp)f).getField();
+        } else {
+            return f;
+        }
+    }
+
     public boolean isFieldWithHelp(Field f) {
         return f instanceof FieldWithHelp;
     }

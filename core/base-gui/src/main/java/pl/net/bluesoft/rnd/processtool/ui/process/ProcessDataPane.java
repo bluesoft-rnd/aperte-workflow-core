@@ -76,7 +76,7 @@ public class ProcessDataPane extends VerticalLayout implements WidgetContextSupp
         HelpProviderFactory helpProviderFactory =
                 ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().lookupService(HelpProviderFactory.class.getName());
         if (helpProviderFactory != null)
-            helpFactory = helpProviderFactory.getInstance(application, task.getProcessDefinition());
+            helpFactory = helpProviderFactory.getInstance(application, task.getProcessDefinition(), true, "step_help");
 
 		actionCallback = new ProcessToolActionCallback() {
 			private void actionCompleted(GuiAction guiAction, ProcessStateAction action) {

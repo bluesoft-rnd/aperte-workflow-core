@@ -9,6 +9,7 @@ import com.vaadin.ui.VerticalLayout;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
@@ -25,7 +26,7 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
  */
 public abstract class UserDataWidget
 		extends BaseProcessToolVaadinWidget
-		implements ProcessToolDataWidget, Property.ValueChangeListener {
+		implements ProcessToolDataWidget, ProcessToolVaadinWidget, Property.ValueChangeListener {
 
 	UserData selectedUser = null;
 	private ComboBox combo;

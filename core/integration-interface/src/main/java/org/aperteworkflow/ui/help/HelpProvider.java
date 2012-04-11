@@ -2,6 +2,7 @@ package org.aperteworkflow.ui.help;
 
 import com.vaadin.Application;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.Field;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 
 /**
@@ -9,6 +10,22 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
  */
 public interface HelpProvider {
 
-    void prepare(Application application, ProcessDefinitionConfig cfg);
+    static final String PLACEMENT_RIGHT = "RIGHT";
+    static final String PLACEMENT_LEFT = "LEFT";
+    static final String PLACEMENT_ABOVE = "ABOVE";
+    static final String PLACEMENT_BELOW = "BELOW";
+    static final String PLACEMENT_DEFAULT = "DEFAULT";
+
     Component helpIcon(String taskName, String s);
+
+    Component getHelpIcon(String key);
+
+    Component getHelpIcon(String key, String message);
+
+    Field wrapFieldWithHelp(Field field, String key);
+
+    void prepare(Application application, ProcessDefinitionConfig cfg, boolean canEdit, String helpDictionaryName);
+
+    Component wrapComponentWithHelp(Component component, String key);
+    Component wrapComponentWithHelp(Component component, String key, String iconPlacement, String popupPlacement);
 }

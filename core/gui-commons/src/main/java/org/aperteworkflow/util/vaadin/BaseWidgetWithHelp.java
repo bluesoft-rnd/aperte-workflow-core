@@ -1,7 +1,7 @@
 package org.aperteworkflow.util.vaadin;
 
 import com.vaadin.Application;
-import com.vaadin.ui.TextField;
+import com.vaadin.ui.*;
 import org.aperteworkflow.ui.help.HelpProvider;
 import org.aperteworkflow.ui.help.HelpProviderFactory;
 
@@ -10,10 +10,6 @@ import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.service.UserFinder;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
-
-import com.vaadin.ui.Component;
-import com.vaadin.ui.Field;
-import com.vaadin.ui.Label;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -65,6 +61,31 @@ public abstract class BaseWidgetWithHelp extends BaseProcessToolWidget implement
                     @Override
                     public Component wrapComponentWithHelp(Component component, String key, String iconPlacement, String popupPlacement) {
                         return new Label("no help loaded");
+                    }
+
+                    @Override
+                    public Field getFieldWithHelp(Field wrappedField, Component helpButton) {
+                        return new TextField("no help provided");
+                    }
+
+                    @Override
+                    public void makeTableHelpEnabled(com.vaadin.ui.Table t) {
+                        //To change body of implemented methods use File | Settings | File Templates.
+                    }
+
+                    @Override
+                    public void addHelpForColumn(com.vaadin.ui.Table t, Object propertyId, String key) {
+                        //To change body of implemented methods use File | Settings | File Templates.
+                    }
+
+                    @Override
+                    public boolean isFieldWithHelp(Field f) {
+                        return false;
+                    }
+
+                    @Override
+                    public void makeTableHelpEnabled(Table t, Component helpPosition) {
+                        //nothing
                     }
                 };
             }

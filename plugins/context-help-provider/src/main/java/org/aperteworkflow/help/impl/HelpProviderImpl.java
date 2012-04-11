@@ -3,6 +3,8 @@ package org.aperteworkflow.help.impl;
 import com.vaadin.Application;
 import com.vaadin.ui.*;
 import com.vaadin.ui.Field;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Layout;
 import org.aperteworkflow.ui.help.HelpProvider;
 import org.vaadin.jonatan.contexthelp.ContextHelp;
 import org.vaadin.jonatan.contexthelp.Placement;
@@ -75,8 +77,15 @@ public class HelpProviderImpl implements HelpProvider {
                    Placement.valueOf(popupPlacement));
    	}
 
-    private class FieldWrapperImpl {
+    @Override
+    public void attachToLayout(Layout layout) {
+        layout.addComponent(helpFactory.getContextHelp());
 
+    }
+
+    @Override
+    public void showHelpFor(Component component) {
+        helpFactory.getContextHelp().showHelpFor(component);
     }
 
     @Override
@@ -127,5 +136,6 @@ public class HelpProviderImpl implements HelpProvider {
 
     public boolean isFieldWithHelp(Field f) {
         return f instanceof FieldWithHelp;
+
     }
 }

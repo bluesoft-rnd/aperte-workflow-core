@@ -297,4 +297,9 @@ public class ProcessInstance extends PersistentEntity {
     public void setActiveTasks(BpmTask[] activeTasks) {
         this.activeTasks = activeTasks;
     }
+
+    public <T extends ProcessInstanceAttribute> Set<T>  findAttributesByClassAndKey(Class<T> clazz, String key){
+//      TODO
+        return null;
+    }
 }

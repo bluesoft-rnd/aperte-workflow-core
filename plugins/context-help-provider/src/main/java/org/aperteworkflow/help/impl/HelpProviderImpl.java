@@ -86,8 +86,10 @@ public class HelpProviderImpl implements HelpProvider {
 
     }
 
-    private class FieldWrapperImpl {
-
+    @Override
+    public void showHelpFor(Component component) {
+        helpFactory.getContextHelp().showHelpFor(component);
+    }
 
     @Override
     public Field getFieldWithHelp(final Field wrappedField, Component helpButton) {

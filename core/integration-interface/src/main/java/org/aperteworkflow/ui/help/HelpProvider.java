@@ -39,4 +39,5 @@ public interface HelpProvider {
     boolean isFieldWithHelp(Field f);
 
     void makeTableHelpEnabled(Table t, Component helpPosition);
+    void showHelpFor(Component component);
 }

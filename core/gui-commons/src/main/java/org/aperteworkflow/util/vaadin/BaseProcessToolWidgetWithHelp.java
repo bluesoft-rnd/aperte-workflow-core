@@ -92,9 +92,22 @@ public abstract class BaseProcessToolWidgetWithHelp extends BaseProcessToolWidge
                     public void makeTableHelpEnabled(Table t, Component helpPosition) {
                         //nothing
                     }
+
+                    @Override
+                    public void showHelpFor(Component component) {
+                        //nothing
+                    }
                 };
             }
         }
+    }
+
+    public HelpProvider getHelpProvider() {
+        return helpProvider;
+    }
+
+    public void setHelpProvider(HelpProvider helpProvider) {
+        this.helpProvider = helpProvider;
     }
 
     public Component getHelpIcon(String key) {

@@ -4,6 +4,7 @@ import com.vaadin.Application;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Field;
 import com.vaadin.ui.Layout;
+import com.vaadin.ui.Table;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 
 /**
@@ -30,5 +31,12 @@ public interface HelpProvider {
     Component wrapComponentWithHelp(Component component, String key);
     Component wrapComponentWithHelp(Component component, String key, String iconPlacement, String popupPlacement);
 
+
     void attachToLayout(Layout layout);
+    Field getFieldWithHelp(final Field wrappedField, Component helpButton);
+    void makeTableHelpEnabled(Table t);
+    void addHelpForColumn(Table t, Object propertyId, String key);
+    boolean isFieldWithHelp(Field f);
+
+    void makeTableHelpEnabled(Table t, Component helpPosition);
 }

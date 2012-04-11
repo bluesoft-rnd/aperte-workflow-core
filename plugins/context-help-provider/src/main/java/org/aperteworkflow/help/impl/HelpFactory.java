@@ -12,6 +12,7 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.dict.ProcessDictionaryRegistry;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionary;
+import pl.net.bluesoft.rnd.processtool.model.dict.TwoLevelDictionary;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import java.io.BufferedWriter;

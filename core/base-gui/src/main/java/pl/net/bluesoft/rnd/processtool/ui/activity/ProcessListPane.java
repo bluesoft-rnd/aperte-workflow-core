@@ -12,7 +12,7 @@ import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.ui.tasks.TaskTableItem;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.taskitem.DefaultTaskItemProvider;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.taskitem.TaskItemProviderBase;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.taskitem.TaskItemProvider;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.taskitem.TaskItemProviderParams;
 import org.aperteworkflow.util.vaadin.VaadinUtility;
@@ -200,25 +200,25 @@ public abstract class ProcessListPane extends AbstractListPane {
 		return userData != null ? userData.getLogin() : null;
 	}
 
-    private static void registerDefaultTaskItem(ProcessToolContext ctx) {
-        if (!defaultTaskItemRegistered) {
-            ctx.getRegistry().registerTaskItemProvider(DefaultTaskItemProvider.class);
-            defaultTaskItemRegistered = true;
-        }
-    }
+//    private static void registerDefaultTaskItem(ProcessToolContext ctx) {
+//        if (!defaultTaskItemRegistered) {
+//            ctx.getRegistry().registerTaskItemProvider(TaskItemProviderBase.class);
+//            defaultTaskItemRegistered = true;
+//        }
+//    }
 
-    protected TaskItemProvider getTaskItemProvider(final ProcessToolContext ctx, ProcessInstance pi) {
-        registerDefaultTaskItem(ctx);
+    protected TaskItemProviderBase getTaskItemProvider(final ProcessToolContext ctx, ProcessInstance pi) {
+//        registerDefaultTaskItem(ctx);
         String itemClass = pi.getDefinition().getTaskItemClass();
         if (hasText(itemClass)) {
             try {
-                return ctx.getRegistry().makeTaskItemProvider(itemClass.trim());
+                new TaskItemProviderBase(ctx.getRegistry().makeTaskItemProvider(itemClass.trim()));
             }
             catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
-        return new DefaultTaskItemProvider();
+        return new TaskItemProviderBase(null);
     }
 
     private TaskItemProviderParams createTaskItemProviderParams() {

@@ -17,7 +17,8 @@ import org.vaadin.addon.customfield.FieldWrapper;
 public class FieldWithHelp<T> extends FieldWrapper {
 	public FieldWithHelp(final Field wrappedField, Component helpButton) {
 
-		super(wrappedField, null, wrappedField.getType(), new HorizontalLayoutWrapper(wrappedField.getWidth(), wrappedField.getWidthUnits()));
+		super(wrappedField, null, wrappedField.getType(),
+                new HorizontalLayoutWrapper(wrappedField.getWidth(), wrappedField.getWidthUnits()));
 		addStyleName("help-wrapper");
 
 		setCaption(wrappedField.getCaption());
@@ -37,10 +38,6 @@ public class FieldWithHelp<T> extends FieldWrapper {
 		layout.setExpandRatio(helpButton, 0);
 		layout.setExpandRatio(wrappedField, 1);
 
-		//		if(wrappedField instanceof TextField){
-		//			wrappedField.addStyleName("borderless");
-		//			layout.addStyleName("with-border");
-		//		}
 	}
 
     public Field getField() {

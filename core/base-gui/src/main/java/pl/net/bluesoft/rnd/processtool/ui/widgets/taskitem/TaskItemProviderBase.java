@@ -26,7 +26,6 @@ import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import org.aperteworkflow.util.vaadin.VaadinUtility;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -36,10 +35,19 @@ import java.util.Date;
  * Date: 2011-12-14
  * Time: 09:46:29
  */
-@AliasName(name = "Default")
-public class DefaultTaskItemProvider implements TaskItemProvider {
-	@Override
-	public Component getTaskPane(final TaskItemProviderParams params) {
+//@AliasName(name = "Default")
+public class TaskItemProviderBase {
+    private TaskItemProvider impl;
+
+    public TaskItemProviderBase(TaskItemProvider enhancement) {
+        this.impl = enhancement;
+    }
+
+    public Component getTaskPane(final TaskItemProviderParams params) {
+        Component res = impl != null ? impl.getTaskPane(params) : null;
+        if (res != null) {
+            return res;
+        }
 		// ikona
 
 		Component taskIcon = createTaskIcon(params);
@@ -130,10 +138,6 @@ public class DefaultTaskItemProvider implements TaskItemProvider {
 		return params.getMessage(params.getProcessInstance().getDefinition().getDescription());
 	}
 
-	protected Component createTaskPaneProcessId(TaskItemProviderParams params) {
-		ProcessInstance pi = params.getProcessInstance();
-		return createOpenProcessInstanceButton(getProcessId(pi), getTaskPaneStyleName(params), params, false);
-	}
 
 	protected Component createTaskPaneProcessDesc(TaskItemProviderParams params) {
 		String processDesc = getProcessDescription(params);
@@ -172,8 +176,22 @@ public class DefaultTaskItemProvider implements TaskItemProvider {
 		b.setHeight("26px");
 		return b;
 	}
+    public Component createTaskPaneProcessId(TaskItemProviderParams params) {
+        Component res = impl != null ? impl.createTaskPaneProcessId(params) : null;
+        if (res != null) {
+            return res;
+        }
 
-	protected Component getTaskItemProcessInfo(TaskItemProviderParams params) {
+   		ProcessInstance pi = params.getProcessInstance();
+   		return createOpenProcessInstanceButton(getProcessId(pi), getTaskPaneStyleName(params), params, false);
+   	}
+
+	public Component getTaskItemProcessInfo(TaskItemProviderParams params) {
+        Component res = impl != null ? impl.getTaskItemProcessInfo(params) : null;
+        if (res != null) {
+            return res;
+        }
+
 		ProcessInfoBuilder builder = new ProcessInfoBuilder(params);
 		builder.addComponent(createCreatorLabel(builder.getParams()), MIDDLE_CENTER);
 		builder.addComponent(createCreateDateLabel(builder.getParams()), MIDDLE_CENTER);
@@ -181,6 +199,14 @@ public class DefaultTaskItemProvider implements TaskItemProvider {
 		builder.addComponent(createDeadlineDateLabel(builder.getParams()), MIDDLE_LEFT);
 		return builder.buildLayout();
 	}
+    public Component createQueuePaneProcessInfo(TaskItemProviderParams params) {
+        Component res = impl != null ? impl.createQueuePaneProcessInfo(params) : null;
+        return res;
+//       if (res != null) {
+//           return res;
+//       }
+//        return null;
+    }
 
 	protected Component createCreatorLabel(TaskItemProviderParams params) {
 		String creatorName = params.getProcessInstance().getCreator().getRealName();
@@ -215,8 +241,13 @@ public class DefaultTaskItemProvider implements TaskItemProvider {
 
 	///////////////////////////////////////////////////////////////////////////////
 
-	@Override
+//	@Override
 	public Component getQueuePane(TaskItemProviderParams params) {
+        Component res = impl.getQueuePane(params);
+        if (res != null) {
+            return res;
+        }
+
 		final ProcessInstance pi = params.getProcessInstance();
 		Panel p = new Panel(getQueuePaneHeader(params));
 		VerticalLayout vl = new VerticalLayout();
@@ -268,9 +299,6 @@ public class DefaultTaskItemProvider implements TaskItemProvider {
 		                 Label.CONTENT_XHTML);
 	}
 
-	protected Component createQueuePaneProcessInfo(TaskItemProviderParams params) {
-		return null;
-	}
 
 	protected Component createQueuePaneKeyword(TaskItemProviderParams params) {
 		return new Label(params.getProcessInstance().getKeyword());

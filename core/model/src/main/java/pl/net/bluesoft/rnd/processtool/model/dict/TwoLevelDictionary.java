@@ -1,8 +1,6 @@
-package org.aperteworkflow.help.impl;
+package pl.net.bluesoft.rnd.processtool.model.dict;
 
 import org.apache.commons.collections.CollectionUtils;
-import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionary;
-import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItem;
 
 import java.util.Collection;
 import java.util.HashSet;

@@ -1,15 +1,21 @@
 package org.aperteworkflow.help.impl;
 
 import com.vaadin.Application;
-import com.vaadin.ui.Component;
+import com.vaadin.terminal.Sizeable;
+import com.vaadin.ui.*;
 import com.vaadin.ui.Field;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
 import org.aperteworkflow.ui.help.HelpProvider;
+import org.vaadin.addon.customfield.FieldWrapper;
 import org.vaadin.jonatan.contexthelp.ContextHelp;
 import org.vaadin.jonatan.contexthelp.Placement;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -77,5 +83,52 @@ public class HelpProviderImpl implements HelpProvider {
     @Override
     public void attachToLayout(Layout layout) {
         layout.addComponent(helpFactory.getContextHelp());
+
+    }
+
+    private class FieldWrapperImpl {
+
+
+    @Override
+    public Field getFieldWithHelp(final Field wrappedField, Component helpButton) {
+        return new FieldWithHelp(wrappedField, helpButton);
+    }
+
+    @Override
+    public void makeTableHelpEnabled(Table t) {
+        makeTableHelpEnabled(t, t);
+    }
+
+    @Override
+    public void makeTableHelpEnabled(final Table t, final Component helpPosition) {
+        t.setSortDisabled(true);
+        t.setData(new HashMap<Object,String>());
+
+        helpFactory.getContextHelp().addHelpForComponent(helpPosition, "help.empty", Placement.ABOVE);
+        t.addListener(new Table.HeaderClickListener() {
+
+            @Override
+            public void headerClick(Table.HeaderClickEvent event) {
+                Map<Object, String> helpMap = (Map<Object, String>) t.getData();
+                Object propertyId = event.getPropertyId();
+                if (helpMap.containsKey(propertyId)) {
+                    helpFactory.showHelp(helpPosition, helpMap.get(propertyId), Placement.ABOVE);
+                }
+            }
+        });
+    }
+
+    @Override
+    public void addHelpForColumn(Table t, Object propertyId, String key) {
+        Map<Object, String> helpMap = (Map<Object, String>) t.getData();
+        t.setColumnIcon(propertyId, helpFactory.helpIcon(8));
+        helpFactory.logHelpKey(key);
+        helpMap.put(propertyId, key);
+    }
+
+    @Override
+    public boolean isFieldWithHelp(Field f) {
+        return f instanceof FieldWithHelp;
+
     }
 }

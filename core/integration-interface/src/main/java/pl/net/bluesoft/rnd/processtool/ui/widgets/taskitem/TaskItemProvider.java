@@ -10,4 +10,9 @@ import com.vaadin.ui.Component;
 public interface TaskItemProvider {
     Component getTaskPane(TaskItemProviderParams params);
     Component getQueuePane(TaskItemProviderParams params);
+
+    //new
+    Component createQueuePaneProcessInfo(TaskItemProviderParams params);
+    Component createTaskPaneProcessId(TaskItemProviderParams params);
+    Component getTaskItemProcessInfo(TaskItemProviderParams params);
 }

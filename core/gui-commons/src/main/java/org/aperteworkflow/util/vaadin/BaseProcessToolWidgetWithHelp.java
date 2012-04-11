@@ -4,6 +4,7 @@ import com.vaadin.Application;
 import com.vaadin.ui.*;
 import org.aperteworkflow.ui.help.HelpProvider;
 import org.aperteworkflow.ui.help.HelpProviderFactory;
+
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
@@ -24,7 +25,7 @@ public abstract class BaseProcessToolWidgetWithHelp extends BaseProcessToolWidge
     private void inithelpProvider() {
         if (helpProvider == null) {
             helpProvider =
-                    ((HelpProviderFactory) ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().lookupService(HelpProviderFactory.class.getName()))
+                    ((HelpProviderFactory)ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().lookupService(HelpProviderFactory.class.getName()))
                             .getInstance(getApplication(), getProcessDefinition(), !cannotEdit(), helpDictionaryName);
             if (helpProvider == null) {
                 helpProvider = new HelpProvider() {
@@ -65,6 +66,31 @@ public abstract class BaseProcessToolWidgetWithHelp extends BaseProcessToolWidge
                     @Override
                     public void attachToLayout(Layout layout) {
                         layout.addComponent(new Label("no help loaded"));
+                    }
+
+                    @Override
+                    public Field getFieldWithHelp(Field wrappedField, Component helpButton) {
+                        return new TextField("no help provided");
+                    }
+
+                    @Override
+                    public void makeTableHelpEnabled(com.vaadin.ui.Table t) {
+                        //To change body of implemented methods use File | Settings | File Templates.
+                    }
+
+                    @Override
+                    public void addHelpForColumn(com.vaadin.ui.Table t, Object propertyId, String key) {
+                        //To change body of implemented methods use File | Settings | File Templates.
+                    }
+
+                    @Override
+                    public boolean isFieldWithHelp(Field f) {
+                        return false;
+                    }
+
+                    @Override
+                    public void makeTableHelpEnabled(Table t, Component helpPosition) {
+                        //nothing
                     }
                 };
             }
@@ -113,23 +139,20 @@ public abstract class BaseProcessToolWidgetWithHelp extends BaseProcessToolWidge
      * @deprecated contextHelpIsAttachedToMainWindow
      */
     @Deprecated
-    protected void attachContextHelpToLayout() {
-    }
-
-    ;
+    protected void attachContextHelpToLayout(){};
 
     protected abstract ProcessDefinitionConfig getProcessDefinition();
 
     public UserData getUserByLogin(String login) {
         if (login != null && getApplication() instanceof GenericVaadinPortlet2BpmApplication) {
-            return ((GenericVaadinPortlet2BpmApplication) getApplication()).getUser(login);
+            return ((GenericVaadinPortlet2BpmApplication)getApplication()).getUser(login);
         }
         return null;
     }
 
     public UserData getUserByEmail(String email) {
         if (email != null && getApplication() instanceof GenericVaadinPortlet2BpmApplication) {
-            return ((GenericVaadinPortlet2BpmApplication) getApplication()).getUserByEmail(email);
+            return ((GenericVaadinPortlet2BpmApplication)getApplication()).getUserByEmail(email);
         }
         return null;
     }

@@ -12,6 +12,7 @@ import pl.net.bluesoft.rnd.processtool.model.TaskState;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessDeadline;
 import pl.net.bluesoft.rnd.processtool.ui.tasks.TaskTableItem;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.taskitem.TaskItemProvider;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.taskitem.TaskItemProviderBase;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.taskitem.TaskItemProviderParams;
 
 import java.util.ArrayList;
@@ -53,7 +54,7 @@ public class MyProcessesListPane extends ProcessListPane {
     protected Component getTaskItem(final TaskTableItem tti) {
         ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
         ProcessInstance pi = tti.getTask().getProcessInstance();
-        TaskItemProvider tip = getTaskItemProvider(ctx, pi);
+        TaskItemProviderBase tip = getTaskItemProvider(ctx, pi);
         TaskItemProviderParams params = getTaskItemProviderParams(ctx, tti);
         return tip.getTaskPane(params);
     }

@@ -44,9 +44,9 @@ public class TableWithHelp extends Table implements Table.HeaderClickListener {
 	public void addHelpFor(Object propertyId, String key) {
 		initHelp();
 
-			setColumnIcon(propertyId, helpFactory.helpIcon(8));
-			helpFactory.logHelpKey(key);
-			helpMap.put(propertyId, key);
+        setColumnIcon(propertyId, helpFactory.helpIcon(8));
+        helpFactory.logHelpKey(key);
+        helpMap.put(propertyId, key);
 	}
 
 	private void initHelp() {

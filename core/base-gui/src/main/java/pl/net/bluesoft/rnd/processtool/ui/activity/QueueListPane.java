@@ -10,6 +10,7 @@ import pl.net.bluesoft.rnd.processtool.model.TaskState;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
 import pl.net.bluesoft.rnd.processtool.ui.tasks.TaskTableItem;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.taskitem.TaskItemProvider;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.taskitem.TaskItemProviderBase;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.taskitem.TaskItemProviderParams;
 
 import static org.aperteworkflow.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
@@ -33,7 +34,7 @@ public class QueueListPane extends ProcessListPane {
     protected Component getTaskItem(final TaskTableItem tti) {
         ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
         ProcessInstance pi = tti.getTask().getProcessInstance();
-        TaskItemProvider tip = getTaskItemProvider(ctx, pi);
+        TaskItemProviderBase tip = getTaskItemProvider(ctx, pi);
         TaskItemProviderParams params = getTaskItemProviderParams(ctx, tti);
         params.setQueue(queue);
         return tip.getQueuePane(params);

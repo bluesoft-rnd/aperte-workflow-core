@@ -14,17 +14,17 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
 /**
  * @author tlipski@bluesoft.net.pl
  */
-public abstract class BaseWidgetWithHelp extends BaseProcessToolWidget implements UserFinder {
-	protected HelpProvider helpProvider;
-	private String helpDictionaryName;
+public abstract class BaseProcessToolWidgetWithHelp extends BaseProcessToolWidget implements UserFinder {
+    protected HelpProvider helpProvider;
+    private String helpDictionaryName;
 
-	protected BaseWidgetWithHelp(String helpDictionaryName) {
-		this.helpDictionaryName = helpDictionaryName;
-	}
+    protected BaseProcessToolWidgetWithHelp(String helpDictionaryName) {
+        this.helpDictionaryName = helpDictionaryName;
+    }
 
-	private void inithelpProvider() {
-		if (helpProvider == null) {
-			helpProvider =
+    private void inithelpProvider() {
+        if (helpProvider == null) {
+            helpProvider =
                     ((HelpProviderFactory)ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().lookupService(HelpProviderFactory.class.getName()))
                             .getInstance(getApplication(), getProcessDefinition(), !cannotEdit(), helpDictionaryName);
             if (helpProvider == null) {
@@ -64,6 +64,11 @@ public abstract class BaseWidgetWithHelp extends BaseProcessToolWidget implement
                     }
 
                     @Override
+                    public void attachToLayout(Layout layout) {
+                        layout.addComponent(new Label("no help loaded"));
+                    }
+
+                    @Override
                     public Field getFieldWithHelp(Field wrappedField, Component helpButton) {
                         return new TextField("no help provided");
                     }
@@ -87,68 +92,81 @@ public abstract class BaseWidgetWithHelp extends BaseProcessToolWidget implement
                     public void makeTableHelpEnabled(Table t, Component helpPosition) {
                         //nothing
                     }
+
+                    @Override
+                    public void showHelpFor(Component component) {
+                        //nothing
+                    }
                 };
             }
-		}
-	}
+        }
+    }
 
-	public Component getHelpIcon(String key) {
-		if (cannotEdit()) return new Label("");
-		inithelpProvider();
-		return helpProvider.getHelpIcon(key);
-	}
+    public HelpProvider getHelpProvider() {
+        return helpProvider;
+    }
 
-	public Component getHelpIcon(String key, String message) {
-		if (cannotEdit()) return new Label("");
-		inithelpProvider();
-		return helpProvider.helpIcon(key, message);
-	}
+    public void setHelpProvider(HelpProvider helpProvider) {
+        this.helpProvider = helpProvider;
+    }
 
-	private boolean cannotEdit() {
-		return !hasPermission("EDIT");
-	}
+    public Component getHelpIcon(String key) {
+        if (cannotEdit()) return new Label("");
+        inithelpProvider();
+        return helpProvider.getHelpIcon(key);
+    }
 
-	public Field wrapFieldWithHelp(Field field, String key) {
-		if (cannotEdit()) return field;
-		inithelpProvider();
-		return helpProvider.wrapFieldWithHelp(field, key);
-	}
+    public Component getHelpIcon(String key, String message) {
+        if (cannotEdit()) return new Label("");
+        inithelpProvider();
+        return helpProvider.helpIcon(key, message);
+    }
 
-	public Component wrapComponentWithHelp(Component component, String key) {
-		if (cannotEdit()) return component;
-		inithelpProvider();
-		return helpProvider.wrapComponentWithHelp(component, key);
-	}
+    private boolean cannotEdit() {
+        return !hasPermission("EDIT");
+    }
 
-	public Component wrapComponentWithHelp(Component component, String key, String iconPlacement, String popupPlacement) {
-		if (cannotEdit()) return component;
-		inithelpProvider();
-		return helpProvider.wrapComponentWithHelp(component, key, iconPlacement, popupPlacement);
-	}
+    public Field wrapFieldWithHelp(Field field, String key) {
+        if (cannotEdit()) return field;
+        inithelpProvider();
+        return helpProvider.wrapFieldWithHelp(field, key);
+    }
 
-	public String getHelpDictionaryName() {
-		return helpDictionaryName;
-	}
+    public Component wrapComponentWithHelp(Component component, String key) {
+        if (cannotEdit()) return component;
+        inithelpProvider();
+        return helpProvider.wrapComponentWithHelp(component, key);
+    }
 
-	/**
-	 * @deprecated contextHelpIsAttachedToMainWindow
-	 */
-	@Deprecated
-	protected void attachContextHelpToLayout(){};
+    public Component wrapComponentWithHelp(Component component, String key, String iconPlacement, String popupPlacement) {
+        if (cannotEdit()) return component;
+        inithelpProvider();
+        return helpProvider.wrapComponentWithHelp(component, key, iconPlacement, popupPlacement);
+    }
 
-	protected abstract ProcessDefinitionConfig getProcessDefinition();
+    public String getHelpDictionaryName() {
+        return helpDictionaryName;
+    }
 
-	public UserData getUserByLogin(String login) {
-		if (login != null && getApplication() instanceof GenericVaadinPortlet2BpmApplication) {
-			return ((GenericVaadinPortlet2BpmApplication)getApplication()).getUser(login);
-		}
-		return null;
-	}
+    /**
+     * @deprecated contextHelpIsAttachedToMainWindow
+     */
+    @Deprecated
+    protected void attachContextHelpToLayout(){};
 
-	public UserData getUserByEmail(String email) {
-		if (email != null && getApplication() instanceof GenericVaadinPortlet2BpmApplication) {
-			return ((GenericVaadinPortlet2BpmApplication)getApplication()).getUserByEmail(email);
-		}
-		return null;
-	}
+    protected abstract ProcessDefinitionConfig getProcessDefinition();
+
+    public UserData getUserByLogin(String login) {
+        if (login != null && getApplication() instanceof GenericVaadinPortlet2BpmApplication) {
+            return ((GenericVaadinPortlet2BpmApplication)getApplication()).getUser(login);
+        }
+        return null;
+    }
+
+    public UserData getUserByEmail(String email) {
+        if (email != null && getApplication() instanceof GenericVaadinPortlet2BpmApplication) {
+            return ((GenericVaadinPortlet2BpmApplication)getApplication()).getUserByEmail(email);
+        }
+        return null;
+    }
 }

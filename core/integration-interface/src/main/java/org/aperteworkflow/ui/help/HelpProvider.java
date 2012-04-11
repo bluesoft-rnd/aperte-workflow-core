@@ -3,6 +3,7 @@ package org.aperteworkflow.ui.help;
 import com.vaadin.Application;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Field;
+import com.vaadin.ui.Layout;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 
 /**
@@ -28,4 +29,6 @@ public interface HelpProvider {
 
     Component wrapComponentWithHelp(Component component, String key);
     Component wrapComponentWithHelp(Component component, String key, String iconPlacement, String popupPlacement);
+
+    void attachToLayout(Layout layout);
 }

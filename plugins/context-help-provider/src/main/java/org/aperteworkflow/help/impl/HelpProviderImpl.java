@@ -4,6 +4,7 @@ import com.vaadin.Application;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Field;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Layout;
 import org.aperteworkflow.ui.help.HelpProvider;
 import org.vaadin.jonatan.contexthelp.ContextHelp;
 import org.vaadin.jonatan.contexthelp.Placement;
@@ -72,4 +73,9 @@ public class HelpProviderImpl implements HelpProvider {
                    Placement.valueOf(iconPlacement),
                    Placement.valueOf(popupPlacement));
    	}
+
+    @Override
+    public void attachToLayout(Layout layout) {
+        layout.addComponent(helpFactory.getContextHelp());
+    }
 }

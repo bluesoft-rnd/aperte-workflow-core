@@ -84,8 +84,8 @@ public abstract class BaseProcessToolWidgetWithHelp extends BaseProcessToolWidge
                     }
 
                     @Override
-                    public boolean isFieldWithHelp(Field f) {
-                        return false;
+                    public Field stripFieldFromHelp(Field f) {
+                        return f;
                     }
 
                     @Override

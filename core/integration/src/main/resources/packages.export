@@ -415,4 +415,5 @@ org.aperteworkflow.util.vaadin,
 org.aperteworkflow.util.vaadin.ui.table,
 org.aperteworkflow.util.vaadin.ui.date,
 pl.net.bluesoft.rnd.processtool.ui,
-org.aperteworkflow.ui.help
+org.aperteworkflow.ui.help,
+org.aperteworkflow.util.liferay

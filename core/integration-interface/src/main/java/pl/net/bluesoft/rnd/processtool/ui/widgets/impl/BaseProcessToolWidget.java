@@ -266,4 +266,9 @@ public abstract class BaseProcessToolWidget implements ProcessToolWidget {
 	public void setGeneratorKey(String generatorKey) {
 		this.generatorKey = generatorKey;
 	}
+
+    private boolean cannotEdit() {
+   		return !hasPermission("EDIT");
+   	}
+
 }

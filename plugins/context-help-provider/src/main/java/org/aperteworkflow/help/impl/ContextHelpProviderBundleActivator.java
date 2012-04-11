@@ -26,9 +26,9 @@ public class ContextHelpProviderBundleActivator implements BundleActivator {
         bundleContext.registerService(HelpProviderFactory.class.getName(),
                 new HelpProviderFactory() {
                     @Override
-                    public HelpProvider getInstance(Application application, ProcessDefinitionConfig cfg) {
+                    public HelpProvider getInstance(Application application, ProcessDefinitionConfig cfg, boolean canEdit, String dictName) {
                         HelpProviderImpl helpProvider = new HelpProviderImpl();
-                        helpProvider.prepare(application, cfg);
+                        helpProvider.prepare(application, cfg, canEdit, dictName);
                         return helpProvider;
                     }
                 }, new Hashtable());

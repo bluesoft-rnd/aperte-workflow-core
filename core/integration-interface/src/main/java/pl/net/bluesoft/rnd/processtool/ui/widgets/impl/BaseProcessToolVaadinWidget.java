@@ -2,6 +2,7 @@ package pl.net.bluesoft.rnd.processtool.ui.widgets.impl;
 
 
 import com.vaadin.ui.RichTextArea;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinRenderable;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;

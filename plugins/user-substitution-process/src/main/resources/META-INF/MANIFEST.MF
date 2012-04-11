@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: pl.net.bluesoft.rnd.pt.ext.usersubstitution.process
+Bundle-Version: 1
+Bundle-Name: User Substitution Process
+Bundle-Description: User Substitution Process
+Import-Package: org.osgi.framework
+ProcessTool-Process-Deployment: pl.net.bluesoft.rnd.pt.ext.usersubstitution.process

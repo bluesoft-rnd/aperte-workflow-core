@@ -7,5 +7,5 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
  * @author tlipski@bluesoft.net.pl
  */
 public interface HelpProviderFactory {
-    HelpProvider getInstance(Application application, ProcessDefinitionConfig cfg);
+    HelpProvider getInstance(Application application, ProcessDefinitionConfig cfg, boolean canEdit, String dictName);
 }

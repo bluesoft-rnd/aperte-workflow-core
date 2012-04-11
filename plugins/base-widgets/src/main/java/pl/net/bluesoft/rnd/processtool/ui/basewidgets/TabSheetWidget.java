@@ -1,6 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.ui.basewidgets;
 
 import com.vaadin.ui.*;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinRenderable;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
@@ -23,7 +24,7 @@ import static com.vaadin.ui.Label.CONTENT_XHTML;
 @AperteDoc(humanNameKey="widget.tab_sheet.name", descriptionKey="widget.tab_sheet.description")
 @ChildrenAllowed(true)
 @WidgetGroup("base-widgets")
-public class TabSheetWidget extends BaseProcessToolVaadinWidget {
+public class TabSheetWidget extends BaseProcessToolVaadinWidget implements ProcessToolVaadinRenderable {
 
 	private static final Logger logger = Logger.getLogger(TabSheetWidget.class.getName());
 	private TabSheet ts = new TabSheet();

@@ -9,20 +9,21 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.Expression;
 import org.activiti.engine.delegate.JavaDelegate;
+import org.activiti.engine.runtime.Execution;
 import org.apache.commons.beanutils.BeanUtils;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceDAO;
+import pl.net.bluesoft.rnd.processtool.model.BpmStep;
 import pl.net.bluesoft.rnd.processtool.model.BpmVariable;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
+import pl.net.bluesoft.rnd.processtool.model.nonpersistent.MutableBpmStep;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.AbstractMap;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -89,7 +90,7 @@ public class ActivitiStepAction implements JavaDelegate {
                 throw new IllegalArgumentException("No step defined by name: " + stepName);
             }
             processAutowiredProperties(stepInstance, params);
-            res = stepInstance.invoke(pi, params);
+            res = stepInstance.invoke(prepareStep(pi, execution), params);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -105,7 +106,19 @@ public class ActivitiStepAction implements JavaDelegate {
         execution.setVariable("RESULT", res);
 
     }
-
+    private BpmStep prepareStep(ProcessInstance pi, DelegateExecution exec) {
+        MutableBpmStep step = new MutableBpmStep();
+        step.setProcessInstance(pi);
+        step.setExecutionId(exec.getId());
+        step.setStateName((String) this.stepName.getValue(exec));
+//        makes no sense in BPMN2.0, anyway step should not rely its logic on its placement on process map
+//        List<String> transitionNames = new ArrayList<String>();
+//        for (Transition transition : exec.getActivity().getOutgoingTransitions()) {
+//            transitionNames.add(transition.getDestination().getName());
+//        }
+//        step.setOutgoingTransitions(transitionNames);
+        return step;
+    }
     private void processAutowiredProperties(Object object, Map<String, String> m) {
         Class cls = object.getClass();
 

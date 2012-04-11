@@ -10,6 +10,7 @@ import org.hibernate.Session;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
+import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
@@ -44,44 +45,52 @@ public class ActivitiContextFactoryImpl implements ProcessToolContextFactory {
     }
 
     @Override
-	public void withProcessToolContext(ProcessToolContextCallback callback) {
-        if (registry.isJta()) {
-            withProcessToolContextJta(callback);
-        } else {
-            withProcessToolContextNonJta(callback);
-        }
-    }
-	public void withProcessToolContextNonJta(ProcessToolContextCallback callback) {
-		Session session = registry.getSessionFactory().openSession();
-		try {
-			ProcessEngine pi = getProcessEngine(session);
-			try {
-				org.hibernate.Transaction tx = session.beginTransaction();
-				try {
-                    ActivitiContextImpl ctx = new ActivitiContextImpl(session, this, pi);
-					callback.withContext(ctx);
-				} catch (RuntimeException e) {
-					logger.log(Level.SEVERE, e.getMessage(), e);
-					try {
-						tx.rollback();
-					} catch (Exception e1) {
-						logger.log(Level.WARNING, e1.getMessage(), e1);
-					}
-					throw e;
-				}
-				tx.commit();
-			}
-			finally {
-				pi.close();
-			}
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-		} finally {
-			session.close();
-		}
+    public <T> T withExistingOrNewContext(ReturningProcessToolContextCallback<T> callback) {
+        ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
+        return ctx != null && ctx.isActive() ? callback.processWithContext(ctx) : withProcessToolContext(callback);
     }
 
-    public void withProcessToolContextJta(ProcessToolContextCallback callback) {
+    @Override
+    public <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback) {
+        if (registry.isJta()) {
+            return withProcessToolContextJta(callback);
+        } else {
+            return withProcessToolContextNonJta(callback);
+        }
+    }
+
+    public <T> T withProcessToolContextNonJta(ReturningProcessToolContextCallback<T> callback) {
+        Session session = registry.getSessionFactory().openSession();
+        try {
+            ProcessEngine pi = getProcessEngine(session);
+            try {
+                org.hibernate.Transaction tx = session.beginTransaction();
+                T res;
+                try {
+                    ActivitiContextImpl ctx = new ActivitiContextImpl(session, this, pi);
+                    res = callback.processWithContext(ctx);
+                } catch (RuntimeException e) {
+                    logger.log(Level.SEVERE, e.getMessage(), e);
+                    try {
+                        tx.rollback();
+                    } catch (Exception e1) {
+                        logger.log(Level.WARNING, e1.getMessage(), e1);
+                    }
+                    throw e;
+                }
+                tx.commit();
+                return res;
+            } finally {
+                pi.close();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            session.close();
+        }
+    }
+
+    public <T> T withProcessToolContextJta(ReturningProcessToolContextCallback<T> callback) {
         try {
             UserTransaction ut;
             try {
@@ -99,13 +108,14 @@ public class ActivitiContextFactoryImpl implements ProcessToolContextFactory {
             if (ut.getStatus() != Status.STATUS_ACTIVE)
                 ut.begin();
             Session session = registry.getSessionFactory().getCurrentSession();
+            T res;
             try {
                 //init activiti
                 ProcessEngine processEngine = getProcessEngine(session);
                 try {
                     try {
                         ActivitiContextImpl ctx = new ActivitiContextImpl(session, this, processEngine);
-                        callback.withContext(ctx);
+                        res = callback.processWithContext(ctx);
                     } catch (Exception e) {
                         logger.log(Level.SEVERE, e.getMessage(), e);
                         try {
@@ -122,6 +132,7 @@ public class ActivitiContextFactoryImpl implements ProcessToolContextFactory {
                 session.flush();
             }
             ut.commit();
+            return res;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -154,45 +165,45 @@ public class ActivitiContextFactoryImpl implements ProcessToolContextFactory {
                                                 final InputStream imageStream,
                                                 InputStream logoStream) {
         withProcessToolContext(new ProcessToolContextCallback() {
-              @Override
-              public void withContext(ProcessToolContext processToolContext) {
+            @Override
+            public void withContext(ProcessToolContext processToolContext) {
 
-                  ProcessToolContext.Util.setThreadProcessToolContext(processToolContext);
-                  try {
-                      boolean skipBpm = false;
-                      InputStream is = bpmStream;
-                      ProcessToolBpmSession session = processToolContext.getProcessToolSessionFactory().createSession(
-                              new UserData("admin", "admin@aperteworkflow.org", "Admin"), Arrays.asList("ADMIN"));
-                      byte[] oldDefinition = session.getProcessLatestDefinition(cfg.getBpmDefinitionKey(), cfg.getProcessName());
-                      if (oldDefinition != null) {
-                          byte[] newDefinition = IOUtils.slurp(is);
-                          is = new ByteArrayInputStream(newDefinition);
-                          if (Arrays.equals(newDefinition, oldDefinition)) {
-                              logger.log(Level.WARNING, "bpm definition for " + cfg.getProcessName() +
-                                      " is the same as in BPM, therefore not updating BPM process definition");
-                              skipBpm = true;
-                          }
-                      }
+                ProcessToolContext.Util.setThreadProcessToolContext(processToolContext);
+                try {
+                    boolean skipBpm = false;
+                    InputStream is = bpmStream;
+                    ProcessToolBpmSession session = processToolContext.getProcessToolSessionFactory().createSession(
+                            new UserData("admin", "admin@aperteworkflow.org", "Admin"), Arrays.asList("ADMIN"));
+                    byte[] oldDefinition = session.getProcessLatestDefinition(cfg.getBpmDefinitionKey(), cfg.getProcessName());
+                    if (oldDefinition != null) {
+                        byte[] newDefinition = IOUtils.slurp(is);
+                        is = new ByteArrayInputStream(newDefinition);
+                        if (Arrays.equals(newDefinition, oldDefinition)) {
+                            logger.log(Level.WARNING, "bpm definition for " + cfg.getProcessName() +
+                                    " is the same as in BPM, therefore not updating BPM process definition");
+                            skipBpm = true;
+                        }
+                    }
 
-                      if (!skipBpm) {
-                          String deploymentId = session.deployProcessDefinition(cfg.getProcessName(), is, imageStream);
-                          logger.log(Level.INFO, "deployed new BPM Engine definition with id: " + deploymentId);
-                      }
+                    if (!skipBpm) {
+                        String deploymentId = session.deployProcessDefinition(cfg.getProcessName(), is, imageStream);
+                        logger.log(Level.INFO, "deployed new BPM Engine definition with id: " + deploymentId);
+                    }
 
-                      ProcessDefinitionDAO processDefinitionDAO = processToolContext.getProcessDefinitionDAO();
-                      processDefinitionDAO.updateOrCreateProcessDefinitionConfig(cfg);
-                      logger.log(Level.INFO, "created  definition with id: " + cfg.getId());
-                      if (queues != null && queues.length > 0) {
-                          processDefinitionDAO.updateOrCreateQueueConfigs(queues);
-                          logger.log(Level.INFO, "created/updated " + queues.length + " queues");
-                      }
-                  } catch (IOException e) {
-                      throw new RuntimeException(e);
-                  } finally {
-                      ProcessToolContext.Util.removeThreadProcessToolContext();
-                  }
-              }
-          });
+                    ProcessDefinitionDAO processDefinitionDAO = processToolContext.getProcessDefinitionDAO();
+                    processDefinitionDAO.updateOrCreateProcessDefinitionConfig(cfg);
+                    logger.log(Level.INFO, "created  definition with id: " + cfg.getId());
+                    if (queues != null && queues.length > 0) {
+                        processDefinitionDAO.updateOrCreateQueueConfigs(Arrays.asList(queues));
+                        logger.log(Level.INFO, "created/updated " + queues.length + " queues");
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                } finally {
+                    ProcessToolContext.Util.removeThreadProcessToolContext();
+                }
+            }
+        });
     }
 
     @Override

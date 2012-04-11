@@ -11,6 +11,7 @@ import org.activiti.engine.impl.pvm.runtime.ExecutionImpl;
 import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.repository.DeploymentBuilder;
 import org.activiti.engine.repository.ProcessDefinition;
+import org.activiti.engine.runtime.Execution;
 import org.activiti.engine.task.IdentityLink;
 import org.activiti.engine.task.Task;
 import org.aperteworkflow.bpm.graph.GraphElement;
@@ -22,17 +23,19 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent;
-import pl.net.bluesoft.rnd.processtool.bpm.BpmTask;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.bpm.exception.ProcessToolSecurityException;
 import pl.net.bluesoft.rnd.processtool.bpm.impl.AbstractProcessToolSession;
+import pl.net.bluesoft.rnd.processtool.hibernate.ResultsPageWrapper;
 import pl.net.bluesoft.rnd.processtool.model.*;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
+import pl.net.bluesoft.rnd.processtool.model.nonpersistent.MutableBpmTask;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
 import pl.net.bluesoft.util.lang.Mapcar;
+import pl.net.bluesoft.util.lang.Transformer;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -63,7 +66,7 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
      * @param roleNames
      */
     public ActivitiBpmSession(UserData user, Collection<String> roleNames) {
-        super(user, roleNames);
+        super(user, roleNames, ProcessToolContext.Util.getThreadProcessToolContext().getRegistry());
         IdentityService is = getProcessEngine().getIdentityService();
         User bpmUser = is.createUserQuery().userId(user.getLogin()).singleResult();
         if (bpmUser == null) {
@@ -96,42 +99,172 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
         super.saveProcessInstance(processInstance, ctx);
     }
 
+//    @Override
+//    public Collection<ProcessInstance> getQueueContents(final ProcessQueue pq, final int offset, final int limit, ProcessToolContext ctx) {
+//        Collection<ProcessQueue> configs = getUserQueuesFromConfig(ctx);
+//        final List<String> names = keyFilter("name", configs);
+//        if (!names.contains(pq.getName())) throw new ProcessToolSecurityException("queue.no.rights", pq.getName());
+//
+//        TaskService taskService = getProcessEngine().getTaskService();
+//        List<Task> taskList = taskService.createTaskQuery()
+//                .taskCandidateGroup(pq.getName())
+//                .taskUnnassigned()
+//                .orderByTaskId()
+//                .desc()
+//                .listPage(offset, limit);
+//        List<String> ids = keyFilter("processInstanceId", taskList);
+//        final Map<String, ProcessInstance> instances = ctx.getProcessInstanceDAO().getProcessInstanceByInternalIdMap(ids);
+//        return new Mapcar<Task, ProcessInstance>(taskList) {
+//
+//            @Override
+//            public ProcessInstance lambda(Task task) {
+//                ProcessInstance pi = instances.get(task.getProcessInstanceId());
+//                if (pi == null) {
+//                    log.warning("process " + task.getProcessInstanceId() + " not found");
+//                    return null;
+//                }
+//                pi.setState(task.getName());
+//                pi.setTaskId(task.getId());
+//                return pi;
+//            }
+//        }.go();
+//
+//
+//    }
+
     @Override
-    public Collection<ProcessInstance> getQueueContents(final ProcessQueue pq, final int offset, final int limit, ProcessToolContext ctx) {
-        Collection<ProcessQueue> configs = getUserQueuesFromConfig(ctx);
-        final List<String> names = keyFilter("name", configs);
-        if (!names.contains(pq.getName())) throw new ProcessToolSecurityException("queue.no.rights", pq.getName());
+    public BpmTask assignTaskFromQueue(ProcessQueue q, ProcessToolContext processToolContextFromThread) {
+        return assignTaskFromQueue(q, null, processToolContextFromThread);
+    }
 
-        TaskService taskService = getProcessEngine().getTaskService();
-        List<Task> taskList = taskService.createTaskQuery()
-                .taskCandidateGroup(pq.getName())
-                .taskUnnassigned()
-                .orderByTaskId()
-                .desc()
-                .listPage(offset, limit);
-        List<String> ids = keyFilter("processInstanceId", taskList);
-        final Map<String, ProcessInstance> instances = ctx.getProcessInstanceDAO().getProcessInstanceByInternalIdMap(ids);
-        return new Mapcar<Task, ProcessInstance>(taskList) {
+//    @Override
+//    public BpmTask assignTaskFromQueue(ProcessQueue q, BpmTask task, ProcessToolContext ctx) {
+//        return null;  //To change body of implemented methods use File | Settings | File Templates.
+//    }
 
-            @Override
-            public ProcessInstance lambda(Task task) {
-                ProcessInstance pi = instances.get(task.getProcessInstanceId());
-                if (pi == null) {
-                    log.warning("process " + task.getProcessInstanceId() + " not found");
-                    return null;
-                }
-                pi.setState(task.getName());
-                pi.setTaskId(task.getId());
-                return pi;
-            }
-        }.go();
-
-
+    @Override
+    public void assignTaskToUser(ProcessToolContext ctx, String taskId, String userLogin) {
+        ProcessEngine processEngine = getProcessEngine();
+        processEngine.getTaskService().setAssignee(taskId, userLogin);
     }
 
     @Override
-    public ProcessInstance assignTaskFromQueue(ProcessQueue q, ProcessToolContext processToolContextFromThread) {
-        return assignTaskFromQueue(q, null, processToolContextFromThread);
+   	public BpmTask getTaskData(String taskId, ProcessToolContext ctx) {
+   		Task task = getProcessEngine().getTaskService().createTaskQuery().taskId(taskId).singleResult();
+   		if (task == null) {
+   			return null;
+   		}
+   		List<BpmTask> tasks = findProcessInstancesForTasks(java.util.Collections.singletonList(task), ctx);
+   		return tasks.isEmpty() ? null : tasks.get(0);
+   	}
+
+   	@Override
+   	public BpmTask getTaskData(String taskExecutionId, String taskName, ProcessToolContext ctx) {
+   		List<Task> tasks = getProcessEngine().getTaskService().createTaskQuery()
+   				//.notSuspended()
+                .taskName(taskName)
+   				.executionId(taskExecutionId)
+   				.taskAssignee(user.getLogin())
+   				.listPage(0, 1);
+   		if (tasks.isEmpty()) {
+   			log.warning("Task " + taskExecutionId + " not found");
+   			return null;
+   		}
+   		List<BpmTask> bpmTasks = findProcessInstancesForTasks(tasks, ctx);
+   		return bpmTasks.isEmpty() ? null : bpmTasks.get(0);
+   	}
+
+    private List<BpmTask> findProcessInstancesForTasks(List<Task> tasks, final ProcessToolContext ctx) {
+   		Map<String, List<Task>> tasksByProcessId = pl.net.bluesoft.util.lang.Collections.group(tasks, new Transformer<Task, String>() {
+               @Override
+               public String transform(Task task) {
+                   Execution exec = getProcessEngine().getRuntimeService().createExecutionQuery().executionId(task.getExecutionId()).singleResult();
+                   return exec.getProcessInstanceId();
+               }
+           });
+   		final Map<String, ProcessInstance> instances = ctx.getProcessInstanceDAO().getProcessInstanceByInternalIdMap(tasksByProcessId.keySet());
+   		final List<BpmTask> result = new ArrayList<BpmTask>();
+   		for (final String processId : tasksByProcessId.keySet()) {
+   			List<Task> processTasks = tasksByProcessId.get(processId);
+   			result.addAll(new Mapcar<Task, BpmTask>(processTasks) {
+   				@Override
+   				public BpmTask lambda(Task task) {
+   					ProcessInstance pi = instances.get(processId);
+   					if (pi == null) {
+   						log.warning("process " + processId + " not found");
+   						return null;
+   					}
+   					return collectTask(task, pi, ctx);
+   				}
+   			}.go());
+   		}
+   		java.util.Collections.sort(result, new Comparator<BpmTask>() {
+               @Override
+               public int compare(BpmTask o1, BpmTask o2) {
+                   return o2.getCreateDate().compareTo(o1.getCreateDate());
+               }
+           });
+   		return result;
+   	}
+
+    private MutableBpmTask collectTask(Task task, ProcessInstance pi, ProcessToolContext ctx) {
+        MutableBpmTask t = new MutableBpmTask();
+        t.setProcessInstance(pi);
+        t.setAssignee(task.getAssignee());
+        UserData ud = ctx.getUserDataDAO().loadUserByLogin(task.getAssignee());
+        if (ud == null) {
+            ud = new UserData();
+            ud.setLogin(task.getAssignee());
+        }
+        t.setOwner(ud);
+        t.setTaskName(task.getName());
+        t.setInternalTaskId(task.getId());
+        t.setExecutionId(task.getExecutionId());
+        t.setCreateDate(task.getCreateTime());
+        t.setFinished(false);
+        return t;
+    }
+
+   	@Override
+   	public BpmTask refreshTaskData(BpmTask task, ProcessToolContext ctx) {
+   		MutableBpmTask bpmTask = task instanceof MutableBpmTask ? (MutableBpmTask) task : new MutableBpmTask(task);
+   		bpmTask.setProcessInstance(getProcessData(task.getProcessInstance().getInternalId(), ctx));
+   		List<Task> tasks = getProcessEngine().getTaskService().createTaskQuery()
+//   				.notSuspended()
+   				.taskName(task.getTaskName())
+   				.executionId(task.getExecutionId())
+   				.taskAssignee(user.getLogin())
+   				.listPage(0, 1);
+   		if (tasks.isEmpty()) {
+   			log.warning("Task " + task.getExecutionId() + " not found");
+   			bpmTask.setFinished(true);
+   		}
+   		return bpmTask;
+   	}
+
+    @Override
+    public BpmTask getPastOrActualTask(ProcessInstanceLog log, ProcessToolContext ctx) {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public BpmTask getPastEndTask(ProcessInstanceLog log, ProcessToolContext ctx) {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public List<BpmTask> findUserTasks(ProcessInstance processInstance, ProcessToolContext ctx) {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public List<BpmTask> findUserTasks(Integer offset, Integer limit, ProcessToolContext ctx) {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public List<BpmTask> findProcessTasks(ProcessInstance pi, ProcessToolContext ctx) {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public List<String> getOutgoingTransitionNames(String internalId, ProcessToolContext ctx) {
@@ -213,11 +346,11 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
     }
 
     @Override
-    public ProcessInstance assignTaskFromQueue(final ProcessQueue pq, ProcessInstance pi, ProcessToolContext ctx) {
+    public BpmTask assignTaskFromQueue(final ProcessQueue pq, BpmTask pi, ProcessToolContext ctx) {
 
         Collection<ProcessQueue> configs = getUserQueuesFromConfig(ctx);
         final List<String> names = keyFilter("name", configs);
-        final String taskId = pi != null ? pi.getTaskId() : null;
+        final String taskId = pi != null ? pi.getInternalTaskId() : null;
         if (!names.contains(pq.getName())) throw new ProcessToolSecurityException("queue.no.rights", pq.getName());
         TaskService ts = getProcessEngine().getTaskService();
 
@@ -274,7 +407,7 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
                 pi2,
                 user));
 
-        return pi2;
+        return getTaskData(task.getId(), ctx);
     }
 
     private void fillProcessAssignmentData(final ProcessInstance pi, ProcessToolContext ctx) {
@@ -296,24 +429,24 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
         pi.setTaskQueues(queues.toArray(new String[queues.size()]));
     }
 
-    @Override()
-    public Collection<BpmTask> getTaskList(ProcessInstance pi, final ProcessToolContext ctx) {
-        return getTaskList(pi, ctx, true);
-    }
+//    @Override()
+//    public Collection<BpmTask> getTaskList(ProcessInstance pi, final ProcessToolContext ctx) {
+//        return getTaskList(pi, ctx, true);
+//    }
 
-    @Override()
-    public Collection<BpmTask> getTaskList(ProcessInstance pi, final ProcessToolContext ctx, final boolean mustHaveAssignee) {
-        return new Mapcar<Task, BpmTask>(findProcessTasks(pi, ctx, mustHaveAssignee)) {
-            @Override
-            public BpmTask lambda(Task x) {
-                BpmTask t = new BpmTask();
-                t.setOwner(ctx.getUserDataDAO().loadUserByLogin(x.getAssignee()));
-                t.setTaskName(x.getName());
-                t.setInternalTaskId(x.getId());
-                return t;
-            }
-        }.go();
-    }
+//    @Override()
+//    public Collection<BpmTask> getTaskList(ProcessInstance pi, final ProcessToolContext ctx, final boolean mustHaveAssignee) {
+//        return new Mapcar<Task, BpmTask>(findProcessTasks(pi, ctx, mustHaveAssignee)) {
+//            @Override
+//            public BpmTask lambda(Task x) {
+//                BpmTask t = new BpmTask();
+//                t.setOwner(ctx.getUserDataDAO().loadUserByLogin(x.getAssignee()));
+//                t.setTaskName(x.getName());
+//                t.setInternalTaskId(x.getId());
+//                return t;
+//            }
+//        }.go();
+//    }
 
     @Override
     public boolean isProcessOwnedByUser(final ProcessInstance processInstance, ProcessToolContext ctx) {
@@ -327,8 +460,43 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
                 .taskAssignee(user.getLogin()).list();        
     }
 
-    private List<Task> findProcessTasks(final ProcessInstance processInstance, ProcessToolContext ctx) {
-        return findProcessTasks(processInstance, ctx, true);
+//    private List<BpmTask> findProcessTasks(final ProcessInstance processInstance, ProcessToolContext ctx) {
+//        return findProcessTasks(processInstance, ctx, true);
+//    }
+
+    @Override
+    public List<BpmTask> findProcessTasks(ProcessInstance pi, String userLogin, ProcessToolContext ctx) {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public List<BpmTask> findProcessTasks(ProcessInstance pi, String userLogin, Set<String> taskNames, ProcessToolContext ctx) {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public ResultsPageWrapper<BpmTask> findProcessTasks(ProcessInstanceFilter filter, Integer offset, Integer limit, ProcessToolContext ctx) {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public ResultsPageWrapper<BpmTask> findRecentTasks(Calendar minDate, Integer offset, Integer limit, ProcessToolContext ctx) {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public Integer getRecentTasksCount(Calendar minDate, ProcessToolContext ctx) {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public Collection<BpmTask> getAllTasks(ProcessToolContext ctx) {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public BpmTask performAction(ProcessStateAction action, BpmTask bpmTask, ProcessToolContext ctx) {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     private List<Task> findProcessTasks(final ProcessInstance processInstance, ProcessToolContext ctx,
@@ -406,11 +574,12 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
     }
 
     private void addActionLogEntry(ProcessStateAction action, ProcessInstance processInstance, ProcessToolContext ctx) {
-        ProcessStateConfiguration state = ctx.getProcessDefinitionDAO().getProcessStateConfiguration(processInstance);
+        //TODO
+//        ProcessStateConfiguration state = ctx.getProcessDefinitionDAO().getProcessStateConfiguration(processInstance);
 
         ProcessInstanceLog log = new ProcessInstanceLog();
         log.setLogType(ProcessInstanceLog.LOG_TYPE_PERFORM_ACTION);
-        log.setState(state);
+//        log.setState(state);
         log.setEntryDate(Calendar.getInstance());
         log.setEventI18NKey("process.log.action-performed");
         log.setLogValue(action.getBpmName());

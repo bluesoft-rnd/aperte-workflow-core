@@ -1,9 +1,10 @@
-package pl.net.bluesoft.rnd.processtool.ui.widgets.taskitem;
+package org.aperteworkflow.util.taskitem;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.taskitem.TaskItemProviderParams;
 import pl.net.bluesoft.util.lang.cquery.func.F;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;

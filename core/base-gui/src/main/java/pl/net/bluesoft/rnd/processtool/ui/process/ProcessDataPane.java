@@ -142,7 +142,10 @@ public class ProcessDataPane extends VerticalLayout implements WidgetContextSupp
 		final VerticalLayout vl = new VerticalLayout();
 		vl.setSpacing(true);
 
-		for (ProcessStateWidget w : stateConfiguration.getWidgets()) {
+        List<ProcessStateWidget> widgets = new ArrayList<ProcessStateWidget>(stateConfiguration.getWidgets());
+        Collections.sort(widgets, new WidgetPriorityComparator());
+
+		for (ProcessStateWidget w : widgets) {
 			try {
 				ProcessToolWidget realWidget = getWidget(w, stateConfiguration, ctx, null);
 				if (realWidget instanceof ProcessToolVaadinRenderable && (!nvl(w.getOptional(), false) || realWidget.hasVisibleData())) {
@@ -193,20 +196,26 @@ public class ProcessDataPane extends VerticalLayout implements WidgetContextSupp
     }*/
 
 	private HorizontalLayout getButtonsPanel(ProcessStateConfiguration stateConfiguration) {
+
+        // sort the actions to preserve the displaying order
+        List<ProcessStateAction> actionList = new ArrayList<ProcessStateAction>(stateConfiguration.getActions());
+        Collections.sort(actionList, new ActionPriorityComparator());
+
+
 		AligningHorizontalLayout buttonLayout = new AligningHorizontalLayout(Alignment.MIDDLE_RIGHT);
 		buttonLayout.setMargin(new MarginInfo(false, true, false, true));
 		buttonLayout.setWidth("100%");
 
-		List<ProcessStateAction> actionList = new ArrayList<ProcessStateAction>(stateConfiguration.getActions());
-		Collections.sort(actionList, new Comparator<ProcessStateAction>() {
-			@Override
-			public int compare(ProcessStateAction o1, ProcessStateAction o2) {
-				if (nvl(o1.getPriority(),0).equals(nvl(o2.getPriority(),0))) {
-					return new Long(o1.getId()).compareTo(o2.getId());
-				}
-				return nvl(o1.getPriority(),0).compareTo(nvl(o2.getPriority(),0));
-			}
-		});
+//		List<ProcessStateAction> actionList = new ArrayList<ProcessStateAction>(stateConfiguration.getActions());
+//		Collections.sort(actionList, new Comparator<ProcessStateAction>() {
+//			@Override
+//			public int compare(ProcessStateAction o1, ProcessStateAction o2) {
+//				if (nvl(o1.getPriority(),0).equals(nvl(o2.getPriority(),0))) {
+//					return new Long(o1.getId()).compareTo(o2.getId());
+//				}
+//				return nvl(o1.getPriority(),0).compareTo(nvl(o2.getPriority(),0));
+//			}
+//		});
 
 		for (final ProcessStateAction a : actionList) {
 			final ProcessToolActionButton actionButton = makeButton(a);
@@ -374,6 +383,66 @@ public class ProcessDataPane extends VerticalLayout implements WidgetContextSupp
 			}
 		}
 	}
+
+    /**
+         * Comparator for {@link ProcessStateWidget} objects that takes intro account widget priority
+         */
+        private class WidgetPriorityComparator implements Comparator<ProcessStateWidget> {
+            @Override
+            public int compare(ProcessStateWidget w1, ProcessStateWidget w2) {
+                if (w1 == null || w2 == null) {
+                    throw new NullPointerException("Can not compare null ProcessStateWidgets");
+                }
+
+                if (w1 == w2) {
+                    return 0;
+                }
+
+                if (w1.getPriority() != null && w2.getPriority() != null) {
+                    return w1.getPriority().compareTo(w2.getPriority());
+                } else if (w1.getPriority() != null && w2.getPriority() == null) {
+                    return 1;
+                } else if (w1.getPriority() == null && w2.getPriority() != null) {
+                    return -1;
+                } else {
+                    return w1.getId().compareTo(w2.getId());
+                }
+            }
+        }
+
+        /**
+         * Comparator for {@link ProcessStateAction} object that takes into account action priority
+         */
+        private class ActionPriorityComparator implements Comparator<ProcessStateAction> {
+            @Override
+            public int compare(ProcessStateAction a1, ProcessStateAction a2) {
+                if (a1 == null || a2 == null) {
+                    throw new NullPointerException("Can not compare null ProcessStateActions");
+                }
+
+                if (a1 == a2) {
+                    return 0;
+                }
+
+                if (a1.getActionType() != null && a1.getActionType() != null && !a1.getActionType().equals(a2.getActionType())) {
+                    return ProcessStateAction.SECONDARY_ACTION.equals(a1.getActionType()) ? -1 : 1;
+                } else if (a1.getActionType() != null && a2.getActionType() == null) {
+                    return -1;
+                } else if (a1.getActionType() == null && a2.getActionType() != null) {
+                    return 1;
+                } else {
+                    if (a1.getPriority() != null && a1.getPriority() != null) {
+                        return a1.getPriority().compareTo(a2.getPriority());
+                    } else if (a1.getPriority() != null && a2.getPriority() == null) {
+                        return 1;
+                    } else if (a1.getPriority() == null && a2.getPriority() != null) {
+                        return -1;
+                    } else {
+                        return a1.getId().compareTo(a2.getId());
+                    }
+                }
+            }
+        }
 
 	private void generateChildren(ProcessToolWidget parentWidgetInstance, ProcessStateConfiguration stateConfiguration, ProcessToolContext ctx,
 			ProcessStateWidget subW) {

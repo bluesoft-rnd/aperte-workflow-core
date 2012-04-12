@@ -79,7 +79,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
     private ProcessDictionaryRegistry processDictionaryRegistry;
 
     //during re-rendering widget, this map could be modified while is iterated - it must be thread safe
-    private Map<Property, WidgetElement> boundProperties = new ConcurrentHashMap<Property, WidgetElement> ();
+    private Map<Property, WidgetElement> boundProperties = new ConcurrentHashMap<Property, WidgetElement>();
     private Map<AbstractSelect, WidgetElement> dictContainers = new HashMap<AbstractSelect, WidgetElement>();
     private Map<AbstractSelect, WidgetElement> instanceDictContainers = new HashMap<AbstractSelect, WidgetElement>();
     private Map<String, ProcessInstanceAttribute> processAttributes = new HashMap<String, ProcessInstanceAttribute>();
@@ -259,7 +259,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                     if (attribute instanceof ProcessInstanceSimpleAttribute) {
                         if (element instanceof DateWidgetElement) {
                             String dateString = null;
-							if (component.getValue() != null)
+                            if (component.getValue() != null)
                                 dateString = new SimpleDateFormat(((DateWidgetElement) element).getFormat()).format(component.getValue());
                             ((ProcessInstanceSimpleAttribute) attribute).setValue(dateString);
                         } else if (component.getValue() != null) {
@@ -295,73 +295,73 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
     }
 
     private void loadBindings() {
-            new ComponentEvaluator<Property>(boundProperties) {
-                @Override
-                public void evaluate(Property component, WidgetElement element) throws Exception {
-                    Object value = null;
-                    try {
-                        value = PropertyUtils.getProperty(processAttributes, element.getBind());
+        new ComponentEvaluator<Property>(boundProperties) {
+            @Override
+            public void evaluate(Property component, WidgetElement element) throws Exception {
+                Object value = null;
+                try {
+                    value = PropertyUtils.getProperty(processAttributes, element.getBind());
+                } catch (NestedNullException e) {
+                    logger.log(Level.SEVERE, e.getMessage(), e);
+                }
+                value = value instanceof ProcessInstanceSimpleAttribute ?
+                        ((ProcessInstanceSimpleAttribute) value).getValue() : value;
+                if (value != null) {
+                    boolean readonly = component.isReadOnly();
+                    if (readonly) {
+                        component.setReadOnly(false);
                     }
-                    catch (NestedNullException e) {
-                        logger.info(e.getMessage());
-                    }
-                    if (value != null) {
-                        boolean readonly = component.isReadOnly();
-                        if (readonly) {
-                            component.setReadOnly(false);
-                        }
-                        value = value instanceof ProcessInstanceSimpleAttribute ?
-                                ((ProcessInstanceSimpleAttribute) value).getValue() : value;
-                        if (Date.class.isAssignableFrom(component.getType())) {
-                            Date v = new SimpleDateFormat(((DateWidgetElement) element).getFormat()).parse(value.toString());
-                            component.setValue(v);
-                        }
-                        else if (String.class.isAssignableFrom(component.getType())) {
-                            component.setValue(nvl(value, ""));
-                        }
-                        else {
+                    if (Date.class.isAssignableFrom(component.getType())) {
+                        Date v = new SimpleDateFormat(((DateWidgetElement) element).getFormat()).parse(String.valueOf(value));
+                        component.setValue(v);
+                    } else if (String.class.isAssignableFrom(component.getType())) {
+                        component.setValue(nvl(value, ""));
+                    } else if (component instanceof Container &&
+                            component.getType().isAssignableFrom(value.getClass())) {
+                        if (((Container) component).containsId(value)) {
                             component.setValue(value);
                         }
-                        if (readonly) {
-                            component.setReadOnly(true);
-                        }
+                    }
+                    if (readonly) {
+                        component.setReadOnly(true);
                     }
                 }
-            };
-        }
+            }
+        };
+    }
 
-        private void loadDictionaries() {
-            new ComponentEvaluator<AbstractSelect>(dictContainers) {
-                @Override
-                public void evaluate(AbstractSelect component, WidgetElement element) throws Exception {
-                    ProcessDictionary dict = nvl(element.getGlobal(), false) ?
-                            processDictionaryRegistry.getSpecificOrDefaultGlobalDictionary(element.getProvider(),
-                                    element.getDict(), i18NSource.getLocale().toString()) :
-                            processDictionaryRegistry.getSpecificOrDefaultProcessDictionary(
-                            processInstance.getDefinition(), element.getProvider(),
-                            element.getDict(), i18NSource.getLocale().toString());
+    private void loadDictionaries() {
+        new ComponentEvaluator<AbstractSelect>(dictContainers) {
+            @Override
+            public void evaluate(AbstractSelect component, WidgetElement element) throws Exception {
+                ProcessDictionary dict = nvl(element.getGlobal(), false) ?
+                        processDictionaryRegistry.getSpecificOrDefaultGlobalDictionary(element.getProvider(),
+                                element.getDict(), i18NSource.getLocale().toString()) :
+                        processDictionaryRegistry.getSpecificOrDefaultProcessDictionary(
+                                processInstance.getDefinition(), element.getProvider(),
+                                element.getDict(), i18NSource.getLocale().toString());
 
-                    if (dict != null) {
-                        Date validForDate = getValidForDate(element);
-                        int i = 0;
-                        for (Object o : dict.items()) {
-                            ProcessDictionaryItem item = (ProcessDictionaryItem) o;
-                            component.addItem(item.getKey());
-                            ProcessDictionaryItemValue val = item.getValueForDate(validForDate);
-                            component.setItemCaption(item.getKey(), getMessage(
-                                    (String) (val != null ? val.getValue() : item.getKey())));
-                            if (element instanceof AbstractSelectWidgetElement) {
-                                AbstractSelectWidgetElement select = (AbstractSelectWidgetElement) element;
-                                if (select.getDefaultSelect() != null && i == select.getDefaultSelect()) {
-                                    component.setValue(item.getKey());
-                                }
+                if (dict != null) {
+                    Date validForDate = getValidForDate(element);
+                    int i = 0;
+                    for (Object o : dict.items()) {
+                        ProcessDictionaryItem item = (ProcessDictionaryItem) o;
+                        component.addItem(item.getKey());
+                        ProcessDictionaryItemValue val = item.getValueForDate(validForDate);
+                        component.setItemCaption(item.getKey(), getMessage(
+                                (String) (val != null ? val.getValue() : item.getKey())));
+                        if (element instanceof AbstractSelectWidgetElement) {
+                            AbstractSelectWidgetElement select = (AbstractSelectWidgetElement) element;
+                            if (select.getDefaultSelect() != null && i == select.getDefaultSelect()) {
+                                component.setValue(item.getKey());
                             }
-                            ++i;
                         }
+                        ++i;
                     }
                 }
-            };
-        }
+            }
+        };
+    }
 
 
     private void loadProcessInstanceDictionaries() {
@@ -392,39 +392,36 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
     }
 
 
-        private Date getValidForDate(WidgetElement element) throws Exception {
-            Date validForDate = processInstance.getCreateDate();
-            if (Strings.hasText(element.getValidFor())) {
-                String[] splits = element.getValidFor().split(":");
-                if (splits.length != 2) {
-                    throw new IllegalArgumentException("Error while loading values for "
-                            + (nvl(element.getGlobal(), false) ? "global" : "process") + " dictionary["
-                            + element.getDict() + "], provider[" + element.getProvider() + "]: "
-                            + "Illegal argument: " + element.getValidFor()
-                            + " for element: " + element.getClass().getName());
-                }
-                String controlChar = splits[0];
-                String validFor = splits[1];
-                DateFormat dateFormat = VaadinUtility.simpleDateFormat();
-                if ("d".equalsIgnoreCase(controlChar) && !"current".equalsIgnoreCase(validFor)) {
+    private Date getValidForDate(WidgetElement element) throws Exception {
+        Date validForDate = processInstance.getCreateDate();
+        if (Strings.hasText(element.getValidFor())) {
+            String[] splits = element.getValidFor().split(":");
+            if (splits.length != 2) {
+                throw new IllegalArgumentException("Error while loading values for "
+                        + (nvl(element.getGlobal(), false) ? "global" : "process") + " dictionary["
+                        + element.getDict() + "], provider[" + element.getProvider() + "]: "
+                        + "Illegal argument: " + element.getValidFor()
+                        + " for element: " + element.getClass().getName());
+            }
+            String controlChar = splits[0];
+            String validFor = splits[1];
+            DateFormat dateFormat = VaadinUtility.simpleDateFormat();
+            if ("d".equalsIgnoreCase(controlChar) && !"current".equalsIgnoreCase(validFor)) {
+                validForDate = dateFormat.parse(validFor);
+            } else if ("a".equalsIgnoreCase(controlChar)) {
+                Object attributeValue = PropertyUtils.getProperty(processAttributes, validFor);
+                if (attributeValue instanceof String) {
                     validForDate = dateFormat.parse(validFor);
-                }
-                else if ("a".equalsIgnoreCase(controlChar)) {
-                    Object attributeValue = PropertyUtils.getProperty(processAttributes, validFor);
-                    if (attributeValue instanceof String) {
-                        validForDate = dateFormat.parse(validFor);
-                    }
-                    else if (attributeValue instanceof Date) {
-                        validForDate = (Date) attributeValue;
-                    }
-                    else {
-                        throw new IllegalArgumentException("Unable to date from property: " + validFor
+                } else if (attributeValue instanceof Date) {
+                    validForDate = (Date) attributeValue;
+                } else {
+                    throw new IllegalArgumentException("Unable to date from property: " + validFor
                             + "for element: " + element.getClass().getName());
-                    }
                 }
             }
-            return validForDate;
         }
+        return validForDate;
+    }
 
     @Override
     public void addChild(ProcessToolWidget child) {
@@ -840,9 +837,9 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         if (nvl(iwe.getRequired(), false)) {
             field.setRequired(true);
             if (hasText(iwe.getCaption())) {
-            	String caption = iwe.getCaption();
-            	if(caption.endsWith(":"))
-            		caption = caption.substring(0, caption.length() - 1);
+                String caption = iwe.getCaption();
+                if (caption.endsWith(":"))
+                    caption = caption.substring(0, caption.length() - 1);
                 field.setRequiredError(getMessage("processdata.block.field-required-error") + " " + caption);
             } else {
                 field.setRequiredError(getMessage("processdata.block.field-required-error"));
@@ -891,11 +888,11 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                 boolean usesCurrent = XmlConstants.DATE_CURRENT.equalsIgnoreCase(dwe.getNotAfter());
                 final Date notAfter = (usesCurrent) ? sdf.parse(sdf.format(new Date())) : sdf.parse(dwe.getNotAfter());
                 field.addValidator(new AbstractValidator(getMessage("processdata.block.error.date.notafter").replaceFirst("%s", dwe.getNotAfter())) {
-					@Override
-					public boolean isValid(Object value) {
-						return value == null || !notAfter.before((Date) value);
-					}
-				});
+                    @Override
+                    public boolean isValid(Object value) {
+                        return value == null || !notAfter.before((Date) value);
+                    }
+                });
                 //why notify and interrupt?
                 //we already have a perfect validation mechanisms
                 //so let's use classic validators
@@ -922,11 +919,11 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                 boolean usesCurrent = XmlConstants.DATE_CURRENT.equalsIgnoreCase(dwe.getNotBefore());
                 final Date notBefore = (usesCurrent) ? sdf.parse(sdf.format(new Date())) : sdf.parse(dwe.getNotBefore());
                 field.addValidator(new AbstractValidator(getMessage("processdata.block.error.date.notbefore").replaceFirst("%s", dwe.getNotBefore())) {
-					@Override
-					public boolean isValid(Object value) {
-						return value == null || !notBefore.after((Date) value);
-					}
-				});
+                    @Override
+                    public boolean isValid(Object value) {
+                        return value == null || !notBefore.after((Date) value);
+                    }
+                });
 //                field.addListener(new ValueChangeListener() {
 //                    @Override
 //                    public void valueChange(ValueChangeEvent event) {

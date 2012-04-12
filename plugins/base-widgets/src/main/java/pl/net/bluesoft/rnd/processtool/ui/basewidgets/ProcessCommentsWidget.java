@@ -20,6 +20,7 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinRenderable;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.*;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
 import pl.net.bluesoft.util.lang.FormatUtil;
 import pl.net.bluesoft.util.lang.Formats;
@@ -47,7 +48,7 @@ import static pl.net.bluesoft.util.lang.Formats.nvl;
         @Permission(key="VIEW", desc="widget.process_comments.permission.desc.VIEW")
 })
 @WidgetGroup("base-widgets")
-public class ProcessCommentsWidget extends BaseProcessToolWidget implements ProcessToolVaadinRenderable, ProcessToolDataWidget {
+public class ProcessCommentsWidget extends BaseProcessToolVaadinWidget implements ProcessToolVaadinRenderable, ProcessToolDataWidget {
 
 	private BeanItemContainer<ProcessComment> bic = new BeanItemContainer<ProcessComment>(ProcessComment.class);
 

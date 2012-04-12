@@ -70,7 +70,7 @@ import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 @AperteDoc(humanNameKey = "widget.process_data_block.name", descriptionKey = "widget.process_data_block.description")
 @ChildrenAllowed(false)
 @WidgetGroup("base-widgets")
-public class ProcessDataBlockWidget extends BaseProcessToolWidget implements ProcessToolDataWidget, ProcessToolVaadinRenderable {
+public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implements ProcessToolDataWidget, ProcessToolVaadinRenderable {
     private static final Logger logger = Logger.getLogger(ProcessDataBlockWidget.class.getName());
     private static final Resolver resolver = new DefaultResolver();
 

@@ -20,6 +20,7 @@ public class ProcessDBDictionaryItemValue extends PersistentEntity implements Pr
     private ProcessDBDictionaryItem item;
 
     @Lob
+    @Column(name="value_")
     @Type(type = "org.hibernate.type.StringClobType")
     private String value;
     private Date validStartDate;

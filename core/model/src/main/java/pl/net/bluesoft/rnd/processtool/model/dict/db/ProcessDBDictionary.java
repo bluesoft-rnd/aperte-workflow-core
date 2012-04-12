@@ -18,7 +18,7 @@ public class ProcessDBDictionary extends PersistentEntity implements ProcessDict
     private String dictionaryId;
     private String dictionaryName;
     private String languageCode;
-    @Column(length = 2048)
+    @Column(length = 2048, name="description_")
     private String description;
 
     private Boolean defaultDictionary = Boolean.FALSE;

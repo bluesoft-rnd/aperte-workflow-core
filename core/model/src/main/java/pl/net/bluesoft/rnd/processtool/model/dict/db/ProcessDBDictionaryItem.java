@@ -16,6 +16,7 @@ public class ProcessDBDictionaryItem extends PersistentEntity
     @ManyToOne
     private ProcessDBDictionary dictionary;
 
+    @Column(name="key_")
     private String key;
     private String valueType;
     @Lob

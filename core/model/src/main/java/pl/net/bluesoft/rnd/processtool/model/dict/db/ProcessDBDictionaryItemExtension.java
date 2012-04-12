@@ -12,7 +12,9 @@ public class ProcessDBDictionaryItemExtension extends PersistentEntity implement
     private ProcessDBDictionaryItemValue itemValue;
 
     private String name;
+    @Column(name="value_")
     private String value;
+    @Column(name="description_")
     private String description;
     private String valueType;
 

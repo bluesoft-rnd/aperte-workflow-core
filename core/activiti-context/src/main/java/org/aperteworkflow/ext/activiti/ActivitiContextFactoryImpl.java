@@ -1,10 +1,21 @@
 package org.aperteworkflow.ext.activiti;
 
 import com.thoughtworks.xstream.XStream;
+import org.activiti.engine.ActivitiException;
 import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.ProcessEngineConfiguration;
 import org.activiti.engine.ProcessEngines;
+import org.activiti.engine.impl.cfg.StandaloneProcessEngineConfiguration;
+import org.activiti.engine.impl.db.IbatisVariableTypeHandler;
 import org.activiti.engine.impl.interceptor.SessionFactory;
+import org.activiti.engine.impl.util.IoUtil;
+import org.activiti.engine.impl.util.ReflectUtil;
+import org.activiti.engine.impl.variable.VariableType;
+import org.apache.ibatis.builder.xml.XMLConfigBuilder;
+import org.apache.ibatis.mapping.Environment;
+import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.session.defaults.DefaultSqlSessionFactory;
+import org.apache.ibatis.type.JdbcType;
 import org.aperteworkflow.ext.activiti.wrappers.DataSourceWrapper;
 import org.hibernate.Session;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
@@ -23,9 +34,7 @@ import javax.naming.InitialContext;
 import javax.sql.DataSource;
 import javax.transaction.Status;
 import javax.transaction.UserTransaction;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.logging.Level;
@@ -62,12 +71,13 @@ public class ActivitiContextFactoryImpl implements ProcessToolContextFactory {
     public <T> T withProcessToolContextNonJta(ReturningProcessToolContextCallback<T> callback) {
         Session session = registry.getSessionFactory().openSession();
         try {
-            ProcessEngine pi = getProcessEngine(session);
+            CustomStandaloneProcessEngineConfiguration processEngineConfiguration = getProcessEngineConfiguration(session);
+            ProcessEngine pi = getProcessEngine(processEngineConfiguration);
             try {
                 org.hibernate.Transaction tx = session.beginTransaction();
                 T res;
                 try {
-                    ActivitiContextImpl ctx = new ActivitiContextImpl(session, this, pi);
+                    ActivitiContextImpl ctx = new ActivitiContextImpl(session, this, pi, processEngineConfiguration);
                     res = callback.processWithContext(ctx);
                 } catch (RuntimeException e) {
                     logger.log(Level.SEVERE, e.getMessage(), e);
@@ -111,10 +121,11 @@ public class ActivitiContextFactoryImpl implements ProcessToolContextFactory {
             T res;
             try {
                 //init activiti
-                ProcessEngine processEngine = getProcessEngine(session);
+                CustomStandaloneProcessEngineConfiguration processEngineConfiguration = getProcessEngineConfiguration(session);
+                ProcessEngine processEngine = getProcessEngine(processEngineConfiguration);
                 try {
                     try {
-                        ActivitiContextImpl ctx = new ActivitiContextImpl(session, this, processEngine);
+                        ActivitiContextImpl ctx = new ActivitiContextImpl(session, this, processEngine, processEngineConfiguration);
                         res = callback.processWithContext(ctx);
                     } catch (Exception e) {
                         logger.log(Level.SEVERE, e.getMessage(), e);
@@ -139,14 +150,53 @@ public class ActivitiContextFactoryImpl implements ProcessToolContextFactory {
 
     }
 
-    public ProcessEngine getProcessEngine(Session sess) {
-        ProcessEngineConfiguration processEngineConfiguration = ProcessEngineConfiguration
-                .createStandaloneProcessEngineConfiguration()
+    /**
+     * We need to alter activiti mappings a little,
+     * since Activiti does not provide any other way to add custom mappings
+     * (was the abandonment of Hibernate a right decision?)
+     */
+    public class CustomStandaloneProcessEngineConfiguration extends StandaloneProcessEngineConfiguration {
+
+        @Override
+        protected void initSqlSessionFactory() {
+            if (sqlSessionFactory == null) {
+                InputStream inputStream = null;
+                try {
+                    inputStream = ReflectUtil.getResourceAsStream("org/aperteworkflow/ext/activiti/mybatis/mappings-enhanced.xml");
+
+                    // update the jdbc parameters to the configured ones...
+                    Environment environment = new Environment("default", transactionFactory, dataSource);
+                    Reader reader = new InputStreamReader(inputStream);
+                    XMLConfigBuilder parser = new XMLConfigBuilder(reader);
+                    Configuration configuration = parser.getConfiguration();
+                    configuration.setEnvironment(environment);
+                    configuration.getTypeHandlerRegistry().register(VariableType.class, JdbcType.VARCHAR,
+                            new IbatisVariableTypeHandler());
+                    configuration = parser.parse();
+
+                    sqlSessionFactory = new DefaultSqlSessionFactory(configuration);
+
+                } catch (Exception e) {
+                    throw new ActivitiException("Error while building ibatis SqlSessionFactory: " + e.getMessage(), e);
+                } finally {
+                    IoUtil.closeSilently(inputStream);
+                }
+            }
+        }
+    }
+
+    public CustomStandaloneProcessEngineConfiguration getProcessEngineConfiguration(Session sess) {
+        CustomStandaloneProcessEngineConfiguration customStandaloneProcessEngineConfiguration = new CustomStandaloneProcessEngineConfiguration();
+                customStandaloneProcessEngineConfiguration
                 .setDatabaseSchemaUpdate(ProcessEngineConfiguration.DB_SCHEMA_UPDATE_TRUE)
                 .setDataSource(getDataSourceWrapper(sess))
                 .setHistory(ProcessEngineConfiguration.HISTORY_FULL)
                 .setTransactionsExternallyManaged(true);
-        return processEngineConfiguration.buildProcessEngine();
+        return customStandaloneProcessEngineConfiguration;
+    }
+
+    public ProcessEngine getProcessEngine(CustomStandaloneProcessEngineConfiguration customStandaloneProcessEngineConfiguration) {
+        return customStandaloneProcessEngineConfiguration.buildProcessEngine();
     }
 
     private DataSource getDataSourceWrapper(Session sess) {

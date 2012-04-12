@@ -14,7 +14,9 @@ public class UserAttribute extends UserAttributesSupport {
     @JoinColumn(name = "user_id")
     private UserData user;
 
+    @Column(name="key_")
     private String key;
+    @Column(name="value_")
     private String value;
 
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})

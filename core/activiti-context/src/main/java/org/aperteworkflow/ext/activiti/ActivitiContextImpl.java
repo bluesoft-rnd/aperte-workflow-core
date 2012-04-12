@@ -52,11 +52,14 @@ public class ActivitiContextImpl implements ProcessToolContext {
     private Map<Class<? extends HibernateBean>, HibernateBean> daoCache = new HashMap<Class<? extends HibernateBean>, HibernateBean>();
 
     private Boolean closed = false;
+    private ActivitiContextFactoryImpl.CustomStandaloneProcessEngineConfiguration customStandaloneProcessEngineConfiguration;
 
     public ActivitiContextImpl(Session hibernateSession,
                                ProcessToolContextFactory factory,
-                               ProcessEngine processEngine) {
+                               ProcessEngine processEngine,
+                               ActivitiContextFactoryImpl.CustomStandaloneProcessEngineConfiguration customStandaloneProcessEngineConfiguration) {
 		this.hibernateSession = hibernateSession;
+        this.customStandaloneProcessEngineConfiguration = customStandaloneProcessEngineConfiguration;
 		this.factory = factory;
 		this.processEngine = processEngine;
         this.autowiringCache = getRegistry().getCache(ProcessToolAutowire.class.getName());
@@ -299,4 +302,8 @@ public class ActivitiContextImpl implements ProcessToolContext {
                }
            }
        }
+
+    public ActivitiContextFactoryImpl.CustomStandaloneProcessEngineConfiguration getCustomStandaloneProcessEngineConfiguration() {
+        return customStandaloneProcessEngineConfiguration;
+    }
 }

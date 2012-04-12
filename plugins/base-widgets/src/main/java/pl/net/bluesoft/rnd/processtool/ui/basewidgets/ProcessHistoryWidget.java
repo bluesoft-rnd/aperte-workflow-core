@@ -13,6 +13,7 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.ChildrenAllowed;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
 import pl.net.bluesoft.util.lang.Strings;
 
@@ -31,7 +32,7 @@ import static pl.net.bluesoft.util.lang.Strings.hasText;
 @AliasName(name = "ProcessHistory")
 @AperteDoc(humanNameKey="widget.process_history.name", descriptionKey="widget.process_history.description")
 @ChildrenAllowed(false)
-public class ProcessHistoryWidget extends BaseProcessToolWidget implements ProcessToolDataWidget, ProcessToolVaadinRenderable {
+public class ProcessHistoryWidget extends BaseProcessToolVaadinWidget implements ProcessToolDataWidget, ProcessToolVaadinRenderable {
 
     @AutoWiredProperty(required = false)
     @AperteDoc(

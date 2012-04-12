@@ -435,7 +435,9 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
 
 
     @Override
-    public Collection<ProcessInstance> searchProcesses(String filter, int offset, int limit, boolean onlyRunning, String[] userRoles, String assignee, String... queues) {
+    public Collection<ProcessInstance> searchProcesses(String filter, int offset, int limit,
+                                                       boolean onlyRunning, String[] userRoles,
+                                                       String assignee, String... queues) {
         List<Long> processIds = searchProvider.searchProcesses(filter, offset, limit, onlyRunning, userRoles, assignee, queues);
         List<ProcessInstance> processInstancesByIds = getProcessInstancesByIds(processIds);
         java.util.Collections.sort(processInstancesByIds, new Comparator<ProcessInstance>() {

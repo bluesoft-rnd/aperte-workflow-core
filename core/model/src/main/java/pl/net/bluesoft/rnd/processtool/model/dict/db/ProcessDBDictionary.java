@@ -28,7 +28,7 @@ public class ProcessDBDictionary extends PersistentEntity implements ProcessDict
     private Set<ProcessDBDictionaryPermission> permissions = new HashSet<ProcessDBDictionaryPermission>();
 
     @OneToMany(mappedBy = "dictionary", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-    @MapKey(name = "key")
+    @MapKey(name = "key_")
 //    @OnDelete(action = OnDeleteAction.CASCADE)
     private Map<String, ProcessDBDictionaryItem> items = new HashMap<String, ProcessDBDictionaryItem>();
 

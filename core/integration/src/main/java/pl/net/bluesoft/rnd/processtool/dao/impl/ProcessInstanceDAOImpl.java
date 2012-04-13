@@ -161,6 +161,8 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
 
     @Override
     public List<ProcessInstance> getProcessInstances(Collection<Long> ids) {
+        if (ids.isEmpty())
+            return new ArrayList();
         return getSession().createCriteria(ProcessInstance.class)
                 .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
                 .add(Restrictions.in("id", ids)).list();

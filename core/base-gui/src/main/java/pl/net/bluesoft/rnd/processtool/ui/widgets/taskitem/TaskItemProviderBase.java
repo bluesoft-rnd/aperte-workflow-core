@@ -201,8 +201,7 @@ public class TaskItemProviderBase {
 		return builder.buildLayout();
 	}
     public Component createQueuePaneProcessInfo(TaskItemProviderParams params) {
-        Component res = impl != null ? impl.createQueuePaneProcessInfo(params) : null;
-        return res;
+        return impl != null ? impl.createQueuePaneProcessInfo(params) : null;
 //       if (res != null) {
 //           return res;
 //       }
@@ -244,7 +243,7 @@ public class TaskItemProviderBase {
 
 //	@Override
 	public Component getQueuePane(TaskItemProviderParams params) {
-        Component res = impl.getQueuePane(params);
+        Component res = impl != null ? impl.getQueuePane(params) : null;
         if (res != null) {
             return res;
         }

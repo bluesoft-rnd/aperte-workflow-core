@@ -103,6 +103,7 @@ public abstract class BaseProcessToolWidgetWithHelp extends BaseProcessToolWidge
     }
 
     public HelpProvider getHelpProvider() {
+        inithelpProvider();
         return helpProvider;
     }
 

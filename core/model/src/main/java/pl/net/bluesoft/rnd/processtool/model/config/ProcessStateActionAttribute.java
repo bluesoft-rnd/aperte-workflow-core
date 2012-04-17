@@ -4,6 +4,7 @@ import org.hibernate.annotations.Type;
 import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -11,6 +12,7 @@ import javax.persistence.*;
 @Entity
 @Table(name="pt_process_state_action_attr")
 public class ProcessStateActionAttribute extends PersistentEntity {
+//    @XmlTransient
 	@ManyToOne
 	@JoinColumn(name="action_id")
 	private ProcessStateAction action;
@@ -30,10 +32,12 @@ public class ProcessStateActionAttribute extends PersistentEntity {
 		this.value = value;
 	}
 
+    @XmlTransient
 	public ProcessStateAction getAction() {
 		return action;
 	}
 
+//    @XmlTransient
 	public void setAction(ProcessStateAction action) {
 		this.action = action;
 	}

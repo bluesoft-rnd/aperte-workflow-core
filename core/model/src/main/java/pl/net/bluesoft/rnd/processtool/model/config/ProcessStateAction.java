@@ -3,6 +3,7 @@ package pl.net.bluesoft.rnd.processtool.model.config;
 import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlTransient;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,6 +18,7 @@ public class ProcessStateAction extends PersistentEntity {
     final static public String PRIMARY_ACTION = "primary";
     final static public String SECONDARY_ACTION = "secondary";
 
+//    @XmlTransient
     @ManyToOne
     @JoinColumn(name = "state_id")
     private ProcessStateConfiguration config;
@@ -61,10 +63,12 @@ public class ProcessStateAction extends PersistentEntity {
         this.buttonName = buttonName;
     }
 
+    @XmlTransient
     public ProcessStateConfiguration getConfig() {
         return config;
     }
 
+//    @XmlTransient
     public void setConfig(ProcessStateConfiguration config) {
         this.config = config;
     }

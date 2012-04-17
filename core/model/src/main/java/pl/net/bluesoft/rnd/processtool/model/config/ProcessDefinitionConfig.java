@@ -6,6 +6,7 @@ import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashSet;
@@ -38,9 +39,6 @@ public class ProcessDefinitionConfig extends PersistentEntity implements Seriali
 	@OneToMany(cascade = {CascadeType.ALL})
 	@JoinColumn(name="definition_id")
 	private Set<ProcessStateConfiguration> states;
-
-	@OneToMany(mappedBy = "definition")
-	private Set<ProcessInstance> instances;
 
 	@OneToMany(cascade = {CascadeType.ALL})
 	@JoinColumn(name="definition_id")

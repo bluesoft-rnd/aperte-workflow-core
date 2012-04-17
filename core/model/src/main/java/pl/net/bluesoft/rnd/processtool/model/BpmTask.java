@@ -5,30 +5,118 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import java.io.Serializable;
 import java.util.Date;
 
-public interface BpmTask extends Serializable {
-    boolean isFinished();
+public class BpmTask implements Serializable {
+    protected String assignee;
+    protected UserData owner;
+    protected String taskName;
+    protected String internalTaskId;
+    protected String executionId;
+    protected Date createDate;
+    protected Date finishDate;
+    protected ProcessInstance processInstance;
+    protected boolean isFinished;
 
-    Date getCreateDate();
+    public BpmTask() {
+    }
 
-    Date getFinishDate();
+    public BpmTask(BpmTask task) {
+        this.assignee = task.getAssignee();
+        this.owner = task.getOwner();
+        this.taskName = task.getTaskName();
+        this.internalTaskId = task.getInternalTaskId();
+        this.executionId = task.getExecutionId();
+        this.createDate = task.getCreateDate();
+        this.finishDate = task.getFinishDate();
+        this.processInstance = task.getProcessInstance();
+        this.isFinished = task.isFinished();
+    }
 
-    String getExecutionId();
+    public boolean isFinished() {
+        return isFinished;
+    }
 
-    ProcessInstance getProcessInstance();
+    public void setFinished(boolean finished) {
+        isFinished = finished;
+    }
 
-    ProcessDefinitionConfig getProcessDefinition();
+    public Date getFinishDate() {
+        return finishDate;
+    }
 
-    String getInternalTaskId();
+    public void setFinishDate(Date finishDate) {
+        this.finishDate = finishDate;
+    }
 
-    String getInternalProcessId();
+    public Date getCreateDate() {
+        return createDate;
+    }
 
-    String getExternalProcessId();
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
+    }
 
-    UserData getOwner();
+    public String getExecutionId() {
+        return executionId;
+    }
 
-    String getTaskName();
+    public void setExecutionId(String executionId) {
+        this.executionId = executionId;
+    }
 
-    String getCreator();
+    public ProcessInstance getProcessInstance() {
+        return processInstance;
+    }
 
-    String getAssignee();
+    public void setProcessInstance(ProcessInstance processInstance) {
+        this.processInstance = processInstance;
+    }
+
+    public String getInternalTaskId() {
+        return internalTaskId;
+    }
+
+    public void setInternalTaskId(String internalTaskId) {
+        this.internalTaskId = internalTaskId;
+    }
+
+    public UserData getOwner() {
+        return owner;
+    }
+
+    public void setOwner(UserData owner) {
+        this.owner = owner;
+    }
+
+    public String getTaskName() {
+        return taskName;
+    }
+
+    public void setTaskName(String taskName) {
+        this.taskName = taskName;
+    }
+
+    public String getCreator() {
+        return processInstance != null ? processInstance.getCreator().getLogin() : null;
+    }
+
+    public String getAssignee() {
+        return assignee;
+    }
+
+    public void setAssignee(String assignee) {
+        this.assignee = assignee;
+    }
+
+    public ProcessDefinitionConfig getProcessDefinition() {
+        return processInstance != null ? processInstance.getDefinition() : null;
+    }
+
+    public String getInternalProcessId() {
+        return processInstance != null ? processInstance.getInternalId() : null;
+    }
+
+    public String getExternalProcessId() {
+        return processInstance != null ? processInstance.getExternalKey() : null;
+    }
+
 }

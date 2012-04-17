@@ -275,13 +275,6 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
    }
 
     @Override
-    public Collection<ProcessDefinitionConfig> getLatestConfigurations() {
-        return session.createCriteria(ProcessDefinitionConfig.class)
-        						.add(Restrictions.eq("latest", Boolean.TRUE))
-                        .list();
-    }
-
-    @Override
     public Collection<ProcessDefinitionConfig> getConfigurationVersions(ProcessDefinitionConfig cfg) {
         return session.createCriteria(ProcessDefinitionConfig.class)
         						.add(Restrictions.eq("bpmDefinitionKey", cfg.getBpmDefinitionKey()))

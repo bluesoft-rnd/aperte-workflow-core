@@ -4,6 +4,7 @@ import org.hibernate.annotations.Type;
 import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -11,6 +12,7 @@ import javax.persistence.*;
 @Entity
 @Table(name="pt_process_state_widget_attr")
 public class ProcessStateWidgetAttribute extends PersistentEntity {
+//    @XmlTransient
 	@ManyToOne
 	@JoinColumn(name="widget_id")
 	private ProcessStateWidget widget;
@@ -30,10 +32,12 @@ public class ProcessStateWidgetAttribute extends PersistentEntity {
 		this.value = value;
 	}
 
+    @XmlTransient
 	public ProcessStateWidget getWidget() {
 		return widget;
 	}
 
+//    @XmlTransient
 	public void setWidget(ProcessStateWidget widget) {
 		this.widget = widget;
 	}

@@ -67,23 +67,20 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
 
     protected Logger log = Logger.getLogger(ProcessToolJbpmSession.class.getName());
 
-   	public ProcessToolJbpmSession(UserData user, Collection<String> roleNames, ProcessToolContext ctx) {
-   		super(user, roleNames, ctx.getRegistry());
-   		IdentityService is = getProcessEngine(ctx).getIdentityService();
-   		List<User> list = is.findUsers();
-   		User jbpmUser = null;
-   		for (User u : list) {
-   			if (u.getId().equals(user.getLogin())) {
-   				jbpmUser = u;
-   			}
-   		}
-   		if (jbpmUser == null) {
-   			is.createUser(user.getLogin(), user.getRealName(), user.getEmail());
-   		}
-   		getProcessEngine(ctx).setAuthenticatedUserId(user.getLogin());
-   	}
+    public ProcessToolJbpmSession(UserData user, Collection<String> roleNames, ProcessToolContext ctx) {
+        super(user, roleNames, ctx.getRegistry());
+        if (user != null) {
+            IdentityService is = getProcessEngine(ctx).getIdentityService();
+            User jbpmUser = is.findUserById(user.getLogin());
+            if (jbpmUser == null) {
+                is.createUser(user.getLogin(), user.getRealName(), user.getEmail());
+            }
+            getProcessEngine(ctx).setAuthenticatedUserId(user.getLogin());
 
-   	@Override
+        }
+    }
+
+    @Override
    	public Collection<BpmTask> getAllTasks(ProcessToolContext ctx) {
    		Command<List<Task>> cmd = new Command<List<Task>>() {
    			@Override

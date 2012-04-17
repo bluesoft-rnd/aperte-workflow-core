@@ -50,7 +50,7 @@ public class ProcessDefinitionManagerPane extends VerticalLayout {
         ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
         ProcessToolRegistry registry = ctx.getRegistry();
         ProcessDefinitionDAO dao = registry.getProcessDefinitionDAO(ctx.getHibernateSession());
-        List<ProcessDefinitionConfig> latestConfigurations = new ArrayList(dao.getLatestConfigurations());
+        List<ProcessDefinitionConfig> latestConfigurations = new ArrayList(dao.getActiveConfigurations());
         Collections.sort(latestConfigurations);
 
         for (final ProcessDefinitionConfig cfg : latestConfigurations) {

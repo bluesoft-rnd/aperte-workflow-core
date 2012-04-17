@@ -3,6 +3,7 @@ package pl.net.bluesoft.rnd.processtool.model.config;
 import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -12,7 +13,8 @@ import javax.persistence.*;
 public class ProcessQueueRight extends PersistentEntity {
 	private String roleName;
 
-	@ManyToOne
+    @XmlTransient
+//	@ManyToOne
 	@JoinColumn(name="queue_id")
 	private ProcessQueueConfig queue;
 
@@ -26,10 +28,12 @@ public class ProcessQueueRight extends PersistentEntity {
 		this.roleName = roleName;
 	}
 
+    @XmlTransient
 	public ProcessQueueConfig getQueue() {
 		return queue;
 	}
 
+//    @XmlTransient
 	public void setQueue(ProcessQueueConfig queue) {
 		this.queue = queue;
 	}

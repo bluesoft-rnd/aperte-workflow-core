@@ -1,6 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.model;
 
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  * @author: amichalak@bluesoft.net.pl
@@ -8,7 +9,8 @@ import javax.persistence.*;
 @Entity
 @Table(name = "pt_user_roles")
 public class UserRole extends PersistentEntity {
-    @ManyToOne
+    @XmlTransient
+//    @ManyToOne
     @JoinColumn(name = "user_id")
     private UserData user;
 
@@ -25,10 +27,12 @@ public class UserRole extends PersistentEntity {
     private String name;
     private String description;
 
+    @XmlTransient
     public UserData getUser() {
         return user;
     }
 
+//    @XmlTransient
     public void setUser(UserData user) {
         this.user = user;
     }

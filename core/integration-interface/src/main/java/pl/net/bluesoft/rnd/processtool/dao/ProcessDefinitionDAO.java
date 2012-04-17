@@ -25,7 +25,6 @@ public interface ProcessDefinitionDAO extends HibernateBean<ProcessDefinitionCon
 	void updateOrCreateProcessDefinitionConfig(ProcessDefinitionConfig cfg);
 //	void updateOrCreateQueueConfigs(ProcessQueueConfig[] cfgs);
 
-    Collection<ProcessDefinitionConfig> getLatestConfigurations();
     void setConfigurationEnabled(ProcessDefinitionConfig cfg, boolean enabled);
 
     Collection<ProcessDefinitionConfig> getConfigurationVersions(ProcessDefinitionConfig cfg);

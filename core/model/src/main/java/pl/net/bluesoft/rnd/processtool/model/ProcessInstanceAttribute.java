@@ -1,6 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.model;
 
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  * Process instance attribute. This class is meant to be expanded.
@@ -14,6 +15,7 @@ public class ProcessInstanceAttribute extends PersistentEntity {
     @Column(name="key_")
 	private String key;
 
+//    @XmlTransient
 	@ManyToOne
 	@JoinColumn(name="process_instance_id")
 	private ProcessInstance processInstance;
@@ -34,10 +36,12 @@ public class ProcessInstanceAttribute extends PersistentEntity {
 		this.key = key;
 	}
 
+    @XmlTransient
 	public ProcessInstance getProcessInstance() {
 		return processInstance;
 	}
 
+//    @XmlTransient
 	public void setProcessInstance(ProcessInstance processInstance) {
 		this.processInstance = processInstance;
 	}

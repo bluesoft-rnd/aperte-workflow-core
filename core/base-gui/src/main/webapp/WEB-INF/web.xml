@@ -2,7 +2,7 @@
 
 <web-app id="AperteWorkflow"
          version="2.4"
-         >
+        >
     <display-name>AperteWorkflow</display-name>
     <context-param>
         <description>Vaadin production mode</description>
@@ -151,10 +151,10 @@
             <param-value>.+/(css|main)\.jsp</param-value>
         </init-param>
     </filter>
-	<filter>
-		<filter-name>PermissionFilter</filter-name>
-		<filter-class>pl.net.bluesoft.rnd.processtool.plugins.PermissionFilter</filter-class>
-	</filter> 
+    <filter>
+        <filter-name>PermissionFilter</filter-name>
+        <filter-class>pl.net.bluesoft.rnd.processtool.plugins.PermissionFilter</filter-class>
+    </filter>
     <filter-mapping>
         <filter-name>Header Filter</filter-name>
         <url-pattern>*.css</url-pattern>
@@ -268,15 +268,15 @@
         <url-pattern>*.jsp</url-pattern>
     </filter-mapping>
     <!-- we don't have to protect this information for now -->
-	<!--<filter-mapping>-->
-        <!--<filter-name>PermissionFilter</filter-name>-->
-        <!--<url-pattern>/osgiex/steps</url-pattern>-->
+    <!--<filter-mapping>-->
+    <!--<filter-name>PermissionFilter</filter-name>-->
+    <!--<url-pattern>/osgiex/steps</url-pattern>-->
     <!--</filter-mapping>-->
-	<filter-mapping>
+    <filter-mapping>
         <filter-name>PermissionFilter</filter-name>
         <url-pattern>/step_editor/*</url-pattern>
     </filter-mapping>
-	<filter-mapping>
+    <filter-mapping>
         <filter-name>PermissionFilter</filter-name>
         <url-pattern>/action_editor/*</url-pattern>
     </filter-mapping>
@@ -284,11 +284,11 @@
         <filter-name>PermissionFilter</filter-name>
         <url-pattern>/process_editor/*</url-pattern>
     </filter-mapping>
-	<filter-mapping>
+    <filter-mapping>
         <filter-name>PermissionFilter</filter-name>
         <url-pattern>/osgi</url-pattern>
     </filter-mapping>
-	<filter-mapping>
+    <filter-mapping>
         <filter-name>PermissionFilter</filter-name>
         <url-pattern>/g_token</url-pattern>
     </filter-mapping>
@@ -364,7 +364,7 @@
         </init-param>
         <load-on-startup>5</load-on-startup>
     </servlet>
-	<servlet>
+    <servlet>
         <servlet-name>DummyVaadinServlet</servlet-name>
         <servlet-class>com.vaadin.terminal.gwt.server.ApplicationServlet</servlet-class>
         <init-param>
@@ -373,17 +373,18 @@
         </init-param>
         <load-on-startup>6</load-on-startup>
     </servlet>
-	<servlet>
+    <servlet>
         <servlet-name>ButtonExposureServlet</servlet-name>
         <servlet-class>pl.net.bluesoft.rnd.processtool.plugins.ButtonExposureServlet</servlet-class>
         <load-on-startup>7</load-on-startup>
     </servlet>
     <servlet>
         <servlet-name>AperteWorkflowConfigurationExposureServlet</servlet-name>
-        <servlet-class>pl.net.bluesoft.rnd.processtool.plugins.AperteWorkflowConfigurationExposureServlet</servlet-class>
+        <servlet-class>pl.net.bluesoft.rnd.processtool.plugins.AperteWorkflowConfigurationExposureServlet
+        </servlet-class>
         <load-on-startup>8</load-on-startup>
     </servlet>
-	<servlet>
+    <servlet>
         <servlet-name>ActionEditorServlet</servlet-name>
         <servlet-class>com.vaadin.terminal.gwt.server.ApplicationServlet</servlet-class>
         <init-param>
@@ -392,13 +393,30 @@
         </init-param>
         <load-on-startup>8</load-on-startup>
     </servlet>
+    <servlet>
+        <servlet-name>CXFServlet</servlet-name>
+        <display-name>CXF Servlet</display-name>
+        <servlet-class>
+            org.aperteworkflow.service.CXFWrapperServlet <!-- no spring, please! -->
+        </servlet-class>
+        <init-param>
+            <param-name>config-location</param-name>
+            <param-value>/WEB-INF/beans.xml</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>CXFServlet</servlet-name>
+        <url-pattern>/services/*</url-pattern>
+    </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>GenerateTokenServlet</servlet-name>
         <url-pattern>/g_token</url-pattern>
     </servlet-mapping>
 
-	 <servlet-mapping>
+    <servlet-mapping>
         <servlet-name>GenerateTokenServlet</servlet-name>
         <url-pattern>/v_token</url-pattern>
     </servlet-mapping>
@@ -407,13 +425,13 @@
         <servlet-name>OSGIStepExposureServlet</servlet-name>
         <url-pattern>/osgiex/steps</url-pattern>
     </servlet-mapping>
-	
-	<servlet-mapping>
+
+    <servlet-mapping>
         <servlet-name>ButtonExposureServlet</servlet-name>
         <url-pattern>/osgiex/buttons</url-pattern>
     </servlet-mapping>
 
-	<servlet-mapping>
+    <servlet-mapping>
         <servlet-name>AperteWorkflowConfigurationExposureServlet</servlet-name>
         <url-pattern>/osgiex/configuration</url-pattern>
     </servlet-mapping>
@@ -423,14 +441,13 @@
         <servlet-name>StepEditorServlet</servlet-name>
         <url-pattern>/step_editor/*</url-pattern>
     </servlet-mapping>
-	
 
     <servlet-mapping>
         <servlet-name>DummyVaadinServlet</servlet-name>
         <url-pattern>/VAADIN/*</url-pattern>
     </servlet-mapping>
 
-	<servlet-mapping>
+    <servlet-mapping>
         <servlet-name>ActionEditorServlet</servlet-name>
         <url-pattern>/action_editor/*</url-pattern>
     </servlet-mapping>

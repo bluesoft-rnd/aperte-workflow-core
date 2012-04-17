@@ -4,6 +4,7 @@ import org.hibernate.annotations.Type;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlTransient;
 import java.util.Calendar;
 
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
@@ -42,6 +43,7 @@ public class ProcessInstanceLog extends PersistentEntity implements Comparable {
 	@JoinColumn(name="process_state_id")
 	private ProcessStateConfiguration state;
 
+//    @XmlTransient
 	@ManyToOne
 	@JoinColumn(name="process_instance_id")
 	private ProcessInstance processInstance;
@@ -90,10 +92,11 @@ public class ProcessInstanceLog extends PersistentEntity implements Comparable {
 		this.state = state;
 	}
 
+    @XmlTransient
 	public ProcessInstance getProcessInstance() {
 		return processInstance;
 	}
-
+//    @XmlTransient
 	public void setProcessInstance(ProcessInstance processInstance) {
 		this.processInstance = processInstance;
 	}

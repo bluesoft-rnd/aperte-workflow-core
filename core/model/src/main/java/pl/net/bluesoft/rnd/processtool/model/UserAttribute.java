@@ -4,6 +4,7 @@ package pl.net.bluesoft.rnd.processtool.model;
 //import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlTransient;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,6 +20,7 @@ public class UserAttribute extends UserAttributesSupport {
     @Column(name="value_")
     private String value;
 
+//    @XmlTransient
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "parent_id")
     private UserAttribute parent;
@@ -59,10 +61,12 @@ public class UserAttribute extends UserAttributesSupport {
     }
 
     @Override
+    @XmlTransient
     public UserData getUser() {
         return user;
     }
 
+//    @XmlTransient
     public void setUser(UserData user) {
         this.user = user;
     }

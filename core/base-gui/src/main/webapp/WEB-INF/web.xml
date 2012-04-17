@@ -10,6 +10,22 @@
         <param-value>false</param-value>
     </context-param>
 
+    <security-constraint>
+        <display-name>excluded</display-name>
+        <web-resource-collection>
+            <web-resource-name>Web Service API</web-resource-name>
+            <url-pattern>/services/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>AWF_API</role-name>
+        </auth-constraint>
+    </security-constraint>
+
+    <login-config>
+        <auth-method>BASIC</auth-method>
+        <realm-name>default</realm-name>
+    </login-config>
+
     <filter>
         <filter-name>Cache Filter - Resource</filter-name>
         <filter-class>com.liferay.portal.kernel.servlet.PortalClassLoaderFilter</filter-class>

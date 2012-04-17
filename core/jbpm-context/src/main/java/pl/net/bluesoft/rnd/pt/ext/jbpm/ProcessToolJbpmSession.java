@@ -49,7 +49,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
-import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -980,6 +979,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
               processEngine.getTaskService().completeTask(task.getInternalTaskId(), action.getBpmName(), vars);
 
           String s = getProcessState(pi, ctx);
+          updateSubprocess(pi, task.getInternalTaskId(), ctx);
           fillProcessAssignmentData(processEngine, pi, ctx);
           pi.setState(s);
           if (s == null && pi.getRunning() && !isProcessRunning(pi.getInternalId(), ctx)) {
@@ -1115,6 +1115,22 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
         });
 
         return transitionNames;
+    }
+
+    public void updateSubprocess(final ProcessInstance parentPi, String internalId, ProcessToolContext ctx) {
+        ProcessEngine engine = getProcessEngine(ctx);
+        org.jbpm.api.ProcessInstance jbpmPi = engine.getExecutionService().findProcessInstanceById(internalId);
+        Execution subprocess = jbpmPi.getSubProcessInstance();
+        if(subprocess != null){
+        	ProcessDefinitionConfig config = ctx.getProcessDefinitionDAO().getActiveConfigurationByKey(subprocess.getProcessDefinitionId());
+        	ProcessInstance subPi = createProcessInstance(config, null, ctx, null, null, "parent_process");
+        	subPi.setParent(parentPi);
+        	ctx.getProcessInstanceDAO().saveProcessInstance(subPi);
+
+//        	ProcessInstance subPi = new ProcessInstance(subprocess.getKey(), parentPi.getCreator(), subprocess.getProcessDefinitionId());
+//        	subPi.setCreateDate(new Date());
+//        	subPi.set
+        }
     }
 
     public List<String> getOutgoingTransitionDestinationNames(String internalId, ProcessToolContext ctx) {

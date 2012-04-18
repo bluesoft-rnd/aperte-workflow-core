@@ -36,7 +36,7 @@ public interface ProcessToolBpmSession extends ProcessToolBpmConstants {
                                           ProcessToolContext ctx,
                                           String description,
                                           String keyword,
-                                          String source);
+                                          String source, String internalId);
 
     ProcessInstance getProcessData(String internalId, ProcessToolContext ctx);
 

@@ -1,10 +1,40 @@
 package pl.net.bluesoft.rnd.pt.ext.jbpm;
 
+import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
+import static pl.net.bluesoft.util.lang.Lang.keyFilter;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.aperteworkflow.bpm.graph.GraphElement;
 import org.aperteworkflow.bpm.graph.StateNode;
 import org.aperteworkflow.bpm.graph.TransitionArc;
 import org.hibernate.Query;
-import org.jbpm.api.*;
+import org.jbpm.api.Execution;
+import org.jbpm.api.ExecutionService;
+import org.jbpm.api.HistoryService;
+import org.jbpm.api.IdentityService;
+import org.jbpm.api.NewDeployment;
+import org.jbpm.api.ProcessDefinition;
+import org.jbpm.api.ProcessEngine;
+import org.jbpm.api.RepositoryService;
+import org.jbpm.api.TaskService;
 import org.jbpm.api.cmd.Command;
 import org.jbpm.api.cmd.Environment;
 import org.jbpm.api.history.HistoryActivityInstance;
@@ -27,34 +57,30 @@ import org.jbpm.pvm.internal.task.TaskImpl;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.bpm.exception.ProcessToolSecurityException;
 import pl.net.bluesoft.rnd.processtool.bpm.impl.AbstractProcessToolSession;
 import pl.net.bluesoft.rnd.processtool.hibernate.ResultsPageWrapper;
-import pl.net.bluesoft.rnd.processtool.model.*;
+import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog;
+import pl.net.bluesoft.rnd.processtool.model.ProcessStatus;
+import pl.net.bluesoft.rnd.processtool.model.TaskState;
+import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.MutableBpmTask;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
-import pl.net.bluesoft.util.lang.*;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
-import static pl.net.bluesoft.util.lang.Lang.keyFilter;
-import static pl.net.bluesoft.util.lang.StringUtil.hasText;
+import pl.net.bluesoft.util.lang.Lang;
+import pl.net.bluesoft.util.lang.Mapcar;
+import pl.net.bluesoft.util.lang.Predicate;
+import pl.net.bluesoft.util.lang.Strings;
+import pl.net.bluesoft.util.lang.Transformer;
 
 /**
  * jBPM session implementation
@@ -961,8 +987,11 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
            Map<String, Object> vars = new HashMap<String, Object>();
            vars.put("ACTION", action.getBpmName());
            List<String> outgoingTransitionNames = getOutgoingTransitionNames(pi.getInternalId(), ctx);
+
            ProcessEngine processEngine = getProcessEngine(ctx);
 
+           Task processInstance = processEngine.getTaskService().getTask(task.getInternalTaskId());
+           String executionId = processInstance.getExecutionId();
 
 
            Set<String> taskIdsBeforeCompletion = new HashSet<String>();
@@ -979,10 +1008,11 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
               processEngine.getTaskService().completeTask(task.getInternalTaskId(), action.getBpmName(), vars);
 
           String s = getProcessState(pi, ctx);
-          updateSubprocess(pi, task.getInternalTaskId(), ctx);
+          boolean startsSubprocess = updateSubprocess(pi, executionId, ctx);
+//          s = (s == null && startsSubprocess ? "subprocess" : s);
           fillProcessAssignmentData(processEngine, pi, ctx);
           pi.setState(s);
-          if (s == null && pi.getRunning() && !isProcessRunning(pi.getInternalId(), ctx)) {
+          if (startsSubprocess == false && s == null && pi.getRunning() && !isProcessRunning(pi.getInternalId(), ctx)) {
               pi.setRunning(false);
           }
           ctx.getProcessInstanceDAO().saveProcessInstance(pi);
@@ -996,7 +1026,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
                ProcessStatus ps = processStatus.length() == 1 ? ProcessStatus.fromChar(processStatus.charAt(0)) : ProcessStatus.fromString(processStatus);
                pi.setStatus(ps);
            } else {
-               pi.setStatus(isProcessRunning(pi.getInternalId(), ctx) ? ProcessStatus.RUNNING : ProcessStatus.FINISHED);
+               pi.setStatus(isProcessRunning(pi.getInternalId(), ctx) || startsSubprocess ? ProcessStatus.RUNNING : ProcessStatus.FINISHED);
            }
 
            BpmTask userTask = null;
@@ -1117,20 +1147,28 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
         return transitionNames;
     }
 
-    public void updateSubprocess(final ProcessInstance parentPi, String internalId, ProcessToolContext ctx) {
+    public boolean updateSubprocess(final ProcessInstance parentPi, String executionId, ProcessToolContext ctx) {
         ProcessEngine engine = getProcessEngine(ctx);
-        org.jbpm.api.ProcessInstance jbpmPi = engine.getExecutionService().findProcessInstanceById(internalId);
-        Execution subprocess = jbpmPi.getSubProcessInstance();
-        if(subprocess != null){
-        	ProcessDefinitionConfig config = ctx.getProcessDefinitionDAO().getActiveConfigurationByKey(subprocess.getProcessDefinitionId());
-        	ProcessInstance subPi = createProcessInstance(config, null, ctx, null, null, "parent_process");
-        	subPi.setParent(parentPi);
-        	ctx.getProcessInstanceDAO().saveProcessInstance(subPi);
+        Execution jbpmPi = engine.getExecutionService().findExecutionById(executionId);
+        if(jbpmPi != null){
+	        Execution subprocess = jbpmPi.getSubProcessInstance();
+	        if(subprocess != null){
+	        	ctx.getHibernateSession().refresh(subprocess);
+	//        	subprocess = getProcessEngine(ctx).getExecutionService().findProcessInstanceById(subprocess.getId());
+	        	String processDefinitionId = subprocess.getProcessDefinitionId().replaceFirst("-\\d+$", "");
+				ProcessDefinitionConfig config = ctx.getProcessDefinitionDAO().getActiveConfigurationByKey(processDefinitionId);
+	        	ProcessInstance subPi = createProcessInstance(config, null, ctx, null, null, "parent_process", subprocess.getId());
+	        	subPi.setParent(parentPi);
 
-//        	ProcessInstance subPi = new ProcessInstance(subprocess.getKey(), parentPi.getCreator(), subprocess.getProcessDefinitionId());
-//        	subPi.setCreateDate(new Date());
-//        	subPi.set
+	        	ctx.getProcessInstanceDAO().saveProcessInstance(subPi);
+
+	//        	ProcessInstance subPi = new ProcessInstance(subprocess.getKey(), parentPi.getCreator(), subprocess.getProcessDefinitionId());
+	//        	subPi.setCreateDate(new Date());
+	//        	subPi.set
+	        	return true;
+	        }
         }
+        return false;
     }
 
     public List<String> getOutgoingTransitionDestinationNames(String internalId, ProcessToolContext ctx) {
@@ -1311,7 +1349,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
             for (User u : users) {
                 res.add(u.getId());
             }
-            Collections.sort(res);
+            java.util.Collections.sort(res);
             return res;
 
         }

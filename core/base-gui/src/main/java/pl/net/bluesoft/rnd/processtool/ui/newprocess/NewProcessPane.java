@@ -58,7 +58,7 @@ public class NewProcessPane extends VerticalLayout {
                         ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
                         ProcessDefinitionConfig cfg = (ProcessDefinitionConfig) l.getValue();
                         cfg = ctx.getProcessDefinitionDAO().getActiveConfigurationByKey(cfg.getBpmDefinitionKey());
-                        ProcessInstance instance = session.createProcessInstance(cfg, null, ctx, null, null, "portlet");
+                        ProcessInstance instance = session.createProcessInstance(cfg, null, ctx, null, null, "portlet", null);
                         getWindow().showNotification(getMessage("newProcess.started"), 2000);
                         getWindow().executeJavaScript("Liferay.trigger('processtool.bpm.newProcess', '" + instance.getInternalId() + "');");
                         getWindow().executeJavaScript("vaadin.forceSync();");

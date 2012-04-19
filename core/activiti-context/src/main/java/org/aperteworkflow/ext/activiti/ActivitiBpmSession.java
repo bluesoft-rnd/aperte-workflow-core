@@ -16,6 +16,7 @@ import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.repository.DeploymentBuilder;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.Execution;
+import org.activiti.engine.runtime.ProcessInstanceQuery;
 import org.activiti.engine.task.IdentityLink;
 import org.activiti.engine.task.Task;
 import org.activiti.engine.task.TaskQuery;
@@ -36,7 +37,6 @@ import pl.net.bluesoft.rnd.processtool.bpm.exception.ProcessToolSecurityExceptio
 import pl.net.bluesoft.rnd.processtool.bpm.impl.AbstractProcessToolSession;
 import pl.net.bluesoft.rnd.processtool.hibernate.ResultsPageWrapper;
 import pl.net.bluesoft.rnd.processtool.model.*;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
@@ -373,7 +373,7 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
 
     public List<String> getOutgoingTransitionNames(String internalId, ProcessToolContext ctx) {
         ProcessEngine engine = getProcessEngine();
-        org.activiti.engine.runtime.ProcessInstance pi = 
+        org.activiti.engine.runtime.ProcessInstance pi =
                 engine.getRuntimeService().createProcessInstanceQuery().processInstanceId(internalId).singleResult();
         ExecutionImpl execution = (ExecutionImpl) pi;
         List<String> transitionNames = new ArrayList<String>();
@@ -474,7 +474,7 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
             return null;
         }
         ts.setAssignee(task.getId(), user.getLogin());
-       
+
         ProcessInstance pi2 = ctx.getProcessInstanceDAO().getProcessInstanceByInternalId(task.getProcessInstanceId());
         if (pi2 == null) {
             if (pi == null)
@@ -561,7 +561,7 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
 
     private List<Task> findUserTask(final ProcessInstance processInstance, ProcessToolContext ctx) {
         return getProcessEngine().getTaskService().createTaskQuery().processInstanceId(processInstance.getInternalId())
-                .taskAssignee(user.getLogin()).list();        
+                .taskAssignee(user.getLogin()).list();
     }
 
 //    private List<BpmTask> findProcessTasks(final ProcessInstance processInstance, ProcessToolContext ctx) {
@@ -873,6 +873,12 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
                         .processInstanceId(processInstance.getInternalId()).singleResult();
     }
 
+//    private Task findSubProcessTask(final ProcessInstance processInstance, ProcessToolContext ctx) {
+//        ProcessInstanceQuery subprocessQuery = getProcessEngine().getRuntimeService().createProcessInstanceQuery().superProcessInstanceId(processInstance.getInternalId());
+//        org.activiti.engine.runtime.ProcessInstance subprocess = subprocessQuery.singleResult();
+//        return subprocess == null ? null : getProcessEngine().getTaskService().createTaskQuery()
+//                        .processInstanceId(subprocess.getId()).singleResult();
+//    }
 
     public BpmTask performAction(ProcessStateAction action,
                                  BpmTask task,
@@ -907,6 +913,8 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
         variables.put("ACTION",action.getBpmName());
         processEngine.getTaskService().complete(task.getId(), variables);
 
+        updateSubprocess(processInstance, ctx);
+
         String s = getProcessState(processInstance, ctx);
         fillProcessAssignmentData(processInstance, ctx);
         processInstance.setState(s);
@@ -916,7 +924,26 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
         ctx.getProcessInstanceDAO().saveProcessInstance(processInstance);
         publishEvents(processInstance, processInstance.getRunning() ? BpmEvent.Type.SIGNAL_PROCESS : BpmEvent.Type.END_PROCESS);
 
-        return collectTask(findProcessTask(processInstance, ctx), processInstance, ctx);
+//        Task processTask = findProcessTask(processInstance, ctx);
+//        if(processTask == null){
+//        	processTask = findSubProcessTask(processInstance, ctx);
+//        }
+//		return collectTask(processTask, processInstance, ctx);
+
+		return collectTask(findProcessTask(processInstance, ctx), processInstance, ctx);
+    }
+
+    public void updateSubprocess(final ProcessInstance parentPi, ProcessToolContext ctx) {
+        RuntimeService service = getProcessEngine().getRuntimeService();
+        ProcessInstanceQuery subprocessQuery = service.createProcessInstanceQuery().superProcessInstanceId(parentPi.getInternalId());
+        org.activiti.engine.runtime.ProcessInstance subprocess = subprocessQuery.singleResult();
+        if(subprocess != null){
+	        	String processDefinitionId = subprocess.getProcessDefinitionId().replaceFirst(":\\d+:\\d+$", "");
+				ProcessDefinitionConfig config = ctx.getProcessDefinitionDAO().getActiveConfigurationByKey(processDefinitionId);
+	        	pl.net.bluesoft.rnd.processtool.model.ProcessInstance subPi = createProcessInstance(config, null, ctx, null, null, "parent_process", subprocess.getId());
+	        	subPi.setParent(parentPi);
+	        	ctx.getProcessInstanceDAO().saveProcessInstance(subPi);
+	        }
     }
 
     private void publishEvents(ProcessInstance processInstance, BpmEvent.Type signalProcess) {
@@ -1316,7 +1343,7 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
                         }
                         arc.getPath().get(arc.getPath().size()-1).setX(endX);
                         arc.getPath().get(arc.getPath().size()-1).setY(endY);
-                        
+
                         res.put("__AWF__" + startNode.getLabel() + "_" + endNode.getLabel(),
                                 arc);
                         res.put("__AWF__default_transition_" + startNode.getLabel(),

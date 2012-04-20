@@ -4,7 +4,7 @@
     <parent>
         <artifactId>samples</artifactId>
         <groupId>org.aperteworkflow</groupId>
-        <version>1.1-SNAPSHOT</version>
+        <version>1.1</version>
     </parent>
 
     <artifactId>mule-flightsearch-sample</artifactId>

@@ -451,7 +451,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
         this.pluginsDir =  pluginsDir.replace('/', File.separatorChar);
         this.luceneDir = luceneDir.replace('/', File.separatorChar);
         this.registry = registry;
-        
+
         registry.setPluginManager(this);
         registry.setSearchProvider(this);
         state = State.INITIALIZING;
@@ -463,7 +463,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
         initializeSearchService();
         LOGGER.fine("initialize.end!");
         state = State.ACTIVE;
-    }      
+    }
 
     private void initializeFelix(String storageDir, final ProcessToolRegistryImpl registry) throws BundleException {
         if (felix != null) {
@@ -540,7 +540,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
             @Override
             public void start(BundleContext context) throws Exception {
                 if (registry != null) {
-                    registry.setOsgiBundleContext(context);                    
+                    registry.setOsgiBundleContext(context);
                     serviceBridge = new FelixServiceBridge(felix);
                     registry.addServiceLoader(serviceBridge);
                     context.registerService(ProcessToolRegistry.class.getName(), registry, new Hashtable());
@@ -847,7 +847,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
                 is = new FileInputStream(pluginsDir + File.separatorChar + "packages.export");
             }
             catch (IOException e) {
-                LOGGER.log(Level.SEVERE, "Error occurred while reading " + pluginsDir + File.separatorChar + "packages.export", e);                
+                LOGGER.log(Level.SEVERE, "Error occurred while reading " + pluginsDir + File.separatorChar + "packages.export", e);
                 LOGGER.log(Level.SEVERE, "Falling back to bundled version");
                 is = getClass().getResourceAsStream("/packages.export");
             }
@@ -868,7 +868,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
             }
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error occurred while reading " + pluginsDir + File.separatorChar + "packages.export", e);
-            
+
         }
         return "";
     }
@@ -995,6 +995,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
     public void uninstallPlugin(PluginMetadata pluginMetadata) {
         try {
             String file = pluginMetadata.getBundleLocation();
+            file = file.replaceAll("file://", "");
             File f = new File(file);
             felix.getBundleContext().getBundle(pluginMetadata.getId()).uninstall();
             if (!f.delete()) {
@@ -1008,7 +1009,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
         }
     }
 
-    
+
     private void initializeSearchService() {
         try {
             File path = new File(luceneDir);
@@ -1043,7 +1044,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
     public void updateIndex(ProcessInstanceSearchData processInstanceSearchData) {
         Document doc = new Document();
         doc.add(new Field(AWF__ID,
-                String.valueOf(processInstanceSearchData.getProcessInstanceId()), 
+                String.valueOf(processInstanceSearchData.getProcessInstanceId()),
                 Field.Store.YES,Field.Index.NOT_ANALYZED));
         doc.add(new Field(AWF__TYPE, PROCESS_INSTANCE, Field.Store.YES, Field.Index.NOT_ANALYZED));
         for (ProcessInstanceSearchAttribute attr : processInstanceSearchData.getSearchAttributes()) {
@@ -1066,7 +1067,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
         List<Document> results;
         List<Query> addQueries = new ArrayList<Query>();
         if (assignee != null) {
-            addQueries.add(new TermQuery(new Term(AWF__ASSIGNEE, assignee)));            
+            addQueries.add(new TermQuery(new Term(AWF__ASSIGNEE, assignee)));
         }
         if (queues != null) for (String queue : queues) {
             addQueries.add(new TermQuery(new Term(AWF__QUEUE, queue)));
@@ -1102,7 +1103,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
         Collections.reverse(res);
         return res.subList(offset, Math.min(offset+limit, res.size()));
     }
-    
+
     public List<Document> search(String query, int offset, int limit, Query... addQueries) {
         try {
             LOGGER.info("Parsing lucene search query: " + query);
@@ -1114,7 +1115,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
                 bq.add(qq, BooleanClause.Occur.MUST);
             }
             bq.add(q, BooleanClause.Occur.MUST);
-            
+
             LOGGER.info("Searching lucene index with query: " + bq.toString());
             TopDocs search = indexSearcher.search(bq, offset + limit);
 
@@ -1128,7 +1129,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new RuntimeException(e);
-            
+
         }
     }
     public synchronized void updateIndex(Document... docs) {

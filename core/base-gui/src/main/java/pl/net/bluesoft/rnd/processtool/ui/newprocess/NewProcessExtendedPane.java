@@ -276,7 +276,7 @@ public class NewProcessExtendedPane extends VerticalLayout implements Refreshabl
 			public void run() {
 				ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
 				ProcessDefinitionConfig cfg = ctx.getProcessDefinitionDAO().getActiveConfigurationByKey(bpmDefinitionId);
-				ProcessInstance instance = session.createProcessInstance(cfg, null, ctx, null, null, "portlet");
+				ProcessInstance instance = session.createProcessInstance(cfg, null, ctx, null, null, "portlet", null);
 				VaadinUtility.informationNotification(activityMainPane.getApplication(), getMessage("newProcess.started"), 1000);
 				getWindow().executeJavaScript("Liferay.trigger('processtool.bpm.newProcess', '" + instance.getInternalId() + "');");
 				getWindow().executeJavaScript("vaadin.forceSync();");

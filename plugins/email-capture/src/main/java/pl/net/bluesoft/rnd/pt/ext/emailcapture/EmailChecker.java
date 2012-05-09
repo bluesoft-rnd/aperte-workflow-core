@@ -169,7 +169,7 @@ public class EmailChecker {
                 existingPi = toolBpmSession.createProcessInstance(context.getProcessDefinitionDAO().getActiveConfigurationByKey(rule.getProcessCode()),
                         null, context,
                         subject,
-                        preparedSubject, "email");
+                        preparedSubject, "email", null);
                 //save initial email data
                 existingPi.addAttribute(new ProcessInstanceSimpleAttribute("email_from", sender));
                 existingPi.addAttribute(new ProcessInstanceSimpleAttribute("email_subject", msg.getSubject()));

@@ -60,12 +60,6 @@ public class ProcessCommentsWidget extends BaseProcessToolVaadinWidget implement
 	private Boolean table;
 
 	@AutoWiredProperty
-	private String caption;
-
-	@AutoWiredProperty
-	private String comment;
-
-	@AutoWiredProperty
 	private Boolean mustAddComment;
 
 

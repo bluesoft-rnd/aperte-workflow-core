@@ -17,9 +17,6 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
 @AliasName(name="CaptionPanel")
 public class PanelWidget extends BaseProcessToolVaadinWidget implements ProcessToolVaadinRenderable {
 
-	@AutoWiredProperty
-	private String caption;
-
 	Panel panel = new Panel();
 	
 	@Override

@@ -68,6 +68,7 @@
                         <Bundle-Version>0.1</Bundle-Version>
                         <Embed-Directory>lib</Embed-Directory>
                         <Embed-Transitive>true</Embed-Transitive>
+                        <ProcessTool-Step-Enhancement>pl.net.bluesoft.rnd.pt.ext.bpmnotifications.step.SendMailStep</ProcessTool-Step-Enhancement>
                     </instructions>
                 </configuration>
             </plugin>

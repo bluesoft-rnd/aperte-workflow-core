@@ -10,7 +10,7 @@
     <name>Aperte Workflow OSGi Plugins</name>
 
     <packaging>pom</packaging>
-    <artifactId>plugins</artifactId>
+    <artifactId>core-plugins</artifactId>
 
     <modules>
         <module>base-widgets</module>

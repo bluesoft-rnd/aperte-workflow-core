@@ -14,18 +14,9 @@
 
     <modules>
         <module>base-widgets</module>
-        <module>bpm-notifications</module>
-        <module>cmis-widget</module>
-        <module>drools-step</module>
-        <module>email-capture</module>
-        <module>files-capture</module>
-        <module>process-deadlines</module>
-        <module>report-step</module>
-        <module>userdata-widget</module>
         <module>mule-esb-plugin</module>
-        <module>doclist-widget</module>
-        <module>log-step</module>
         <module>scripting</module>
+        <module>document-provider-registry</module>
     </modules>
 
     <dependencies>

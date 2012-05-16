@@ -28,78 +28,82 @@ public abstract class BaseProcessToolWidgetWithHelp extends BaseProcessToolWidge
                     ((HelpProviderFactory)ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().lookupService(HelpProviderFactory.class.getName()))
                             .getInstance(getApplication(), getProcessDefinition(), !cannotEdit(), helpDictionaryName);
             if (helpProvider == null) {
-                helpProvider = new HelpProvider() {
-                    @Override
-                    public Component helpIcon(String taskName, String s) {
-                        return new Label("no help loaded");
-                    }
-
-                    @Override
-                    public Component getHelpIcon(String key) {
-                        return new Label("no help loaded");
-                    }
-
-                    @Override
-                    public Component getHelpIcon(String key, String message) {
-                        return new Label("no help loaded");
-                    }
-
-                    @Override
-                    public Field wrapFieldWithHelp(Field field, String key) {
-                        return new TextField("no help loaded");
-                    }
-
-                    @Override
-                    public void prepare(Application application, ProcessDefinitionConfig cfg, boolean canEdit, String helpDictionaryName) {
-                    }
-
-                    @Override
-                    public Component wrapComponentWithHelp(Component component, String key) {
-                        return new Label("no help loaded");
-                    }
-
-                    @Override
-                    public Component wrapComponentWithHelp(Component component, String key, String iconPlacement, String popupPlacement) {
-                        return new Label("no help loaded");
-                    }
-
-                    @Override
-                    public void attachToLayout(Layout layout) {
-                        layout.addComponent(new Label("no help loaded"));
-                    }
-
-                    @Override
-                    public Field getFieldWithHelp(Field wrappedField, Component helpButton) {
-                        return new TextField("no help provided");
-                    }
-
-                    @Override
-                    public void makeTableHelpEnabled(com.vaadin.ui.Table t) {
-                        //To change body of implemented methods use File | Settings | File Templates.
-                    }
-
-                    @Override
-                    public void addHelpForColumn(com.vaadin.ui.Table t, Object propertyId, String key) {
-                        //To change body of implemented methods use File | Settings | File Templates.
-                    }
-
-                    @Override
-                    public Field stripFieldFromHelp(Field f) {
-                        return f;
-                    }
-
-                    @Override
-                    public void makeTableHelpEnabled(Table t, Component helpPosition) {
-                        //nothing
-                    }
-
-                    @Override
-                    public void showHelpFor(Component component) {
-                        //nothing
-                    }
-                };
+                helpProvider = createDummyHelpProvider();
             }
         }
+    }
+
+    public static HelpProvider createDummyHelpProvider() {
+        return new HelpProvider() {
+            @Override
+            public Component helpIcon(String taskName, String s) {
+                return new Label("no help loaded");
+            }
+
+            @Override
+            public Component getHelpIcon(String key) {
+                return new Label("no help loaded");
+            }
+
+            @Override
+            public Component getHelpIcon(String key, String message) {
+                return new Label("no help loaded");
+            }
+
+            @Override
+            public Field wrapFieldWithHelp(Field field, String key) {
+                return new TextField("no help loaded");
+            }
+
+            @Override
+            public void prepare(Application application, ProcessDefinitionConfig cfg, boolean canEdit, String helpDictionaryName) {
+            }
+
+            @Override
+            public Component wrapComponentWithHelp(Component component, String key) {
+                return new Label("no help loaded");
+            }
+
+            @Override
+            public Component wrapComponentWithHelp(Component component, String key, String iconPlacement, String popupPlacement) {
+                return new Label("no help loaded");
+            }
+
+            @Override
+            public void attachToLayout(Layout layout) {
+                layout.addComponent(new Label("no help loaded"));
+            }
+
+            @Override
+            public Field getFieldWithHelp(Field wrappedField, Component helpButton) {
+                return new TextField("no help provided");
+            }
+
+            @Override
+            public void makeTableHelpEnabled(Table t) {
+                //To change body of implemented methods use File | Settings | File Templates.
+            }
+
+            @Override
+            public void addHelpForColumn(Table t, Object propertyId, String key) {
+                //To change body of implemented methods use File | Settings | File Templates.
+            }
+
+            @Override
+            public Field stripFieldFromHelp(Field f) {
+                return f;
+            }
+
+            @Override
+            public void makeTableHelpEnabled(Table t, Component helpPosition) {
+                //nothing
+            }
+
+            @Override
+            public void showHelpFor(Component component) {
+                //nothing
+            }
+        };
     }
 
     public HelpProvider getHelpProvider() {

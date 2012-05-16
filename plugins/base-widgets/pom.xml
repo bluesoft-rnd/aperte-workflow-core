@@ -67,7 +67,7 @@
                 <configuration>
                     <instructions>
                         <Export-Package>
-                            pl.net.bluesoft.rnd.processtool.ui.basewidgets,pl.net.bluesoft.rnd.processtool.ui.buttons
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets,pl.net.bluesoft.rnd.processtool.ui.buttons, pl.net.bluesoft.rnd.processtool.ui.buttons.dialog
                         </Export-Package>
                         <Import-Package>
                             org.aperteworkflow.scripting,

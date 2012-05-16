@@ -51,7 +51,7 @@ public abstract class AbstractProcessToolSession
                                                  ProcessToolContext ctx,
                                                  String description,
                                                  String keyword,
-                                                 String source) {
+                                                 String source, String internalId) {
         if (!config.getEnabled()) {
             throw new IllegalArgumentException("Process definition has been disabled!");
         }
@@ -82,7 +82,11 @@ public abstract class AbstractProcessToolSession
         pi.addAttribute(attr);
 
         ctx.getProcessInstanceDAO().saveProcessInstance(pi);
-        pi = startProcessInstance(config, externalKey, ctx, pi);
+
+        if(internalId == null)
+        	pi = startProcessInstance(config, externalKey, ctx, pi);
+        else
+        	pi.setInternalId(internalId);
 
         user = findOrCreateUser(user, ctx);
 

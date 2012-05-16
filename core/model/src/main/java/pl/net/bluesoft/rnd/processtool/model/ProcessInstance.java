@@ -38,7 +38,7 @@ public class ProcessInstance extends PersistentEntity {
 
     @Transient
     private BpmTask[] activeTasks;
-    
+
     private Boolean running;
 
 	private Date createDate;
@@ -58,6 +58,14 @@ public class ProcessInstance extends PersistentEntity {
 	@OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
 	@JoinColumn(name="process_instance_id")
 	private Set<ProcessInstanceLog> processLogs = new HashSet();
+
+	@OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
+	@JoinColumn(name="parent_id")
+	private Set<ProcessInstance> children = new HashSet();
+
+	@ManyToOne
+	@JoinColumn(name="parent_id")
+	private ProcessInstance parent;
 
 	@Transient
 	private Set toDelete;
@@ -247,7 +255,7 @@ public class ProcessInstance extends PersistentEntity {
             addAttribute(new ProcessInstanceSimpleAttribute(key, value));
         }
     }
-    
+
     public void addDictionaryAttributeItem(String dictionary, String key, String value){
         ProcessInstanceDictionaryAttribute attr = (ProcessInstanceDictionaryAttribute)findAttributeByKey(dictionary);
         if (attr == null) {
@@ -302,4 +310,24 @@ public class ProcessInstance extends PersistentEntity {
 //      TODO
         return null;
     }
+
+
+	public Set<ProcessInstance> getChildren() {
+		return children;
+	}
+
+
+	public void setChildren(Set<ProcessInstance> children) {
+		this.children = children;
+	}
+
+
+	public ProcessInstance getParent() {
+		return parent;
+	}
+
+
+	public void setParent(ProcessInstance parent) {
+		this.parent = parent;
+	}
 }

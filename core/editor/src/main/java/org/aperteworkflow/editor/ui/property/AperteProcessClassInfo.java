@@ -53,7 +53,7 @@ public class AperteProcessClassInfo {
 			docName = aliasName;
 		}
 		if (StringUtils.isEmpty(docDescription)) {
-			docDescription = aperteClass.getName();
+			docDescription = aperteClass.getSimpleName();
 		}
 		
         if (fields != null && !fields.isEmpty()) {

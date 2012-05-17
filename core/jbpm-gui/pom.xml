@@ -4,7 +4,7 @@
     <parent>
         <artifactId>core</artifactId>
         <groupId>org.aperteworkflow</groupId>
-        <version>1.1.1</version>
+        <version>1.1.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>jbpm-gui</artifactId>
@@ -54,7 +54,7 @@
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>jbpm-context</artifactId>
-            <version>1.1.1</version>
+            <version>1.1.2-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>jboss</groupId>
@@ -82,17 +82,17 @@
             <groupId>org.aperteworkflow</groupId>
             <artifactId>base-gui</artifactId>
             <type>war</type>
-            <version>1.1.1</version>
+            <version>1.1.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>editor</artifactId>
-            <version>1.1.1</version>
+            <version>1.1.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>integration</artifactId>
-            <version>1.1.1</version>
+            <version>1.1.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>

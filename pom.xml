@@ -9,7 +9,7 @@
 
     <groupId>org.aperteworkflow</groupId>
     <artifactId>aperteworkflow-core</artifactId>
-    <version>1.2-SNAPSHOT</version>
+    <version>1.1.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Aperte Workflow</name>
@@ -19,9 +19,8 @@
 
     <modules>
         <module>core</module>
-        <module>plugins</module>
+        <module>core-plugins</module>
         <module>utils</module>
-        <module>samples</module>
     </modules>
 
     <licenses>

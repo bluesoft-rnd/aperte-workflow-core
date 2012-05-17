@@ -7,23 +7,24 @@
         <version>1.1.2-SNAPSHOT</version>
     </parent>
 
-    <name>Aperte Workflow Core</name>
+    <name>Aperte Workflow OSGi Plugins</name>
 
     <packaging>pom</packaging>
-    <artifactId>core</artifactId>
+    <artifactId>core-plugins</artifactId>
 
     <modules>
-        <module>model</module>
-        <module>gui-commons</module>
-        <module>base-gui</module>
-        <module>integration</module>
-        <module>integration-interface</module>
-        <module>activiti-gui</module>
-        <module>activiti-context</module>
-        <module>jbpm-context</module>
-        <module>jbpm-gui</module>
-        <module>editor</module>
-        <module>editor-interface</module>
+        <module>base-widgets</module>
+        <module>mule-esb-plugin</module>
+        <module>scripting</module>
+        <module>document-provider-registry</module>
     </modules>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <version>1.4.0</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 </project>

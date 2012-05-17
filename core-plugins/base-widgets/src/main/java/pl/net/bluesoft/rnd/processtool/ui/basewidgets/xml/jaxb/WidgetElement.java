@@ -236,21 +236,4 @@ public abstract class WidgetElement implements Serializable {
     public List<XmlValidationError> validateElement() {
         return new ArrayList<XmlValidationError>();
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof WidgetElement)) return false;
-
-        WidgetElement that = (WidgetElement) o;
-
-        if (id != null && id.equals(that.id)) return true;
-
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        return id != null ? id.hashCode() : 0;
-    }
 }

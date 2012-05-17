@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>core</artifactId>
 		<groupId>org.aperteworkflow</groupId>
-		<version>1.2-SNAPSHOT</version>
+		<version>1.1.1</version>
 	</parent>
 
 	<artifactId>editor</artifactId>
@@ -46,7 +46,7 @@
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>gui-commons</artifactId>
-            <version>1.2-SNAPSHOT</version>
+            <version>1.1.1</version>
         </dependency>
         <dependency>
             <groupId>com.vaadin</groupId>
@@ -82,7 +82,7 @@
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>editor-interface</artifactId>
-            <version>1.2-SNAPSHOT</version>
+            <version>1.1.1</version>
         </dependency>
     </dependencies>
 

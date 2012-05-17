@@ -4,7 +4,7 @@
     <parent>
         <artifactId>core</artifactId>
         <groupId>org.aperteworkflow</groupId>
-        <version>1.2-SNAPSHOT</version>
+        <version>1.1.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>integration-interface</artifactId>
@@ -14,7 +14,7 @@
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>model</artifactId>
-            <version>1.2-SNAPSHOT</version>
+            <version>1.1.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.vaadin</groupId>

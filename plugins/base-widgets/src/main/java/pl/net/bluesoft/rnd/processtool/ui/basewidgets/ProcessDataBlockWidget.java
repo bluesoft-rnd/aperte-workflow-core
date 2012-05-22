@@ -852,7 +852,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
     }
 
     private DateField createDateField(final DateWidgetElement dwe) {
-        SimpleDateFormat sdf;
+         SimpleDateFormat sdf;
         try {
             sdf = new SimpleDateFormat(dwe.getFormat());
         } catch (Exception e) {
@@ -872,8 +872,35 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                 field.addValidator(new AbstractValidator(getMessage("processdata.block.error.date.notafter").replaceFirst("%s", dwe.getNotAfter())) {
 					@Override
 					public boolean isValid(Object value) {
-						return value == null || !notAfter.before((Date) value);
+						Date selectedDateWithoutTime = removeTimeFromDate((Date)value);
+						return value == null ||  isBeforeCurrentDate(selectedDateWithoutTime);
 					}
+					private boolean isBeforeCurrentDate(Date selectedDateWithoutTime){
+						
+						return	isRightSideOpen()?  isBeforeCurrentDateRightSideOpen(selectedDateWithoutTime):isBeforeCurrentDateRightSideClosed(selectedDateWithoutTime);
+							
+						}
+					
+						private boolean isRightSideOpen(){
+						if(dwe.getDiscludeNotAfter()==null){
+							return false;
+						}
+						else{
+							Boolean discludeNotAfter = dwe.getDiscludeNotAfter();
+						return dwe.getDiscludeNotAfter();
+						}
+					}
+					
+										
+						private boolean isBeforeCurrentDateRightSideClosed(Date selectedDateWithoutTime){
+							
+							return notAfter.equals(selectedDateWithoutTime) || isBeforeCurrentDateRightSideOpen(selectedDateWithoutTime);
+						}
+						
+						private boolean isBeforeCurrentDateRightSideOpen(Date selectedDateWithoutTime){
+							
+							return  !notAfter.before(selectedDateWithoutTime);
+						}
 				});
                 //why notify and interrupt?
                 //we already have a perfect validation mechanisms
@@ -903,7 +930,33 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                 field.addValidator(new AbstractValidator(getMessage("processdata.block.error.date.notbefore").replaceFirst("%s", dwe.getNotBefore())) {
 					@Override
 					public boolean isValid(Object value) {
-						return value == null || !notBefore.after((Date) value);
+						Date selectedDateWithoutTime = removeTimeFromDate((Date)value);
+						return value == null || isAfterCurrentDate(selectedDateWithoutTime);
+					}
+					
+					private boolean isAfterCurrentDate(Date selectedDateWithoutTime){
+						
+					return	isLeftSideOpen()?  isAfterCurrentDateLeftSideOpen(selectedDateWithoutTime):isAfterCurrentDateLeftSideClosed(selectedDateWithoutTime);
+						
+					}
+					
+					private boolean isLeftSideOpen(){
+						if(dwe.getDiscludeNotBefore()==null){
+							return false;
+						}
+						else{
+						return dwe.getDiscludeNotBefore();
+						}
+					}
+									
+					private boolean isAfterCurrentDateLeftSideClosed(Date selectedDateWithoutTime){
+						
+						return notBefore.equals(selectedDateWithoutTime) || isAfterCurrentDateLeftSideOpen(selectedDateWithoutTime);
+					}
+					
+					private boolean isAfterCurrentDateLeftSideOpen(Date selectedDateWithoutTime){
+						
+						return  !notBefore.after(selectedDateWithoutTime);
 					}
 				});
 //                field.addListener(new ValueChangeListener() {
@@ -937,6 +990,16 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
 
 
         return field;
+    }
+    
+    private Date removeTimeFromDate(Date date){
+    	Calendar calendar = Calendar.getInstance();
+		calendar.setTime(date);
+		calendar.set(Calendar.HOUR_OF_DAY, 0);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		return calendar.getTime();
     }
 
     private void setupWidget(WidgetElement we, Component component) {

@@ -852,7 +852,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
     }
 
     private DateField createDateField(final DateWidgetElement dwe) {
-         SimpleDateFormat sdf;
+         final SimpleDateFormat sdf;
         try {
             sdf = new SimpleDateFormat(dwe.getFormat());
         } catch (Exception e) {
@@ -872,7 +872,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                 field.addValidator(new AbstractValidator(getMessage("processdata.block.error.date.notafter").replaceFirst("%s", dwe.getNotAfter())) {
 					@Override
 					public boolean isValid(Object value) {
-						Date selectedDateWithoutTime = removeTimeFromDate((Date)value);
+						Date selectedDateWithoutTime = formatTimeFromCalendarInput((Date)value,sdf);
 						return value == null ||  isBeforeCurrentDate(selectedDateWithoutTime);
 					}
 					private boolean isBeforeCurrentDate(Date selectedDateWithoutTime){
@@ -886,7 +886,6 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
 							return false;
 						}
 						else{
-							Boolean discludeNotAfter = dwe.getDiscludeNotAfter();
 						return dwe.getDiscludeNotAfter();
 						}
 					}
@@ -930,7 +929,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                 field.addValidator(new AbstractValidator(getMessage("processdata.block.error.date.notbefore").replaceFirst("%s", dwe.getNotBefore())) {
 					@Override
 					public boolean isValid(Object value) {
-						Date selectedDateWithoutTime = removeTimeFromDate((Date)value);
+						Date selectedDateWithoutTime = formatTimeFromCalendarInput((Date)value,sdf);
 						return value == null || isAfterCurrentDate(selectedDateWithoutTime);
 					}
 					
@@ -992,14 +991,17 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         return field;
     }
     
-    private Date removeTimeFromDate(Date date){
-    	Calendar calendar = Calendar.getInstance();
-		calendar.setTime(date);
-		calendar.set(Calendar.HOUR_OF_DAY, 0);
-		calendar.set(Calendar.MINUTE, 0);
-		calendar.set(Calendar.SECOND, 0);
-		calendar.set(Calendar.MILLISECOND, 0);
-		return calendar.getTime();
+    private Date formatTimeFromCalendarInput(Date date, SimpleDateFormat sdf){
+    	Date parsedDate;
+		try {
+			parsedDate = sdf.parse(sdf.format(date));
+			return parsedDate;
+		} catch (ParseException e) {
+			handleException(getMessage("processdata.block.error.unparsable.date").replaceFirst("%s", date.toString()), e);
+		}
+		return date;
+    	
+    	
     }
 
     private void setupWidget(WidgetElement we, Component component) {

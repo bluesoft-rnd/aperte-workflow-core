@@ -36,12 +36,13 @@ public class AperteWorkflowProcessServiceImpl {
                                                  @WebParam(name="user")final UserData user,
                                                  @WebParam(name="description")final String description,
                                                  @WebParam(name="keyword")final String keyword,
-                                                 @WebParam(name="source")final String source) {
+                                                 @WebParam(name="source")final String source,
+                                                 @WebParam(name="internalId")final String internalId) {
         return withContext(new ReturningProcessToolContextCallback<ProcessInstance>() {
             @Override
             public ProcessInstance processWithContext(ProcessToolContext ctx) {
                 return fetchHibernateData(ctx.getProcessToolSessionFactory().createSession(user, new HashSet<String>())
-                        .createProcessInstance(config, externalKey, ctx, description, keyword, source));
+                        .createProcessInstance(config, externalKey, ctx, description, keyword, source, internalId));
             }
         });
     }

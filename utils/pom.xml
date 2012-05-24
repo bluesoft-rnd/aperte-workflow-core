@@ -16,6 +16,7 @@
         <module>cmis-interface</module>
         <module>xml-utils</module>
         <module>aperte-utils</module>
+        <module>jdbc-connector</module>
     </modules>
 
 </project>

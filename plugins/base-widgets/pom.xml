@@ -95,7 +95,8 @@
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDataBlockWidget,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessHistoryWidget,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.TabSheetWidget,
-                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.VerticalLayoutWidget
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.VerticalLayoutWidget,
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.SwitchWidget
                         </ProcessTool-Widget-Enhancement>
                         <ProcessTool-Button-Enhancement>
                             pl.net.bluesoft.rnd.processtool.ui.buttons.AssignUserTaskButton,

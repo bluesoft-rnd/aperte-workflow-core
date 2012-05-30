@@ -373,12 +373,15 @@ public class ProcessDataPane extends VerticalLayout implements WidgetContextSupp
 				return o1.getPriority().compareTo(o2.getPriority());
 			}
 		});
+		if(parentWidgetInstance instanceof ProcessToolChildrenFilteringWidget){
+			sortedList = ((ProcessToolChildrenFilteringWidget)parentWidgetInstance).filterChildren(task, sortedList);
+		}
 
 		for (ProcessStateWidget subW : sortedList) {
 			if(StringUtils.isNotEmpty(subW.getGenerateFromCollection())){
 				generateChildren(parentWidgetInstance, stateConfiguration, ctx, subW);
 			} else {
-			subW.setParent(parentWidgetConfiguration);
+				subW.setParent(parentWidgetConfiguration);
 				addWidgetChild(parentWidgetInstance, stateConfiguration, ctx, subW, generatorKey);
 			}
 		}

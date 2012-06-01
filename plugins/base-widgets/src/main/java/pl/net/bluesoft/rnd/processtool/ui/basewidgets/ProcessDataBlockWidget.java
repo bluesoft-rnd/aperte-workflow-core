@@ -890,12 +890,12 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                field.addValidator(new AbstractValidator(getMessage("processdata.block.error.date.notafter").replaceFirst("%s", dwe.getNotAfter())) {
 					@Override
 					public boolean isValid(Object value) {
-						Date selectedDateWithoutTime = formatTimeFromCalendarInput((Date)value,sdf);
-						return value == null ||  isBeforeCurrentDate(selectedDateWithoutTime);
+						Date formatedDateFromCalendarInput = formatTimeFromCalendarInput((Date)value,sdf);
+						return value == null ||  isBeforeCurrentDate(formatedDateFromCalendarInput);
 					}
-					private boolean isBeforeCurrentDate(Date selectedDateWithoutTime){
+					private boolean isBeforeCurrentDate(Date formatedDateFromCalendarInput){
 
-						return	isRightSideOpen()?  isBeforeCurrentDateRightSideOpen(selectedDateWithoutTime):isBeforeCurrentDateRightSideClosed(selectedDateWithoutTime);
+						return	isRightSideOpen()?  isBeforeCurrentDateRightSideOpen(formatedDateFromCalendarInput):isBeforeCurrentDateRightSideClosed(formatedDateFromCalendarInput);
 
 						}
 
@@ -909,14 +909,19 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
 					}
 
 
-						private boolean isBeforeCurrentDateRightSideClosed(Date selectedDateWithoutTime){
+						private boolean isBeforeCurrentDateRightSideClosed(Date formatedDateFromCalendarInput){
 
-							return notAfter.equals(selectedDateWithoutTime) || isBeforeCurrentDateRightSideOpen(selectedDateWithoutTime);
+							return notAfter.equals(formatedDateFromCalendarInput)? true : isNotAfter(formatedDateFromCalendarInput);
 						}
 
-						private boolean isBeforeCurrentDateRightSideOpen(Date selectedDateWithoutTime){
-
-							return  !notAfter.before(selectedDateWithoutTime);
+						private boolean isBeforeCurrentDateRightSideOpen(Date formatedDateFromCalendarInput){
+							
+							return   notAfter.equals(formatedDateFromCalendarInput)? false : isNotAfter(formatedDateFromCalendarInput);
+						}
+						
+						private boolean isNotAfter(Date formatedDateFromCalendarInput){
+							return   !notAfter.before(formatedDateFromCalendarInput);
+							
 						}
 				});
                //why notify and interrupt?
@@ -947,13 +952,13 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                field.addValidator(new AbstractValidator(getMessage("processdata.block.error.date.notbefore").replaceFirst("%s", dwe.getNotBefore())) {
 					@Override
 					public boolean isValid(Object value) {
-						Date selectedDateWithoutTime = formatTimeFromCalendarInput((Date)value,sdf);
-						return value == null || isAfterCurrentDate(selectedDateWithoutTime);
+						Date formatedDateFromCalendarInput = formatTimeFromCalendarInput((Date)value,sdf);
+						return value == null || isAfterCurrentDate(formatedDateFromCalendarInput);
 					}
 
-					private boolean isAfterCurrentDate(Date selectedDateWithoutTime){
+					private boolean isAfterCurrentDate(Date formatedDateFromCalendarInput){
 
-					return	isLeftSideOpen()?  isAfterCurrentDateLeftSideOpen(selectedDateWithoutTime):isAfterCurrentDateLeftSideClosed(selectedDateWithoutTime);
+					return	isLeftSideOpen()?  isAfterCurrentDateLeftSideOpen(formatedDateFromCalendarInput):isAfterCurrentDateLeftSideClosed(formatedDateFromCalendarInput);
 
 					}
 
@@ -966,14 +971,21 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
 						}
 					}
 
-					private boolean isAfterCurrentDateLeftSideClosed(Date selectedDateWithoutTime){
+					private boolean isAfterCurrentDateLeftSideClosed(Date formatedDateFromCalendarInput){
 
-						return notBefore.equals(selectedDateWithoutTime) || isAfterCurrentDateLeftSideOpen(selectedDateWithoutTime);
+						return notBefore.equals(formatedDateFromCalendarInput)? true : isNotBefore(formatedDateFromCalendarInput);
 					}
 
-					private boolean isAfterCurrentDateLeftSideOpen(Date selectedDateWithoutTime){
+					private boolean isAfterCurrentDateLeftSideOpen(Date formatedDateFromCalendarInput){
 
-						return  !notBefore.after(selectedDateWithoutTime);
+						return  notBefore.equals(formatedDateFromCalendarInput)? false : isNotBefore(formatedDateFromCalendarInput);
+					}
+					
+					
+					
+					private boolean isNotBefore(Date formatedDateFromCalendarInput){
+						return   !notBefore.after(formatedDateFromCalendarInput);
+						
 					}
 				});
 //               field.addListener(new ValueChangeListener() {

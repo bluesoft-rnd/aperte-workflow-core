@@ -870,93 +870,156 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
     }
 
     private DateField createDateField(final DateWidgetElement dwe) {
-        SimpleDateFormat sdf;
-        try {
-            sdf = new SimpleDateFormat(dwe.getFormat());
-        } catch (Exception e) {
-            handleException(getMessage("processdata.block.error.unparsable.format").replaceFirst("%s", dwe.getFormat()), e);
-            return null;
-        }
+        final SimpleDateFormat sdf;
+       try {
+           sdf = new SimpleDateFormat(dwe.getFormat());
+       } catch (Exception e) {
+           handleException(getMessage("processdata.block.error.unparsable.format").replaceFirst("%s", dwe.getFormat()), e);
+           return null;
+       }
 
-        final PopupDateField field = new PopupDateField();
-        final boolean fieldMinResolution = dwe.getShowMinutes() != null && dwe.getShowMinutes();
+       final PopupDateField field = new PopupDateField();
+       final boolean fieldMinResolution = dwe.getShowMinutes() != null && dwe.getShowMinutes();
 
-        field.setDateFormat(dwe.getFormat());
-        field.setResolution(fieldMinResolution ? DateField.RESOLUTION_MIN : DateField.RESOLUTION_DAY);
-        if (hasText(dwe.getNotAfter())) {
-            try {
-                boolean usesCurrent = XmlConstants.DATE_CURRENT.equalsIgnoreCase(dwe.getNotAfter());
-                final Date notAfter = (usesCurrent) ? sdf.parse(sdf.format(new Date())) : sdf.parse(dwe.getNotAfter());
-                field.addValidator(new AbstractValidator(getMessage("processdata.block.error.date.notafter").replaceFirst("%s", dwe.getNotAfter())) {
-                    @Override
-                    public boolean isValid(Object value) {
-                        return value == null || !notAfter.before((Date) value);
-                    }
-                });
-                //why notify and interrupt?
-                //we already have a perfect validation mechanisms
-                //so let's use classic validators
-//                field.addListener(new ValueChangeListener() {
-//                    @Override
-//                    public void valueChange(ValueChangeEvent event) {
-//                        Object value = event.getProperty().getValue();
-//                        if (value != null && value instanceof Date) {
-//                            if (notAfter.before((Date) value)) {
-////                                TODO: TODO: notification fails on preview, because application object is only a stub
-//                                VaadinUtility.validationNotification(getApplication(), i18NSource,
-//                                        getMessage("processdata.block.error.date.notafter").replaceFirst("%s", dwe.getNotAfter()));
-//                                field.setValue(notAfter);
-//                            }
-//                        }
-//                    }
-//                });
-            } catch (ParseException e) {
-                handleException(getMessage("processdata.block.error.unparsable.date").replaceFirst("%s", dwe.getNotAfter()), e);
-            }
-        }
-        if (hasText(dwe.getNotBefore())) {
-            try {
-                boolean usesCurrent = XmlConstants.DATE_CURRENT.equalsIgnoreCase(dwe.getNotBefore());
-                final Date notBefore = (usesCurrent) ? sdf.parse(sdf.format(new Date())) : sdf.parse(dwe.getNotBefore());
-                field.addValidator(new AbstractValidator(getMessage("processdata.block.error.date.notbefore").replaceFirst("%s", dwe.getNotBefore())) {
-                    @Override
-                    public boolean isValid(Object value) {
-                        return value == null || !notBefore.after((Date) value);
-                    }
-                });
-//                field.addListener(new ValueChangeListener() {
-//                    @Override
-//                    public void valueChange(ValueChangeEvent event) {
-//                        Object value = event.getProperty().getValue();
-//                        if (value != null && value instanceof Date) {
-//                            if (notBefore.after((Date) value)) {
-////                                TODO: notification fails on preview, because application object is only a stub
-//                                VaadinUtility.validationNotification(getApplication(), i18NSource,
-//                                        getMessage("processdata.block.error.date.notbefore").replaceFirst("%s", dwe.getNotBefore()));
-//                                field.setValue(notBefore);
-//                            }
-//                        }
-//                    }
-//                });
-            } catch (ParseException e) {
-                handleException(getMessage("processdata.block.error.unparsable.date").replaceFirst("%s", dwe.getNotBefore()), e);
-            }
-        }
-        if (nvl(dwe.getRequired(), false)) {
-            field.setRequired(true);
-            if (hasText(dwe.getCaption())) {
-                field.setRequiredError(getMessage("processdata.block.field-required-error") + " " + dwe.getCaption());
-            } else {
-                field.setRequiredError(getMessage("processdata.block.field-required-error"));
-            }
-        }
-        if (dwe.getValue() != null)
-            field.setValue(dwe.getValue());
+       field.setDateFormat(dwe.getFormat());
+       field.setResolution(fieldMinResolution ? DateField.RESOLUTION_MIN : DateField.RESOLUTION_DAY);
+       if (hasText(dwe.getNotAfter())) {
+           try {
+               boolean usesCurrent = XmlConstants.DATE_CURRENT.equalsIgnoreCase(dwe.getNotAfter());
+               final Date notAfter = (usesCurrent) ? sdf.parse(sdf.format(new Date())) : sdf.parse(dwe.getNotAfter());
+               field.addValidator(new AbstractValidator(getMessage("processdata.block.error.date.notafter").replaceFirst("%s", dwe.getNotAfter())) {
+					@Override
+					public boolean isValid(Object value) {
+						Date selectedDateWithoutTime = formatTimeFromCalendarInput((Date)value,sdf);
+						return value == null ||  isBeforeCurrentDate(selectedDateWithoutTime);
+					}
+					private boolean isBeforeCurrentDate(Date selectedDateWithoutTime){
+
+						return	isRightSideOpen()?  isBeforeCurrentDateRightSideOpen(selectedDateWithoutTime):isBeforeCurrentDateRightSideClosed(selectedDateWithoutTime);
+
+						}
+
+						private boolean isRightSideOpen(){
+						if(dwe.getDiscludeNotAfter()==null){
+							return false;
+						}
+						else{
+							return dwe.getDiscludeNotAfter();
+						}
+					}
 
 
-        return field;
-    }
+						private boolean isBeforeCurrentDateRightSideClosed(Date selectedDateWithoutTime){
 
+							return notAfter.equals(selectedDateWithoutTime) || isBeforeCurrentDateRightSideOpen(selectedDateWithoutTime);
+						}
+
+						private boolean isBeforeCurrentDateRightSideOpen(Date selectedDateWithoutTime){
+
+							return  !notAfter.before(selectedDateWithoutTime);
+						}
+				});
+               //why notify and interrupt?
+               //we already have a perfect validation mechanisms
+               //so let's use classic validators
+//               field.addListener(new ValueChangeListener() {
+//                   @Override
+//                   public void valueChange(ValueChangeEvent event) {
+//                       Object value = event.getProperty().getValue();
+//                       if (value != null && value instanceof Date) {
+//                           if (notAfter.before((Date) value)) {
+////                               TODO: TODO: notification fails on preview, because application object is only a stub
+//                               VaadinUtility.validationNotification(getApplication(), i18NSource,
+//                                       getMessage("processdata.block.error.date.notafter").replaceFirst("%s", dwe.getNotAfter()));
+//                               field.setValue(notAfter);
+//                           }
+//                       }
+//                   }
+//               });
+           } catch (ParseException e) {
+               handleException(getMessage("processdata.block.error.unparsable.date").replaceFirst("%s", dwe.getNotAfter()), e);
+           }
+       }
+       if (hasText(dwe.getNotBefore())) {
+           try {
+               boolean usesCurrent = XmlConstants.DATE_CURRENT.equalsIgnoreCase(dwe.getNotBefore());
+               final Date notBefore = (usesCurrent) ? sdf.parse(sdf.format(new Date())) : sdf.parse(dwe.getNotBefore());
+               field.addValidator(new AbstractValidator(getMessage("processdata.block.error.date.notbefore").replaceFirst("%s", dwe.getNotBefore())) {
+					@Override
+					public boolean isValid(Object value) {
+						Date selectedDateWithoutTime = formatTimeFromCalendarInput((Date)value,sdf);
+						return value == null || isAfterCurrentDate(selectedDateWithoutTime);
+					}
+
+					private boolean isAfterCurrentDate(Date selectedDateWithoutTime){
+
+					return	isLeftSideOpen()?  isAfterCurrentDateLeftSideOpen(selectedDateWithoutTime):isAfterCurrentDateLeftSideClosed(selectedDateWithoutTime);
+
+					}
+
+					private boolean isLeftSideOpen(){
+						if(dwe.getDiscludeNotBefore()==null){
+							return false;
+						}
+						else{
+						return dwe.getDiscludeNotBefore();
+						}
+					}
+
+					private boolean isAfterCurrentDateLeftSideClosed(Date selectedDateWithoutTime){
+
+						return notBefore.equals(selectedDateWithoutTime) || isAfterCurrentDateLeftSideOpen(selectedDateWithoutTime);
+					}
+
+					private boolean isAfterCurrentDateLeftSideOpen(Date selectedDateWithoutTime){
+
+						return  !notBefore.after(selectedDateWithoutTime);
+					}
+				});
+//               field.addListener(new ValueChangeListener() {
+//                   @Override
+//                   public void valueChange(ValueChangeEvent event) {
+//                       Object value = event.getProperty().getValue();
+//                       if (value != null && value instanceof Date) {
+//                           if (notBefore.after((Date) value)) {
+////                               TODO: notification fails on preview, because application object is only a stub
+//                               VaadinUtility.validationNotification(getApplication(), i18NSource,
+//                                       getMessage("processdata.block.error.date.notbefore").replaceFirst("%s", dwe.getNotBefore()));
+//                               field.setValue(notBefore);
+//                           }
+//                       }
+//                   }
+//               });
+           } catch (ParseException e) {
+               handleException(getMessage("processdata.block.error.unparsable.date").replaceFirst("%s", dwe.getNotBefore()), e);
+           }
+       }
+       if (nvl(dwe.getRequired(), false)) {
+           field.setRequired(true);
+           if (hasText(dwe.getCaption())) {
+               field.setRequiredError(getMessage("processdata.block.field-required-error") + " " + dwe.getCaption());
+           } else {
+               field.setRequiredError(getMessage("processdata.block.field-required-error"));
+           }
+       }
+       if (dwe.getValue() != null)
+           field.setValue(dwe.getValue());
+
+
+       return field;
+   }
+   
+    private Date formatTimeFromCalendarInput(Date date, SimpleDateFormat sdf){
+		Date parsedDate;
+		try {
+			parsedDate = sdf.parse(sdf.format(date));
+			return parsedDate;
+		} catch (ParseException e) {
+			handleException(getMessage("processdata.block.error.unparsable.date").replaceFirst("%s", date.toString()), e);
+		}
+		return date;
+	}
+   
     private void setupWidget(WidgetElement we, Component component) {
         if (hasText(we.getCaption())) {
             component.setCaption(getMessage(we.getCaption()));

@@ -1,5 +1,6 @@
 package pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor;
 
+import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.XmlConstants;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.validation.XmlValidationError;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
@@ -63,10 +64,34 @@ class EditorHelper {
     public static String joinValidationErrors(List<XmlValidationError> xmlValidationErrors) {
         String msg = "";
         for (XmlValidationError err : xmlValidationErrors) {
-            msg += getLocalizedMessage(err.getMessageKey()).replace("%s", getLocalizedMessage(err.getParent() + "." + err.getField())) + " \n";
+            msg += getLocalizedMessage(err.getMessageKey()).replace("%s", extractFieldNames(err)) + " \n";
         }
         return msg;
     }
+
+    private static String extractFieldNames(XmlValidationError err) {
+        if(err.getField().startsWith("[") && err.getField().endsWith("]")){
+          String string = err.getField().substring(1, err.getField().length()-1);
+          String[] parts = string.split(" +");
+          StringBuilder sb = new StringBuilder();
+          for(String part : parts){
+            String key = "";
+            if("&".equals(part)){
+              key = XmlConstants.XML_FIELD_AND;
+            } else if("|".equals(part)){
+              key = XmlConstants.XML_FIELD_OR;
+            } else {
+              key = err.getParent() + "." + part;
+            }
+            sb.append(getLocalizedMessage(key));
+            sb.append(" ");
+          }
+          
+          return sb.toString().trim();
+        } else {
+          return getLocalizedMessage(err.getParent() + "." + err.getField());
+        }
+    }    
     
     public static String getLocalizedMessage(String key) {
         return I18NSource.ThreadUtil.getLocalizedMessage(

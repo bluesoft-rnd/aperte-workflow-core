@@ -1,6 +1,8 @@
 package pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml;
 
 public interface XmlConstants {
+	public static final String XML_FIELD_AND = "processdata.block.xml.validation.and";
+    public static final String XML_FIELD_OR = "processdata.block.xml.validation.or";	
     public static final String XML_TAG_EMPTY = "processdata.block.xml.validation.empty";
     public static final String XML_TAG_INVALID = "processdata.block.xml.validation.invalid";
 

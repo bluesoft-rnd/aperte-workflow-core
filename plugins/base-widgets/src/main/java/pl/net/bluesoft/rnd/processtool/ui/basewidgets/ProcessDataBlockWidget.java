@@ -374,6 +374,8 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                 ProcessInstanceDictionaryAttribute dict = (ProcessInstanceDictionaryAttribute) processInstance.findAttributeByKey(dictAttribute);
                 if (dict != null) {
                     int i = 0;
+                    Boolean prevReadOnly = component.isReadOnly();
+                    component.setReadOnly(false);
                     for (Object o : dict.getItems()) {
                         ProcessInstanceDictionaryItem itemProcess = (ProcessInstanceDictionaryItem) o;
                         component.addItem(itemProcess.getKey());
@@ -386,11 +388,11 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                         }
                         ++i;
                     }
+                    component.setReadOnly(prevReadOnly);
                 }
             }
         };
     }
-
 
     private Date getValidForDate(WidgetElement element) throws Exception {
         Date validForDate = processInstance.getCreateDate();

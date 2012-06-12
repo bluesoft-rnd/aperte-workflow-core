@@ -1146,23 +1146,25 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
 
     public boolean updateSubprocess(final ProcessInstance parentPi, String executionId, ProcessToolContext ctx) {
         ProcessEngine engine = getProcessEngine(ctx);
-        Execution jbpmPi = engine.getExecutionService().findExecutionById(executionId);
+        ExecutionService executionService = engine.getExecutionService();
+		Execution jbpmPi = executionService.findExecutionById(executionId);
         if(jbpmPi != null){
 	        Execution subprocess = jbpmPi.getSubProcessInstance();
 	        if(subprocess != null){
 	        	ctx.getHibernateSession().refresh(subprocess);
-	//        	subprocess = getProcessEngine(ctx).getExecutionService().findProcessInstanceById(subprocess.getId());
-	        	String processDefinitionId = subprocess.getProcessDefinitionId().replaceFirst("-\\d+$", "");
-				ProcessDefinitionConfig config = ctx.getProcessDefinitionDAO().getActiveConfigurationByKey(processDefinitionId);
-	        	ProcessInstance subPi = createProcessInstance(config, null, ctx, null, null, "parent_process", subprocess.getId());
-	        	subPi.setParent(parentPi);
-
-	        	ctx.getProcessInstanceDAO().saveProcessInstance(subPi);
-
-	//        	ProcessInstance subPi = new ProcessInstance(subprocess.getKey(), parentPi.getCreator(), subprocess.getProcessDefinitionId());
-	//        	subPi.setCreateDate(new Date());
-	//        	subPi.set
-	        	return true;
+	        	
+	        	if (ctx.getProcessInstanceDAO().getProcessInstanceByInternalId(subprocess.getId()) == null) {
+					String processDefinitionId = subprocess.getProcessDefinitionId().replaceFirst("-\\d+$", "");
+					ProcessDefinitionConfig config = ctx.getProcessDefinitionDAO().getActiveConfigurationByKey(
+							processDefinitionId);
+					ProcessInstance subPi = createProcessInstance(config, null, ctx, null, null, "parent_process",
+							subprocess.getId());
+					subPi.setParent(parentPi);
+					long subPiId = ctx.getProcessInstanceDAO().saveProcessInstance(subPi);
+					executionService.createVariable(subprocess.getId(), "processInstanceId", String.valueOf(subPiId),
+							false);
+					return true;
+				}
 	        }
         }
         return false;

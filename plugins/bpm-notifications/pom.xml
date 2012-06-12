@@ -58,6 +58,7 @@
                         </Export-Package>
                         <Import-Package>
                             javax.mail;version=!,
+                            pl.net.bluesoft.rnd.util.i18n.impl,
                             javax.mail.internet;version=!,
                             *;resolution:=optional,
                             pl.net.bluesoft.util.eventbus

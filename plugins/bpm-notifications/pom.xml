@@ -55,6 +55,8 @@
                 <configuration>
                     <instructions>
                         <Export-Package>
+                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service,
+                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.util,
                         </Export-Package>
                         <Import-Package>
                             javax.mail;version=!,

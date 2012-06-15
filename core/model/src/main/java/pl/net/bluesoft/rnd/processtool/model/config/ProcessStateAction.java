@@ -27,7 +27,7 @@ public class ProcessStateAction extends PersistentEntity {
     private String label;
     private String description;
     private String buttonName = "Default";
-    private String actionType = "primary";
+    private String actionType = PRIMARY_ACTION;
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "action_id")

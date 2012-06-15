@@ -264,7 +264,8 @@ public class VaadinUtility {
         if (description != null) {
             button.setDescription(description);
         }
-        button.setStyleName(style);
+        if(style != null)
+        	button.setStyleName(style);
         if (listener != null) {
             button.addListener(listener);
         }

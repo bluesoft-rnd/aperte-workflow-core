@@ -4,9 +4,11 @@ import static org.aperteworkflow.util.vaadin.VaadinExceptionHandler.Util.withErr
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.themes.BaseTheme;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.ui.WidgetContextSupport;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinRenderable;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolActionButton;
@@ -43,6 +45,9 @@ public abstract class BaseProcessToolVaadinActionButton extends BaseProcessToolA
 						);
 			}
 		});
+		button.addStyleName(actionType);
+//		if(ProcessStateAction.SECONDARY_ACTION.equals(actionType))
+//			button.addStyleName(BaseTheme.BUTTON_LINK);
 		button.setEnabled(enabled);
 		renderedComponent = button;
 		return button;

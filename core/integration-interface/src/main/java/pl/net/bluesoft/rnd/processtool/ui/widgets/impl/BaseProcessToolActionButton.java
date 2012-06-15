@@ -37,7 +37,10 @@ public abstract class BaseProcessToolActionButton implements ProcessToolActionBu
 	protected String markProcessImportant;
 
 	@AutoWiredProperty
-	protected String styleName = "default";
+	protected String styleName;
+	
+	@AutoWiredProperty
+	protected String actionType = ProcessStateAction.PRIMARY_ACTION;
 
     @AutoWiredProperty
     protected Integer priority = 0;
@@ -71,6 +74,7 @@ public abstract class BaseProcessToolActionButton implements ProcessToolActionBu
 		map.put("autoHide", String.valueOf(definition.getAutohide()));
 		map.put("description", definition.getDescription());
 		map.put("label", definition.getLabel());
+		map.put("actionType", definition.getActionType());
 		map.put("bpmAction", definition.getBpmName());
 		map.put("skipSaving", String.valueOf(definition.getSkipSaving()));
 		map.put("markProcessImportant", String.valueOf(definition.getMarkProcessImportant()));
@@ -82,6 +86,11 @@ public abstract class BaseProcessToolActionButton implements ProcessToolActionBu
 	}
 
 	protected String getComponentStyleName() {
+		if(styleName == null){
+			if(ProcessStateAction.PRIMARY_ACTION.equals(actionType)){
+				return "default";
+			}
+		}
 		return styleName;
 	}
 

@@ -68,7 +68,7 @@ public class ProcessCommentsWidget extends BaseProcessToolVaadinWidget implement
 
 	@Override
 	public void loadData(BpmTask task) {
-        ProcessInstance pi = task.getProcessInstance();
+        ProcessInstance pi = task.getRootProcessInstance();
 		ProcessComments comments = pi.findAttributeByClass(ProcessComments.class);
 		if (comments != null) {
 			List<ProcessComment> lst = new ArrayList<ProcessComment>(comments.getComments());
@@ -356,7 +356,7 @@ public class ProcessCommentsWidget extends BaseProcessToolVaadinWidget implement
 
 	@Override
 	public void saveData(BpmTask task) {
-        ProcessInstance pi = task.getProcessInstance();
+        ProcessInstance pi = task.getRootProcessInstance();
 		ProcessComments comments = pi.findAttributeByClass(ProcessComments.class);
 		if (comments == null) {
 			comments = new ProcessComments();

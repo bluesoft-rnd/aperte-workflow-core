@@ -100,10 +100,17 @@ public class ProcessInstance extends PersistentEntity {
 	}
 
 	public String getExternalKey() {
+		if(externalKey == null && parent != null){
+			return parent.getExternalKey();
+		}
+		return externalKey;
+	}
+	
+	public String getOwnExternalKey() {
 		return externalKey;
 	}
 
-	public void setExternalKey(String externalKey) {
+	public void setExternalKey(String externalKey) {	
 		this.externalKey = externalKey;
 	}
 

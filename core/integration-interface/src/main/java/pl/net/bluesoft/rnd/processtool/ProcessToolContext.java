@@ -1,5 +1,7 @@
 package pl.net.bluesoft.rnd.processtool;
 
+import java.util.Map;
+
 import org.hibernate.Session;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolSessionFactory;
@@ -54,6 +56,7 @@ public interface ProcessToolContext  extends ProcessToolBpmConstants {
     void addTransactionCallback(HibernateTransactionCallback callback);
 
     public boolean isActive();
+    public Map<String, Object> getBpmVariables(ProcessInstance pi);
 
 	public static class Util {
         private static ThreadLocal<ProcessToolContext> current = new ThreadLocal<ProcessToolContext>();

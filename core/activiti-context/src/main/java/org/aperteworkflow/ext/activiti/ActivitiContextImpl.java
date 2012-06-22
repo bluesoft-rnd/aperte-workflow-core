@@ -2,9 +2,11 @@ package org.aperteworkflow.ext.activiti;
 
 import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.RuntimeService;
+import org.activiti.engine.TaskService;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
+
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolSessionFactory;
@@ -305,5 +307,10 @@ public class ActivitiContextImpl implements ProcessToolContext {
 
     public ActivitiContextFactoryImpl.CustomStandaloneProcessEngineConfiguration getCustomStandaloneProcessEngineConfiguration() {
         return customStandaloneProcessEngineConfiguration;
+    }
+    
+    public Map<String, Object> getBpmVariables(ProcessInstance pi) {
+        TaskService es = getProcessEngine().getTaskService();
+        return es.getVariables(pi.getInternalId());
     }
 }

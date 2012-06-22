@@ -3,8 +3,10 @@ package pl.net.bluesoft.rnd.processtool.ui.basewidgets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolChildrenFilteringWidget;
@@ -63,6 +65,14 @@ public class SwitchWidget extends BaseProcessToolVaadinWidget implements Process
 	@Override
 	public List<ProcessStateWidget> filterChildren(BpmTask task, List<ProcessStateWidget> sortedList) {
 		String key = task.getProcessInstance().getSimpleAttributeValue(selectorKey);
+		if(key == null){
+	    	Map<String, Object> variables = ProcessToolContext.Util.getThreadProcessToolContext().getBpmVariables(task.getProcessInstance());
+	    	key = (String) variables.get(selectorKey);
+		}
+		
+		if(key == null)
+			return new ArrayList<ProcessStateWidget>(0);
+		
 		String[] conditionsArray = conditions.split("[,; ]");
 		int index = -1;
 		for (int i = 0; i < conditionsArray.length; i++) {

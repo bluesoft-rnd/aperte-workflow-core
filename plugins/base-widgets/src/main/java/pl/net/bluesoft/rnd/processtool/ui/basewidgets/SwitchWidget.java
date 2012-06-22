@@ -73,10 +73,10 @@ public class SwitchWidget extends BaseProcessToolVaadinWidget implements Process
 		if(key == null)
 			return new ArrayList<ProcessStateWidget>(0);
 		
-		String[] conditionsArray = conditions.split("[,; ]");
+		String[] conditionsArray = conditions.split("[,; ]+");
 		int index = -1;
 		for (int i = 0; i < conditionsArray.length; i++) {
-			if (key.equals(conditionsArray[i]))
+			if (key.equals(conditionsArray[i].trim()))
 				index = i;
 		}
 		try {

@@ -390,10 +390,11 @@ public class PluginHelper implements PluginManager, SearchProvider {
         Bundle bundle = bundleHelper.getBundle();
         String[] resources = bundleHelper.getHeaderValues(RESOURCES);
         for (String pack : resources) {
-            if (eventType == Bundle.ACTIVE) {
-                String basePath = File.separator + pack.replace(".", File.separator);
+            if (eventType == Bundle.ACTIVE) 
+            {
+                String basePath = "/" + pack.replace(".", "/");
                 if (!basePath.endsWith(File.separator)) {
-                    basePath += File.separator;
+                    basePath += "/";
                 }
                 Enumeration<URL> urls = bundle.findEntries(basePath, null, true);
                 while (urls.hasMoreElements()) {
@@ -675,12 +676,21 @@ public class PluginHelper implements PluginManager, SearchProvider {
             removablePaths.addAll(installableBundlePaths);
             Set<Bundle> removedBundles = uninstallBundles(removablePaths);
             for (Bundle bundle : removedBundles) {
-                try {
+                try 
+                {
                     processBundleExtensions(bundle, Bundle.STOPPING);
                 }
                 catch (ClassNotFoundException e) {
                     LOGGER.log(Level.SEVERE, "Exception processing bundle", e);
                     forwardErrorInfoToMonitor(bundle.getSymbolicName(), e);
+                }
+                /* Zabezpiecznie na wypadku bledu w kodzie, aby nie wywalal innych 
+                 * pakietow przy starcie
+                 */
+                catch(Exception ex)
+                {
+                    LOGGER.log(Level.SEVERE, "Exception processing bundle", ex);
+                    forwardErrorInfoToMonitor(bundle.getSymbolicName(), ex);
                 }
             }
         }
@@ -722,6 +732,14 @@ public class PluginHelper implements PluginManager, SearchProvider {
                     }
                     catch (ClassNotFoundException e) {
                         LOGGER.log(Level.SEVERE, "Exception processing bundle", e);
+                    }
+                    /* Zabezpiecznie na wypadku bledu w kodzie, aby nie wywalal innych 
+                     * pakietow przy starcie
+                     */
+                    catch(Exception ex)
+                    {
+                        LOGGER.log(Level.SEVERE, "Exception processing bundle", ex);
+                        forwardErrorInfoToMonitor(bundle.getSymbolicName(), ex);
                     }
                 }
             }
@@ -777,6 +795,14 @@ public class PluginHelper implements PluginManager, SearchProvider {
                     }
                     catch (ClassNotFoundException e) {
                         LOGGER.log(Level.SEVERE, "Exception processing bundle", e);
+                    }
+                    /* Zabezpiecznie na wypadek bledu w kodzie, aby nie wywalal innych 
+                     * pakietow przy starcie
+                     */
+                    catch(Exception ex)
+                    {
+                        LOGGER.log(Level.SEVERE, "Exception processing bundle", ex);
+                        forwardErrorInfoToMonitor(bundle.getSymbolicName(), ex);
                     }
                 }
             }
@@ -1172,12 +1198,10 @@ public class PluginHelper implements PluginManager, SearchProvider {
     }
 
 
-    protected void forwardErrorInfoToMonitor(String path, Exception e) {
+    protected void forwardErrorInfoToMonitor(String path, Exception e) 
+	{
    		monitorInfo.append("\nSEVERE EXCEPTION: " + path);
    		monitorInfo.append("\n" + e.getMessage());
-   		//		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-   		//		e.printStackTrace(new PrintWriter(baos));
-   		//		monitorInfo.append(baos.toString());
    	}
 
     public StringBuffer getMonitorInfo() {

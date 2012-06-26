@@ -73,6 +73,7 @@ import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implements ProcessToolDataWidget, ProcessToolVaadinRenderable {
     private static final Logger logger = Logger.getLogger(ProcessDataBlockWidget.class.getName());
     private static final Resolver resolver = new DefaultResolver();
+    private static Boolean allowFileldsListener = true;
 
     private WidgetDefinitionLoader definitionLoader = WidgetDefinitionLoader.getInstance();
 
@@ -168,9 +169,11 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         protected ComponentEvaluator(Map<T, WidgetElement> input) {
             try {
                 if (input != null) {
+                
                     for (Entry<T, WidgetElement> entry : input.entrySet()) {
                         evaluate(currentComponent = entry.getKey(), currentElement = entry.getValue());
                     }
+                	
                 }
             } catch (Exception e) {
                 handleException(getMessage("processdata.block.error.eval.other")
@@ -298,6 +301,8 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         new ComponentEvaluator<Property>(boundProperties) {
             @Override
             public void evaluate(Property component, WidgetElement element) throws Exception {
+            	
+            	allowFileldsListener=false;  	// not so great but works, needs further works.
                 Object value = null;
                 try {
                     value = PropertyUtils.getProperty(processAttributes, element.getBind());
@@ -326,6 +331,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                         component.setReadOnly(true);
                     }
                 }
+                allowFileldsListener=true;
             }
         };
     }
@@ -374,6 +380,8 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                 ProcessInstanceDictionaryAttribute dict = (ProcessInstanceDictionaryAttribute) processInstance.findAttributeByKey(dictAttribute);
                 if (dict != null) {
                     int i = 0;
+                    Boolean prevReadOnly = component.isReadOnly();
+                    component.setReadOnly(false);
                     for (Object o : dict.getItems()) {
                         ProcessInstanceDictionaryItem itemProcess = (ProcessInstanceDictionaryItem) o;
                         component.addItem(itemProcess.getKey());
@@ -386,11 +394,11 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                         }
                         ++i;
                     }
+                    component.setReadOnly(prevReadOnly);
                 }
             }
         };
     }
-
 
     private Date getValidForDate(WidgetElement element) throws Exception {
         Date validForDate = processInstance.getCreateDate();
@@ -478,6 +486,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
     }
 
     private boolean executeScript() {
+    	
         boolean executed = false;
         try {
             if (!hasText(getScriptEngineType()) || !hasText(getScriptSourceCode()) && !hasText(getScriptExternalUrl()))
@@ -588,14 +597,18 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                 ((Field) component).addListener(new ValueChangeListener() {
                     @Override
                     public void valueChange(ValueChangeEvent event) {
-                        if (!executeScript())
+                    	if(allowFileldsListener){ // not so great, but works, needs further works.
+                    	boolean executedScript = executeScript();
+                        if (!executedScript){
                             return;
+                        }
 
                         mainPanel.removeAllComponents();
                         for (WidgetElement we : widgetsDefinitionElement.getWidgets()) {
                             AbstractComponent component = processWidgetElement(widgetsDefinitionElement, we, mainPanel);
 
-                        }
+                        } 
+                    	}
                     }
                 });
         }

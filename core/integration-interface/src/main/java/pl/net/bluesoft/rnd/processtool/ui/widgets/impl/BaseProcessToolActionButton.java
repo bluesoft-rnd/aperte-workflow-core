@@ -25,10 +25,10 @@ public abstract class BaseProcessToolActionButton implements ProcessToolActionBu
 	protected String description;
 
 	@AutoWiredProperty
-	protected boolean skipSaving = false;
+	protected Boolean skipSaving = false;
 
 	@AutoWiredProperty
-	protected boolean autoHide = false;
+	protected Boolean autoHide = false;
 
 //	@AutoWiredProperty
 	protected String bpmAction;

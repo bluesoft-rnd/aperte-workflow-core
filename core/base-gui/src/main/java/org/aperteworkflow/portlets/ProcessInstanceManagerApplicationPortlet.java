@@ -71,8 +71,7 @@ public class ProcessInstanceManagerApplicationPortlet extends ApplicationPortlet
                                     List<GraphElement> processHistory = session.getProcessHistory(pi);
 //                                    final StringBuffer svg = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n");
                                     final StringBuffer svg = new StringBuffer("<html><body style=\"margin:0; padding:0\">\n\n");
-                                    svg.append("<svg xmlns=\"http://www.w3.org/2000/svg\"\n" +
-                                            "     xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n");
+                                    
                                     final byte[] png = session.getProcessMapImage(pi);
                                     if (png != null) {
                                         BufferedImage read;
@@ -82,6 +81,10 @@ public class ProcessInstanceManagerApplicationPortlet extends ApplicationPortlet
                                             resourceURL.setParameter("instanceId", pi.getInternalId());
                                             String url = resourceURL.toString();
                                             url = StringEscapeUtils.escapeXml(url);
+                                            svg.append(String.format("<svg xmlns=\"http://www.w3.org/2000/svg\"\n" + "   viewBox='0 0 %d %d'  " +
+                                                    "     xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n",
+                                                    read.getWidth(),
+                                                    read.getHeight()));
                                             svg.append(String.format("<image x=\"0\" y=\"0\" width=\"%d\" height=\"%d\"\n" +
                                                     "xlink:href=\"%s\" />",
                                                     read.getWidth(),

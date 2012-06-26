@@ -59,7 +59,7 @@ process.data.help=<i>Review or update process data and select action to propagat
 process.action.performed=Successfully performed process action
 process.data.task-finished=Task has already been completed
 process.data.task-notfound=Task with id %s not found!
-process.data.no-config=No configuration for this process state.
+
 queues.name=Name
 queues.processCount=Count
 queues.description=Description
@@ -145,26 +145,14 @@ activity.tasks.task-details=Task details
 activity.tasks.task-claim=Claim task
 activity.new-process.title=New process
 activity.back=Go back to main page
-activity.no-results=No results found for the search criteria
-activity.search.failed=Search failed with the following exception message:
 
-activity.nodeadline=No deadline
 activity.nodeadline=No limit
-activity.search.failed=Search failed with the following exception message:
-
-activity.nodeadline=No deadline
 activity.creator=Creator
 activity.assigned=Assigned
 activity.assigned.empty=Nobody
 activity.creationDate=Creation date
 activity.deadlineDate=Deadline
 activity.state=Process instance status
-activity.search.results.title=Search results for:
-activity.search.title=Search
-activity.search.info=Please enter search criteria and press <b>Search</b>. \
-  <a href="http://lucene.apache.org/java/2_9_1/queryparsersyntax.html" target="_blank">Lucene Search syntax</a> is supported.
-activity.search=Search criteria...
-activity.search.caption=Search
 
 process.log.process-started=Process started
 process.log.process-assigned=Process assigned from queue
@@ -227,7 +215,7 @@ notification.help=Help
 help.empty=No help defined for key '{0}'
 help.dictionary=Dictionary
 help.key=Key
-notification.error=Error
+
 validate.dictentry.exists=A different item with equal key already exists in the dictionary
 validate.integer=Must be an integer number
 validate.double=Must be a double number
@@ -321,114 +309,3 @@ format.long.date=dd-MM-yyyy HH:mm
 format.short.date=dd-MM-yyyy
 format.day.month.date=dd-MM
 format.currency=0.00
-
-plugins.console.title=Installed plugins
-plugins.console.info=To install/refresh plugin, just click on <b>Upload new or updated plugin</b> button and select appropriate .jar \
- file containing OSGi bundle. For more information on readily available plugins and development instruction, please \
- consult project <a href="https://github.com/bluesoft-rnd/aperte-workflow-core/wiki/" target="_blank">wiki</a>.\
-
-plugins.console.upload=Upload new or updated plugin
-plugins.console.upload.success=Plugin installed and started successfully.
-plugins.console.disable.success=Plugin has been disabled. Please note that it will re-enable at next OSGi environment (e.g. JVM) restart.
-plugins.console.enable.success=Plugin has been enabled.
-plugins.console.uninstall.success=Plugin has been uninstalled and will not be available until installed again.
-#plugins.console.filter.prompt=Type in filter expression...
-
-osgi.plugin.state.active=Active
-osgi.plugin.state.installed=Installed
-osgi.plugin.state.resolved=Resolved
-osgi.plugin.state.starting=Starting
-osgi.plugin.state.stopping=Stopping
-osgi.plugin.state.uninstalled=Uninstalled
-
-plugins.console.state=Status:
-plugins.console.enable=Enable
-plugins.console.uninstall=Uninstall
-plugins.console.disable=Disable
-plugins.console.plugin.homepage=Homepage
-plugins.console.plugin.documentation=Documentation
-
-processdefinitions.console.title=Process definitions
-processdefinitions.console.info=Process definitions currently available for this Aperte Workflow instance are listed below.\
-  Please note, that to upload new or updated process definition you have to either:\
-  <ul>\
-  <li>Use <b>Aperte Workflow Plugin Manager</b> available in the Liferay's Control Panel menu.</li>\
-  <li>Access <a href="/modeler-0.1/" target="_blank">Aperte Modeler</a> features (if available).</li>\
-  </ul>\
-  Uploading new or updated process definition will automatically enable a process.<br/>\
-  <p>\
-  Instructions on configuring process definitions in Aperte Workflow are available inside the project <a href="https://github.com/bluesoft-rnd/aperte-workflow-core/wiki" target="_blank">Wiki</a>.\
-  </p>
-
-processdefinitions.console.version=Version:
-processdefinitions.console.uploadedby=Uploaded by:
-processdefinitions.console.uploadedon=on
-processdefinitions.console.enable=Enable (users with certain privileges will be able to start this process)
-processdefinitions.console.disable=Disable (no users will be able to start this process). Existing process instances will not be affected.
-processdefinitions.console.history.showhide=Show/Hide version history
-processdefinitions.console.history.title=Version history
-
-processdefinitions.console.disable.success=Process has been disabled. Users will not be able to start this process, existing process instances are not affected.
-processdefinitions.console.enable.success=Process has been enabled. Users will be able to start it.
-
-
-processinstances.console.title=Process instances
-processinstances.console.info=Please enter filter criteria do search for process instances. \
-  <a href="http://lucene.apache.org/java/2_9_1/queryparsersyntax.html" target="_blank">Lucene Search syntax</a> is supported.
-
-processinstances.search.prompt=Enter filter criteria...
-processinstances.console.history.createdby=Created by:
-processinstances.console.history.on=on
-processinstances.console.history.showhide=Show/Hide process history
-processinstances.console.history.title=Version history
-processinstances.console.tasks.previous=Previous
-processinstances.console.tasks.next=Next
-
-processinstances.console.history.substituting=Substituting
-processinstances.console.history.stateDescription=State description
-
-processinstances.console.noresults=No results found for the search criteria
-processinstances.console.failed=Search failed with the following exception message:
-processinstances.search.onlyActive=Search only for active process instances
-processinstances.console.cancel-process=Cancel process instance
-processinstances.console.entry.state=State:
-processinstances.console.entry.owner=Assigned to:
-processinstances.console.cancel-process.confirm.title=Confirm process cancellation
-processinstances.console.cancel-process.confirm.message=Please confirm the cancellation of this process instance. THIS OPERATION CANNOT BE UNDONE!
-
-processinstances.console.remove-owner.confirm.title=Confirm user un-assignment
-processinstances.console.remove-owner.confirm.message=This task will not have a user assigned. If the task is assigned to a queue or a swimlane with \
-  a queue, it will return there. But if process was initially assigned to a user, it won't be accessible to any of the users and \
-  it will required that the system administrator re-assignes this task.
-
-processinstances.console.change-owner.confirm.title=Confirm user assignment
-processinstances.console.change-owner.confirm.message=This task will be therefore assigned to this user.
-
-processinstances.console.entry.available-actions=Available actions:
-processinstances.console.force-action.confirm.title=Please confirm forcing of action.
-processinstances.console.force-action.success=The action has been forced successfully.
-processinstances.console.cancel-process.success=The process has been cancelled successfully.
-processinstances.console.entry.change-owner=Change owner
-processinstances.console.entry.remove-owner=Remove owner
-
-processinstances.console.remove-owner.success=The user has been unassigned from selected task succesfully.
-processinstances.console.change-owner.success=The user has been assigned to the selected task succesfully.
-
-processinstances.console.entry.change-owner.title=Please select user
-processinstances.console.entry.no-owner=Not assigned to any user
-processinstances.console.entry.change-owner.info=Start typing user login to display matching users
-
-confirm.no=No
-confirm.yes=Yes
-
-processinstances.console.process.image-map=Process instance map
-processinstances.console.show-process-map=Show process map
-
-uploader.size.exceeded=Upload size exceeded
-uploader.mimeType.disallowed=The mime type {0} is not allowed
-uploader.out.failed=Failed to handle the upload
-
-widget.attribute.caption.humanName=Caption
-widget.attribute.caption.description=This is a short text displayed as widget title.
-widget.attribute.comment.humanName=Comment
-widget.attribute.comment.description=This is a long text, usually displayed below the widget caption. It may be used \  to provide help information for the user.

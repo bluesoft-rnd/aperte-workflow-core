@@ -393,7 +393,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
             if (eventType == Bundle.ACTIVE) 
             {
                 String basePath = "/" + pack.replace(".", "/");
-                if (!basePath.endsWith(File.separator)) {
+                if (!basePath.endsWith("/")) {
                     basePath += "/";
                 }
                 Enumeration<URL> urls = bundle.findEntries(basePath, null, true);

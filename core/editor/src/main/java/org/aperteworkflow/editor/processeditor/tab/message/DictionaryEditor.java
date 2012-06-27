@@ -2,14 +2,11 @@ package org.aperteworkflow.editor.processeditor.tab.message;
 
 import com.vaadin.ui.*;
 
-import org.aperteworkflow.editor.domain.Language;
 import org.aperteworkflow.editor.vaadin.DataHandler;
-import org.aperteworkflow.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+
 
 public class DictionaryEditor extends VerticalLayout implements TabSheet.CloseHandler, DataHandler {
 
@@ -94,7 +91,7 @@ public class DictionaryEditor extends VerticalLayout implements TabSheet.CloseHa
             // nothing to save
             return;
         }
-        dictionaryToUpload = (String) textArea.getValue();
+        dictionaryToUpload = textAreaValue;
     }
 
     @Override

@@ -60,27 +60,29 @@ public class VerticalLayoutWidget extends BaseProcessToolVaadinWidget implements
                 p.setHeight("150px");
                 component = p;
             }
-            if (vChild instanceof BaseProcessToolVaadinWidget) {
-                String comment = ((BaseProcessToolVaadinWidget)vChild).getAttributeValue("comment");
-                if (comment != null) {
-                    VerticalLayout vl = new VerticalLayout();
-                    vl.addComponent(new Label(getMessage(comment), Label.CONTENT_XHTML));
-                    vl.addComponent(component);
-                    component = vl;
-                }
-                String caption = ((BaseProcessToolVaadinWidget)vChild).getAttributeValue("caption");
-                if (caption != null) {
-                    Panel p = new Panel(getMessage(caption));
-                    p.addComponent(component);
-                    vl.addComponent(p);
-                    vl.setExpandRatio(p, 1.0f);
-                    p.setWidth(100, AbstractComponent.UNITS_PERCENTAGE);
-                } else {
-                    vl.addComponent(component);
-                }
-            }  else {
-                vl.addComponent(component);
-            }
+			if (component != null) {
+				if (vChild instanceof BaseProcessToolVaadinWidget) {
+					String comment = ((BaseProcessToolVaadinWidget)vChild).getAttributeValue("comment");
+					if (comment != null) {
+						VerticalLayout vl = new VerticalLayout();
+						vl.addComponent(new Label(getMessage(comment), Label.CONTENT_XHTML));
+						vl.addComponent(component);
+						component = vl;
+					}
+					String caption = ((BaseProcessToolVaadinWidget)vChild).getAttributeValue("caption");
+					if (caption != null) {
+						Panel p = new Panel(getMessage(caption));
+						p.addComponent(component);
+						vl.addComponent(p);
+						vl.setExpandRatio(p, 1.0f);
+						p.setWidth(100, AbstractComponent.UNITS_PERCENTAGE);
+					} else {
+						vl.addComponent(component);
+					}
+				}  else {
+					vl.addComponent(component);
+				}
+			}
         }
         return vl;
     }

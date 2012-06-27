@@ -65,7 +65,7 @@ public class LatestProcessCommentsWidget extends BaseProcessToolVaadinWidget imp
     @Override
     public Component render() {
         if (!showContent) {
-            return new VerticalLayout();
+            return null;
         }
 
         Panel commentsPanel = new Panel();

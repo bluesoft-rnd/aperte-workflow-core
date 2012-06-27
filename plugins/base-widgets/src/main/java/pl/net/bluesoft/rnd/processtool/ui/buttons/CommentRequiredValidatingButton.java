@@ -61,7 +61,7 @@ public class CommentRequiredValidatingButton extends StandardValidatingButton {
         pc.setAuthorSubstitute(substitutingUser != null ? ctx.getUserDataDAO().loadOrCreateUserByLogin(substitutingUser) : null);
         pc.setCreateTime(new Date());
         pc.setProcessState(task.getTaskName());
-        ProcessInstance pi = task.getRootProcessInstance();
+        ProcessInstance pi = task.getProcessInstance().getRootProcessInstance();
         ProcessComments comments = pi.findAttributeByClass(ProcessComments.class);
         if (comments == null) {
             comments = new ProcessComments();

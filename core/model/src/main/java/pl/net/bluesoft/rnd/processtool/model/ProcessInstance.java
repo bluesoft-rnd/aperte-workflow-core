@@ -74,7 +74,14 @@ public class ProcessInstance extends PersistentEntity {
 	public ProcessInstance() {
 
 	}
-
+    
+    public ProcessInstance getRootProcessInstance() {
+    	ProcessInstance parentProcess = this;
+    	while(parentProcess.getParent() != null){
+    		parentProcess = parentProcess.getParent();
+    	}
+    	return parentProcess;
+    }
 
 	public String getDescription() {
 		return description;

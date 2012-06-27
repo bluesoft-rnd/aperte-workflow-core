@@ -66,14 +66,6 @@ public class BpmTask implements Serializable {
     public ProcessInstance getProcessInstance() {
         return processInstance;
     }
-    
-    public ProcessInstance getRootProcessInstance() {
-    	ProcessInstance parentProcess = processInstance;
-    	while(parentProcess.getParent() != null){
-    		parentProcess = parentProcess.getParent();
-    	}
-    	return parentProcess;
-    }
 
     public void setProcessInstance(ProcessInstance processInstance) {
         this.processInstance = processInstance;

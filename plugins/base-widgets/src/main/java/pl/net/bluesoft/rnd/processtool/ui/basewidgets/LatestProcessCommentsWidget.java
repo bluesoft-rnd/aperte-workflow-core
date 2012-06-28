@@ -38,7 +38,7 @@ public class LatestProcessCommentsWidget extends BaseProcessToolVaadinWidget imp
 
     @Override
 	public void loadData(BpmTask task) {
-        ProcessInstance pi = task.getRootProcessInstance();
+        ProcessInstance pi = task.getProcessInstance().getRootProcessInstance();
 
         if (mode.equalsIgnoreCase(MODE_SMART)) {
             if (!"true".equalsIgnoreCase(pi.getSimpleAttributeValue("commentAdded", "false"))) {

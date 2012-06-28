@@ -768,7 +768,13 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
     private Link createLink(LinkWidgetElement we) {
         Link link = new Link();
         link.setTargetName("_blank");
-        link.setResource(new ExternalResource(we.getUrl()));
+        String url = we.getUrl();
+		if(url.matches("#\\{.*\\}")){
+        	String urlKey = url.replaceAll("#\\{(.*)\\}", "$1");
+        	if(processAttributes.containsKey(urlKey))
+        		url = ((ProcessInstanceSimpleAttribute)processAttributes.get(urlKey)).getValue();
+        }
+        link.setResource(new ExternalResource(url));
         return link;
     }
 

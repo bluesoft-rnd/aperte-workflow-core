@@ -50,6 +50,7 @@ import org.jbpm.pvm.internal.history.model.HistoryProcessInstanceImpl;
 import org.jbpm.pvm.internal.history.model.HistoryTaskImpl;
 import org.jbpm.pvm.internal.history.model.HistoryTaskInstanceImpl;
 import org.jbpm.pvm.internal.identity.impl.UserImpl;
+import org.jbpm.pvm.internal.model.ActivityImpl;
 import org.jbpm.pvm.internal.model.ExecutionImpl;
 import org.jbpm.pvm.internal.query.AbstractQuery;
 import org.jbpm.pvm.internal.task.ParticipationImpl;
@@ -983,7 +984,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
            ProcessInstanceLog log = addActionLogEntry(action, task, ctx);
            Map<String, Object> vars = new HashMap<String, Object>();
            vars.put("ACTION", action.getBpmName());
-           List<String> outgoingTransitionNames = getOutgoingTransitionNames(pi.getInternalId(), ctx);
+           List<String> outgoingTransitionNames = getOutgoingTransitionNames(task.getInternalTaskId(), ctx);
 
            ProcessEngine processEngine = getProcessEngine(ctx);
 
@@ -1129,19 +1130,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
 
     public List<String> getOutgoingTransitionNames(String internalId, ProcessToolContext ctx) {
         ProcessEngine engine = getProcessEngine(ctx);
-        org.jbpm.api.ProcessInstance pi = engine.getExecutionService().findProcessInstanceById(internalId);
-        final ExecutionImpl execution = (ExecutionImpl) pi.getProcessInstance();
-        final List<String> transitionNames = new ArrayList<String>();
-        engine.execute(new Command() {
-            public Object execute(Environment env) {
-                for (Transition transition : execution.getActivity().getOutgoingTransitions()) {
-                    transitionNames.add(transition.getName());
-                }
-                return null;
-            }
-        });
-
-        return transitionNames;
+        return new ArrayList<String>(engine.getTaskService().getOutcomes(internalId));
     }
 
     public boolean updateSubprocess(final ProcessInstance parentPi, String executionId, ProcessToolContext ctx) {

@@ -9,7 +9,7 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.IndexWriterConfig; 
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.*;
@@ -757,7 +757,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
             bundle.start();
             LOGGER.warning("STARTED: " + path);
         }
-        catch (Exception e) {
+        catch (Throwable e) {
             LOGGER.warning("BLOCKING: " + path);
             LOGGER.log(Level.WARNING, e.getMessage(), e);
             bundle = null;

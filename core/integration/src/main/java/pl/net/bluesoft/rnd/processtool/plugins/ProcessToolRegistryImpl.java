@@ -346,9 +346,16 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
             lookup.getConnection().close();
             return dsName;
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Aperte Workflow datasource bound to name " + dsName +
-                    " not found or is badly configured, falling back to preconfigured HSQLDB." +
-                    " DO NOT USE THAT IN PRODUCTION ENVIRONMENT!", e);
+            dsName = nvl(System.getProperty("org.aperteworkflow.datasource"), "jdbc/aperte-workflow-ds");
+            try {
+                DataSource lookup = (DataSource) new InitialContext().lookup(dsName);
+                lookup.getConnection().close();
+                return dsName;
+            } catch (Exception e1) {
+                logger.log(Level.SEVERE, "Aperte Workflow datasource bound to name " + dsName +
+                        " not found or is badly configured, falling back to preconfigured HSQLDB." +
+                        " DO NOT USE THAT IN PRODUCTION ENVIRONMENT!", e);
+            }
         }
         return null;
     }

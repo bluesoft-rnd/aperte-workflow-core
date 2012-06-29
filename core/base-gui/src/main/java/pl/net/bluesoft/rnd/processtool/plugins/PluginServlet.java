@@ -54,7 +54,8 @@ public class PluginServlet extends HttpServlet {
                         .getAttribute(ProcessToolRegistry.class.getName());
 
                 pluginHelper.initialize(
-                        nvl(getServletConfig().getInitParameter("osgi-plugins-directory"),
+						firstExistingDirectory(getServletConfig().getInitParameter("osgi-plugins-directory"),
+								getServletConfig().getServletContext().getRealPath("/WEB-INF/osgi"),
                                 ProcessToolContext.Util.getHomePath() + File.separator + "osgi-plugins"),
                         nvl(getServletConfig().getInitParameter("felix-cache-directory"),
                                 ProcessToolContext.Util.getHomePath() + File.separator + "felix-cache"),
@@ -68,6 +69,15 @@ public class PluginServlet extends HttpServlet {
             throw new ServletException(e);
         }
     }
+
+	private static String firstExistingDirectory(String... dirs) {
+		for (String dir : dirs) {
+			if (dir != null && new File(dir).exists()) {
+				return dir;
+			}
+		}
+		return null;
+	}
 
     @Override
     public void destroy() {

@@ -39,6 +39,8 @@ public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshab
 	private Tree substitutionsTree;
 	private Panel substitutionsPanel;
 
+	private Collection<Button> taskButtons = new ArrayList<Button>();
+
 	public ActivityQueuesPane(ActivityMainPane activityMainPane) {
 		this.activityMainPane = activityMainPane;
 		setWidth("100%");
@@ -48,7 +50,6 @@ public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshab
 		taskList = new VerticalLayout();
 //		taskList.setMargin(true);
 		addComponent(taskList);
-		refreshData();
 
 		if (bpmEventListener == null) {
 			activityMainPane.getBpmSession().getEventBusManager().subscribe(BpmEvent.class,
@@ -108,8 +109,9 @@ public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshab
 		final ProcessInstanceFilter myTasksClosed = getProcessInstanceFilter(user, user, null, getMessage("activity.created.closed.tasks"), TaskState.CLOSED);
 		taskList.addComponent(createUserTasksButton(bpmSession, ctx, myTasksClosed, false));
 		
-		//Historia
-//		taskList.addComponent(createHistoryButton());
+		for (Button taskButton : taskButtons) {
+			taskList.addComponent(taskButton);
+		}
 	}
 
     public void addButton(String title, final Runnable r) {
@@ -121,7 +123,8 @@ public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshab
                 withErrorHandling(getApplication(), r);
             }
         });
-        taskList.addComponent(b);
+		taskButtons.add(b);
+		taskList.addComponent(b);
     }
 	
 	private List<ProcessQueue> buildUserQueues(ProcessToolContext ctx, final ProcessToolBpmSession bpmSession) {

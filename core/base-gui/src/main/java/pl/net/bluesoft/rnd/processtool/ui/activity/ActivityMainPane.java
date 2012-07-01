@@ -79,6 +79,7 @@ public class ActivityMainPane extends VerticalLayout implements ViewCallback {
 
         activityQueuesPane = new ActivityQueuesPane(this);
 		initViewController();
+		activityQueuesPane.refreshData();
 		viewController.displayCurrentView();
 
 		removeAllComponents();

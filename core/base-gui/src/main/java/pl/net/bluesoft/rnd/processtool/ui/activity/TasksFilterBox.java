@@ -39,7 +39,6 @@ public class TasksFilterBox extends VerticalLayout {
 	private ProcessInstanceFilter filter = new ProcessInstanceFilter();
 	private List<ItemSetChangeListener> listeners = new LinkedList<ItemSetChangeListener>();
 	private ProcessListPane parent;
-	private GridLayout gl;
 	private int limit;
 	private int totalResults;
 	private TextField filterNameField;
@@ -76,6 +75,7 @@ public class TasksFilterBox extends VerticalLayout {
 		advancedTrigger.addListener(new Button.ClickListener() {
 			@Override
 			public void buttonClick(Button.ClickEvent event) {
+				createAdvancedForm();
 				filterNameField.setVisible(!advancedForm.isVisible());
 				filterNameSave.setVisible(!advancedForm.isVisible());
 				advancedForm.setVisible(!advancedForm.isVisible());
@@ -83,10 +83,17 @@ public class TasksFilterBox extends VerticalLayout {
 			}
 		});
 		addComponent(advancedTrigger);
+	}
 
-		gl = new GridLayout();
+	private void createAdvancedForm() {
+		if (advancedForm != null) {
+			return;
+		}
+
+		GridLayout gl = new GridLayout();
 		gl.setSpacing(true);
 		gl.setColumns(4);
+
 		advancedForm = new Form(gl);
 		advancedForm.setFormFieldFactory(new TasksFilterFieldFactory(this));
 		advancedForm.setVisible(false);
@@ -106,9 +113,9 @@ public class TasksFilterBox extends VerticalLayout {
 		filterNameSave = new Button(getMessage("search.advanced.filter.save_as_new"), new Button.ClickListener() {
 			@Override
 			public void buttonClick(Button.ClickEvent event) {
-				if (StringUtils.isEmpty((String) filterNameField.getValue())) {
+				if (StringUtils.isEmpty((String)filterNameField.getValue())) {
 					VaadinUtility.validationNotification(application, i18NSource,
-					                                     getMessage("search.advanced.filter.name.required"));
+							getMessage("search.advanced.filter.name.required"));
 				}
 				else {
 					saveFilter();
@@ -164,8 +171,10 @@ public class TasksFilterBox extends VerticalLayout {
 	}
 
 	private void loadFormData() {
-		advancedForm.setItemDataSource(new BeanItem<ProcessInstanceFilter>(filter));
-		advancedForm.setVisibleItemProperties(Arrays.asList("createdBefore", "createdAfter", "notUpdatedAfter", "updatedAfter", "creators", "owners", "queues"));
+		if (advancedForm != null) {
+			advancedForm.setItemDataSource(new BeanItem<ProcessInstanceFilter>(filter));
+			advancedForm.setVisibleItemProperties(Arrays.asList("createdBefore", "createdAfter", "notUpdatedAfter", "updatedAfter", "creators", "owners", "queues"));
+		}
 	}
 
 	public ResultsPageWrapper<BpmTask> getBpmTasks(int offset) {

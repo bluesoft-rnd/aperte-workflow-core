@@ -35,7 +35,8 @@
         <module>scripting</module>
         <module>scheduler-integration</module>
         <module>global-dictionaries</module>
-    </modules>
+    <module>plugins-test</module>
+  </modules>
 
     <dependencies>
         <dependency>

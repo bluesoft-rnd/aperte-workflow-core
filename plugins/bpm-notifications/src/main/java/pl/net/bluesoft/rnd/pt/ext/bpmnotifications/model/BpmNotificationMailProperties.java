@@ -18,6 +18,7 @@ public class BpmNotificationMailProperties extends PersistentEntity {
     private String smtpPort;
     private String smtpUser;
     private String smtpPassword;
+    private boolean starttls;
     private boolean debug;
 
     public String getProfileName() {
@@ -91,4 +92,12 @@ public class BpmNotificationMailProperties extends PersistentEntity {
     public void setDebug(boolean debug) {
         this.debug = debug;
     }
+
+	public boolean isStarttls() {
+		return starttls;
+	}
+
+	public void setStarttls(boolean starttls) {
+		this.starttls = starttls;
+	}
 }

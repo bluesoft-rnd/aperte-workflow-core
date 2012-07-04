@@ -239,17 +239,36 @@ public class BpmNotificationEngine implements TemplateLoader, BpmNotificationSer
 
             persistentMailProperties = new HashMap<String, Properties>();
             List<BpmNotificationMailProperties> properties = session.createCriteria(BpmNotificationMailProperties.class).list();
-            for (BpmNotificationMailProperties bnmp : properties) {
-                if (hasText(bnmp.getProfileName())) {
+            for (BpmNotificationMailProperties bnmp : properties) 
+            {
+                if (hasText(bnmp.getProfileName())) 
+                {
                     Properties prop = new Properties();
-                    prop.put("mail.smtp.host", bnmp.getSmtpHost());
-                    prop.put("mail.smtp.socketFactory.port", bnmp.getSmtpSocketFactoryPort());
-                    prop.put("mail.smtp.socketFactory.class", bnmp.getSmtpSocketFactoryClass());
+                    
+                    if(bnmp.getSmtpHost() != null)
+                    	prop.put("mail.smtp.host",  bnmp.getSmtpHost() != null);
+                    
+                    if(bnmp.getSmtpSocketFactoryPort() != null)
+                    	prop.put("mail.smtp.socketFactory.port", bnmp.getSmtpSocketFactoryPort());
+                    
+                    if(bnmp.getSmtpSocketFactoryClass() != null)
+                    	prop.put("mail.smtp.socketFactory.class", bnmp.getSmtpSocketFactoryClass());
+                    
+
                     prop.put("mail.smtp.auth", bnmp.isSmtpAuth());
-                    prop.put("mail.smtp.port", bnmp.getSmtpPort());
-                    prop.put("mail.smtp.user", bnmp.getSmtpUser());
-                    prop.put("mail.smtp.password", bnmp.getSmtpPassword());
+                    
+                    if(bnmp.getSmtpPort() != null)
+                    	prop.put("mail.smtp.port", bnmp.getSmtpPort());
+                    
+                    if(bnmp.getSmtpUser() != null)
+                    	prop.put("mail.smtp.user", bnmp.getSmtpUser());
+                    
+                    if(bnmp.getSmtpPassword() != null)
+                    	prop.put("mail.smtp.password", bnmp.getSmtpPassword());
+                    
                     prop.put("mail.debug", bnmp.isDebug());
+                    prop.put("mail.smtp.starttls.enable", bnmp.isStarttls());
+                    
                     persistentMailProperties.put(bnmp.getProfileName(), prop);
                 }
                 else {

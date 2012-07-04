@@ -28,6 +28,10 @@ import pl.net.bluesoft.rnd.pt.ext.jbpm.ProcessToolContextFactoryImpl;
  */
 public class AperteDataSourceTestCase extends TestCase
 {
+	private static String DATABASE_NAME = "awf-jbpm-old";
+	private static String USER_NAME = "esod";
+	private static String USER_PASSWORD = "esod";
+	
 	protected static ProcessToolRegistry registry;
 	protected static Session session;
 	
@@ -51,9 +55,9 @@ public class AperteDataSourceTestCase extends TestCase
         
         dataSource.setDataSourceName("aperte-workflow-ds");
         dataSource.setServerName("localhost");
-        dataSource.setDatabaseName("awf-jbpm-old");
-        dataSource.setUser("esod");
-        dataSource.setPassword("esod");
+        dataSource.setDatabaseName(DATABASE_NAME);
+        dataSource.setUser(USER_NAME);
+        dataSource.setPassword(USER_PASSWORD);
         
         ic.bind("java:/comp/env/jdbc/aperte-workflow-ds", dataSource);
                

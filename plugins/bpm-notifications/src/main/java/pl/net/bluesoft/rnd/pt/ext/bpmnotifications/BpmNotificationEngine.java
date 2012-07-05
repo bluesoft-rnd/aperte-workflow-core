@@ -246,7 +246,7 @@ public class BpmNotificationEngine implements TemplateLoader, BpmNotificationSer
                     Properties prop = new Properties();
                     
                     if(bnmp.getSmtpHost() != null)
-                    	prop.put("mail.smtp.host",  bnmp.getSmtpHost() != null);
+                    	prop.put("mail.smtp.host",  bnmp.getSmtpHost());
                     
                     if(bnmp.getSmtpSocketFactoryPort() != null)
                     	prop.put("mail.smtp.socketFactory.port", bnmp.getSmtpSocketFactoryPort());

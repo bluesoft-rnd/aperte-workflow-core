@@ -36,11 +36,11 @@ public class ProcessDefinitionConfig extends PersistentEntity implements Seriali
 
 	private Date createDate;
 
-	@OneToMany(cascade = {CascadeType.ALL})
+	@OneToMany(cascade = {CascadeType.ALL}, fetch=FetchType.EAGER)
 	@JoinColumn(name="definition_id")
-	private Set<ProcessStateConfiguration> states;
+	private Set<ProcessStateConfiguration> states = new HashSet<ProcessStateConfiguration>();
 
-	@OneToMany(cascade = {CascadeType.ALL})
+	@OneToMany(cascade = {CascadeType.ALL}, fetch=FetchType.EAGER)
 	@JoinColumn(name="definition_id")
 	private Set<ProcessDefinitionPermission> permissions = new HashSet<ProcessDefinitionPermission>();
 

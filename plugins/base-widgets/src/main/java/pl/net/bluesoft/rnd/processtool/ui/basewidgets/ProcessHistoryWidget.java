@@ -60,7 +60,7 @@ public class ProcessHistoryWidget extends BaseProcessToolVaadinWidget implements
 
 	@Override
 	public void loadData(BpmTask task) {
-        ProcessInstance pi = task.getProcessInstance();
+        ProcessInstance pi = task.getProcessInstance().getRootProcessInstance();
 		List<ProcessInstanceLog> processLogs = new ArrayList(pi.getProcessLogs());
 		Collections.sort(processLogs);
 		for (ProcessInstanceLog pl : processLogs) {

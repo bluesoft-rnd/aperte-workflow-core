@@ -656,7 +656,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
         log.setLogValue(pq.getName());
         log.setUser(findOrCreateUser(user, ctx));
         log.setAdditionalInfo(pq.getDescription());
-        pi.addProcessLog(log);
+        pi.getRootProcessInstance().addProcessLog(log);
 
         if (!ProcessStatus.RUNNING.equals(pi.getStatus())) {
             pi.setStatus(ProcessStatus.RUNNING);
@@ -1252,7 +1252,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
         log.setAdditionalInfo(nvl(action.getLabel(), action.getDescription(), action.getBpmName()));
         log.setUser(findOrCreateUser(user, ctx));
         log.setUserSubstitute(getSubstitutingUser(ctx));
-        task.getProcessInstance().addProcessLog(log);
+        task.getProcessInstance().getRootProcessInstance().addProcessLog(log);
         return log;
     }
     @Override

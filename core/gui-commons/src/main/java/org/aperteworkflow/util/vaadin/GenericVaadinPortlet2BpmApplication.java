@@ -179,11 +179,15 @@ public abstract class GenericVaadinPortlet2BpmApplication extends Application im
 
     public void onThrowable(Throwable e) {
         logger.log(Level.SEVERE, e.getMessage(), e);
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        e.printStackTrace(new PrintStream(baos));
-        getMainWindow().showNotification(VaadinUtility.validationNotification(i18NSource.getMessage("process-tool.exception.occurred"),
-                getMessage(e.getMessage())));
+		if (e instanceof TaskAlreadyCompletedException) {
+			VaadinUtility.errorNotification(this, i18NSource, i18NSource.getMessage("task.already.completed"));
+		}
+		else {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			e.printStackTrace(new PrintStream(baos));
+			getMainWindow().showNotification(VaadinUtility.validationNotification(i18NSource.getMessage("process-tool.exception.occurred"),
+					getMessage(e.getMessage())));
+		}
     }
 
     public boolean hasMatchingRole(String roleName) {

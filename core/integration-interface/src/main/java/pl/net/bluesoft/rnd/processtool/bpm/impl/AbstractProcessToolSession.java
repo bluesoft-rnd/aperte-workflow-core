@@ -97,7 +97,7 @@ public abstract class AbstractProcessToolSession
         log.setUser(user);
         log.setLogType(ProcessInstanceLog.LOG_TYPE_START_PROCESS);
         //log.setLogType(LogType.START);
-        pi.addProcessLog(log);
+        pi.getRootProcessInstance().addProcessLog(log);
 
         ctx.getProcessInstanceDAO().saveProcessInstance(pi);
 

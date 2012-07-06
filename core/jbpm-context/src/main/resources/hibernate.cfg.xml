@@ -16,6 +16,7 @@
         <property name="hibernate.hbm2ddl.auto">update</property>
         <property name="hibernate.format_sql">true</property>
         <property name="hibernate.use_outer_join">true</property>
+        <property name="hibernate.generate_statistics">false</property>
         <property name="hibernate.cglib.use_reflection_optimizer">true</property>
 
         <!--

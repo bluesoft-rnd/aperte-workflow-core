@@ -419,7 +419,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
                         toolRegistry.registerGlobalDictionaries(is);
                     }
                     else {
-                        LOGGER.log(Level.WARNING, "No global dictionary stream found in package: " + pack);
+                        LOGGER.log(Level.SEVERE, "No global dictionary stream found in package: " + pack);
                     }
                 }
                 catch (Exception e) {
@@ -516,7 +516,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
                 if (throwable != null) {
                     LOGGER.log(Level.SEVERE, "Felix: " + msg + ", Throwable: " + throwable.getMessage(), throwable);
                 } else {
-                    LOGGER.log(Level.WARNING, "Felix: " + msg);
+                    LOGGER.log(Level.FINE, "Felix: " + msg);
                 }
             }
         });

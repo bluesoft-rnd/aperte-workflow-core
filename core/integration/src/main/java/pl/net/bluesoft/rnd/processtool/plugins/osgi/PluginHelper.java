@@ -413,7 +413,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
         if (eventType == Bundle.ACTIVE) {
             for (String pack : properties) {
                 try {
-                    String basePath = File.separator + pack.replace(".", File.separator) + File.separator;
+                    String basePath = "/" + pack.replace(".", "/") + "/";
                     InputStream is = bundleHelper.getBundleResourceStream(basePath + "global-dictionaries.xml");
                     if (is != null) {
                         toolRegistry.registerGlobalDictionaries(is);

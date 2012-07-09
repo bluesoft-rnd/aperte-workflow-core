@@ -81,12 +81,12 @@
         <jbpm.version>4.4</jbpm.version>
         <spring.version>3.0.5.RELEASE</spring.version>
         <vaadin.version>6.7.4</vaadin.version>
-        <hibernate.version>3.6.6.Final</hibernate.version>
+        <hibernate.version>3.6.10.Final</hibernate.version>
         <postgres.version>8.4-702.jdbc4</postgres.version>
         <junit.version>4.8.2</junit.version>
         <liferay.version>6.0.6</liferay.version>
         <!-- Properties do autoamtycznego kopiowania pluginow i warow portletow -->
-        <liferay.dir>G:\Praca\Liferay\liferay-portal-6.0.6-esod</liferay.dir>
+        <liferay.dir>F:\Liferay\liferay-portal-6.0.6-esod</liferay.dir>
         <osgi.dir>${liferay.dir}\osgi-plugins</osgi.dir>
     </properties>
 

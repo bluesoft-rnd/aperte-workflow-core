@@ -169,7 +169,7 @@ public class TaskItemProviderBase {
 		});
 
 		if(showExclamation){
-			if(Boolean.valueOf(params.getProcessInstance().getSimpleAttributeValue("markedImportant", "false"))){
+			if(Boolean.valueOf(params.getProcessInstance().getRootProcessInstance().getSimpleAttributeValue("markedImportant", "false"))){
 				b.setIcon(params.getImage("/img/exclamation_mark.png"));
 				b.setDescription(params.getMessage("activity.task.important"));
 			}

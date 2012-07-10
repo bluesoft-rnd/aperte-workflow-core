@@ -344,4 +344,17 @@ public class ProcessInstance extends PersistentEntity {
 	public void setParent(ProcessInstance parent) {
 		this.parent = parent;
 	}
+	
+	/** Metoda zwraca informacje, czy proces jest w stanie działania */
+	public boolean isProcessRunning()
+	{
+		if(getStatus() == null)
+			return false;
+		
+		if(getRunning() != null && !getRunning())
+			return false;
+		
+		return getStatus().equals(ProcessStatus.NEW) || 
+				getStatus().equals(ProcessStatus.RUNNING);
+	}
 }

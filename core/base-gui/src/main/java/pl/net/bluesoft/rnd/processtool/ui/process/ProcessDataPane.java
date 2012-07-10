@@ -225,7 +225,7 @@ public class ProcessDataPane extends VerticalLayout implements WidgetContextSupp
 		if(isSubProcess)
 		{
 			/* Przełącz się na proces głowny */
-			if(isProcessRunning(parentProcess))
+			if(parentProcess.isProcessRunning())
 				return changeProcess(parentProcess);
 		}
 		
@@ -236,7 +236,7 @@ public class ProcessDataPane extends VerticalLayout implements WidgetContextSupp
 			/* Pobierz podprocesy skorelowane z zamykanym procesem */
 			for(ProcessInstance childProcess: task.getProcessInstance().getChildren())
 			{
-				if(isProcessRunning(childProcess))
+				if(childProcess.isProcessRunning())
 				{
 					/* Tylko jeden proces powinien być aktywny, przełącz się na 
 					 * niego
@@ -251,19 +251,6 @@ public class ProcessDataPane extends VerticalLayout implements WidgetContextSupp
 		 * aktywnych podprocesów. Zamknij więc widok
 		 */
 		return false;
-	}
-	
-	/** Metoda sprawdza, czy proces jest gotowy do podjecia przez użytkownika */
-	private boolean isProcessRunning(ProcessInstance process)
-	{
-		if(process.getStatus() == null)
-			return false;
-		
-		if(process.getRunning() != null && !process.getRunning())
-			return false;
-		
-		return process.getStatus().equals(ProcessStatus.NEW) || 
-				process.getStatus().equals(ProcessStatus.RUNNING);
 	}
 
 	

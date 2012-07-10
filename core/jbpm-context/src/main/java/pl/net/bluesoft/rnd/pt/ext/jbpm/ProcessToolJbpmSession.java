@@ -327,32 +327,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
                }
            });
 
-   		//		final Collection creatorNames = Collections.collect(filter.getCreators(), new Transformer<UserData, String>() {
-   		//			@Override
-   		//			public String transform(UserData obj) {
-   		//				return obj.getLogin();
-   		//			}
-   		//		});
-   		//
-   		//		final Collection notCreatorNames = Collections.collect(filter.getNotCreators(), new Transformer<UserData, String>() {
-   		//			@Override
-   		//			public String transform(UserData obj) {
-   		//				return obj.getLogin();
-   		//			}
-   		//		});
 
-   		//		final Collection states = Collections.collect(filter.getStates(), new Transformer<TaskState, String>() {
-   		//			@Override
-   		//			public String transform(TaskState obj) {
-   		//				switch (obj) {
-   		//					case OPEN:
-   		//						return Task.STATE_OPEN;
-   		//					case CLOSED:
-   		//						return Task.STATE_COMPLETED;
-   		//				}
-   		//				return null;
-   		//			}
-   		//		});
    		if(filter.getStates().isEmpty()){
    			filter.getStates().add(TaskState.OPEN);
    		}
@@ -376,12 +351,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
    						if (!notOwnerNames.isEmpty()) {
    							query.setParameterList("notOwnerIds", notOwnerNames);
    						}
-   						//						if (!creatorNames.isEmpty()) {
-   						//							query.setParameterList("creatorIds", creatorNames);
-   						//						}
-   						//						if (!notCreatorNames.isEmpty()) {
-   						//							query.setParameterList("notCreatorIds", notCreatorNames);
-   						//						}
+
    						if (filter.getStates().contains(TaskState.CLOSED)) {
    							query.setParameter("state", Task.STATE_COMPLETED);
    						}
@@ -396,8 +366,9 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
    						hql.append("SELECT act ");
    						hql.append("FROM ");
    						hql.append(HistoryTaskInstanceImpl.class.getName()).append(" as act ");
-   						hql.append("left join fetch act.historyTask ")/*.append(HistoryTaskImpl.class.getSimpleName())*/.append(" as task  ");
-   						/*hql.append("left join fetch act.historyProcessInstance ")*/hql.append(", ").append(HistoryProcessInstanceImpl.class.getSimpleName()).append(" as proc ");
+   						hql.append("left join fetch act.historyTask ").append(" as task  ");
+   						hql.append(", ").append(HistoryProcessInstanceImpl.class.getSimpleName()).append(" as proc ");
+   						
    						if (!filter.getQueues().isEmpty()) {
    							hql.append(", ");
    							hql.append(ParticipationImpl.class.getName());
@@ -417,13 +388,15 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
    						StringBuffer hqltmp = new StringBuffer();
    						hqltmp.append(" NOT EXISTS (SELECT 1 FROM ").append(HistoryTaskInstanceImpl.class.getName()).append(" as act1 WHERE act.historyProcessInstance = act1.historyProcessInstance AND act1.dbid > act.dbid) ");
 
-   						if(filter.getStates().contains(TaskState.OPEN)){
+   						if(filter.getStates().contains(TaskState.OPEN))
+   						{
    							if(filter.getStates().contains(TaskState.CLOSED)){
    								hql.append(" AND (task.state IS NULL OR (task.state = :state AND ").append(hqltmp).append(" )) ");
    							} else {
    								hql.append(" AND task.state IS NULL ");
    							}
-   						} else if(filter.getStates().contains(TaskState.CLOSED)){
+   						} 
+   						else if(filter.getStates().contains(TaskState.CLOSED)){
    							hql.append(" AND (task.state = :state AND ").append(hqltmp).append(" )");
    						}
 
@@ -477,17 +450,45 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
                        }
                    });
 
+   		/* Rezultat zapytania */
    		final List<BpmTask> result = new ArrayList<BpmTask>();
-   		for (final String processId : tasksByProcessId.keySet()) {
+   		
+   		
+   		for (final String processId : tasksByProcessId.keySet()) 
+   		{
    			List<HistoryTaskInstanceImpl> processTasks = tasksByProcessId.get(processId);
-   			result.addAll(new Mapcar<HistoryTaskInstanceImpl, BpmTask>(processTasks) {
+   			result.addAll(new Mapcar<HistoryTaskInstanceImpl, BpmTask>(processTasks) 
+   			{
    				@Override
-   				public BpmTask lambda(HistoryTaskInstanceImpl task) {
+   				public BpmTask lambda(HistoryTaskInstanceImpl task) 
+   				{
    					ProcessInstance pi = instances.get(processId);
-   					if (pi == null) {
-   						//log.warning("process " + processId + " not found");
+   					if (pi == null) 
+   					{
    						return null;
    					}
+   					
+   					/* Jeżeli filtrowalismy po zamknietych zadaniach, to odfiltrujemy 
+   					 * taski, ktore:
+   					 * - sa podprocesami (maja parenta)
+   					 * - odpowiadajacy im proces jest w stanie RUNNING lub NEW
+   					 */
+   					if(filter.getStates().contains(TaskState.CLOSED))
+   					{
+   						/* Czy task jest skorelowany z procesem, ktory
+   						 * jest podprocesem innego
+   						 */
+   						if(pi.getParent() != null)
+   							return null;
+   							
+   						/* Czy skorelowany z taskiem proces jest
+   						 * w stanie running
+   						 */
+   						if(pi.isProcessRunning())
+   							return null;
+   					}
+   					
+   					
    					return collectTaskFromActivity(task, pi, ctx);
    				}
    			}.go());

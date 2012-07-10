@@ -111,11 +111,20 @@ public class MyProcessesListPane extends ProcessListPane {
         activityMainPane.displayProcessData(task);
     }
 
-    public static Date getDeadlineDate(BpmTask task) {
-        ProcessInstance pi = task.getProcessInstance();
-        Set<ProcessDeadline> deadlines = pi.findAttributesByClass(ProcessDeadline.class);
+    /** Metoda wylicza date wygasniecia procesu. W przypadku podprocesow, siega
+     * do atrubutow procesu głównego
+     */
+    public static Date getDeadlineDate(BpmTask task) 
+    {
+        ProcessInstance process = task.getProcessInstance();
+        
+        /* Operuj na procesie głównym */
+        if(process.getParent() != null)
+        	process = process.getParent();
+        
+        Set<ProcessDeadline> deadlines = process.findAttributesByClass(ProcessDeadline.class);
         for (ProcessDeadline pd : deadlines) {
-            if (pd.getTaskName().equals(task.getTaskName())) {
+            if (pd.getTaskName().equalsIgnoreCase(task.getTaskName())) {
                 return pd.getDueDate();
             }
         }

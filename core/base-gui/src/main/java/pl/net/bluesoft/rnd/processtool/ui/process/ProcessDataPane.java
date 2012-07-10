@@ -8,6 +8,8 @@ import org.aperteworkflow.ui.help.HelpProviderFactory;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
+import pl.net.bluesoft.rnd.processtool.model.ProcessStatus;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
@@ -18,6 +20,10 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.*;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import org.aperteworkflow.util.vaadin.VaadinUtility;
 import org.aperteworkflow.util.vaadin.ui.AligningHorizontalLayout;
+import org.hibernate.Criteria;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Restrictions;
+
 import pl.net.bluesoft.util.lang.Strings;
 
 import java.io.ByteArrayOutputStream;
@@ -31,7 +37,9 @@ import static org.aperteworkflow.util.vaadin.VaadinExceptionHandler.Util.withErr
 import static pl.net.bluesoft.util.lang.Formats.nvl;
 
 /**
- * @author tlipski@bluesoft.net.pl
+ * Główny panel widoku zawartości kroku procesu
+ * 
+ * @author tlipski@bluesoft.net.pl, mpawlak@bluesoft.net.pl
  */
 public class ProcessDataPane extends VerticalLayout implements WidgetContextSupport {
 	private Logger logger = Logger.getLogger(ProcessDataPane.class.getName());
@@ -102,6 +110,7 @@ public class ProcessDataPane extends VerticalLayout implements WidgetContextSupp
 		};
 	}
 
+	/** Odśwież odśwież widok po zmianie kroku lub procesu */
 	private void initLayout(boolean autoHide) {
 		ProcessToolContext ctx = getCurrentContext();
 
@@ -111,12 +120,29 @@ public class ProcessDataPane extends VerticalLayout implements WidgetContextSupp
 
 		boolean processRunning = bpmSession.isProcessRunning(task.getInternalProcessId(), ctx);
 		isOwner = processRunning && !task.isFinished();
-		if (!isOwner) {
+		if (!isOwner) 
+		{
 			//showProcessStateInformation(processRunning);
-			if (autoHide) {
-				guiAction = null;
-				displayProcessContext.hide();
-				return;
+			if (autoHide)
+			{
+				/* Jeżeli wstrzymujemy proces glowny, albo zamykamy podproces, sprobuj wrocic 
+				 * do odpowiedniego procesu
+				 */
+				boolean isProcessChanged = changeCurrentViewToActiveProcess();
+				
+				/* Nie zmienilismy procesu, tak wiec chowamy ten widok */
+				if(!isProcessChanged)
+				{
+					guiAction = null; 
+					displayProcessContext.hide();
+					return;
+				}
+				else
+				{
+					/* Zacznij od nowa z nowym przypisanym taskiem */
+					initLayout(false);
+					return;
+				}
 			}
 		}
 		guiAction = null;
@@ -178,22 +204,85 @@ public class ProcessDataPane extends VerticalLayout implements WidgetContextSupp
 			setComponentAlignment(buttonLayout, Alignment.TOP_LEFT);
 		}
 	}
+	
+	/** Metoda w przypadku wstrzymywania procesu przelacza widok na podproces
+	 * lub w przypadku zamkniecia podprocesu, na proces glowny
+	 * 
+	 * @return true jeżeli nastąpiło przełączenie
+	 */
+	private boolean changeCurrentViewToActiveProcess()
+	{
+		/* Aktualny proces */
+		ProcessInstance closedProcess = task.getProcessInstance();
+		
+		/* Proces główny względem wstrzymywanego procesu */
+		ProcessInstance parentProcess = closedProcess.getParent();
+		
+		boolean isSubProcess = parentProcess != null ;
+		boolean isParentProcess = !closedProcess.getChildren().isEmpty();
+		
+		/* Zamykany proces jest podprocesem, wybierz do otwoarcia jego rodzica */
+		if(isSubProcess)
+		{
+			/* Przełącz się na proces głowny */
+			if(isProcessRunning(parentProcess))
+				return changeProcess(parentProcess);
+		}
+		
+		
+		/* Zamykany proces jest procesem glownym dla innych procesow */
+		if(isParentProcess)
+		{
+			/* Pobierz podprocesy skorelowane z zamykanym procesem */
+			for(ProcessInstance childProcess: task.getProcessInstance().getChildren())
+			{
+				if(isProcessRunning(childProcess))
+				{
+					/* Tylko jeden proces powinien być aktywny, przełącz się na 
+					 * niego
+					 */
+					return changeProcess(childProcess);
+				}
+			}
+		}
+		
+		
+		/* Zatrzymywany proces nie posiada ani aktywnego procesu głównego, ani
+		 * aktywnych podprocesów. Zamknij więc widok
+		 */
+		return false;
+	}
+	
+	/** Metoda sprawdza, czy proces jest gotowy do podjecia przez użytkownika */
+	private boolean isProcessRunning(ProcessInstance process)
+	{
+		if(process.getStatus() == null)
+			return false;
+		
+		if(process.getRunning() != null && !process.getRunning())
+			return false;
+		
+		return process.getStatus().equals(ProcessStatus.NEW) || 
+				process.getStatus().equals(ProcessStatus.RUNNING);
+	}
 
-	/*    private void showProcessStateInformation(boolean processRunning) {
-        String message = null;
-        if (guiAction != null) {
-            message = getMessage(guiAction.equals(GuiAction.ACTION_PERFORMED) ? "process.action.performed" : "process.data.save-success");
-        }
-        if (guiAction == null && !processRunning) {
-            message = getMessage("process.data.process-ended");
-        }
-        else if (task.isFinished()) {
-            message = getMessage("process.data.task-finished");
-        }
-        if (message != null) {
-            VaadinUtility.informationNotification(application, message, 1500);
-        }
-    }*/
+	
+	private boolean changeProcess(ProcessInstance newProcess)
+	{
+		/* Pobierz dostępne taski dla procesu, przeważnie jeden jest tylko */
+		List<BpmTask> activeTasks = bpmSession.findProcessTasks(newProcess,  getCurrentContext());
+		
+		/* Sprawdz czy proces ma jakies aktywne zadania, powinien miec przynajmniej jedno */
+		if(activeTasks.isEmpty())
+			return false;
+		
+		/* Zmianiamy aktualny task na pierwszy. Przewaznie jest tylko jeden */
+		updateTask(activeTasks.get(0));
+		
+		refreshTask();
+		
+		return true;
+	}
 
 	private HorizontalLayout getButtonsPanel(ProcessStateConfiguration stateConfiguration) {
 
@@ -205,17 +294,6 @@ public class ProcessDataPane extends VerticalLayout implements WidgetContextSupp
 		AligningHorizontalLayout buttonLayout = new AligningHorizontalLayout(Alignment.MIDDLE_RIGHT);
 		buttonLayout.setMargin(new MarginInfo(false, true, false, true));
 		buttonLayout.setWidth("100%");
-
-//		List<ProcessStateAction> actionList = new ArrayList<ProcessStateAction>(stateConfiguration.getActions());
-//		Collections.sort(actionList, new Comparator<ProcessStateAction>() {
-//			@Override
-//			public int compare(ProcessStateAction o1, ProcessStateAction o2) {
-//				if (nvl(o1.getPriority(),0).equals(nvl(o2.getPriority(),0))) {
-//					return new Long(o1.getId()).compareTo(o2.getId());
-//				}
-//				return nvl(o1.getPriority(),0).compareTo(nvl(o2.getPriority(),0));
-//			}
-//		});
 
 		for (final ProcessStateAction a : actionList) {
 			final ProcessToolActionButton actionButton = makeButton(a);

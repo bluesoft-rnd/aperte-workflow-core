@@ -1,22 +1,44 @@
 package org.aperteworkflow.util.ldap;
 
-import com.liferay.portal.kernel.util.*;
-import org.aperteworkflow.util.liferay.LiferayBridge;
-import org.aperteworkflow.util.liferay.PortalBridge;
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
-import pl.net.bluesoft.util.lang.Strings;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.logging.Logger;
 
-import javax.naming.*;
+import javax.naming.Binding;
+import javax.naming.CompositeName;
+import javax.naming.Context;
+import javax.naming.Name;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
-import java.io.IOException;
-import java.util.*;
-import java.util.logging.Logger;
+
+import org.aperteworkflow.util.liferay.LiferayBridge;
+import org.aperteworkflow.util.liferay.PortalBridge;
+
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.util.lang.Strings;
+
+import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.PrefsPropsUtil;
+import com.liferay.portal.kernel.util.PropertiesUtil;
+import com.liferay.portal.kernel.util.PropsKeys;
+import com.liferay.portal.kernel.util.StringBundler;
+import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Validator;
 
 /**
  * @author amichalak@bluesoft.net.pl
@@ -175,70 +197,7 @@ public class LdapBridge {
                 attributesToFetch.toArray(new String[attributesToFetch.size()]), false, false);
         return context.search(baseDN, filter, searchControls);
     }
-/*
-
-    public static Map<String, Properties> getLdapUserAttributes(UserData user, Properties ldapUserAttributes) {
-        String screenName = user.getLogin();
-        Map<String, Properties> propertiesMap = new HashMap<String, Properties>();
-        Properties userAttributes = new Properties();
-        propertiesMap.put(screenName, userAttributes);
-
-        long ldapServerId, companyId = user.getCompanyId(), userId = user.getLiferayUserId();
-        LdapContext context;
-        try {
-            ldapServerId = getLdapServerId(companyId, screenName);
-            context = getContext(ldapServerId, companyId);
-        }
-        catch (Exception e) {
-            throw new LiferayBridgeException(e);
-        }
-        if (context == null) {
-            throw new LiferayBridgeException("Cannot initialize LDAP context");
-        }
-
-        String postfix = getPropertyPostfix(ldapServerId);
-
-        try {
-            String baseDN = PortalBridge.getString(companyId, PropsKeys.LDAP_BASE_DN + postfix);
-            String filter = getAuthSearchFilter(ldapServerId, companyId, StringPool.BLANK, screenName, String.valueOf(userId));
-
-            Properties userMappings = getUserMappings(ldapServerId, companyId);
-            String userMappingsScreenName = GetterUtil.getString(userMappings.getProperty("screenName")).toLowerCase();
-            SearchControls searchControls = new SearchControls(SearchControls.SUBTREE_SCOPE, 1, 0,
-                    new String[] {userMappingsScreenName}, false, false);
-
-            NamingEnumeration<SearchResult> enu = context.search(baseDN, filter, searchControls);
-            if (enu.hasMoreElements()) {
-                SearchResult result = enu.nextElement();
-                String fullUserDN = getNameInNamespace(ldapServerId, companyId, result);
-                Attributes attributes = getUserAttributes(context, fullUserDN, ldapUserAttributes);
-                for (String propertyName : ldapUserAttributes.stringPropertyNames()) {
-                    String value = getAttributeValue(attributes, ldapUserAttributes.getProperty(propertyName), null);
-                    if (value != null) {
-                        userAttributes.put(propertyName, value);
-                    }
-                }
-            }
-            enu.close();
-        }
-        catch (Exception e) {
-            throw new LiferayBridgeException(e);
-        }
-        finally {
-            if (context != null) {
-                try {
-                    context.close();
-                }
-                catch (NamingException e) {
-                    throw new LiferayBridgeException(e);
-                }
-            }
-        }
-
-        return propertiesMap;
-    }
-*/
-
+    
     public static String getAttributeValue(Attributes attributes, String id, String defaultValue) throws NamingException {
         Attribute attribute = attributes.get(id);
         Object obj = attribute != null ? attribute.get() : null;

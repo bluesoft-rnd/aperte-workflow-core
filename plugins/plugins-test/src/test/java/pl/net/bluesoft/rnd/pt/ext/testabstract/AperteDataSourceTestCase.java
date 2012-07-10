@@ -1,7 +1,5 @@
 package pl.net.bluesoft.rnd.pt.ext.testabstract;
 
-import java.util.Properties;
-
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
@@ -16,8 +14,6 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistryImpl;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.BpmNotificationEngine;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.BpmNotificationService;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.ProcessToolContextFactoryImpl;
 
 /**

@@ -1142,13 +1142,18 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
 	        if(subprocess != null){
 	        	ctx.getHibernateSession().refresh(subprocess);
 	        	
-	        	if (ctx.getProcessInstanceDAO().getProcessInstanceByInternalId(subprocess.getId()) == null) {
+	        	if (ctx.getProcessInstanceDAO().getProcessInstanceByInternalId(subprocess.getId()) == null) 
+	        	{
 					String processDefinitionId = subprocess.getProcessDefinitionId().replaceFirst("-\\d+$", "");
 					ProcessDefinitionConfig config = ctx.getProcessDefinitionDAO().getActiveConfigurationByKey(
 							processDefinitionId);
 					ProcessInstance subPi = createProcessInstance(config, null, ctx, null, null, "parent_process",
 							subprocess.getId());
 					subPi.setParent(parentPi);
+					
+					/* Dodaj podproces do listy dzieci glownego procesu */
+					parentPi.getChildren().add(subPi);
+					
 					long subPiId = ctx.getProcessInstanceDAO().saveProcessInstance(subPi);
 					executionService.createVariable(subprocess.getId(), "processInstanceId", String.valueOf(subPiId),
 							false);

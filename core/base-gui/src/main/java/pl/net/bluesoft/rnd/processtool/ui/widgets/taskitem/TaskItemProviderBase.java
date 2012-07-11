@@ -3,11 +3,22 @@ package pl.net.bluesoft.rnd.processtool.ui.widgets.taskitem;
 import static com.vaadin.terminal.Sizeable.UNITS_PIXELS;
 import static com.vaadin.ui.Alignment.MIDDLE_CENTER;
 import static com.vaadin.ui.Alignment.MIDDLE_LEFT;
-import static pl.net.bluesoft.rnd.processtool.ui.activity.MyProcessesListPane.getDeadlineDate;
-import static pl.net.bluesoft.rnd.processtool.ui.activity.MyProcessesListPane.isOutdated;
 import static org.aperteworkflow.util.vaadin.VaadinUtility.horizontalLayout;
 import static org.aperteworkflow.util.vaadin.VaadinUtility.labelWithIcon;
+import static pl.net.bluesoft.rnd.processtool.ui.activity.MyProcessesListPane.getDeadlineDate;
+import static pl.net.bluesoft.rnd.processtool.ui.activity.MyProcessesListPane.isOutdated;
 import static pl.net.bluesoft.util.lang.Formats.nvl;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import org.aperteworkflow.util.taskitem.ProcessInfoBuilder;
+import org.aperteworkflow.util.vaadin.VaadinUtility;
+
+import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
+import pl.net.bluesoft.rnd.processtool.ui.common.CssStyles;
 
 import com.vaadin.event.LayoutEvents;
 import com.vaadin.event.MouseEvents;
@@ -21,15 +32,6 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
-
-import org.aperteworkflow.util.taskitem.ProcessInfoBuilder;
-import pl.net.bluesoft.rnd.processtool.model.BpmTask;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
-import org.aperteworkflow.util.vaadin.VaadinUtility;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * User: POlszewski
@@ -65,15 +67,17 @@ public class TaskItemProviderBase {
 
 		Component processIdButton = createTaskPaneProcessId(params);
 		Component processDescButton = createTaskPaneProcessDesc(params);
-		processDescButton.setWidth("100%");
-		processIdButton.setWidth("250px"); // todo fix that ie7 shit someday
+
+		processDescButton.addStyleName(CssStyles.PROCESS_DESC_BUTTON);
+		processIdButton.addStyleName(CssStyles.PROCESS_ID_BUTTON);
 
 		HorizontalLayout hl = new HorizontalLayout();
 		hl.setSpacing(true);
 		hl.setWidth("100%");
 		hl.addComponent(processDescButton);
 		hl.addComponent(processIdButton);
-		hl.setExpandRatio(processDescButton, 1.0f);
+		//hl.setExpandRatio(processDescButton, 1.0f);
+		
 		hl.setComponentAlignment(processDescButton, Alignment.MIDDLE_LEFT);
 		hl.setComponentAlignment(processIdButton, Alignment.MIDDLE_RIGHT);
 

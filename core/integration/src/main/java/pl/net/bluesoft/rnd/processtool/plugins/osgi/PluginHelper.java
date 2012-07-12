@@ -333,7 +333,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
                     ? toolRegistry.registerModelExtension(extensions)
                     : toolRegistry.unregisterModelExtension(extensions);
             if (needUpdate) {
-                LOGGER.warning("Rebuilding Hibernate session factory...");
+                LOGGER.fine("Rebuilding Hibernate session factory...");
                 try {
                     toolRegistry.commitModelExtensions();
                 }
@@ -634,10 +634,10 @@ public class PluginHelper implements PluginManager, SearchProvider {
         if (!f.exists()) {
             LOGGER.warning("Plugins dir not found: " + pluginsDir + " attempting to create...");
             if (!f.mkdir()) {
-                LOGGER.warning("Failed to create plugins directory: " + pluginsDir + ", please reconfigure!!!");
+                LOGGER.severe("Failed to create plugins directory: " + pluginsDir + ", please reconfigure!!!");
                 return null;
             } else {
-                LOGGER.severe("Created plugins directory: " + pluginsDir);
+                LOGGER.info("Created plugins directory: " + pluginsDir);
             }
         }
         String[] list = f.list();
@@ -704,9 +704,9 @@ public class PluginHelper implements PluginManager, SearchProvider {
             if (removablePaths.contains(path) && (bundle.getState() &
                     (Bundle.INSTALLED | Bundle.RESOLVED | Bundle.STARTING | Bundle.ACTIVE | Bundle.STOPPING)) != 0) {
                 try {
-                    LOGGER.warning("STOPPING: " + path);
+                    LOGGER.info("STOPPING: " + path);
                     bundle.stop();
-                    LOGGER.warning("STOPPED: " + path);
+                    LOGGER.info("STOPPED: " + path);
                     removedBundles.add(bundle);
                 }
                 catch (Exception e) {
@@ -750,12 +750,12 @@ public class PluginHelper implements PluginManager, SearchProvider {
         Bundle bundle;
         long start = new Date().getTime();
         try {
-            LOGGER.warning("INSTALLING: " + path);
+            LOGGER.info("INSTALLING: " + path);
             bundle = felix.getBundleContext().installBundle("file://" + path.replace('\\','/'), new FileInputStream(path));
             bundle.update(new FileInputStream(path));
-            LOGGER.warning("INSTALLED: " + path);
+            LOGGER.info("INSTALLED: " + path);
             bundle.start();
-            LOGGER.warning("STARTED: " + path);
+            LOGGER.info("STARTED: " + path);
         }
         catch (Throwable e) {
             LOGGER.warning("BLOCKING: " + path);
@@ -963,10 +963,10 @@ public class PluginHelper implements PluginManager, SearchProvider {
                 throw new IOException("Failed to rename " + tempFile.getAbsolutePath() + " to " + dest.getAbsolutePath() +
                         ", as File.renameTo returns only boolean, the reason is unknown.");
             } else {
-                LOGGER.warning("Renamed " + tempFile.getAbsolutePath() + " to " + dest.getAbsolutePath());
+                LOGGER.fine("Renamed " + tempFile.getAbsolutePath() + " to " + dest.getAbsolutePath());
             }
             fileRef = dest;
-            LOGGER.warning("Installing bundle: " + dest.getAbsolutePath());
+            LOGGER.info("Installing bundle: " + dest.getAbsolutePath());
             installBundle(dest.getAbsolutePath());
             fileRef = null;
         } catch (Exception e) {
@@ -974,7 +974,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
             throw new PluginManagementException(e);
         } finally {
             if (fileRef != null) {
-                LOGGER.warning("trying to remove leftover file " + fileRef.getAbsolutePath());
+                LOGGER.fine("trying to remove leftover file " + fileRef.getAbsolutePath());
                 fileRef.delete();
             }
         }
@@ -1132,7 +1132,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
 
     public List<Document> search(String query, int offset, int limit, Query... addQueries) {
         try {
-            LOGGER.info("Parsing lucene search query: " + query);
+            LOGGER.fine("Parsing lucene search query: " + query);
             QueryParser qp = new QueryParser(Version.LUCENE_35, "all", new StandardAnalyzer(Version.LUCENE_35));
             Query q = qp.parse(query);
             BooleanQuery bq = new BooleanQuery();
@@ -1142,11 +1142,11 @@ public class PluginHelper implements PluginManager, SearchProvider {
             }
             bq.add(q, BooleanClause.Occur.MUST);
 
-            LOGGER.info("Searching lucene index with query: " + bq.toString());
+            LOGGER.fine("Searching lucene index with query: " + bq.toString());
             TopDocs search = indexSearcher.search(bq, offset + limit);
 
             List<Document> results = new ArrayList<Document>(limit);
-            LOGGER.info("Total result count for query: " + bq.toString() + " is " + search.totalHits);
+            LOGGER.fine("Total result count for query: " + bq.toString() + " is " + search.totalHits);
             for (int i = offset; i < offset+limit && i < search.totalHits; i++) {
                 ScoreDoc scoreDoc = search.scoreDocs[i];
                 results.add(indexSearcher.doc(scoreDoc.doc));
@@ -1164,7 +1164,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
             IndexWriterConfig cfg = new IndexWriterConfig(Version.LUCENE_35, new StandardAnalyzer(Version.LUCENE_35));
             IndexWriter indexWriter = new IndexWriter(index, cfg);
             for (Document doc : docs) {
-                LOGGER.info("Updating index for document: " + doc.getFieldable(AWF__ID));
+                LOGGER.fine("Updating index for document: " + doc.getFieldable(AWF__ID));
                 indexWriter.deleteDocuments(new Term(AWF__ID, doc.getFieldable(AWF__ID).stringValue()));
                 StringBuilder all = new StringBuilder();
                 for (Fieldable f : doc.getFields()) {
@@ -1175,10 +1175,10 @@ public class PluginHelper implements PluginManager, SearchProvider {
                 doc.add(new Field("all", all.toString(), Field.Store.NO, Field.Index.ANALYZED));
             }
             indexWriter.addDocuments(Arrays.asList(docs));
-            LOGGER.info("reindexing Lucene...");
+            LOGGER.fine("reindexing Lucene...");
             indexWriter.commit();
             indexWriter.close();
-            LOGGER.info("reindexing Lucene... DONE!");
+            LOGGER.fine("reindexing Lucene... DONE!");
 
             try { if (indexSearcher != null) {
                 indexSearcher.close();
@@ -1189,7 +1189,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
 
             indexReader = IndexReader.open(index);
             indexSearcher = new IndexSearcher(indexReader);
-            LOGGER.info("reopened Lucene index handles");
+            LOGGER.fine("reopened Lucene index handles");
 
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);

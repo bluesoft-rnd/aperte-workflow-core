@@ -26,7 +26,7 @@ public class PropertyAutoWiring {
             String v = nvl(attributes.get(autoName), ctx.getAutowiredProperty("autowire." + autoName));
             if (autoName != null && v != null) {
                 try {
-                    logger.warning("Setting class " + clazz.getSimpleName() + " attribute " + autoName + " to " + v);
+                	logger.finer("Setting class " + clazz.getSimpleName() + " attribute " + autoName + " to " + v);
 
 					Object value = ConvertUtils.convert(v, f.getType());
 					Classes.setFieldValue(obj, f, value);

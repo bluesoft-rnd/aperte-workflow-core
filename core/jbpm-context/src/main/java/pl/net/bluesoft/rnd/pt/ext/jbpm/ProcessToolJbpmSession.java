@@ -1148,14 +1148,12 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
 					String processDefinitionId = subprocess.getProcessDefinitionId().replaceFirst("-\\d+$", "");
 					ProcessDefinitionConfig config = ctx.getProcessDefinitionDAO().getActiveConfigurationByKey(
 							processDefinitionId);
-					ProcessInstance subPi = createProcessInstance(config, null, ctx, null, null, "parent_process",
-							subprocess.getId());
-					subPi.setParent(parentPi);
+
+					/* Create new instance of parent process' subprocess */
+					ProcessInstance subProcessInstance = createSubprocessInstance(config, ctx, parentPi, "parent_process", subprocess.getId());
+						
+					long subPiId = ctx.getProcessInstanceDAO().saveProcessInstance(subProcessInstance);
 					
-					/* Dodaj podproces do listy dzieci glownego procesu */
-					parentPi.getChildren().add(subPi);
-					
-					long subPiId = ctx.getProcessInstanceDAO().saveProcessInstance(subPi);
 					executionService.createVariable(subprocess.getId(), "processInstanceId", String.valueOf(subPiId),
 							false);
 					return true;
@@ -1165,7 +1163,9 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
         return false;
     }
 
-    public List<String> getOutgoingTransitionDestinationNames(String internalId, ProcessToolContext ctx) {
+
+
+	public List<String> getOutgoingTransitionDestinationNames(String internalId, ProcessToolContext ctx) {
         ProcessEngine engine = getProcessEngine(ctx);
         org.jbpm.api.ProcessInstance pi = engine.getExecutionService().findProcessInstanceById(internalId);
         final ExecutionImpl execution = (ExecutionImpl) pi.getProcessInstance();

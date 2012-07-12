@@ -47,6 +47,12 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.BaseTheme;
 import com.vaadin.ui.themes.ChameleonTheme;
 
+/**
+ * Panel providing link buttons to view specific tasks
+ * 
+ * @author tlipski, mpawlak@bluesoft.net.pl
+ *
+ */
 public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshable
 {
 
@@ -120,16 +126,20 @@ public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshab
 		}
 	}
 
+	/** Build main task view, containing buttons to select assigned to current employee task, closed 
+	 * task and task created by current employee but assigned to others
+	 */
 	private void buildMainTasksViews(ProcessToolContext ctx, final ProcessToolBpmSession bpmSession, UserData user)
 	{
-		ProcessInstanceFilter assignedTasksFromOthers = getProcessInstanceFilter(user,null,user,getMessage("activity.assigned.tasks"),TaskState.OPEN);
+		/* Create filters for specific task list */
+		ProcessInstanceFilter myTasksBeingDoneByOthers = createMyTaskDoneByOthersFilter(user);
+		ProcessInstanceFilter assignedTasksFromOthers = createOthersTaskAssignedToMeFilter(user);
+		ProcessInstanceFilter assignedTasksByMyself = createMyTasksAssignedToMeFilter(user);
+		ProcessInstanceFilter myTasksClosed = createMyClosedTasksFilter(user);
+				
 		taskList.addComponent(createUserTasksButton(bpmSession,ctx,assignedTasksFromOthers,true));
-		ProcessInstanceFilter assignedTasksByMyself =
-				getProcessInstanceFilter(user,user,user,getMessage("activity.created.assigned.tasks"),TaskState.OPEN);
 		taskList.addComponent(createUserTasksButton(bpmSession,ctx,assignedTasksByMyself,true));
-		ProcessInstanceFilter myTasksBeingDoneByOthers = getProcessInstanceFilter(user,user,null,getMessage("activity.created.tasks"),TaskState.OPEN);
 		taskList.addComponent(createUserTasksButton(bpmSession,ctx,myTasksBeingDoneByOthers,true));
-		ProcessInstanceFilter myTasksClosed = getProcessInstanceFilter(user,user,null,getMessage("activity.created.closed.tasks"),TaskState.CLOSED);
 		taskList.addComponent(createUserTasksButton(bpmSession,ctx,myTasksClosed,false));
 
 		for(Button taskButton: taskButtons)
@@ -400,6 +410,32 @@ public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshab
 			}
 		});
 		return b;
+	}
+	
+
+	
+	/** Methods creates new filter which returns tasks created by given user, but done by others */
+	private ProcessInstanceFilter createMyTaskDoneByOthersFilter(UserData user)
+	{
+		return getProcessInstanceFilter(user,user,null,getMessage("activity.created.tasks"),TaskState.OPEN, TaskState.CLOSED);
+	}
+	
+	/** Methods creates new filter which returns tasks created by other users, but assigned to given user */
+	private ProcessInstanceFilter createOthersTaskAssignedToMeFilter(UserData user)
+	{
+		return getProcessInstanceFilter(user,null,user,getMessage("activity.assigned.tasks"),TaskState.OPEN);
+	}
+	
+	/** Methods creates new filter which returns tasks created by given user and assigned to him */
+	private ProcessInstanceFilter createMyTasksAssignedToMeFilter(UserData user)
+	{
+		return getProcessInstanceFilter(user,user,user,getMessage("activity.created.assigned.tasks"),TaskState.OPEN);
+	}
+	
+	/** Methods creates new filter which returns user closed tasks */
+	private ProcessInstanceFilter createMyClosedTasksFilter(UserData user)
+	{
+		return getProcessInstanceFilter(user,user,null,getMessage("activity.created.closed.tasks"),TaskState.CLOSED);
 	}
 
 	private ProcessInstanceFilter getProcessInstanceFilter(UserData user, UserData creator, UserData owner, String name, TaskState... states)

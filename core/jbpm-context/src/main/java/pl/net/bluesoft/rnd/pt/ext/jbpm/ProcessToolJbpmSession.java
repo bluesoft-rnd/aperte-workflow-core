@@ -310,31 +310,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
    		return count;
    	}
    	
-//   	public ResultsPageWrapper<BpmTask> findMyTaskAssignedToOthers(final ProcessToolContext ctx, UserData creator)
-//   	{
-//   		String creatorLogin = creator.getLogin();
-//   		
-//   		ProcessEngineQuery<HistoryTaskInstanceImpl> processEngineQuery = new ProcessEngineQuery<HistoryTaskInstanceImpl>();
-//   		if(user != null)
-//   			processEngineQuery.setAuthenticationUserLogin(user.getLogin());
-//   		
-//   		/* Prepare hql statement */
-//		StringBuilder hql = new StringBuilder();
-//		hql.append("SELECT act ");
-//		hql.append("FROM ");
-//		hql.append(HistoryTaskInstanceImpl.class.getName()).append(" as act ");
-//		hql.append("left join fetch act.historyTask ").append(" as task  ");
-//		hql.append(", ").append(HistoryProcessInstanceImpl.class.getSimpleName()).append(" as proc ");
-//		
-//		else {
-//			hql.append(" WHERE ");
-//		}
-//		hql.append(" act.historyProcessInstance = proc ");
-//		hql.append(" and act.historyTask = task ");
-//   		
-//   		
-//   	}
-
+   	
    	@Override
    	public ResultsPageWrapper<BpmTask> findProcessTasks(final ProcessInstanceFilter filter, final Integer offset, final Integer limit,
    	                                                    final ProcessToolContext ctx) 
@@ -403,7 +379,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
 					 * - sa podprocesami (maja parenta)
 					 * - odpowiadajacy im proces jest w stanie RUNNING lub NEW
 					 */
-					if(filter.getStates().contains(TaskState.CLOSED) && !filter.getStates().contains(TaskState.OPEN))
+					if(filter.isProcessEnded())
 					{
 						/* Czy task jest skorelowany z procesem, ktory
 						 * jest podprocesem innego
@@ -455,7 +431,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
 		hql.append(HistoryTaskInstanceImpl.class.getName()).append(" as act ");
 		hql.append("left join fetch act.historyTask ").append(" as task  ");
 		hql.append(", ").append(HistoryProcessInstanceImpl.class.getSimpleName()).append(" as proc ");
-		
+
 		if (!filter.getQueues().isEmpty()) {
 			hql.append(", ");
 			hql.append(ParticipationImpl.class.getName());
@@ -471,6 +447,11 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
 		}
 		hql.append(" act.historyProcessInstance = proc ");
 		hql.append(" and act.historyTask = task ");
+		
+		if(filter.isProcessEnded())
+			hql.append(" and proc.state = 'ended' ");
+		else
+			hql.append(" and proc.state = 'active' ");
 
 		StringBuffer hqltmp = new StringBuffer();
 		hqltmp.append(" NOT EXISTS (SELECT 1 FROM ").append(HistoryTaskInstanceImpl.class.getName()).append(" as act1 WHERE act.historyProcessInstance = act1.historyProcessInstance AND act1.dbid > act.dbid) ");

@@ -189,10 +189,14 @@ public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshab
 	{
 		Collection<ProcessInstanceFilter> taskFilters = new ArrayList<ProcessInstanceFilter>();
 		
-		taskFilters.add(getProcessInstanceFilter(user,null,user,getMessage("activity.subst.assigned.tasks"),TaskState.OPEN));
-		taskFilters.add(getProcessInstanceFilter(user,user,user,getMessage("activity.subst.created.assigned.tasks"),TaskState.OPEN));
-		taskFilters.add(getProcessInstanceFilter(user,user,null,getMessage("activity.subst.created.tasks"),TaskState.OPEN));
-		taskFilters.add(getProcessInstanceFilter(user,user,null,getMessage("activity.subst.created.closed.tasks"),TaskState.CLOSED));
+		taskFilters.add(getProcessInstanceFilter(user,null,user,getMessage("activity.subst.assigned.tasks"),
+				HistoryProcessInstanceState.ACTIVE,TaskState.OPEN));
+		taskFilters.add(getProcessInstanceFilter(user,user,user,getMessage("activity.subst.created.assigned.tasks"),
+				HistoryProcessInstanceState.ACTIVE, TaskState.OPEN));
+		taskFilters.add(getProcessInstanceFilter(user,user,null,getMessage("activity.subst.created.tasks"),
+				HistoryProcessInstanceState.ACTIVE, TaskState.OPEN));
+		taskFilters.add(getProcessInstanceFilter(user,user,null,getMessage("activity.subst.created.closed.tasks"),
+				HistoryProcessInstanceState.ENDED, TaskState.CLOSED));
 		
 
 		int total = 0;
@@ -236,7 +240,8 @@ public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshab
 			liferayUser.getRoleNames().addAll(substitutedUser.getRoleNames());
 
 			ProcessInstanceFilter substAssignedTasks =
-					getProcessInstanceFilter(substitutedUser,null,liferayUser,getMessage("activity.other.users.tasks",liferayUser.getRealName()),TaskState.OPEN);
+					getProcessInstanceFilter(substitutedUser,null,liferayUser,getMessage("activity.other.users.tasks",liferayUser.getRealName()),
+							HistoryProcessInstanceState.ACTIVE, TaskState.OPEN);
 			
 			substAssignedTasks.getNotCreators().clear();
 
@@ -417,34 +422,40 @@ public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshab
 	/** Methods creates new filter which returns tasks created by given user, but done by others */
 	private ProcessInstanceFilter createMyTaskDoneByOthersFilter(UserData user)
 	{
-		return getProcessInstanceFilter(user,user,null,getMessage("activity.created.tasks"),TaskState.OPEN, TaskState.CLOSED);
+		return getProcessInstanceFilter(user,user,null,getMessage("activity.created.tasks"),
+				HistoryProcessInstanceState.ACTIVE, TaskState.OPEN, TaskState.CLOSED);
 	}
 	
 	/** Methods creates new filter which returns tasks created by other users, but assigned to given user */
 	private ProcessInstanceFilter createOthersTaskAssignedToMeFilter(UserData user)
 	{
-		return getProcessInstanceFilter(user,null,user,getMessage("activity.assigned.tasks"),TaskState.OPEN);
+		return getProcessInstanceFilter(user,null,user,getMessage("activity.assigned.tasks"),
+				HistoryProcessInstanceState.ACTIVE, TaskState.OPEN);
 	}
 	
 	/** Methods creates new filter which returns tasks created by given user and assigned to him */
 	private ProcessInstanceFilter createMyTasksAssignedToMeFilter(UserData user)
 	{
-		return getProcessInstanceFilter(user,user,user,getMessage("activity.created.assigned.tasks"),TaskState.OPEN);
+		return getProcessInstanceFilter(user,user,user,getMessage("activity.created.assigned.tasks"),
+				HistoryProcessInstanceState.ACTIVE, TaskState.OPEN);
 	}
 	
 	/** Methods creates new filter which returns user closed tasks */
 	private ProcessInstanceFilter createMyClosedTasksFilter(UserData user)
 	{
-		return getProcessInstanceFilter(user,user,null,getMessage("activity.created.closed.tasks"),TaskState.CLOSED);
+		return getProcessInstanceFilter(user,user,null,getMessage("activity.created.closed.tasks"),
+				HistoryProcessInstanceState.ENDED, TaskState.CLOSED);
 	}
 
-	private ProcessInstanceFilter getProcessInstanceFilter(UserData user, UserData creator, UserData owner, String name, TaskState... states)
+	private ProcessInstanceFilter getProcessInstanceFilter(UserData user, UserData creator, UserData owner, String name, 
+			HistoryProcessInstanceState processState, TaskState... states)
 	{
 		ProcessInstanceFilter pif = new ProcessInstanceFilter();
 		pif.setFilterOwner(user);
 		pif.setName(name);
 		pif.getStates().addAll(Arrays.asList(states));
-
+		pif.setProcessEnded(processState.equals(HistoryProcessInstanceState.ENDED));
+		
 		if(creator != null)
 			pif.getCreators().add(creator);
 		else

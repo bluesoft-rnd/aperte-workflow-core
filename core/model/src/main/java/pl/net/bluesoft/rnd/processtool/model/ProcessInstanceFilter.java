@@ -28,6 +28,7 @@ public class ProcessInstanceFilter extends PersistentEntity {
 	private Date notUpdatedAfter;
 	private String genericQuery;
 	private String name;
+	private Boolean processEnded;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "filter_owner_id")
@@ -199,5 +200,20 @@ public class ProcessInstanceFilter extends PersistentEntity {
 
 	public void setNotCreators(Set<UserData> notCreators) {
 		this.notCreators = notCreators;
+	}
+	
+	public boolean isProcessEnded()
+	{
+		return processEnded != null && processEnded;
+	}
+
+	public Boolean getProcessEnded()
+	{
+		return processEnded;
+	}
+
+	public void setProcessEnded(Boolean processEnded)
+	{
+		this.processEnded = processEnded;
 	}
 }

@@ -403,7 +403,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
 					 * - sa podprocesami (maja parenta)
 					 * - odpowiadajacy im proces jest w stanie RUNNING lub NEW
 					 */
-					if(filter.getStates().contains(TaskState.CLOSED))
+					if(filter.getStates().contains(TaskState.CLOSED) && !filter.getStates().contains(TaskState.OPEN))
 					{
 						/* Czy task jest skorelowany z procesem, ktory
 						 * jest podprocesem innego

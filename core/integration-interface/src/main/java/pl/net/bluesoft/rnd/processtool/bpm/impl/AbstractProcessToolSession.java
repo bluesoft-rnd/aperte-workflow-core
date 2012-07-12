@@ -1,13 +1,34 @@
 package pl.net.bluesoft.rnd.processtool.bpm.impl;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Logger;
+
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent;
 import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent.Type;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.event.ProcessToolEventBusManager;
 import pl.net.bluesoft.rnd.processtool.hibernate.TransactionFinishedCallback;
-import pl.net.bluesoft.rnd.processtool.model.*;
-import pl.net.bluesoft.rnd.processtool.model.config.*;
+import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceSimpleAttribute;
+import pl.net.bluesoft.rnd.processtool.model.ProcessStatus;
+import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.processtool.model.config.AbstractPermission;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionPermission;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueRight;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.util.eventbus.EventBusManager;
@@ -16,12 +37,8 @@ import pl.net.bluesoft.util.lang.Mapcar;
 import pl.net.bluesoft.util.lang.Pair;
 import pl.net.bluesoft.util.lang.Predicate;
 
-import java.io.Serializable;
-import java.util.*;
-import java.util.logging.Logger;
-
 /**
- * @author tlipski@bluesoft.net.pl
+ * @author tlipski@bluesoft.net.pl, mpawlak@bluesoft.net.pl
  */
 public abstract class AbstractProcessToolSession
         implements ProcessToolBpmSession, Serializable {
@@ -45,19 +62,49 @@ public abstract class AbstractProcessToolSession
         this.eventBusManager = new ProcessToolEventBusManager(registry, registry.getExecutorService());
         log.finest("Created session for user: " + user);
     }
+    
+    /** Method creates new subprocess instance of given parent process. The creator of new process
+     * is set to the parent process creator. The parent process list is updated with newly created
+     * child process instance
+     * 
+     */
+    public ProcessInstance createSubprocessInstance(ProcessDefinitionConfig config, ProcessToolContext ctx,
+			ProcessInstance parentProcessInstance, String source, String id) 
+    {
+
+    	ProcessInstance newSubprocessInstance = createProcessInstance(config, null, ctx, null, null, source, id, parentProcessInstance.getCreator());
+    	
+    	/** Corelate parent process with it's new child process */ 
+    	newSubprocessInstance.setParent(parentProcessInstance);  	
+    	parentProcessInstance.getChildren().add(newSubprocessInstance);
+    	
+    	return newSubprocessInstance;
+	}
+
+	/**
+	 * Methods crates a new process instance and sets the creator to current
+	 * context user
+	 */
+    public ProcessInstance createProcessInstance(ProcessDefinitionConfig config,String externalKey, ProcessToolContext ctx,
+            String description, String keyword, String source, String internalId)
+    {
+    	return createProcessInstance(config, externalKey, ctx, description, keyword, source, internalId, user);
+    }
 
     public ProcessInstance createProcessInstance(ProcessDefinitionConfig config,
                                                  String externalKey,
                                                  ProcessToolContext ctx,
-                                                 String description,
-                                                 String keyword,
-                                                 String source, String internalId) {
-        if (!config.getEnabled()) {
+                                                 String description, String keyword,
+                                                 String source, String internalId, UserData creator) {
+        
+    	
+    	/** If given configuration is disabled, throw exception */
+    	if (!config.getEnabled()) 
             throw new IllegalArgumentException("Process definition has been disabled!");
-        }
+        
         ProcessInstance pi = new ProcessInstance();
         pi.setDefinition(config);
-        pi.setCreator(user);
+        pi.setCreator(creator);
         pi.setDefinitionName(config.getBpmDefinitionKey());
         pi.setCreateDate(new Date());
         pi.setExternalKey(externalKey);
@@ -65,15 +112,15 @@ public abstract class AbstractProcessToolSession
         pi.setKeyword(keyword);
         pi.setStatus(ProcessStatus.NEW);
 
-        if (user != null) {
+        if (creator != null) {
             ProcessInstanceSimpleAttribute attr = new ProcessInstanceSimpleAttribute();
             attr.setKey("creator");
-            attr.setValue(user.getLogin());
+            attr.setValue(creator.getLogin());
             pi.addAttribute(attr);
 
             attr = new ProcessInstanceSimpleAttribute();
             attr.setKey("creatorName");
-            attr.setValue(user.getRealName());
+            attr.setValue(creator.getRealName());
             pi.addAttribute(attr);
         }
         ProcessInstanceSimpleAttribute attr = new ProcessInstanceSimpleAttribute();
@@ -88,13 +135,13 @@ public abstract class AbstractProcessToolSession
         else
         	pi.setInternalId(internalId);
 
-        user = findOrCreateUser(user, ctx);
+        creator = findOrCreateUser(creator, ctx);
 
         ProcessInstanceLog log = new ProcessInstanceLog();
         log.setState(null);
         log.setEntryDate(Calendar.getInstance());
         log.setEventI18NKey("process.log.process-started");
-        log.setUser(user);
+        log.setUser(creator);
         log.setLogType(ProcessInstanceLog.LOG_TYPE_START_PROCESS);
         //log.setLogType(LogType.START);
         pi.getRootProcessInstance().addProcessLog(log);
@@ -102,10 +149,10 @@ public abstract class AbstractProcessToolSession
         ctx.getProcessInstanceDAO().saveProcessInstance(pi);
 
         List<BpmEvent> events = new ArrayList<BpmEvent>();
-        events.add(new BpmEvent(Type.NEW_PROCESS, pi, user));
+        events.add(new BpmEvent(Type.NEW_PROCESS, pi, creator));
 
         for (BpmTask task : findProcessTasks(pi, ctx)) {
-            events.add(new BpmEvent(Type.ASSIGN_TASK, task, user));
+            events.add(new BpmEvent(Type.ASSIGN_TASK, task, creator));
         }
 
         for (BpmEvent event : events) {

@@ -25,6 +25,7 @@ import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.hibernate.ResultsPageWrapper;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.processtool.model.HistoryProcessInstanceState;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
 import pl.net.bluesoft.rnd.processtool.model.TaskState;
 import pl.net.bluesoft.rnd.processtool.model.UserData;

@@ -11,7 +11,8 @@ public class ProcessConfig implements Serializable {
 
     private List<Permission> processPermissions;
     private List<Queue> queues;
-
+    
+    private String taskItemClass;
     private String description;
     private String comment;
     private String dictionary;
@@ -78,6 +79,14 @@ public class ProcessConfig implements Serializable {
 
 	public void setDictionary(String dictionary) {
 		this.dictionary = dictionary;
+	}
+
+	public String getTaskItemClass() {
+		return taskItemClass;
+	} 
+
+	public void setTaskItemClass(String taskItemClass) {
+		this.taskItemClass = taskItemClass;
 	}
 
 }

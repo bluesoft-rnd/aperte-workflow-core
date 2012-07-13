@@ -64,7 +64,8 @@ public class SetupDeadlineStep implements ProcessToolProcessStep {
             dueDate = cal.getTime();
         }
 
-        for (String tn : taskNames) {
+        for (String tn : taskNames) 
+        {
             String attrKey = "deadline_" + tn;
             ProcessDeadline pid = null;
             for (ProcessInstanceAttribute attr : processInstance.getProcessAttributes()) {

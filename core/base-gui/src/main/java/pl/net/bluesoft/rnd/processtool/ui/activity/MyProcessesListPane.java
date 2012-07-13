@@ -118,10 +118,6 @@ public class MyProcessesListPane extends ProcessListPane {
     {
         ProcessInstance process = task.getProcessInstance();
         
-        /* Operuj na procesie głównym */
-        if(process.getParent() != null)
-        	process = process.getParent();
-        
         Set<ProcessDeadline> deadlines = process.findAttributesByClass(ProcessDeadline.class);
         for (ProcessDeadline pd : deadlines) {
             if (pd.getTaskName().equalsIgnoreCase(task.getTaskName())) {

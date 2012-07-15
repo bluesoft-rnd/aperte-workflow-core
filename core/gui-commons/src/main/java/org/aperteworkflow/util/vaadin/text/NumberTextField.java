@@ -13,7 +13,7 @@ import java.text.DecimalFormatSymbols;
 
 public class NumberTextField extends TextField {
 	private DecimalFormat decimalFormat;
-	private boolean allowsNegative;
+	private boolean allowsNegative = false;
 
 
 	public NumberTextField() {

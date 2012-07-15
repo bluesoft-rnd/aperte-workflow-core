@@ -371,6 +371,9 @@ public class ProcessInstance extends PersistentEntity {
 	/** Method check, if the given user login is in assigness list */
 	public boolean isAssignee(String assigneeLogin)
 	{
+		if(assignees == null)
+			return false;
+		
 		for(String login: assignees)
 			if(login.equals(assigneeLogin))
 				return true;

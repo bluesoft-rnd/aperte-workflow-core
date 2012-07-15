@@ -60,7 +60,7 @@ public class ProcessEngineQuery<T>
 		return this;
 	}
 	
-	/** Execute builded query using specifited paramters by addParameter
+	/** Execute built query using specifited paramters by addParameter
 	 * and addListParamter methods
 	 */
 	public Collection<T> executeQuery(ProcessToolContext ctx)

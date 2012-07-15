@@ -50,7 +50,6 @@ import org.jbpm.pvm.internal.history.model.HistoryProcessInstanceImpl;
 import org.jbpm.pvm.internal.history.model.HistoryTaskImpl;
 import org.jbpm.pvm.internal.history.model.HistoryTaskInstanceImpl;
 import org.jbpm.pvm.internal.identity.impl.UserImpl;
-import org.jbpm.pvm.internal.model.ActivityImpl;
 import org.jbpm.pvm.internal.model.ExecutionImpl;
 import org.jbpm.pvm.internal.query.AbstractQuery;
 import org.jbpm.pvm.internal.task.ParticipationImpl;
@@ -347,14 +346,13 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
 
 		ResultsPageWrapper<ProcessInstance> instancesWrapper = ctx.getProcessInstanceDAO()
 				.getProcessInstanceByInternalIdMapWithFilter(tasksByProcessId.keySet(), filter, offset, limit);
+		
+		/* Create map to speed up search for process instance with particular internal id */
+		final Map<String, ProcessInstance> instances = new HashMap<String,ProcessInstance>();
+		
+		for(ProcessInstance processInstance: instancesWrapper.getResults())
+			instances.put(processInstance.getInternalId(),processInstance);
 
-		final Map<String, ProcessInstance> instances = pl.net.bluesoft.util.lang.Collections.transform(instancesWrapper.getResults(),
-                new Transformer<ProcessInstance, String>() {
-                    @Override
-                    public String transform(ProcessInstance obj) {
-                        return obj.getInternalId();
-                    }
-                });
 
 		/* Rezultat zapytania */
 		final List<BpmTask> result = new ArrayList<BpmTask>();
@@ -393,6 +391,22 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
 						if(pi.isProcessRunning())
 							return null;
 					}
+					/* Jeżeli szukamy procesów aktywnych, nie pokazujemy 
+					 * procesów głównych, jeżeli działają podprocesy 
+					 */
+					else
+					{
+						/* Jeżeli proces ma dzieci, i chociaż jeden 
+						 * z subprocesów jest w stanie running, to nei 
+						 * wyświetlaj procesu głównego
+						 */
+						if(!pi.getChildren().isEmpty())
+						{
+							for(ProcessInstance subProcess: pi.getChildren())
+								if(subProcess.isProcessRunning())
+									return null;
+						}
+					}
 					
 					
 					return collectTaskFromActivity(task, pi, ctx);
@@ -406,7 +420,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
 			}
 		});
 
-		return new ResultsPageWrapper<BpmTask>(result, instancesWrapper.getTotal());
+		return new ResultsPageWrapper<BpmTask>(result, result.size());
    	}
    	
    	/** Prepare hql query using given filter */

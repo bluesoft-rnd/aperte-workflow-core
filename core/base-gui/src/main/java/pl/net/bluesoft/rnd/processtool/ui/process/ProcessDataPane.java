@@ -10,6 +10,7 @@ import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.ProcessStatus;
+import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
@@ -221,11 +222,14 @@ public class ProcessDataPane extends VerticalLayout implements WidgetContextSupp
 		boolean isSubProcess = parentProcess != null ;
 		boolean isParentProcess = !closedProcess.getChildren().isEmpty();
 		
+		UserData user = bpmSession.getUser(getCurrentContext());
+		String userLogin = user.getLogin();
+		
 		/* Zamykany proces jest podprocesem, wybierz do otwoarcia jego rodzica */
 		if(isSubProcess)
 		{
 			/* Przełącz się na proces głowny */
-			if(parentProcess.isProcessRunning())
+			if(parentProcess.isProcessRunning() && parentProcess.isAssignee(userLogin))
 				return changeProcess(parentProcess);
 		}
 		
@@ -236,7 +240,7 @@ public class ProcessDataPane extends VerticalLayout implements WidgetContextSupp
 			/* Pobierz podprocesy skorelowane z zamykanym procesem */
 			for(ProcessInstance childProcess: task.getProcessInstance().getChildren())
 			{
-				if(childProcess.isProcessRunning())
+				if(childProcess.isProcessRunning() && parentProcess.isAssignee(userLogin))
 				{
 					/* Tylko jeden proces powinien być aktywny, przełącz się na 
 					 * niego

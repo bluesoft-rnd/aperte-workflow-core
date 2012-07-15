@@ -238,6 +238,7 @@ public class ActivityMainPane extends VerticalLayout implements ViewCallback
 		{
 			for(final ViewRenderer viewRenderer: registeredService.getViews())
 			{
+				viewRenderer.setBpmSession(getBpmSession());
 				viewRenderer.setUp(application);
 				viewRenderer.setViewCallback(this);
 				viewController.addView(viewRenderer);
@@ -246,7 +247,6 @@ public class ActivityMainPane extends VerticalLayout implements ViewCallback
 					@Override
 					public void run()
 					{
-						viewRenderer.setBpmSession(getBpmSession());
 						viewRenderer.handleDisplayAction();
 						viewController.displayView(viewRenderer.getViewId(),null);
 					}

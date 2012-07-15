@@ -210,7 +210,7 @@ public abstract class ProcessListPane extends AbstractListPane {
     protected TaskItemProviderBase getTaskItemProvider(final ProcessToolContext ctx, ProcessInstance pi) {
 //        registerDefaultTaskItem(ctx);
         String itemClass = pi.getDefinition().getTaskItemClass();
-        if (hasText(itemClass)) {
+        if (hasText(itemClass) && !itemClass.equals("null")) {
             try {
                 return new TaskItemProviderBase(ctx.getRegistry().makeTaskItemProvider(itemClass.trim()));
             }

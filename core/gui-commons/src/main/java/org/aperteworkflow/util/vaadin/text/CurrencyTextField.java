@@ -21,7 +21,12 @@ public class CurrencyTextField extends NumberTextField {
 	}
 
 	public CurrencyTextField(String caption, Locale locale, String notDoubleErrorMessage) {
+		this(caption, locale, notDoubleErrorMessage, false);
+	}
+	
+	public CurrencyTextField(String caption, Locale locale, String notDoubleErrorMessage, boolean allowsNegative) {
 		super(caption);
+		setAllowsNegative(allowsNegative);
 		setLocale(locale);
 		if(notDoubleErrorMessage != null)
 			addValidator(new LocalizedDoubleValidator(notDoubleErrorMessage));

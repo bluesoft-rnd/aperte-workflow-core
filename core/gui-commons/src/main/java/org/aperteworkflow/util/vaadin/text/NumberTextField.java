@@ -13,7 +13,9 @@ import java.text.DecimalFormatSymbols;
 
 public class NumberTextField extends TextField {
 	private DecimalFormat decimalFormat;
-	
+	private boolean allowsNegative = false;
+
+
 	public NumberTextField() {
 		alignRight();
 		attachListeners();
@@ -90,6 +92,9 @@ public class NumberTextField extends TextField {
 		boolean containsDigits = false;
 		for (int i = 0; i < value.length(); ++i) {
 			char c = value.charAt(i);
+			if (allowsNegative && sb.length() == 0 && c == '-'){
+				sb.append('-');
+			}
 			if (Character.isDigit(c) || c == '.' || c == ',') {
 				sb.append(c);
 				if (Character.isDigit(c)) {
@@ -133,7 +138,10 @@ public class NumberTextField extends TextField {
 			if (Strings.hasText(propValue)) {
 				String value = removeAlphaCharacters(propValue);
 				if (!value.equals(propValue)) {
+					boolean wasReadOnly = isReadOnly();
+					setReadOnly(false);
 					setValue(value);
+					setReadOnly(wasReadOnly);
 				}
 			}
 		}
@@ -173,5 +181,13 @@ public class NumberTextField extends TextField {
 		protected boolean isValidString(String value) {
 			return super.isValidString(value == null ? null : value.replace(",", "."));
 		}
+	}
+	
+	public boolean isAllowsNegative() {
+		return allowsNegative;
+	}
+
+	public void setAllowsNegative(boolean allowsNegative) {
+		this.allowsNegative = allowsNegative;
 	}
 }

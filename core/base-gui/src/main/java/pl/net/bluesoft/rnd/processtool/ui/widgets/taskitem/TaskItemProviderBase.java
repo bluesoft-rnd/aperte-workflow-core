@@ -192,8 +192,11 @@ public class TaskItemProviderBase {
    	}
 
 	public Component getTaskItemProcessInfo(TaskItemProviderParams params) {
+		params.setReplaceDefault(false);
+
         Component res = impl != null ? impl.getTaskItemProcessInfo(params) : null;
-        if (res != null) {
+
+		if (res != null && params.isReplaceDefault()) {
             return res;
         }
 
@@ -202,7 +205,18 @@ public class TaskItemProviderBase {
 		builder.addComponent(createCreateDateLabel(builder.getParams()), MIDDLE_CENTER);
 		builder.addComponent(createAssigneeLabel(builder.getParams()), MIDDLE_CENTER);
 		builder.addComponent(createDeadlineDateLabel(builder.getParams()), MIDDLE_LEFT);
-		return builder.buildLayout();
+
+		if (res != null) {
+			VerticalLayout layout = new VerticalLayout();
+			layout.setWidth("100%");
+			layout.setSpacing(true);
+			layout.addComponent(builder.buildLayout());
+			layout.addComponent(res);
+			return layout;
+		}
+		else {
+			return builder.buildLayout();
+		}
 	}
     public Component createQueuePaneProcessInfo(TaskItemProviderParams params) {
         return impl != null ? impl.createQueuePaneProcessInfo(params) : null;

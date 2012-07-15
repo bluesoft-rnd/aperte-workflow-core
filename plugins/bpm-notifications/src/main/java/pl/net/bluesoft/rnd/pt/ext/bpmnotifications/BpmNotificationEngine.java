@@ -16,6 +16,8 @@ import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotificationConfig;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotificationMailProperties;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotificationTemplate;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.BpmNotificationService;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.TemplateArgumentProviderParams;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.TemplateArgumentProvider;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.i18n.impl.DefaultI18NSource;
 import pl.net.bluesoft.util.lang.Strings;
@@ -62,6 +64,8 @@ public class BpmNotificationEngine implements TemplateLoader, BpmNotificationSer
     private ProcessToolBpmSession bpmSession;
     private Properties mailProperties;
 
+	private final Set<TemplateArgumentProvider> argumentProviders = new HashSet<TemplateArgumentProvider>();
+
     private Map<String, Properties> persistentMailProperties = new HashMap<String, Properties>();
 
     public void onProcessStateChange(BpmTask task, ProcessInstance pi, UserData userData, boolean processStarted) {
@@ -94,6 +98,9 @@ public class BpmNotificationEngine implements TemplateLoader, BpmNotificationSer
                 if (hasText(cfg.getNotifyEmailAddresses())) {
                     emailsToNotify.addAll(Arrays.asList(cfg.getNotifyEmailAddresses().split(",")));
                 }
+				if (hasText(cfg.getNotifyUserAttributes())) {
+					emailsToNotify.addAll(extractUserEmails(cfg.getNotifyUserAttributes()));
+				}
                 if (emailsToNotify.isEmpty()) {
                     logger.info("Despite matched rules, no emails qualify to notify for cfg #" + cfg.getId());
                     continue;
@@ -123,7 +130,20 @@ public class BpmNotificationEngine implements TemplateLoader, BpmNotificationSer
         }
     }
 
-    private javax.mail.Session getMailSession(String profileName) {
+	private Collection<String> extractUserEmails(String notifyUserAttributes) {
+		ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
+		Set<String> emails = new HashSet<String>();
+		for (String attribute : notifyUserAttributes.split(",")) {
+			attribute = attribute.trim();
+			if (hasText(attribute)) {
+				UserData user = ctx.getUserDataDAO().loadUserByLogin(attribute);
+				emails.add(user.getEmail());
+			}
+		}
+		return emails;
+	}
+
+	private javax.mail.Session getMailSession(String profileName) {
         final Properties properties = hasText(profileName) && persistentMailProperties.containsKey(profileName) ?
                 persistentMailProperties.get(profileName) : mailProperties;
         return javax.mail.Session.getInstance(properties,
@@ -176,6 +196,17 @@ public class BpmNotificationEngine implements TemplateLoader, BpmNotificationSer
         m.put("context", ctx);
         m.put("config", cfg);
 
+		if (hasText(cfg.getTemplateArgumentProvider())) {
+			for (TemplateArgumentProvider argumentProvider : argumentProviders) {
+				if (cfg.getTemplateArgumentProvider().equalsIgnoreCase(argumentProvider.getName())) {
+					TemplateArgumentProviderParams params = new TemplateArgumentProviderParams();
+					params.setProcessInstance(pi);
+					argumentProvider.getArguments(m, params);
+					break;
+				}
+			}
+		}
+
         return m;
     }
 
@@ -194,7 +225,17 @@ public class BpmNotificationEngine implements TemplateLoader, BpmNotificationSer
         return sw.toString();
     }
 
-    private void sendEmail(String rcpt, String from, String subject, String body, boolean sendHtml, javax.mail.Session mailSession) throws Exception {
+	@Override
+	public void registerTemplateArgumentProvider(TemplateArgumentProvider provider) {
+		argumentProviders.add(provider);
+	}
+
+	@Override
+	public void unregisterTemplateArgumentProvider(TemplateArgumentProvider provider) {
+		argumentProviders.add(provider);
+	}
+
+	private void sendEmail(String rcpt, String from, String subject, String body, boolean sendHtml, javax.mail.Session mailSession) throws Exception {
         if (!Strings.hasText(rcpt)) {
             throw new IllegalArgumentException("Cannot send email: Recipient is null!");
         }

@@ -240,7 +240,7 @@ public class ProcessDataPane extends VerticalLayout implements WidgetContextSupp
 			/* Pobierz podprocesy skorelowane z zamykanym procesem */
 			for(ProcessInstance childProcess: task.getProcessInstance().getChildren())
 			{
-				if(childProcess.isProcessRunning() && parentProcess.isAssignee(userLogin))
+				if(childProcess.isProcessRunning() && childProcess.isAssignee(userLogin))
 				{
 					/* Tylko jeden proces powinien być aktywny, przełącz się na 
 					 * niego

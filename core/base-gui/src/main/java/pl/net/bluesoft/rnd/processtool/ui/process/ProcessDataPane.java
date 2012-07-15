@@ -222,14 +222,11 @@ public class ProcessDataPane extends VerticalLayout implements WidgetContextSupp
 		boolean isSubProcess = parentProcess != null ;
 		boolean isParentProcess = !closedProcess.getChildren().isEmpty();
 		
-		UserData user = bpmSession.getUser(getCurrentContext());
-		String userLogin = user.getLogin();
-		
 		/* Zamykany proces jest podprocesem, wybierz do otwoarcia jego rodzica */
 		if(isSubProcess)
 		{
 			/* Przełącz się na proces głowny */
-			if(parentProcess.isProcessRunning() && parentProcess.isAssignee(userLogin))
+			if(parentProcess.isProcessRunning())
 				return changeProcess(parentProcess);
 		}
 		
@@ -240,7 +237,7 @@ public class ProcessDataPane extends VerticalLayout implements WidgetContextSupp
 			/* Pobierz podprocesy skorelowane z zamykanym procesem */
 			for(ProcessInstance childProcess: task.getProcessInstance().getChildren())
 			{
-				if(childProcess.isProcessRunning() && childProcess.isAssignee(userLogin))
+				if(childProcess.isProcessRunning())
 				{
 					/* Tylko jeden proces powinien być aktywny, przełącz się na 
 					 * niego
@@ -260,19 +257,33 @@ public class ProcessDataPane extends VerticalLayout implements WidgetContextSupp
 	
 	private boolean changeProcess(ProcessInstance newProcess)
 	{
-		/* Pobierz dostępne taski dla procesu, przeważnie jeden jest tylko */
+		/* Get active task for current process */
 		List<BpmTask> activeTasks = bpmSession.findProcessTasks(newProcess,  getCurrentContext());
 		
-		/* Sprawdz czy proces ma jakies aktywne zadania, powinien miec przynajmniej jedno */
+		/* Check if the current process has active task. It should has at least one */
 		if(activeTasks.isEmpty())
 			return false;
 		
-		/* Zmianiamy aktualny task na pierwszy. Przewaznie jest tylko jeden */
-		updateTask(activeTasks.get(0));
+		UserData user = bpmSession.getUser(getCurrentContext());
+		String userLogin = user.getLogin();
 		
-		refreshTask();
+		for(BpmTask task: activeTasks)
+		{
+			if(task.getAssignee() != null && task.getAssignee().equals(userLogin))
+			{
+				/* Change current task */
+				updateTask(task);
+				
+				refreshTask();
+				
+				return true;
+			}
+		}
 		
-		return true;
+		/* There are no active task or the assigne is diffrent */
+		return false;
+		
+
 	}
 
 	private HorizontalLayout getButtonsPanel(ProcessStateConfiguration stateConfiguration) {

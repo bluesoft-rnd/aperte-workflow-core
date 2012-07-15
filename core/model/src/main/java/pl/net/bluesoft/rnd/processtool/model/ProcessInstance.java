@@ -1,13 +1,23 @@
 package pl.net.bluesoft.rnd.processtool.model;
 
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
+import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
-import javax.persistence.*;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 
 /**
  * Entity representing process instance data. It should be persisted in appropriate database.
@@ -345,7 +355,7 @@ public class ProcessInstance extends PersistentEntity {
 		this.parent = parent;
 	}
 	
-	/** Metoda zwraca informacje, czy proces jest w stanie działania */
+	/** Metoda checks if the process is in running or new state */
 	public boolean isProcessRunning()
 	{
 		if(getStatus() == null)
@@ -356,5 +366,18 @@ public class ProcessInstance extends PersistentEntity {
 		
 		return getStatus().equals(ProcessStatus.NEW) || 
 				getStatus().equals(ProcessStatus.RUNNING);
+	}
+	
+	/** Method check, if the given user login is in assigness list */
+	public boolean isAssignee(String assigneeLogin)
+	{
+		if(assignees == null)
+			return false;
+		
+		for(String login: assignees)
+			if(login.equals(assigneeLogin))
+				return true;
+		
+		return false;
 	}
 }

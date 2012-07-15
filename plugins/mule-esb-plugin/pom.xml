@@ -203,37 +203,6 @@
 
     </dependencies>
 
-    <!--<repositories>-->
-    <!--&lt;!&ndash;<repository>&ndash;&gt;-->
-    <!--&lt;!&ndash;<id>ibeans-repo</id>&ndash;&gt;-->
-    <!--&lt;!&ndash;<name>iBeans Repository</name>&ndash;&gt;-->
-    <!--&lt;!&ndash;<url>http://repository.ibeans.muleforge.org</url>&ndash;&gt;-->
-    <!--&lt;!&ndash;<layout>default</layout>&ndash;&gt;-->
-    <!--&lt;!&ndash;</repository>&ndash;&gt;-->
-    <!--<repository>-->
-    <!--<id>muleforge-repo</id>-->
-    <!--<name>MuleForge Repository</name>-->
-    <!--<url>http://repository.muleforge.org</url>-->
-    <!--<layout>default</layout>-->
-    <!--</repository>-->
-    <!--&lt;!&ndash;<repository>&ndash;&gt;-->
-    <!--&lt;!&ndash;<id>mulesoft-repo</id>&ndash;&gt;-->
-    <!--&lt;!&ndash;<name>mulesoft Repository</name>&ndash;&gt;-->
-    <!--&lt;!&ndash;<url>http://repository.mulesoft.org</url>&ndash;&gt;-->
-    <!--&lt;!&ndash;<layout>default</layout>&ndash;&gt;-->
-    <!--&lt;!&ndash;</repository>&ndash;&gt;-->
-    <!--<repository>-->
-    <!--<id>mulesoft.releases</id>-->
-    <!--<name>Muleforge Releases Repository</name>-->
-    <!--<url>https://repository.mulesoft.org/releases/</url>-->
-    <!--</repository>-->
-    <!--<repository>-->
-    <!--<id>codehaus-repo</id>-->
-    <!--<name>Codehaus Repository</name>-->
-    <!--<url>http://dist.codehaus.org/mule/dependencies/maven2</url>-->
-    <!--<layout>default</layout>-->
-    <!--</repository>-->
-    <!--</repositories>-->
     <build>
         <plugins>
             <plugin>
@@ -263,7 +232,6 @@
                         <Bundle-Activator>pl.net.bluesoft.rnd.awf.mule.MulePluginActivator</Bundle-Activator>
                         <SPI-Consumer>*</SPI-Consumer>
                         <SPI-Provider>*</SPI-Provider>
-                        <!--<ProcessTool-Step-Enhancement>pl.net.bluesoft.rnd.awf.mule.step.MuleStep</ProcessTool-Step-Enhancement>-->
                     </instructions>
                 </configuration>
             </plugin>
@@ -271,5 +239,45 @@
         </plugins>
     </build>
 
-
+    <!-- Profil dev do automatycznego kopiowania jarow do osgi -->
+    <profiles>
+    
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+	            <plugins>
+		            <plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-dependency-plugin</artifactId>
+						<version>2.4</version>
+						<executions>
+							<execution>
+								<id>copy</id>
+								<phase>package</phase>
+								<goals>
+									<goal>copy</goal>
+								</goals>
+								<configuration>
+									<artifactItems>
+										<artifactItem>
+											<groupId>${project.groupId}</groupId>
+											<artifactId>${project.artifactId}</artifactId>
+											<type>jar</type>
+											<version>${project.version}</version>
+											<overWrite>true</overWrite>
+											<outputDirectory>${osgi.dir}</outputDirectory>
+											<destFileName>${project.artifactId}-${project.version}.jar</destFileName>
+										</artifactItem>
+									</artifactItems>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

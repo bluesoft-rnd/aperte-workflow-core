@@ -364,11 +364,17 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
 
             Criteria criteria = detachedCriteriaForIds.getExecutableCriteria(session);
 
-            List result = criteria.list();
+            List<ProcessInstance> result = (List<ProcessInstance>)criteria.list();
             int resultsCount = result.size();
 
             List<ProcessInstance> list;
-            if (limit > 0) {
+            /* If limit is zero or null, return results */
+            if(limit == null || limit <= 0) 
+            {
+                list = new ArrayList<ProcessInstance>(result);
+            }
+            else 
+            {
                 criteria.setFirstResult(offset);
                 criteria.setMaxResults(limit);
                 criteria.addOrder(Order.desc("createDate"));
@@ -387,10 +393,6 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
                     list = new ArrayList<ProcessInstance>(0);
                 }
             }
-            else {
-                list = new ArrayList<ProcessInstance>(0);
-            }
-
 
             return new ResultsPageWrapper<ProcessInstance>(list, resultsCount);
         }
@@ -399,7 +401,7 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
             DetachedCriteria criteria = DetachedCriteria.forClass(ProcessInstance.class, "ids");
 
             criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-            criteria.setProjection(Projections.distinct(Projections.property("id")));
+            //criteria.setProjection(Projections.distinct(Projections.property("id")));
 
             criteria = criteria.add(Restrictions.in("internalId", internalIds));
 

@@ -10,6 +10,7 @@ import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.ProcessStatus;
+import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
@@ -256,19 +257,33 @@ public class ProcessDataPane extends VerticalLayout implements WidgetContextSupp
 	
 	private boolean changeProcess(ProcessInstance newProcess)
 	{
-		/* Pobierz dostępne taski dla procesu, przeważnie jeden jest tylko */
+		/* Get active task for current process */
 		List<BpmTask> activeTasks = bpmSession.findProcessTasks(newProcess,  getCurrentContext());
 		
-		/* Sprawdz czy proces ma jakies aktywne zadania, powinien miec przynajmniej jedno */
+		/* Check if the current process has active task. It should has at least one */
 		if(activeTasks.isEmpty())
 			return false;
 		
-		/* Zmianiamy aktualny task na pierwszy. Przewaznie jest tylko jeden */
-		updateTask(activeTasks.get(0));
+		UserData user = bpmSession.getUser(getCurrentContext());
+		String userLogin = user.getLogin();
 		
-		refreshTask();
+		for(BpmTask task: activeTasks)
+		{
+			if(task.getAssignee() != null && task.getAssignee().equals(userLogin))
+			{
+				/* Change current task */
+				updateTask(task);
+				
+				refreshTask();
+				
+				return true;
+			}
+		}
 		
-		return true;
+		/* There are no active task or the assigne is diffrent */
+		return false;
+		
+
 	}
 
 	private HorizontalLayout getButtonsPanel(ProcessStateConfiguration stateConfiguration) {

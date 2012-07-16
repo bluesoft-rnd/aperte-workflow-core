@@ -255,6 +255,7 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
                 .add(Projections.id(), "id")
                 .add(Projections.property("entryDate"), "entryDate")
                 .add(Projections.property("eventI18NKey"), "eventI18NKey")
+                .add(Projections.property("executionId"), "executionId")
                 .add(Projections.property("additionalInfo"), "additionalInfo")
                 .add(Projections.property("u.id"), "user.id")
                 .add(Projections.property("u.login"), "user.login")

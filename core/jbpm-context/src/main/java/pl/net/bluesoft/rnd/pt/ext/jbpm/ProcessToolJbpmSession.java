@@ -34,6 +34,7 @@ import org.jbpm.api.NewDeployment;
 import org.jbpm.api.ProcessDefinition;
 import org.jbpm.api.ProcessEngine;
 import org.jbpm.api.RepositoryService;
+import org.jbpm.api.TaskQuery;
 import org.jbpm.api.TaskService;
 import org.jbpm.api.cmd.Command;
 import org.jbpm.api.cmd.Environment;
@@ -176,7 +177,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
                        @Override
                        protected void applyParameters(Query query) {
                            query.setString("userIds", user.getLogin());
-                           query.setString("internalIds", pi.getInternalId());
+                           query.setString("internalIds", log.getExecutionId());
                            query.setDate("minDate", minDate.getTime());
                            if (!taskNames.isEmpty()) {
                                query.setParameterList("taskName", taskNames);
@@ -199,7 +200,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
                            }
                            hql.append(" and task.assignee = :userIds ")
                                    .append(" and task.endTime > :minDate ")
-                                   .append(" and proc.processInstanceId = :internalIds ")
+                                   .append(" and act.executionId = :internalIds ")
                                    .append(" order by act.endTime asc ");
                            return hql.toString();
                        }
@@ -670,7 +671,8 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
         log.setLogValue(pq.getName());
         log.setUser(findOrCreateUser(user, ctx));
         log.setAdditionalInfo(pq.getDescription());
-        pi.getRootProcessInstance().addProcessLog(log);
+        log.setExecutionId(task.getExecutionId());
+        pi.addProcessLog(log);
 
         if (!ProcessStatus.RUNNING.equals(pi.getStatus())) {
             pi.setStatus(ProcessStatus.RUNNING);
@@ -704,16 +706,30 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
    		return t;
    	}
 
-    private String findEndActivityName(ProcessInstance pi, ProcessToolContext ctx) {
-        List<HistoryProcessInstance> history = getProcessEngine(ctx).getHistoryService().createHistoryProcessInstanceQuery()
-                .processInstanceId(pi.getInternalId())
-                .list();
-        if (history != null && !history.isEmpty()) 
+   	/** Get the last step name of the process */
+    private String findEndActivityName(ProcessInstance pi, ProcessToolContext ctx) 
+    {
+    	/* Get all history activities for given process and order it by the end date */
+    	List<HistoryActivityInstance> activities = getProcessEngine(ctx).getHistoryService().createHistoryActivityInstanceQuery()
+    			.processInstanceId(pi.getInternalId())
+    			.orderDesc(HistoryActivityInstanceQuery.PROPERTY_ENDTIME)
+    			.list();
+    	
+    	/* Looking for specific activity, becouse if there is a for-each statment in process, there 
+    	 * might be a problem with correct end task name
+    	 */
+        if (activities != null && !activities.isEmpty()) 
         {
-            String endActivityName = history.get(0).getEndActivityName();
-            
-            if (Strings.hasText(endActivityName)) 
-                return endActivityName;
+        	for(HistoryActivityInstance activity: activities)
+        	{
+        		if(activity instanceof HistoryActivityInstanceImpl)
+        		{
+        			HistoryActivityInstanceImpl activityImpl = (HistoryActivityInstanceImpl)activity;
+        			/* There are trasictions and xors, we are interested in only with tasks */
+        			if(activityImpl.getType().equals("task"))
+        				return activityImpl.getActivityName();
+        		}
+        	}
             
         }
         return null;
@@ -1229,7 +1245,8 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
         log.setAdditionalInfo(nvl(action.getLabel(), action.getDescription(), action.getBpmName()));
         log.setUser(findOrCreateUser(user, ctx));
         log.setUserSubstitute(getSubstitutingUser(ctx));
-        task.getProcessInstance().getRootProcessInstance().addProcessLog(log);
+        log.setExecutionId(task.getExecutionId());
+        task.getProcessInstance().addProcessLog(log);
         return log;
     }
     @Override

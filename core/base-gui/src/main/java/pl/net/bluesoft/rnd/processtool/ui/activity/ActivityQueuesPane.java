@@ -8,7 +8,6 @@ import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -468,34 +467,6 @@ public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshab
 			pif.getNotOwners().add(creator);
 
 		return pif;
-	}
-
-	private Button createRecentTasksButton(ProcessToolContext ctx)
-	{
-		final Calendar minDate = Calendar.getInstance();
-		minDate.add(Calendar.DAY_OF_YEAR,-5);
-		Integer recentProcessesSize = activityMainPane.getBpmSession().getRecentTasksCount(minDate,ctx);
-		Button b = new Button(getMessage("activity.recent.tasks"));// + " (" +
-																	// recentProcessesSize
-																	// + ")");
-		b.setStyleName(BaseTheme.BUTTON_LINK);
-		b.setEnabled(recentProcessesSize > 0);
-		b.addListener(new Button.ClickListener()
-		{
-			@Override
-			public void buttonClick(Button.ClickEvent event)
-			{
-				withErrorHandling(getApplication(),new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						activityMainPane.displayRecentTasksPane(minDate);
-					}
-				});
-			}
-		});
-		return b;
 	}
 
 	private Button createQueueButton(final ProcessQueue q, final ProcessToolBpmSession bpmSession, final UserData user)

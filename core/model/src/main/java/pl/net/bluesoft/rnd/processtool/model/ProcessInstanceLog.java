@@ -1,20 +1,27 @@
 package pl.net.bluesoft.rnd.processtool.model;
 
-import org.hibernate.annotations.Type;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
+import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
-import javax.persistence.*;
-import javax.xml.bind.annotation.XmlTransient;
 import java.util.Calendar;
 
-import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlTransient;
+
+import org.hibernate.annotations.Type;
+
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 
 /**
  * @author tlipski@bluesoft.net.pl
  */
 @Entity
 @Table(name = "pt_process_instance_log")
-public class ProcessInstanceLog extends PersistentEntity implements Comparable {
+public class ProcessInstanceLog extends PersistentEntity implements Comparable<ProcessInstanceLog> {
     public enum LogType {
         START, CLAIM, ACTION, INFO
     }
@@ -38,6 +45,7 @@ public class ProcessInstanceLog extends PersistentEntity implements Comparable {
 
 	private String logValue;
 	private String logType;
+	private String executionId;
 
 	@ManyToOne
 	@JoinColumn(name="process_state_id")
@@ -56,6 +64,7 @@ public class ProcessInstanceLog extends PersistentEntity implements Comparable {
     @ManyToOne
 	@JoinColumn(name="user_substitute_id")
 	private UserData userSubstitute;
+    
 
 	public ProcessInstanceLog() {
 	}
@@ -134,9 +143,18 @@ public class ProcessInstanceLog extends PersistentEntity implements Comparable {
 	}
 
 	@Override
-	public int compareTo(Object o) {
-		if (!(o instanceof ProcessInstanceLog))
-			throw new IllegalArgumentException(o + " is not an instance of " + ProcessInstanceLog.class.getName());
-		return nvl(((ProcessInstanceLog)o).getEntryDate(), Calendar.getInstance()).compareTo(nvl(entryDate, Calendar.getInstance()));
+	public int compareTo(ProcessInstanceLog o) 
+	{
+		return nvl(o.getEntryDate(), Calendar.getInstance()).compareTo(nvl(entryDate, Calendar.getInstance()));
+	}
+
+	public String getExecutionId()
+	{
+		return executionId;
+	}
+
+	public void setExecutionId(String executionId)
+	{
+		this.executionId = executionId;
 	}
 }

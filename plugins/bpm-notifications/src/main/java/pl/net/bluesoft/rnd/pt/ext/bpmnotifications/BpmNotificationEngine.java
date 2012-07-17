@@ -75,8 +75,11 @@ public class BpmNotificationEngine implements TemplateLoader, BpmNotificationSer
                 if (hasText(cfg.getProcessTypeRegex()) && !pi.getDefinitionName().matches(cfg.getProcessTypeRegex())) {
                     continue;
                 }
-                if (hasText(cfg.getStateRegex()) && (task == null || !task.getTaskName().matches(cfg.getStateRegex()))
-                        && !cfg.isNotifyOnProcessStart() && !processStarted) {
+                if (!(
+					(!hasText(cfg.getStateRegex()) || (task != null && task.getTaskName().matches(cfg.getStateRegex())))
+					||
+					(cfg.isNotifyOnProcessStart() && processStarted)
+				)) {
                     continue;
                 }
                 logger.info("Matched notification #" + cfg.getId() + " for process state change #" + pi.getInternalId());
@@ -115,7 +118,7 @@ public class BpmNotificationEngine implements TemplateLoader, BpmNotificationSer
 
                 javax.mail.Session mailSession = getMailSession(cfg.getProfileName());
 
-                for (String rcpt : emailsToNotify) {
+                for (String rcpt : new HashSet<String>(emailsToNotify)) {
                     try {
                         sendEmail(rcpt, template.getSender(), subject, body, cfg.isSendHtml(), mailSession);
                     }

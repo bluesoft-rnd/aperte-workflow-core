@@ -13,8 +13,15 @@ import java.text.DecimalFormatSymbols;
 
 public class NumberTextField extends TextField {
 	private DecimalFormat decimalFormat;
-	private boolean allowsNegative = false;
+	private boolean allowsNegative;
+	
+	public boolean isAllowsNegative() {
+		return allowsNegative;
+	}
 
+	public void setAllowsNegative(boolean allowsNegative) {
+		this.allowsNegative = allowsNegative;
+	}
 
 	public NumberTextField() {
 		alignRight();
@@ -94,6 +101,7 @@ public class NumberTextField extends TextField {
 			char c = value.charAt(i);
 			if (allowsNegative && sb.length() == 0 && c == '-'){
 				sb.append('-');
+				containsDigits = true; //no, moze nie do końca zawiera cyfry, ale traktujemy to jako poprawne
 			}
 			if (Character.isDigit(c) || c == '.' || c == ',') {
 				sb.append(c);
@@ -138,10 +146,7 @@ public class NumberTextField extends TextField {
 			if (Strings.hasText(propValue)) {
 				String value = removeAlphaCharacters(propValue);
 				if (!value.equals(propValue)) {
-					boolean wasReadOnly = isReadOnly();
-					setReadOnly(false);
 					setValue(value);
-					setReadOnly(wasReadOnly);
 				}
 			}
 		}
@@ -181,13 +186,5 @@ public class NumberTextField extends TextField {
 		protected boolean isValidString(String value) {
 			return super.isValidString(value == null ? null : value.replace(",", "."));
 		}
-	}
-	
-	public boolean isAllowsNegative() {
-		return allowsNegative;
-	}
-
-	public void setAllowsNegative(boolean allowsNegative) {
-		this.allowsNegative = allowsNegative;
 	}
 }

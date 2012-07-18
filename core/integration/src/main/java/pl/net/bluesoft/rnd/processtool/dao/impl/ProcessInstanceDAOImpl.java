@@ -1,36 +1,54 @@
 package pl.net.bluesoft.rnd.processtool.dao.impl;
 
+import static org.hibernate.criterion.Restrictions.eq;
+import static org.hibernate.criterion.Restrictions.in;
+import static pl.net.bluesoft.util.lang.DateUtil.addDays;
+import static pl.net.bluesoft.util.lang.DateUtil.asCalendar;
+import static pl.net.bluesoft.util.lang.DateUtil.truncHours;
+import static pl.net.bluesoft.util.lang.FormatUtil.formatShortDate;
+import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.aperteworkflow.search.ProcessInstanceSearchAttribute;
 import org.aperteworkflow.search.ProcessInstanceSearchData;
 import org.aperteworkflow.search.SearchProvider;
 import org.aperteworkflow.search.Searchable;
 import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
 import org.hibernate.Session;
-import org.hibernate.criterion.*;
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import org.hibernate.criterion.CriteriaSpecification;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.ProjectionList;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Property;
+import org.hibernate.criterion.Restrictions;
+import org.hibernate.criterion.Subqueries;
+
 import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceDAO;
 import pl.net.bluesoft.rnd.processtool.hibernate.ResultsPageWrapper;
 import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
 import pl.net.bluesoft.rnd.processtool.hibernate.transform.NestedAliasToBeanResultTransformer;
-import pl.net.bluesoft.rnd.processtool.model.*;
-import pl.net.bluesoft.util.lang.Collections;
-import pl.net.bluesoft.util.lang.Transformer;
+import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog;
+import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionPermission;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStatePermission;
-
-import java.util.*;
-
-import static org.hibernate.criterion.Restrictions.eq;
-import static org.hibernate.criterion.Restrictions.in;
-import static pl.net.bluesoft.util.lang.FormatUtil.formatShortDate;
-import static pl.net.bluesoft.util.lang.FormatUtil.join;
-
-import static pl.net.bluesoft.util.lang.DateUtil.addDays;
-import static pl.net.bluesoft.util.lang.DateUtil.asCalendar;
-import static pl.net.bluesoft.util.lang.DateUtil.truncHours;
-import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
+import pl.net.bluesoft.util.lang.Collections;
+import pl.net.bluesoft.util.lang.Transformer;
 
 
 /**
@@ -364,6 +382,9 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
             DetachedCriteria detachedCriteriaForIds = buildhibernateQuery(internalIds, session, filter, offset, limit);
 
             Criteria criteria = detachedCriteriaForIds.getExecutableCriteria(session);
+            criteria.setFetchMode("definition",FetchMode.SELECT);
+            criteria.setFetchMode("creator",FetchMode.SELECT);
+            criteria.setFetchMode("parent",FetchMode.SELECT);
 
             List<ProcessInstance> result = (List<ProcessInstance>)criteria.list();
             int resultsCount = result.size();
@@ -387,8 +408,13 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
                     detachedCriteriaForData.addOrder(Order.desc("createDate"));
                     detachedCriteriaForData.add(Property.forName("id").in(ids));
                     detachedCriteriaForData.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-
-                    list = detachedCriteriaForData.getExecutableCriteria(session).list();
+                    
+                    Criteria criteria2 = detachedCriteriaForData.getExecutableCriteria(session);
+                    criteria2.setFetchMode("definition",FetchMode.SELECT);
+		            criteria2.setFetchMode("creator",FetchMode.SELECT);
+		            criteria2.setFetchMode("parent",FetchMode.SELECT);
+ 
+                    list = criteria2.list();
                 }
                 else {
                     list = new ArrayList<ProcessInstance>(0);

@@ -140,7 +140,7 @@ public class TaskItemProviderBase {
 	}
 
 	protected String getProcessDescription(TaskItemProviderParams params) {
-		return params.getMessage(params.getProcessInstance().getDefinition().getDescription());
+		return params.getMessage(params.getProcessInstance().getRootProcessInstance().getDefinition().getDescription());
 	}
 
 

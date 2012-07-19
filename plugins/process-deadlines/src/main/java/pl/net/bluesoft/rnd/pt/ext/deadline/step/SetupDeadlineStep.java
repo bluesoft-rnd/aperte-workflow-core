@@ -10,12 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import net.objectlab.kit.datecalc.common.DateCalculator;
-import net.objectlab.kit.datecalc.common.HolidayHandlerType;
-import net.objectlab.kit.datecalc.joda.LocalDateKitCalculatorsFactory;
-
 import org.apache.commons.beanutils.PropertyUtils;
-import org.joda.time.LocalDate;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.exception.ProcessToolException;
@@ -68,26 +63,21 @@ public class SetupDeadlineStep implements ProcessToolProcessStep {
             if (!Strings.hasText(value)) {
                 throw new ProcessToolException("Unable to calculate due date");
             }
-           
+            
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(baseDate != null ? baseDate : new Date());
             
             if(useWorkingDays())
             {
-                /* Initialize the calendar with business days and holidays supoort */
-                DateCalculator<LocalDate> dateCalculator = LocalDateKitCalculatorsFactory.getDefaultInstance()
-                        .getDateCalculator("PL", HolidayHandlerType.FORWARD);
-                
-                /* Set the current time */
-                dateCalculator.setCurrentBusinessDate(new LocalDate(baseDate != null ? baseDate : new Date()));
-            	
-            	LocalDate deadline = dateCalculator.moveByDays(Integer.valueOf(value)).getCurrentBusinessDate(); 
-            	
-            	dueDate = deadline.toDateMidnight().toDate();
+        		int nv = Integer.valueOf(Integer.valueOf(value));
+        		nv = getWeekOffset(cal.getTime(),nv);
+        		cal.add(Calendar.DAY_OF_YEAR, nv);
+        		
+        		dueDate = cal.getTime();
             	
             }
             else
             {
-                Calendar cal = Calendar.getInstance();
-                cal.setTime(baseDate != null ? baseDate : new Date());
                 cal.add("min".equals(unit) ? Calendar.MINUTE : Calendar.DAY_OF_YEAR, Integer.valueOf(value));
                 cal.set(Calendar.HOUR, 0);
                 cal.set(Calendar.SECOND, 0);
@@ -129,6 +119,30 @@ public class SetupDeadlineStep implements ProcessToolProcessStep {
         ctx.getProcessInstanceDAO().saveProcessInstance(processInstance);
 
         return STATUS_OK;
+    }
+    
+	public static int getWeekOffset(Date start,int offset){
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(start);
+        int weekday = cal.get(Calendar.DAY_OF_WEEK);
+
+        int days = offset%5;
+        int fullweeks = ((offset - days)/5)*7;
+        int final_offset = 0;
+
+        if(weekday == 0){       // start sobota
+            final_offset = 2;
+            weekday = 2; //poniedziale
+        }else if(weekday == 1){ // start niedziela
+            final_offset = 1;
+            weekday = 2; //poniedziale
+        }
+
+        if(weekday+days > 6){
+            final_offset +=2;
+        }
+        offset = final_offset + fullweeks +days;
+        return  offset;
     }
     
     private boolean useWorkingDays()

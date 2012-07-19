@@ -28,21 +28,7 @@
             <artifactId>model</artifactId>
             <version>2.0-SNAPSHOT</version>
             <scope>provided</scope>
-        </dependency>
-        
-        <!-- Wyliczanie nastepnego dnia roboczego -->
-        <dependency>
-		  <groupId>net.objectlab.kit</groupId>
-		  <artifactId>datecalc-common</artifactId>
-		  <version>1.2.0</version>
-		</dependency>
-		<dependency>
-		  <groupId>net.objectlab.kit</groupId>
-		  <artifactId>datecalc-joda</artifactId>
-		  <version>1.2.0</version>
-		</dependency>
-        
-        
+        </dependency>    
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>aperte-utils</artifactId>

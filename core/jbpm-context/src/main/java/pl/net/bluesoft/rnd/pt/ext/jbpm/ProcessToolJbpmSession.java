@@ -91,7 +91,9 @@ import pl.net.bluesoft.util.lang.Transformer;
  */
 public class ProcessToolJbpmSession extends AbstractProcessToolSession {
 
-    protected Logger log = Logger.getLogger(ProcessToolJbpmSession.class.getName());
+    private static final String AUTO_SKIP_TASK_NAME_PREFIX = "AUTO_SKIP";
+	private static final String AUTO_SKIP_ACTION_NAME = "AUTO_SKIP";
+	protected Logger log = Logger.getLogger(ProcessToolJbpmSession.class.getName());
 
     public ProcessToolJbpmSession(UserData user, Collection<String> roleNames, ProcessToolContext ctx) {
         super(user, roleNames, ctx.getRegistry());
@@ -1059,7 +1061,22 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
            }
 
            BpmTask userTask = null;
-           List<BpmTask> tasksAfterCompletion = findProcessTasks(pi, ctx);
+           BpmTask autoSkipTask = null;
+
+           List<BpmTask> tasksAfterCompletion = null;
+           if(startsSubprocess) {
+	           for(ProcessInstance child : pi.getChildren()) {
+	        	   tasksAfterCompletion = findProcessTasks(child, ctx);
+	        	   if(tasksAfterCompletion != null && tasksAfterCompletion.size() > 0)
+	        		   break;
+	           }
+           }
+           if(tasksAfterCompletion == null || tasksAfterCompletion.size() == 0) {
+               tasksAfterCompletion = findProcessTasks(pi, ctx);
+           }
+           if(tasksAfterCompletion == null || tasksAfterCompletion.size() == 0) {
+               tasksAfterCompletion = findProcessTasks(pi.getParent(), ctx);
+           }
            for (BpmTask createdTask : tasksAfterCompletion) {
                if (!taskIdsBeforeCompletion.contains(createdTask.getInternalTaskId())) {
                    broadcastEvent(ctx, new BpmEvent(BpmEvent.Type.ASSIGN_TASK, createdTask, user));
@@ -1067,14 +1084,24 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
                if (Lang.equals(user.getId(), createdTask.getOwner().getId())) {
                    userTask = createdTask;
                }
+               if(createdTask.getTaskName().toLowerCase().startsWith(AUTO_SKIP_TASK_NAME_PREFIX.toLowerCase())) {
+            	   autoSkipTask = createdTask;
+               }
+          }
+           
+           if(autoSkipTask != null) {
+        	   ProcessStateAction skipAction = new ProcessStateAction();
+        	   skipAction.setBpmName(AUTO_SKIP_ACTION_NAME);
+        	   return performAction(skipAction, autoSkipTask, ctx);
            }
-
+           
            if (userTask == null) {
                MutableBpmTask t = new MutableBpmTask(task);
                t.setFinished(true);
                t.setProcessInstance(pi);
                userTask = t;
            }
+           
            return userTask;
        }
 
@@ -1186,6 +1213,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
 					
 					executionService.createVariable(subprocess.getId(), "processInstanceId", String.valueOf(subPiId),
 							false);
+					
 					return true;
 				}
 	        }
@@ -1237,6 +1265,9 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
         ProcessStateConfiguration state = ctx.getProcessDefinitionDAO().getProcessStateConfiguration(task);
 
         ProcessInstanceLog log = new ProcessInstanceLog();
+        if(AUTO_SKIP_ACTION_NAME.toLowerCase().equals(action.getBpmName().toLowerCase()))
+        	return log;
+        
         log.setLogType(ProcessInstanceLog.LOG_TYPE_PERFORM_ACTION);
         log.setState(state);
         log.setEntryDate(Calendar.getInstance());

@@ -39,7 +39,7 @@ import static pl.net.bluesoft.util.lang.StringUtil.hasText;
  *
  * @author tlipski@bluesoft.net.pl
  */
-public class ProcessToolContextImpl implements ProcessToolContext {
+public class ProcessToolContextImpl implements ProcessToolContext { 
     private Session hibernateSession;
     private Transaction transaction;
     private ProcessToolJbpmSessionFactory processToolJbpmSessionFactory;
@@ -143,6 +143,10 @@ public class ProcessToolContextImpl implements ProcessToolContext {
                 dao = (T) getRegistry().getProcessDefinitionDAO(hibernateSession);
             } else if (UserSubstitutionDAO.class.equals(daoClass)) {
                 dao = (T) getRegistry().getUserSubstitutionDAO(hibernateSession);
+            }else if (ProcessInstanceSimpleAttributeDAO.class.equals(daoClass)) {
+                dao = (T) getRegistry().getProcessInstanceSimpleAttributeDAO(hibernateSession);
+            }else if (ProcessStateActionDAO.class.equals(daoClass)) {
+                dao = (T) getRegistry().getProcessStateAction(hibernateSession);
             }
             if (dao != null) {
                 daoCache.put(daoClass, dao);
@@ -179,6 +183,17 @@ public class ProcessToolContextImpl implements ProcessToolContext {
     public UserSubstitutionDAO getUserSubstitutionDAO() {
         return getHibernateDAO(UserSubstitutionDAO.class);
     }
+    
+    @Override
+	public ProcessInstanceSimpleAttributeDAO getProcessInstanceSimpleAttributeDAO() {
+		return getHibernateDAO(ProcessInstanceSimpleAttributeDAO.class);
+	}
+    
+    @Override
+	public ProcessStateActionDAO getProcessStateActionDAO() {
+		return getHibernateDAO(ProcessStateActionDAO.class);
+	}
+
 
     @Override
     public Session getHibernateSession() {
@@ -305,4 +320,6 @@ public class ProcessToolContextImpl implements ProcessToolContext {
             }
         }
     }
+
+	
 }

@@ -1,24 +1,26 @@
 package org.aperteworkflow.service;
 
-import org.aperteworkflow.bpm.graph.GraphElement;
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.hibernate.ResultsPageWrapper;
-import pl.net.bluesoft.rnd.processtool.model.*;
+import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
+import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
-import pl.net.bluesoft.util.eventbus.EventBusManager;
 
-import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+
+import org.aperteworkflow.bpm.graph.GraphElement;
+import org.aperteworkflow.service.fault.AperteWebServiceError;
+
 /**
  * @author tlipski@bluesoft.net.pl
+ * @author kkolodziej@bluesoft.net.pl
+ * 
  */
 public interface AperteWorkflowProcessService {
 
@@ -27,39 +29,53 @@ public interface AperteWorkflowProcessService {
                                           UserData user,
                                           String description,
                                           String keyword,
-                                          String source);
-    ProcessInstance getProcessData(String internalId);
+                                          String source,
+										  String internalId);
+    ProcessInstance getProcessData(String internalId) throws AperteWebServiceError;
     boolean isProcessRunning(String internalId);
     void saveProcessInstance(ProcessInstance processInstance);
-    Collection<ProcessQueue> getUserAvailableQueues(UserData user);
-    boolean isProcessOwnedByUser(ProcessInstance processInstance, UserData user);
     BpmTask assignTaskFromQueue(ProcessQueue q, UserData user);
-    BpmTask assignTaskFromQueue(ProcessQueue q, BpmTask task, UserData user);
-    void assignTaskToUser(String taskId, UserData user);
-    BpmTask getTaskData(String taskExecutionId, String taskName);
+    BpmTask assignSpecificTaskFromQueue(ProcessQueue q, BpmTask task, UserData user);
+    BpmTask getTaskDataForProcessInstance(String taskExecutionId, String taskName);
     BpmTask getTaskData(String taskId);
-    List<BpmTask> findUserTasks(ProcessInstance processInstance, UserData user);
-    List<BpmTask> findUserTasks(Integer offset, Integer limit, UserData user);
-    List<BpmTask> findProcessTasks(ProcessInstance pi, UserData user);
-    List<BpmTask> findProcessTasks(ProcessInstance pi, UserData user, Set<String> taskNames);
+    List<BpmTask> findProcessTasksByNames(ProcessInstance pi, UserData user, Set<String> taskNames);
     Integer getRecentTasksCount(Calendar minDate, UserData user);
     Collection<BpmTask> getAllTasks(UserData user);
-    BpmTask performAction(ProcessStateAction action, BpmTask bpmTask, UserData user);
-    List<String> getOutgoingTransitionNames(String executionId);
-    UserData getSubstitutingUser(UserData user);
-    List<String> getOutgoingTransitionDestinationNames(String executionId);
-    void adminCancelProcessInstance(ProcessInstance pi);
+    List<String> getOutgoingTransitionNames(String executionId) throws AperteWebServiceError;
+    List<String> getOutgoingTransitionDestinationNames(String executionId) throws AperteWebServiceError;
     void adminReassignProcessTask(ProcessInstance pi, BpmTask bpmTask, UserData user);
-    void adminCompleteTask(ProcessInstance pi, BpmTask bpmTask, ProcessStateAction action);
-    List<GraphElement> getProcessHistory(ProcessInstance pi);
+ //   void adminCompleteTask(ProcessInstance pi, BpmTask bpmTask, ProcessStateAction action);
 
-    void deployProcessDefinition(
+    void deployProcessDefinitionBytes(
             ProcessDefinitionConfig cfg,
             ProcessQueueConfig[] queues,
             byte[] processMapDefinition,
             byte[] processMapImageStream,
-            byte[] logo);
-
+            byte[] logo); 
+         
+     
+     
+     
     void deployProcessDefinition(byte[] cfgXmlFile, byte[] queueXmlFile,
                                  byte[] processMapDefinition, byte[] processMapImageStream, byte[] logo);
+	Collection<ProcessQueue> getUserAvailableQueues(String userLogin) throws AperteWebServiceError;
+	boolean isProcessOwnedByUser(String internalId, String userLogin) throws AperteWebServiceError;
+	void assignTaskToUser(String taskId, String userLogin) throws AperteWebServiceError;
+	void adminCancelProcessInstance(String internalId) throws AperteWebServiceError;
+	
+	
+	 
+	ProcessInstance startProcessInstance(String bpmnkey, String userLogin) throws AperteWebServiceError;
+	List<BpmTask> findProcessTasks(String internalId, String userLogin) throws AperteWebServiceError;
+	UserData getSubstitutingUser(String userLogin) throws AperteWebServiceError;
+
+
+	void performAction(String internalId, String actionName,
+			String bpmTaskName, String userLogin) throws AperteWebServiceError;
+	List<BpmTask> findUserTasksPaging(Integer offset, Integer limit,
+			String userLogin)throws AperteWebServiceError;
+	List<BpmTask> findUserTasks(String internalId, String userLogin)
+			throws AperteWebServiceError;
+	void adminCompleteTask(String internalId, String actionName,
+			String bpmTaskName) throws AperteWebServiceError;
 }

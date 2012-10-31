@@ -20,7 +20,7 @@ import org.aperteworkflow.search.ProcessInstanceSearchAttribute;
 import org.aperteworkflow.search.ProcessInstanceSearchData;
 import org.aperteworkflow.search.SearchProvider;
 import org.aperteworkflow.ui.view.ViewRegistry;
-import org.aperteworkflow.ui.view.impl.DefaultViewRegistryImpl;
+import org.aperteworkflow.ui.view.impl.DefaultViewRegistryImpl; 
 import org.osgi.framework.*;
 import pl.net.bluesoft.rnd.poutils.cquery.func.F;
 import pl.net.bluesoft.rnd.processtool.plugins.*;

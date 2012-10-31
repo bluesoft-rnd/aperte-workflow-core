@@ -7,6 +7,7 @@ import javax.xml.bind.annotation.XmlTransient;
  * Process instance attribute. This class is meant to be expanded.
  *
  * @author tlipski@bluesoft.net.pl
+ * @author kkolodziej@bluesoft.net.pl
  */
 @Entity
 @Table(name="pt_process_instance_attr")
@@ -16,7 +17,7 @@ public class ProcessInstanceAttribute extends PersistentEntity {
 	private String key;
 
 //    @XmlTransient
-	@ManyToOne
+	@ManyToOne(cascade = {CascadeType.REMOVE}) 
 	@JoinColumn(name="process_instance_id")
 	private ProcessInstance processInstance;
 
@@ -34,7 +35,7 @@ public class ProcessInstanceAttribute extends PersistentEntity {
 
 	public void setKey(String key) {
 		this.key = key;
-	}
+	} 
 
     @XmlTransient
 	public ProcessInstance getProcessInstance() {

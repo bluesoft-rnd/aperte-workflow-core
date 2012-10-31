@@ -130,4 +130,5 @@ public interface ProcessToolBpmSession extends ProcessToolBpmConstants {
     byte[] getProcessMapImage(ProcessInstance pi);
 
     String deployProcessDefinition(String processName, InputStream definitionStream, InputStream processMapImageStream);
+
 }

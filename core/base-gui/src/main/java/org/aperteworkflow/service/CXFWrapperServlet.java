@@ -20,7 +20,7 @@ public class CXFWrapperServlet extends CXFNonSpringServlet {
         Bus bus = getBus();
         BusFactory.setDefaultBus(bus);
         Endpoint.publish("/data", new AperteWorkflowDataServiceImpl());
-        Endpoint.publish("/process", new AperteWorkflowProcessServiceImpl());
+        Endpoint.publish("/process", new AperteWorkflowProcessServiceImpl()); 
 
         // You can also use the simple frontend API to do this
 //        ServerFactoryBean factory = new ServerFactoryBean();

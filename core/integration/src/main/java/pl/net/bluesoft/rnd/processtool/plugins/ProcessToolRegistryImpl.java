@@ -21,6 +21,7 @@ import pl.net.bluesoft.rnd.processtool.event.ProcessToolEventBusManager;
 import pl.net.bluesoft.rnd.processtool.model.Cacheable;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessToolAutowire;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionary;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryPermission;
@@ -53,9 +54,10 @@ import java.util.logging.Logger;
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 import static pl.net.bluesoft.util.lang.Strings.hasText;
 
-/**
+/** 
  * @author tlipski@bluesoft.net.pl
  * @author amichalak@bluesoft.net.pl
+ * @author kkolodziej@bluesoft.net.pl
  */
 public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 
@@ -82,7 +84,7 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
     private ProcessToolContextFactory processToolContextFactory;
 	private SessionFactory sessionFactory;
     private PluginManager pluginManager;
-    private SearchProvider searchProvider;
+    private SearchProvider searchProvider; 
     private boolean jta;
     private BundleContext bundleContext;
     private String bpmDefinitionLanguage;
@@ -410,15 +412,26 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
            }
            return processToolContextFactory.withExistingOrNewContext(callback);
        }
-
+ 
     @Override
     public ProcessDictionaryDAO getProcessDictionaryDAO(Session hibernateSession) {
-        return new ProcessDictionaryDAOImpl(hibernateSession);
+        return new ProcessDictionaryDAOImpl(hibernateSession);  
     }
 
     @Override
 	public ProcessInstanceDAO getProcessInstanceDAO(Session hibernateSession) {
 		return new ProcessInstanceDAOImpl(hibernateSession, searchProvider);
+	}
+     
+    @Override
+	public ProcessInstanceSimpleAttributeDAO getProcessInstanceSimpleAttributeDAO(
+			Session hibernateSession) {
+		return new ProcessInstanceSimpleAttributeDAOImpl(hibernateSession);
+	}
+
+	@Override
+	public ProcessStateActionDAO getProcessStateAction(Session hibernateSession) {
+		return new ProcessStateActionDAOImpl(hibernateSession);
 	}
 
 	@Override
@@ -882,6 +895,8 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
             caches.put(cacheName, cache);
             logger.warning("Registered cache named: " + cacheName);
         }
+
+		
 
 //        public boolean createRoleIfNotExists(String roleName, String description) {
 //        	try {

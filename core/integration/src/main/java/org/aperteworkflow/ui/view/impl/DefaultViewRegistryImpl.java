@@ -11,7 +11,7 @@ import java.util.Set;
 /**
  * @author tlipski@bluesoft.net.pl
  */
-public class DefaultViewRegistryImpl implements ViewRegistry {
+public class DefaultViewRegistryImpl implements ViewRegistry { 
     private Set<Func<ViewRenderer>> viewFunctions = new HashSet<Func<ViewRenderer>>();
     @Override
     public synchronized Collection<ViewRenderer> getViews() {

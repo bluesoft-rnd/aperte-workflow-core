@@ -32,10 +32,17 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 	}
 
 	public Collection<ProcessDefinitionConfig> getActiveConfigurations() {		
-		return getSession().createCriteria(ProcessDefinitionConfig.class).addOrder(Order.desc("processName"))
+		 long start = System.currentTimeMillis(); 
+		
+		List list = getSession().createCriteria(ProcessDefinitionConfig.class).addOrder(Order.desc("processName"))
 						.add(Restrictions.eq("latest", Boolean.TRUE))
 						.add(Restrictions.or(Restrictions.eq("enabled", Boolean.TRUE), Restrictions.isNull("enabled")))
                 .list();
+		 
+		 
+		 long duration = System.currentTimeMillis() - start;
+			logger.severe("getActiveConfigurations: " +  duration);
+		 return list;
 	}
 
 	@Override
@@ -60,7 +67,7 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 		return (ProcessStateConfiguration) res.get(0);
 
 	}
-
+	
 	@Override
 	public void updateOrCreateProcessDefinitionConfig(ProcessDefinitionConfig cfg) {
 		cfg.setCreateDate(new Date());
@@ -258,6 +265,7 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 			for (ProcessQueueRight r : q.getRights()) {
 				r.setQueue(q);
 			}
+			//session.merge(q);
 			session.save(q);
 		}
 	}

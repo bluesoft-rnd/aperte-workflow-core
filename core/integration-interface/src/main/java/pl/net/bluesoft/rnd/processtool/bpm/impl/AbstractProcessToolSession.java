@@ -26,7 +26,7 @@ import java.util.logging.Logger;
 public abstract class AbstractProcessToolSession
         implements ProcessToolBpmSession, Serializable {
 
-    protected Logger log = Logger.getLogger(ProcessToolBpmSession.class.getName());
+    protected Logger logger = Logger.getLogger(ProcessToolBpmSession.class.getName());
 
     /**
      * User and role names are provided externally, e.g. from Liferay.
@@ -43,7 +43,7 @@ public abstract class AbstractProcessToolSession
         this.user = user;
         this.roleNames = new HashSet<String>(roleNames);
         this.eventBusManager = new ProcessToolEventBusManager(registry, registry.getExecutorService());
-        log.finest("Created session for user: " + user);
+        logger.finest("Created session for user: " + user);
     }
 
     public ProcessInstance createProcessInstance(ProcessDefinitionConfig config,
@@ -52,6 +52,7 @@ public abstract class AbstractProcessToolSession
                                                  String description,
                                                  String keyword,
                                                  String source, String internalId) {
+    	long start = System.currentTimeMillis();
         if (!config.getEnabled()) {
             throw new IllegalArgumentException("Process definition has been disabled!");
         }
@@ -98,19 +99,27 @@ public abstract class AbstractProcessToolSession
         log.setLogType(ProcessInstanceLog.LOG_TYPE_START_PROCESS);
         //log.setLogType(LogType.START);
         pi.addProcessLog(log);
-
+        List<BpmTask> findProcessTasks = findProcessTasks(pi, ctx);
+        String taskName = findProcessTasks.get(0).getTaskName();
+         
+            
+        pi.setState(taskName);   
+ 
         ctx.getProcessInstanceDAO().saveProcessInstance(pi);
 
         List<BpmEvent> events = new ArrayList<BpmEvent>();
-        events.add(new BpmEvent(Type.NEW_PROCESS, pi, user));
+        events.add(new BpmEvent(Type.NEW_PROCESS, pi, user));  
 
-        for (BpmTask task : findProcessTasks(pi, ctx)) {
+        for (BpmTask task : findProcessTasks) {
             events.add(new BpmEvent(Type.ASSIGN_TASK, task, user));
         }
 
         for (BpmEvent event : events) {
             broadcastEvent(ctx, event);
         }
+        
+        long duration = System.currentTimeMillis()-start;
+        logger.severe("CreateProcessInstance took: "+duration+" ms");
 
         return pi;
     }
@@ -120,15 +129,15 @@ public abstract class AbstractProcessToolSession
         if (substitutingUserEventBusManager != null)
             substitutingUserEventBusManager.publish(event);
         ctx.addTransactionCallback(new TransactionFinishedCallback() {
-            @Override
-            public void onFinished() {
+            @Override 
+            public void onFinished() { 
                 ctx.getEventBusManager().post(event);
             }
         });
     }
 
     protected UserData findOrCreateUser(UserData user, ProcessToolContext ctx) {
-        return ctx.getProcessInstanceDAO().findOrCreateUser(user);
+        return ctx.getUserDataDAO().findOrCreateUser(user);
     }
 
 //    public ProcessStateConfiguration getProcessStateConfiguration(ProcessInstance pi, ProcessToolContext ctx) {

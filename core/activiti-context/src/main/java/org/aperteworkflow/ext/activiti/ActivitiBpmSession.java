@@ -177,7 +177,7 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
    				.taskAssignee(user.getLogin())
    				.listPage(0, 1);
    		if (tasks.isEmpty()) {
-   			log.warning("Task " + taskExecutionId + " not found");
+   			logger.warning("Task " + taskExecutionId + " not found");
    			return null;
    		}
    		List<BpmTask> bpmTasks = findProcessInstancesForTasks(tasks, ctx);
@@ -201,7 +201,7 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
    				public BpmTask lambda(Task task) {
    					ProcessInstance pi = instances.get(processId);
    					if (pi == null) {
-   						log.warning("process " + processId + " not found");
+   						logger.warning("process " + processId + " not found");
    						return null;
    					}
    					return collectTask(task, pi, ctx);
@@ -247,7 +247,7 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
    				.taskAssignee(user.getLogin())
    				.listPage(0, 1);
    		if (tasks.isEmpty()) {
-   			log.warning("Task " + task.getExecutionId() + " not found");
+   			logger.warning("Task " + task.getExecutionId() + " not found");
    			bpmTask.setFinished(true);
    		}
    		return bpmTask;
@@ -365,9 +365,13 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
 
     @Override
     public List<BpmTask> findProcessTasks(ProcessInstance pi, ProcessToolContext ctx) {
-        List<Task> tasks = getProcessEngine().getTaskService().createTaskQuery()
-                .processInstanceId(pi.getInternalId())
-                .listPage(0, 1000);
+       
+        		TaskQuery taskQuery = getProcessEngine().getTaskService().createTaskQuery();
+        		 taskQuery.processInstanceId(pi.getInternalId());
+        		 if(user.getLogin()!=null){
+        			 taskQuery.taskAssignee(user.getLogin());
+        		 }
+                List<Task> tasks = taskQuery.listPage(0, 1000);
         return collectTasks(tasks, pi, ctx);
     }
 
@@ -378,6 +382,7 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
         ExecutionImpl execution = (ExecutionImpl) pi;
         List<String> transitionNames = new ArrayList<String>();
         for (PvmTransition transition : execution.getActivity().getOutgoingTransitions()) {
+        	System.out.println(transition.getDestination().getId()); //TODO zmienic getOutgoingTransitionName w ten sam sposob co w wersji jbpm w klasie ProcessToolJbpm
             transitionNames.add(transition.getId());
         }
         return transitionNames;
@@ -423,7 +428,7 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
             public ProcessInstance lambda(Task task) {
                 ProcessInstance pi = instances.get(task.getProcessInstanceId());
                 if (pi == null) {
-                    log.warning("process " + task.getProcessInstanceId() + " not found");
+                    logger.warning("process " + task.getProcessInstanceId() + " not found");
                     return null;
                 }
                 pi.setState(task.getName());
@@ -497,7 +502,7 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
         log.setEntryDate(Calendar.getInstance());
         log.setEventI18NKey("process.log.process-assigned");
         log.setLogValue(pq.getName());
-        log.setUser(ctx.getProcessInstanceDAO().findOrCreateUser(user));
+        log.setUser(ctx.getUserDataDAO().findOrCreateUser(user));
         log.setAdditionalInfo(pq.getDescription());
         pi2.addProcessLog(log);
 
@@ -966,8 +971,8 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
         log.setEventI18NKey("process.log.action-performed");
         log.setLogValue(action.getBpmName());
         log.setAdditionalInfo(nvl(action.getLabel(), action.getDescription(), action.getBpmName()));
-        log.setUser(ctx.getProcessInstanceDAO().findOrCreateUser(user));
-        log.setUserSubstitute(substitutingUser != null ? ctx.getProcessInstanceDAO().findOrCreateUser(substitutingUser) : null);
+        log.setUser(ctx.getUserDataDAO().findOrCreateUser(user));
+        log.setUserSubstitute(substitutingUser != null ? ctx.getUserDataDAO().findOrCreateUser(substitutingUser) : null);
         processInstance.addProcessLog(log);
     }
 
@@ -1018,7 +1023,7 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
 
     @Override
     public void adminCancelProcessInstance(ProcessInstance pi) {
-        log.severe("User: " + user.getLogin() + " attempting to cancel process: " + pi.getInternalId());
+        logger.severe("User: " + user.getLogin() + " attempting to cancel process: " + pi.getInternalId());
         ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
         pi = getProcessData(pi.getInternalId(), ctx);
         ProcessEngine processEngine = getProcessEngine();
@@ -1027,13 +1032,13 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
         pi.setRunning(false);
         pi.setState(null);
         ctx.getProcessInstanceDAO().saveProcessInstance(pi);
-        log.severe("User: " + user.getLogin() + " has cancelled process: " + pi.getInternalId());
+        logger.severe("User: " + user.getLogin() + " has cancelled process: " + pi.getInternalId());
 
     }
 
     @Override
     public void adminReassignProcessTask(ProcessInstance pi, BpmTask bpmTask, String userLogin) {
-        log.severe("User: " + user.getLogin() + " attempting to reassign task " + bpmTask.getInternalTaskId() + " for process: " + pi.getInternalId() + " to user: " + userLogin);
+        logger.severe("User: " + user.getLogin() + " attempting to reassign task " + bpmTask.getInternalTaskId() + " for process: " + pi.getInternalId() + " to user: " + userLogin);
 
         ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
         pi = getProcessData(pi.getInternalId(), ctx);
@@ -1041,23 +1046,23 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
         TaskService ts = processEngine.getTaskService();
         Task task = ts.createTaskQuery().taskId(bpmTask.getInternalTaskId()).singleResult();
         if (nvl(userLogin, "").equals(nvl(task.getAssignee(), ""))) {
-            log.severe("User: " + user.getLogin() + " has not reassigned task " + bpmTask.getInternalTaskId() + " for process: " + pi.getInternalId() + " as the user is the same: " + userLogin);
+            logger.severe("User: " + user.getLogin() + " has not reassigned task " + bpmTask.getInternalTaskId() + " for process: " + pi.getInternalId() + " as the user is the same: " + userLogin);
             return;
         }
         //this call should also take care of swimlanes
         ts.setAssignee(bpmTask.getInternalTaskId(), userLogin);
         fillProcessAssignmentData(pi, ctx);
-        log.info("Process.running:" + pi.getRunning());
+        logger.info("Process.running:" + pi.getRunning());
         ctx.getProcessInstanceDAO().saveProcessInstance(pi);
-        log.severe("User: " + user.getLogin() + " has reassigned task " + bpmTask.getInternalTaskId() + " for process: " + pi.getInternalId() + " to user: " + userLogin);
+        logger.severe("User: " + user.getLogin() + " has reassigned task " + bpmTask.getInternalTaskId() + " for process: " + pi.getInternalId() + " to user: " + userLogin);
 
     }
 
     @Override
     public void adminCompleteTask(ProcessInstance pi, BpmTask bpmTask, ProcessStateAction action) {
-        log.severe("User: " + user.getLogin() + " attempting to complete task " + bpmTask.getInternalTaskId() + " for process: " + pi.getInternalId() + " to outcome: " + action);
+        logger.severe("User: " + user.getLogin() + " attempting to complete task " + bpmTask.getInternalTaskId() + " for process: " + pi.getInternalId() + " to outcome: " + action);
         performAction(action, ProcessToolContext.Util.getThreadProcessToolContext(), bpmTask);
-        log.severe("User: " + user.getLogin() + " has completed task " + bpmTask.getInternalTaskId() + " for process: " + pi.getInternalId() + " to outcome: " + action);
+        logger.severe("User: " + user.getLogin() + " has completed task " + bpmTask.getInternalTaskId() + " for process: " + pi.getInternalId() + " to outcome: " + action);
 
     }
 
@@ -1176,13 +1181,13 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
             NodeList diagrams = documentElement.getElementsByTagNameNS(BPMNDI_NAMESPACE,
                     "BPMNDiagram");
             if (diagrams.getLength() == 0) {
-                log.severe("No diagram data for process definition for instance " + pi.getInternalId());
+                logger.severe("No diagram data for process definition for instance " + pi.getInternalId());
                 return res;
             }
             Element diagramElement = (Element) diagrams.item(0);
             NodeList planes = diagramElement.getElementsByTagNameNS(BPMNDI_NAMESPACE, "BPMNPlane");
             if (planes.getLength() == 0) {
-                log.severe("No plane data for process definition for instance " + pi.getInternalId());
+                logger.severe("No plane data for process definition for instance " + pi.getInternalId());
                 return res;
             }
             Element planeElement = (Element) planes.item(0);
@@ -1192,7 +1197,7 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
 
             NodeList processElements = documentElement.getElementsByTagName("process");
             if (processElements.getLength() == 0) {
-                log.severe("No process data for process definition for instance " + pi.getInternalId());
+                logger.severe("No process data for process definition for instance " + pi.getInternalId());
             }
             Element processElement = (Element) processElements.item(0);
 

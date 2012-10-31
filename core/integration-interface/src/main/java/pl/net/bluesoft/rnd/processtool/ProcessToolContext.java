@@ -29,6 +29,8 @@ public interface ProcessToolContext  extends ProcessToolBpmConstants {
 	Session getHibernateSession();
 	UserDataDAO getUserDataDAO();
     UserSubstitutionDAO getUserSubstitutionDAO();
+    ProcessInstanceSimpleAttributeDAO getProcessInstanceSimpleAttributeDAO();
+    ProcessStateActionDAO getProcessStateActionDAO();
 	ProcessToolSessionFactory getProcessToolSessionFactory();
 
 	ProcessDefinitionDAO getProcessDefinitionDAO();
@@ -54,7 +56,7 @@ public interface ProcessToolContext  extends ProcessToolBpmConstants {
     void addTransactionCallback(HibernateTransactionCallback callback);
 
     public boolean isActive();
-
+ 
 	public static class Util {
         private static ThreadLocal<ProcessToolContext> current = new ThreadLocal<ProcessToolContext>();
 

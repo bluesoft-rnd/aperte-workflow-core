@@ -139,6 +139,10 @@ public class ActivitiContextImpl implements ProcessToolContext {
                 dao = (T) getRegistry().getProcessDefinitionDAO(hibernateSession);
             } else if (UserSubstitutionDAO.class.equals(daoClass)) {
                 dao = (T) getRegistry().getUserSubstitutionDAO(hibernateSession);
+            }else if (ProcessInstanceSimpleAttributeDAO.class.equals(daoClass)) {
+                dao = (T) getRegistry().getProcessInstanceSimpleAttributeDAO(hibernateSession);
+            }else if (ProcessStateActionDAO.class.equals(daoClass)) {
+                dao = (T) getRegistry().getProcessStateAction(hibernateSession);
             }
             if (dao != null) {
                 daoCache.put(daoClass, dao);
@@ -175,6 +179,16 @@ public class ActivitiContextImpl implements ProcessToolContext {
     public UserSubstitutionDAO getUserSubstitutionDAO() {
         return getHibernateDAO(UserSubstitutionDAO.class);
     }
+    
+    @Override
+	public ProcessInstanceSimpleAttributeDAO getProcessInstanceSimpleAttributeDAO() {
+    	 return getHibernateDAO(ProcessInstanceSimpleAttributeDAO.class);
+	}
+    
+    @Override
+	public ProcessStateActionDAO getProcessStateActionDAO() {
+    	return getHibernateDAO(ProcessStateActionDAO.class);
+	}
 
     @Override
     public Session getHibernateSession() {
@@ -306,4 +320,8 @@ public class ActivitiContextImpl implements ProcessToolContext {
     public ActivitiContextFactoryImpl.CustomStandaloneProcessEngineConfiguration getCustomStandaloneProcessEngineConfiguration() {
         return customStandaloneProcessEngineConfiguration;
     }
+
+	
+
+	
 }

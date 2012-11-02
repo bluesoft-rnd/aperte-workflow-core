@@ -18,7 +18,6 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
-import javax.xml.soap.SOAPException;
 
 import java.util.*; 
 
@@ -140,7 +139,7 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
         
          if(processInstance==null){
         	
-        	throw new AperteWebServiceError(AperteErrorCodes.PROCESS.getErrorCode(),AperteErrorCodes.PROCESS.getMessage());
+        	 AperteErrorCodes.PROCESS.throwAperteWebServiceError();
         }
          return processInstance;
         
@@ -170,22 +169,23 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
 
 	@Override 
 	@WebMethod
-	public Map<String, ProcessInstance> getProcessInstanceByInternalIdMap(@WebParam(name="internalIds")final Collection<String> internalIds) {
-		 return withContext(new ReturningProcessToolContextCallback<Map<String, ProcessInstance>>() {
+	public HashMap<String, ProcessInstance> getProcessInstanceByInternalIdMap(@WebParam(name="internalIds")final Collection<String> internalIds) {
+		 return withContext(new ReturningProcessToolContextCallback<HashMap<String, ProcessInstance>>() {
 	            @Override
-	            public Map<String, ProcessInstance> processWithContext(ProcessToolContext ctx) {
-	                return fetchHibernateData(ctx.getProcessInstanceDAO().getProcessInstanceByInternalIdMap(internalIds));
+	            public HashMap<String, ProcessInstance> processWithContext(ProcessToolContext ctx) {
+	                return (HashMap<String, ProcessInstance>) fetchHibernateData(ctx.getProcessInstanceDAO().getProcessInstanceByInternalIdMap(internalIds));
 	            }
 	        });
 	}
 
 	@Override
 	@WebMethod
-    public void deleteProcessInstance(@WebParam(name="internalId")final String internalId) {
+    public void deleteProcessInstance(@WebParam(name="internalId")final String internalId) throws AperteWebServiceError {
+		final ProcessInstance processInstance = getProcessInstanceByInternalId(internalId);
         withContext(new ReturningProcessToolContextCallback() {
             @Override
             public Object processWithContext(ProcessToolContext ctx) {
-                ctx.getProcessInstanceDAO().deleteProcessInstanceByInternalId(internalId);
+                ctx.getProcessInstanceDAO().deleteProcessInstance(processInstance);
                 return null;
             }
         }); 
@@ -217,7 +217,7 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
 	            }
 	        });
 	         if (userLogin!= null && userData==null){
-     			throw new AperteWebServiceError(AperteErrorCodes.USER.getErrorCode(), AperteErrorCodes.USER.getMessage());
+	        	 AperteErrorCodes.USER.throwAperteWebServiceError();
      			
      		} 
      		return userData;
@@ -230,6 +230,7 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
     public ProcessInstanceSimpleAttribute setSimpleAttribute(@WebParam(name="key")final String key,@WebParam(name="newValue")
     final String newValue,@WebParam(name="internalId")final String internalId) throws AperteWebServiceError {
 		final ProcessInstance processInstance = getProcessInstanceByInternalId(internalId);
+		checkExistenceOfKey(internalId, key);
 		return withContext(new ReturningProcessToolContextCallback<ProcessInstanceSimpleAttribute>() {
             @Override
             public ProcessInstanceSimpleAttribute processWithContext(ProcessToolContext ctx) {
@@ -242,6 +243,7 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
     @WebMethod
     public String getSimpleAttributeValue(@WebParam(name="key")final String key,@WebParam(name="internalId")final String internalId) throws AperteWebServiceError {
 		final ProcessInstance processInstance = getProcessInstanceByInternalId(internalId);
+		checkExistenceOfKey(internalId, key);
 		return withContext(new ReturningProcessToolContextCallback<String>() { 
             @Override
             public String processWithContext(ProcessToolContext ctx) {
@@ -249,6 +251,16 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
             }
         });
     }
+	
+	private void checkExistenceOfKey(final String internalId,String key) throws AperteWebServiceError{
+		List<ProcessInstanceSimpleAttribute> simpleAttributesList = getSimpleAttributesList(internalId);
+		for (ProcessInstanceSimpleAttribute processInstanceSimpleAttribute : simpleAttributesList) {
+			if (processInstanceSimpleAttribute.getKey().equals(key)){
+				return;
+			}
+		}
+		AperteErrorCodes.SIMPLE_ATTRIBUTE.throwAperteWebServiceError();	
+	}
 	
 	
 	@Override 
@@ -286,7 +298,11 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
                                                        @WebParam(name="onlyRunning")final boolean onlyRunning,
                                                        @WebParam(name="userRoles")final String[] userRoles,
                                                        @WebParam(name="assignee")final String assignee,
-                                                       @WebParam(name="queues")final String... queues) {
+                                                       @WebParam(name="queues")final String... queues) throws AperteWebServiceError {
+		if(filter== null || filter.isEmpty()){
+			AperteErrorCodes.FILTR.throwAperteWebServiceError();	
+		}
+		
         return withContext(new ReturningProcessToolContextCallback<Collection<ProcessInstance>>() {
             @Override
             public Collection<ProcessInstance> processWithContext(ProcessToolContext ctx) {
@@ -376,15 +392,21 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
 
 	@Override
 	@WebMethod (exclude=true)
-    public ProcessDefinitionConfig getActiveConfigurationByKey(@WebParam(name="key")final String key) {
-        return withContext(new ReturningProcessToolContextCallback<ProcessDefinitionConfig>() {
+    public ProcessDefinitionConfig getActiveConfigurationByKey(@WebParam(name="key")final String key) throws AperteWebServiceError {
+		ProcessDefinitionConfig processDefinitionConfig = withContext(new ReturningProcessToolContextCallback<ProcessDefinitionConfig>() {
             @Override
             public ProcessDefinitionConfig processWithContext(ProcessToolContext ctx) {
                 return fetchHibernateData(ctx.getProcessDefinitionDAO().getActiveConfigurationByKey(key));
             }
         });
+		
+		if(processDefinitionConfig == null){
+			AperteErrorCodes.DEFINITION.throwAperteWebServiceError(); 
+		}
+		
+		return processDefinitionConfig;
     }
-
+	
 	@Override
 	@WebMethod (exclude=true)
     public Collection<ProcessQueueConfig> getQueueConfigs() {
@@ -442,6 +464,14 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
         });
     }
 
+	
+/*
+ * FIXME
+ * Service does not work when you try to update, there is an exception: 
+ * "[Hibernate] NonUniqueObjectException: a different object with the same identifier value was already associated with the session" 
+ * probably swap in the classroom: 
+ * "ProcessDefinitionDaoImpl" in the method: "updateOrCreateQueueConfigs" "save" the "merge "or" saveOrUpdate "solve the problem.
+ */
 	@Override
 	@WebMethod (exclude=true)
     public void updateOrCreateQueueConfigs(@WebParam(name="cfgs")final Collection<ProcessQueueConfig> cfgs) {
@@ -481,7 +511,18 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
 	@Override
     @WebMethod
     public byte[] getProcessLatestDefinition(@WebParam(name="bpmDefinitionKey")final String bpmDefinitionKey,
-                                             @WebParam(name="processName")final String processName) {
+                                             @WebParam(name="processName")final String processName) throws AperteWebServiceError {
+		if(bpmDefinitionKey==null || bpmDefinitionKey.isEmpty()){
+			
+			AperteErrorCodes.DEFINITION_KEY.throwAperteWebServiceError();
+		}
+		
+		if(processName==null || processName.isEmpty()){
+			
+			AperteErrorCodes.PROCESS_NAME.throwAperteWebServiceError();
+			
+		}
+		
         return ContextUtil.withContext(new ReturningProcessToolContextCallback<byte[]>() {
             @Override
             public byte[] processWithContext(ProcessToolContext ctx) {

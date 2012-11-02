@@ -16,7 +16,6 @@ import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
 
-import org.aperteworkflow.bpm.graph.GraphElement;
 import org.aperteworkflow.service.fault.AperteWebServiceError;
 import org.aperteworkflow.util.AperteErrorCodes;
 
@@ -66,7 +65,11 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
     @WebMethod
     public ProcessInstance startProcessInstance(@WebParam(name="bpmnkey")final String bpmnkey,                                                
                                                  @WebParam(name="userLogin")final String userLogin ) throws  AperteWebServiceError
-                                                 {		
+                                                 {	
+		if(bpmnkey==null || bpmnkey.isEmpty()){
+			AperteErrorCodes.DEFINITION_KEY.throwAperteWebServiceError();
+		}
+		
 		final UserData user = findUser(userLogin);
 		
         return withContext(new ReturningProcessToolContextCallback<ProcessInstance>() {
@@ -90,7 +93,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 			}
 		});
 		if (userLogin!=null && userData == null ) {
-			throw new AperteWebServiceError(AperteErrorCodes.USER.getErrorCode(), AperteErrorCodes.USER.getMessage());
+			AperteErrorCodes.USER.throwAperteWebServiceError();
 
 		}
 		return userData;
@@ -107,7 +110,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
         });
         if(processInstance==null){
         	
-        	throw new AperteWebServiceError(AperteErrorCodes.PROCESS.getErrorCode(),AperteErrorCodes.PROCESS.getMessage());
+        	AperteErrorCodes.PROCESS.throwAperteWebServiceError();
         }
         
         return processInstance;
@@ -115,11 +118,13 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 
 	@Override
     @WebMethod
-    public boolean isProcessRunning(@WebParam(name="internalId")final String internalId) {
+    public boolean isProcessRunning(@WebParam(name="internalId")final String internalId) throws AperteWebServiceError {
+		
+		final ProcessInstance processData = getProcessData(internalId);
         return withContext(new ReturningProcessToolContextCallback<Boolean>() {
             @Override
             public Boolean processWithContext(ProcessToolContext ctx) {
-                return getSession(ctx).isProcessRunning(internalId, ctx);
+                return getSession(ctx).isProcessRunning(processData.getInternalId(), ctx);
             }
         });
     }
@@ -195,12 +200,12 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 	@Override
     @WebMethod 
     public void assignTaskToUser(@WebParam(name="taskId")final String taskId, @WebParam(name="userLogin")final String userLogin) throws AperteWebServiceError {
-		final UserData user = findUser(userLogin);
+		final BpmTask taskData = getTaskData(taskId);
+		final UserData user = findUser(userLogin);		
         withContext(new ReturningProcessToolContextCallback<ProcessInstance>() {
             @Override
-            public ProcessInstance processWithContext(ProcessToolContext ctx) {
-            	
-                getSession(ctx, user).assignTaskToUser(ctx, taskId, userLogin);
+            public ProcessInstance processWithContext(ProcessToolContext ctx) {          	
+                getSession(ctx, user).assignTaskToUser(ctx, taskData.getInternalTaskId(), userLogin);
                 return null;
             }
         });
@@ -208,26 +213,48 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 
 	@Override
 	@WebMethod 
-    public BpmTask getTaskDataForProcessInstance(@WebParam(name="taskExecutionId")final String taskExecutionId,
-                                                 @WebParam(name="taskName")final String taskName) {
-        return withContext(new ReturningProcessToolContextCallback<BpmTask>() {
+    public BpmTask getTaskDataForProcessInstance(@WebParam(name="internalId")final String internalId,
+                                                 @WebParam(name="taskName")final String taskName) throws AperteWebServiceError {
+		
+		final ProcessInstance processData = getProcessData(internalId);
+		if(taskName==null || taskName.isEmpty()){
+			AperteErrorCodes.TASK_NAME.throwAperteWebServiceError();
+		}
+		
+		BpmTask bpmTask = withContext(new ReturningProcessToolContextCallback<BpmTask>() {
             @Override
             public BpmTask processWithContext(ProcessToolContext ctx) {
-                return fetchHibernateData(getSession(ctx).getTaskData(taskExecutionId, taskName, ctx));
+                return fetchHibernateData(getSession(ctx).getTaskData(processData.getInternalId(), taskName, ctx));
             }
         });
+		
+		if(bpmTask== null){
+			
+			AperteErrorCodes.BPMTASK.throwAperteWebServiceError();
+		}
+         
+         return bpmTask;
     }
 	
 
 	@Override
 	@WebMethod (exclude=true)
-    public BpmTask getTaskData(@WebParam(name="taskId")final String taskId) {
-        return withContext(new ReturningProcessToolContextCallback<BpmTask>() {
+    public BpmTask getTaskData(@WebParam(name="taskId")final String taskId) throws AperteWebServiceError {
+		if(taskId==null || taskId.isEmpty()){
+			AperteErrorCodes.TASK_ID.throwAperteWebServiceError();
+			
+		}
+		BpmTask taskData =  withContext(new ReturningProcessToolContextCallback<BpmTask>() {
             @Override
             public BpmTask processWithContext(ProcessToolContext ctx) {
                 return fetchHibernateData(getSession(ctx).getTaskData(taskId, ctx));
             }
         });
+         if(taskData==null){
+        	 
+        	 AperteErrorCodes.TASK_ID.throwAperteWebServiceError();
+         }
+		return taskData;
     }
 
 	@Override
@@ -250,6 +277,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
                                              @WebParam(name="limit")final Integer limit,
                                              @WebParam(name="userLogin")final String userLogin) throws AperteWebServiceError {
 		final UserData user = findUser(userLogin);
+		
         return withContext(new ReturningProcessToolContextCallback<List<BpmTask>>() {
             @Override
             public List<BpmTask> processWithContext(ProcessToolContext ctx) {
@@ -323,21 +351,24 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
                                  @WebParam(name="userLogin")final String userLogin) throws  AperteWebServiceError {
 		
 		final BpmTask bpmTask = findProcessTask(internalId, userLogin, bpmTaskName);
-		final UserData user = findUser(userLogin); 
+		final UserData user = findUser(userLogin); 	
 		final ProcessInstance processData = getProcessData(internalId);
+		final ProcessStateAction action= getActionIfExists(processData, actionName);
+		
+		if(userLogin==null){
+			adminCompleteTask(processData, action, bpmTask);
+		}
 		BpmTask[] bpmnTable = {bpmTask}; 
 		processData.setActiveTasks(bpmnTable);
 		  BpmTask withContextBpmnTask = withContext(new ReturningProcessToolContextCallback<BpmTask>() {
 	            @Override
 	            public BpmTask processWithContext(ProcessToolContext ctx) {
-	            	ProcessStateAction action= getActionIfExists(processData, actionName, ctx);	            	
+	            	            	
 	                getSession(ctx, user).performAction(action, bpmTask, ctx);
 	                return null;
 	            }
 	        });
-		  if(withContextBpmnTask==null){  
-			  throw new AperteWebServiceError(AperteErrorCodes.ACTION.getErrorCode(),AperteErrorCodes.ACTION.getMessage());
-		  }
+		
 		  
             
     }
@@ -347,7 +378,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 		List<BpmTask> findProcessTasks = findProcessTasks(internalId, userLogin);
 		if(findProcessTasks.isEmpty()){
 			
-			throw new AperteWebServiceError(AperteErrorCodes.NOTASK.getErrorCode(),AperteErrorCodes.NOTASK.getMessage());
+			AperteErrorCodes.NOTASK.throwAperteWebServiceError();
 		}
 		if(bpmTaskName == null || bpmTaskName.isEmpty()){
 			return findProcessTasks.get(0);
@@ -359,36 +390,53 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 				return bpmTaskTemp;
 				
 			}
-			throw new AperteWebServiceError(AperteErrorCodes.BPMTASK.getErrorCode(),AperteErrorCodes.BPMTASK.getMessage());
+			AperteErrorCodes.BPMTASK.throwAperteWebServiceError();
 		}
-		throw new AperteWebServiceError(AperteErrorCodes.PROCESS.getErrorCode(),AperteErrorCodes.PROCESS.getMessage());
-		
-	}
-	
-	private ProcessStateAction  getActionIfExists(ProcessInstance processData, String actionName, ProcessToolContext ctx) {
-		 final ProcessDefinitionConfig definition = processData.getDefinition();
-		String state = processData.getState();
-		if(state==null || state.isEmpty()){//TODO its for compatibility with 1.X aperte data. In future its should be removed
-			if(processData.getStatus().equals(ProcessStatus.NEW)){
-				List<BpmTask> bpmTasks = getSession(ctx).findProcessTasks(processData, ctx);
-				state=bpmTasks.get(0).getTaskName();
-			}
-		}
-		
-		List<ProcessStateAction> actionsBasedOnStatus = ctx.getProcessStateActionDAO().getActionsBasedOnStateAndDefinitionId(state, definition.getId());
-		
-		if(actionName== null || actionName.isEmpty()){
-			return actionsBasedOnStatus.get(0);
-		}
-		for (ProcessStateAction processStateAction : actionsBasedOnStatus) {
-
-		 if (!processStateAction.getBpmName().equals(actionName)){
-				return processStateAction;
-			}	
-		}
+		AperteErrorCodes.PROCESS.throwAperteWebServiceError();
 		return null;
-	
+		
 	}
+	
+
+    private ProcessStateAction getActionIfExists(final ProcessInstance processData, String actionName) throws AperteWebServiceError {
+    	final ProcessDefinitionConfig definition = processData.getDefinition();
+    	List<ProcessStateAction> actionsBasedOnStatus = withContext(new ReturningProcessToolContextCallback<List<ProcessStateAction>>() {
+            @Override
+            public List<ProcessStateAction> processWithContext(ProcessToolContext ctx) {
+            	final ProcessDefinitionConfig definition = processData.getDefinition();
+        		String state = processData.getState();
+        		if(state==null || state.isEmpty()){//TODO its for compatibility with 1.X aperte data. In future its should be removed
+        			if(processData.getStatus().equals(ProcessStatus.NEW)){
+        				List<BpmTask> bpmTasks = getSession(ctx).findProcessTasks(processData, ctx);
+        				state=bpmTasks.get(0).getTaskName();
+        			}
+        		}
+        		
+        		List<ProcessStateAction> actionsBasedOnStatus = ctx.getProcessStateActionDAO().getActionsBasedOnStateAndDefinitionId(state, definition.getId());
+				return actionsBasedOnStatus;
+        		
+        			
+            }
+        });
+		
+		
+		if(actionsBasedOnStatus == null || actionsBasedOnStatus.isEmpty()){
+			AperteErrorCodes.ACTION.throwAperteWebServiceError();
+			
+		}
+
+	if(actionName== null || actionName.isEmpty()){
+		return actionsBasedOnStatus.get(0);
+	}
+	for (ProcessStateAction processStateAction : actionsBasedOnStatus) {
+
+	 if (!processStateAction.getBpmName().equals(actionName)){
+			return processStateAction;
+		}	
+	}
+	return null;
+    }
+
 
 	@Override
     @WebMethod
@@ -459,17 +507,15 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
     }
     
 	@Override
-	@WebMethod
-    public void adminCompleteTask(@WebParam(name="procesInstanceInternalId")final String internalId,
-	@WebParam(name="actionName")final String actionName,
-    @WebParam(name="bpmTaskName")final String bpmTaskName) throws  AperteWebServiceError {
-
-final BpmTask bpmTask = findProcessTask(internalId, null, bpmTaskName);
-final ProcessInstance processData = getProcessData(internalId);
+	@WebMethod (exclude=true)
+    public void adminCompleteTask(@WebParam(name="procesInstanceInternalId")final ProcessInstance processData,
+	@WebParam(name="action")final ProcessStateAction action,
+    @WebParam(name="bpmTask")final BpmTask bpmTask) throws  AperteWebServiceError {
+	
         withContext(new ReturningProcessToolContextCallback<ProcessInstance>() {
             @Override
             public ProcessInstance processWithContext(ProcessToolContext ctx) {
-            	ProcessStateAction action= getActionIfExists(processData, actionName, ctx);	
+            	
                 ctx.getProcessToolSessionFactory().createAutoSession()
                         .adminCompleteTask(processData, bpmTask, action);
                 return null;
@@ -491,6 +537,18 @@ final ProcessInstance processData = getProcessData(internalId);
 //        });
 //    }
 
+	
+	
+	/*
+	 * FIXME
+	 * Service does not work,It fails when it try to update queues (When queues are empty, everything works), 
+	 * the problem is known from queuing mechanism update. Exception occurs: 
+	 * "[Hibernate] NonUniqueObjectException: a different object with the same 
+	 * identifier value was already associated with the session" probably swap in the classroom: 
+	 * "ProcessDefinitionDaoImpl" in the method: "updateOrCreateQueueConfigs" "save" to "merge" or "saveOrUpdate" solve the problem.
+	 * 
+	 * 
+	 */
 	@Override
     @WebMethod (exclude=true)
     public void deployProcessDefinitionBytes(@WebParam(name="cfg")final ProcessDefinitionConfig cfg,
@@ -511,6 +569,17 @@ final ProcessInstance processData = getProcessData(internalId);
         });
     }
 
+	/*
+	 * FIXME
+	 * Service does not work,It fails when it try to update queues (When queues are empty, everything works), 
+	 * the problem is known from queuing mechanism update. Exception occurs: 
+	 * "[Hibernate] NonUniqueObjectException: a different object with the same 
+	 * identifier value was already associated with the session" probably swap in the classroom: 
+	 * "ProcessDefinitionDaoImpl" in the method: "updateOrCreateQueueConfigs" "save" to "merge" or "saveOrUpdate" solve the problem.
+	 * 
+	 * 
+	 */
+	
 	@Override 
 	@WebMethod (exclude=true)
     public void deployProcessDefinition(@WebParam(name="cfgXmlFile")final byte[] cfgXmlFile,

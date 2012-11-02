@@ -92,7 +92,9 @@ import pl.net.bluesoft.util.lang.Transformer;
  */
 public class ProcessToolJbpmSession extends AbstractProcessToolSession {
 
-    protected Logger loger = Logger.getLogger(ProcessToolJbpmSession.class.getName());
+    private static final Integer DEFAULT_OFFSET_VALUE = 0;
+	private static final Integer DEFAULT_LIMIT_VALUE = 1000;
+	protected Logger loger = Logger.getLogger(ProcessToolJbpmSession.class.getName());
 
     public ProcessToolJbpmSession(UserData user, Collection<String> roleNames, ProcessToolContext ctx) {
         super(user, roleNames, ctx.getRegistry());
@@ -762,7 +764,6 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
    				.notSuspended()
    				.activityName(taskName)
    				.executionId(taskExecutionId)
-   				//.assignee(user.getLogin())
    				.page(0, 1)
    				.list();
    		if (tasks.isEmpty()) {
@@ -851,8 +852,8 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
            return findProcessTasks(pi, userLogin, null, ctx);
        }
 
-       @Override
-   	public List<BpmTask> findProcessTasks(ProcessInstance pi, ProcessToolContext ctx) {
+      // @Override
+   	private List<BpmTask> findProcessTasksWithUser(ProcessInstance pi, ProcessToolContext ctx) {
     	   long start = System.currentTimeMillis();
     	   List<BpmTask> findProcessTasks;
     	   if(user!=null){
@@ -868,7 +869,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
    		 return findProcessTasks;
    	}
        
-      	private  List<BpmTask> findProcessTasksNoUser(ProcessInstance pi, ProcessToolContext ctx) {
+       public  List<BpmTask> findProcessTasks(ProcessInstance pi, ProcessToolContext ctx) {
        	   long start = System.currentTimeMillis();
        	   List<BpmTask> findProcessTasks;
        		  findProcessTasks = findProcessTasks(pi, null, ctx);
@@ -928,7 +929,14 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
    	public List<BpmTask> findUserTasks(Integer offset, Integer limit, final ProcessToolContext ctx) {
    		
    	 long start = System.currentTimeMillis();
-   		
+   		if(limit== null){
+   			
+   			limit=DEFAULT_LIMIT_VALUE;
+   		}
+   		if(offset== null){
+   			offset=DEFAULT_OFFSET_VALUE;
+   			
+   		}
    		List<Task> tasks = getProcessEngine(ctx).getTaskService().createTaskQuery()
    				.notSuspended()
    				.assignee(user.getLogin())
@@ -1035,7 +1043,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
 
 
            Set<String> taskIdsBeforeCompletion = new HashSet<String>();
-           pl.net.bluesoft.util.lang.Collections.collect(findProcessTasksNoUser(pi, ctx), new Transformer<BpmTask, String>() {
+           pl.net.bluesoft.util.lang.Collections.collect(findProcessTasksWithUser(pi, ctx), new Transformer<BpmTask, String>() {
                @Override
                public String transform(BpmTask obj) {
                    return obj.getInternalTaskId();
@@ -1070,7 +1078,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession {
            }
 
            BpmTask userTask = null;
-           List<BpmTask> tasksAfterCompletion = findProcessTasksNoUser(pi, ctx);
+           List<BpmTask> tasksAfterCompletion = findProcessTasksWithUser(pi, ctx);
            for (BpmTask createdTask : tasksAfterCompletion) {
                if (!taskIdsBeforeCompletion.contains(createdTask.getInternalTaskId())) {
                    broadcastEvent(ctx, new BpmEvent(BpmEvent.Type.ASSIGN_TASK, createdTask, user));

@@ -33,7 +33,6 @@ public interface ProcessInstanceDAO extends HibernateBean<ProcessInstance> {
 
     void deleteProcessInstance(ProcessInstance instance);
     
-    void deleteProcessInstanceByInternalId(String internalId);
     
     Collection<ProcessInstanceLog> getUserHistory(UserData user, Date startDate, Date endDate);
 

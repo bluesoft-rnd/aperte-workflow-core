@@ -235,17 +235,12 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
 		return getProcessInstances(ids);
 	}
 	
-	public void deleteProcessInstanceByInternalId(String internalId) {
-		
-		long start = System.currentTimeMillis();
-		 session.delete(getProcessInstanceByInternalId(internalId));
-		 
-		 long duration = System.currentTimeMillis() - start;
-			logger.severe("deleteProcessInstanceByInternalId: " +  duration);
-	}
 
 	public void deleteProcessInstance(ProcessInstance instance) {
+		long start = System.currentTimeMillis();
 		session.delete(instance);
+		long duration = System.currentTimeMillis() - start;
+		logger.severe("deleteProcessInstanceByInternalId: " +  duration);
 	}
 	
 	

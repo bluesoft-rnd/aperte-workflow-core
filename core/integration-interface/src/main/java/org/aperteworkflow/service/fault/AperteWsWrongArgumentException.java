@@ -6,13 +6,13 @@ import javax.xml.ws.WebFault;
  * @author kkolodziej@bluesoft.net.pl
  *
  */
-@WebFault(name = "faultBean", targetNamespace = "http://www.example.com")
-public class AperteWebServiceError extends Exception {
+@WebFault(name = "faultBean", targetNamespace = "org.aperteworkflow.service.fault")
+public class AperteWsWrongArgumentException extends Exception {
  
 	private FaultBean faultBean;
 	private  String testText ="testText";
     
-	public AperteWebServiceError(int code, String message){
+	public AperteWsWrongArgumentException(int code, String message){
 		super(message);
 		faultBean = new FaultBean(code);
 		

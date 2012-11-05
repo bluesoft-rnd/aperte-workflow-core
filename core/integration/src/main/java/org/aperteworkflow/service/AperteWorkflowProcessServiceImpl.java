@@ -16,8 +16,11 @@ import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
 
-import org.aperteworkflow.service.fault.AperteWebServiceError;
-import org.aperteworkflow.util.AperteErrorCodes;
+import org.aperteworkflow.service.fault.AperteWsIllegalArgumentException;
+import org.aperteworkflow.service.fault.AperteWsWrongArgumentException;
+import org.aperteworkflow.util.AperteErrorCheckUtil;
+import org.aperteworkflow.util.AperteIllegalArgumentCodes;
+import org.aperteworkflow.util.AperteWrongArgumentCodes;
 
 import java.io.ByteArrayInputStream;
 import java.util.*; 
@@ -58,17 +61,16 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
     }
 	/**
 	 * Simpler version of createProcessInstance.
-	 * @throws AperteWebServiceError  
-	 * @throws AperteWebServiceError 
+	 * @throws AperteWsWrongArgumentException  
+	 * @throws AperteWsWrongArgumentException 
 	 */
 	@Override 
     @WebMethod
     public ProcessInstance startProcessInstance(@WebParam(name="bpmnkey")final String bpmnkey,                                                
-                                                 @WebParam(name="userLogin")final String userLogin ) throws  AperteWebServiceError
+                                                 @WebParam(name="userLogin")final String userLogin ) throws  AperteWsWrongArgumentException, AperteWsIllegalArgumentException
                                                  {	
-		if(bpmnkey==null || bpmnkey.isEmpty()){
-			AperteErrorCodes.DEFINITION_KEY.throwAperteWebServiceError();
-		}
+		
+		AperteErrorCheckUtil.checkCorrectnessOfArgument(bpmnkey, AperteIllegalArgumentCodes.DEFINITION);
 		
 		final UserData user = findUser(userLogin);
 		
@@ -83,7 +85,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
     }
 	
 	
-	private UserData findUser(final String userLogin) throws  AperteWebServiceError {
+	private UserData findUser(final String userLogin) throws  AperteWsWrongArgumentException {
 
 		UserData userData = withContext(new ReturningProcessToolContextCallback<UserData>() {
 			@Override
@@ -93,7 +95,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 			}
 		});
 		if (userLogin!=null && userData == null ) {
-			AperteErrorCodes.USER.throwAperteWebServiceError();
+			AperteWrongArgumentCodes.USER.throwAperteWebServiceException();
 
 		}
 		return userData;
@@ -101,7 +103,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 
 	@Override
     @WebMethod (exclude=true)
-    public ProcessInstance getProcessData(@WebParam(name="internalId")final String internalId) throws AperteWebServiceError {
+    public ProcessInstance getProcessData(@WebParam(name="internalId")final String internalId) throws AperteWsWrongArgumentException {
         ProcessInstance processInstance = withContext(new ReturningProcessToolContextCallback<ProcessInstance>() {
             @Override
             public ProcessInstance processWithContext(ProcessToolContext ctx) {
@@ -110,7 +112,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
         });
         if(processInstance==null){
         	
-        	AperteErrorCodes.PROCESS.throwAperteWebServiceError();
+        	AperteWrongArgumentCodes.PROCESS.throwAperteWebServiceException();
         }
         
         return processInstance;
@@ -118,7 +120,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 
 	@Override
     @WebMethod
-    public boolean isProcessRunning(@WebParam(name="internalId")final String internalId) throws AperteWebServiceError {
+    public boolean isProcessRunning(@WebParam(name="internalId")final String internalId) throws AperteWsWrongArgumentException {
 		
 		final ProcessInstance processData = getProcessData(internalId);
         return withContext(new ReturningProcessToolContextCallback<Boolean>() {
@@ -143,7 +145,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 
 	@Override
     @WebMethod (exclude=true)
-    public Collection<ProcessQueue> getUserAvailableQueues(@WebParam(name="userLogin")final String userLogin) throws  AperteWebServiceError {
+    public Collection<ProcessQueue> getUserAvailableQueues(@WebParam(name="userLogin")final String userLogin) throws  AperteWsWrongArgumentException {
 		final UserData findUser = findUser(userLogin);
         return withContext(new ReturningProcessToolContextCallback<Collection<ProcessQueue>>() {
             @Override
@@ -158,7 +160,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 
 	@Override
     @WebMethod
-    public boolean isProcessOwnedByUser(@WebParam(name="internalId")final String internalId,@WebParam(name="userLogin") final String userLogin) throws AperteWebServiceError {
+    public boolean isProcessOwnedByUser(@WebParam(name="internalId")final String internalId,@WebParam(name="userLogin") final String userLogin) throws AperteWsWrongArgumentException {
 		final ProcessInstance processData = getProcessData(internalId);
     	final UserData findUser = findUser(userLogin);
         return withContext(new ReturningProcessToolContextCallback<Boolean>() {
@@ -199,7 +201,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 
 	@Override
     @WebMethod 
-    public void assignTaskToUser(@WebParam(name="taskId")final String taskId, @WebParam(name="userLogin")final String userLogin) throws AperteWebServiceError {
+    public void assignTaskToUser(@WebParam(name="taskId")final String taskId, @WebParam(name="userLogin")final String userLogin) throws AperteWsWrongArgumentException {
 		final BpmTask taskData = getTaskData(taskId);
 		final UserData user = findUser(userLogin);		
         withContext(new ReturningProcessToolContextCallback<ProcessInstance>() {
@@ -214,12 +216,11 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 	@Override
 	@WebMethod 
     public BpmTask getTaskDataForProcessInstance(@WebParam(name="internalId")final String internalId,
-                                                 @WebParam(name="taskName")final String taskName) throws AperteWebServiceError {
+                                                 @WebParam(name="taskName")final String taskName) throws AperteWsWrongArgumentException, AperteWsIllegalArgumentException {
 		
 		final ProcessInstance processData = getProcessData(internalId);
-		if(taskName==null || taskName.isEmpty()){
-			AperteErrorCodes.TASK_NAME.throwAperteWebServiceError();
-		}
+		
+		AperteErrorCheckUtil.checkCorrectnessOfArgument(taskName, AperteIllegalArgumentCodes.TASK);
 		
 		BpmTask bpmTask = withContext(new ReturningProcessToolContextCallback<BpmTask>() {
             @Override
@@ -230,7 +231,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 		
 		if(bpmTask== null){
 			
-			AperteErrorCodes.BPMTASK.throwAperteWebServiceError();
+			AperteWrongArgumentCodes.BPMTASK.throwAperteWebServiceException();
 		}
          
          return bpmTask;
@@ -239,11 +240,10 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 
 	@Override
 	@WebMethod (exclude=true)
-    public BpmTask getTaskData(@WebParam(name="taskId")final String taskId) throws AperteWebServiceError {
-		if(taskId==null || taskId.isEmpty()){
-			AperteErrorCodes.TASK_ID.throwAperteWebServiceError();
-			
-		}
+    public BpmTask getTaskData(@WebParam(name="taskId")final String taskId) throws AperteWsWrongArgumentException, AperteWsIllegalArgumentException {
+		
+		AperteErrorCheckUtil.checkCorrectnessOfArgument(taskId, AperteIllegalArgumentCodes.TASK_ID);
+		
 		BpmTask taskData =  withContext(new ReturningProcessToolContextCallback<BpmTask>() {
             @Override
             public BpmTask processWithContext(ProcessToolContext ctx) {
@@ -252,7 +252,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
         });
          if(taskData==null){
         	 
-        	 AperteErrorCodes.TASK_ID.throwAperteWebServiceError();
+        	 AperteWrongArgumentCodes.TASK_ID.throwAperteWebServiceException();
          }
 		return taskData;
     }
@@ -260,7 +260,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 	@Override
 	@WebMethod (exclude=true)
     public List<BpmTask> findUserTasks(@WebParam(name="processInstanceInternalId")final String internalId,
-    		@WebParam(name="userLogin")final String userLogin) throws AperteWebServiceError {
+    		@WebParam(name="userLogin")final String userLogin) throws AperteWsWrongArgumentException {
 		final ProcessInstance processInstance = getProcessData(internalId);
 		final UserData user = findUser(userLogin);
         return withContext(new ReturningProcessToolContextCallback<List<BpmTask>>() {
@@ -275,7 +275,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 	@WebMethod
     public List<BpmTask> findUserTasksPaging(@WebParam(name="offset")final Integer offset,
                                              @WebParam(name="limit")final Integer limit,
-                                             @WebParam(name="userLogin")final String userLogin) throws AperteWebServiceError {
+                                             @WebParam(name="userLogin")final String userLogin) throws AperteWsWrongArgumentException {
 		final UserData user = findUser(userLogin);
 		
         return withContext(new ReturningProcessToolContextCallback<List<BpmTask>>() {
@@ -289,7 +289,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 	@Override
 	@WebMethod
     public List<BpmTask> findProcessTasks(@WebParam(name="internalId")final String internalId,
-                                          @WebParam(name="userLogin")final String userLogin) throws AperteWebServiceError {
+                                          @WebParam(name="userLogin")final String userLogin) throws AperteWsWrongArgumentException {
 		
 		final UserData user = findUser(userLogin);
 		final ProcessInstance processInstance = getProcessData(internalId);
@@ -348,7 +348,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
     public void performAction(@WebParam(name="procesInstanceInternalId")final String internalId,
     								@WebParam(name="actionName")final String actionName,
                                  @WebParam(name="bpmTaskName")final String bpmTaskName,
-                                 @WebParam(name="userLogin")final String userLogin) throws  AperteWebServiceError {
+                                 @WebParam(name="userLogin")final String userLogin) throws  AperteWsWrongArgumentException {
 		
 		final BpmTask bpmTask = findProcessTask(internalId, userLogin, bpmTaskName);
 		final UserData user = findUser(userLogin); 	
@@ -374,11 +374,11 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
     }
 	
 	
-	private BpmTask findProcessTask(String internalId,String userLogin,String bpmTaskName ) throws AperteWebServiceError{
+	private BpmTask findProcessTask(String internalId,String userLogin,String bpmTaskName ) throws AperteWsWrongArgumentException{
 		List<BpmTask> findProcessTasks = findProcessTasks(internalId, userLogin);
 		if(findProcessTasks.isEmpty()){
 			
-			AperteErrorCodes.NOTASK.throwAperteWebServiceError();
+			AperteWrongArgumentCodes.NOTASK.throwAperteWebServiceException();
 		}
 		if(bpmTaskName == null || bpmTaskName.isEmpty()){
 			return findProcessTasks.get(0);
@@ -390,15 +390,15 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 				return bpmTaskTemp;
 				
 			}
-			AperteErrorCodes.BPMTASK.throwAperteWebServiceError();
+			AperteWrongArgumentCodes.BPMTASK.throwAperteWebServiceException();
 		}
-		AperteErrorCodes.PROCESS.throwAperteWebServiceError();
+		AperteWrongArgumentCodes.PROCESS.throwAperteWebServiceException();
 		return null;
 		
 	}
 	
 
-    private ProcessStateAction getActionIfExists(final ProcessInstance processData, String actionName) throws AperteWebServiceError {
+    private ProcessStateAction getActionIfExists(final ProcessInstance processData, String actionName) throws AperteWsWrongArgumentException {
     	final ProcessDefinitionConfig definition = processData.getDefinition();
     	List<ProcessStateAction> actionsBasedOnStatus = withContext(new ReturningProcessToolContextCallback<List<ProcessStateAction>>() {
             @Override
@@ -421,7 +421,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 		
 		
 		if(actionsBasedOnStatus == null || actionsBasedOnStatus.isEmpty()){
-			AperteErrorCodes.ACTION.throwAperteWebServiceError();
+			AperteWrongArgumentCodes.ACTION.throwAperteWebServiceException();
 			
 		}
 
@@ -440,7 +440,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 
 	@Override
     @WebMethod
-    public List<String> getOutgoingTransitionNames(@WebParam(name="executionId")final String executionId) throws AperteWebServiceError {
+    public List<String> getOutgoingTransitionNames(@WebParam(name="executionId")final String executionId) throws AperteWsWrongArgumentException {
 		final ProcessInstance processData = getProcessData(executionId);
 		return withContext(new ReturningProcessToolContextCallback<List<String>>() {
             @Override
@@ -454,7 +454,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 	 
 	@Override
 	@WebMethod (exclude=true)
-    public UserData getSubstitutingUser(@WebParam(name="user")final String userLogin) throws AperteWebServiceError {
+    public UserData getSubstitutingUser(@WebParam(name="user")final String userLogin) throws AperteWsWrongArgumentException {
 		final UserData user = findUser(userLogin);
         return withContext(new ReturningProcessToolContextCallback<UserData>() {
             @Override
@@ -466,7 +466,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 
 	@Override
     @WebMethod
-    public List<String> getOutgoingTransitionDestinationNames(@WebParam(name="executionId")final String executionId) throws AperteWebServiceError {
+    public List<String> getOutgoingTransitionDestinationNames(@WebParam(name="executionId")final String executionId) throws AperteWsWrongArgumentException {
 		
 		final ProcessInstance processData = getProcessData(executionId);
         return withContext(new ReturningProcessToolContextCallback<List<String>>() {
@@ -479,7 +479,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 
 	@Override
     @WebMethod
-    public void adminCancelProcessInstance(@WebParam(name="processInstance")final String internalId) throws AperteWebServiceError {
+    public void adminCancelProcessInstance(@WebParam(name="processInstance")final String internalId) throws AperteWsWrongArgumentException {
 		final ProcessInstance processData = getProcessData(internalId);
         withContext(new ReturningProcessToolContextCallback<ProcessInstance>() {
             @Override
@@ -510,7 +510,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 	@WebMethod (exclude=true)
     public void adminCompleteTask(@WebParam(name="procesInstanceInternalId")final ProcessInstance processData,
 	@WebParam(name="action")final ProcessStateAction action,
-    @WebParam(name="bpmTask")final BpmTask bpmTask) throws  AperteWebServiceError {
+    @WebParam(name="bpmTask")final BpmTask bpmTask) {
 	
         withContext(new ReturningProcessToolContextCallback<ProcessInstance>() {
             @Override

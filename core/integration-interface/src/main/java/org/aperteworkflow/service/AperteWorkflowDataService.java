@@ -22,7 +22,7 @@ import org.aperteworkflow.service.fault.AperteWebServiceError;
  * @author tlipski@bluesoft.net.pl
  */
 /**
- * @author ”kkolodziej@bluesoft.net.pl”
+ * @author kkolodziej@bluesoft.net.pl
  *
  */
 public interface AperteWorkflowDataService {

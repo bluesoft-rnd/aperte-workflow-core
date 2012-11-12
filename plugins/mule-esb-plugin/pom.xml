@@ -203,37 +203,6 @@
 
     </dependencies>
 
-    <!--<repositories>-->
-    <!--&lt;!&ndash;<repository>&ndash;&gt;-->
-    <!--&lt;!&ndash;<id>ibeans-repo</id>&ndash;&gt;-->
-    <!--&lt;!&ndash;<name>iBeans Repository</name>&ndash;&gt;-->
-    <!--&lt;!&ndash;<url>http://repository.ibeans.muleforge.org</url>&ndash;&gt;-->
-    <!--&lt;!&ndash;<layout>default</layout>&ndash;&gt;-->
-    <!--&lt;!&ndash;</repository>&ndash;&gt;-->
-    <!--<repository>-->
-    <!--<id>muleforge-repo</id>-->
-    <!--<name>MuleForge Repository</name>-->
-    <!--<url>http://repository.muleforge.org</url>-->
-    <!--<layout>default</layout>-->
-    <!--</repository>-->
-    <!--&lt;!&ndash;<repository>&ndash;&gt;-->
-    <!--&lt;!&ndash;<id>mulesoft-repo</id>&ndash;&gt;-->
-    <!--&lt;!&ndash;<name>mulesoft Repository</name>&ndash;&gt;-->
-    <!--&lt;!&ndash;<url>http://repository.mulesoft.org</url>&ndash;&gt;-->
-    <!--&lt;!&ndash;<layout>default</layout>&ndash;&gt;-->
-    <!--&lt;!&ndash;</repository>&ndash;&gt;-->
-    <!--<repository>-->
-    <!--<id>mulesoft.releases</id>-->
-    <!--<name>Muleforge Releases Repository</name>-->
-    <!--<url>https://repository.mulesoft.org/releases/</url>-->
-    <!--</repository>-->
-    <!--<repository>-->
-    <!--<id>codehaus-repo</id>-->
-    <!--<name>Codehaus Repository</name>-->
-    <!--<url>http://dist.codehaus.org/mule/dependencies/maven2</url>-->
-    <!--<layout>default</layout>-->
-    <!--</repository>-->
-    <!--</repositories>-->
     <build>
         <plugins>
             <plugin>
@@ -263,7 +232,6 @@
                         <Bundle-Activator>pl.net.bluesoft.rnd.awf.mule.MulePluginActivator</Bundle-Activator>
                         <SPI-Consumer>*</SPI-Consumer>
                         <SPI-Provider>*</SPI-Provider>
-                        <!--<ProcessTool-Step-Enhancement>pl.net.bluesoft.rnd.awf.mule.step.MuleStep</ProcessTool-Step-Enhancement>-->
                     </instructions>
                 </configuration>
             </plugin>
@@ -271,5 +239,23 @@
         </plugins>
     </build>
 
-
+    <repositories>
+        <repository>
+            <id>mule-deps</id>
+            <name>Mule Dependencies</name>
+            <url>http://dist.codehaus.org/mule/dependencies/maven2</url>
+        </repository>
+        <repository>
+            <id>mulesoft-releases</id>
+            <name>MuleSoft Repository</name>
+            <url>https://repository.mulesoft.org/releases/</url>
+            <layout>default</layout>
+        </repository>
+        <repository>
+            <id>mulesoft-snapshots</id>
+            <name>MuleSoft Snapshot Repository</name>
+            <url>https://repository.mulesoft.org/snapshots/</url>
+            <layout>default</layout>
+        </repository>
+    </repositories>
 </project>

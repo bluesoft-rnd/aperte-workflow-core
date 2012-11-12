@@ -6,7 +6,10 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 
-import java.util.*;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -19,7 +22,7 @@ public interface AperteWorkflowDataService {
     ProcessInstance getProcessInstanceByInternalId(String internalId);
     ProcessInstance getProcessInstanceByExternalId(String externalId);
     List<ProcessInstance> findProcessInstancesByKeyword(String key, String processType);
-    Map<String, ProcessInstance> getProcessInstanceByInternalIdMap(Collection<String> internalId);
+//    Map<String, ProcessInstance> getProcessInstanceByInternalIdMap(Collection<String> internalId);
     void deleteProcessInstance(ProcessInstance instance);
     Collection<ProcessInstanceLog> getUserHistory(UserData user, Date startDate, Date endDate);
     UserData findOrCreateUser(UserData ud);

@@ -5,10 +5,14 @@ import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItemExtension
 
 import javax.persistence.*;
 
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+
 @Entity
 @Table(name = "pt_dictionary_item_ext")
 public class ProcessDBDictionaryItemExtension extends PersistentEntity implements ProcessDictionaryItemExtension<String> {
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @Cascade(value = {CascadeType.ALL})
     private ProcessDBDictionaryItemValue itemValue;
 
     private String name;
@@ -64,6 +68,14 @@ public class ProcessDBDictionaryItemExtension extends PersistentEntity implement
     public void setValue(String value) {
         this.value = value;
     }
+
+	public String getStringValue() {
+		return getValue();
+	}
+
+	public void setStringValue(String value) {
+		setValue(value);
+	}
 
     public String getValueType() {
         return valueType;

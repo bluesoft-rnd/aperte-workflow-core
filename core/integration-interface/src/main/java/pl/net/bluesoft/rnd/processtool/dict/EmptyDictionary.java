@@ -1,5 +1,6 @@
 package pl.net.bluesoft.rnd.processtool.dict;
 
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionary;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItem;
 
@@ -46,5 +47,10 @@ public class EmptyDictionary implements ProcessDictionary {
 	@Override
 	public boolean containsKey(Object key) {
 		return false;
+	}
+
+	@Override
+	public ProcessDefinitionConfig getProcessDefinition() {
+		return null;
 	}
 }

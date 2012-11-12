@@ -16,12 +16,24 @@
         <dependency>
             <groupId>org.vaadin.addons</groupId>
             <artifactId>customfield</artifactId>
-            <version>0.9.2</version>
+            <version>1.0.0</version>
+			<exclusions>
+                <exclusion>
+                    <groupId>com.vaadin</groupId>
+                    <artifactId>vaadin</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.vaadin.addons</groupId>
             <artifactId>confirmdialog</artifactId>
             <version>1.1.1</version>
+			<exclusions>
+                <exclusion>
+                    <groupId>com.vaadin</groupId>
+                    <artifactId>vaadin</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.liferay.portal</groupId>
@@ -48,13 +60,6 @@
             <scope>provided</scope>
             <!-- provided by Liferay -->
         </dependency>
-
-        <!--<dependency>-->
-            <!--<groupId>com.liferay.portal</groupId>-->
-            <!--<artifactId>portal-impl</artifactId>-->
-            <!--<version>${liferay.version}</version>-->
-            <!--<scope>provided</scope>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>com.google.gwt</groupId>
             <artifactId>gwt-user</artifactId>
@@ -76,25 +81,5 @@
             <artifactId>commons-collections</artifactId>
             <version>20040616</version>
         </dependency>
-
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.zeroturnaround</groupId>
-                <artifactId>jrebel-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>generate-rebel-xml</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-
 </project>

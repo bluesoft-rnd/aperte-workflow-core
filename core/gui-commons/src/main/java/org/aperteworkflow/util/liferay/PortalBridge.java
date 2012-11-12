@@ -1,21 +1,25 @@
 package org.aperteworkflow.util.liferay;
 
-import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.PrefsPropsUtil;
-import com.liferay.portal.model.Role;
-import com.liferay.portal.model.User;
-import com.liferay.portal.service.PortletPreferencesLocalServiceUtil;
-import com.liferay.portal.util.PortalUtil;
-import com.liferay.portal.util.PortletKeys;
-import org.aperteworkflow.util.vaadin.ProcessToolVaadinApplicationPortlet2;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
-import pl.net.bluesoft.util.lang.Mapcar;
+import java.util.Collection;
+import java.util.Map;
+
 
 import javax.portlet.PortletPreferences;
 import javax.portlet.PortletRequest;
-import java.util.Collection;
-import java.util.Map;
+
+import org.aperteworkflow.util.vaadin.ProcessToolVaadinApplicationPortlet2;
+
+import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.util.lang.Mapcar;
+
+import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.PrefsPropsUtil;
+import com.liferay.portal.model.User;
+import com.liferay.portal.model.Role;
+import com.liferay.portal.service.PortletPreferencesLocalServiceUtil;
+import com.liferay.portal.util.PortalUtil;
+import com.liferay.portal.util.PortletKeys;
 
 public class PortalBridge {
 

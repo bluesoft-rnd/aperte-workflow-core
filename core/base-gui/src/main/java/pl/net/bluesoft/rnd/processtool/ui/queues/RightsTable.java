@@ -192,14 +192,11 @@ public class RightsTable extends CustomField {
 			
 			@Override
 			public void buttonClick(ClickEvent event) {
-				
-				Object o = select.getValue();
-				if (o == null)
+				if (select.getValue() == null) {
 					return;
+				}
 				
-				Role r = (Role)o;
-				if (r == null)
-					return;
+				Role r = (Role)select.getValue();
 				
 				ProcessQueueRight bean = new ProcessQueueRight();
 				bean.setBrowseAllowed(true);

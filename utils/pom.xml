@@ -8,6 +8,7 @@
     </parent>
 
     <name>Aperte Workflow Utils</name>
+    <version>2.0-SNAPSHOT</version>
 
     <artifactId>utils</artifactId>
     <packaging>pom</packaging>
@@ -16,6 +17,7 @@
         <module>cmis-interface</module>
         <module>xml-utils</module>
         <module>aperte-utils</module>
+        <module>aperte-slim-utils</module>
         <module>jdbc-connector</module>
     </modules>
 

@@ -8,6 +8,7 @@ import pl.net.bluesoft.rnd.pt.utils.jdbc.convert.ConvertingBeanProcessor;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -23,13 +24,13 @@ public class SimpleQueryJdbcConnector implements JdbcConnector {
 
     @Override
     public <T> List<T> query(Class<T> outputType, String sql, Object... params) throws SQLException {
-        logger.warning("Executing SQL: " + sql + " for class: " + outputType.getName() + " with parameters: " + params);
+        logger.warning("Executing SQL: " + sql + " for class: " + outputType.getName() + " with parameters: " + Arrays.toString(params));
         return run.query(sql, new BeanListHandler<T>(outputType, new BasicRowProcessor(new ConvertingBeanProcessor())), params);
     }
 
     @Override
     public List<Map<String, Object>> query(String sql, Object... params) throws SQLException {
-        logger.warning("Executing SQL: " + sql + " with parameters: " + params);
+        logger.warning("Executing SQL: " + sql + " with parameters: " + Arrays.toString(params));
         return run.query(sql, new MapListHandler(), params);
     }
 

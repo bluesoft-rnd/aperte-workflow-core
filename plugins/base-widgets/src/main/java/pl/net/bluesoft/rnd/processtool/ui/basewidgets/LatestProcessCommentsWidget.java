@@ -38,7 +38,7 @@ public class LatestProcessCommentsWidget extends BaseProcessToolVaadinWidget imp
 
     @Override
 	public void loadData(BpmTask task) {
-        ProcessInstance pi = task.getProcessInstance();
+        ProcessInstance pi = task.getProcessInstance().getRootProcessInstance();
 
         if (mode.equalsIgnoreCase(MODE_SMART)) {
             if (!"true".equalsIgnoreCase(pi.getSimpleAttributeValue("commentAdded", "false"))) {
@@ -65,7 +65,7 @@ public class LatestProcessCommentsWidget extends BaseProcessToolVaadinWidget imp
     @Override
     public Component render() {
         if (!showContent) {
-            return new VerticalLayout();
+            return null;
         }
 
         Panel commentsPanel = new Panel();
@@ -82,7 +82,10 @@ public class LatestProcessCommentsWidget extends BaseProcessToolVaadinWidget imp
             layout.addComponent(l);
         }
         else {
+			boolean first = true;
             for (ProcessComment pc : bic.getItemIds()) {
+				VerticalLayout vl = new VerticalLayout();
+
                 HorizontalLayout hl;
                 hl = new HorizontalLayout();
                 hl.setSpacing(true);
@@ -94,9 +97,9 @@ public class LatestProcessCommentsWidget extends BaseProcessToolVaadinWidget imp
                                 + " )";
                 }
                 hl.addComponent(label("<b>" + authorLabel + "</b>", 150));
-                hl.addComponent(label("<b>" + FormatUtil.formatFullDate(pc.getCreateTime()) + "</b>", 130));
+                hl.addComponent(label("<b>" + FormatUtil.formatFullDate(pc.getCreateTime()) + "</b>", 150));
 				//                hl.addComponent(label(pc.getComment(), 450));
-                layout.addComponent(hl);
+                vl.addComponent(hl);
 
                 hl = new HorizontalLayout();
                 hl.setWidth("100%");
@@ -106,7 +109,13 @@ public class LatestProcessCommentsWidget extends BaseProcessToolVaadinWidget imp
                 l.setWidth("100%");
                 hl.addComponent(l);
                 hl.setExpandRatio(l, 1.0f);
-                layout.addComponent(hl);
+                vl.addComponent(hl);
+
+				if (first) {
+					vl.addStyleName("latest-comment-indication");
+					first = false;
+				}
+				layout.addComponent(vl);
             }
         }
 

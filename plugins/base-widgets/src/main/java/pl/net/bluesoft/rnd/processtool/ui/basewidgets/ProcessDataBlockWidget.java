@@ -43,9 +43,8 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinRenderable;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.*;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolVaadinWidget;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
+import pl.net.bluesoft.rnd.pt.utils.lang.Lang2;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import pl.net.bluesoft.util.lang.StringUtil;
 import pl.net.bluesoft.util.lang.Strings;
 
 import java.io.ByteArrayInputStream;
@@ -73,6 +72,7 @@ import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implements ProcessToolDataWidget, ProcessToolVaadinRenderable {
     private static final Logger logger = Logger.getLogger(ProcessDataBlockWidget.class.getName());
     private static final Resolver resolver = new DefaultResolver();
+    private static Boolean allowFileldsListener = true;
 
     private WidgetDefinitionLoader definitionLoader = WidgetDefinitionLoader.getInstance();
 
@@ -168,9 +168,11 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         protected ComponentEvaluator(Map<T, WidgetElement> input) {
             try {
                 if (input != null) {
+                
                     for (Entry<T, WidgetElement> entry : input.entrySet()) {
                         evaluate(currentComponent = entry.getKey(), currentElement = entry.getValue());
                     }
+                	
                 }
             } catch (Exception e) {
                 handleException(getMessage("processdata.block.error.eval.other")
@@ -298,6 +300,8 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         new ComponentEvaluator<Property>(boundProperties) {
             @Override
             public void evaluate(Property component, WidgetElement element) throws Exception {
+            	
+            	allowFileldsListener=false;  	// not so great but works, needs further works.
                 Object value = null;
                 try {
                     value = PropertyUtils.getProperty(processAttributes, element.getBind());
@@ -312,7 +316,8 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                         component.setReadOnly(false);
                     }
                     if (Date.class.isAssignableFrom(component.getType())) {
-                        Date v = new SimpleDateFormat(((DateWidgetElement) element).getFormat()).parse(String.valueOf(value));
+						DateWidgetElement dwe = Lang2.assumeType(element, DateWidgetElement.class);
+						Date v = new SimpleDateFormat(dwe.getFormat()).parse(String.valueOf(value));
                         component.setValue(v);
                     } else if (String.class.isAssignableFrom(component.getType())) {
                         component.setValue(nvl(value, ""));
@@ -326,6 +331,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                         component.setReadOnly(true);
                     }
                 }
+                allowFileldsListener=true;
             }
         };
     }
@@ -366,14 +372,15 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
 
     private void loadProcessInstanceDictionaries() {
         new ComponentEvaluator<AbstractSelect>(instanceDictContainers) {
-
             @Override
             public void evaluate(AbstractSelect component, WidgetElement element) throws Exception {
-                AbstractSelectWidgetElement aswe = (AbstractSelectWidgetElement) element;
+                AbstractSelectWidgetElement aswe = Lang2.assumeType(element, AbstractSelectWidgetElement.class);
                 String dictAttribute = aswe.getDictionaryAttribute();
                 ProcessInstanceDictionaryAttribute dict = (ProcessInstanceDictionaryAttribute) processInstance.findAttributeByKey(dictAttribute);
                 if (dict != null) {
                     int i = 0;
+                    Boolean prevReadOnly = component.isReadOnly();
+                    component.setReadOnly(false);
                     for (Object o : dict.getItems()) {
                         ProcessInstanceDictionaryItem itemProcess = (ProcessInstanceDictionaryItem) o;
                         component.addItem(itemProcess.getKey());
@@ -386,11 +393,11 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                         }
                         ++i;
                     }
+                    component.setReadOnly(prevReadOnly);
                 }
             }
         };
     }
-
 
     private Date getValidForDate(WidgetElement element) throws Exception {
         Date validForDate = processInstance.getCreateDate();
@@ -453,8 +460,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         setupWidget(widgetsDefinitionElement, mainPanel);
 
         for (WidgetElement we : widgetsDefinitionElement.getWidgets()) {
-            AbstractComponent component = processWidgetElement(widgetsDefinitionElement, we, mainPanel);
-
+            processWidgetElement(widgetsDefinitionElement, we, mainPanel);
         }
         loadDictionaries();
         loadProcessInstanceDictionaries();
@@ -465,8 +471,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
             mainPanel.removeAllComponents();
             try {
                 for (WidgetElement we : widgetsDefinitionElement.getWidgets()) {
-                    AbstractComponent component = processWidgetElement(widgetsDefinitionElement, we, mainPanel);
-
+                    processWidgetElement(widgetsDefinitionElement, we, mainPanel);
                 }
             } catch (Exception e) {
                 handleException(getMessage("widget.process_data_block.editor.validation.script.error"), e);
@@ -478,6 +483,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
     }
 
     private boolean executeScript() {
+    	
         boolean executed = false;
         try {
             if (!hasText(getScriptEngineType()) || !hasText(getScriptSourceCode()) && !hasText(getScriptExternalUrl()))
@@ -588,14 +594,17 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                 ((Field) component).addListener(new ValueChangeListener() {
                     @Override
                     public void valueChange(ValueChangeEvent event) {
-                        if (!executeScript())
+                    	if(allowFileldsListener){ // not so great, but works, needs further works.
+                    	boolean executedScript = executeScript();
+                        if (!executedScript){
                             return;
+                        }
 
                         mainPanel.removeAllComponents();
                         for (WidgetElement we : widgetsDefinitionElement.getWidgets()) {
-                            AbstractComponent component = processWidgetElement(widgetsDefinitionElement, we, mainPanel);
-
-                        }
+                            processWidgetElement(widgetsDefinitionElement, we, mainPanel);
+                        } 
+					}
                     }
                 });
         }
@@ -687,9 +696,9 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         return select;
     }
 
-    private void processScriptElement(Select select, ScriptElement script) {
-        throw new RuntimeException("Not implemented yet!");
-    }
+//    private void processScriptElement(Select select, ScriptElement script) {
+//        throw new RuntimeException("Not implemented yet!");
+//    }
 
     private Form createFormField(FormWidgetElement fwe) {
         FormLayout layout = new FormLayout();
@@ -721,8 +730,9 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                 rta.setReadOnly(true);
                 rta.setHeight(null);
             }
-            if (taw.getValue() != null)
+            if (taw.getValue() != null) {
                 rta.setValue(taw.getValue());
+			}
 
             component = rta;
         } else {
@@ -734,7 +744,6 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                 ta.setMaxLength(taw.getLimit());
             }
 
-            component = ta;
             if (nvl(taw.getRequired(), false)) {
                 ta.setRequired(true);
                 if (hasText(taw.getCaption())) {
@@ -743,8 +752,9 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                     ta.setRequiredError(getMessage("processdata.block.field-required-error"));
                 }
             }
-            if (taw.getValue() != null)
+            if (taw.getValue() != null) {
                 ta.setValue(taw.getValue());
+			}
 
             component = ta;
         }
@@ -755,7 +765,13 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
     private Link createLink(LinkWidgetElement we) {
         Link link = new Link();
         link.setTargetName("_blank");
-        link.setResource(new ExternalResource(we.getUrl()));
+        String url = we.getUrl();
+		if(url.matches("#\\{.*\\}")){
+        	String urlKey = url.replaceAll("#\\{(.*)\\}", "$1");
+        	if(processAttributes.containsKey(urlKey))
+        		url = ((ProcessInstanceSimpleAttribute)processAttributes.get(urlKey)).getValue();
+        }
+        link.setResource(new ExternalResource(url));
         return link;
     }
 
@@ -870,93 +886,168 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
     }
 
     private DateField createDateField(final DateWidgetElement dwe) {
-        SimpleDateFormat sdf;
-        try {
-            sdf = new SimpleDateFormat(dwe.getFormat());
-        } catch (Exception e) {
-            handleException(getMessage("processdata.block.error.unparsable.format").replaceFirst("%s", dwe.getFormat()), e);
-            return null;
-        }
+        final SimpleDateFormat sdf;
+       try {
+           sdf = new SimpleDateFormat(dwe.getFormat());
+       } catch (Exception e) {
+           handleException(getMessage("processdata.block.error.unparsable.format").replaceFirst("%s", dwe.getFormat()), e);
+           return null;
+       }
 
-        final PopupDateField field = new PopupDateField();
-        final boolean fieldMinResolution = dwe.getShowMinutes() != null && dwe.getShowMinutes();
+       final PopupDateField field = new PopupDateField();
+       final boolean fieldMinResolution = dwe.getShowMinutes() != null && dwe.getShowMinutes();
 
-        field.setDateFormat(dwe.getFormat());
-        field.setResolution(fieldMinResolution ? DateField.RESOLUTION_MIN : DateField.RESOLUTION_DAY);
-        if (hasText(dwe.getNotAfter())) {
-            try {
-                boolean usesCurrent = XmlConstants.DATE_CURRENT.equalsIgnoreCase(dwe.getNotAfter());
-                final Date notAfter = (usesCurrent) ? sdf.parse(sdf.format(new Date())) : sdf.parse(dwe.getNotAfter());
-                field.addValidator(new AbstractValidator(getMessage("processdata.block.error.date.notafter").replaceFirst("%s", dwe.getNotAfter())) {
-                    @Override
-                    public boolean isValid(Object value) {
-                        return value == null || !notAfter.before((Date) value);
-                    }
-                });
-                //why notify and interrupt?
-                //we already have a perfect validation mechanisms
-                //so let's use classic validators
-//                field.addListener(new ValueChangeListener() {
-//                    @Override
-//                    public void valueChange(ValueChangeEvent event) {
-//                        Object value = event.getProperty().getValue();
-//                        if (value != null && value instanceof Date) {
-//                            if (notAfter.before((Date) value)) {
-////                                TODO: TODO: notification fails on preview, because application object is only a stub
-//                                VaadinUtility.validationNotification(getApplication(), i18NSource,
-//                                        getMessage("processdata.block.error.date.notafter").replaceFirst("%s", dwe.getNotAfter()));
-//                                field.setValue(notAfter);
-//                            }
-//                        }
-//                    }
-//                });
-            } catch (ParseException e) {
-                handleException(getMessage("processdata.block.error.unparsable.date").replaceFirst("%s", dwe.getNotAfter()), e);
-            }
-        }
-        if (hasText(dwe.getNotBefore())) {
-            try {
-                boolean usesCurrent = XmlConstants.DATE_CURRENT.equalsIgnoreCase(dwe.getNotBefore());
-                final Date notBefore = (usesCurrent) ? sdf.parse(sdf.format(new Date())) : sdf.parse(dwe.getNotBefore());
-                field.addValidator(new AbstractValidator(getMessage("processdata.block.error.date.notbefore").replaceFirst("%s", dwe.getNotBefore())) {
-                    @Override
-                    public boolean isValid(Object value) {
-                        return value == null || !notBefore.after((Date) value);
-                    }
-                });
-//                field.addListener(new ValueChangeListener() {
-//                    @Override
-//                    public void valueChange(ValueChangeEvent event) {
-//                        Object value = event.getProperty().getValue();
-//                        if (value != null && value instanceof Date) {
-//                            if (notBefore.after((Date) value)) {
-////                                TODO: notification fails on preview, because application object is only a stub
-//                                VaadinUtility.validationNotification(getApplication(), i18NSource,
-//                                        getMessage("processdata.block.error.date.notbefore").replaceFirst("%s", dwe.getNotBefore()));
-//                                field.setValue(notBefore);
-//                            }
-//                        }
-//                    }
-//                });
-            } catch (ParseException e) {
-                handleException(getMessage("processdata.block.error.unparsable.date").replaceFirst("%s", dwe.getNotBefore()), e);
-            }
-        }
-        if (nvl(dwe.getRequired(), false)) {
-            field.setRequired(true);
-            if (hasText(dwe.getCaption())) {
-                field.setRequiredError(getMessage("processdata.block.field-required-error") + " " + dwe.getCaption());
-            } else {
-                field.setRequiredError(getMessage("processdata.block.field-required-error"));
-            }
-        }
-        if (dwe.getValue() != null)
-            field.setValue(dwe.getValue());
+       field.setDateFormat(dwe.getFormat());
+       field.setResolution(fieldMinResolution ? DateField.RESOLUTION_MIN : DateField.RESOLUTION_DAY);
+       if (hasText(dwe.getNotAfter())) {
+           try {
+               boolean usesCurrent = XmlConstants.DATE_CURRENT.equalsIgnoreCase(dwe.getNotAfter());
+               final Date notAfter = (usesCurrent) ? sdf.parse(sdf.format(new Date())) : sdf.parse(dwe.getNotAfter());
+               field.addValidator(new AbstractValidator(getMessage("processdata.block.error.date.notafter").replaceFirst("%s", dwe.getNotAfter())) {
+					@Override
+					public boolean isValid(Object value) {
+						Date formatedDateFromCalendarInput = formatTimeFromCalendarInput((Date)value,sdf);
+						return value == null ||  isBeforeCurrentDate(formatedDateFromCalendarInput);
+					}
+					private boolean isBeforeCurrentDate(Date formatedDateFromCalendarInput){
+
+						return	isRightSideOpen()?  isBeforeCurrentDateRightSideOpen(formatedDateFromCalendarInput):isBeforeCurrentDateRightSideClosed(formatedDateFromCalendarInput);
+
+						}
+
+						private boolean isRightSideOpen(){
+						if(dwe.getDiscludeNotAfter()==null){
+							return false;
+						}
+						else{
+							return dwe.getDiscludeNotAfter();
+						}
+					}
 
 
-        return field;
-    }
+						private boolean isBeforeCurrentDateRightSideClosed(Date formatedDateFromCalendarInput){
 
+							return notAfter.equals(formatedDateFromCalendarInput)? true : isNotAfter(formatedDateFromCalendarInput);
+						}
+
+						private boolean isBeforeCurrentDateRightSideOpen(Date formatedDateFromCalendarInput){
+							
+							return   notAfter.equals(formatedDateFromCalendarInput)? false : isNotAfter(formatedDateFromCalendarInput);
+						}
+						
+						private boolean isNotAfter(Date formatedDateFromCalendarInput){
+							return   !notAfter.before(formatedDateFromCalendarInput);
+							
+						}
+				});
+               //why notify and interrupt?
+               //we already have a perfect validation mechanisms
+               //so let's use classic validators
+//               field.addListener(new ValueChangeListener() {
+//                   @Override
+//                   public void valueChange(ValueChangeEvent event) {
+//                       Object value = event.getProperty().getValue();
+//                       if (value != null && value instanceof Date) {
+//                           if (notAfter.before((Date) value)) {
+////                               TODO: TODO: notification fails on preview, because application object is only a stub
+//                               VaadinUtility.validationNotification(getApplication(), i18NSource,
+//                                       getMessage("processdata.block.error.date.notafter").replaceFirst("%s", dwe.getNotAfter()));
+//                               field.setValue(notAfter);
+//                           }
+//                       }
+//                   }
+//               });
+           } catch (ParseException e) {
+               handleException(getMessage("processdata.block.error.unparsable.date").replaceFirst("%s", dwe.getNotAfter()), e);
+           }
+       }
+       if (hasText(dwe.getNotBefore())) {
+           try {
+               boolean usesCurrent = XmlConstants.DATE_CURRENT.equalsIgnoreCase(dwe.getNotBefore());
+               final Date notBefore = (usesCurrent) ? sdf.parse(sdf.format(new Date())) : sdf.parse(dwe.getNotBefore());
+               field.addValidator(new AbstractValidator(getMessage("processdata.block.error.date.notbefore").replaceFirst("%s", dwe.getNotBefore())) {
+					@Override
+					public boolean isValid(Object value) {
+						Date formatedDateFromCalendarInput = formatTimeFromCalendarInput((Date)value,sdf);
+						return value == null || isAfterCurrentDate(formatedDateFromCalendarInput);
+					}
+
+					private boolean isAfterCurrentDate(Date formatedDateFromCalendarInput){
+
+					return	isLeftSideOpen()?  isAfterCurrentDateLeftSideOpen(formatedDateFromCalendarInput):isAfterCurrentDateLeftSideClosed(formatedDateFromCalendarInput);
+
+					}
+
+					private boolean isLeftSideOpen(){
+						if(dwe.getDiscludeNotBefore()==null){
+							return false;
+						}
+						else{
+						return dwe.getDiscludeNotBefore();
+						}
+					}
+
+					private boolean isAfterCurrentDateLeftSideClosed(Date formatedDateFromCalendarInput){
+
+						return notBefore.equals(formatedDateFromCalendarInput)? true : isNotBefore(formatedDateFromCalendarInput);
+					}
+
+					private boolean isAfterCurrentDateLeftSideOpen(Date formatedDateFromCalendarInput){
+
+						return  notBefore.equals(formatedDateFromCalendarInput)? false : isNotBefore(formatedDateFromCalendarInput);
+					}
+					
+					
+					
+					private boolean isNotBefore(Date formatedDateFromCalendarInput){
+						return   !notBefore.after(formatedDateFromCalendarInput);
+						
+					}
+				});
+//               field.addListener(new ValueChangeListener() {
+//                   @Override
+//                   public void valueChange(ValueChangeEvent event) {
+//                       Object value = event.getProperty().getValue();
+//                       if (value != null && value instanceof Date) {
+//                           if (notBefore.after((Date) value)) {
+////                               TODO: notification fails on preview, because application object is only a stub
+//                               VaadinUtility.validationNotification(getApplication(), i18NSource,
+//                                       getMessage("processdata.block.error.date.notbefore").replaceFirst("%s", dwe.getNotBefore()));
+//                               field.setValue(notBefore);
+//                           }
+//                       }
+//                   }
+//               });
+           } catch (ParseException e) {
+               handleException(getMessage("processdata.block.error.unparsable.date").replaceFirst("%s", dwe.getNotBefore()), e);
+           }
+       }
+       if (nvl(dwe.getRequired(), false)) {
+           field.setRequired(true);
+           if (hasText(dwe.getCaption())) {
+               field.setRequiredError(getMessage("processdata.block.field-required-error") + " " + dwe.getCaption());
+           } else {
+               field.setRequiredError(getMessage("processdata.block.field-required-error"));
+           }
+       }
+       if (dwe.getValue() != null)
+           field.setValue(dwe.getValue());
+
+
+       return field;
+   }
+   
+    private Date formatTimeFromCalendarInput(Date date, SimpleDateFormat sdf){
+		Date parsedDate;
+		try {
+			parsedDate = sdf.parse(sdf.format(date));
+			return parsedDate;
+		} catch (ParseException e) {
+			handleException(getMessage("processdata.block.error.unparsable.date").replaceFirst("%s", date.toString()), e);
+		}
+		return date;
+	}
+   
     private void setupWidget(WidgetElement we, Component component) {
         if (hasText(we.getCaption())) {
             component.setCaption(getMessage(we.getCaption()));

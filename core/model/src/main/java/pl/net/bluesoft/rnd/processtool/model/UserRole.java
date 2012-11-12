@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.XmlTransient;
 @Table(name = "pt_user_roles")
 public class UserRole extends PersistentEntity {
     @XmlTransient
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private UserData user;
 

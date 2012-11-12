@@ -26,14 +26,10 @@ public class PropertyAutoWiring {
             String v = nvl(attributes.get(autoName), ctx.getAutowiredProperty("autowire." + autoName));
             if (autoName != null && v != null) {
                 try {
-                    logger.warning("Setting class " + clazz.getSimpleName() + " attribute " + autoName + " to " + v);
-                    if (f.getType().equals(String.class) || f.getType().isPrimitive()) {
-                        Classes.setFieldValue(obj, f, ConvertUtils.convert(v, f.getType()));
-                    }
-                    else {
-                        logger.warning("Class " + clazz.getSimpleName() + " attribute " + autoName + " with type "
-                                + f.getType() + " is not supported!");
-                    }
+                	logger.finer("Setting class " + clazz.getSimpleName() + " attribute " + autoName + " to " + v);
+
+					Object value = ConvertUtils.convert(v, f.getType());
+					Classes.setFieldValue(obj, f, value);
                 }
                 catch (Exception e) {
                     logger.log(Level.SEVERE, e.getMessage(), e);

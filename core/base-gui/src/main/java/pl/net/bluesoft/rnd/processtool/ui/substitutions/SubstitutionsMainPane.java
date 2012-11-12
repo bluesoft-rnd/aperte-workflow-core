@@ -110,7 +110,7 @@ public class SubstitutionsMainPane extends VerticalLayout implements Refreshable
         transactionProvider.withTransaction(new ProcessToolGuiCallback() {
             @Override
             public void callback(ProcessToolContext ctx, ProcessToolBpmSession session) {
-                container.addAll(ctx.getUserSubstitutionDAO().findAll());
+                container.addAll(ctx.getUserSubstitutionDAO().findAllEagerUserFetch());
                 usersByLogin = Maps.collectionToMap(LiferayBridge.getAllUsersByCurrentUser(session.getUser(ctx)), "login");
                 userDataContainer.addAll(usersByLogin.values());
 				userDataContainer.sort(new String[]{ "realName" }, new boolean[]{ true });

@@ -107,14 +107,16 @@ public class CmisAtomSessionFacade {
 			}
 			if (parent == null) {
 				String[] toks = parentPath.split("/");
-				String path = "/";
+				StringBuilder path = new StringBuilder("/");
 				for (String t : toks) {
 					if (!StringUtil.hasText(t)) continue;
-					parent = createFolderIfNecessary(t, path);
-					if (path.length() > 1)
-						path += "/" + t;
-					else
-						path += t;
+					parent = createFolderIfNecessary(t, path.toString());
+					if (path.length() > 1) {
+						path.append("/").append(t);
+					}
+					else {
+						path.append(t);
+					}
 				}
 			}
 			HashMap props = new HashMap();

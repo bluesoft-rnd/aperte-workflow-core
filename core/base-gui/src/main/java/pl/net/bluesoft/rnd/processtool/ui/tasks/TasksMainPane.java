@@ -18,6 +18,7 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import org.aperteworkflow.util.vaadin.VaadinUtility.Refreshable;
 import pl.net.bluesoft.util.eventbus.EventListener;
 
+import java.io.Serializable;
 import java.util.List;
 
 import static org.aperteworkflow.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
@@ -122,14 +123,7 @@ public class TasksMainPane extends VerticalLayout implements Refreshable {
         });
 
         if (eventListener == null) {
-            session.getEventBusManager().subscribe(BpmEvent.class, eventListener = new EventListener<BpmEvent>() {
-                @Override
-                public void onEvent(BpmEvent e) {
-                    if (TasksMainPane.this.isVisible() && TasksMainPane.this.getApplication() != null) {
-                        refreshData();
-                    }
-                }
-            });
+            session.getEventBusManager().subscribe(BpmEvent.class, eventListener = new MyEventListener());
         }
 
         return table;
@@ -170,4 +164,13 @@ public class TasksMainPane extends VerticalLayout implements Refreshable {
     public void setSearchField(TextField searchField) {
         this.searchField = searchField;
     }
+
+	private class MyEventListener implements EventListener<BpmEvent>, Serializable {
+		@Override
+		public void onEvent(BpmEvent e) {
+			if (TasksMainPane.this.isVisible() && TasksMainPane.this.getApplication() != null) {
+				refreshData();
+			}
+		}
+	}
 }

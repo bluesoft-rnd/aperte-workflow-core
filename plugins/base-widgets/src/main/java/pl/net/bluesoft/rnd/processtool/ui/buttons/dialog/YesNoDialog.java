@@ -15,10 +15,20 @@ public class YesNoDialog extends DialogWindow {
 	private Button yesButton;
 	private Button noButton;
 	private Button cancelButton;
+	private String content = "processdata.comments.yesno.help";
+	private String title = "processdata.comments.yesno.title";
+	
+	public YesNoDialog(String title, String content) {
+		this.title = title;
+		this.content = content;
+	}
+	
+	public YesNoDialog() {
+	}
 	
 	@Override
 	protected String getTitle() {
-		return getMessage("processdata.comments.yesno.title");
+		return getMessage(title);
 	}
 
 	@Override
@@ -27,7 +37,7 @@ public class YesNoDialog extends DialogWindow {
 		vl.setSpacing(true);
 		vl.setMargin(true);
 		vl.setWidth(600, Sizeable.UNITS_PIXELS);
-		vl.addComponent(new Label(getMessage("processdata.comments.yesno.help"), Label.CONTENT_XHTML));
+		vl.addComponent(new Label(getMessage(content), Label.CONTENT_XHTML));
 		return vl;
 	}
 

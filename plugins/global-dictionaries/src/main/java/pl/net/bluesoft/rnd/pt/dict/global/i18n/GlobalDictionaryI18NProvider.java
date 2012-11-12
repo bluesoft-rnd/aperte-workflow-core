@@ -31,7 +31,7 @@ public class GlobalDictionaryI18NProvider implements I18NProvider {
         this.registry = registry;
         this.dictionaryId = dictionaryId;
         String interval = properties.getProperty(CONFIG_CACHE_REFRESH_INTERVAL);
-        this.cache = new ExpiringCache<String, ProcessDictionary>(Strings.hasText(interval) ? Integer.parseInt(interval) * 1000 : DEFAULT_CACHE_REFRESH_INTERVAL);
+        this.cache = new ExpiringCache<String, ProcessDictionary>(Strings.hasText(interval) ? Integer.parseInt(interval) * 1000L : DEFAULT_CACHE_REFRESH_INTERVAL);
     }
 
     @Override

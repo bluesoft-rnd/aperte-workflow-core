@@ -51,12 +51,14 @@ public class ActionEditorApplication extends GenericEditorApplication implements
 		}
 
 		url = getStringParameterByName("callbackUrl", parameters);
-		String buttonType = getStringParameterByName("buttonType", parameters);
+		String buttonType = getStringParameterByName("buttonType", parameters); 
 		String buttonName = getStringParameterByName("buttonName", parameters);
 		String actionParameters = getStringParameterByName("actionParameters", parameters);
+		
+	
 		if (!StringUtils.isEmpty(actionParameters)) {
 			try {
-				oldActionParameters = mapper.readValue(actionParameters, new TypeReference<HashMap<String,Object>>(){});
+						 oldActionParameters=mapper.readValue(actionParameters, new TypeReference<HashMap<String,Object>>(){});
 			} catch (JsonParseException e) {
 				logger.log(Level.SEVERE, "Error reading action parameters", e);
 			} catch (JsonMappingException e) {
@@ -134,7 +136,6 @@ public class ActionEditorApplication extends GenericEditorApplication implements
 	}
 
 
-
 	@Override
 	public void buttonClick(ClickEvent event) {
 		if (event.getComponent() == saveButton) {
@@ -145,7 +146,9 @@ public class ActionEditorApplication extends GenericEditorApplication implements
 			}
 			ActionDef actionDef = new ActionDef();
 			actionDef.setButtonType(buttonList.getItemCaption(buttonList.getValue()));
+			//Map<String, Object> codedPropertiesValue = codePropertiesValue(propertiesPanel.getPropertiesMap());
 			actionDef.setItems(propertiesPanel.getPropertiesMap());
+			 
 			
 			try {
 			  String s = mapper.writeValueAsString(actionDef);
@@ -159,4 +162,7 @@ public class ActionEditorApplication extends GenericEditorApplication implements
 			}
 		}
 	}
-}
+
+
+	
+	}

@@ -93,35 +93,33 @@ public class DictionaryLoader extends OXHelper {
                 continue;
             }
             if (!Strings.hasText(dict.getLanguageCode())) {
-                sb.append("Unspecified language code for dictionary: " + dict.getDictionaryId()).append("\n");
+                sb.append("Unspecified language code for dictionary: ").append(dict.getDictionaryId()).append("\n");
                 continue;
             }
             String hash = "(" + dict.getDictionaryId() + "," + dict.getLanguageCode() + ")";
             if (hashSet.contains(hash)) {
-                sb.append("Duplicated dictionary definition: " + hash).append("\n");
+                sb.append("Duplicated dictionary definition: ").append(hash).append("\n");
                 continue;
             }
             hashSet.add(hash);
-            Map<String, ProcessDBDictionaryItem> items = dict.getItems();
-            for (String key : items.keySet()) {
-                ProcessDBDictionaryItem item = items.get(key);
+			for (ProcessDBDictionaryItem item : dict.getItems().values()) {
                 if (!Strings.hasText(item.getKey())) {
-                    sb.append(hash + ": empty item key").append("\n");
+                    sb.append(hash).append(": empty item key").append("\n");
                     continue;
                 }
                 if (item.getValues().isEmpty()) {
-                    sb.append(hash + ": empty values set for key: " + item.getKey()).append("\n");
+                    sb.append(hash).append(": empty values set for key: ").append(item.getKey()).append("\n");
                     continue;
                 }
                 for (ProcessDBDictionaryItemValue val : item.getValues()) {
                     if (!Strings.hasText(val.getValue())) {
-                        sb.append(hash + ": empty value for key: " + item.getKey()).append("\n");
+                        sb.append(hash).append(": empty value for key: ").append(item.getKey()).append("\n");
                         continue;
                     }
                     Date startDate = val.getValidStartDate();
                     Date endDate = val.getValidEndDate();
                     if (endDate != null && startDate != null && endDate.before(startDate)) {
-                        sb.append(hash + ": wrong date ranges in: " + val.getValue() + " for key: " + item.getKey()).append("\n");
+                        sb.append(hash).append(": wrong date ranges in: ").append(val.getValue()).append(" for key: ").append(item.getKey()).append("\n");
                     }
                 }
                 StringBuilder dateSb = new StringBuilder();
@@ -145,7 +143,7 @@ public class DictionaryLoader extends OXHelper {
                                               boolean fullRangeFound, ProcessDBDictionaryItemValue val, Date date) {
         if (date == null) {
             if (fullRangeFound) {
-                sb.append(hash + ": duplicated full date range for key: " + item.getKey());
+                sb.append(hash).append(": duplicated full date range for key: ").append(item.getKey());
             }
             else {
                 fullRangeFound = true;
@@ -154,7 +152,7 @@ public class DictionaryLoader extends OXHelper {
         else {
             for (ProcessDBDictionaryItemValue otherVal : item.getValues()) {
                 if (val != otherVal && otherVal.isValidForDate(date)) {
-                    sb.append(hash + ": overlapping value dates for key: " + item.getKey());
+                    sb.append(hash).append(": overlapping value dates for key: ").append(item.getKey());
                 }
             }
         }

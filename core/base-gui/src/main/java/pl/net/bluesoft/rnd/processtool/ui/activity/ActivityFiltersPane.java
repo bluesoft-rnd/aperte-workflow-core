@@ -1,6 +1,23 @@
 package pl.net.bluesoft.rnd.processtool.ui.activity;
 
-import com.vaadin.Application;
+import static org.aperteworkflow.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.horizontalLayout;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.refreshIcon;
+
+import java.util.List;
+
+import org.aperteworkflow.util.vaadin.EventHandler;
+import org.aperteworkflow.util.vaadin.VaadinUtility;
+
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
+import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceFilterDAO;
+import pl.net.bluesoft.rnd.processtool.filters.FilterChangedEvent;
+import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
+import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.util.eventbus.EventListener;
+
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -9,29 +26,10 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.themes.BaseTheme;
 
-import org.aperteworkflow.util.vaadin.EventHandler;
-import org.aperteworkflow.util.vaadin.VaadinUtility;
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceFilterDAO;
-import pl.net.bluesoft.rnd.processtool.filters.FilterChangedEvent;
-import pl.net.bluesoft.rnd.processtool.hibernate.ResultsPageWrapper;
-import pl.net.bluesoft.rnd.processtool.model.BpmTask;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
-import pl.net.bluesoft.util.eventbus.EventListener;
-
-import java.util.List;
-
-import static org.aperteworkflow.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
-import static org.aperteworkflow.util.vaadin.VaadinUtility.horizontalLayout;
-import static org.aperteworkflow.util.vaadin.VaadinUtility.refreshIcon;
-
 public class ActivityFiltersPane extends Panel implements VaadinUtility.Refreshable {
 
 	private ActivityMainPane activityMainPane;
 	private GridLayout filterList;
-	private EventListener<FilterChangedEvent> filterEventSubscriber = null;
 
 	public ActivityFiltersPane(ActivityMainPane activityMainPane) {
 		this.activityMainPane = activityMainPane;
@@ -46,18 +44,14 @@ public class ActivityFiltersPane extends Panel implements VaadinUtility.Refresha
 		addComponent(filterList);
 		refreshData();
 
-		if (filterEventSubscriber == null) {
-			activityMainPane.getBpmSession().getEventBusManager().subscribe(FilterChangedEvent.class,
-                    filterEventSubscriber = new EventListener<FilterChangedEvent>() {
-				@Override
-				public void onEvent(FilterChangedEvent e) {
-                    if (ActivityFiltersPane.this.isVisible() && ActivityFiltersPane.this.getApplication() != null) {
-                        refreshData();
-                    }
-                }
-			});
-		}
-
+		activityMainPane.getBpmSession().getEventBusManager().subscribe(FilterChangedEvent.class, new EventListener<FilterChangedEvent>() {
+			@Override
+			public void onEvent(FilterChangedEvent e) {
+				if (ActivityFiltersPane.this.isVisible() && ActivityFiltersPane.this.getApplication() != null) {
+					refreshData();
+				}
+			}
+		});
 	}
 
 
@@ -73,12 +67,13 @@ public class ActivityFiltersPane extends Panel implements VaadinUtility.Refresha
 		final ProcessInstanceFilterDAO processInstanceFilterDAO = processToolContextFromThread.getProcessInstanceFilterDAO();
 		List<ProcessInstanceFilter> filters = processInstanceFilterDAO.findAllByUserData(user);
 
-		for (final ProcessInstanceFilter filter : filters) {
-//			HorizontalLayout task = new HorizontalLayout();
+		for (final ProcessInstanceFilter filter : filters) 
+		{
 			Button taskName = new Button(filter.getName());			
-			ResultsPageWrapper<BpmTask> tasks = bpmSession.findProcessTasks(filter, 0, 0, processToolContextFromThread);
-			taskName.setCaption(taskName.getCaption() + " (" + tasks.getTotal() + ")");
-			if(tasks.getTotal() == 0)
+			List<BpmTask> tasks = bpmSession.findFilteredTasks(filter, processToolContextFromThread);
+			taskName.setCaption(taskName.getCaption() + " (" + tasks.size() + ")");
+			
+			if(tasks.isEmpty())
 				taskName.addStyleName("v-disabled");
 			
 			taskName.addStyleName(BaseTheme.BUTTON_LINK);

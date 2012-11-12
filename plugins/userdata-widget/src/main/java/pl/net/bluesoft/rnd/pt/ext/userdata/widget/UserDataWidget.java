@@ -130,7 +130,7 @@ public abstract class UserDataWidget
 		combo.setContainerDataSource(bic);
 		bic.sort(new Object[] { "description" }, new boolean[] { true });
 
-		if (selectedUser != null && combo != null) {
+		if (selectedUser != null) {
 			for (UserData ud : users) {
 				if (selectedUser.getLogin().equals(ud.getLogin())) {
 					combo.setValue(ud);

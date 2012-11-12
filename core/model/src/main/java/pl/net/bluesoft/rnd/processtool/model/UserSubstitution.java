@@ -1,6 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.model;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -14,10 +15,13 @@ import java.util.Date;
 @Entity
 @Table(name="pt_user_substitution")
 public class UserSubstitution extends PersistentEntity {
-    @ManyToOne
+	public static final String _USER = "user";
+	public static final String _USER_SUBSTITUTE = "userSubstitute";
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id")
     private UserData user;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_substitute_id")
     private UserData userSubstitute;
     private Date dateFrom;

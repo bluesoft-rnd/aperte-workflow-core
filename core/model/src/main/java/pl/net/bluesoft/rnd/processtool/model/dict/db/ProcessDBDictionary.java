@@ -2,15 +2,29 @@ package pl.net.bluesoft.rnd.processtool.model.dict.db;
 
 //import org.hibernate.annotations.OnDelete;
 //import org.hibernate.annotations.OnDeleteAction;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToOne;
+import javax.persistence.MapKey;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+
 import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionary;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItem;
-
-import javax.persistence.*;
-import java.util.*;
-
-import static pl.net.bluesoft.util.lang.Formats.nvl;
 
 @Entity
 @Table(name = "pt_dictionary")
@@ -23,17 +37,18 @@ public class ProcessDBDictionary extends PersistentEntity implements ProcessDict
 
     private Boolean defaultDictionary = Boolean.FALSE;
 
-    @OneToMany(mappedBy = "dictionary", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-//    @OnDelete(action = OnDeleteAction.CASCADE)
+    @OneToMany(mappedBy = "dictionary", fetch = FetchType.EAGER, orphanRemoval = true)
+    @Cascade(value = CascadeType.ALL)
     private Set<ProcessDBDictionaryPermission> permissions = new HashSet<ProcessDBDictionaryPermission>();
 
-    @OneToMany(mappedBy = "dictionary", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "dictionary", fetch = FetchType.EAGER, orphanRemoval = true)
     @MapKey(name = "key")
-//    @OnDelete(action = OnDeleteAction.CASCADE)
+    @Cascade(value = CascadeType.ALL)
     private Map<String, ProcessDBDictionaryItem> items = new HashMap<String, ProcessDBDictionaryItem>();
 
     @ManyToOne(optional = true)
     @JoinColumn(name = "definition_id")
+    @Cascade(value = CascadeType.REFRESH)
     private ProcessDefinitionConfig processDefinition;
 
     public Set<ProcessDBDictionaryPermission> getPermissions() {

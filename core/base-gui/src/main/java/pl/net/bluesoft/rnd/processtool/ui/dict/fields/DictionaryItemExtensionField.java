@@ -203,7 +203,7 @@ public class DictionaryItemExtensionField extends CustomField  {
             setImmediate(true);
             setInvalidCommitted(false);
             setFormFieldFactory(new ItemExtensionFormFieldFactory());
-            setVisibleItemProperties(new String[] {"name", "value"});
+            setVisibleItemProperties(new String[] {"name", "stringValue"});
             setItemDataSource(new BeanItem<ProcessDBDictionaryItemExtension>(ext));
 
             deleteButton = deleteIcon(application);
@@ -232,7 +232,7 @@ public class DictionaryItemExtensionField extends CustomField  {
         @Override
         public Field createField(Item item, Object propertyId, Component uiContext) {
             Field field = null;
-            if (propertyId.equals("name") || propertyId.equals("value")) {
+            if (propertyId.equals("name") || propertyId.equals("stringValue")) {
                 TextField textField = new TextField();
                 textField.setNullRepresentation("");
                 if ("name".equals(propertyId)) {

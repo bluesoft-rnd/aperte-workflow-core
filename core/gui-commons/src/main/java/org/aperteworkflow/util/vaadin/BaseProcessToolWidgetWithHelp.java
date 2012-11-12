@@ -5,11 +5,17 @@ import com.vaadin.ui.*;
 import org.aperteworkflow.ui.help.HelpProvider;
 import org.aperteworkflow.ui.help.HelpProviderFactory;
 
+import org.hibernate.Hibernate;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.service.UserFinder;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -22,11 +28,14 @@ public abstract class BaseProcessToolWidgetWithHelp extends BaseProcessToolWidge
         this.helpDictionaryName = helpDictionaryName;
     }
 
-    private void inithelpProvider() {
+    private void initHelpProvider() {
         if (helpProvider == null) {
-            helpProvider =
-                    ((HelpProviderFactory)ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().lookupService(HelpProviderFactory.class.getName()))
-                            .getInstance(getApplication(), getProcessDefinition(), !cannotEdit(), helpDictionaryName);
+			HelpProviderFactory helpProviderFactory = (HelpProviderFactory)ProcessToolContext.Util
+					.getThreadProcessToolContext()
+					.getRegistry()
+					.lookupService(HelpProviderFactory.class.getName());
+			helpProvider = helpProviderFactory
+					.getInstance(getApplication(), getProcessDefinitions(), !cannotEdit(), helpDictionaryName);
             if (helpProvider == null) {
                 helpProvider = createDummyHelpProvider();
             }
@@ -56,7 +65,7 @@ public abstract class BaseProcessToolWidgetWithHelp extends BaseProcessToolWidge
             }
 
             @Override
-            public void prepare(Application application, ProcessDefinitionConfig cfg, boolean canEdit, String helpDictionaryName) {
+            public void prepare(Application application, List<ProcessDefinitionConfig> cfgs, boolean canEdit, String helpDictionaryName) {
             }
 
             @Override
@@ -107,7 +116,7 @@ public abstract class BaseProcessToolWidgetWithHelp extends BaseProcessToolWidge
     }
 
     public HelpProvider getHelpProvider() {
-        inithelpProvider();
+        initHelpProvider();
         return helpProvider;
     }
 
@@ -117,13 +126,13 @@ public abstract class BaseProcessToolWidgetWithHelp extends BaseProcessToolWidge
 
     public Component getHelpIcon(String key) {
         if (cannotEdit()) return new Label("");
-        inithelpProvider();
+        initHelpProvider();
         return helpProvider.getHelpIcon(key);
     }
 
     public Component getHelpIcon(String key, String message) {
         if (cannotEdit()) return new Label("");
-        inithelpProvider();
+        initHelpProvider();
         return helpProvider.helpIcon(key, message);
     }
 
@@ -133,19 +142,19 @@ public abstract class BaseProcessToolWidgetWithHelp extends BaseProcessToolWidge
 
     public Field wrapFieldWithHelp(Field field, String key) {
         if (cannotEdit()) return field;
-        inithelpProvider();
+        initHelpProvider();
         return helpProvider.wrapFieldWithHelp(field, key);
     }
 
     public Component wrapComponentWithHelp(Component component, String key) {
         if (cannotEdit()) return component;
-        inithelpProvider();
+        initHelpProvider();
         return helpProvider.wrapComponentWithHelp(component, key);
     }
 
     public Component wrapComponentWithHelp(Component component, String key, String iconPlacement, String popupPlacement) {
         if (cannotEdit()) return component;
-        inithelpProvider();
+        initHelpProvider();
         return helpProvider.wrapComponentWithHelp(component, key, iconPlacement, popupPlacement);
     }
 
@@ -160,6 +169,20 @@ public abstract class BaseProcessToolWidgetWithHelp extends BaseProcessToolWidge
     protected void attachContextHelpToLayout(){};
 
     protected abstract ProcessDefinitionConfig getProcessDefinition();
+
+	protected List<ProcessDefinitionConfig> getProcessDefinitions() {
+		return Arrays.asList(getProcessDefinition());
+	}
+
+	protected List<ProcessDefinitionConfig> upToRootInstance(ProcessInstance processInstance) {
+		List<ProcessDefinitionConfig> definitions = new ArrayList<ProcessDefinitionConfig>();
+		while (processInstance != null) {
+			Hibernate.initialize(processInstance.getDefinition());
+			definitions.add(processInstance.getDefinition());
+			processInstance = processInstance.getParent();
+		}
+		return definitions;
+	}
 
     public UserData getUserByLogin(String login) {
         if (login != null && getApplication() instanceof GenericVaadinPortlet2BpmApplication) {

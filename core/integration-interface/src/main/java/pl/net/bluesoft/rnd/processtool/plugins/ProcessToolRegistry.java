@@ -113,8 +113,11 @@ public interface ProcessToolRegistry extends ProcessToolBpmConstants {
     UserSubstitutionDAO getUserSubstitutionDAO(Session hibernateSession);
 
 	ProcessDefinitionDAO getProcessDefinitionDAO(Session hibernateSession);
+	
+	UserProcessQueueDAO getUserProcessQueueDAO(Session hibernateSession);
 
 	ProcessToolContextFactory getProcessToolContextFactory();
+	
 
 	void setProcessToolContextFactory(ProcessToolContextFactory processToolContextFactory);
 
@@ -174,4 +177,20 @@ public interface ProcessToolRegistry extends ProcessToolBpmConstants {
 
     //no way!
 //    public boolean createRoleIfNotExists(String roleName, String description);
+
+	public class ThreadUtil {
+		private static final ThreadLocal<ProcessToolRegistry> processToolRegistry = new ThreadLocal<ProcessToolRegistry>();
+
+		public static void setThreadRegistry(ProcessToolRegistry registry) {
+			processToolRegistry.set(registry);
+		}
+
+		public static ProcessToolRegistry getThreadRegistry() {
+			return processToolRegistry.get();
+		}
+
+		public static void removeThreadRegistry() {
+			processToolRegistry.remove();
+		}
+	}
 }

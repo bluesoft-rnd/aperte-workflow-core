@@ -14,7 +14,7 @@ public class ProcessQueueRight extends PersistentEntity {
 	private String roleName;
 
     @XmlTransient
-//	@ManyToOne
+	@ManyToOne
 	@JoinColumn(name="queue_id")
 	private ProcessQueueConfig queue;
 

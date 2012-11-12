@@ -329,7 +329,7 @@ public class ProcessDataHierarchyEditor extends VerticalLayout {
             Component src = t.getSourceComponent();
             Object sourceItemId;
             Object newItemId = null;
-            Item subItem = null;
+//            Item subItem = null;
             HierarchicalContainer container = (HierarchicalContainer) tree.getContainerDataSource();
             if (src instanceof WidgetDragAndDropWrapper) {
                 WidgetDragAndDropWrapper dragAndDropWrapper = (WidgetDragAndDropWrapper) src;
@@ -337,7 +337,7 @@ public class ProcessDataHierarchyEditor extends VerticalLayout {
                 Object widgetElement = null;
                 try {
                     widgetElement = cls.newInstance();
-                    subItem = addTreeItem(widgetElement);
+                    /*subItem = */addTreeItem(widgetElement);
                     newItemId = widgetElement;
                     sourceItemId = widgetElement;
                 } catch (Throwable e) {
@@ -345,9 +345,9 @@ public class ProcessDataHierarchyEditor extends VerticalLayout {
                     src.getApplication().getMainWindow().showNotification(getLocalizedMessage("widget-creation-failed"),
                             e.getClass().getName() + ", " + e.getMessage(),
                             Window.Notification.TYPE_ERROR_MESSAGE);
-                    if (subItem != null && widgetElement != null) {
-                        container.removeItem(widgetElement);
-                    }
+//                    if (subItem != null && widgetElement != null) {
+//                        container.removeItem(widgetElement);
+//                    }
                     return;
                 }
             } else {

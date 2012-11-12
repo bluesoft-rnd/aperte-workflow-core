@@ -1,12 +1,12 @@
 package pl.net.bluesoft.rnd.processtool.ui.activity;
 
+import java.util.Calendar;
+import java.util.List;
+
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.hibernate.ResultsPageWrapper;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
-import pl.net.bluesoft.rnd.processtool.model.TaskState;
-
-import java.util.Calendar;
+import pl.net.bluesoft.rnd.processtool.model.QueueType;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -24,7 +24,7 @@ public class RecentProcessesListPane extends MyProcessesListPane {
     }
 
     @Override
-	protected ResultsPageWrapper<BpmTask> getBpmTasks() {
+	public List<BpmTask> getBpmTasks() {
 		ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
         return getBpmSession().findRecentTasks(minDate, offset, limit, ctx);
 	}
@@ -35,7 +35,7 @@ public class RecentProcessesListPane extends MyProcessesListPane {
 		ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
 		tfi.addOwner(getBpmSession().getUser(ctx));
 		tfi.setUpdatedAfter(minDate.getTime());
-		tfi.addState(TaskState.OPEN);
+		tfi.addQueueType(QueueType.ASSIGNED_TO_CURRENT_USER);
 		return tfi;
 	}
 }

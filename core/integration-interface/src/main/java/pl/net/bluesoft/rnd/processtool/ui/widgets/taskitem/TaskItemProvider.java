@@ -15,4 +15,6 @@ public interface TaskItemProvider {
     Component createQueuePaneProcessInfo(TaskItemProviderParams params);
     Component createTaskPaneProcessId(TaskItemProviderParams params);
     Component getTaskItemProcessInfo(TaskItemProviderParams params);
+
+	String getAssigneeName(TaskItemProviderParams params);
 }

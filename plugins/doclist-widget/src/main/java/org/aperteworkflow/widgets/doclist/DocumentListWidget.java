@@ -4,6 +4,7 @@ import com.vaadin.Application;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
+import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
@@ -56,7 +57,7 @@ public class DocumentListWidget extends BaseProcessToolVaadinWidget implements P
 	}
 
 	@Override
-	public Collection<String> validateData(ProcessInstance processInstance) {
+	public Collection<String> validateData(BpmTask task, boolean skipRequired) {
 
 		if (required && !repo.getEntries(path).iterator().hasNext()) {
 			return Arrays.asList("pt.ext.cmis.list.document.validate.upload.document");
@@ -66,14 +67,14 @@ public class DocumentListWidget extends BaseProcessToolVaadinWidget implements P
 	}
 
 	@Override
-	public void saveData(ProcessInstance processInstance) {
+	public void saveData(BpmTask task) {
 		// setSimpleAttribute(folderAttributeName, folderId, processInstance);
 	}
 
 	@Override
-	public void loadData(ProcessInstance processInstance) {
+	public void loadData(BpmTask task) {
 
-        String path = rootFolderPath + newFolderPrefix + processInstance.getInternalId();
+        String path = rootFolderPath + newFolderPrefix + task.getProcessInstance().getInternalId();
 		if (StringUtil.hasText(subFolder))
 			path = path + subFolder;
 	}

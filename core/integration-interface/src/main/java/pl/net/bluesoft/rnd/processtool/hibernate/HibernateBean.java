@@ -37,4 +37,6 @@ public interface HibernateBean<T> {
     void delete(Collection<T> objects);
 
     void delete(T object);
+
+	T refresh(T object);
 }

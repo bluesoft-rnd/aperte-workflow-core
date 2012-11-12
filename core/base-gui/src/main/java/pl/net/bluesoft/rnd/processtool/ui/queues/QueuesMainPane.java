@@ -25,6 +25,7 @@ import org.aperteworkflow.util.vaadin.VaadinUtility;
 import org.aperteworkflow.util.vaadin.VaadinUtility.Refreshable;
 import pl.net.bluesoft.util.eventbus.EventListener;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -35,7 +36,6 @@ import static org.aperteworkflow.util.vaadin.VaadinUtility.horizontalLayout;
 import static org.aperteworkflow.util.vaadin.VaadinUtility.refreshIcon;
 
 public class QueuesMainPane extends VerticalLayout implements Refreshable {
-
 	private I18NSource i18NSource;
 	private ProcessToolBpmSession session;
 	private EventListener<BpmEvent> bpmEventSubScriber;
@@ -43,7 +43,6 @@ public class QueuesMainPane extends VerticalLayout implements Refreshable {
 	private Table table;
 	private BeanItemContainer<ProcessQueue> bic;
 	private Window addQueueWindow;
-	private Logger logger = Logger.getLogger(QueuesMainPane.class.getName());
 
 	public QueuesMainPane(I18NSource i18nSource, ProcessToolBpmSession bpmSession, GenericVaadinPortlet2BpmApplication application) {
 		this.i18NSource = i18nSource;
@@ -198,14 +197,7 @@ public class QueuesMainPane extends VerticalLayout implements Refreshable {
 				}
 			 });
 		if (bpmEventSubScriber == null) {
-			session.getEventBusManager().subscribe(BpmEvent.class, bpmEventSubScriber = new EventListener<BpmEvent>() {
-				@Override
-				public void onEvent(BpmEvent e) {
-                    if (QueuesMainPane.this.isVisible() && QueuesMainPane.this.getApplication() != null) {
-                        refreshData();
-                    }
-				}
-			});
+			session.getEventBusManager().subscribe(BpmEvent.class, bpmEventSubScriber = new MyBpmEventEventListener());
 		}
 
 
@@ -289,5 +281,14 @@ public class QueuesMainPane extends VerticalLayout implements Refreshable {
 		
 		form.getFooter().addComponent(saveButton);
 		return form;
+	}
+
+	private class MyBpmEventEventListener implements EventListener<BpmEvent>, Serializable {
+		@Override
+		public void onEvent(BpmEvent e) {
+			if (QueuesMainPane.this.isVisible() && QueuesMainPane.this.getApplication() != null) {
+				refreshData();
+			}
+		}
 	}
 }

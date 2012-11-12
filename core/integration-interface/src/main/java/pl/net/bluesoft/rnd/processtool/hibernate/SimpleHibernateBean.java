@@ -6,6 +6,7 @@ import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
@@ -89,7 +90,7 @@ public abstract class SimpleHibernateBean<T> implements HibernateBean<T> {
     public void saveOrUpdate(Collection<T> objects) {
         for (T object : objects) {
             saveOrUpdate(object);
-    }
+    	}
     }
 
     @Override
@@ -108,4 +109,16 @@ public abstract class SimpleHibernateBean<T> implements HibernateBean<T> {
     public void delete(T object) {
         getSession().delete(object);
     }
+
+	@Override
+	public T refresh(T object) {
+		return object != null ? loadById(getId(object)) : null;
+	}
+
+	protected Object getId(T object) {
+		if (object instanceof PersistentEntity) {
+			return ((PersistentEntity)object).getId();
+		}
+		throw new RuntimeException("Could not determine id for " + object.getClass().getName());
+	}
 }

@@ -6,5 +6,3 @@
 .project
 .classpath
 target
-bin/
-*.class

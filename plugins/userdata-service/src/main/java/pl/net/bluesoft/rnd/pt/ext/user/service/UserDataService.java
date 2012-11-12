@@ -176,11 +176,11 @@ public class UserDataService implements ProcessToolUserService {
         if (attributeValues != null && !attributeValues.isEmpty()) {
             JoinAliasGenerator usr = new JoinAliasGenerator("usr"), ua = new JoinAliasGenerator("ua");
             DetachedCriteria user = DetachedCriteria.forClass(UserData.class, usr.next());
-            for (String key : attributeValues.keySet()) {
+			for (Map.Entry<String, String> entry : attributeValues.entrySet()) {
                 String attributeAlias = ua.next();
                 user.createAlias(usr.last() + ".attributes", attributeAlias)
-                        .add(Restrictions.eq(attributeAlias + ".key", key))
-                        .add(Restrictions.eq(attributeAlias + ".value", attributeValues.get(key)));
+                        .add(Restrictions.eq(attributeAlias + ".key", entry.getKey()))
+                        .add(Restrictions.eq(attributeAlias + ".value", entry.getValue()));
                 user.createAlias(attributeAlias + ".user", usr.next());
             }
             user.setResultTransformer(DetachedCriteria.PROJECTION);

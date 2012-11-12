@@ -3,10 +3,6 @@ package pl.net.bluesoft.rnd.processtool.plugins;
 import com.thoughtworks.xstream.XStream;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig.Feature;
-import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
-import pl.net.bluesoft.util.lang.Classes;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -14,8 +10,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.lang.reflect.Field;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 public class AperteWorkflowConfigurationExposureServlet extends HttpServlet {
@@ -48,10 +44,12 @@ public class AperteWorkflowConfigurationExposureServlet extends HttpServlet {
 		switch (format) {
 			case XML: {
 				out.write(xstream.toXML(res));
+				break;
 			}
 			case JSON: {
 				mapper.configure(Feature.INDENT_OUTPUT, true);
 				mapper.writeValue(out, res);
+				break;
 			}
 		}
 

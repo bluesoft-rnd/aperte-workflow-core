@@ -67,12 +67,16 @@ public class TemplateProcessor {
 
     public String processTemplate(String templateName, Map dataModel) throws IOException, TemplateException {
         logger.info("Using template " + templateName);
-        Template template = freemarkerConfiguration.getTemplate(templateName);
+        Template template = getFreemarkerConfiguration().getTemplate(templateName);
         StringWriter sw = new StringWriter();
         template.process(dataModel, sw);
         sw.flush();
         return sw.toString();
     }
+
+	private synchronized Configuration getFreemarkerConfiguration() {
+		return freemarkerConfiguration;
+	}
 
     public synchronized void refreshTemplates() {
         if (cacheUpdateTime + getCacheRefreshInterval() < System.currentTimeMillis()) {

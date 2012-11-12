@@ -10,8 +10,10 @@ import org.osgi.framework.ServiceReference;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
 
 
 /**
@@ -25,10 +27,15 @@ public class ContextHelpProviderBundleActivator implements BundleActivator {
 
         bundleContext.registerService(HelpProviderFactory.class.getName(),
                 new HelpProviderFactory() {
-                    @Override
-                    public HelpProvider getInstance(Application application, ProcessDefinitionConfig cfg, boolean canEdit, String dictName) {
+					@Override
+					public HelpProvider getInstance(Application application, ProcessDefinitionConfig cfg, boolean canEdit, String dictName) {
+						return getInstance(application, Arrays.asList(cfg), canEdit, dictName);
+					}
+
+					@Override
+                    public HelpProvider getInstance(Application application, List<ProcessDefinitionConfig> cfgs, boolean canEdit, String dictName) {
                         HelpProviderImpl helpProvider = new HelpProviderImpl();
-                        helpProvider.prepare(application, cfg, canEdit, dictName);
+                        helpProvider.prepare(application, cfgs, canEdit, dictName);
                         return helpProvider;
                     }
                 }, new Hashtable());

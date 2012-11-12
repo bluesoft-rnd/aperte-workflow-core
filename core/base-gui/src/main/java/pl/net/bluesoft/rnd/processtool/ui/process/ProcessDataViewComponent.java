@@ -11,6 +11,9 @@ import com.vaadin.ui.VerticalLayout;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import org.aperteworkflow.ui.view.ViewController;
+import org.aperteworkflow.ui.view.ViewEvent;
+import org.aperteworkflow.ui.view.ViewEvent.Type;
+
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import org.aperteworkflow.util.vaadin.EventHandler;
 import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
@@ -18,6 +21,7 @@ import org.aperteworkflow.util.vaadin.VaadinUtility;
 import org.aperteworkflow.util.vaadin.VaadinUtility.Refreshable;
 import org.aperteworkflow.util.vaadin.ui.AligningHorizontalLayout;
 
+import java.io.Serializable;
 import java.util.List;
 
 public class ProcessDataViewComponent extends VerticalLayout implements Refreshable {
@@ -27,6 +31,9 @@ public class ProcessDataViewComponent extends VerticalLayout implements Refresha
     private Label titleLabel;
 
     private Application application;
+	private ProcessToolBpmSession bpmSession;
+
+	private ProcessDataPane pdp;
 
     public ProcessDataViewComponent(Application application, I18NSource messageSource, ViewController viewController) {
         this.application = application;
@@ -36,7 +43,7 @@ public class ProcessDataViewComponent extends VerticalLayout implements Refresha
     }
 
     private void init() {
-        setWidth("100%");
+        setWidth(100, UNITS_PERCENTAGE);
         setSpacing(true);
         setMargin(true);
     }
@@ -47,27 +54,34 @@ public class ProcessDataViewComponent extends VerticalLayout implements Refresha
                     @Override
                     public void buttonClick(Button.ClickEvent event) {
                         if (canSaveProcessData) {
-                            VaadinUtility.displayConfirmationWindow(getApplication(), messageSource, messageSource.getMessage("activity.close.process.confirmation.title"),
-                                    messageSource.getMessage("activity.close.process.confirmation.question"), eventHandler, null,
-                                    "activity.close.process.confirmation.ok", "activity.close.process.confirmation.cancel");
+                            VaadinUtility.displayConfirmationWindow(
+									getApplication(),
+									messageSource,
+									messageSource.getMessage("activity.close.process.confirmation.title"),
+                                    messageSource.getMessage("activity.close.process.confirmation.question"),
+									new String[] {
+											"activity.close.process.confirmation.ok",
+											"activity.close.process.confirmation.save",
+											"activity.close.process.confirmation.cancel"
+									},
+									new EventHandler[] {
+											saveEventHandler,
+											saveAndCloseEventHandler,
+											null,
+									},
+									null);
                         }
                         else {
-                            eventHandler.onEvent();
+                            saveEventHandler.onEvent();
                         }
                     }
 
-                    EventHandler eventHandler = new EventHandler() {
-                        @Override
-                        public void onEvent() {
-                            setShowExitWarning(application, false);
-                            VaadinUtility.unregisterClosingWarning(application.getMainWindow());
-                            viewController.displayPreviousView();
-                        }
-                    };
+                    EventHandler saveEventHandler = new SaveEventHandler();
+					EventHandler saveAndCloseEventHandler = new SaveAndCloseEventHandler();
                 });
 
         AligningHorizontalLayout toolbar = new AligningHorizontalLayout(Alignment.MIDDLE_RIGHT);
-        toolbar.setWidth("100%");
+        toolbar.setWidth(100, UNITS_PERCENTAGE);
         toolbar.setMargin(false);
         toolbar.setSpacing(false);
 
@@ -89,10 +103,23 @@ public class ProcessDataViewComponent extends VerticalLayout implements Refresha
         return toolbar;
     }
 
+	private void saveAndCloseAction(boolean save) {
+		if (save) {
+			if (!pdp.saveProcessDataButtonAction()) {
+				return;
+			}
+		}
+		setShowExitWarning(application, false);
+		VaadinUtility.unregisterClosingWarning(application.getMainWindow());
+		bpmSession.getEventBusManager().post(new ViewEvent(Type.ACTION_COMPLETE));
+		viewController.displayPreviousView();
+	}
+
     public void attachProcessDataPane(BpmTask task, ProcessToolBpmSession bpmSession) {
         removeAllComponents();
         titleLabel = new Label();
-        ProcessDataPane pdp = new ProcessDataPane(application, bpmSession, messageSource, task, new ProcessDataDisplayContext() {
+        this.bpmSession = bpmSession;
+        this.pdp = new ProcessDataPane(application, bpmSession, messageSource, task, new ProcessDataDisplayContext() {
             @Override
             public void hide() {
                 setShowExitWarning(application, false);
@@ -125,4 +152,22 @@ public class ProcessDataViewComponent extends VerticalLayout implements Refresha
             ((GenericVaadinPortlet2BpmApplication) application).setShowExitWarning(show);
         }
     }
+
+	public ProcessDataPane getProcessDataPane() {
+		return pdp;
+	}
+
+	private class SaveEventHandler implements EventHandler, Serializable {
+		@Override
+		public void onEvent() {
+			saveAndCloseAction(false);
+		}
+	}
+
+	private class SaveAndCloseEventHandler implements EventHandler, Serializable {
+		@Override
+		public void onEvent() {
+			saveAndCloseAction(true);
+		}
+	}
 }

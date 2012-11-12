@@ -25,13 +25,13 @@ public class DictionaryItemForm extends Form {
     private Button addButton;
 
     private static final Set<String> FIELDS_VISIBLE = new HashSet<String>() {{
-        add("key");
+        add("stringKey");
         add("description");
-        add("values");
+        add("dbValues");
     }};
     private static final Set<String> FIELDS_EDITABLE = FIELDS_VISIBLE;
     private static final Set<String> FIELDS_REQUIRED = new HashSet<String>() {{
-        add("key");
+        add("stringKey");
     }};
 
     public DictionaryItemForm(Application application, I18NSource source, BeanItem<ProcessDBDictionaryItem> item) {
@@ -76,13 +76,13 @@ public class DictionaryItemForm extends Form {
             if (field.getValue() == null && field.getType() == String.class) {
                 field.setValue("");
             }
-            if ("key".equals(propertyId)) {
+            if ("stringKey".equals(propertyId)) {
                 layout.addComponent(field, 0, 0);
             }
             else if ("description".equals(propertyId)) {
                 layout.addComponent(field, 1, 0);
             }
-            else if ("values".equals(propertyId)) {
+            else if ("dbValues".equals(propertyId)) {
                 Label caption = new Label("<b>" + getMessage("dict.item.values") + "</b>", Label.CONTENT_XHTML);
                 caption.setWidth("100%");
 

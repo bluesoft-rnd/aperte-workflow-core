@@ -16,7 +16,7 @@ public class ProcessInstanceAttribute extends PersistentEntity {
 	private String key;
 
 //    @XmlTransient
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name="process_instance_id")
 	private ProcessInstance processInstance;
 

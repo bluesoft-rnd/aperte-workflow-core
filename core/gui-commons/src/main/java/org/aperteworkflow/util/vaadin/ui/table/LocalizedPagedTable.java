@@ -232,7 +232,7 @@ public class LocalizedPagedTable extends Table {
                 int size = container.getRealSize() - 1;
                 int pages = 0;
                 if (getPageLength() != 0) {
-                    pages = (int) Math.floor(0.0 + size / getPageLength());
+                    pages = (int) Math.floor((double)size / getPageLength());
                 }
                 firstIndex = pages * getPageLength();
             }

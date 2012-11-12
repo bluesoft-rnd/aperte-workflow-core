@@ -134,7 +134,7 @@ public class DictionaryItemValuesField extends CustomField {
 
     @Override
     protected void setInternalValue(Object newValue) {
-        if (newValue != null && !(newValue instanceof Collection)) {
+        if (!(newValue instanceof Collection)) {
             throw new IllegalArgumentException("Unable to handle non-collection values");
         }
         originalValue = new ArrayList<ProcessDBDictionaryItemValue>((Collection<? extends ProcessDBDictionaryItemValue>) newValue);
@@ -220,7 +220,7 @@ public class DictionaryItemValuesField extends CustomField {
         @Override
         public Field createField(Item item, Object propertyId, Component uiContext) {
             Field field = null;
-            if (propertyId.equals("value")) {
+            if (propertyId.equals("stringValue")) {
                 TextField textField = new TextField(getMessage("dict.item.value"));
                 textField.setNullRepresentation("");
                 textField.setRequired(true);
@@ -281,7 +281,7 @@ public class DictionaryItemValuesField extends CustomField {
             setInvalidCommitted(false);
             setFormFieldFactory(new ItemValueFormFieldFactory());
             setItemDataSource(new BeanItem<ProcessDBDictionaryItemValue>(val));
-            setVisibleItemProperties(new String[] {"value", "validStartDate", "validEndDate", "extensions"});
+            setVisibleItemProperties(new String[] {"stringValue", "validStartDate", "validEndDate", "extensions"});
         }
 
         public void addDeleteButton(ClickListener listener) {
@@ -300,7 +300,7 @@ public class DictionaryItemValuesField extends CustomField {
 
         @Override
         protected void attachField(Object propertyId, Field field) {
-            if ("value".equals(propertyId)) {
+            if ("stringValue".equals(propertyId)) {
                 layout.addComponent(field, 0, 0, 1, 0);
             }
             else if ("validStartDate".equals(propertyId)) {

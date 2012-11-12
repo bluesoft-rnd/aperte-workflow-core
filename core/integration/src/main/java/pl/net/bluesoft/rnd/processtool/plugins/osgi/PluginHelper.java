@@ -9,7 +9,7 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.IndexWriterConfig; 
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.*;
@@ -21,12 +21,16 @@ import org.aperteworkflow.search.ProcessInstanceSearchData;
 import org.aperteworkflow.search.SearchProvider;
 import org.aperteworkflow.ui.view.ViewRegistry;
 import org.aperteworkflow.ui.view.impl.DefaultViewRegistryImpl;
+import org.aperteworkflow.util.liferay.LiferayBridge;
 import org.osgi.framework.*;
-import pl.net.bluesoft.rnd.poutils.cquery.func.F;
+
+import com.thoughtworks.xstream.XStream;
+
 import pl.net.bluesoft.rnd.processtool.plugins.*;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.util.i18n.impl.PropertiesBasedI18NProvider;
 import pl.net.bluesoft.rnd.util.i18n.impl.PropertyLoader;
+import pl.net.bluesoft.util.lang.cquery.func.F;
 
 import java.io.*;
 import java.net.URL;
@@ -40,9 +44,9 @@ import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static pl.net.bluesoft.rnd.poutils.cquery.CQuery.from;
 import static pl.net.bluesoft.rnd.processtool.plugins.osgi.OSGiBundleHelper.*;
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
+import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
 
 public class PluginHelper implements PluginManager, SearchProvider {
 
@@ -58,10 +62,11 @@ public class PluginHelper implements PluginManager, SearchProvider {
     private static final String AWF_RUNNING = "__AWF__running";
     private static final String AWF__ASSIGNEE = "__AWF__assignee";
     private static final String AWF__QUEUE = "__AWF__queue";
+    
+    private static final String SEPARATOR = "/";
 
     private StringBuffer monitorInfo = new StringBuffer();
 
-    
     private static class BundleInfo {
         private Long lastModified;
         private Long installDuration;
@@ -246,6 +251,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
         }
 
         if (bundleHelper.hasHeaderValues(PROCESS_DEPLOYMENT)) {
+            handleProcessRoles(eventType, bundleHelper, registry);
             handleProcessDeployment(eventType, bundleHelper, registry);
         }
 
@@ -333,7 +339,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
                     ? toolRegistry.registerModelExtension(extensions)
                     : toolRegistry.unregisterModelExtension(extensions);
             if (needUpdate) {
-                LOGGER.warning("Rebuilding Hibernate session factory...");
+                LOGGER.fine("Rebuilding Hibernate session factory...");
                 try {
                     toolRegistry.commitModelExtensions();
                 }
@@ -353,10 +359,10 @@ public class PluginHelper implements PluginManager, SearchProvider {
         final Bundle bundle = bundleHelper.getBundle();
         String[] properties = bundleHelper.getHeaderValues(PROCESS_DEPLOYMENT);
         for (String processPackage : properties) {
-            String providerId = bundle.getBundleId() + "/" + processPackage.replace(".", "/") + "/messages";
+            String providerId = bundle.getBundleId() + SEPARATOR + processPackage.replace(".", SEPARATOR) + "/messages";
             if (eventType == Bundle.ACTIVE) {
                 try {
-                    String basePath = "/" + processPackage.replace(".", "/") + "/";
+                    String basePath = SEPARATOR + processPackage.replace(".", SEPARATOR) + SEPARATOR;
                     toolRegistry.deployOrUpdateProcessDefinition(
                             bundleHelper.getBundleResourceStream(basePath + "processdefinition." +
                                     toolRegistry.getBpmDefinitionLanguage() + ".xml"),
@@ -370,7 +376,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
                         public InputStream loadProperty(String path) throws IOException {
                             return getBundleResourceStream(bundle, path);
                         }
-                    }, "/" + processPackage.replace(".", "/") + "/messages"), providerId);
+                    }, "/" + processPackage.replace(".", SEPARATOR) + "/messages"), providerId);
 
                     toolRegistry.registerProcessDictionaries(bundleHelper.getBundleResourceStream(basePath + "process-dictionaries.xml"));
 
@@ -385,15 +391,85 @@ public class PluginHelper implements PluginManager, SearchProvider {
             }
         }
     }
+    
+	private void handleProcessRoles(int eventType, OSGiBundleHelper bundleHelper, ProcessToolRegistry registry) {
+		if (eventType != Bundle.ACTIVE) {
+			return;
+		}
+		
+		final Bundle bundle = bundleHelper.getBundle();
+
+		if (bundleHelper.hasHeaderValues(ROLE_FILES)) {
+			String[] files = bundleHelper.getHeaderValues(ROLE_FILES);
+			for (String file : files) {
+				try {
+					InputStream input = bundleHelper.getBundleResourceStream(file);
+					Collection<ProcessRoleConfig> roles = getRoles(input);
+					createRoles(roles,registry);
+				}
+				catch (Exception e) {
+					LOGGER.log(Level.SEVERE, e.getMessage(), e);
+					forwardErrorInfoToMonitor(bundle.getSymbolicName(), e);
+				}
+			}
+		}
+
+		if (bundleHelper.hasHeaderValues(PROCESS_DEPLOYMENT)) {
+			String[] properties = bundleHelper.getHeaderValues(PROCESS_DEPLOYMENT);
+			for (String processPackage : properties) {
+				String basePath = SEPARATOR + processPackage.replace(".", SEPARATOR) + SEPARATOR;
+				try {
+					InputStream input = bundleHelper.getBundleResourceStream(basePath + "roles-config.xml");
+					Collection<ProcessRoleConfig> roles = getRoles(input);
+					createRoles(roles,registry);
+				}
+				catch (Exception e) {
+					LOGGER.log(Level.SEVERE, e.getMessage(), e);
+					forwardErrorInfoToMonitor(bundle.getSymbolicName(), e);
+				}
+			}
+		}
+	}
+
+	private Collection<ProcessRoleConfig> getRoles(InputStream input) {
+		if (input == null) {
+			return null;
+		}
+		XStream xstream = new XStream();
+		xstream.aliasPackage("config", ProcessRoleConfig.class.getPackage().getName());
+		xstream.useAttributeFor(String.class);
+		xstream.useAttributeFor(Boolean.class);
+		xstream.useAttributeFor(Integer.class);
+		return (Collection<ProcessRoleConfig>) xstream.fromXML(input);
+	}
+
+	private void createRoles(Collection<ProcessRoleConfig> roles,ProcessToolRegistry registry) {
+		if (roles != null) {
+			for (ProcessRoleConfig role : roles) {
+				try 
+				{
+					boolean roleCreated = LiferayBridge.createRoleIfNotExists(role.getName(), role.getDescription());
+					if (roleCreated) 
+						LOGGER.log(Level.INFO, "Created role " + role.getName());
+
+				} catch (RuntimeException e) {
+					forwardErrorInfoToMonitor("adding role " + role.getName(), e);
+					throw e;
+				}
+			}
+		}
+	}
+
 
     private void handleBundleResources(int eventType, OSGiBundleHelper bundleHelper, ProcessToolRegistry toolRegistry) {
         Bundle bundle = bundleHelper.getBundle();
         String[] resources = bundleHelper.getHeaderValues(RESOURCES);
         for (String pack : resources) {
-            if (eventType == Bundle.ACTIVE) {
-                String basePath = File.separator + pack.replace(".", File.separator);
-                if (!basePath.endsWith(File.separator)) {
-                    basePath += File.separator;
+            if (eventType == Bundle.ACTIVE) 
+            {
+                String basePath = SEPARATOR + pack.replace(".", SEPARATOR);
+                if (!basePath.endsWith(SEPARATOR)) {
+                    basePath += SEPARATOR;
                 }
                 Enumeration<URL> urls = bundle.findEntries(basePath, null, true);
                 while (urls.hasMoreElements()) {
@@ -412,13 +488,13 @@ public class PluginHelper implements PluginManager, SearchProvider {
         if (eventType == Bundle.ACTIVE) {
             for (String pack : properties) {
                 try {
-                    String basePath = File.separator + pack.replace(".", File.separator) + File.separator;
+                    String basePath = SEPARATOR + pack.replace(".", SEPARATOR) + SEPARATOR;
                     InputStream is = bundleHelper.getBundleResourceStream(basePath + "global-dictionaries.xml");
                     if (is != null) {
                         toolRegistry.registerGlobalDictionaries(is);
                     }
                     else {
-                        LOGGER.log(Level.WARNING, "No global dictionary stream found in package: " + pack);
+                        LOGGER.log(Level.SEVERE, "No global dictionary stream found in package: " + pack);
                     }
                 }
                 catch (Exception e) {
@@ -515,7 +591,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
                 if (throwable != null) {
                     LOGGER.log(Level.SEVERE, "Felix: " + msg + ", Throwable: " + throwable.getMessage(), throwable);
                 } else {
-                    LOGGER.log(Level.WARNING, "Felix: " + msg);
+                    LOGGER.log(Level.FINE, "Felix: " + msg);
                 }
             }
         });
@@ -633,10 +709,10 @@ public class PluginHelper implements PluginManager, SearchProvider {
         if (!f.exists()) {
             LOGGER.warning("Plugins dir not found: " + pluginsDir + " attempting to create...");
             if (!f.mkdir()) {
-                LOGGER.warning("Failed to create plugins directory: " + pluginsDir + ", please reconfigure!!!");
+                LOGGER.severe("Failed to create plugins directory: " + pluginsDir + ", please reconfigure!!!");
                 return null;
             } else {
-                LOGGER.severe("Created plugins directory: " + pluginsDir);
+                LOGGER.info("Created plugins directory: " + pluginsDir);
             }
         }
         String[] list = f.list();
@@ -675,12 +751,21 @@ public class PluginHelper implements PluginManager, SearchProvider {
             removablePaths.addAll(installableBundlePaths);
             Set<Bundle> removedBundles = uninstallBundles(removablePaths);
             for (Bundle bundle : removedBundles) {
-                try {
+                try 
+                {
                     processBundleExtensions(bundle, Bundle.STOPPING);
                 }
                 catch (ClassNotFoundException e) {
                     LOGGER.log(Level.SEVERE, "Exception processing bundle", e);
                     forwardErrorInfoToMonitor(bundle.getSymbolicName(), e);
+                }
+                /* Zabezpiecznie na wypadku bledu w kodzie, aby nie wywalal innych 
+                 * pakietow przy starcie
+                 */
+                catch(Exception ex)
+                {
+                    LOGGER.log(Level.SEVERE, "Exception processing bundle", ex);
+                    forwardErrorInfoToMonitor(bundle.getSymbolicName(), ex);
                 }
             }
         }
@@ -694,9 +779,9 @@ public class PluginHelper implements PluginManager, SearchProvider {
             if (removablePaths.contains(path) && (bundle.getState() &
                     (Bundle.INSTALLED | Bundle.RESOLVED | Bundle.STARTING | Bundle.ACTIVE | Bundle.STOPPING)) != 0) {
                 try {
-                    LOGGER.warning("STOPPING: " + path);
+                    LOGGER.info("STOPPING: " + path);
                     bundle.stop();
-                    LOGGER.warning("STOPPED: " + path);
+                    LOGGER.info("STOPPED: " + path);
                     removedBundles.add(bundle);
                 }
                 catch (Exception e) {
@@ -717,11 +802,23 @@ public class PluginHelper implements PluginManager, SearchProvider {
                 if (bundle != null) {
                     try {
                         processBundleExtensions(bundle, Bundle.ACTIVE);
+                        
+                        bundle.start();
+                        LOGGER.info("STARTED: " + it);
+                        
                         it.remove();
                         installed = true;
                     }
                     catch (ClassNotFoundException e) {
                         LOGGER.log(Level.SEVERE, "Exception processing bundle", e);
+                    }
+                    /* Zabezpiecznie na wypadku bledu w kodzie, aby nie wywalal innych 
+                     * pakietow przy starcie
+                     */
+                    catch(Exception ex)
+                    {
+                        LOGGER.log(Level.SEVERE, "Exception processing bundle", ex);
+                        forwardErrorInfoToMonitor(bundle.getSymbolicName(), ex);
                     }
                 }
             }
@@ -732,14 +829,12 @@ public class PluginHelper implements PluginManager, SearchProvider {
         Bundle bundle;
         long start = new Date().getTime();
         try {
-            LOGGER.warning("INSTALLING: " + path);
+            LOGGER.info("INSTALLING: " + path);
             bundle = felix.getBundleContext().installBundle("file://" + path.replace('\\','/'), new FileInputStream(path));
             bundle.update(new FileInputStream(path));
-            LOGGER.warning("INSTALLED: " + path);
-            bundle.start();
-            LOGGER.warning("STARTED: " + path);
+            LOGGER.info("INSTALLED: " + path);
         }
-        catch (Exception e) {
+        catch (Throwable e) {
             LOGGER.warning("BLOCKING: " + path);
             LOGGER.log(Level.WARNING, e.getMessage(), e);
             bundle = null;
@@ -750,13 +845,23 @@ public class PluginHelper implements PluginManager, SearchProvider {
 
     private void dependencyWiseInstallBundles(List<String> installableBundlePaths, String pluginsDir) {
         for (String installBundlePath : installableBundlePaths) {
+			JarFile jar = null;
             try {
-                JarFile jar = new JarFile(installBundlePath);
+                jar = new JarFile(installBundlePath);
                 updatePackageInfo(getBundleInfo(installBundlePath), jar.getManifest());
             }
             catch (Exception e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
+			finally {
+				try {
+					if (jar != null) {
+						jar.close();
+					}
+				}
+				catch (IOException e) {
+				}
+			}
         }
 
         Map<String, Set<String>> deps = getDependencyMap(pluginsDir);
@@ -773,10 +878,22 @@ public class PluginHelper implements PluginManager, SearchProvider {
                 if (bundle != null) {
                     try {
                         processBundleExtensions(bundle, Bundle.ACTIVE);
+                        
+                        bundle.start();
+                        LOGGER.info("STARTED: " + dep);
+                        
                         installableBundlePaths.remove(dep);
                     }
                     catch (ClassNotFoundException e) {
                         LOGGER.log(Level.SEVERE, "Exception processing bundle", e);
+                    }
+                    /* Zabezpiecznie na wypadek bledu w kodzie, aby nie wywalal innych 
+                     * pakietow przy starcie
+                     */
+                    catch(Exception ex)
+                    {
+                        LOGGER.log(Level.SEVERE, "Exception processing bundle", ex);
+                        forwardErrorInfoToMonitor(bundle.getSymbolicName(), ex);
                     }
                 }
             }
@@ -924,31 +1041,39 @@ public class PluginHelper implements PluginManager, SearchProvider {
 
             is.reset();
             FileOutputStream fos = new FileOutputStream(tempFile);
-            byte[] buf = new byte[1024];
-            int len = 0;
-            while ((len = is.read(buf)) >= 0) {
-                fos.write(buf, 0, len);
-            }
-            fos.flush();
-            fos.close();
+            try {
+				byte[] buf = new byte[1024];
+				int len;
+				while ((len = is.read(buf)) >= 0) {
+					fos.write(buf, 0, len);
+				}
+				fos.flush();
+			}
+			finally {
+            	fos.close();
+			}
 
             File dest = new File(pluginsDir, filename);
             if (!tempFile.renameTo(dest)) {
                 throw new IOException("Failed to rename " + tempFile.getAbsolutePath() + " to " + dest.getAbsolutePath() +
                         ", as File.renameTo returns only boolean, the reason is unknown.");
             } else {
-                LOGGER.warning("Renamed " + tempFile.getAbsolutePath() + " to " + dest.getAbsolutePath());
+                LOGGER.fine("Renamed " + tempFile.getAbsolutePath() + " to " + dest.getAbsolutePath());
             }
             fileRef = dest;
-            LOGGER.warning("Installing bundle: " + dest.getAbsolutePath());
-            installBundle(dest.getAbsolutePath());
+            LOGGER.info("Installing bundle: " + dest.getAbsolutePath());
+            Bundle bundle = installBundle(dest.getAbsolutePath());
+            
+            bundle.start();
+            LOGGER.info("STARTED: " + dest.getAbsolutePath());
+            
             fileRef = null;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Failed to deploy plugin " + filename, e);
             throw new PluginManagementException(e);
         } finally {
             if (fileRef != null) {
-                LOGGER.warning("trying to remove leftover file " + fileRef.getAbsolutePath());
+                LOGGER.fine("trying to remove leftover file " + fileRef.getAbsolutePath());
                 fileRef.delete();
             }
         }
@@ -1106,7 +1231,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
 
     public List<Document> search(String query, int offset, int limit, Query... addQueries) {
         try {
-            LOGGER.info("Parsing lucene search query: " + query);
+            LOGGER.fine("Parsing lucene search query: " + query);
             QueryParser qp = new QueryParser(Version.LUCENE_35, "all", new StandardAnalyzer(Version.LUCENE_35));
             Query q = qp.parse(query);
             BooleanQuery bq = new BooleanQuery();
@@ -1116,11 +1241,11 @@ public class PluginHelper implements PluginManager, SearchProvider {
             }
             bq.add(q, BooleanClause.Occur.MUST);
 
-            LOGGER.info("Searching lucene index with query: " + bq.toString());
+            LOGGER.fine("Searching lucene index with query: " + bq.toString());
             TopDocs search = indexSearcher.search(bq, offset + limit);
 
             List<Document> results = new ArrayList<Document>(limit);
-            LOGGER.info("Total result count for query: " + bq.toString() + " is " + search.totalHits);
+            LOGGER.fine("Total result count for query: " + bq.toString() + " is " + search.totalHits);
             for (int i = offset; i < offset+limit && i < search.totalHits; i++) {
                 ScoreDoc scoreDoc = search.scoreDocs[i];
                 results.add(indexSearcher.doc(scoreDoc.doc));
@@ -1138,7 +1263,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
             IndexWriterConfig cfg = new IndexWriterConfig(Version.LUCENE_35, new StandardAnalyzer(Version.LUCENE_35));
             IndexWriter indexWriter = new IndexWriter(index, cfg);
             for (Document doc : docs) {
-                LOGGER.info("Updating index for document: " + doc.getFieldable(AWF__ID));
+                LOGGER.fine("Updating index for document: " + doc.getFieldable(AWF__ID));
                 indexWriter.deleteDocuments(new Term(AWF__ID, doc.getFieldable(AWF__ID).stringValue()));
                 StringBuilder all = new StringBuilder();
                 for (Fieldable f : doc.getFields()) {
@@ -1149,10 +1274,10 @@ public class PluginHelper implements PluginManager, SearchProvider {
                 doc.add(new Field("all", all.toString(), Field.Store.NO, Field.Index.ANALYZED));
             }
             indexWriter.addDocuments(Arrays.asList(docs));
-            LOGGER.info("reindexing Lucene...");
+            LOGGER.fine("reindexing Lucene...");
             indexWriter.commit();
             indexWriter.close();
-            LOGGER.info("reindexing Lucene... DONE!");
+            LOGGER.fine("reindexing Lucene... DONE!");
 
             try { if (indexSearcher != null) {
                 indexSearcher.close();
@@ -1163,7 +1288,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
 
             indexReader = IndexReader.open(index);
             indexSearcher = new IndexSearcher(indexReader);
-            LOGGER.info("reopened Lucene index handles");
+            LOGGER.fine("reopened Lucene index handles");
 
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -1172,12 +1297,10 @@ public class PluginHelper implements PluginManager, SearchProvider {
     }
 
 
-    protected void forwardErrorInfoToMonitor(String path, Exception e) {
+    protected void forwardErrorInfoToMonitor(String path, Exception e) 
+	{
    		monitorInfo.append("\nSEVERE EXCEPTION: " + path);
    		monitorInfo.append("\n" + e.getMessage());
-   		//		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-   		//		e.printStackTrace(new PrintWriter(baos));
-   		//		monitorInfo.append(baos.toString());
    	}
 
     public StringBuffer getMonitorInfo() {

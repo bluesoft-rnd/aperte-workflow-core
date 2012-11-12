@@ -14,6 +14,8 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidgetAttribute;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.PropertyAutoWiring;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.event.WidgetEvent;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.event.WidgetEventBus;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import java.util.Arrays;
@@ -38,6 +40,7 @@ public abstract class BaseProcessToolWidget implements ProcessToolWidget {
 	protected Map<String, String> attributes = new HashMap<String, String>();
 	protected boolean isOwner;
 	private Application application;
+	protected WidgetEventBus widgetEventBus;
 
 	@Override
 	public void setContext(ProcessStateConfiguration state, ProcessStateWidget configuration, I18NSource i18NSource,
@@ -219,7 +222,7 @@ public abstract class BaseProcessToolWidget implements ProcessToolWidget {
 			return null;
 		} else {
 			for (T t : collection) {
-				if (((ProcessInstanceAttribute)t).getKey().equals(key))
+				if (t.getKey().equals(key))
 				return t;
 			}
 			return null;
@@ -258,17 +261,21 @@ public abstract class BaseProcessToolWidget implements ProcessToolWidget {
         return true;
     }
 
+	@Override
+	public void setWidgetEventBus(WidgetEventBus widgetEventBus) {
+		this.widgetEventBus = widgetEventBus;
+	}
+
+	@Override
+	public void handleWidgetEvent(WidgetEvent event) {
+	}
+
 	public String getGeneratorKey() {
 		return generatorKey;
-}
+	}
 
 	@Override
 	public void setGeneratorKey(String generatorKey) {
 		this.generatorKey = generatorKey;
 	}
-
-    private boolean cannotEdit() {
-   		return !hasPermission("EDIT");
-   	}
-
 }

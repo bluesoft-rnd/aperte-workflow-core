@@ -12,7 +12,6 @@ import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.ui.*;
 import com.vaadin.ui.Table.ColumnGenerator;
 import com.vaadin.ui.Window.Notification;
-import com.vaadin.ui.themes.BaseTheme;
 import com.vaadin.ui.themes.Reindeer;
 import org.aperteworkflow.util.vaadin.ui.table.LocalizedPagedTable;
 import org.vaadin.dialogs.ConfirmDialog;
@@ -27,6 +26,7 @@ import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import static com.vaadin.ui.Window.Notification.*;
@@ -36,8 +36,6 @@ import static org.aperteworkflow.util.vaadin.VaadinExceptionHandler.Util.withErr
  * @author tlipski@bluesoft.net.pl
  */
 public class VaadinUtility {
-
-
     public static final String SIMPLE_DATE_FORMAT_STRING = "yyyy-MM-dd";
     public static final String FULL_DATE_FORMAT_STRING = "yyyy-MM-dd HH:mm:ss";
     private static final String REGISTER_CLOSE_WARNING = " registerCloseHandler(function() { return \"%s\"; }); ";
@@ -58,9 +56,8 @@ public class VaadinUtility {
             factory = (ProcessToolRegistry) portletCtx.getPortletConfig()
                     .getPortletContext()
                     .getAttribute(ProcessToolRegistry.class.getName());
-
         }
-        return factory.getProcessToolContextFactory();
+        return factory != null ? factory.getProcessToolContextFactory() : null;
     }
 
     public static HorizontalLayout horizontalLayout(String width, com.vaadin.ui.Component... components) {
@@ -82,7 +79,7 @@ public class VaadinUtility {
     public static VerticalLayout verticalLayout(com.vaadin.ui.Component... components) {
         VerticalLayout vl = new VerticalLayout();
         vl.setSpacing(true);
-        vl.setWidth("100%");
+        vl.setWidth(100, Sizeable.UNITS_PERCENTAGE);
         if (components != null) {
             for (com.vaadin.ui.Component c : components) {
                 if (c != null) {
@@ -100,7 +97,7 @@ public class VaadinUtility {
         }
         cb.setValue(false);
         cb.setImmediate(true);
-        cb.setWidth("100%");
+        cb.setWidth(100, Sizeable.UNITS_PERCENTAGE);
         return cb;
     }
 
@@ -112,13 +109,14 @@ public class VaadinUtility {
         select.setContainerDataSource(container);
         select.setItemCaptionMode(Select.ITEM_CAPTION_MODE_PROPERTY);
         select.setItemCaptionPropertyId(itemCaptionPropertyId);
+        select.setSizeUndefined();
         select.setFilteringMode(AbstractSelect.Filtering.FILTERINGMODE_CONTAINS);
         return select;
     }
 
     public static Panel panel(String title, com.vaadin.ui.Component... components) {
         Panel p = new Panel();
-        p.setWidth("100%");
+        p.setWidth(100, Sizeable.UNITS_PERCENTAGE);
         p.setCaption(title);
         for (com.vaadin.ui.Component c : components) {
             p.addComponent(c);
@@ -128,13 +126,13 @@ public class VaadinUtility {
 
     public static Label label(String message, int width) {
         Label l = new Label(message);
-        l.setWidth(width + "px");
+        l.setWidth(width, Sizeable.UNITS_PIXELS);
         return l;
     }
 
     public static HorizontalLayout horizontalLayout(com.vaadin.ui.Component c1, com.vaadin.ui.Component c2) {
         HorizontalLayout hl = new HorizontalLayout();
-        hl.setWidth("100%");
+        hl.setWidth(100, Sizeable.UNITS_PERCENTAGE);
         hl.setSpacing(true);
         hl.addComponent(c1);
         hl.addComponent(c2);
@@ -145,7 +143,7 @@ public class VaadinUtility {
 
     public static HorizontalLayout horizontalLayout(Alignment alignment, com.vaadin.ui.Component... components) {
         HorizontalLayout hl = new HorizontalLayout();
-        hl.setWidth("100%");
+        hl.setWidth(100, Sizeable.UNITS_PERCENTAGE);
         hl.setSpacing(true);
         if (components != null && components.length > 0) {
             for (com.vaadin.ui.Component c : components) {
@@ -179,8 +177,8 @@ public class VaadinUtility {
         table.setColumnCollapsingAllowed(false);
         table.setSortDisabled(true);
         if (customColumns != null) {
-            for (String key : customColumns.keySet()) {
-                table.addGeneratedColumn(key, customColumns.get(key));
+			for (Map.Entry<String, ColumnGenerator> entry : customColumns.entrySet()) {
+                table.addGeneratedColumn(entry.getKey(), entry.getValue());
             }
         }
         table.setContainerDataSource(dataSource);
@@ -202,8 +200,8 @@ public class VaadinUtility {
             table.addListener(itemClickListener);
         }
         if (customViewColumns != null && !customViewColumns.isEmpty()) {
-            for (String columnId : customViewColumns.keySet()) {
-                table.addGeneratedColumn(columnId, customViewColumns.get(columnId));
+			for (Map.Entry<String, ColumnGenerator> entry : customViewColumns.entrySet()) {
+                table.addGeneratedColumn(entry.getKey(), entry.getValue());
             }
         }
         table.setVisibleColumns(visibleViewColumns);
@@ -215,7 +213,7 @@ public class VaadinUtility {
 
     public static VerticalLayout wrapPagedTable(I18NSource messageSource, LocalizedPagedTable table) {
         VerticalLayout tableCarrier = new VerticalLayout();
-        tableCarrier.setWidth("100%");
+        tableCarrier.setWidth(100, Sizeable.UNITS_PERCENTAGE);
         tableCarrier.addComponent(table);
         tableCarrier.addComponent(tableControls(messageSource, table));
         return tableCarrier;
@@ -264,7 +262,8 @@ public class VaadinUtility {
         if (description != null) {
             button.setDescription(description);
         }
-        button.setStyleName(style);
+        if(style != null)
+        	button.setStyleName(style);
         if (listener != null) {
             button.addListener(listener);
         }
@@ -326,7 +325,7 @@ public class VaadinUtility {
 
     public static Button refreshIcon(final Application application, final Refreshable refreshable) {
         Button b = refreshIcon(application);
-        b.setWidth("18px");
+        b.setWidth(18, Sizeable.UNITS_PIXELS);
         b.addListener(new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent event) {
@@ -378,38 +377,42 @@ public class VaadinUtility {
     }
 
     public static String widgetsErrorMessage(I18NSource i18NSource, Map<ProcessToolDataWidget, Collection<String>> errorMap) {
-        String errorMessage = "<ul>";
-        for (ProcessToolDataWidget w : errorMap.keySet()) {
-            Collection<String> col = errorMap.get(w);
+        StringBuilder errorMessage = new StringBuilder("<ul>");
+		for (Map.Entry<ProcessToolDataWidget, Collection<String>> entry : errorMap.entrySet()) {
+			ProcessToolDataWidget w = entry.getKey();
+            Collection<String> col = entry.getValue();
             String caption = null;
             if (w instanceof BaseProcessToolWidget) {
                 caption = ((BaseProcessToolWidget) w).getAttributeValue("caption");
             }
             if (caption != null) {
-                errorMessage += "<li>" + i18NSource.getMessage(caption) + "<ul>";
+                errorMessage.append("<li>").append(i18NSource.getMessage(caption)).append("<ul>");
             }
             for (String m : col) {
-                errorMessage += "<li>" + i18NSource.getMessage(m) + "</li>\n";
+                errorMessage.append("<li>").append(i18NSource.getMessage(m)).append("</li>\n");
             }
             if (caption != null) {
-                errorMessage += "</ul></li>";
+                errorMessage.append("</ul></li>");
             }
         }
-        errorMessage += "</ul>";
-        return errorMessage;
+        errorMessage.append("</ul>");
+        return errorMessage.toString();
     }
+
     public static String formErrorMessage(Collection<String> errorMap) {
-        String errorMessage = "<ul>";
-        for (String msg : errorMap)
-            errorMessage += "<li>" + msg + "</li>\n";
-        errorMessage += "</ul>";
-        return errorMessage;
+        StringBuilder errorMessage = new StringBuilder("<ul>");
+        for (String msg : errorMap) {
+            errorMessage.append("<li>").append(msg).append("</li>\n");
+		}
+        errorMessage.append("</ul>");
+        return errorMessage.toString();
     }
 
     public static void displayConfirmationWindow(Application application, I18NSource i18NSource, String title, String question, final EventHandler okEvent, final EventHandler cancelEvent) {
     	displayConfirmationWindow(application, i18NSource, title, question, okEvent, cancelEvent, i18NSource.getMessage("button.ok"), i18NSource.getMessage("button.cancel"));
     }
-    public static void displayConfirmationWindow(Application application, I18NSource i18NSource,
+
+	public static void displayConfirmationWindow(Application application, I18NSource i18NSource,
                                                  String title, String question,
                                                  final EventHandler okEvent,
                                                  final EventHandler cancelEvent, String okButtonLabel,
@@ -418,7 +421,7 @@ public class VaadinUtility {
         newConfirmationWindow.setModal(true);
         newConfirmationWindow.setBorder(0);
         newConfirmationWindow.setClosable(false);
-        newConfirmationWindow.setWidth("500px");
+        newConfirmationWindow.setWidth(500, Sizeable.UNITS_PIXELS);
 
         VerticalLayout vl = new VerticalLayout();
         vl.setSpacing(true);
@@ -463,8 +466,60 @@ public class VaadinUtility {
         newConfirmationWindow.addComponent(vl);
 
         application.getMainWindow().addWindow(newConfirmationWindow);
-
     }
+
+	public static void displayConfirmationWindow(Application application, I18NSource i18NSource,
+												 String title, String question,
+												 final String[] labels,
+												 final EventHandler[] events, final EventHandler cancelEvent) {
+		final Window newConfirmationWindow = new Window(title);
+		newConfirmationWindow.setModal(true);
+		newConfirmationWindow.setBorder(0);
+		newConfirmationWindow.setClosable(false);
+		newConfirmationWindow.setWidth(500, Sizeable.UNITS_PIXELS);
+
+		VerticalLayout vl = new VerticalLayout();
+		vl.setSpacing(true);
+
+		HorizontalLayout hl = new HorizontalLayout();
+		hl.setSpacing(true);
+
+		for (int i = 0; i < events.length; ++i) {
+			final EventHandler buttonEvent = events[i];
+			final String buttonLabel = labels[i];
+
+			if (buttonLabel != null) {
+				Button button = button(i18NSource.getMessage(buttonLabel), null, "default", new Button.ClickListener() {
+					@Override
+					public void buttonClick(Button.ClickEvent event) {
+						newConfirmationWindow.getParent().removeWindow(newConfirmationWindow);
+
+						if (buttonEvent != null) {
+							buttonEvent.onEvent();
+						}
+					}
+				});
+				hl.addComponent(button);
+			}
+		}
+
+		if (cancelEvent != null) {
+			newConfirmationWindow.addListener(new Window.CloseListener() {
+				@Override
+				public void windowClose(Window.CloseEvent e) {
+					cancelEvent.onEvent();
+				}
+			});
+		}
+
+		vl.addComponent(new Label(question));
+		vl.addComponent(hl);
+		vl.setComponentAlignment(hl, Alignment.BOTTOM_CENTER);
+
+		newConfirmationWindow.addComponent(vl);
+
+		application.getMainWindow().addWindow(newConfirmationWindow);
+	}
 
     public static HorizontalLayout labelWithIcon(Resource image, String caption, String style, String description) {
         Embedded img = new Embedded(null, image);
@@ -475,7 +530,7 @@ public class VaadinUtility {
             label.setStyleName(style);
         }
         HorizontalLayout hl = VaadinUtility.horizontalLayout(Alignment.MIDDLE_LEFT, img, label);
-        hl.setWidth("-1px");
+        hl.setWidth(-1, Sizeable.UNITS_PIXELS);
         return hl;
     }
 
@@ -503,7 +558,7 @@ public class VaadinUtility {
 
     public static Label htmlLabel(String message, int width) {
          Label l = new Label(message, Label.CONTENT_XHTML);
-         l.setWidth(width + "px");
+         l.setWidth(width, Sizeable.UNITS_PIXELS);
          return l;
      }
 
@@ -513,7 +568,7 @@ public class VaadinUtility {
 
      public static HorizontalLayout hl(com.vaadin.ui.Component... components) {
          HorizontalLayout hl = new HorizontalLayout();
-         hl.setWidth("100%");
+         hl.setWidth(100, Sizeable.UNITS_PERCENTAGE);
          hl.setSpacing(true);
          for (Component c : components) {
              hl.addComponent(c);
@@ -526,58 +581,71 @@ public class VaadinUtility {
         return new Embedded(null, new FileResource(file, application));
     }
 
-
     public static String getLocalizedMessage(String key) {
-      return I18NSource.ThreadUtil.getLocalizedMessage(key);
-  }
+		return I18NSource.ThreadUtil.getLocalizedMessage(key);
+  	}
 
 
-    public static <T extends Component> T styled(T c, String style) {
-        c.addStyleName(style);
-        return c;
-    }
+	public static <T extends Component> T styled(T c, String style) {
+		c.addStyleName(style);
+		return c;
+	}
 
-    public static Runnable confirmable(final Application app, final String windowCaption, final String message,
-                                       final Runnable runnable) {
-        return new Runnable() {
-            @Override
-            public void run() {
-                ConfirmDialog.show(app.getMainWindow(),
-                        windowCaption, message,
-                        getLocalizedMessage("confirm.yes"),
-                        getLocalizedMessage("confirm.no"),
-                        new ConfirmDialog.Listener() {
-                            @Override
-                            public void onClose(ConfirmDialog confirmDialog) {
-                                if (confirmDialog.isConfirmed()) {
-                                    runnable.run();
-                                }
-                            }
-                        });
-            }
-        };
-    }
+	public static Runnable confirmable(final Application app, final String windowCaption, final String message,
+									   final Runnable runnable) {
+		return new Runnable() {
+			@Override
+			public void run() {
+				ConfirmDialog.show(app.getMainWindow(),
+						windowCaption, message,
+						getLocalizedMessage("confirm.yes"),
+						getLocalizedMessage("confirm.no"),
+						new ConfirmDialog.Listener() {
+							@Override
+							public void onClose(ConfirmDialog confirmDialog) {
+								if (confirmDialog.isConfirmed()) {
+									runnable.run();
+								}
+							}
+						});
+			}
+		};
+	}
 
-    public static Button linkButton(String caption, final Runnable onClick) {
-        Button b = button(caption, onClick);
-        b.setStyleName(Reindeer.BUTTON_LINK);
-        return b;
-    }
-    
-    public static Button button(String caption, final Runnable onClick) {
-        Button b = new Button(caption);
-        b.addListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent event) {
-                onClick.run();
-            }
-        });
-        return b;
-    }
-    
-    public static <T extends Component> T width(T c, String width) {
-        c.setWidth(width);
-        return c;
-    }
+	public static Button linkButton(String caption, final Runnable onClick) {
+		Button b = button(caption, onClick);
+		b.setStyleName(Reindeer.BUTTON_LINK);
+		return b;
+	}
 
+	public static Button button(String caption, final Runnable onClick) {
+		Button b = new Button(caption);
+		b.addListener(new Button.ClickListener() {
+			@Override
+			public void buttonClick(Button.ClickEvent event) {
+				onClick.run();
+			}
+		});
+		return b;
+	}
+
+	public static <T extends Component> T width(T c, String width) {
+		c.setWidth(width);
+		return c;
+	}
+
+	public static  <C extends Component> Component joinHorizontally(List<C> components) {
+		switch (components.size()) {
+			case 0:
+				return null;
+			case 1:
+				return components.get(0);
+			default:
+				HorizontalLayout hl = new HorizontalLayout();
+				for (Component c : components) {
+					hl.addComponent(c);
+				}
+				return hl;
+		}
+	}
 }

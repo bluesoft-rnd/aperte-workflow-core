@@ -2,17 +2,24 @@ package pl.net.bluesoft.rnd.processtool.model;
 
 //import org.hibernate.annotations.OnDelete;
 //import org.hibernate.annotations.OnDeleteAction;
-import pl.net.bluesoft.util.lang.Collections;
-import pl.net.bluesoft.util.lang.Predicate;
-import pl.net.bluesoft.util.lang.Transformer;
+import static pl.net.bluesoft.util.lang.FormatUtil.join;
 
-import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import static pl.net.bluesoft.util.lang.FormatUtil.join;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import pl.net.bluesoft.util.lang.Collections;
+import pl.net.bluesoft.util.lang.Predicate;
+import pl.net.bluesoft.util.lang.Transformer;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -33,15 +40,13 @@ public class UserData extends UserAttributesSupport {
 	private Long companyId;
     private Long liferayUserId;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
-//    @OnDelete(action = OnDeleteAction.CASCADE)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<UserAttribute> attributes;
 
     @Transient
     private Set<UserAttribute> orphans;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
-//    @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<UserRole> roles;
 
 	public UserData() {
@@ -277,5 +282,10 @@ public class UserData extends UserAttributesSupport {
      */
     public String getFilteredName() {
 		return firstName + " " + lastName + " (" + login + ")";
+	}
+
+	@Override
+	public String toString() {
+		return "UserData [login=" + login + ", getRealName()=" + getRealName() + "]";
 	}
 }

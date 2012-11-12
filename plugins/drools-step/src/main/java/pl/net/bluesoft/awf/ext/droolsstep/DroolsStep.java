@@ -59,7 +59,8 @@ public class DroolsStep implements ProcessToolProcessStep {
             //TODO - process can be in a various states in that moment
 //			logEntry.setState(ctx.getProcessDefinitionDAO().getProcessStateConfiguration(step.getStateName()));
 			logEntry.setEventI18NKey(logEntryVal);
-			processInstance.addProcessLog(logEntry);
+			logEntry.setOwnProcessInstance(processInstance);
+			processInstance.getRootProcessInstance().addProcessLog(logEntry);
 		}
 		return (String) resultMap.get("value");
 	}

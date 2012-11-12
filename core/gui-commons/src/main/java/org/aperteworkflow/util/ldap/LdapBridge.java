@@ -1,25 +1,51 @@
 package org.aperteworkflow.util.ldap;
 
-import com.liferay.portal.kernel.util.*;
-import org.aperteworkflow.util.liferay.LiferayBridge;
-import org.aperteworkflow.util.liferay.PortalBridge;
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
-import pl.net.bluesoft.util.lang.Strings;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.logging.Logger;
 
-import javax.naming.*;
+import javax.naming.Binding;
+import javax.naming.CompositeName;
+import javax.naming.Context;
+import javax.naming.Name;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
+import javax.naming.ldap.Control;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
-import java.io.IOException;
-import java.util.*;
-import java.util.logging.Logger;
+import javax.naming.ldap.PagedResultsControl;
+import javax.naming.ldap.PagedResultsResponseControl;
+
+import org.aperteworkflow.util.liferay.LiferayBridge;
+import org.aperteworkflow.util.liferay.PortalBridge;
+
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.util.lang.Strings;
+
+import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.PrefsPropsUtil;
+import com.liferay.portal.kernel.util.PropertiesUtil;
+import com.liferay.portal.kernel.util.PropsKeys;
+import com.liferay.portal.kernel.util.StringBundler;
+import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Validator;
 
 /**
  * @author amichalak@bluesoft.net.pl
+ * @author mpawlak@bluesoft.net.pl
  */
 public class LdapBridge {
     private static final Logger logger = Logger.getLogger(LdapBridge.class.getName());
@@ -76,6 +102,9 @@ public class LdapBridge {
         if (ldapUserAttributes == null || ldapUserAttributes.isEmpty()) {
             ldapUserAttributes = loadUserAttributesProperty(ctx);
         }
+        
+        logger.info("ldapUserAttributes are: "+ldapUserAttributes);
+        
         Map<Long, Set<Long>> ldapServerMappings = new HashMap<Long, Set<Long>>();
         Map<String, Properties> result = new HashMap<String, Properties>();
         for (UserData user : users) {
@@ -96,8 +125,9 @@ public class LdapBridge {
             }
         }
         if (!ldapServerMappings.isEmpty() && ldapUserAttributes != null && !ldapUserAttributes.isEmpty()) {
-            for (Long companyId : ldapServerMappings.keySet()) {
-                Set<Long> ids = ldapServerMappings.get(companyId);
+			for (Map.Entry<Long, Set<Long>> entry : ldapServerMappings.entrySet()) {
+				Long companyId = entry.getKey();
+                Set<Long> ids = entry.getValue();
                 for (Long ldapServerId : ids) {
                     LdapContext context;
                     try {
@@ -106,10 +136,10 @@ public class LdapBridge {
                     catch (Exception e) {
                         throw new LiferayBridge.LiferayBridgeException(e);
                     }
-                    if (context == null) {
-                        logger.warning("Could not initialize LDAP context: [ldapServerId, companyId] = [" + ldapServerId + ", " + companyId + "]");
-                    }
-                    else {
+//                    if (context == null) {
+//                        logger.warning("Could not initialize LDAP context: [ldapServerId, companyId] = [" + ldapServerId + ", " + companyId + "]");
+//                    }
+//                    else {
                         try {
                             updateUserPropertiesMap(result, context, ldapServerId, companyId, ldapUserAttributes);
                         }
@@ -124,7 +154,7 @@ public class LdapBridge {
                                 throw new LiferayBridge.LiferayBridgeException(e);
                             }
                         }
-                    }
+//                    }
                 }
             }
         }
@@ -142,103 +172,114 @@ public class LdapBridge {
                 add(customAttributes.getProperty(sn));
             }
         }};
+        
         String screenName = propertiesMap.size() == 1 ? propertiesMap.entrySet().iterator().next().getKey() : null;
-        NamingEnumeration<SearchResult> enu = searchLdapUsers(context, companyId, ldapServerId, screenName, attributesToFetch);
-        while (enu.hasMoreElements()) {
-            SearchResult result = enu.nextElement();
-            Attributes attributes = result.getAttributes();
-            String login = getAttributeValue(attributes, userMappingsScreenName, null);
-            if (login != null) {
-                Properties userAttributes = propertiesMap.get(login);
-                if (userAttributes != null) {
-                    for (String propertyName : customAttributes.stringPropertyNames()) {
-                        String value = getAttributeValue(attributes, customAttributes.getProperty(propertyName), null);
-                        if (value != null) {
-                            userAttributes.setProperty(propertyName, value);
+        
+
+        /* User paged results to control page size. Some systems can have limited query size (for example Active Directory, which limits 
+         * results count to 1000. So we must use Range property to perform multiple search
+         */
+		PagedResultsControl pagedControls = new PagedResultsControl(500, Control.CRITICAL);
+		context.setRequestControls(new Control[] {pagedControls});
+		
+		/* Cookie is used to inform server to send another page */
+		byte[] cookie = null;
+	    int total = 0;
+
+        
+        /* Sum of all users imported from LDAP */
+        int ldapUserCount = 0;
+        
+        
+        do
+        {
+        	/* Create search controls and apply range limit */
+        	SearchControls searchControls = createSearchControls(screenName, attributesToFetch);
+        	NamingEnumeration<SearchResult> enu = searchLdapUsers(context, companyId, ldapServerId, screenName, searchControls);
+        	
+        	/* There should be no exception here becouse we use paged searching */
+            while (enu.hasMore()) 
+            {
+            	ldapUserCount++;
+                SearchResult result = enu.nextElement();
+                Attributes attributes = result.getAttributes();
+                String login = getAttributeValue(attributes, userMappingsScreenName, null);
+
+                if (login != null) 
+                {
+                	logger.info("Teta user login: "+login);
+                    Properties userAttributes = propertiesMap.get(login);
+                    if (userAttributes != null) {
+                        for (String propertyName : customAttributes.stringPropertyNames()) {
+                            String value = getAttributeValue(attributes, customAttributes.getProperty(propertyName), null);
+                            logger.info("Teta user property="+propertyName+", value="+value);
+                            if (value != null) {
+                                userAttributes.setProperty(propertyName, value);
+                            }
                         }
                     }
-                }
+                    else
+                    {
+                    	 logger.info("Teta user userAttributes are empty for login="+login);
+                    }
 
+                }
             }
-        }
-        enu.close();
+            
+            /* Search response controls form paged results control */
+            Control[] controls = context.getResponseControls();
+            if (controls != null) 
+            {
+                for (int i = 0; i < controls.length; i++) 
+                {
+                    if (controls[i] instanceof PagedResultsResponseControl) 
+                    {
+                        PagedResultsResponseControl prrc = (PagedResultsResponseControl)controls[i];
+                        total = prrc.getResultSize();
+                        cookie = prrc.getCookie();
+                        
+                        /* Update ldap context. In this moment, we inform server that it should
+                         * send another page of results
+                         * 
+                         * If cookie == null, there is no more results
+                         */
+                        pagedControls = new PagedResultsControl(500, cookie, Control.CRITICAL);
+                		context.setRequestControls(new Control[] {pagedControls});
+                    }
+                }
+            }
+	            
+        	
+        	enu.close();
+        	
+        /* No more results, end of ldap synchronization */
+        } while(cookie != null);
+        
+
+        logger.info("LDAP users forund: "+ldapUserCount);
+    }
+    
+    
+    private static SearchControls createSearchControls(String userLogin, Set<String> attributesToFetch)
+    {
+    	int count = Strings.hasText(userLogin) ? 1 : 0;
+
+        SearchControls searchControls = new SearchControls(SearchControls.SUBTREE_SCOPE, count, 0,
+                attributesToFetch.toArray(new String[attributesToFetch.size()]), false, false);
+        
+        return searchControls;
     }
 
     private static NamingEnumeration<SearchResult> searchLdapUsers(LdapContext context, Long companyId, Long ldapServerId, String userLogin,
-                                                                   Set<String> attributesToFetch) throws Exception {
-        int count = Strings.hasText(userLogin) ? 1 : 0;
+    		SearchControls searchControls) throws Exception 
+    		{
         String screenName = Strings.hasText(userLogin) ? userLogin : StringPool.STAR;
         String postfix = getPropertyPostfix(ldapServerId);
         String baseDN = PortalBridge.getString(companyId, PropsKeys.LDAP_BASE_DN + postfix);
         String filter = getAuthSearchFilter(ldapServerId, companyId, StringPool.BLANK, screenName, StringPool.BLANK);
-        SearchControls searchControls = new SearchControls(SearchControls.SUBTREE_SCOPE, count, 0,
-                attributesToFetch.toArray(new String[attributesToFetch.size()]), false, false);
         return context.search(baseDN, filter, searchControls);
     }
-/*
-
-    public static Map<String, Properties> getLdapUserAttributes(UserData user, Properties ldapUserAttributes) {
-        String screenName = user.getLogin();
-        Map<String, Properties> propertiesMap = new HashMap<String, Properties>();
-        Properties userAttributes = new Properties();
-        propertiesMap.put(screenName, userAttributes);
-
-        long ldapServerId, companyId = user.getCompanyId(), userId = user.getLiferayUserId();
-        LdapContext context;
-        try {
-            ldapServerId = getLdapServerId(companyId, screenName);
-            context = getContext(ldapServerId, companyId);
-        }
-        catch (Exception e) {
-            throw new LiferayBridgeException(e);
-        }
-        if (context == null) {
-            throw new LiferayBridgeException("Cannot initialize LDAP context");
-        }
-
-        String postfix = getPropertyPostfix(ldapServerId);
-
-        try {
-            String baseDN = PortalBridge.getString(companyId, PropsKeys.LDAP_BASE_DN + postfix);
-            String filter = getAuthSearchFilter(ldapServerId, companyId, StringPool.BLANK, screenName, String.valueOf(userId));
-
-            Properties userMappings = getUserMappings(ldapServerId, companyId);
-            String userMappingsScreenName = GetterUtil.getString(userMappings.getProperty("screenName")).toLowerCase();
-            SearchControls searchControls = new SearchControls(SearchControls.SUBTREE_SCOPE, 1, 0,
-                    new String[] {userMappingsScreenName}, false, false);
-
-            NamingEnumeration<SearchResult> enu = context.search(baseDN, filter, searchControls);
-            if (enu.hasMoreElements()) {
-                SearchResult result = enu.nextElement();
-                String fullUserDN = getNameInNamespace(ldapServerId, companyId, result);
-                Attributes attributes = getUserAttributes(context, fullUserDN, ldapUserAttributes);
-                for (String propertyName : ldapUserAttributes.stringPropertyNames()) {
-                    String value = getAttributeValue(attributes, ldapUserAttributes.getProperty(propertyName), null);
-                    if (value != null) {
-                        userAttributes.put(propertyName, value);
-                    }
-                }
-            }
-            enu.close();
-        }
-        catch (Exception e) {
-            throw new LiferayBridgeException(e);
-        }
-        finally {
-            if (context != null) {
-                try {
-                    context.close();
-                }
-                catch (NamingException e) {
-                    throw new LiferayBridgeException(e);
-                }
-            }
-        }
-
-        return propertiesMap;
-    }
-*/
-
+    
     public static String getAttributeValue(Attributes attributes, String id, String defaultValue) throws NamingException {
         Attribute attribute = attributes.get(id);
         Object obj = attribute != null ? attribute.get() : null;
@@ -299,9 +340,9 @@ public class LdapBridge {
     public static Binding getUser(long ldapServerId, long companyId, String screenName) throws Exception {
         String postfix = getPropertyPostfix(ldapServerId);
         LdapContext ldapContext = getContext(ldapServerId, companyId);
-        if (ldapContext == null) {
-            return null;
-        }
+//        if (ldapContext == null) {
+//            return null;
+//        }
 
         NamingEnumeration<SearchResult> enu = null;
         try {

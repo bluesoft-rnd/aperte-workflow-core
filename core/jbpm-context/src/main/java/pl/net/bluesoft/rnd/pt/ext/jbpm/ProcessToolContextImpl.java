@@ -1,15 +1,28 @@
 package pl.net.bluesoft.rnd.pt.ext.jbpm;
 
+import static pl.net.bluesoft.util.lang.StringUtil.hasText;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
 import org.jbpm.api.ExecutionService;
 import org.jbpm.api.ProcessEngine;
+
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolSessionFactory;
 import pl.net.bluesoft.rnd.processtool.bpm.exception.ProcessToolException;
-import pl.net.bluesoft.rnd.processtool.dao.*;
+import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
+import pl.net.bluesoft.rnd.processtool.dao.ProcessDictionaryDAO;
+import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceDAO;
+import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceFilterDAO;
+import pl.net.bluesoft.rnd.processtool.dao.UserDataDAO;
+import pl.net.bluesoft.rnd.processtool.dao.UserProcessQueueDAO;
+import pl.net.bluesoft.rnd.processtool.dao.UserSubstitutionDAO;
 import pl.net.bluesoft.rnd.processtool.dict.GlobalDictionaryProvider;
 import pl.net.bluesoft.rnd.processtool.dict.ProcessDictionaryProvider;
 import pl.net.bluesoft.rnd.processtool.dict.ProcessDictionaryRegistry;
@@ -23,16 +36,9 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessToolAutowire;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessToolSequence;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessToolSetting;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.rnd.processtool.userqueues.IUserProcessQueueManager;
 import pl.net.bluesoft.util.eventbus.EventBusManager;
 import pl.net.bluesoft.util.lang.Formats;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
-import static pl.net.bluesoft.util.lang.Lang.coalesce;
-import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 
 /**
  * Context replacement for Spring library
@@ -46,7 +52,7 @@ public class ProcessToolContextImpl implements ProcessToolContext {
     private ProcessDictionaryRegistry processDictionaryRegistry;
     private ProcessEngine processEngine;
     private ProcessToolContextFactory factory;
-
+    private IUserProcessQueueManager userProcessQueueManager;
 
     private Map<String, String> autowiringCache;
     private Map<Class<? extends HibernateBean>, HibernateBean> daoCache = new HashMap<Class<? extends HibernateBean>, HibernateBean>();
@@ -60,6 +66,7 @@ public class ProcessToolContextImpl implements ProcessToolContext {
         this.factory = factory;
         this.processEngine = processEngine;
         this.autowiringCache = getRegistry().getCache(ProcessToolAutowire.class.getName());
+        this.userProcessQueueManager = new UserProcessQueueManager(hibernateSession, getUserProcessQueueDAO());
         processEngine.setHibernateSession(hibernateSession);
 
         transaction = hibernateSession.beginTransaction();
@@ -107,10 +114,6 @@ public class ProcessToolContextImpl implements ProcessToolContext {
     }
 
 
-//    public <T> T inTransaction(HibernateTransactionCallback<T> htc) {
-//        return htc.doInTransaction(hibernateSession);
-//
-//     }
     @Override
     public ProcessDictionaryRegistry getProcessDictionaryRegistry() {
         if (processDictionaryRegistry == null) {
@@ -127,7 +130,8 @@ public class ProcessToolContextImpl implements ProcessToolContext {
         return factory.getRegistry();
     }
 
-    private <T extends HibernateBean> T getHibernateDAO(Class<T> daoClass) {
+    @SuppressWarnings("unchecked")
+	private <T extends HibernateBean> T getHibernateDAO(Class<T> daoClass) {
         verifyContextOpen();
         if (!daoCache.containsKey(daoClass)) {
             T dao = null;
@@ -141,6 +145,8 @@ public class ProcessToolContextImpl implements ProcessToolContext {
                 dao = (T) getRegistry().getUserDataDAO(hibernateSession);
             } else if (ProcessDefinitionDAO.class.equals(daoClass)) {
                 dao = (T) getRegistry().getProcessDefinitionDAO(hibernateSession);
+            } else if (UserProcessQueueDAO.class.equals(daoClass)) {
+                dao = (T) getRegistry().getUserProcessQueueDAO(hibernateSession);
             } else if (UserSubstitutionDAO.class.equals(daoClass)) {
                 dao = (T) getRegistry().getUserSubstitutionDAO(hibernateSession);
             }
@@ -179,6 +185,11 @@ public class ProcessToolContextImpl implements ProcessToolContext {
     public UserSubstitutionDAO getUserSubstitutionDAO() {
         return getHibernateDAO(UserSubstitutionDAO.class);
     }
+    
+	@Override
+	public UserProcessQueueDAO getUserProcessQueueDAO() {
+		return getHibernateDAO(UserProcessQueueDAO.class);
+	}
 
     @Override
     public Session getHibernateSession() {
@@ -305,4 +316,20 @@ public class ProcessToolContextImpl implements ProcessToolContext {
             }
         }
     }
+    
+    public Map<String, Object> getBpmVariables(ProcessInstance pi) {
+        ExecutionService es = getProcessEngine().getExecutionService();
+        return es.getVariables(pi.getInternalId(), es.getVariableNames(pi.getInternalId()));
+    }
+    
+    public Object getBpmVariable(ProcessInstance pi, String variableName) {
+        ExecutionService es = getProcessEngine().getExecutionService();
+        return es.getVariable(pi.getInternalId(), variableName);
+    }
+
+	@Override
+	public IUserProcessQueueManager getUserProcessQueueManager()
+	{
+		return userProcessQueueManager;
+	}
 }

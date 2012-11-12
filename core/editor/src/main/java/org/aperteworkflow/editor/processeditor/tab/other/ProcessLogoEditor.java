@@ -7,6 +7,7 @@ import org.aperteworkflow.editor.signavio.ModelConstants;
 import org.aperteworkflow.editor.vaadin.DataHandler;
 import org.aperteworkflow.editor.vaadin.GenericEditorApplication;
 import org.aperteworkflow.util.vaadin.VaadinUtility;
+import pl.net.bluesoft.rnd.pt.utils.lang.Lang2;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import java.io.ByteArrayInputStream;
@@ -38,7 +39,7 @@ public class ProcessLogoEditor extends GridLayout implements ProcessLogoHandler,
 
     @Override
     public void handleProcessLogo(byte[] content) {
-        logoContent = content;
+        logoContent = Lang2.noCopy(content);
 
         if (logoContent != null) {
             showProcessLogo(logoContent);

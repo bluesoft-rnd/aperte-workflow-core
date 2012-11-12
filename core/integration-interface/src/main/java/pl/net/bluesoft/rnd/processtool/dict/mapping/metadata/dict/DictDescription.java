@@ -12,6 +12,7 @@ import java.util.Collections;
  */
 public abstract class DictDescription {
 	private final String name;
+	private boolean lazyLoad = true;
 
 	public DictDescription(String name) {
 		this.name = name;
@@ -20,6 +21,14 @@ public abstract class DictDescription {
 
 	public String getName() {
 		return name;
+	}
+
+	public boolean isLazyLoad() {
+		return lazyLoad;
+	}
+
+	public void setLazyLoad(boolean lazyLoad) {
+		this.lazyLoad = lazyLoad;
 	}
 
 	public Collection<String> getBaseDictionaries() {

@@ -11,7 +11,7 @@ import java.util.Set;
 @Entity
 @Table(name = "pt_user_attribute")
 public class UserAttribute extends UserAttributesSupport {
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private UserData user;
 
@@ -21,7 +21,7 @@ public class UserAttribute extends UserAttributesSupport {
     private String value;
 
 //    @XmlTransient
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private UserAttribute parent;
 

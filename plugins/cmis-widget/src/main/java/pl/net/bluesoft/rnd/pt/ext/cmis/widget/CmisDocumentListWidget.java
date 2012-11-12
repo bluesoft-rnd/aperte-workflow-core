@@ -15,7 +15,7 @@ import org.apache.chemistry.opencmis.commons.PropertyIds;
 import org.apache.chemistry.opencmis.commons.data.CmisExtensionElement;
 import org.apache.chemistry.opencmis.commons.data.ContentStream;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
+import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
@@ -79,7 +79,7 @@ public class CmisDocumentListWidget extends BaseProcessToolVaadinWidget implemen
 	}
 
 	@Override
-	public Collection<String> validateData(ProcessInstance processInstance) {
+	public Collection<String> validateData(BpmTask task, boolean skipRequired) {
 		if (required && !mainFolder.getChildren().iterator().hasNext()) {
 			return Arrays.asList("pt.ext.cmis.list.document.validate.upload.document");
 		} else {
@@ -88,14 +88,14 @@ public class CmisDocumentListWidget extends BaseProcessToolVaadinWidget implemen
 	}
 
 	@Override
-	public void saveData(ProcessInstance processInstance) {
+	public void saveData(BpmTask task) {
 		// setSimpleAttribute(folderAttributeName, folderId, processInstance);
 	}
 
 	@Override
-	public void loadData(ProcessInstance processInstance) {
+	public void loadData(BpmTask task) {
 		sessionFacade = new CmisAtomSessionFacade(repositoryUser, repositoryPassword, repositoryAtomUrl, repositoryId);
-		mainFolder = sessionFacade.createFolderIfNecessary(newFolderPrefix + processInstance.getInternalId(),
+		mainFolder = sessionFacade.createFolderIfNecessary(newFolderPrefix + task.getProcessInstance().getInternalId(),
 				rootFolderPath);
 		if (StringUtil.hasText(subFolder))
 			mainFolder = sessionFacade.createFolderIfNecessary(subFolder, mainFolder.getPath());
@@ -312,7 +312,7 @@ public class CmisDocumentListWidget extends BaseProcessToolVaadinWidget implemen
 	public void setFolderId(String folderId) {
 		this.folderId = folderId;
 	}
-	
+
 	private final class UpdateReceiver implements Upload.Receiver {
 		private final Document doc;
 

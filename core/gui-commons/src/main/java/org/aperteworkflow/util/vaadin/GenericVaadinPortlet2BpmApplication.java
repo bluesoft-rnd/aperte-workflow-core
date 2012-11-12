@@ -1,31 +1,47 @@
 package org.aperteworkflow.util.vaadin;
 
-import com.vaadin.Application;
-import com.vaadin.service.ApplicationContext;
-import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Window;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.portlet.ActionRequest;
+import javax.portlet.ActionResponse;
+import javax.portlet.EventRequest;
+import javax.portlet.EventResponse;
+import javax.portlet.PortletSession;
+import javax.portlet.RenderRequest;
+import javax.portlet.RenderResponse;
+import javax.portlet.ResourceRequest;
+import javax.portlet.ResourceResponse;
+
 import org.aperteworkflow.util.liferay.LiferayBridge;
 import org.aperteworkflow.util.liferay.PortalBridge;
+
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
-import pl.net.bluesoft.rnd.util.i18n.impl.DefaultI18NSource;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolGuiCallback;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 import pl.net.bluesoft.util.eventbus.EventListener;
 import pl.net.bluesoft.util.eventbus.listenables.Listenable;
 import pl.net.bluesoft.util.eventbus.listenables.ListenableSupport;
 import pl.net.bluesoft.util.lang.Strings;
 
-import javax.portlet.*;
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import static org.aperteworkflow.util.vaadin.ApplicationPortlet2WithLoadingMessage.hideLoadingMessage;
+import com.vaadin.Application;
+import com.vaadin.service.ApplicationContext;
+import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Window;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -76,19 +92,21 @@ public abstract class GenericVaadinPortlet2BpmApplication extends Application im
 
     public void handleRenderRequest(RenderRequest request, RenderResponse response, Window window) {
         showKeysString = PortalBridge.getCurrentRequestParameter("showKeys");
-        locale = request.getLocale();
-        i18NSource = new DefaultI18NSource();
-        i18NSource.setLocale(locale);
-        user = PortalBridge.getLiferayUser(request);
+
+		if (request.getLocale() != null) {
+			setLocale(request.getLocale());
+		}
+		else {
+			setLocale(Locale.getDefault());
+		}
+
+		user = PortalBridge.getLiferayUser(request);
         userRoles = user != null ? user.getRoleNames() : Collections.<String>emptyList();
-        if (locale == null) {
-            locale = Locale.getDefault();
-        }
+
         if (user == null) {
             if (loginRequired) {
                 window.removeAllComponents();
                 window.addComponent(new Label(getMessage("please.log.in")));
-                hideLoadingMessage(window, (PortletApplicationContext2) getContext());
                 return;
             }
         } else {
@@ -100,13 +118,14 @@ public abstract class GenericVaadinPortlet2BpmApplication extends Application im
                         bpmSession = ctx.getProcessToolSessionFactory().createSession(user, userRoles),
                         PortletSession.APPLICATION_SCOPE);
             }
+            setUser(user);
+            
         }
         if (!initialized) {
             initializePortlet();
         }
         initialized = true;
         renderPortlet();
-        hideLoadingMessage(window, (PortletApplicationContext2) getContext());
         handleRequestListeners();
     }
 
@@ -162,8 +181,14 @@ public abstract class GenericVaadinPortlet2BpmApplication extends Application im
         return i18NSource.getMessage(key, defaultValue, params);
     }
 
+	@Override
+	public void setLocale(Locale locale) {
+		super.setLocale(locale);
+		this.locale = locale;
+		this.i18NSource = I18NSourceFactory.createI18NSource(locale);
+	}
 
-    public void handleActionRequest(ActionRequest request, ActionResponse response, Window window) {
+	public void handleActionRequest(ActionRequest request, ActionResponse response, Window window) {
         // nothing
     }
 
@@ -179,11 +204,15 @@ public abstract class GenericVaadinPortlet2BpmApplication extends Application im
 
     public void onThrowable(Throwable e) {
         logger.log(Level.SEVERE, e.getMessage(), e);
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        e.printStackTrace(new PrintStream(baos));
-        getMainWindow().showNotification(VaadinUtility.validationNotification(i18NSource.getMessage("process-tool.exception.occurred"),
-                getMessage(e.getMessage())));
+		if (e instanceof TaskAlreadyCompletedException) {
+			VaadinUtility.errorNotification(this, i18NSource, i18NSource.getMessage("task.already.completed"));
+		}
+		else {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			e.printStackTrace(new PrintStream(baos));
+			getMainWindow().showNotification(VaadinUtility.validationNotification(i18NSource.getMessage("process-tool.exception.occurred"),
+					getMessage(e.getMessage())));
+		}
     }
 
     public boolean hasMatchingRole(String roleName) {

@@ -23,6 +23,7 @@ public abstract class TaskItemProviderParams {
     private ProcessStateConfiguration processStateConfiguration;
     private String state;
     private ProcessQueue queue;
+	private boolean replaceDefault = false;
 
     public abstract Resource getImage(String image);
     public abstract Resource getResource(String path);
@@ -97,4 +98,12 @@ public abstract class TaskItemProviderParams {
     public void setQueue(ProcessQueue queue) {
         this.queue = queue;
     }
+
+	public boolean isReplaceDefault() {
+		return replaceDefault;
+	}
+
+	public void setReplaceDefault(boolean replaceDefault) {
+		this.replaceDefault = replaceDefault;
+	}
 }

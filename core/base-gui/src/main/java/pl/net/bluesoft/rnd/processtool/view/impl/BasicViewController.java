@@ -1,5 +1,6 @@
 package pl.net.bluesoft.rnd.processtool.view.impl;
 
+import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
@@ -9,12 +10,18 @@ import org.aperteworkflow.ui.view.ViewController;
 import org.aperteworkflow.ui.view.ViewListener;
 import org.aperteworkflow.ui.view.ViewRenderer;
 
+import pl.net.bluesoft.rnd.processtool.ui.activity.ActivityQueuesPane;
+import pl.net.bluesoft.util.lang.TaskWatch;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class BasicViewController implements ViewController {
 	private final String baseViewId;
@@ -27,9 +34,10 @@ public class BasicViewController implements ViewController {
 	private LinkedList<String> historyViewIds = new LinkedList<String>();
 	private Map<String, Map<String, ?>> historyViewData = new HashMap<String, Map<String, ?>>();
 	private List<ViewListener> listeners = new ArrayList<ViewListener>();
+	private static final Logger logger = Logger.getLogger(BasicViewController.class.getName());
 
 	public BasicViewController(ViewRenderer baseViewRenderer) {
-		viewContainer.setWidth("100%");
+		viewContainer.setWidth(100, Sizeable.UNITS_PERCENTAGE);
 		baseViewId = baseViewRenderer.getViewId();
 		rendererMap.put(baseViewId, baseViewRenderer);
 		currentViewId = baseViewId;
@@ -82,19 +90,47 @@ public class BasicViewController implements ViewController {
 		renderView(viewId, viewData);
 	}
 
-	private void renderView(String viewId, Map<String, ?> viewData) {
-		ViewRenderer renderer = rendererMap.get(viewId);
+	private void renderView(final String viewId, Map<String, ?> viewData) {
+
+		TaskWatch watch = new TaskWatch("Rendering view " + viewId);
+		final ViewRenderer renderer = rendererMap.get(viewId);
 		if (renderer == null) {
 			throw new IllegalArgumentException("Unable to find view id: " + viewId);
 		}
 		currentViewData = viewData != null ? viewData : new HashMap<String, Object>();
-		Component comp = renderer.render(currentViewData);
-		comp.setWidth("100%");
+		Component comp = null;
+		try {
+			comp = watch.watchTask("Really rendering", new Callable<Component>() {
+
+				@Override
+				public Component call() throws Exception {
+					return renderer.render(currentViewData);
+				}
+			});
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		
+		comp.setWidth(100, Sizeable.UNITS_PERCENTAGE);
 		viewContainer.removeAllComponents();
 		viewContainer.addComponent(comp);
 		viewContainer.setExpandRatio(comp, 1.0f);
 		currentViewId = viewId;
-		fireViewChangedEvent(viewId);
+		
+		try {
+			watch.watchTask("Bragging about it", new Callable() {
+
+				@Override
+				public Object call() throws Exception {
+					fireViewChangedEvent(viewId);
+					return null;
+				}
+			});
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		watch.stopAll();
+		logger.log(Level.INFO, watch.printSummary());
 	}
 
 	private void fireViewChangedEvent(String viewId) {

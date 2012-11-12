@@ -24,7 +24,7 @@ public class ProcessConfigJSONHandler implements Serializable {
      * Singleton access
      * @return instance
      */
-    public static ProcessConfigJSONHandler getInstance() {
+    public static synchronized ProcessConfigJSONHandler getInstance() {
         if (instance == null) {
             instance = new ProcessConfigJSONHandler();
         }
@@ -59,6 +59,10 @@ public class ProcessConfigJSONHandler implements Serializable {
                     }
                 }
             }
+            if (processConfig.getDictionary() != null) {
+                byte[] dictionaryInBytes = processConfig.getDictionary().getBytes();
+                processConfig.setDictionary(new String(Base64.encodeBase64URLSafe(dictionaryInBytes)));
+            }
 
             // encode as JSON
             return mapper.writeValueAsString(processConfig);
@@ -90,6 +94,10 @@ public class ProcessConfigJSONHandler implements Serializable {
                         processConfig.getMessages().put(langCode, msg);
                     }
                 }
+            }
+            if (processConfig.getDictionary() != null) {
+                byte[] codedDictionaryInBytes = processConfig.getDictionary().getBytes();
+                processConfig.setDictionary(new String(Base64.decodeBase64(codedDictionaryInBytes)));
             }
 
             return processConfig;

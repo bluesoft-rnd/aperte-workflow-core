@@ -1,31 +1,20 @@
 package org.aperteworkflow.service;
 
 
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.converters.MarshallingContext;
-import com.thoughtworks.xstream.converters.collections.CollectionConverter;
-import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
-import com.thoughtworks.xstream.mapper.Mapper;
 import org.aperteworkflow.util.ContextUtil;
-import org.hibernate.collection.PersistentList;
-import org.hibernate.collection.PersistentMap;
-import org.hibernate.collection.PersistentSet;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
+import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.hibernate.ResultsPageWrapper;
 import pl.net.bluesoft.rnd.processtool.model.*;
-import pl.net.bluesoft.rnd.processtool.model.config.*;
-import pl.net.bluesoft.rnd.processtool.plugins.RegistryHolder;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.HashMap;
+import java.util.*;
 
 import static org.aperteworkflow.util.ContextUtil.withContext;
 import static org.aperteworkflow.util.HibernateBeanUtil.fetchHibernateData;
@@ -34,9 +23,9 @@ import static org.aperteworkflow.util.HibernateBeanUtil.fetchHibernateData;
  * @author tlipski@bluesoft.net.pl
  */
 @WebService
-public class AperteWorkflowDataServiceImpl {
+public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService {
 
-
+	@Override
     @WebMethod
     public long saveProcessInstance(@WebParam(name="processInstance")final ProcessInstance processInstance) {
         return withContext(new ReturningProcessToolContextCallback<Long>() {
@@ -47,6 +36,7 @@ public class AperteWorkflowDataServiceImpl {
         });
     }
 
+	@Override
     @WebMethod
     public ProcessInstance getProcessInstance(@WebParam(name="id")final long id) {
         return withContext(new ReturningProcessToolContextCallback<ProcessInstance>() {
@@ -57,6 +47,7 @@ public class AperteWorkflowDataServiceImpl {
         });
     }
 
+	@Override
     @WebMethod
     public List<ProcessInstance> getProcessInstances(@WebParam(name="ids")final Collection<Long> ids) {
         return withContext(new ReturningProcessToolContextCallback<List<ProcessInstance>>() {
@@ -67,6 +58,7 @@ public class AperteWorkflowDataServiceImpl {
         });
     }
 
+	@Override
     @WebMethod
     public ProcessInstance getProcessInstanceByInternalId(@WebParam(name="internalId")final String internalId) {
         return withContext(new ReturningProcessToolContextCallback<ProcessInstance>() {
@@ -77,6 +69,7 @@ public class AperteWorkflowDataServiceImpl {
         });
     }
 
+	@Override
     @WebMethod
     public ProcessInstance getProcessInstanceByExternalId(@WebParam(name="externalId")final String externalId) {
         return withContext(new ReturningProcessToolContextCallback<ProcessInstance>() {
@@ -87,6 +80,7 @@ public class AperteWorkflowDataServiceImpl {
         });
     }
 
+	@Override
     @WebMethod
     public List<ProcessInstance> findProcessInstancesByKeyword(@WebParam(name="key")final String key, @WebParam(name="processType")final String processType) {
         return withContext(new ReturningProcessToolContextCallback<List<ProcessInstance>>() {
@@ -97,7 +91,14 @@ public class AperteWorkflowDataServiceImpl {
         });
     }
 
-    @WebMethod
+//	@Override
+//	@WebMethod
+//	public Map<String, ProcessInstance> getProcessInstanceByInternalIdMap(@WebParam(name="internalIds")final Collection<String> internalIds) {
+//		return null;  // TODO
+//	}
+
+	@Override
+	@WebMethod
     public void deleteProcessInstance(@WebParam(name="instance")final ProcessInstance instance) {
         withContext(new ReturningProcessToolContextCallback() {
             @Override
@@ -108,6 +109,7 @@ public class AperteWorkflowDataServiceImpl {
         });
     }
 
+	@Override
     @WebMethod
     public Collection<ProcessInstanceLog> getUserHistory(@WebParam(name="user")final UserData user,
                                                          @WebParam(name="startDate")final Date startDate,
@@ -120,6 +122,7 @@ public class AperteWorkflowDataServiceImpl {
         });
     }
 
+	@Override
     @WebMethod
     public UserData findOrCreateUser(@WebParam(name="user")final UserData user) {
         return withContext(new ReturningProcessToolContextCallback<UserData>() {
@@ -130,6 +133,7 @@ public class AperteWorkflowDataServiceImpl {
         });
     }
 
+	@Override
     @WebMethod
     public Collection<ProcessInstance> searchProcesses(@WebParam(name="filter")final String filter,
                                                        @WebParam(name="offset")final int offset,
@@ -146,6 +150,7 @@ public class AperteWorkflowDataServiceImpl {
         });
     }
 
+	@Override
     @WebMethod
     public Collection<ProcessInstance> getUserProcessesAfterDate(@WebParam(name="user")final UserData user,
                                                                  @WebParam(name="minDate")final Calendar minDate) {
@@ -157,6 +162,7 @@ public class AperteWorkflowDataServiceImpl {
         });
     }
 
+	@Override
     @WebMethod
     public ResultsPageWrapper<ProcessInstance> getRecentProcesses(@WebParam(name="user")final UserData user,
                                                                   @WebParam(name="minDate")final Calendar minDate,
@@ -170,6 +176,7 @@ public class AperteWorkflowDataServiceImpl {
         });
     }
 
+	@Override
     @WebMethod
     public ResultsPageWrapper<ProcessInstance> getProcessInstanceByInternalIdMapWithFilter(@WebParam(name="internalIds")final Collection<String> internalIds,
                                                                                            @WebParam(name="filter")final ProcessInstanceFilter filter,
@@ -183,6 +190,7 @@ public class AperteWorkflowDataServiceImpl {
         });
     }
 
+	@Override
     @WebMethod
     public Collection<ProcessDefinitionConfig> getAllConfigurations() {
         return withContext(new ReturningProcessToolContextCallback<Collection<ProcessDefinitionConfig>>() {
@@ -193,7 +201,7 @@ public class AperteWorkflowDataServiceImpl {
         });
     }
 
-
+	@Override
     @WebMethod
     public Collection<ProcessDefinitionConfig> getActiveConfigurations() {
         return withContext(new ReturningProcessToolContextCallback<Collection<ProcessDefinitionConfig>>() {
@@ -204,6 +212,7 @@ public class AperteWorkflowDataServiceImpl {
         });
     }
 
+	@Override
     @WebMethod
     public ProcessDefinitionConfig getActiveConfigurationByKey(@WebParam(name="key")final String key) {
         return withContext(new ReturningProcessToolContextCallback<ProcessDefinitionConfig>() {
@@ -214,6 +223,7 @@ public class AperteWorkflowDataServiceImpl {
         });
     }
 
+	@Override
     @WebMethod
     public Collection<ProcessQueueConfig> getQueueConfigs() {
         return withContext(new ReturningProcessToolContextCallback<Collection<ProcessQueueConfig>>() {
@@ -224,6 +234,7 @@ public class AperteWorkflowDataServiceImpl {
         });
     }
 
+	@Override
     @WebMethod
     public ProcessStateConfiguration getProcessStateConfiguration(@WebParam(name="task")final BpmTask task) {
         return withContext(new ReturningProcessToolContextCallback<ProcessStateConfiguration>() {
@@ -234,6 +245,7 @@ public class AperteWorkflowDataServiceImpl {
         });
     }
 
+	@Override
     @WebMethod
     public void updateOrCreateProcessDefinitionConfig(@WebParam(name="cfg")final ProcessDefinitionConfig cfg) {
         withContext(new ReturningProcessToolContextCallback<ProcessStateConfiguration>() {
@@ -245,6 +257,7 @@ public class AperteWorkflowDataServiceImpl {
         });
     }
 
+	@Override
     @WebMethod
     public void setConfigurationEnabled(@WebParam(name="cfg")final ProcessDefinitionConfig cfg, @WebParam(name="enabled")final boolean enabled) {
         withContext(new ReturningProcessToolContextCallback<ProcessStateConfiguration>() {
@@ -256,6 +269,7 @@ public class AperteWorkflowDataServiceImpl {
         });
     }
 
+	@Override
     @WebMethod
     public Collection<ProcessDefinitionConfig> getConfigurationVersions(@WebParam(name="cfg")final ProcessDefinitionConfig cfg) {
         return withContext(new ReturningProcessToolContextCallback<Collection<ProcessDefinitionConfig>>() {
@@ -266,6 +280,7 @@ public class AperteWorkflowDataServiceImpl {
         });
     }
 
+	@Override
     @WebMethod
     public void updateOrCreateQueueConfigs(@WebParam(name="cfgs")final Collection<ProcessQueueConfig> cfgs) {
         withContext(new ReturningProcessToolContextCallback<ProcessStateConfiguration>() {
@@ -277,6 +292,7 @@ public class AperteWorkflowDataServiceImpl {
         });
     }
 
+	@Override
     @WebMethod
     public void removeQueueConfigs(@WebParam(name="cfgs")final Collection<ProcessQueueConfig> cfgs) {
         withContext(new ReturningProcessToolContextCallback<ProcessStateConfiguration>() {
@@ -288,50 +304,60 @@ public class AperteWorkflowDataServiceImpl {
         });
     }
 
+	@Override
     @WebMethod
     public List<String> getAvailableLogins(@WebParam(name="filter")final String filter) {
         return withContext(new ReturningProcessToolContextCallback<List<String>>() {
             @Override
             public List<String> processWithContext(ProcessToolContext ctx) {
-                return ctx.getProcessToolSessionFactory().createSession(null, new HashSet<String>())
+                return getSession(ctx)
                         .getAvailableLogins(filter);
             }
         });
     }
 
+	@Override
     @WebMethod
     public byte[] getProcessLatestDefinition(@WebParam(name="bpmDefinitionKey")final String bpmDefinitionKey,
                                              @WebParam(name="processName")final String processName) {
         return ContextUtil.withContext(new ReturningProcessToolContextCallback<byte[]>() {
             @Override
             public byte[] processWithContext(ProcessToolContext ctx) {
-                return ctx.getProcessToolSessionFactory().createSession(null, new HashSet<String>())
+                return getSession(ctx)
                         .getProcessLatestDefinition(bpmDefinitionKey, processName);
             }
         });
     }
 
+	@Override
     @WebMethod
     public byte[] getProcessDefinition(@WebParam(name="pi")final ProcessInstance pi) {
         return withContext(new ReturningProcessToolContextCallback<byte[]>() {
             @Override
             public byte[] processWithContext(ProcessToolContext ctx) {
-                return ctx.getProcessToolSessionFactory().createSession(null, new HashSet<String>())
+                return getSession(ctx)
                         .getProcessDefinition(pi);
             }
         });
     }
 
+	@Override
     @WebMethod
     public byte[] getProcessMapImage(@WebParam(name="pi")final ProcessInstance pi) {
         return withContext(new ReturningProcessToolContextCallback<byte[]>() {
             @Override
             public byte[] processWithContext(ProcessToolContext ctx) {
-                return ctx.getProcessToolSessionFactory().createSession(null, new HashSet<String>())
+                return getSession(ctx)
                         .getProcessMapImage(pi);
             }
         });
     }
 
+	private ProcessToolBpmSession getSession(ProcessToolContext ctx) {
+		return getSession(ctx, null);
+	}
 
+	private ProcessToolBpmSession getSession(ProcessToolContext ctx, UserData user) {
+		return ctx.getProcessToolSessionFactory().createSession(user, new HashSet<String>());
+	}
 }

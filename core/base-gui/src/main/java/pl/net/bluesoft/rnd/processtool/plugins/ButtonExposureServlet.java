@@ -1,20 +1,18 @@
 package pl.net.bluesoft.rnd.processtool.plugins;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Logger;
+import com.thoughtworks.xstream.XStream;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.SerializationConfig.Feature;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.SerializationConfig.Feature;
-
-import com.thoughtworks.xstream.XStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
 
 public class ButtonExposureServlet extends HttpServlet {
 	public enum Format {
@@ -49,10 +47,12 @@ public class ButtonExposureServlet extends HttpServlet {
 		switch (format) {
 			case XML: {
 				out.write(xstream.toXML(steps));
+				break;
 			}
 			case JSON: {
 				mapper.configure(Feature.INDENT_OUTPUT, true);
 				mapper.writeValue(out, steps);
+				break;
 			}
 		}
 

@@ -34,13 +34,13 @@ public class DictionaryHelperImpl implements DictionaryHelper {
     }
 
     private void addDictionary(String languageCode, String dictionaryName) {
-        ProcessDictionary dict = processDictionaryRegistry.getSpecificOrDefaultDictionary(
+        ProcessDictionary dict = processDictionaryRegistry.getSpecificOrDefaultOrGlobalDictionary(
                 processDefinitionConfig, "db", dictionaryName, languageCode);
         if (dict != null) {
             Map<String, String> dictionary = new HashMap<String, String>();
             for (Object item : dict.items()) {
                 ProcessDictionaryItem pdItem = (ProcessDictionaryItem) item;
-                dictionary.put(pdItem.getKey().toString(), pdItem.getValue().toString());
+                dictionary.put(pdItem.getKey().toString(), pdItem.getValueForCurrentDate().toString());
             }
             dictionaryMap.put(dictionaryKey(languageCode, dictionaryName), dictionary);
         }

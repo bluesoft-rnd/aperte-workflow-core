@@ -13,17 +13,22 @@ public class BpmNotificationConfig extends PersistentEntity {
     private String profileName;
 	private String processTypeRegex;
     private String stateRegex;
+    private String lastActionRegex;
 	private boolean notifyTaskAssignee;
     @Column(name = "skipNotification")
 	private boolean skipNotificationWhenTriggeredByAssignee;
 	private boolean active;
 	private String notifyEmailAddresses;
+	private String notifyUserAttributes;
 	private String templateName;
 	private boolean sendHtml;
     private String locale;
     private boolean notifyOnProcessStart;
+	private boolean notifyOnProcessEnd;
+    private boolean onEnteringStep;
+	private String templateArgumentProvider;
 
-    public boolean isNotifyOnProcessStart() {
+	public boolean isNotifyOnProcessStart() {
         return notifyOnProcessStart;
     }
 
@@ -31,7 +36,15 @@ public class BpmNotificationConfig extends PersistentEntity {
         this.notifyOnProcessStart = notifyOnProcessStart;
     }
 
-    public String getLocale() {
+	public boolean isNotifyOnProcessEnd() {
+		return notifyOnProcessEnd;
+	}
+
+	public void setNotifyOnProcessEnd(boolean notifyOnProcessEnd) {
+		this.notifyOnProcessEnd = notifyOnProcessEnd;
+	}
+
+	public String getLocale() {
         return locale;
     }
 
@@ -79,6 +92,14 @@ public class BpmNotificationConfig extends PersistentEntity {
 		this.notifyEmailAddresses = notifyEmailAddresses;
 	}
 
+	public String getNotifyUserAttributes() {
+		return notifyUserAttributes;
+	}
+
+	public void setNotifyUserAttributes(String notifyUserAttributes) {
+		this.notifyUserAttributes = notifyUserAttributes;
+	}
+
 	public String getTemplateName() {
 		return templateName;
 	}
@@ -109,5 +130,29 @@ public class BpmNotificationConfig extends PersistentEntity {
 
 	public void setSkipNotificationWhenTriggeredByAssignee(boolean skipNotificationWhenTriggeredByAssignee) {
 		this.skipNotificationWhenTriggeredByAssignee = skipNotificationWhenTriggeredByAssignee;
+	}
+
+	public String getTemplateArgumentProvider() {
+		return templateArgumentProvider;
+	}
+
+	public void setTemplateArgumentProvider(String templateArgumentProvider) {
+		this.templateArgumentProvider = templateArgumentProvider;
+	}
+
+	public String getLastActionRegex() {
+		return lastActionRegex;
+	}
+
+	public void setLastActionRegex(String lastTransitionRegex) {
+		this.lastActionRegex = lastTransitionRegex;
+	}
+
+	public boolean isOnEnteringStep() {
+		return onEnteringStep;
+	}
+
+	public void setOnEnteringStep(boolean onEnteringStep) {
+		this.onEnteringStep = onEnteringStep;
 	}
 }

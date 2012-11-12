@@ -40,6 +40,7 @@
         <mapping resource="jbpm.history.hbm.xml"/>
         <mapping resource="jbpm.task.hbm.xml"/>
         <mapping resource="jbpm.identity.hbm.xml"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstance"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttachmentAttribute"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute"/>
@@ -51,6 +52,7 @@
         <mapping class="pl.net.bluesoft.rnd.processtool.model.UserRole"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.UserAttributePredicates"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.UserAttributesSupport"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.UserProcessQueue"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionPermission"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig"/>

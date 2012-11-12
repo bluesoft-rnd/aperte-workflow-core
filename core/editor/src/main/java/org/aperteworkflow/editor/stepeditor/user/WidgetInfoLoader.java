@@ -87,7 +87,8 @@ public class WidgetInfoLoader {
         }
 
         // Process the sorted structure to final form
-        for (String bundleName : sortedWidgets.keySet()) {
+		for (Map.Entry<String, List<Class<? extends ProcessToolWidget>>> e : sortedWidgets.entrySet()) {
+			String bundleName = e.getKey();
             String bundleDescriptionKey = BUNDLE_DESC_PREFIX + bundleName;
 
             BundleItem bundleItem = new BundleItem(
@@ -99,17 +100,26 @@ public class WidgetInfoLoader {
 
             
             Collection<WidgetItem> widgets = new ArrayList<WidgetItem>();
-            for (Class widgetClass : sortedWidgets.get(bundleName)) {
+            for (Class widgetClass : e.getValue()) {
             	 widgets.add(new WidgetItem(widgetClass,DEFAULT_PERMISSIONS,bundleItem));
             }
-            
-            while (widgets.remove(null));
-            if (widgets.size() > 0) {
+
+			removeNulls(widgets);
+
+			if (widgets.size() > 0) {
                 availableWidgets.put(bundleItem, widgets);
             }
         }
 
 		return availableWidgets;
+	}
+
+	private static void removeNulls(Collection<WidgetItem> widgets) {
+		for (;;) {
+			if (!widgets.remove(null)) {
+				return;
+			}
+		}
 	}
 
 }

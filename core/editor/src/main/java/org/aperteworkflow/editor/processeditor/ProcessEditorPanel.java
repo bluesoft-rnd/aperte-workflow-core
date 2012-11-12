@@ -4,6 +4,7 @@ import com.vaadin.ui.*;
 import org.aperteworkflow.editor.domain.ProcessConfig;
 import org.aperteworkflow.editor.processeditor.tab.definition.ProcessDefinitionTab;
 import org.aperteworkflow.editor.processeditor.tab.message.MessageTab;
+import org.aperteworkflow.editor.processeditor.tab.message.DictionaryTab;
 import org.aperteworkflow.editor.processeditor.tab.other.OtherTab;
 import org.aperteworkflow.editor.processeditor.tab.permission.ProcessPermissionTab;
 import org.aperteworkflow.editor.processeditor.tab.queue.QueueTab;
@@ -25,6 +26,7 @@ public class ProcessEditorPanel extends GridLayout implements DataHandler {
     private QueueTab queueTab;
     private ProcessPermissionTab permissionTab;
     private MessageTab messageTab;
+    private DictionaryTab dictionaryTab;
     private ProcessDefinitionTab processDefinitionTab;
 
     private Label titleLabel;
@@ -60,6 +62,7 @@ public class ProcessEditorPanel extends GridLayout implements DataHandler {
         tabSheet.addTab(processDefinitionTab = new ProcessDefinitionTab(), messages.getMessage("process.editor.process.definition"));
         tabSheet.addTab(queueTab = new QueueTab(), messages.getMessage("process.editor.queues"));
         tabSheet.addTab(messageTab = new MessageTab(), messages.getMessage("process.editor.messages"));
+        tabSheet.addTab(dictionaryTab = new DictionaryTab(), messages.getMessage("process.editor.dictionary"));
         tabSheet.addTab(otherTab = new OtherTab(), messages.getMessage("process.editor.other"));
 
         saveButton = VaadinUtility.button(messages.getMessage("process.editor.save"), new Runnable() {
@@ -104,6 +107,7 @@ public class ProcessEditorPanel extends GridLayout implements DataHandler {
         permissionTab.setProcessConfig(processConfig);
         queueTab.setProcessConfig(processConfig);
         messageTab.setProcessConfig(processConfig);
+        dictionaryTab.setProcessConfig(processConfig);
         otherTab.setProcessConfig(processConfig);
         processDefinitionTab.setProcessConfig(processConfig);
     }

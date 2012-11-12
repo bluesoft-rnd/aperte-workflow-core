@@ -79,10 +79,12 @@ public class StepExposureServlet extends HttpServlet {
 		switch (format) {
 			case XML: {
 				out.write(xstream.toXML(steps));
+				break;
 			}
 			case JSON: {
 				mapper.configure(Feature.INDENT_OUTPUT, true);
 				mapper.writeValue(out, steps);
+				break;
 			}
 		}
 

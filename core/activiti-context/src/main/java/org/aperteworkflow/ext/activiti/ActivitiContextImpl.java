@@ -2,9 +2,11 @@ package org.aperteworkflow.ext.activiti;
 
 import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.RuntimeService;
+import org.activiti.engine.TaskService;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
+
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolSessionFactory;
@@ -23,6 +25,7 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessToolAutowire;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessToolSequence;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessToolSetting;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.rnd.processtool.userqueues.IUserProcessQueueManager;
 import pl.net.bluesoft.util.eventbus.EventBusManager;
 import pl.net.bluesoft.util.lang.Formats;
 
@@ -54,6 +57,8 @@ public class ActivitiContextImpl implements ProcessToolContext {
     private Boolean closed = false;
     private ActivitiContextFactoryImpl.CustomStandaloneProcessEngineConfiguration customStandaloneProcessEngineConfiguration;
 
+	private IUserProcessQueueManager userProcessQueueManager;
+
     public ActivitiContextImpl(Session hibernateSession,
                                ProcessToolContextFactory factory,
                                ProcessEngine processEngine,
@@ -63,6 +68,7 @@ public class ActivitiContextImpl implements ProcessToolContext {
 		this.factory = factory;
 		this.processEngine = processEngine;
         this.autowiringCache = getRegistry().getCache(ProcessToolAutowire.class.getName());
+		this.userProcessQueueManager = new UserProcessQueueManager(hibernateSession, getUserProcessQueueDAO());
 
 		transaction = hibernateSession.beginTransaction();
 	}
@@ -176,7 +182,12 @@ public class ActivitiContextImpl implements ProcessToolContext {
         return getHibernateDAO(UserSubstitutionDAO.class);
     }
 
-    @Override
+	@Override
+	public UserProcessQueueDAO getUserProcessQueueDAO() {
+		return getHibernateDAO(UserProcessQueueDAO.class);
+	}
+
+	@Override
     public Session getHibernateSession() {
         verifyContextOpen();
         return hibernateSession;
@@ -306,4 +317,20 @@ public class ActivitiContextImpl implements ProcessToolContext {
     public ActivitiContextFactoryImpl.CustomStandaloneProcessEngineConfiguration getCustomStandaloneProcessEngineConfiguration() {
         return customStandaloneProcessEngineConfiguration;
     }
+    
+    public Map<String, Object> getBpmVariables(ProcessInstance pi) {
+        TaskService es = getProcessEngine().getTaskService();
+        return es.getVariables(pi.getInternalId());
+    }
+
+	public Object getBpmVariable(ProcessInstance pi, String variableName) {
+		TaskService es = getProcessEngine().getTaskService();
+		return es.getVariable(pi.getInternalId(), variableName);
+	}
+
+	@Override
+	public IUserProcessQueueManager getUserProcessQueueManager()
+	{
+		return userProcessQueueManager;
+	}
 }

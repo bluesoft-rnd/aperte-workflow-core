@@ -19,13 +19,11 @@ import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessDeadline;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
-import pl.net.bluesoft.rnd.processtool.template.ProcessToolNotificationTemplate;
-import pl.net.bluesoft.rnd.processtool.template.ProcessToolTemplateLoader;
-import pl.net.bluesoft.rnd.pt.ext.deadline.model.DeadlineNotificationTemplate;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.BpmNotificationService;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.util.EmailSender;
 import pl.net.bluesoft.rnd.pt.ext.sched.service.ProcessToolSchedulerService;
-import pl.net.bluesoft.rnd.pt.utils.template.TemplateProcessor;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import pl.net.bluesoft.rnd.util.i18n.impl.DefaultI18NSource;
+import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 import pl.net.bluesoft.util.lang.Collections;
 import pl.net.bluesoft.util.lang.Predicate;
 import pl.net.bluesoft.util.lang.Strings;
@@ -35,20 +33,16 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class DeadlineEngine implements ProcessToolTemplateLoader {
+public class DeadlineEngine {
     private static final Logger logger = Logger.getLogger(DeadlineEngine.class.getName());
 
     private ProcessToolRegistry registry;
-    private TemplateProcessor templateProcessor;
-
-    private I18NSource messageSource = new DefaultI18NSource();
 
     private Properties pluginProperties;
 
     public DeadlineEngine(ProcessToolRegistry registry, Properties pluginProperties) throws SchedulerException {
         this.registry = registry;
         this.pluginProperties = pluginProperties;
-        this.templateProcessor = new TemplateProcessor(this);
     }
 
     public void init() {
@@ -201,17 +195,12 @@ public class DeadlineEngine implements ProcessToolTemplateLoader {
         ProcessToolBpmSession bpmSession = ctx.getProcessToolSessionFactory().createAutoSession();
         List<BpmTask> tasks = bpmSession.findProcessTasks(pi, ctx);
         for (BpmTask task : tasks) {
-            Map<String, UserData> notifyUsers = null;
             if (task.getTaskName().equals(processDeadline.getTaskName())) {
                 String assigneeLogin = task.getAssignee();
-                if (notifyUsers == null) {
-                    notifyUsers = prepareUsersForNotification(ctx, assigneeLogin, processDeadline);
-                }
-                // everything is good, unless it’s not
-                String defaultLocale = pluginProperties.getProperty("default.locale");
+				Map<String, UserData> notifyUsers = prepareUsersForNotification(ctx, assigneeLogin, processDeadline);
 
-                Locale locale = Strings.hasText(defaultLocale) ? new Locale(defaultLocale) : Locale.getDefault();
-                messageSource.setLocale(locale);
+                // everything is good, unless it’s not
+				I18NSource messageSource = getI18NSource();
                 ProcessStateConfiguration st = ctx.getProcessDefinitionDAO().getProcessStateConfiguration(task);
                 String taskName = messageSource.getMessage(st.getDescription());
 
@@ -226,8 +215,10 @@ public class DeadlineEngine implements ProcessToolTemplateLoader {
                     dataModel.put("processVisibleId", Strings.hasText(pi.getExternalKey()) ? pi.getExternalKey() : pi.getInternalId());
                     dataModel.put("notifiedUser", user);
                     dataModel.put("assignedUser", notifyUsers.get(assigneeLogin));
-                    logger.info("Signaling deadline for task: " + task.getTaskName() + " owned by: " + assigneeLogin + ", mailed to: " + user.getLogin());
-                    templateProcessor.processEmail(processDeadline.getTemplateName(), dataModel, user.getEmail(), pluginProperties, true);
+
+					logger.info("Signaling deadline for task: " + task.getTaskName() + " owned by: " + assigneeLogin + ", mailed to: " + user.getLogin());
+
+					EmailSender.sendEmail(getBpmNotifications(), user.getEmail(), processDeadline.getTemplateName(), dataModel);
                 }
                 processDeadline.setAlreadyNotified(true);
                 ctx.getHibernateSession().saveOrUpdate(processDeadline);
@@ -235,7 +226,17 @@ public class DeadlineEngine implements ProcessToolTemplateLoader {
         }
     }
 
-    private Map<String, UserData> prepareUsersForNotification(ProcessToolContext ctx, String assigneeLogin, ProcessDeadline processDeadline) {
+	private BpmNotificationService getBpmNotifications() {
+		return registry.getRegisteredService(BpmNotificationService.class);
+	}
+
+	private I18NSource getI18NSource() {
+		String defaultLocale = pluginProperties.getProperty("default.locale");
+		Locale locale = Strings.hasText(defaultLocale) ? new Locale(defaultLocale) : Locale.getDefault();
+		return I18NSourceFactory.createI18NSource(locale);
+	}
+
+	private Map<String, UserData> prepareUsersForNotification(ProcessToolContext ctx, String assigneeLogin, ProcessDeadline processDeadline) {
         Map<String, UserData> notifyUsers;
         List<String> userLogins = new ArrayList<String>();
         userLogins.add(assigneeLogin);
@@ -281,13 +282,5 @@ public class DeadlineEngine implements ProcessToolTemplateLoader {
                 return input != null;
             }
         });
-    }
-
-    @Override
-    public List<ProcessToolNotificationTemplate> loadTemplates() {
-        List<ProcessToolNotificationTemplate> templates = new ArrayList<ProcessToolNotificationTemplate>();
-        Session session = ProcessToolContext.Util.getThreadProcessToolContext().getHibernateSession();
-        templates.addAll(session.createCriteria(DeadlineNotificationTemplate.class).list());
-        return templates;
     }
 }

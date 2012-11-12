@@ -118,10 +118,12 @@ public class GenericEnumUserType implements UserType, ParameterizedType {
         return (Serializable) value;
     }
 
+	@Override
     public boolean equals(Object x, Object y) throws HibernateException {
         return x == y;
     }
 
+	@Override
     public int hashCode(Object x) throws HibernateException {
         return x.hashCode();
     }

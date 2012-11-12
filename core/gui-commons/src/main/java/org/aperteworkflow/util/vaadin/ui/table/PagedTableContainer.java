@@ -103,17 +103,17 @@ public class PagedTableContainer extends AbstractContainer implements Container.
 
     @Override
     public boolean addContainerProperty(Object propertyId, Class<?> type, Object defaultValue) throws UnsupportedOperationException {
-        return addContainerProperty(propertyId, type, defaultValue);
+		throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean removeContainerProperty(Object propertyId) throws UnsupportedOperationException {
-        return removeContainerProperty(propertyId);
+		throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean removeAllItems() throws UnsupportedOperationException {
-        return removeAllItems();
+        throw new UnsupportedOperationException();
     }
 
     public Object nextItemId(Object itemId) {

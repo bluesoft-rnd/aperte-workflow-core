@@ -119,4 +119,9 @@ public class BpmTask implements Serializable {
         return processInstance != null ? processInstance.getExternalKey() : null;
     }
 
+	@Override
+	public String toString() {
+		return "BpmTask [taskName=" + taskName + "]";
+	}
+
 }

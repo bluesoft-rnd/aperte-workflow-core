@@ -27,7 +27,11 @@ public class ProcessStateAction extends PersistentEntity {
     private String label;
     private String description;
     private String buttonName = "Default";
-    private String actionType = "primary";
+    private String actionType = PRIMARY_ACTION;
+    private String url;
+    private String title;
+    private String question;
+    private String notification;
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "action_id")
@@ -154,4 +158,36 @@ public class ProcessStateAction extends PersistentEntity {
     public void setMarkProcessImportant(Boolean markProcessImportant) {
         this.markProcessImportant = markProcessImportant;
     }
+
+	public String getUrl() {
+		return url;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getQuestion() {
+		return question;
+	}
+
+	public void setQuestion(String question) {
+		this.question = question;
+	}
+
+	public String getNotification() {
+		return notification;
+	}
+
+	public void setNotification(String notification) {
+		this.notification = notification;
+	}
 }

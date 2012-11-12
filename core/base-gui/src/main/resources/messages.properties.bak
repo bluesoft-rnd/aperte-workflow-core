@@ -1,0 +1,311 @@
+search.prompt=Type in an expression to filter your task list
+search.advanced.show=Show advanced search
+search.advanced.hide=Hide advanced search
+search.advanced.search=Search
+
+search.advanced.filter.name=Filter name
+search.advanced.filter.save_as_new=Save new filter
+
+activity.search.results=Search results
+
+activity.filters.title=Filters
+activity.filters.help.short=Saved process filters
+activity.filters.delete=Delete
+
+activity.filters.delete.popup.title=Confirm filter deletion
+activity.filters.delete.popup.question=Do you really want to delete filter '%s'?
+
+tasks.filter.createdBefore=Created before
+tasks.filter.createdAfter=Created after
+tasks.filter.updatedAfter=Updated after
+tasks.filter.notUpdatedAfter=Not updated after
+
+tasks.filter.creators=Creators
+tasks.filter.owners=Owners
+tasks.filter.queues=Queues
+tasks.filter.states=Task states
+tasks.filter.states.open=Open
+tasks.filter.states.closed=Closed
+
+please.log.in=Log in to use this portlet
+
+tasks.id=ID
+tasks.definitionName=Definition
+tasks.state=State
+tasks.externalKey=Key
+tasks.internalId=ID
+tasks.processType=Process type
+tasks.help.short=Double click on a task to display/update its data and to perform further actions on a process.
+tasks.refresh=Refresh task list
+
+button.ok=OK
+button.cancel=Cancel
+button.save=Save
+button.save.process.data=Save
+button.save.process.desc=Save process data
+
+newProcess.caption=Select a process and press Start process button.
+newProcess.caption-simple=Select a process you wish to start and press a <b>Start process</b> button.
+newProcess.start=Start process
+newProcess.start-simple=Start task
+newProcess.started=New process has been successfully started
+
+process.data.save-success=Process data save successful
+process.data.validation-error=Validation errors have occured
+process.data.data-error=Check data
+process.data.widget.exception-occurred=An exception has occured when rendering this widget, making it unavailable.
+process.data.process-ended=Process has ended
+process.data.help=<i>Review or update process data and select action to propagate. Optionally, you can save and validate process data by pressing 'Save process data' button.</i>
+process.action.performed=Successfully performed process action
+process.data.task-finished=Task has already been completed
+process.data.task-notfound=Task with id %s not found!
+
+queues.name=Name
+queues.processCount=Count
+queues.description=Description
+queues.translation=Translation
+queues.browsable=Browsing
+queues.userAdded=Generated
+queues.help.short=Double click on queue to fetch a process instance and add it to your task list.
+queues.refresh=Refresh queue list
+queues.add=Add
+queues.remove=Delete
+queues.remove.forbidden=Only generated queues can be deleted
+queues.remove.succeed=Queue has been deleted
+queues.add.title=Adding queue
+queues.form.name=Name
+queues.form.role=Role
+queues.add.save=Save
+queues.add.form.process=Process
+queues.add.form.name=Name
+queues.add.form.description=Description
+queues.add.form.rights=Permissions
+queues.add.form.rights.roleName=Role name
+queues.add.form.rights.browseAllowed=Browseable
+queues.add.form.rights.add=Add
+queues.add.form.rights.addnew=Add new
+queues.add.form.rights.remove=Delete
+queues.add.form.rights.add.title=Adding roles
+queues.add.form.rights.new.combo=Role
+queues.add.form.rights.new.add=Add
+
+process-tool.exception.occurred=An exception has occured. Please check error log for more details.
+process-tool.task.assigned=Task assigned successfully
+
+activity.queues.title=Task Queues
+activity.queues.help.short=Select task queue to browse.
+activity.queues.help.long=Select task queue to browse. If queue is not browsable, clicking on it will claim one task from this queue to your personal task list. You can view your tasks by clicking on <b>My tasks</b>.
+activity.my.tasks=My tasks
+activity.recent.tasks=Recent tasks
+
+activity.task.history=Task history
+activity.task.history.base.user.only=Only my entries
+activity.task.history.help.short=Select a task from the table below to display its corresponding process details.
+activity.task.history.dateRange=Date range
+activity.task.history.log.author=Entry author
+activity.task.history.log.eventName=Event name
+activity.task.history.log.actionName=Action
+activity.task.history.log.entryDate=Date issued
+activity.task.history.log.substitutedBy=Substituted by
+activity.task.history.state.name=Step identifier
+activity.task.history.state.desc=Step name
+activity.task.history.def.desc=Process name
+activity.task.history.def.cmnt=Detailed description
+activity.task.history.pi.externalKey=Instance name
+activity.task.history.pi.internalId=Identifier
+activity.task.history.pi.status=Status
+activity.task.history.pi.createDate=Date of creation
+activity.task.history.pi.creator=Creator
+activity.task.history.pi.currentTasks=Current tasks
+activity.task.history.pi.currentTasks.empty=No tasks
+activity.task.history.pi.details=Process instance details
+activity.task.history.log.details=Task details
+activity.task.history.open.current.step=Display process instance for this step
+activity.task.history.open.final.step=Display process instance in final step
+activity.task.history.current.not.found=Task <b>{0}</b> not found in history
+activity.task.history.final.not.found=Final task not found in history
+activity.task.history.not.finished=Process not finished yet
+activity.task.history.no.state=No task step for this entry
+
+process.instance.status.new=Newly created
+process.instance.status.running=Running
+process.instance.status.cancelled=Cancelled
+process.instance.status.finished=Finished
+process.instance.status.unknown=Unknown
+
+activity.user.tasks=Tasks of
+
+activity.tasks.help.short=Select a task to display/update its data and to perform further actions on a process.
+activity.tasks.help.long=Select a task to display/update its data and to perform further actions on a process.
+activity.tasks.previous=Previous
+activity.tasks.next=Next
+activity.tasks.of=of
+activity.tasks.of.line=%s - %s of %s
+activity.tasks.task-details=Task details
+activity.tasks.task-claim=Claim task
+activity.new-process.title=New process
+activity.back=Go back to main page
+
+activity.nodeadline=No limit
+activity.creator=Creator
+activity.assigned=Assigned
+activity.assigned.empty=Nobody
+activity.creationDate=Creation date
+activity.deadlineDate=Deadline
+activity.state=Process instance status
+
+process.log.process-started=Process started
+process.log.process-assigned=Process assigned from queue
+process.log.action-performed=Action performed
+
+pagedtable.itemsperpage=Items per page
+pagedtable.page=Page
+pagedtable.delete=Delete
+
+dict.title.process=Process dictionaries
+dict.title.global=Global dictionaries
+
+dict.help.short=Here You can edit process dictionaries. Double click on an item to edit.
+
+dict.addentry=Add entry
+dict.dictsempty=The process has no dictionaries to show for current user
+dict.title=Process dictionaries
+dict.default=Default
+dict.description=Description
+dict.languageCode=Language
+dict.dictionaryName=Dictionary name
+dict.locale=Locale
+dict.item.key=Item key
+dict.item.key.required=Item key is required
+dict.item.values=Item values
+dict.item.value=Value
+dict.item.value.required=Item value is required
+dict.item.description=Item description
+dict.item.extensions=Additional values
+dict.item.extensions.name=Extension name
+dict.item.extensions.value=Extension value
+dict.item.extensions.novalue=No value
+dict.item.noextensions=No additional values
+dict.item.novalues=No values
+dict.show=Show
+dict.showValues=Show values
+dict.showExtensions=Show extensions
+dict.item.valueType=Value type
+dict.valueType.info=Possible value types: int - integer number, dbl - double number, none or str - text
+dict.item=Dictionary item
+dict.add.extension=Add extension
+dict.add.value=Add value
+dict.full.range=Full date range
+dict.item.value.valid.from=Valid from
+dict.item.value.valid.to=Valid to
+dict.delete.value=Delete value
+dict.delete.ext=Delete extension
+dict.copy.row=Copy row
+
+date.field.max.range=Maximum range
+date.field.from=Date from
+date.field.to=Date from
+date.field.latest=Latest
+date.field.days=days
+
+process.name=Process name
+
+notification.info=Information
+notification.help=Help
+help.empty=No help defined for key '{0}'
+help.dictionary=Dictionary
+help.key=Key
+
+validate.dictentry.exists=A different item with equal key already exists in the dictionary
+validate.integer=Must be an integer number
+validate.double=Must be a double number
+validate.item.ext.name.empty=Empty extension name
+validate.item.val.empty=Empty item value
+validate.item.val.dates=Invalid item date ranges
+validate.item.ext.name.duplicate=Duplicate extension name %s
+
+substitutions.date.from=Date From
+substitutions.date.to=Date To
+substitutions.user=User
+substitutions.user.substitute=User Substitute
+substitutions.substitution=substitution
+substitutions.Substitution=Substitution
+user.substitutions.title=User Substitutions
+substitutions.date.from.required=Date From required
+substitutions.date.to.required=Date To required
+substitutions.user.required=User required
+substitutions.user.substitute.required=User Substitute required
+
+substitutions.no.required.roles=No required permissions to use this portlet
+
+exact.globe.export.title=Exact Globe Export
+exact.globe.export.run.export=Run Export
+exact.globe.export.last.export.date=Last Export Date
+exact.globe.export.will.start.soon=Exact Globe Export will start soon
+
+admin.creator=Creator
+admin.assignee=Assignee
+admin.taskName=Task name
+admin.executionId=Execution ID
+admin.externalId=External ID
+admin.search=Search
+admin.selectUser=Select user
+
+admin.email=Email
+admin.name=Name
+admin.surname=Surname
+admin.companyId=Company ID
+admin.mpkId=Mpk ID
+admin.assign.performed=Process has been assigned to user
+admin.assign.search=Search
+admin.assign.assign=Assign
+
+admin.tasks.assignee=Assignee
+admin.tasks.creator=Creator
+admin.tasks.taskName=Task name
+admin.tasks.executionId=Execution ID
+admin.tasks.externalId=External ID
+
+admin.itemsPerPage=Items per page
+admin.page=Page
+admin.permissions.required=Permissions required
+
+permission.desc.EDIT=Permission to edit
+permission.desc.VIEW=Permission to view
+
+page.reload=Do you really want to leave this page?
+
+#missing:
+activity.created.tasks=Own in progress
+activity.close.process.confirmation.cancel=Cancel
+activity.close.process.confirmation.question=Are you sure you want to close a task? You will lose all unsaved data!
+activity.assigned.tasks=Assigned to me
+left_panel.show=>>> Show panel
+activity.task.important=Important
+activity.substitutions=Substitutions
+left_panel.hide=<<< Hide panel
+activity.created.closed.tasks=Own finished
+activity.subst.created.assigned.tasks=Assigned to me
+activity.substitutions.description=User substitutions {0}. Assigned tasks: {1}. Tasks available in queues: {2}.
+activity.created.assigned.tasks=Own assigned to me
+activity.close.process.confirmation.title=Closing task confirmation
+newProcess.start-task=Begin task
+activity.starting=Lauching
+activity.other.users.tasks=Tasks {0}
+activity.close.process.confirmation.ok=Close without saving
+activity.subst.assigned.tasks=Assigned
+activity.subst.created.closed.tasks=Own finished
+activity.subst.created.tasks=Own in progress
+
+END.desc=Process finished
+END.comment=Process finished
+END.process.history.caption=Process history
+END.process.history.comment=<i>Process history is listed below.</i>
+END.process.comments.caption=Process comments
+END.process.comments.comment=<i>If you wish to add a comment press <b>Add Comment</b> button</i>
+END.process.data.caption=Process data
+
+format.long.date=dd-MM-yyyy HH:mm
+format.short.date=dd-MM-yyyy
+format.day.month.date=dd-MM
+format.currency=0.00

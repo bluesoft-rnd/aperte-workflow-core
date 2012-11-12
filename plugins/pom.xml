@@ -15,10 +15,8 @@
     <modules>
         <module>base-widgets</module>
         <module>bpm-notifications</module>
-        <!-- to be replaced by more elegant solution -->
-        <!--<module>cmis-widget</module>-->
-        <!--<module>doclist-widget</module>-->
-
+        <module>cmis-widget</module>
+        <module>doclist-widget</module>
         <module>drools-step</module>
         <module>context-help-provider</module>
         <module>email-capture</module>
@@ -27,7 +25,7 @@
         <module>mule-esb-plugin</module>
         <module>log-step</module>
         <module>process-deadlines</module>
-        <!--<module>report-step</module>-->
+        <module>report-step</module>
         <module>user-substitution-process</module>
         <module>user-substitution-step</module>
         <module>userdata-widget</module>
@@ -35,7 +33,8 @@
         <module>scripting</module>
         <module>scheduler-integration</module>
         <module>global-dictionaries</module>
-    </modules>
+    	<module>plugins-test</module>
+	</modules>
 
     <dependencies>
         <dependency>

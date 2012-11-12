@@ -7,20 +7,40 @@ import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComment;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComments;
 import pl.net.bluesoft.rnd.processtool.ui.buttons.dialog.AddCommentDialog;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 
 import java.util.Date;
+
+import static pl.net.bluesoft.util.lang.Strings.hasText;
 
 /**
  * @author amichalak@bluesoft.net.pl
  */
 
 @AliasName(name = "CommentButton")
-public class CommentRequiredValidatingButton extends StandardValidatingButton {    
+public class CommentRequiredValidatingButton extends StandardValidatingButton {
+	@AutoWiredProperty
+	private String askForCommentKey;
+
 	protected AddCommentDialog dialog;
+
+	private boolean skipAddingComment = false;
 	
 	@Override
 	protected void doShowValidationErrorsOrSave(PerformedActionParams params) {
-		showAddCommentDialog(params);
+		if (hasText(askForCommentKey)) {
+			task = params.getSupport().refreshTask(bpmSession, task);
+			if ("true".equals(task.getProcessInstance().getSimpleAttributeValue(askForCommentKey, "false"))) {
+				showAddCommentDialog(params);
+			}
+			else {
+				skipAddingComment = true;
+				super.doShowValidationErrorsOrSave(params);
+			}
+		}
+		else {
+			showAddCommentDialog(params);
+		}
 	}
 
 	protected void showAddCommentDialog(final PerformedActionParams params) {
@@ -55,13 +75,16 @@ public class CommentRequiredValidatingButton extends StandardValidatingButton {
     }
 
     private void saveComment() {
+		if (skipAddingComment) {
+			return;
+		}
         ProcessToolContext ctx = getCurrentContext();
 		ProcessComment pc = dialog.getProcessComment();
         pc.setAuthor(ctx.getUserDataDAO().loadOrCreateUserByLogin(loggedUser));
         pc.setAuthorSubstitute(substitutingUser != null ? ctx.getUserDataDAO().loadOrCreateUserByLogin(substitutingUser) : null);
         pc.setCreateTime(new Date());
         pc.setProcessState(task.getTaskName());
-        ProcessInstance pi = task.getProcessInstance();
+        ProcessInstance pi = task.getProcessInstance().getRootProcessInstance();
         ProcessComments comments = pi.findAttributeByClass(ProcessComments.class);
         if (comments == null) {
             comments = new ProcessComments();

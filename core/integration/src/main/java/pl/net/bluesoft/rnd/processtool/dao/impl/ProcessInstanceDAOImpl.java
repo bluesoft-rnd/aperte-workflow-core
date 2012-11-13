@@ -1,36 +1,54 @@
 package pl.net.bluesoft.rnd.processtool.dao.impl;
 
+import static org.hibernate.criterion.Restrictions.eq;
+import static org.hibernate.criterion.Restrictions.in;
+import static pl.net.bluesoft.util.lang.DateUtil.addDays;
+import static pl.net.bluesoft.util.lang.DateUtil.asCalendar;
+import static pl.net.bluesoft.util.lang.DateUtil.truncHours;
+import static pl.net.bluesoft.util.lang.FormatUtil.formatShortDate;
+import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.aperteworkflow.search.ProcessInstanceSearchAttribute;
 import org.aperteworkflow.search.ProcessInstanceSearchData;
 import org.aperteworkflow.search.SearchProvider; 
 import org.aperteworkflow.search.Searchable;
 import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
 import org.hibernate.Session;
-import org.hibernate.criterion.*;
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import org.hibernate.criterion.CriteriaSpecification;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.ProjectionList;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Property;
+import org.hibernate.criterion.Restrictions;
+import org.hibernate.criterion.Subqueries;
+
 import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceDAO;
 import pl.net.bluesoft.rnd.processtool.hibernate.ResultsPageWrapper;
 import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
 import pl.net.bluesoft.rnd.processtool.hibernate.transform.NestedAliasToBeanResultTransformer;
-import pl.net.bluesoft.rnd.processtool.model.*;
-import pl.net.bluesoft.util.lang.Collections;
-import pl.net.bluesoft.util.lang.Transformer;
+import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog;
+import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionPermission;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStatePermission;
-
-import java.util.*;
-
-import static org.hibernate.criterion.Restrictions.eq;
-import static org.hibernate.criterion.Restrictions.in;
-import static pl.net.bluesoft.util.lang.FormatUtil.formatShortDate;
-import static pl.net.bluesoft.util.lang.FormatUtil.join;
-
-import static pl.net.bluesoft.util.lang.DateUtil.addDays;
-import static pl.net.bluesoft.util.lang.DateUtil.asCalendar;
-import static pl.net.bluesoft.util.lang.DateUtil.truncHours;
-import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
+import pl.net.bluesoft.util.lang.Collections;
+import pl.net.bluesoft.util.lang.Transformer;
 
 
 /**
@@ -147,12 +165,13 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
         }
         searchData.addSearchAttribute("__AWF__running", String.valueOf(processInstance.getRunning()), true);
 
-        logger.warning("Prepare data for Lucene index update for" + processInstance + " took "
+        logger.finest("Prepare data for Lucene index update for" + processInstance + " took "
                 + (System.currentTimeMillis()-time) + " ms");
         time = System.currentTimeMillis();
         searchProvider.updateIndex(searchData);
-        logger.warning("Lucene index update for " + processInstance + " (" + searchData.getSearchAttributes().size()
+        logger.finest("Lucene index update for " + processInstance + " (" + searchData.getSearchAttributes().size()
                 + "attributes)  took " + (System.currentTimeMillis()-time) + " ms");
+        
 		return processInstance.getId();
 	}
 
@@ -268,6 +287,7 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
         criteria.createAlias("processInstance", "pi");
         criteria.createAlias("pi.definition", "def");
         criteria.createAlias("pi.creator", "crtr");
+        criteria.createAlias("ownProcessInstance", "ownPi");
         criteria.createAlias("user", "u");
         criteria.createAlias("userSubstitute", "us", CriteriaSpecification.LEFT_JOIN);
  
@@ -275,6 +295,7 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
                 .add(Projections.id(), "id")
                 .add(Projections.property("entryDate"), "entryDate")
                 .add(Projections.property("eventI18NKey"), "eventI18NKey")
+                .add(Projections.property("executionId"), "executionId")
                 .add(Projections.property("additionalInfo"), "additionalInfo")
                 .add(Projections.property("u.id"), "user.id")
                 .add(Projections.property("u.login"), "user.login")
@@ -288,14 +309,15 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
                 .add(Projections.property("us.lastName"), "userSubstitute.lastName")
                 .add(Projections.property("pi.id"), "processInstance.id")
                 .add(Projections.property("pi.internalId"), "processInstance.internalId")
-                .add(Projections.property("pi.externalKey"), "processInstance.externalKey")  
+                .add(Projections.property("pi.externalKey"), "processInstance.externalKey")
                 .add(Projections.property("pi.status"), "processInstance.status")
                 .add(Projections.property("pi.createDate"), "processInstance.createDate")
                 .add(Projections.property("def.id"), "processInstance.definition.id")
                 .add(Projections.property("def.description"), "processInstance.definition.description")
                 .add(Projections.property("def.comment"), "processInstance.definition.comment")
                 .add(Projections.property("crtr.firstName"), "processInstance.creator.firstName")
-                .add(Projections.property("crtr.lastName"), "processInstance.creator.lastName");
+                .add(Projections.property("crtr.lastName"), "processInstance.creator.lastName")
+                .add(Projections.property("ownPi.id"), "ownProcessInstance.id");
 
         criteria.setProjection(pl);
 
@@ -402,12 +424,21 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
             DetachedCriteria detachedCriteriaForIds = buildhibernateQuery(internalIds, session, filter, offset, limit);
 
             Criteria criteria = detachedCriteriaForIds.getExecutableCriteria(session);
+            criteria.setFetchMode("definition",FetchMode.SELECT);
+            criteria.setFetchMode("creator",FetchMode.SELECT);
+            criteria.setFetchMode("parent",FetchMode.SELECT);
 
-            List result = criteria.list();
+            List<ProcessInstance> result = (List<ProcessInstance>)criteria.list();
             int resultsCount = result.size();
 
             List<ProcessInstance> list;
-            if (limit > 0) {
+            /* If limit is zero or null, return results */
+            if(limit == null || limit <= 0) 
+            {
+                list = new ArrayList<ProcessInstance>(result);
+            }
+            else 
+            {
                 criteria.setFirstResult(offset);
                 criteria.setMaxResults(limit);
                 criteria.addOrder(Order.desc("createDate"));
@@ -419,17 +450,18 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
                     detachedCriteriaForData.addOrder(Order.desc("createDate"));
                     detachedCriteriaForData.add(Property.forName("id").in(ids));
                     detachedCriteriaForData.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-
-                    list = detachedCriteriaForData.getExecutableCriteria(session).list();
+                    
+                    Criteria criteria2 = detachedCriteriaForData.getExecutableCriteria(session);
+                    criteria2.setFetchMode("definition",FetchMode.SELECT);
+		            criteria2.setFetchMode("creator",FetchMode.SELECT);
+		            criteria2.setFetchMode("parent",FetchMode.SELECT);
+ 
+                    list = criteria2.list();
                 }
                 else {
                     list = new ArrayList<ProcessInstance>(0);
                 }
             }
-            else {
-                list = new ArrayList<ProcessInstance>(0);
-            }
-
 
             return new ResultsPageWrapper<ProcessInstance>(list, resultsCount);
         }
@@ -438,7 +470,7 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
             DetachedCriteria criteria = DetachedCriteria.forClass(ProcessInstance.class, "ids");
 
             criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-            criteria.setProjection(Projections.distinct(Projections.property("id")));
+            //criteria.setProjection(Projections.distinct(Projections.property("id")));
 
             criteria = criteria.add(Restrictions.in("internalId", internalIds));
 
@@ -452,10 +484,6 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
 
             if (filter.getCreators() != null && !filter.getCreators().isEmpty()) {
                 criteria = criteria.add(Restrictions.in("creator", filter.getCreators()));
-            }
-
-            if (filter.getNotCreators() != null && !filter.getNotCreators().isEmpty()) {
-                criteria = criteria.add(Restrictions.not(Restrictions.in("creator", filter.getNotCreators())));
             }
 
             if (filter.getUpdatedAfter() != null) {

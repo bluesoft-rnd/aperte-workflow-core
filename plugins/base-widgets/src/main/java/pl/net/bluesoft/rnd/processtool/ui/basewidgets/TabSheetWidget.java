@@ -1,5 +1,6 @@
 package pl.net.bluesoft.rnd.processtool.ui.basewidgets;
 
+import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinRenderable;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinWidget;
@@ -32,7 +33,7 @@ public class TabSheetWidget extends BaseProcessToolVaadinWidget implements Proce
 
 	@Override
 	public Component render() {
-		ts.setWidth("100%");
+		ts.setWidth(100, Sizeable.UNITS_PERCENTAGE);
 		return ts;
 	}
 
@@ -46,7 +47,7 @@ public class TabSheetWidget extends BaseProcessToolVaadinWidget implements Proce
 		ProcessToolVaadinWidget vChild = (ProcessToolVaadinWidget) child;
 		try {
 			component = vChild.render();
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			logger.log(Level.SEVERE, e.getMessage(), e);
             Panel p = new Panel();
             VerticalLayout vl = new VerticalLayout();

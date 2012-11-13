@@ -14,10 +14,14 @@ public class BpmNotificationMailProperties extends PersistentEntity {
     private String smtpHost;
     private String smtpSocketFactoryPort;
     private String smtpSocketFactoryClass;
+    private String sslSocketFactoryClass;
     private boolean smtpAuth;
+    private boolean disablePlainAuth;
     private String smtpPort;
     private String smtpUser;
     private String smtpPassword;
+    private String transportProtocol;
+    private boolean starttls;
     private boolean debug;
 
     public String getProfileName() {
@@ -91,4 +95,36 @@ public class BpmNotificationMailProperties extends PersistentEntity {
     public void setDebug(boolean debug) {
         this.debug = debug;
     }
+
+	public boolean isStarttls() {
+		return starttls;
+	}
+
+	public void setStarttls(boolean starttls) {
+		this.starttls = starttls;
+	}
+
+	public String getSslSocketFactoryClass() {
+		return sslSocketFactoryClass;
+	}
+
+	public void setSslSocketFactoryClass(String sslSocketFactoryClass) {
+		this.sslSocketFactoryClass = sslSocketFactoryClass;
+	}
+
+	public boolean isDisablePlainAuth() {
+		return disablePlainAuth;
+	}
+
+	public void setDisablePlainAuth(boolean disablePlainAuth) {
+		this.disablePlainAuth = disablePlainAuth;
+	}
+
+	public String getTransportProtocol() {
+		return transportProtocol;
+	}
+
+	public void setTransportProtocol(String transportProtocol) {
+		this.transportProtocol = transportProtocol;
+	}
 }

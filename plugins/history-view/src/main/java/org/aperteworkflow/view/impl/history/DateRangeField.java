@@ -213,7 +213,7 @@ public class DateRangeField extends CustomField implements Listenable<DateRangeF
 
     @Override
     protected void setInternalValue(Object newValue) {
-        if (newValue != null && !(newValue instanceof DateRange)) {
+        if (!(newValue instanceof DateRange)) {
             throw new IllegalArgumentException("Unable to handle non-date-range values");
         }
         super.setInternalValue(newValue);

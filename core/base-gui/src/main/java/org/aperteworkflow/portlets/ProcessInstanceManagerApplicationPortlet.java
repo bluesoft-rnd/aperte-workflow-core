@@ -9,6 +9,7 @@ import org.aperteworkflow.bpm.graph.TransitionArcPoint;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
+import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 import pl.net.bluesoft.rnd.util.i18n.impl.DefaultI18NSource;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
@@ -45,7 +46,7 @@ public class ProcessInstanceManagerApplicationPortlet extends ApplicationPortlet
                     ProcessToolContext.Util.setThreadProcessToolContext(ctx);
                     try {
                         try {
-                            I18NSource.ThreadUtil.setThreadI18nSource(new DefaultI18NSource(request.getLocale()));
+                            I18NSource.ThreadUtil.setThreadI18nSource(I18NSourceFactory.createI18NSource(request.getLocale()));
                             if (request instanceof ResourceRequest) {
                                 ResourceRequest rr = (ResourceRequest) request;
                                 ResourceResponse resp = (ResourceResponse) response;

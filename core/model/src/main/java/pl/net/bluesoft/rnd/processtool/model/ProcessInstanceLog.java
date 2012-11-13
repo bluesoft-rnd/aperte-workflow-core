@@ -1,20 +1,29 @@
 package pl.net.bluesoft.rnd.processtool.model;
 
-import org.hibernate.annotations.Type;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
-
-import javax.persistence.*;
-import javax.xml.bind.annotation.XmlTransient;
-import java.util.Calendar;
-
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
+
+import java.util.Calendar;
+import java.util.Comparator;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlTransient;
+
+import org.hibernate.annotations.Type;
+
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 
 /**
  * @author tlipski@bluesoft.net.pl
  */
 @Entity
 @Table(name = "pt_process_instance_log")
-public class ProcessInstanceLog extends PersistentEntity implements Comparable {
+public class ProcessInstanceLog extends PersistentEntity {
     public enum LogType {
         START, CLAIM, ACTION, INFO
     }
@@ -38,24 +47,30 @@ public class ProcessInstanceLog extends PersistentEntity implements Comparable {
 
 	private String logValue;
 	private String logType;
+	private String executionId;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name="process_state_id")
 	private ProcessStateConfiguration state;
 
 //    @XmlTransient
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name="own_process_instance_id")
+	private ProcessInstance ownProcessInstance;
+
 	@ManyToOne
 	@JoinColumn(name="process_instance_id")
 	private ProcessInstance processInstance;
 
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name="user_id")
 	private UserData user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name="user_substitute_id")
 	private UserData userSubstitute;
+    
 
 	public ProcessInstanceLog() {
 	}
@@ -133,10 +148,30 @@ public class ProcessInstanceLog extends PersistentEntity implements Comparable {
 		this.logType = logType;
 	}
 
-	@Override
-	public int compareTo(Object o) {
-		if (!(o instanceof ProcessInstanceLog))
-			throw new IllegalArgumentException(o + " is not an instance of " + ProcessInstanceLog.class.getName());
-		return nvl(((ProcessInstanceLog)o).getEntryDate(), Calendar.getInstance()).compareTo(nvl(entryDate, Calendar.getInstance()));
+	public static final Comparator<ProcessInstanceLog> DEFAULT_COMPARATOR = new Comparator<ProcessInstanceLog>() {
+		@Override
+		public int compare(ProcessInstanceLog o1, ProcessInstanceLog o2) {
+			return nvl(o2.getEntryDate(), Calendar.getInstance()).compareTo(nvl(o1.getEntryDate(), Calendar.getInstance()));
+		}
+	};
+
+	public String getExecutionId()
+	{
+		return executionId;
+	}
+
+	public void setExecutionId(String executionId)
+	{
+		this.executionId = executionId;
+	}
+
+	public ProcessInstance getOwnProcessInstance() {
+		if(ownProcessInstance == null)
+			return processInstance;
+		return ownProcessInstance;
+	}
+
+	public void setOwnProcessInstance(ProcessInstance ownProcessInstance) {
+		this.ownProcessInstance = ownProcessInstance;
 	}
 }

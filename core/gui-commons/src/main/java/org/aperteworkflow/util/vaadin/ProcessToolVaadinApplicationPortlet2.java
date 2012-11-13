@@ -3,6 +3,7 @@ package org.aperteworkflow.util.vaadin;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.exception.ProcessToolException;
+import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 import pl.net.bluesoft.rnd.util.i18n.impl.DefaultI18NSource;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
@@ -52,7 +53,7 @@ public class ProcessToolVaadinApplicationPortlet2 extends ApplicationPortlet2Wit
                     ProcessToolContext.Util.setThreadProcessToolContext(ctx);
                     try {
                         try {
-                            I18NSource.ThreadUtil.setThreadI18nSource(new DefaultI18NSource(request.getLocale()));
+                            I18NSource.ThreadUtil.setThreadI18nSource(I18NSourceFactory.createI18NSource(request.getLocale()));
                             ProcessToolVaadinApplicationPortlet2.super.handleRequest(request, response);
                         } finally {
                             I18NSource.ThreadUtil.removeThreadI18nSource();

@@ -54,13 +54,13 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
         return withContext(new ReturningProcessToolContextCallback<ProcessInstance>() {
             @Override
             public ProcessInstance processWithContext(ProcessToolContext ctx) {
-                return fetchHibernateData(getSession(ctx, user)
+                return fetchHibernateData(getSession(ctx, user)           
                         .createProcessInstance(config, externalKey, ctx, description, keyword, source, internalId));
             }
         });
     }
 	/**
-	 * Simpler version of createProcessInstance.
+	 * Simpler version of createProcessInstance.    
 	 * @throws AperteWsWrongArgumentException  
 	 * @throws AperteWsWrongArgumentException 
 	 */

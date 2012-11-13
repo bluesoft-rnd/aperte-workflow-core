@@ -37,7 +37,13 @@ public abstract class BaseProcessToolActionButton implements ProcessToolActionBu
 	protected String markProcessImportant;
 
 	@AutoWiredProperty
-	protected String styleName = "default";
+	protected String styleName;
+	
+	@AutoWiredProperty
+	protected String notification;
+	
+	@AutoWiredProperty
+	protected String actionType = ProcessStateAction.PRIMARY_ACTION;
 
     @AutoWiredProperty
     protected Integer priority = 0;
@@ -71,10 +77,15 @@ public abstract class BaseProcessToolActionButton implements ProcessToolActionBu
 		map.put("autoHide", String.valueOf(definition.getAutohide()));
 		map.put("description", definition.getDescription());
 		map.put("label", definition.getLabel());
+		map.put("actionType", definition.getActionType());
 		map.put("bpmAction", definition.getBpmName());
 		map.put("skipSaving", String.valueOf(definition.getSkipSaving()));
 		map.put("markProcessImportant", String.valueOf(definition.getMarkProcessImportant()));
 		map.put("priority", String.valueOf(definition.getPriority()));
+		map.put("url", String.valueOf(definition.getUrl()));
+		map.put("title", String.valueOf(definition.getTitle()));
+		map.put("question", String.valueOf(definition.getQuestion()));
+		map.put("notification", String.valueOf(definition.getNotification()));
 		for (ProcessStateActionAttribute attr : definition.getAttributes()) {
 			map.put(attr.getName(), attr.getValue());
 		}
@@ -82,6 +93,11 @@ public abstract class BaseProcessToolActionButton implements ProcessToolActionBu
 	}
 
 	protected String getComponentStyleName() {
+		if(styleName == null){
+			if(ProcessStateAction.PRIMARY_ACTION.equals(actionType)){
+				return "default";
+			}
+		}
 		return styleName;
 	}
 
@@ -237,4 +253,12 @@ public abstract class BaseProcessToolActionButton implements ProcessToolActionBu
     public void setCallback(ProcessToolActionCallback callback) {
         this.callback = callback;
     }
+
+	public String getNotification() {
+		return notification;
+	}
+
+	public void setNotification(String notification) {
+		this.notification = notification;
+	}
 }

@@ -24,6 +24,7 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolVaadinWidg
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
 import pl.net.bluesoft.util.lang.FormatUtil;
 import pl.net.bluesoft.util.lang.Formats;
+import pl.net.bluesoft.util.lang.Lang;
 
 
 import java.util.*;
@@ -67,8 +68,8 @@ public class ProcessCommentsWidget extends BaseProcessToolVaadinWidget implement
 	private Panel commentsPanel;
 
 	@Override
-	public void loadData(BpmTask task) {
-        ProcessInstance pi = task.getProcessInstance();
+	public void loadData(BpmTask task) { 
+        ProcessInstance pi = task.getProcessInstance().getRootProcessInstance();
 		ProcessComments comments = pi.findAttributeByClass(ProcessComments.class);
 		if (comments != null) {
 			List<ProcessComment> lst = new ArrayList<ProcessComment>(comments.getComments());
@@ -177,7 +178,9 @@ public class ProcessCommentsWidget extends BaseProcessToolVaadinWidget implement
 		for (ProcessComment pc : bic.getItemIds()) {
 			HorizontalLayout hl;
 			hl = new HorizontalLayout();
+            hl.addStyleName("comment-header");
 			hl.setSpacing(true);
+            hl.setWidth("100%");
             String authorLabel = pc.getAuthor() != null ? pc.getAuthor().getRealName() : "System";
             if (pc.getAuthorSubstitute() != null) {
                 authorLabel = (pc.getAuthorSubstitute() != null ? pc.getAuthorSubstitute().getRealName() : "System")
@@ -185,12 +188,16 @@ public class ProcessCommentsWidget extends BaseProcessToolVaadinWidget implement
                             + authorLabel
                             + " )";
             }
-            hl.addComponent(label("<b>" + authorLabel + "</b>", 150));
-			hl.addComponent(label("<b>" + FormatUtil.formatFullDate(pc.getCreateTime()) + "</b>", 130));
+            hl.addComponent(label("<b class=\"header-author\">" + authorLabel + "</b>", 150));
+			hl.addComponent(label("<b class=\"header-time\">" + FormatUtil.formatFullDate(pc.getCreateTime()) + "</b>", 150));
 			//			hl.addComponent(label(pc.getComment(), 450));
+            Label spacer = new Label("");
+            hl.addComponent(spacer);
+            hl.setExpandRatio(spacer, 1);
 			layout.addComponent(hl);
 
 			hl = new HorizontalLayout();
+            hl.addStyleName("comment-body");
             hl.setWidth("100%");
 			hl.setSpacing(true);
 			hl.setMargin(new Layout.MarginInfo(false, false, true, true));
@@ -205,10 +212,11 @@ public class ProcessCommentsWidget extends BaseProcessToolVaadinWidget implement
 	private void displayCommentDetails(Component component, final BeanItem<ProcessComment> bi) {
 		final Form f = getCommentDetailsForm(bi,
 		                                     isOwner &&
-				                                     (hasPermission("EDIT") &&
-						                                     bi.getBean().getAuthor().getId() == bpmSession.getUser(ProcessToolContext.Util.getThreadProcessToolContext()).getId())
-				                                     || bi.getBean().getId() == null
-				                                     || hasPermission("EDIT_ALL"));
+											 (hasPermission("EDIT") && Lang.equals(
+													 bi.getBean().getAuthor().getId(),
+													 bpmSession.getUser(ProcessToolContext.Util.getThreadProcessToolContext()).getId()))
+											 || bi.getBean().getId() == null
+											 || hasPermission("EDIT_ALL"));
 
 		final Window newCommentWindow = new Window(getMessage("processdata.comments.comment.edit.title"));
 		newCommentWindow.setModal(true);
@@ -356,7 +364,7 @@ public class ProcessCommentsWidget extends BaseProcessToolVaadinWidget implement
 
 	@Override
 	public void saveData(BpmTask task) {
-        ProcessInstance pi = task.getProcessInstance();
+        ProcessInstance pi = task.getProcessInstance().getRootProcessInstance();
 		ProcessComments comments = pi.findAttributeByClass(ProcessComments.class);
 		if (comments == null) {
 			comments = new ProcessComments();

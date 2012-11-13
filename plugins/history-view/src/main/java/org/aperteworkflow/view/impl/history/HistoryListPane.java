@@ -73,12 +73,12 @@ public class HistoryListPane extends AbstractListPane implements DateRangeListen
     private static final String HISTORY_SUPERUSER_CONFIG_KEY = "history.superuser.roles";
 
     private static final String[] allPropertyNames = new String[] {
-            "log.entryDate", "def.desc", "pi.externalId", "pi.internalId", "state.desc", "log.eventName", "log.actionName", "state.name",
+            "log.entryDate", "def.desc", "pi.externalKey", "pi.internalId", "state.desc", "log.eventName", "log.actionName", "state.name",
             "log.author", "log.substitutedBy"
     };
 
     private static final String[] processDetailsPropertyNames = new String[] {
-            "def.desc", "def.cmnt", "pi.externalId", "pi.internalId", "pi.status", "pi.createDate", "pi.creator", "pi.currentTasks"
+            "def.desc", "def.cmnt", "pi.externalKey", "pi.internalId", "pi.status", "pi.createDate", "pi.creator", "pi.currentTasks"
     };
 
     private static final String[] taskDetailsPropertyNames = new String[] {
@@ -397,7 +397,7 @@ public class HistoryListPane extends AbstractListPane implements DateRangeListen
                 ProcessInstance pi = log.getProcessInstance();
                 if (pi != null) {
                     item.getItemProperty("def.desc").setValue(getMessage(pi.getDefinition().getDescription()));
-                    item.getItemProperty("pi.externalId").setValue(pi.getExternalKey());
+                    item.getItemProperty("pi.externalKey").setValue(getExternalKey(pi));
                     item.getItemProperty("pi.internalId").setValue(pi.getInternalId());
                 }
 
@@ -480,7 +480,7 @@ public class HistoryListPane extends AbstractListPane implements DateRangeListen
                                 return VaadinUtility.boldLabel(getMessage(Formats.nvl(def.getComment())));
                             }
                             else if ("pi.externalKey".equals(itemId)) {
-                                return VaadinUtility.boldLabel(getMessage(Formats.nvl(pi.getExternalKey())));
+                                return VaadinUtility.boldLabel(getMessage(Formats.nvl(getExternalKey(pi))));
                             }
                             else if ("pi.internalId".equals(itemId)) {
                                 return VaadinUtility.boldLabel(getMessage(pi.getInternalId()));
@@ -545,8 +545,12 @@ public class HistoryListPane extends AbstractListPane implements DateRangeListen
     private void openHistoryInstance(ProcessInstanceLog log, String notFoundMessage, boolean finalTask) {
         getHistorySelection().update(table.getPageLength(), filterExpression, isBaseUserOnly, (DateRange) dateRangeField.getValue(), log);
         ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-        ProcessInstance pi = ctx.getProcessInstanceDAO().getProcessInstance(log.getProcessInstance().getId());
-        log.setProcessInstance(pi);
+        ProcessInstance ownPi = null;
+        if(log.getOwnProcessInstance() != null)
+        	ownPi = ctx.getProcessInstanceDAO().getProcessInstance(log.getOwnProcessInstance().getId());
+        else 
+        	ownPi = ctx.getProcessInstanceDAO().getProcessInstanceByInternalId(log.getExecutionId());
+        log.setOwnProcessInstance(ownPi);
         BpmTask task = finalTask ? bpmSession.getPastEndTask(log, ctx) : bpmSession.getPastOrActualTask(log, ctx);
         if (task != null) {
             viewCallback.displayProcessData(task, true);
@@ -696,4 +700,14 @@ public class HistoryListPane extends AbstractListPane implements DateRangeListen
             setSelectedItemId(selectedItemId);
         }
     }
+
+	private static String getExternalKey(ProcessInstance pi) {
+		do {
+			if (pi.getExternalKey() != null) {
+				return pi.getExternalKey();
+			}
+			pi = pi.getParent();
+		} while (pi != null);
+		return null;
+	}
 }

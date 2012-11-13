@@ -3,11 +3,23 @@ package pl.net.bluesoft.rnd.processtool.ui.widgets.taskitem;
 import static com.vaadin.terminal.Sizeable.UNITS_PIXELS;
 import static com.vaadin.ui.Alignment.MIDDLE_CENTER;
 import static com.vaadin.ui.Alignment.MIDDLE_LEFT;
-import static pl.net.bluesoft.rnd.processtool.ui.activity.MyProcessesListPane.getDeadlineDate;
-import static pl.net.bluesoft.rnd.processtool.ui.activity.MyProcessesListPane.isOutdated;
 import static org.aperteworkflow.util.vaadin.VaadinUtility.horizontalLayout;
 import static org.aperteworkflow.util.vaadin.VaadinUtility.labelWithIcon;
+import static pl.net.bluesoft.rnd.processtool.ui.activity.MyProcessesListPane.getDeadlineDate;
+import static pl.net.bluesoft.rnd.processtool.ui.activity.MyProcessesListPane.isOutdated;
 import static pl.net.bluesoft.util.lang.Formats.nvl;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import org.aperteworkflow.util.taskitem.ProcessInfoBuilder;
+import org.aperteworkflow.util.vaadin.VaadinUtility;
+
+import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
+import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
+import pl.net.bluesoft.rnd.processtool.ui.common.CssStyles;
 
 import com.vaadin.event.LayoutEvents;
 import com.vaadin.event.MouseEvents;
@@ -21,15 +33,6 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
-
-import org.aperteworkflow.util.taskitem.ProcessInfoBuilder;
-import pl.net.bluesoft.rnd.processtool.model.BpmTask;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
-import org.aperteworkflow.util.vaadin.VaadinUtility;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * User: POlszewski
@@ -65,15 +68,17 @@ public class TaskItemProviderBase {
 
 		Component processIdButton = createTaskPaneProcessId(params);
 		Component processDescButton = createTaskPaneProcessDesc(params);
-		processDescButton.setWidth("100%");
-		processIdButton.setWidth("250px"); // todo fix that ie7 shit someday
+
+		processDescButton.addStyleName(CssStyles.PROCESS_DESC_BUTTON);
+		processIdButton.addStyleName(CssStyles.PROCESS_ID_BUTTON);
 
 		HorizontalLayout hl = new HorizontalLayout();
 		hl.setSpacing(true);
 		hl.setWidth("100%");
 		hl.addComponent(processDescButton);
 		hl.addComponent(processIdButton);
-		hl.setExpandRatio(processDescButton, 1.0f);
+		//hl.setExpandRatio(processDescButton, 1.0f);
+		
 		hl.setComponentAlignment(processDescButton, Alignment.MIDDLE_LEFT);
 		hl.setComponentAlignment(processIdButton, Alignment.MIDDLE_RIGHT);
 
@@ -136,7 +141,7 @@ public class TaskItemProviderBase {
 	}
 
 	protected String getProcessDescription(TaskItemProviderParams params) {
-		return params.getMessage(params.getProcessInstance().getDefinition().getDescription());
+		return params.getMessage(params.getProcessInstance().getRootProcessInstance().getDefinition().getDescription());
 	}
 
 
@@ -161,7 +166,7 @@ public class TaskItemProviderBase {
 	}
 
 	protected Component createOpenProcessInstanceButton(String caption, String styleName, final TaskItemProviderParams params, boolean showExclamation) {
-		Button b = VaadinUtility.button(caption, null, styleName, new Button.ClickListener() {
+		Button b = VaadinUtility.button(caption, caption, styleName, new Button.ClickListener() {
 			@Override
 			public void buttonClick(Button.ClickEvent event) {
 				params.onClick();
@@ -169,7 +174,7 @@ public class TaskItemProviderBase {
 		});
 
 		if(showExclamation){
-			if(Boolean.valueOf(params.getProcessInstance().getSimpleAttributeValue("markedImportant", "false"))){
+			if(Boolean.valueOf(params.getProcessInstance().getRootProcessInstance().getSimpleAttributeValue("markedImportant", "false"))){
 				b.setIcon(params.getImage("/img/exclamation_mark.png"));
 				b.setDescription(params.getMessage("activity.task.important"));
 			}
@@ -188,8 +193,11 @@ public class TaskItemProviderBase {
    	}
 
 	public Component getTaskItemProcessInfo(TaskItemProviderParams params) {
+		params.setReplaceDefault(false);
+
         Component res = impl != null ? impl.getTaskItemProcessInfo(params) : null;
-        if (res != null) {
+
+		if (res != null && params.isReplaceDefault()) {
             return res;
         }
 
@@ -198,7 +206,18 @@ public class TaskItemProviderBase {
 		builder.addComponent(createCreateDateLabel(builder.getParams()), MIDDLE_CENTER);
 		builder.addComponent(createAssigneeLabel(builder.getParams()), MIDDLE_CENTER);
 		builder.addComponent(createDeadlineDateLabel(builder.getParams()), MIDDLE_LEFT);
-		return builder.buildLayout();
+
+		if (res != null) {
+			VerticalLayout layout = new VerticalLayout();
+			layout.setWidth("100%");
+			layout.setSpacing(true);
+			layout.addComponent(builder.buildLayout());
+			layout.addComponent(res);
+			return layout;
+		}
+		else {
+			return builder.buildLayout();
+		}
 	}
     public Component createQueuePaneProcessInfo(TaskItemProviderParams params) {
         return impl != null ? impl.createQueuePaneProcessInfo(params) : null;
@@ -214,12 +233,24 @@ public class TaskItemProviderBase {
 	}
 
 	protected Component createCreateDateLabel(TaskItemProviderParams params) {
-		Date createDate = params.getProcessInstance().getCreateDate();
+		Date createDate = params.getProcessInstance().getRootProcessInstance().getCreateDate();
 		return labelWithIcon(params.getImage("/img/date_standard.png"), formatDate(createDate), "tti-date", params.getMessage("activity.creationDate"));
 	}
 
 	protected Component createAssigneeLabel(TaskItemProviderParams params) {
-		String assignedName = (params.getTask().getOwner() != null && params.getTask().getOwner().getLogin() != null && params.getTask().getOwner().getLastName() != null) ? params.getTask().getOwner().getRealName() : params.getMessage("activity.assigned.empty");
+		String assignedName = null;
+
+		if (impl != null) {
+			assignedName = impl.getAssigneeName(params);
+		}
+
+		if (assignedName == null) {
+			UserData owner = params.getTask().getOwner();
+
+			assignedName = (owner != null && owner.getLogin() != null && owner.getLastName() != null)
+					? owner.getRealName()
+					: params.getMessage("activity.assigned.empty");
+		}
 		return labelWithIcon(params.getImage("/img/user_assigned.png"), assignedName, "tti-person", params.getMessage("activity.assigned"));
 	}
 

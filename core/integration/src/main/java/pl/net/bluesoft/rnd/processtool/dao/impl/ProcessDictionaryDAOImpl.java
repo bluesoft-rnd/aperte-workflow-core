@@ -1,16 +1,5 @@
 package pl.net.bluesoft.rnd.processtool.dao.impl;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.logging.Logger;
-
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.functors.UniquePredicate;
@@ -18,19 +7,19 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
-
 import pl.net.bluesoft.rnd.processtool.dao.ProcessDictionaryDAO;
 import pl.net.bluesoft.rnd.processtool.dict.GlobalDictionaryProvider;
 import pl.net.bluesoft.rnd.processtool.dict.ProcessDictionaryProvider;
 import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
-import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionary;
-import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItem;
-import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemExtension;
-import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemValue;
-import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryPermission;
+import pl.net.bluesoft.rnd.processtool.model.dict.db.*;
 import pl.net.bluesoft.util.cache.Caches;
-import pl.net.bluesoft.util.cache.Caches.CacheCallback;
+import pl.net.bluesoft.util.lang.ExpiringCache;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.logging.Logger;
 
 public class ProcessDictionaryDAOImpl extends SimpleHibernateBean<ProcessDBDictionary> implements ProcessDictionaryDAO,
         ProcessDictionaryProvider<ProcessDBDictionary>, GlobalDictionaryProvider<ProcessDBDictionary> {
@@ -39,45 +28,63 @@ public class ProcessDictionaryDAOImpl extends SimpleHibernateBean<ProcessDBDicti
     }
 
     private static final Logger logger = Logger.getLogger(ProcessDictionaryDAOImpl.class.getName());
-    private static final Map<String, ProcessDBDictionary> cache = Caches.synchronizedCache(100);
+    private static final ExpiringCache<DictionaryCacheKey, ProcessDBDictionary> cache = new ExpiringCache<DictionaryCacheKey, ProcessDBDictionary>(60 * 60 * 1000);
 
-    private abstract class DictionaryCacheCallback extends CacheCallback<ProcessDBDictionary> {
-        private ProcessDefinitionConfig definition;
-        private String dictionaryId;
-        private String languageCode;
-        private Boolean defaultDictionary;
+	private static class DictionaryCacheKey {
+		private String definitionId;
+		private String dictionaryId;
+		private String languageCode;
+		private Boolean defaultDictionary;
 
-        public DictionaryCacheCallback(ProcessDefinitionConfig definition, String dictionaryId, String languageCode) {
-            this(definition, dictionaryId, languageCode, null);
-        }
+		public DictionaryCacheKey(ProcessDefinitionConfig definition, String dictionaryId, String languageCode) {
+			this(definition, dictionaryId, languageCode, null);
+		}
 
-        public DictionaryCacheCallback(ProcessDefinitionConfig definition, String dictionaryId, String languageCode,
-                                       Boolean defaultDictionary) {
-            this.definition = definition;
-            this.dictionaryId = dictionaryId;
-            this.languageCode = languageCode;
-            this.defaultDictionary = defaultDictionary;
-        }
+		public DictionaryCacheKey(ProcessDefinitionConfig definition, String dictionaryId, String languageCode,
+								  Boolean defaultDictionary) {
+			this(getCacheDefinitionId(definition), dictionaryId, languageCode, defaultDictionary);
+		}
 
-        @Override
-        protected void updateCache(Map<String, ProcessDBDictionary> cache, String objectId, ProcessDBDictionary result) {
-            ProcessDictionaryDAOImpl.this.updateCache(result);
-        }
+		public DictionaryCacheKey(String definitionId, String dictionaryId, String languageCode) {
+			this(definitionId, dictionaryId, languageCode, null);
+		}
 
-        @Override
-        protected String getCachedObjectId(Object... params) {
-            String definitionId = getCacheDefinitionId(definition);
-            if (defaultDictionary != null && defaultDictionary) {
-                return Caches.cachedObjectId(definitionId, dictionaryId, getCacheDefaultToken(defaultDictionary));
-            }
-            return Caches.cachedObjectId(definitionId, dictionaryId, languageCode);
-        }
+		public DictionaryCacheKey(String definitionId, String dictionaryId, String languageCode, Boolean defaultDictionary) {
+			this.definitionId = definitionId;
+			this.dictionaryId = dictionaryId;
+			this.languageCode = languageCode;
+			this.defaultDictionary = defaultDictionary;
+		}
 
-        @Override
-        protected void objectMissed(Map<String, ProcessDBDictionary> cache, String objectId) {
-            logger.warning("Object missed: " + objectId + ".");
-        }
-    }
+		@Override
+		public String toString() {
+			if (defaultDictionary != null && defaultDictionary) {
+				return Caches.cachedObjectId(definitionId, dictionaryId, getCacheDefaultToken(defaultDictionary));
+			}
+			return Caches.cachedObjectId(definitionId, dictionaryId, languageCode);
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj instanceof DictionaryCacheKey) {
+				return toString().equals(obj.toString());
+			}
+			return false;
+		}
+
+		@Override
+		public int hashCode() {
+			return toString().hashCode();
+		}
+	}
+
+	private static String getCacheDefaultToken(Boolean flag) {
+		return "default=" + flag;
+	}
+
+	private static String getCacheDefinitionId(ProcessDefinitionConfig config) {
+		return "" + (config != null ? config.getId() : "global");
+	}
 
     private void updateCache(Collection<ProcessDBDictionary> dictionaries) {
         for (ProcessDBDictionary dict : dictionaries) {
@@ -86,54 +93,50 @@ public class ProcessDictionaryDAOImpl extends SimpleHibernateBean<ProcessDBDicti
     }
 
     private void updateCache(ProcessDBDictionary dict) {
-        String definitionId = getCacheDefinitionId(dict.getProcessDefinition());
+		String definitionId = getCacheDefinitionId(dict.getProcessDefinition());
         String dictionaryId = dict.getDictionaryId();
         String languageCode = dict.getLanguageCode();
-        String objectId = Caches.cachedObjectId(definitionId, dictionaryId, languageCode);
-        cache.put(objectId, dict);
+		DictionaryCacheKey key = new DictionaryCacheKey(definitionId, dictionaryId, languageCode);
+		cache.put(key, dict);
            //     logger.info("Cached dictionary: " + objectId);
         if (dict.isDefaultDictionary() != null && dict.isDefaultDictionary()) {
-            objectId = Caches.cachedObjectId(definitionId, dictionaryId, getCacheDefaultToken(dict.isDefaultDictionary()));
-            cache.put(objectId, dict);
+            key = new DictionaryCacheKey(definitionId, dictionaryId, getCacheDefaultToken(dict.isDefaultDictionary()));
+            cache.put(key, dict);
             //            logger.info("Cached dictionary: " + objectId);
         }
-    }
-
-    private String getCacheDefaultToken(Boolean flag) {
-        return "default=" + flag;
-    }
-
-    private String getCacheDefinitionId(ProcessDefinitionConfig config) {
-        return "" + (config != null ? config.getId() : "global");
     }
 
     @Override
     public ProcessDBDictionary fetchProcessDictionary(final ProcessDefinitionConfig definition, final String dictionaryId,
                                                       final String languageCode) {
-        return new DictionaryCacheCallback(definition, dictionaryId, languageCode) {
-            @Override
-            protected ProcessDBDictionary fetchObject() {
+		DictionaryCacheKey key = new DictionaryCacheKey(definition, dictionaryId, languageCode);
+
+		return cache.get(key, new ExpiringCache.NewValueCallback<DictionaryCacheKey, ProcessDBDictionary>() {
+			@Override
+			public ProcessDBDictionary getNewValue(DictionaryCacheKey key) {
                 Criteria criteria = getSession().createCriteria(ProcessDBDictionary.class)
                         .add(Restrictions.eq("dictionaryId", dictionaryId))
                         .add(Restrictions.eq("languageCode", languageCode))
                         .add(definition == null ? Restrictions.isNull("processDefinition") : Restrictions.eq("processDefinition", definition));
                 return (ProcessDBDictionary) criteria.uniqueResult();
             }
-        }.run(cache);
+        });
     }
 
-    @Override
+	@Override
     public ProcessDBDictionary fetchDefaultProcessDictionary(final ProcessDefinitionConfig definition, final String dictionaryId) {
-        return new DictionaryCacheCallback(definition, dictionaryId, null, true) {
-            @Override
-            protected ProcessDBDictionary fetchObject() {
-                Criteria criteria = getSession().createCriteria(ProcessDBDictionary.class)
-                        .add(Restrictions.eq("dictionaryId", dictionaryId))
-                        .add(Restrictions.eq("defaultDictionary", Boolean.TRUE))
-                        .add(definition == null ? Restrictions.isNull("processDefinition") : Restrictions.eq("processDefinition", definition));
-                return (ProcessDBDictionary) criteria.uniqueResult();
-            }
-        }.run(cache);
+		DictionaryCacheKey key = new DictionaryCacheKey(definition, dictionaryId, null, true);
+
+		return cache.get(key, new ExpiringCache.NewValueCallback<DictionaryCacheKey, ProcessDBDictionary>() {
+			@Override
+			public ProcessDBDictionary getNewValue(DictionaryCacheKey key) {
+				Criteria criteria = getSession().createCriteria(ProcessDBDictionary.class)
+						.add(Restrictions.eq("dictionaryId", dictionaryId))
+						.add(Restrictions.eq("defaultDictionary", Boolean.TRUE))
+						.add(definition == null ? Restrictions.isNull("processDefinition") : Restrictions.eq("processDefinition", definition));
+				return (ProcessDBDictionary)criteria.uniqueResult();
+			}
+		});
     }
 
     @Override
@@ -187,37 +190,119 @@ public class ProcessDictionaryDAOImpl extends SimpleHibernateBean<ProcessDBDicti
         createOrUpdateDictionaries(definition, Collections.singletonList(dictionary), overwrite);
     }
 
+    public ProcessDBDictionary findDictionaryById(Long dictionaryId)
+    {
+        Criteria criteria = getSession().createCriteria(ProcessDBDictionary.class)
+                .add(Restrictions.eq("id", dictionaryId));
+
+        return (ProcessDBDictionary)criteria.uniqueResult();
+    }
+
+    public void createOrUpdateDictionaryItem(ProcessDBDictionary dictionary, String dictionaryItemKey, String dictionaryItemValue)
+    {
+    	Session session = getSession();
+
+    	ProcessDBDictionaryItem dictionaryItem = null;
+
+    	if(dictionary.getId() == null)
+    	{
+	        Criteria criteria = session.createCriteria(ProcessDBDictionaryItem.class)
+	                .add(Restrictions.eq("key", dictionaryItemKey))
+	                .add(Restrictions.eq("dictionary", dictionary));
+
+	        dictionaryItem = (ProcessDBDictionaryItem)criteria.uniqueResult();
+    	}
+    	else
+    	{
+    		dictionaryItem = dictionary.getItems().get(dictionaryItemKey);
+    	}
+
+        if(dictionaryItem == null)
+        {
+        	dictionaryItem = new ProcessDBDictionaryItem();
+        	dictionaryItem.setDictionary(dictionary);
+        	dictionaryItem.setKey(dictionaryItemKey);
+
+        	ProcessDBDictionaryItemValue itemValue = new ProcessDBDictionaryItemValue();
+        	itemValue.setItem(dictionaryItem);
+        	itemValue.setValue(dictionaryItemValue);
+        	itemValue.setStringValue(dictionaryItemValue);
+        	itemValue.setValidStartDate(new Date());
+
+        	dictionaryItem.getValues().add(itemValue);
+
+        	dictionary.addItem(dictionaryItem);
+
+        	session.saveOrUpdate(dictionary);
+        }
+        else
+        {
+        	ProcessDBDictionaryItemValue currentValue = dictionaryItem.getValueForCurrentDate();
+        	currentValue.setValue(dictionaryItemValue);
+
+        	dictionaryItem.getValues().remove(currentValue);
+
+        	ProcessDBDictionaryItemValue itemValue = new ProcessDBDictionaryItemValue();
+        	itemValue.setItem(dictionaryItem);
+        	itemValue.setValue(dictionaryItemValue);
+        	itemValue.setStringValue(dictionaryItemValue);
+        	itemValue.setValidStartDate(new Date());
+
+        	dictionaryItem.getValues().add(itemValue);
+
+        	session.saveOrUpdate(dictionary);
+        }
+
+        updateCache(dictionary);
+    }
+
     @Override
     public void createOrUpdateDictionaries(ProcessDefinitionConfig definition, List<ProcessDBDictionary> newDictionaries, boolean overwrite) {
         List<ProcessDBDictionary> existingDBDictionaries = definition != null ? fetchProcessDictionaries(definition)
                 : fetchAllGlobalDictionaries();
         Session session = getSession();
-        for (ProcessDBDictionary newDict : newDictionaries) {
+        for (ProcessDBDictionary newDict : newDictionaries) 
+        {
+        	ProcessDBDictionary existingDictionary = null;
+        	for (ProcessDBDictionary existingDict : existingDBDictionaries)
+        		if (existingDict.getDictionaryId().equals(newDict.getDictionaryId()) && existingDict.getLanguageCode().equals(newDict.getLanguageCode()))
+        		{
+        			existingDictionary = existingDict;
+        			break;
+        		}
+        	
             boolean updated = false;
-            for (ProcessDBDictionary existingDict : existingDBDictionaries) {
-                if (existingDict.getDictionaryId().equals(newDict.getDictionaryId())
-                        && existingDict.getLanguageCode().equals(newDict.getLanguageCode())) {
-                    if (overwrite) {
-                        session.delete(existingDict);
-                    } else {
-                        existingDict.getPermissions().clear();
-                        existingDict.getPermissions().addAll(newDict.getPermissions());
-                        existingDict.setDefaultDictionary(newDict.isDefaultDictionary());
-                        existingDict.setDescription(newDict.getDescription());
-                        for (ProcessDBDictionaryItem newItem : newDict.getItems().values()) {
-                            if (!existingDict.getItems().containsKey(newItem.getKey())) {
-                                existingDict.addItem(newItem);
-                            }
+        	if(existingDictionary != null)
+        	{
+                if (overwrite) 
+                {
+                    session.delete(existingDictionary);
+                } 
+                else 
+                {
+                	existingDictionary.getPermissions().clear();
+                	for(ProcessDBDictionaryPermission permission: newDict.getPermissions())
+                	{
+                		permission.setDictionary(existingDictionary);
+                		existingDictionary.getPermissions().add(permission);
+                	}
+                	
+                	existingDictionary.setDefaultDictionary(newDict.isDefaultDictionary());
+                	existingDictionary.setDescription(newDict.getDescription());
+                    for (ProcessDBDictionaryItem newItem : newDict.getItems().values()) {
+                        if (!existingDictionary.getItems().containsKey(newItem.getKey())) {
+                        	existingDictionary.addItem(newItem);
                         }
-                        session.saveOrUpdate(existingDict);
-                        updateCache(existingDict);
-                        updated = true;
                     }
+                    session.saveOrUpdate(existingDictionary);
+                    updateCache(existingDictionary);
+                    updated = true;
                 }
-            }
+        	}
+        	
             if (!updated) {
                 newDict.setProcessDefinition(definition);
-                session.save(newDict);
+                session.saveOrUpdate(newDict);
                 updateCache(newDict);
             }
         }

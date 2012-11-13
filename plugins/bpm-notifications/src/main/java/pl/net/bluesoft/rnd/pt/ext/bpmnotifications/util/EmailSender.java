@@ -32,7 +32,7 @@ public class EmailSender {
         	throw new Exception("Error sending email. Cannot find valid template configuration");
         }
         
-    	service.sendNotification("Default", sender, recipient, topic, body);
+        service.addNotificationToSend("Default", sender, recipient, topic, body, true);
     	
     	logger.info("EmailSender email sent: " + sender + " " + recipient + " " + topic + " " + body);
 	}

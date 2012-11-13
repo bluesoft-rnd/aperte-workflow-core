@@ -123,8 +123,8 @@ public class GenerateDocument implements ProcessToolProcessStep {
 	private static final String POPUP_ONCE = "ONCE";
 	private static final String POPUP_ALWAYS = "ALWAYS";
 
-
-	public String invoke(BpmStep step, Map params) throws Exception {
+	@Override
+	public String invoke(BpmStep step, Map<String, String> params) throws Exception {
 		try {
 			
 			ProcessInstance processInstance = step.getProcessInstance();
@@ -141,6 +141,7 @@ public class GenerateDocument implements ProcessToolProcessStep {
 				localeAttributeKey = (String) params.get("localeAttributeKey");
 			}
 			defaultLocaleName = (String) params.get("defaultLocaleName");
+
 			initLocale(processInstance);
 			// BUILD REPORT
 			logger.warning("GenerateDocument start, building report");

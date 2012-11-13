@@ -1,6 +1,5 @@
 package pl.net.bluesoft.rnd.processtool.model.config;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 
 import javax.persistence.*;

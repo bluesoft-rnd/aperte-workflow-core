@@ -31,19 +31,18 @@ public class TasksFilterFieldFactory extends DefaultFieldFactory {
 	public Field createField(Item item, Object propertyId, Component uiContext) {
 		AbstractField field;
 		if (Arrays.asList("creators", "owners", "queues", "states").contains(propertyId)) {
-            ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
 			ListSelect select = new ListSelect(getMessage(PREFIX + propertyId));
 			select.setMultiSelect(true);
 			select.setRows(5);
 			select.setNullSelectionAllowed(true);
 			select.setNullSelectionItemId(null);
 			if ("owners".equals(propertyId) || "creators".equals(propertyId)) {
-				List<UserData> users = ctx.getUserDataDAO().findAll();
+				List<UserData> users = getUsers();
 				BeanItemContainer bic = new BeanItemContainer<UserData>(UserData.class, users);
 				select.setContainerDataSource(bic);
 				select.setItemCaptionPropertyId("filteredName");
 			} else if ("queues".equals(propertyId)) {
-				Collection<ProcessQueue> queues = parent.getSession().getUserAvailableQueues(ctx);
+				Collection<ProcessQueue> queues = getQueues();
 				for (ProcessQueue queue : queues) {
 					select.addItem(queue.getName());
 					select.setItemCaption(queue.getName(), queue.getDescription());
@@ -73,6 +72,25 @@ public class TasksFilterFieldFactory extends DefaultFieldFactory {
 
 
 		return field;
+	}
+
+	private Collection<ProcessQueue> queues;
+	private List<UserData> users;
+
+	private Collection<ProcessQueue> getQueues() {
+		if (queues == null) {
+			ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
+			queues = parent.getSession().getUserAvailableQueues(ctx);
+		}
+		return queues;
+	}
+
+	private List<UserData> getUsers() {
+		if (users == null) {
+			ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
+			users = ctx.getUserDataDAO().findAll();
+		}
+		return users;
 	}
 
 	public String getMessage(String key) {

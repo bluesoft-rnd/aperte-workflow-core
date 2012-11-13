@@ -1,13 +1,12 @@
 package pl.net.bluesoft.rnd.processtool.model.config;
 
-import org.hibernate.annotations.Type;
 import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.pt.utils.lang.Lang2;
 
 import javax.persistence.*;
-import javax.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -22,7 +21,7 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
 @Entity
 @Table(name="pt_process_definition_config")
-public class ProcessDefinitionConfig extends PersistentEntity implements Serializable, Comparable<ProcessDefinitionConfig> {
+public class ProcessDefinitionConfig extends PersistentEntity implements Serializable {
 	private String processName;
 	private String description;
 	private String bpmDefinitionKey;
@@ -30,17 +29,17 @@ public class ProcessDefinitionConfig extends PersistentEntity implements Seriali
     @Column(name="comment_")
 	private String comment;
 
-	@ManyToOne
+	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="creator_id")
 	private UserData creator;
 
 	private Date createDate;
 
-	@OneToMany(cascade = {CascadeType.ALL})
+	@OneToMany(cascade = {CascadeType.ALL}, fetch=FetchType.LAZY)
 	@JoinColumn(name="definition_id")
-	private Set<ProcessStateConfiguration> states;
+	private Set<ProcessStateConfiguration> states = new HashSet<ProcessStateConfiguration>();
 
-	@OneToMany(cascade = {CascadeType.ALL})
+	@OneToMany(cascade = {CascadeType.ALL}, fetch=FetchType.LAZY)
 	@JoinColumn(name="definition_id")
 	private Set<ProcessDefinitionPermission> permissions = new HashSet<ProcessDefinitionPermission>();
 
@@ -60,7 +59,7 @@ public class ProcessDefinitionConfig extends PersistentEntity implements Seriali
     }
 
     public void setProcessLogo(byte[] processLogo) {
-        this.processLogo = processLogo;
+        this.processLogo = Lang2.noCopy(processLogo);
     }
 
     public String getTaskItemClass() {
@@ -144,14 +143,16 @@ public class ProcessDefinitionConfig extends PersistentEntity implements Seriali
         this.enabled = enabled;
     }
 
-    @Override
-    public int compareTo(ProcessDefinitionConfig o) {
-        int res = nvl(getDescription(), "").compareToIgnoreCase(nvl(o.getDescription(), ""));
-        if (res == 0) {
-            res = nvl(o.getId(), Long.MIN_VALUE).compareTo(nvl(getId(), Long.MIN_VALUE));
-        }
-        return res;
-    }
+	public static final Comparator<ProcessDefinitionConfig> DEFAULT_COMPARATOR = new Comparator<ProcessDefinitionConfig>() {
+		@Override
+		public int compare(ProcessDefinitionConfig o1, ProcessDefinitionConfig o2) {
+			int res = nvl(o1.getDescription(), "").compareToIgnoreCase(nvl(o2.getDescription(), ""));
+			if (res == 0) {
+				res = nvl(o2.getId(), Long.MIN_VALUE).compareTo(nvl(o1.getId(), Long.MIN_VALUE));
+			}
+			return res;
+		}
+	};
 
     public Set<ProcessDefinitionPermission> getPermissions() {
         if (permissions == null) {

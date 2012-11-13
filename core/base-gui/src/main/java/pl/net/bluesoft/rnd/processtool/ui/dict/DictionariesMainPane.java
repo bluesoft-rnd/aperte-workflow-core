@@ -88,6 +88,7 @@ public class DictionariesMainPane extends VerticalLayout implements ProcessToolB
         titleLabel.setWidth("100%");
 
         processDefinitionSelect = select(getMessage("process.name"), processContainer, "description");
+        processDefinitionSelect.setItemCaptionMode(Select.ITEM_CAPTION_MODE_EXPLICIT);
         processDefinitionSelect.addListener(new Property.ValueChangeListener() {
             @Override
             public void valueChange(ValueChangeEvent event) {
@@ -121,10 +122,14 @@ public class DictionariesMainPane extends VerticalLayout implements ProcessToolB
             @Override
             public void callback(ProcessToolContext ctx, ProcessToolBpmSession session) {
                 Collection<ProcessDefinitionConfig> configs = ctx.getProcessDefinitionDAO().getActiveConfigurations();
-                for (ProcessDefinitionConfig config : configs) {
-                    config.setDescription(i18NSource.getMessage(config.getDescription()));
-                }
+                //LOL - it overwrites descriptions in database with language of the first user who logs in :)
+//                for (ProcessDefinitionConfig config : configs) {
+//                    config.setDescription(i18NSource.getMessage(config.getDescription()));
+//                }
                 processContainer.addAll(configs);
+                for (ProcessDefinitionConfig config : processContainer.getItemIds()) {
+                	processDefinitionSelect.setItemCaption(config, i18NSource.getMessage(config.getDescription()));
+              	}
                 ProcessDictionaryProvider pdp = ctx.getProcessDictionaryRegistry().getProcessDictionaryProvider("db");
                 List<ProcessDBDictionary> dictionaries = pdp.fetchAllActiveProcessDictionaries();
                 for (ProcessDBDictionary dict : dictionaries) {
@@ -261,8 +266,7 @@ public class DictionariesMainPane extends VerticalLayout implements ProcessToolB
     private void prepareDistinctDictionaryNameContainer(BeanItemContainer<ProcessDBDictionary> distinctNameContainer,
             Map<String, Set<ProcessDBDictionary>> localizedDictionariesMap) {
         Locale locale = i18NSource.getLocale();
-        for (String key : localizedDictionariesMap.keySet()) {
-            Set<ProcessDBDictionary> dictSet = localizedDictionariesMap.get(key);
+		for (Set<ProcessDBDictionary> dictSet : localizedDictionariesMap.values()) {
             if (dictSet != null && !dictSet.isEmpty()) {
                 boolean addedEntry = false;
                 for (ProcessDBDictionary dict : dictSet) {
@@ -386,8 +390,8 @@ public class DictionariesMainPane extends VerticalLayout implements ProcessToolB
                 }
                 else {
                     StringBuilder sb = new StringBuilder();
-                    for (Field field : messages.keySet()) {
-                        sb.append(messages.get(field)).append("<br/>");
+					for (String msg : messages.values()) {
+                        sb.append(msg).append("<br/>");
                     }
                     validationNotification(application, i18NSource, sb.toString());
                 }

@@ -111,7 +111,11 @@ activity.task.history.state.name=Step identifier
 activity.task.history.state.desc=Step name
 activity.task.history.def.desc=Process name
 activity.task.history.def.cmnt=Detailed description
+<<<<<<< HEAD
 activity.task.history.pi.externalId=Instance name
+=======
+activity.task.history.pi.externalKey=Instance name
+>>>>>>> bluesoft-rnd/RELEASE-2.0
 activity.task.history.pi.internalId=Identifier
 activity.task.history.pi.status=Status
 activity.task.history.pi.createDate=Date of creation

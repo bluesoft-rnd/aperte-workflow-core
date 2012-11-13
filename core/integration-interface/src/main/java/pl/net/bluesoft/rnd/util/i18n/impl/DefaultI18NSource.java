@@ -38,8 +38,8 @@ public class DefaultI18NSource implements I18NSource {
 
 	@Override
 	public String getMessage(String key, String defaultValue) {
-        ProcessToolContext ptc = ProcessToolContext.Util.getThreadProcessToolContext();
-		Collection<I18NProvider> i18NProviders = new ArrayList(ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().getI18NProviders());
+        ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
+		Collection<I18NProvider> i18NProviders = new ArrayList(ctx.getRegistry().getI18NProviders());
 		//1st run - full localization e.g. _pl_PL
 		for (I18NProvider i18NProvider : i18NProviders) {
 			if (!i18NProvider.hasFullyLocalizedMessage(key, locale)) continue;

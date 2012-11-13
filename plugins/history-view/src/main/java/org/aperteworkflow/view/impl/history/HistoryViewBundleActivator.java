@@ -4,25 +4,27 @@ import org.aperteworkflow.ui.view.ViewRegistry;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
-import java.util.HashMap;
-
-
 /**
  * @author tlipski@bluesoft.net.pl
  */
 public class HistoryViewBundleActivator implements BundleActivator {
-
     @Override
     public void start(BundleContext bundleContext) throws Exception {
-        ViewRegistry registeredService = (ViewRegistry)
-                bundleContext.getService(bundleContext.getServiceReference(ViewRegistry.class.getName()));
-        if (registeredService != null) {
-            registeredService.registerView(new ViewGeneratingFunction());
+		ViewRegistry registeredService = getViewRegistry(bundleContext);
+		if (registeredService != null) {
+            registeredService.registerView(ViewGeneratingFunction.INSTANCE);
         }
     }
 
-    @Override
+	@Override
     public void stop(BundleContext bundleContext) throws Exception {
-
+		ViewRegistry registeredService = getViewRegistry(bundleContext);
+		if (registeredService != null) {
+			registeredService.unregisterView(ViewGeneratingFunction.INSTANCE);
+		}
     }
+
+	private ViewRegistry getViewRegistry(BundleContext bundleContext) {
+		return (ViewRegistry)bundleContext.getService(bundleContext.getServiceReference(ViewRegistry.class.getName()));
+	}
 }

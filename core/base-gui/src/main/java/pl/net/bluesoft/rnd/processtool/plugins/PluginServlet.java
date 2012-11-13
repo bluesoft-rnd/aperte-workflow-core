@@ -25,27 +25,19 @@ public class PluginServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        if (pluginHelper != null) {
-            try {
-                pluginHelper.stopPluginSystem();
-                pluginHelper = null;
-            } catch (BundleException e) {
-                LOGGER.throwing("Exception while osgi stop", e.getMessage(), e);
-            }
-        }
-        initPluginHelper();
+		stopPluginHelper();
+		initPluginHelper();
     }
 
-    @Override
+	@Override
     public void init() throws ServletException {
         LOGGER.info("init");
 
         initPluginHelper();
         LOGGER.info("initout");
-
     }
 
-    private void initPluginHelper() throws ServletException {
+    private synchronized void initPluginHelper() throws ServletException {
         try {
             if (pluginHelper == null) {
                 pluginHelper = new PluginHelper();
@@ -54,7 +46,8 @@ public class PluginServlet extends HttpServlet {
                         .getAttribute(ProcessToolRegistry.class.getName());
 
                 pluginHelper.initialize(
-                        nvl(getServletConfig().getInitParameter("osgi-plugins-directory"),
+						firstExistingDirectory(getServletConfig().getInitParameter("osgi-plugins-directory"),
+								getServletConfig().getServletContext().getRealPath("/WEB-INF/osgi"),
                                 ProcessToolContext.Util.getHomePath() + File.separator + "osgi-plugins"),
                         nvl(getServletConfig().getInitParameter("felix-cache-directory"),
                                 ProcessToolContext.Util.getHomePath() + File.separator + "felix-cache"),
@@ -69,17 +62,30 @@ public class PluginServlet extends HttpServlet {
         }
     }
 
+	private synchronized void stopPluginHelper() {
+		if (pluginHelper != null) {
+			try {
+				pluginHelper.stopPluginSystem();
+				pluginHelper = null;
+			} catch (BundleException e) {
+				LOGGER.throwing("Exception while osgi stop", e.getMessage(), e);
+			}
+		}
+	}
+
+	private static String firstExistingDirectory(String... dirs) {
+		for (String dir : dirs) {
+			if (dir != null && new File(dir).exists()) {
+				return dir;
+			}
+		}
+		return null;
+	}
+
     @Override
     public void destroy() {
         LOGGER.info("destroy");
         super.destroy();
-        if (pluginHelper != null) {
-            try {
-                pluginHelper.stopPluginSystem();
-                pluginHelper = null;
-            } catch (BundleException e) {
-                LOGGER.throwing("Exception while osgi stop", e.getMessage(), e);
-            }
-        }
-    }
+		stopPluginHelper();
+	}
 }

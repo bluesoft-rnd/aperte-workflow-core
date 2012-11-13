@@ -125,6 +125,7 @@ public class StandardValidatingButton extends BaseProcessToolVaadinActionButton 
 	public void saveData(BpmTask task) {
 		super.saveData(task);
 		ProcessInstance pi = task.getProcessInstance();
+		
 		pi.setSimpleAttribute("commentAdded", "false");
 	}
 

@@ -57,6 +57,8 @@ public class HibernateBeanUtil {
 		}
     }
 
+
+
 	private static class LazyLoadExpander {
 		private final Set<Object> expanded = new HashSet<Object>();
 

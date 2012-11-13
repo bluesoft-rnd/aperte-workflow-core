@@ -398,6 +398,27 @@
 		<load-on-startup>2</load-on-startup>
 	</servlet>
 	<servlet>
+		<servlet-name>OSGIUserProcessQueuesServlet</servlet-name>
+		<servlet-class>pl.net.bluesoft.rnd.processtool.plugins.UserProcessQueuesServlet
+		</servlet-class>
+		<load-on-startup>4</load-on-startup>
+	</servlet>
+	<servlet>
+		<servlet-name>HelpContextChangerServlet</servlet-name>
+		<servlet-class>com.liferay.portal.kernel.servlet.PortalDelegateServlet</servlet-class>
+		<init-param>
+			<param-name>servlet-class</param-name>
+			<param-value>pl.net.bluesoft.rnd.processtool.plugins.HelpContextChangerServlet
+			</param-value>
+		</init-param>
+		<init-param>
+		  <param-name>sub-context</param-name>
+		  <param-value>help_context</param-value>
+		</init-param>
+		
+		<load-on-startup>4</load-on-startup>
+	</servlet>
+	<servlet>
 		<servlet-name>StepEditorServlet</servlet-name>
 		<servlet-class>com.vaadin.terminal.gwt.server.ApplicationServlet
 		</servlet-class>
@@ -486,6 +507,16 @@
 	<servlet-mapping>
 		<servlet-name>OSGIStepExposureServlet</servlet-name>
 		<url-pattern>/osgiex/steps</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>OSGIUserProcessQueuesServlet</servlet-name>
+		<url-pattern>/osgiex/queues</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>HelpContextChangerServlet</servlet-name>
+		<url-pattern>/helpchanger</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>

@@ -43,9 +43,8 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinRenderable;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.*;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolVaadinWidget;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
+import pl.net.bluesoft.rnd.pt.utils.lang.Lang2;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import pl.net.bluesoft.util.lang.StringUtil;
 import pl.net.bluesoft.util.lang.Strings;
 
 import java.io.ByteArrayInputStream;
@@ -73,6 +72,7 @@ import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implements ProcessToolDataWidget, ProcessToolVaadinRenderable {
     private static final Logger logger = Logger.getLogger(ProcessDataBlockWidget.class.getName());
     private static final Resolver resolver = new DefaultResolver();
+    private static Boolean allowFileldsListener = true;
 
     private WidgetDefinitionLoader definitionLoader = WidgetDefinitionLoader.getInstance();
 
@@ -300,6 +300,8 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         new ComponentEvaluator<Property>(boundProperties) {
             @Override
             public void evaluate(Property component, WidgetElement element) throws Exception {
+            	
+            	allowFileldsListener=false;  	// not so great but works, needs further works.
                 Object value = null;
                 try {
                     value = PropertyUtils.getProperty(processAttributes, element.getBind());
@@ -314,7 +316,8 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                         component.setReadOnly(false);
                     }
                     if (Date.class.isAssignableFrom(component.getType())) {
-                        Date v = new SimpleDateFormat(((DateWidgetElement) element).getFormat()).parse(String.valueOf(value));
+						DateWidgetElement dwe = Lang2.assumeType(element, DateWidgetElement.class);
+						Date v = new SimpleDateFormat(dwe.getFormat()).parse(String.valueOf(value));
                         component.setValue(v);
                     } else if (String.class.isAssignableFrom(component.getType())) {
                         component.setValue(nvl(value, ""));
@@ -328,6 +331,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                         component.setReadOnly(true);
                     }
                 }
+                allowFileldsListener=true;
             }
         };
     }
@@ -375,10 +379,9 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
 
     private void loadProcessInstanceDictionaries() {
         new ComponentEvaluator<AbstractSelect>(instanceDictContainers) {
-
             @Override
             public void evaluate(AbstractSelect component, WidgetElement element) throws Exception {
-                AbstractSelectWidgetElement aswe = (AbstractSelectWidgetElement) element;
+                AbstractSelectWidgetElement aswe = Lang2.assumeType(element, AbstractSelectWidgetElement.class);
                 String dictAttribute = aswe.getDictionaryAttribute();
                 ProcessInstanceDictionaryAttribute dict = (ProcessInstanceDictionaryAttribute) processInstance.findAttributeByKey(dictAttribute);
                 if (dict != null) {
@@ -467,8 +470,9 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
 
         setupWidget(widgetsDefinitionElement, mainPanel);
 
-      List<AbstractComponent> dynamicValidationComponents = createComponents();
+        List<AbstractComponent> dynamicValidationComponents = createComponents();
         
+      
         loadDictionaries();
         loadProcessInstanceDictionaries();
         loadBindings();
@@ -478,7 +482,9 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
 
             mainPanel.removeAllComponents();
             try {
-                rebuildForm();
+                for (WidgetElement we : widgetsDefinitionElement.getWidgets()) {
+                    processWidgetElement(widgetsDefinitionElement, we, mainPanel);
+                }
             } catch (Exception e) {
                 handleException(getMessage("widget.process_data_block.editor.validation.script.error"), e);
                 mainPanel = null;
@@ -511,6 +517,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
 	}
 
 	private boolean executeScript() {
+    	
     	
         boolean executed = false;
         try {
@@ -624,6 +631,24 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         if (component instanceof Field) {
             Property property = (Property) component;
             widgetDataSources.put(element, property);
+
+            if (element.getDynamicValidation() == Boolean.TRUE)
+                ((Field) component).addListener(new ValueChangeListener() {
+                    @Override
+                    public void valueChange(ValueChangeEvent event) {
+                    	if(allowFileldsListener){ // not so great, but works, needs further works.
+                    	boolean executedScript = executeScript();
+                        if (!executedScript){
+                            return;
+                        }
+
+                        mainPanel.removeAllComponents();
+                        for (WidgetElement we : widgetsDefinitionElement.getWidgets()) {
+                            processWidgetElement(widgetsDefinitionElement, we, mainPanel);
+                        } 
+					}
+                    }
+                });
         }
 
         performAdditionalProcessing(element, component);
@@ -736,9 +761,9 @@ addListinersToComponents(dynamicValidationComponents);
         return select;
     }
 
-    private void processScriptElement(Select select, ScriptElement script) {
-        throw new RuntimeException("Not implemented yet!");
-    }
+//    private void processScriptElement(Select select, ScriptElement script) {
+//        throw new RuntimeException("Not implemented yet!");
+//    }
 
     private Form createFormField(FormWidgetElement fwe) {
         FormLayout layout = new FormLayout();
@@ -770,8 +795,9 @@ addListinersToComponents(dynamicValidationComponents);
                 rta.setReadOnly(true);
                 rta.setHeight(null);
             }
-            if (taw.getValue() != null)
+            if (taw.getValue() != null) {
                 rta.setValue(taw.getValue());
+			}
 
             component = rta;
         } else {
@@ -783,7 +809,6 @@ addListinersToComponents(dynamicValidationComponents);
                 ta.setMaxLength(taw.getLimit());
             }
 
-            component = ta;
             if (nvl(taw.getRequired(), false)) {
                 ta.setRequired(true);
                 if (hasText(taw.getCaption())) {
@@ -792,8 +817,9 @@ addListinersToComponents(dynamicValidationComponents);
                     ta.setRequiredError(getMessage("processdata.block.field-required-error"));
                 }
             }
-            if (taw.getValue() != null)
+            if (taw.getValue() != null) {
                 ta.setValue(taw.getValue());
+			}
 
             component = ta;
         }
@@ -804,7 +830,13 @@ addListinersToComponents(dynamicValidationComponents);
     private Link createLink(LinkWidgetElement we) {
         Link link = new Link();
         link.setTargetName("_blank");
-        link.setResource(new ExternalResource(we.getUrl()));
+        String url = we.getUrl();
+		if(url.matches("#\\{.*\\}")){
+        	String urlKey = url.replaceAll("#\\{(.*)\\}", "$1");
+        	if(processAttributes.containsKey(urlKey))
+        		url = ((ProcessInstanceSimpleAttribute)processAttributes.get(urlKey)).getValue();
+        }
+        link.setResource(new ExternalResource(url));
         return link;
     }
 

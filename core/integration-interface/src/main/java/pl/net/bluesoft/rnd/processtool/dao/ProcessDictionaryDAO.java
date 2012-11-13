@@ -19,4 +19,7 @@ public interface ProcessDictionaryDAO extends HibernateBean<ProcessDBDictionary>
     void updateDictionary(ProcessDBDictionary dictionary);
 	void copyDictionaries(ProcessDefinitionConfig oldDefinitionConfig,
 			ProcessDefinitionConfig newDefinitionConfig);
+	
+	/** Add or update dictionary item with given key and value, for specified dictionary id */
+	void createOrUpdateDictionaryItem(ProcessDBDictionary dictionary,String dictionaryItemKey, String dictionaryItemValue);
 }

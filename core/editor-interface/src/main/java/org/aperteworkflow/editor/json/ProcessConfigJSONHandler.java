@@ -24,7 +24,7 @@ public class ProcessConfigJSONHandler implements Serializable {
      * Singleton access
      * @return instance
      */
-    public static ProcessConfigJSONHandler getInstance() {
+    public static synchronized ProcessConfigJSONHandler getInstance() {
         if (instance == null) {
             instance = new ProcessConfigJSONHandler();
         }

@@ -5,6 +5,7 @@
 .settings
 .project
 .classpath
+rebel.xml
+rebel-remote.xml
+*.orig
 target
-bin/
-*.class

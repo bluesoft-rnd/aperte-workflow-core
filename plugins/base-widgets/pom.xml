@@ -95,7 +95,8 @@
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDataBlockWidget,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessHistoryWidget,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.TabSheetWidget,
-                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.VerticalLayoutWidget
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.VerticalLayoutWidget,
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.SwitchWidget
                         </ProcessTool-Widget-Enhancement>
                         <ProcessTool-Button-Enhancement>
                             pl.net.bluesoft.rnd.processtool.ui.buttons.AssignUserTaskButton,
@@ -103,6 +104,7 @@
                             pl.net.bluesoft.rnd.processtool.ui.buttons.CommentRequiredValidatingButton,
                             pl.net.bluesoft.rnd.processtool.ui.buttons.StandardValidatingButton,
                             pl.net.bluesoft.rnd.processtool.ui.buttons.YesNoButton,
+                            pl.net.bluesoft.rnd.processtool.ui.buttons.OpenURLButton,
                             pl.net.bluesoft.rnd.processtool.ui.buttons.YesNoCommentButton
                         </ProcessTool-Button-Enhancement>
                         <ProcessTool-I18N-Property>basewidgets-messages</ProcessTool-I18N-Property>

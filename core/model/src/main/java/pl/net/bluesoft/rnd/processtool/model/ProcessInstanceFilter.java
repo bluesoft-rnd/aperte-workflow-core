@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CollectionTable;
+import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -28,35 +29,31 @@ public class ProcessInstanceFilter extends PersistentEntity {
 	private Date notUpdatedAfter;
 	private String genericQuery;
 	private String name;
+	
+	/** Type of the queue */
+
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "filter_owner_id")
 	private UserData filterOwner;
+	
+	/** Type of the queues */
+	@ElementCollection(fetch = FetchType.LAZY)
+	@Enumerated(EnumType.STRING)
+	@JoinTable(name = "pt_pi_filters_queue_types", joinColumns = @JoinColumn(name = "filter_id"))
+	private Set<QueueType> queueTypes = new HashSet<QueueType>();
 
 	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "pt_pi_filters_owners", joinColumns = @JoinColumn(name = "filter_id"), inverseJoinColumns = @JoinColumn(name = "owner_id"))
 	private Set<UserData> owners = new HashSet<UserData>();
 
 	@ManyToMany(fetch = FetchType.LAZY)
-	@JoinTable(name = "pt_pi_filters_not_owners", joinColumns = @JoinColumn(name = "filter_id"), inverseJoinColumns = @JoinColumn(name = "owner_id"))
-	private Set<UserData> notOwners = new HashSet<UserData>();
-
-	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "pt_pi_filters_creats", joinColumns = @JoinColumn(name = "filter_id"), inverseJoinColumns = @JoinColumn(name = "creator_id"))
 	private Set<UserData> creators = new HashSet<UserData>();
-
-	@ManyToMany(fetch = FetchType.LAZY)
-	@JoinTable(name = "pt_pi_filters_not_creats", joinColumns = @JoinColumn(name = "filter_id"), inverseJoinColumns = @JoinColumn(name = "creator_id"))
-	private Set<UserData> notCreators = new HashSet<UserData>();
 
 	@ElementCollection(fetch = FetchType.LAZY)
 	@CollectionTable(name = "pt_pi_filters_queues", joinColumns = @JoinColumn(name = "filter_id"))
 	private Set<String> queues = new HashSet<String>();
-
-	@ElementCollection(fetch = FetchType.LAZY)
-	@CollectionTable(name = "pt_pi_filters_states", joinColumns = @JoinColumn(name = "filter_id"))
-	@Enumerated(value = EnumType.STRING)
-	private Set<TaskState> states = new HashSet<TaskState>();
 
 	@ElementCollection(fetch = FetchType.EAGER)
 	@CollectionTable(name = "pt_pi_filters_tasks", joinColumns = @JoinColumn(name = "filter_id"))
@@ -148,19 +145,6 @@ public class ProcessInstanceFilter extends PersistentEntity {
 		this.genericQuery = genericQuery;
 	}
 
-	public Set<TaskState> getStates() {
-		return states;
-		//	    return null;
-	}
-
-	public void setStates(Set<TaskState> states) {
-		this.states = states;
-	}
-
-	public void addState(TaskState state) {
-		states.add(state);
-	}
-
 	public Set<UserData> getCreators() {
 		return creators;
 	}
@@ -184,20 +168,27 @@ public class ProcessInstanceFilter extends PersistentEntity {
 	public void setName(String name) {
 		this.name = name;
 	}
-
-	public Set<UserData> getNotOwners() {
-		return notOwners;
+	
+	public Set<QueueType> getQueueTypes() {
+		return queueTypes;
+	}
+	
+	public QueueType getFirstQueueType()
+	{
+		for(QueueType queueType: queueTypes)
+			return queueType;
+		
+		return null;
 	}
 
-	public void setNotOwners(Set<UserData> notOwners) {
-		this.notOwners = notOwners;
+	public void setQueueTypes(Set<QueueType> queueTypes) {
+		this.queueTypes = queueTypes;
 	}
 
-	public Set<UserData> getNotCreators() {
-		return notCreators;
+	public void addQueueType(QueueType queueType) 
+	{
+		this.queueTypes.add(queueType);
+		
 	}
-
-	public void setNotCreators(Set<UserData> notCreators) {
-		this.notCreators = notCreators;
-	}
+	
 }

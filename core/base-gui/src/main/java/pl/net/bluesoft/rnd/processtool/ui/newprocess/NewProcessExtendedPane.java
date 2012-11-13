@@ -83,11 +83,6 @@ public class NewProcessExtendedPane extends VerticalLayout implements Refreshabl
 		this.session = session;
 		this.i18NSource = i18NSource;
 
-		//        addComponent(fullHorizontalLayout(title = new Label(getMessage("newProcess.caption-simple"), Label.CONTENT_XHTML) {{
-		//            addStyleName("small");
-		//        }}, refreshIcon(activityMainPane.getApplication(), this)));
-		//
-
 		firstButton = new Button(getMessage("newProcess.start-simple"), this);
 		firstButton.setWidth("100%");
 		// firstButton.addStyleName("default");
@@ -240,25 +235,6 @@ public class NewProcessExtendedPane extends VerticalLayout implements Refreshabl
 
 				}
 			});
-//			progressBar.
-//			processesPopup.addListener(new RepaintRequestListener() {
-//				@Override
-//				public void repaintRequested(RepaintRequestEvent event) {
-//					runProcess(getSelectedDefinition().getBpmDefinitionKey());
-//				}
-//			});
-//			getApplication().getMainWindow().removeWindow(processesPopup);
-////			processesPopup.requestRepaint();
-////			getWindow().executeJavaScript("vaadin.forceSync();");
-//	
-//			//processesPopup.add
-//			
-//			addComponent(attachHandler = new Label(){
-//				@Override
-//				public void attach() {
-//					removeComponent(attachHandler);
-//				}
-//			});
 		}
 
 	}
@@ -268,9 +244,6 @@ public class NewProcessExtendedPane extends VerticalLayout implements Refreshabl
 	}
 
 	private void runProcess(final String bpmDefinitionId) {
-		//		processesSelect.setValue(null);
-//		getApplication().getMainWindow().removeWindow(processesPopup);
-		//		processesPopup.setVisible(false);
 		withErrorHandling(getApplication(), new Runnable() {
 			@Override
 			public void run() {

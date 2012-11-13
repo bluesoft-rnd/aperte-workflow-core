@@ -1,7 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.hibernate;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 /**
  * Created by IntelliJ IDEA.
@@ -11,15 +11,15 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 public class ResultsPageWrapper<T> {
-	private List<T> results;
+	private Collection<T> results;
 	private Integer total;
 
-    public ResultsPageWrapper(List<T> results) {
+    public ResultsPageWrapper(Collection<T> results) {
         this.results = results;
         this.total = results.size();
     }
 
-	public ResultsPageWrapper(List<T> results, Integer total) {
+	public ResultsPageWrapper(Collection<T> results, Integer total) {
 		this.results = results;
 		this.total = total;
 	}
@@ -29,7 +29,7 @@ public class ResultsPageWrapper<T> {
 		this.total = 0;
 	}
 
-	public List<T> getResults() {
+	public Collection<T> getResults() {
 		return results;
 	}
 

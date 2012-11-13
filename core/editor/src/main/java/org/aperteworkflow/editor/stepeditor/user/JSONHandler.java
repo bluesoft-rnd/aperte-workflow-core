@@ -124,10 +124,10 @@ public class JSONHandler {
 
 		Map<String, Object> properties = (Map<String, Object>) node.get(PROPERTIES);
 		if (properties != null) {
-			for (String key : properties.keySet()) {
+			for (Map.Entry<String, Object> e : properties.entrySet()) {
 				for (Property<?> property : item.getProperties()) {
-					if (property.getPropertyId().equals(key)) {
-						property.setValue(new String(Base64.decodeBase64(properties.get(key).toString())));
+					if (property.getPropertyId().equals(e.getKey())) {
+						property.setValue(new String(Base64.decodeBase64(e.getValue().toString())));
 					}
 				}
 			}

@@ -2,19 +2,6 @@ package pl.net.bluesoft.rnd.processtool.ui.activity;
 
 import static org.aperteworkflow.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
 
-import com.vaadin.ui.Component;
-
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.model.BpmTask;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
-import pl.net.bluesoft.rnd.processtool.model.TaskState;
-import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessDeadline;
-import pl.net.bluesoft.rnd.processtool.ui.tasks.TaskTableItem;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.taskitem.TaskItemProvider;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.taskitem.TaskItemProviderBase;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.taskitem.TaskItemProviderParams;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -22,9 +9,17 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import org.aperteworkflow.util.vaadin.VaadinUtility;
-import static org.aperteworkflow.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
-import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
+import pl.net.bluesoft.rnd.processtool.model.QueueType;
+import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessDeadline;
+import pl.net.bluesoft.rnd.processtool.ui.tasks.TaskTableItem;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.taskitem.TaskItemProviderBase;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.taskitem.TaskItemProviderParams;
+
+import com.vaadin.ui.Component;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -41,13 +36,13 @@ public class MyProcessesListPane extends ProcessListPane {
 
     @Override
     protected ProcessInstanceFilter getDefaultFilter() {
-        ProcessInstanceFilter tfi = new ProcessInstanceFilter();
+        ProcessInstanceFilter processFilter = new ProcessInstanceFilter();
         ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-        tfi.setName(getMessage("activity.assigned.tasks"));
-        tfi.addOwner(getBpmSession().getUser(ctx));
-        tfi.getNotCreators().add(getBpmSession().getUser(ctx));
-        tfi.addState(TaskState.OPEN);
-        return tfi;
+        processFilter.setName(getMessage("activity.assigned.tasks"));
+        processFilter.addOwner(getBpmSession().getUser(ctx));
+        processFilter.setFilterOwner(getBpmSession().getUser(ctx));
+        processFilter.addQueueType(QueueType.ASSIGNED_TO_CURRENT_USER);
+        return processFilter;
     }
 
     @Override
@@ -111,11 +106,16 @@ public class MyProcessesListPane extends ProcessListPane {
         activityMainPane.displayProcessData(task);
     }
 
-    public static Date getDeadlineDate(BpmTask task) {
-        ProcessInstance pi = task.getProcessInstance();
-        Set<ProcessDeadline> deadlines = pi.findAttributesByClass(ProcessDeadline.class);
+    /** Metoda wylicza date wygasniecia procesu. W przypadku podprocesow, siega
+     * do atrubutow procesu głównego
+     */
+    public static Date getDeadlineDate(BpmTask task) 
+    {
+        ProcessInstance process = task.getProcessInstance();
+        
+        Set<ProcessDeadline> deadlines = process.findAttributesByClass(ProcessDeadline.class);
         for (ProcessDeadline pd : deadlines) {
-            if (pd.getTaskName().equals(task.getTaskName())) {
+            if (pd.getTaskName().equalsIgnoreCase(task.getTaskName())) {
                 return pd.getDueDate();
             }
         }
@@ -126,4 +126,10 @@ public class MyProcessesListPane extends ProcessListPane {
     protected boolean getDataPaneUsesSpacing() {
         return false;
     }
+
+	public void setType(QueueType type) 
+	{
+		// TODO Auto-generated method stub
+		
+	}
 }

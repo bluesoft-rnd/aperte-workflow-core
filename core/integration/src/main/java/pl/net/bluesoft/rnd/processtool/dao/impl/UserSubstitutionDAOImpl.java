@@ -1,6 +1,8 @@
 package pl.net.bluesoft.rnd.processtool.dao.impl;
 
+import org.hibernate.FetchMode;
 import org.hibernate.Session;
+import org.hibernate.criterion.DetachedCriteria;
 import pl.net.bluesoft.rnd.processtool.dao.UserSubstitutionDAO;
 import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
@@ -54,5 +56,13 @@ public class UserSubstitutionDAOImpl extends SimpleHibernateBean<UserSubstitutio
 		if (item != null) {
 			delete((UserSubstitution)item);
 		}
+	}
+
+	@Override
+	public List<UserSubstitution> findAllEagerUserFetch() {
+		DetachedCriteria criteria = getDetachedCriteria()
+				.setFetchMode(UserSubstitution._USER, FetchMode.JOIN)
+				.setFetchMode(UserSubstitution._USER_SUBSTITUTE, FetchMode.JOIN);
+		return findByCriteria(criteria);
 	}
 }

@@ -68,7 +68,7 @@ public class FelixServiceBridge implements ProcessToolServiceBridge {
     @Override
     public InputStream loadResource(String bundleSymbolicName, String resourcePath) throws IOException {
         for (Bundle bundle : felix.getBundleContext().getBundles()) {
-            if (!hasText(bundleSymbolicName) || bundle.getSymbolicName().equals(bundleSymbolicName)) {
+            if (!hasText(bundleSymbolicName) || !hasText(bundle.getSymbolicName()) || bundle.getSymbolicName().equals(bundleSymbolicName)) {
                 InputStream is = OSGiBundleHelper.getBundleResourceStream(bundle, resourcePath);
                 if (is != null) {
                     return is;

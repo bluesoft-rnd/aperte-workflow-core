@@ -125,9 +125,10 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 			if (!oldMap.containsKey(s.getName())) return false;
 			newMap.put(s.getName(), s);
 		}
-		for (String name : oldMap.keySet()) {
+		for (Map.Entry<String, ProcessStateConfiguration> entry : oldMap.entrySet()) {
+			String name = entry.getKey();
 			if (!newMap.containsKey(name)) return false;
-			if (!compareStates(oldMap.get(name), newMap.get(name))) return false;
+			if (!compareStates(entry.getValue(), newMap.get(name))) return false;
 		}
         if (!comparePermissions(cfg.getPermissions(), c.getPermissions())) return false;
 
@@ -204,6 +205,7 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
                 nvl(newAction.getAutohide(),false).equals(nvl(oldAction.getAutohide(),false)) &&
                 nvl(newAction.getSkipSaving(),false).equals(nvl(oldAction.getSkipSaving(),false)) &&
                 nvl(newAction.getLabel(),"").equals(nvl(oldAction.getLabel(), "")) &&
+                nvl(newAction.getNotification(),"").equals(nvl(oldAction.getNotification(), "")) &&
                 Lang.equals(newAction.getMarkProcessImportant(), oldAction.getMarkProcessImportant()) &&
                 nvl(newAction.getPriority(),0).equals(nvl(oldAction.getPriority(), 0)) &&
                 compareAttributes(newAction.getAttributes(), oldAction.getAttributes()) &&
@@ -296,6 +298,4 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
         cfg.setEnabled(enabled);
         session.save(cfg);
     }
-
-
 }

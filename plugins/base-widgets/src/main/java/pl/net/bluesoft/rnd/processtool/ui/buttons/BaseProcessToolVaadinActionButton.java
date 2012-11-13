@@ -7,6 +7,9 @@ import com.vaadin.ui.Component;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+
+import org.apache.commons.lang3.StringUtils;
+import org.aperteworkflow.util.vaadin.TaskAlreadyCompletedException; 
 import pl.net.bluesoft.rnd.processtool.ui.WidgetContextSupport;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinRenderable;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolActionButton;
@@ -43,6 +46,9 @@ public abstract class BaseProcessToolVaadinActionButton extends BaseProcessToolA
 						);
 			}
 		});
+		button.addStyleName(actionType);
+//		if(ProcessStateAction.SECONDARY_ACTION.equals(actionType))
+//			button.addStyleName(BaseTheme.BUTTON_LINK);
 		button.setEnabled(enabled);
 		renderedComponent = button;
 		return button;
@@ -53,7 +59,18 @@ public abstract class BaseProcessToolVaadinActionButton extends BaseProcessToolA
 	protected void invokeBpmTransition() {
 		ProcessToolContext ctx = getCurrentContext();
 		task = bpmSession.performAction(definition, task, ctx);
+		if (task == null || task.isFinished()) {
+			showTransitionNotification();
+		}
+		if (task == null) {
+			throw new TaskAlreadyCompletedException(); 
+		}
 		callback.getWidgetContextSupport().updateTask(task);
+	}
+
+	private void showTransitionNotification() {
+		if(!StringUtils.isEmpty(notification) && !"null".equals(notification))
+			VaadinUtility.informationNotification(getApplication(), getMessage(notification));
 	}
 
 	protected void invokeSaveTask() {
@@ -75,7 +92,7 @@ public abstract class BaseProcessToolVaadinActionButton extends BaseProcessToolA
 
 	@Override
 	public void saveData(BpmTask task) {
-		task.getProcessInstance().setSimpleAttribute("markedImportant", markProcessImportant);
+		task.getProcessInstance().getRootProcessInstance().setSimpleAttribute("markedImportant", markProcessImportant);
 		// override
 	}
 

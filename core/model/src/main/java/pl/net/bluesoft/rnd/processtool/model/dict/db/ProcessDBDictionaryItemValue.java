@@ -2,6 +2,8 @@ package pl.net.bluesoft.rnd.processtool.model.dict.db;
 
 //import org.hibernate.annotations.OnDelete;
 //import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.Type;
 import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItemExtension;
@@ -15,8 +17,9 @@ import java.util.*;
 
 @Entity
 @Table(name = "pt_dictionary_item_value")
-public class ProcessDBDictionaryItemValue extends PersistentEntity implements ProcessDictionaryItemValue<String> {
-    @ManyToOne
+public class ProcessDBDictionaryItemValue extends PersistentEntity implements ProcessDictionaryItemValue<String> 
+{
+    @ManyToOne(fetch = FetchType.LAZY)
     private ProcessDBDictionaryItem item;
 
     @Lob
@@ -26,8 +29,8 @@ public class ProcessDBDictionaryItemValue extends PersistentEntity implements Pr
     private Date validStartDate;
     private Date validEndDate;
 
-    @OneToMany(mappedBy = "itemValue", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-//    @OnDelete(action = OnDeleteAction.CASCADE)
+    @OneToMany(mappedBy = "itemValue", fetch = FetchType.EAGER, orphanRemoval = true)
+    @Cascade(value = {CascadeType.ALL})
     @MapKey(name = "name")
     private Map<String, ProcessDBDictionaryItemExtension> extensions = new HashMap<String, ProcessDBDictionaryItemExtension>();
 
@@ -73,6 +76,14 @@ public class ProcessDBDictionaryItemValue extends PersistentEntity implements Pr
     public void setValue(String value) {
         this.value = value;
     }
+
+	public String getStringValue() {
+		return getValue();
+	}
+
+	public void setStringValue(String value) {
+		setValue(value);
+	}
 
     public Date getValidStartDate() {
         return validStartDate;

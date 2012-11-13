@@ -1,5 +1,7 @@
 package org.aperteworkflow.editor.domain;
 
+import pl.net.bluesoft.rnd.pt.utils.lang.Lang2;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +48,7 @@ public class ProcessConfig implements Serializable {
     }
 
     public void setProcessIcon(byte[] processIcon) {
-        this.processIcon = processIcon;
+        this.processIcon = Lang2.noCopy(processIcon);
     }
 
     public Map<String, String> getMessages() {

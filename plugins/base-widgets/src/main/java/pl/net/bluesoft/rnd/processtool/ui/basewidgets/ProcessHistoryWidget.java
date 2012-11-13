@@ -60,9 +60,9 @@ public class ProcessHistoryWidget extends BaseProcessToolVaadinWidget implements
 
 	@Override
 	public void loadData(BpmTask task) {
-        ProcessInstance pi = task.getProcessInstance();
+        ProcessInstance pi = task.getProcessInstance().getRootProcessInstance();
 		List<ProcessInstanceLog> processLogs = new ArrayList(pi.getProcessLogs());
-		Collections.sort(processLogs);
+		Collections.sort(processLogs, ProcessInstanceLog.DEFAULT_COMPARATOR);
 		for (ProcessInstanceLog pl : processLogs) {
 			logInfos.add(getProcessLogInfo(pl));
 		}
@@ -183,20 +183,29 @@ public class ProcessHistoryWidget extends BaseProcessToolVaadinWidget implements
 			for (ProcessLogInfo pli : logInfos) {
 				HorizontalLayout hl;
 				hl = new HorizontalLayout();
+                hl.addStyleName("history-item-header");
 				hl.setSpacing(true);
+	            hl.setWidth("100%");
 				if (hasText(pli.getUserDescription()))
-					hl.addComponent(label("<b>" + pli.getUserDescription() + "</b>", 150));
+					hl.addComponent(label("<b class=\"header-author\">" + pli.getUserDescription() + "</b>", 150));
 				else
-					hl.addComponent(label("<b>System</b>", 150));
+					hl.addComponent(label("<b class=\"header-author\">System</b>", 150));
 
-				hl.addComponent(label("<b>" + pli.getPerformDate() + "</b>", 130));
+				hl.addComponent(label("<b class=\"header-time\">" + pli.getPerformDate() + "</b>", 150));
                 if (Strings.hasText(pli.getStateDescription())) {
-                    hl.addComponent(new Label("<b>" + getMessage("awf.basewidgets.process-history.stateDescription") + "</b>", Label.CONTENT_XHTML));
-                    hl.addComponent(label(getMessage(pli.getStateDescription()), 350));
+                    hl.addComponent(new Label("<b class=\"header-state\">" + getMessage("awf.basewidgets.process-history.stateDescription") + "</b>", Label.CONTENT_XHTML));
+                    Label label = label(getMessage(pli.getStateDescription()), 350);
+                    label.setStyleName("header-state");
+					hl.addComponent(label);
                 }
+                Label spacer = new Label("");
+                hl.addComponent(spacer);
+                hl.setExpandRatio(spacer, 1);
 				layout.addComponent(hl);
 				hl = new HorizontalLayout();
+                hl.addStyleName("history-item-body");
 				hl.setSpacing(true);
+	            hl.setWidth("100%");
 				hl.setMargin(new Layout.MarginInfo(false, false, true, true));
 				Label l = new Label(pli.getActionDescription(), Label.CONTENT_XHTML);
 				l.setWidth("730px");

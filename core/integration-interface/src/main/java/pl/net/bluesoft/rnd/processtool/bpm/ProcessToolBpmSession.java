@@ -1,21 +1,25 @@
 package pl.net.bluesoft.rnd.processtool.bpm;
 
-import org.aperteworkflow.bpm.graph.GraphElement;
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.hibernate.ResultsPageWrapper;
-import pl.net.bluesoft.rnd.processtool.model.*;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
-import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
-import pl.net.bluesoft.util.eventbus.EventBusManager;
-
 import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+
+import org.aperteworkflow.bpm.graph.GraphElement;
+
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog;
+import pl.net.bluesoft.rnd.processtool.model.QueueType;
+import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
+import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
+import pl.net.bluesoft.util.eventbus.EventBusManager;
 
 /**
  * The process tool interface, providing basic operations.
@@ -25,6 +29,7 @@ import java.util.Set;
  *
  * @author tlipski@bluesoft.net.pl
  * @author amichalak@bluesoft.net.pl
+ * @author mpawlak@bluesoft.net.pl
  */
 
 //
@@ -73,6 +78,19 @@ public interface ProcessToolBpmSession extends ProcessToolBpmConstants {
     BpmTask getPastEndTask(ProcessInstanceLog log, ProcessToolContext ctx);
 
     BpmTask refreshTaskData(BpmTask task, ProcessToolContext ctx);
+    
+    /** Method returns queue size for given queue type and user login. Methods is significally faster
+     * than {@link getFilteredTasksCount} but does not provide filtering support. 
+     */
+    int getTasksCount(ProcessToolContext ctx, String userLogin, QueueType ... queueTypes);
+    
+    int getTasksCount(ProcessToolContext ctx, String userLogin, Collection<QueueType> queueTypes);
+    
+    /** Method returns queue size for conditions provided by given filter. Methods is slower then
+     * than {@link getTasksCount} but has full filtering options. It does not load entities to
+     * memory
+     */
+	int getFilteredTasksCount(ProcessInstanceFilter filter, ProcessToolContext ctx);
 
     List<BpmTask> findUserTasks(ProcessInstance processInstance, ProcessToolContext ctx);
 
@@ -83,10 +101,14 @@ public interface ProcessToolBpmSession extends ProcessToolBpmConstants {
     List<BpmTask> findProcessTasks(ProcessInstance pi, String userLogin, ProcessToolContext ctx);
 
     List<BpmTask> findProcessTasks(ProcessInstance pi, String userLogin, Set<String> taskNames, ProcessToolContext ctx);
+    
+    /** Find tasks from user process queue with given queue type and login in filter instance */
+    List<BpmTask> findFilteredTasks(ProcessInstanceFilter filter, ProcessToolContext ctx);
+    
+    /** Find tasks from user process queue with given queue type and login in filter instance with given max results limit */
+    List<BpmTask> findFilteredTasks(ProcessInstanceFilter filter, ProcessToolContext ctx, int resultOffset, int maxResults);
 
-    ResultsPageWrapper<BpmTask> findProcessTasks(ProcessInstanceFilter filter, Integer offset, Integer limit, ProcessToolContext ctx);
-
-    ResultsPageWrapper<BpmTask> findRecentTasks(Calendar minDate, Integer offset, Integer limit, ProcessToolContext ctx);
+    List<BpmTask> findRecentTasks(Calendar minDate, Integer offset, Integer limit, ProcessToolContext ctx);
 
     Integer getRecentTasksCount(Calendar minDate, ProcessToolContext ctx);
 
@@ -131,5 +153,9 @@ public interface ProcessToolBpmSession extends ProcessToolBpmConstants {
 
     String deployProcessDefinition(String processName, InputStream definitionStream, InputStream processMapImageStream);
 
+	Collection<BpmTask> getProcessTaskInQueues(ProcessToolContext ctx, final ProcessInstance processInstance);
 
+	/** Get all tasks in queue with given queue name 
+	 * @param ctx */
+	List<BpmTask> getQueueTasks(ProcessToolContext ctx, String queueName);
 }

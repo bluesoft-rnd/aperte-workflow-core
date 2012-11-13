@@ -6,6 +6,7 @@ import com.liferay.portal.model.Role;
 import com.liferay.portal.model.User;
 import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.util.PortalUtil;
+import pl.net.bluesoft.rnd.pt.utils.lang.Lang2;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -32,13 +33,12 @@ public class PermissionFilter implements Filter {
     public static final String AUTHORIZED = "Aperte_Authorized";
 
     private static final Collection<String> ROLE_NAMES = Arrays.asList("ADMINISTRATOR", "MODELER_USER");
-    
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
-        HttpServletRequest req = (HttpServletRequest) request;
-        HttpServletResponse res = (HttpServletResponse) response;
+        HttpServletRequest req = Lang2.assumeType(request, HttpServletRequest.class);
+        HttpServletResponse res = Lang2.assumeType(response, HttpServletResponse.class);
 
         HttpSession session = req.getSession();
         if (session.getAttribute(AUTHORIZED) != null) {

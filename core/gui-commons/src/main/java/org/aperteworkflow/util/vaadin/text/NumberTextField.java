@@ -13,7 +13,16 @@ import java.text.DecimalFormatSymbols;
 
 public class NumberTextField extends TextField {
 	private DecimalFormat decimalFormat;
+	private boolean allowsNegative;
 	
+	public boolean isAllowsNegative() {
+		return allowsNegative;
+	}
+
+	public void setAllowsNegative(boolean allowsNegative) {
+		this.allowsNegative = allowsNegative;
+	}
+
 	public NumberTextField() {
 		alignRight();
 		attachListeners();
@@ -90,6 +99,10 @@ public class NumberTextField extends TextField {
 		boolean containsDigits = false;
 		for (int i = 0; i < value.length(); ++i) {
 			char c = value.charAt(i);
+			if (allowsNegative && sb.length() == 0 && c == '-'){
+				sb.append('-');
+				containsDigits = true; //no, moze nie do końca zawiera cyfry, ale traktujemy to jako poprawne
+			}
 			if (Character.isDigit(c) || c == '.' || c == ',') {
 				sb.append(c);
 				if (Character.isDigit(c)) {

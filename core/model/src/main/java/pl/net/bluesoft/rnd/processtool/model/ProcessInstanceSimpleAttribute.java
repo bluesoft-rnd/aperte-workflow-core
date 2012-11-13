@@ -30,6 +30,7 @@ public class ProcessInstanceSimpleAttribute extends ProcessInstanceAttribute imp
     public ProcessInstanceSimpleAttribute(String key, String value) {
         setKey(key);
         setValue(value);
+        setBpmVariableName(key);
     }
 
 	@Override

@@ -90,17 +90,26 @@ public class EmailChecker {
 
     private void processMessage(Message msg, EmailCheckerConfiguration cfg, ProcessToolBpmSession toolBpmSession) throws MessagingException, IOException {
         String subject = msg.getSubject();
-        String recipients = "";
-        if (msg.getHeader("To") != null) for (String h : msg.getHeader("To")) {
-            recipients += h + ",";
-        }
-        if (msg.getHeader("Cc") != null) for (String h : msg.getHeader("Cc")) {
-            recipients += h + ",";
-        }
-        String sender = "";
-        if (msg.getFrom() != null) for (Address a : msg.getFrom()) {
-            sender += a.toString() + ",";
-        }
+        StringBuilder recipientBuilder = new StringBuilder();
+		if (msg.getHeader("To") != null) {
+			for (String h : msg.getHeader("To")) {
+				recipientBuilder.append(h).append(",");
+			}
+		}
+		if (msg.getHeader("Cc") != null) {
+			for (String h : msg.getHeader("Cc")) {
+				recipientBuilder.append(h).append(",");
+			}
+		}
+		String recipients = recipientBuilder.toString();
+        StringBuilder senderBuilder = new StringBuilder();
+		if (msg.getFrom() != null) {
+			for (Address a : msg.getFrom()) {
+				senderBuilder.append(a.toString()).append(",");
+			}
+		}
+		String sender = senderBuilder.toString();
+
         String description = subject + ", from: " + recipients + ", sent by: " + sender;
         logger.fine("Processing message: " + description);
 
@@ -138,12 +147,12 @@ public class EmailChecker {
             }
             if (existingPi == null) {
                 if (hasText(rule.getRecipientRegexp())) {
-                    if (recipients == null || !recipients.matches(rule.getRecipientRegexp())) {
+                    if (recipients == null || recipients.isEmpty() || !recipients.matches(rule.getRecipientRegexp())) {
                         continue;
                     }
                 }
                 if (hasText(rule.getSenderRegexp())) {
-                    if (sender == null || !sender.matches(rule.getSenderRegexp())) {
+                    if (sender == null || sender.isEmpty() || !sender.matches(rule.getSenderRegexp())) {
                         continue;
                     }
                 }

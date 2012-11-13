@@ -45,19 +45,19 @@ public class TransitionArc implements GraphElement{
         return id;
     }
     public void setId(String id) {
-            this.id = id;
-        }
+		this.id = id;
+	}
 
     @Override
     public String toString() {
-        String s = "TransitionArc{" +
+        StringBuilder s = new StringBuilder("TransitionArc{" +
                 "name='" + name + '\'' +
                 ", id='" + id + '\'' +
-                ",\n path=";
+                ",\n path=");
         for (TransitionArcPoint p : path) {
-            s+= p + " ";
+            s.append(p).append(" ");
         }
-        return s + '}';
+        return s.append('}').toString();
     }
 
 

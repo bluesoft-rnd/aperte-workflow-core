@@ -7,6 +7,8 @@ import com.vaadin.ui.Layout;
 import com.vaadin.ui.Table;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 
+import java.util.List;
+
 /**
  * @author tlipski@bluesoft.net.pl
  */
@@ -26,7 +28,7 @@ public interface HelpProvider {
 
     Field wrapFieldWithHelp(Field field, String key);
 
-    void prepare(Application application, ProcessDefinitionConfig cfg, boolean canEdit, String helpDictionaryName);
+    void prepare(Application application, List<ProcessDefinitionConfig> cfgs, boolean canEdit, String helpDictionaryName);
 
     Component wrapComponentWithHelp(Component component, String key);
     Component wrapComponentWithHelp(Component component, String key, String iconPlacement, String popupPlacement);

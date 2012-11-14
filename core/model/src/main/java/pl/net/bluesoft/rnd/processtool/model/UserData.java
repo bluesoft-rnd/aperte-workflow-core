@@ -9,14 +9,13 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.*;
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.OneToMany;
+import javax.persistence.Parameter;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
+import org.hibernate.annotations.*;
 import pl.net.bluesoft.util.lang.Collections;
 import pl.net.bluesoft.util.lang.Predicate;
 import pl.net.bluesoft.util.lang.Transformer;
@@ -28,6 +27,20 @@ import pl.net.bluesoft.util.lang.Transformer;
 @Entity
 @Table(name="pt_user_data")
 public class UserData extends UserAttributesSupport {
+	@Id
+	@GeneratedValue(generator = "idGenerator")
+	@GenericGenerator(
+			name = "idGenerator",
+			strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
+			parameters = {
+					@org.hibernate.annotations.Parameter(name = "initial_value", value = "" + 1),
+					@org.hibernate.annotations.Parameter(name = "value_column", value = "_DB_ID"),
+					@org.hibernate.annotations.Parameter(name = "sequence_name", value = "DB_SEQ_ID_USER_DATA")
+			}
+	)
+	@Column(name = "id")
+	protected Long id;
+
 	@Column(unique = true)
 	private String login;
 	private String firstName;
@@ -73,7 +86,15 @@ public class UserData extends UserAttributesSupport {
         this.lastName = lastName;
     }
 
-    public Set<String> getMainAttributeKeys() {
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Set<String> getMainAttributeKeys() {
         return getMainAttributesMap().keySet();
     }
 

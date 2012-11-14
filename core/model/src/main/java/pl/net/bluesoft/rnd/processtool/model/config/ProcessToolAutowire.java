@@ -1,19 +1,43 @@
 package pl.net.bluesoft.rnd.processtool.model.config;
 
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Parameter;
+import pl.net.bluesoft.rnd.processtool.model.AbstractPersistentEntity;
 import pl.net.bluesoft.rnd.processtool.model.Cacheable;
 import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "pt_autowire")
-public class ProcessToolAutowire extends PersistentEntity implements Cacheable<String, String> {
-    private String key;
+public class ProcessToolAutowire extends AbstractPersistentEntity implements Cacheable<String, String> {
+	@Id
+	@GeneratedValue(generator = "idGenerator")
+	@GenericGenerator(
+			name = "idGenerator",
+			strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
+			parameters = {
+					@Parameter(name = "initial_value", value = "" + 1),
+					@Parameter(name = "value_column", value = "_DB_ID"),
+					@Parameter(name = "sequence_name", value = "DB_SEQ_ID_PT_AUTOWIRE")
+			}
+	)
+	@Column(name = "id")
+	protected Long id;
+
+	private String key;
     private String value;
     private String description;
 
-    public String getKey() {
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getKey() {
         return key;
     }
 

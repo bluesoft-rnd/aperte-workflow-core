@@ -1,8 +1,14 @@
 package pl.net.bluesoft.rnd.processtool.model.config;
 
+import org.hibernate.annotations.*;
+import pl.net.bluesoft.rnd.processtool.model.AbstractPersistentEntity;
 import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 
 import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Parameter;
+import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlTransient;
 import java.util.HashSet;
 import java.util.Set;
@@ -14,9 +20,23 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
  */
 @Entity
 @Table(name = "pt_process_state_action")
-public class ProcessStateAction extends PersistentEntity {
+public class ProcessStateAction extends AbstractPersistentEntity {
     final static public String PRIMARY_ACTION = "primary";
     final static public String SECONDARY_ACTION = "secondary";
+
+	@Id
+	@GeneratedValue(generator = "idGenerator")
+	@GenericGenerator(
+			name = "idGenerator",
+			strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
+			parameters = {
+					@org.hibernate.annotations.Parameter(name = "initial_value", value = "" + 1),
+					@org.hibernate.annotations.Parameter(name = "value_column", value = "_DB_ID"),
+					@org.hibernate.annotations.Parameter(name = "sequence_name", value = "DB_SEQ_ID_PROC_STATE_ACTION")
+			}
+	)
+	@Column(name = "id")
+	protected Long id;
 
 //    @XmlTransient
     @ManyToOne
@@ -51,7 +71,15 @@ public class ProcessStateAction extends PersistentEntity {
 
     private Integer priority;
 
-    public String getAssignProcessStatus() {
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getAssignProcessStatus() {
         return assignProcessStatus;
     }
 

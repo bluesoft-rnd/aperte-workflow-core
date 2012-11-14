@@ -1,10 +1,16 @@
 package pl.net.bluesoft.rnd.processtool.model.config;
 
+import org.hibernate.annotations.*;
+import pl.net.bluesoft.rnd.processtool.model.AbstractPersistentEntity;
 import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.pt.utils.lang.Lang2;
 
 import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Parameter;
+import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Date;
@@ -21,7 +27,21 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
 @Entity
 @Table(name="pt_process_definition_config")
-public class ProcessDefinitionConfig extends PersistentEntity implements Serializable {
+public class ProcessDefinitionConfig extends AbstractPersistentEntity implements Serializable {
+	@Id
+	@GeneratedValue(generator = "idGenerator")
+	@GenericGenerator(
+			name = "idGenerator",
+			strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
+			parameters = {
+					@org.hibernate.annotations.Parameter(name = "initial_value", value = "" + 1),
+					@org.hibernate.annotations.Parameter(name = "value_column", value = "_DB_ID"),
+					@org.hibernate.annotations.Parameter(name = "sequence_name", value = "DB_SEQ_ID_PROC_DEF_CONF")
+			}
+	)
+	@Column(name = "id")
+	protected Long id;
+
 	private String processName;
 	private String description;
 	private String bpmDefinitionKey;
@@ -54,7 +74,15 @@ public class ProcessDefinitionConfig extends PersistentEntity implements Seriali
 	 */
 	private Boolean latest;
 
-    public byte[] getProcessLogo() {
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public byte[] getProcessLogo() {
         return processLogo;
     }
 

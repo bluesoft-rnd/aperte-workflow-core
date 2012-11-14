@@ -5,16 +5,13 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 import java.util.Calendar;
 import java.util.Comparator;
 
-import javax.persistence.Column;
+import javax.persistence.*;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
+import javax.persistence.Parameter;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlTransient;
 
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.*;
 
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 
@@ -23,7 +20,7 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
  */
 @Entity
 @Table(name = "pt_process_instance_log")
-public class ProcessInstanceLog extends PersistentEntity {
+public class ProcessInstanceLog extends AbstractPersistentEntity {
     public enum LogType {
         START, CLAIM, ACTION, INFO
     }
@@ -32,6 +29,20 @@ public class ProcessInstanceLog extends PersistentEntity {
 	public static final String LOG_TYPE_CLAIM_PROCESS = "CLAIM_PROCESS";
 	public static final String LOG_TYPE_PERFORM_ACTION = "PERFORM_ACTION";
 	public static final String LOG_TYPE_INFO = "INFO";
+
+	@Id
+	@GeneratedValue(generator = "idGenerator")
+	@GenericGenerator(
+			name = "idGenerator",
+			strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
+			parameters = {
+					@org.hibernate.annotations.Parameter(name = "initial_value", value = "" + 1),
+					@org.hibernate.annotations.Parameter(name = "value_column", value = "_DB_ID"),
+					@org.hibernate.annotations.Parameter(name = "sequence_name", value = "DB_SEQ_ID_PROC_INST_LOG")
+			}
+	)
+	@Column(name = "id")
+	protected Long id;
 
 //	@Field
 //	@CalendarBridge(resolution = Resolution.MINUTE)
@@ -73,6 +84,14 @@ public class ProcessInstanceLog extends PersistentEntity {
     
 
 	public ProcessInstanceLog() {
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public Calendar getEntryDate() {

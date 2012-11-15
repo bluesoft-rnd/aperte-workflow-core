@@ -58,6 +58,9 @@ public class PropertiesPanel extends Panel {
 		refreshForm(setCaption);
 		
 		for (Property<?> property : properties) {
+			if (property.getValue()==null){
+				continue;
+			}
 			final com.vaadin.ui.Field field = fieldFactory.createField(property, propertiesForm);
 			propertiesForm.addField(property, field);
 		}

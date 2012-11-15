@@ -371,7 +371,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
                             bundleHelper.getBundleResourceStream(basePath + "processtool-config.xml"),
                             bundleHelper.getBundleResourceStream(basePath + "queues-config.xml"),
                             bundleHelper.getBundleResourceStream(basePath + "processdefinition.png"),
-                            bundleHelper.getBundleResourceStream(basePath + "processdefinition-logo.png"));
+                            bundleHelper.getBundleResourceStream(basePath + "processdefinition-logo.png")); 
 
                     toolRegistry.registerI18NProvider(new PropertiesBasedI18NProvider(new PropertyLoader() {
                         @Override

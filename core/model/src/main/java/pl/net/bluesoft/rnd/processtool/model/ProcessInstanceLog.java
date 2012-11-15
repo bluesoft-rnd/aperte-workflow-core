@@ -165,6 +165,7 @@ public class ProcessInstanceLog extends PersistentEntity {
 		this.executionId = executionId;
 	}
 
+	@XmlTransient 
 	public ProcessInstance getOwnProcessInstance() {
 		if(ownProcessInstance == null)
 			return processInstance;

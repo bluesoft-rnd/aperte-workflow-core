@@ -803,10 +803,10 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
    	}
 
    	@Override
-   	public BpmTask getTaskData(String taskExecutionId, String taskName, ProcessToolContext ctx) {
+   	public List<BpmTask> getTaskData(String taskExecutionId, String taskName, ProcessToolContext ctx) {
    		
    	 long start = System.currentTimeMillis();
-   		List<Task> tasks = getProcessEngine(ctx).getTaskService().createTaskQuery()
+   		List<Task> tasks = getProcessEngine(ctx).getTaskService().createTaskQuery() 
    				.notSuspended()
    				.activityName(taskName)
    				.executionId(taskExecutionId)
@@ -820,7 +820,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
    		
    	 long duration = System.currentTimeMillis() - start;
 		log.severe("getTaskData: " +  duration);
-   		return bpmTasks.isEmpty() ? null : bpmTasks.get(0);
+   		return bpmTasks;
    	}
 
    	@Override
@@ -897,11 +897,11 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
        public List<BpmTask> findProcessTasks(ProcessInstance pi, final String userLogin, ProcessToolContext ctx) {
            return findProcessTasks(pi, userLogin, null, ctx);
        }
-
-      // @Override
-   	private List<BpmTask> findProcessTasksWithUser(ProcessInstance pi, ProcessToolContext ctx) {
+ 
+       @Override
+   	public List<BpmTask> findProcessTasksWithUser(ProcessInstance pi, ProcessToolContext ctx) {
     	   long start = System.currentTimeMillis();
-    	   List<BpmTask> findProcessTasks;
+    	   List<BpmTask> findProcessTasks;   
     	   if(user!=null){
    		  findProcessTasks = findProcessTasks(pi, user.getLogin(), ctx);
    		 }

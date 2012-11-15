@@ -10,6 +10,7 @@ import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
 
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -120,8 +121,8 @@ public interface AperteWorkflowProcessService {
 	 * @throws AperteWsIllegalArgumentException If taskName is null or empty.
 	 *</pre>*/
 	
-	BpmTask getTaskDataForProcessInstance(String taskExecutionId,
-			String taskName) throws AperteWsWrongArgumentException, AperteWsIllegalArgumentException;
+	List<BpmTask> getTaskData(String taskExecutionId,
+			String taskName) throws AperteWsWrongArgumentException, AperteWsIllegalArgumentException; 
 
 	/**<pre>
 	 * 
@@ -170,17 +171,19 @@ public interface AperteWorkflowProcessService {
 	 * @param user User Data
 	 * @return List of BpmTask
 	 *</pre>*/
-	Collection<BpmTask> getAllTasks(UserData user);
+	Collection<BpmTask> getAllTasks(UserData user); 
 
 	/**<pre>
-	 * Service returns the name of the current output of a task in the process, is dependent of the process state.
+	 * Service returns the name of the current output of a task, is dependent of the process state.
 	 * 
-	 * @param executionId InternalID from t_process_instance table
+	 * @param taskId taskId from jbpm4_task table
 	 * @return Names of outgoing Transitions 
 	 * @throws AperteWsWrongArgumentException If executionId is wrong and  process instance, does not exists (including param null or empty values).
 	 *</pre>*/
-	List<String> getOutgoingTransitionNames(String executionId)
+	List<String> getOutgoingTransitionNamesByTaskId(String taskId)
 			throws AperteWsWrongArgumentException;
+	
+
 
 	/**<pre>
 	 * 
@@ -387,5 +390,30 @@ public interface AperteWorkflowProcessService {
 	 * @param bpmTask BpmTask to be "pushed".
 	 *</pre>*/
 	void adminCompleteTask(ProcessInstance processData,
-			ProcessStateAction action, BpmTask bpmTask);
+			ProcessStateAction action, BpmTask bpmTask);  
+
+	/**<pre>
+	 * This method returns a list of actions that can be performed in the current process state. 
+	 * 
+	 * @param internalId InternalID from pt_process_instance table
+	 * @return List of all posible actions.
+	 * @throws AperteWsWrongArgumentException If internalId is wrong and process Instance, does not exists (including param null or empty values).
+	 *</pre>*/
+	List<ProcessStateAction> getAvalivableActionForProcess(String internalId)
+			throws AperteWsWrongArgumentException;
+
+	/**<pre>
+	 * Returns action by name from given process Instance.
+	 * 
+	 * @param internalId Internal id of process instance.
+	 * @param actionName Name of Action to be returned. 
+	 * @return List of actions by name from instance.
+	 * @throws AperteWsWrongArgumentException If internalId is wrong and process Instance, does not exists (including param null or empty values).
+	 *</pre>*/
+	List<ProcessStateAction> getActionsListByNameFromInstance(
+			String internalId, String actionName)
+			throws AperteWsWrongArgumentException;
+
+
+	
 }

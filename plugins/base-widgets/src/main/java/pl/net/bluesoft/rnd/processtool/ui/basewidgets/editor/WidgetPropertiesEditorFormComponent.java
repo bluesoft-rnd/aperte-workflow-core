@@ -5,7 +5,9 @@ import com.vaadin.data.Property;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.validator.IntegerValidator;
 import com.vaadin.ui.*;
+
 import org.apache.commons.beanutils.BeanUtils;
+
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.jaxb.WidgetElement;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.validation.XmlValidationError;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
@@ -105,8 +107,15 @@ public class WidgetPropertiesEditorFormComponent extends VerticalLayout {
                 }
                 java.lang.reflect.Field reflectField = findField(propertyId, classOfItem);
                 if (reflectField != null) {
-                    Field field = super.createField(item, propertyId, uiContext);
-
+                	Field field=null;
+                	Class<?> type = item.getItemProperty(propertyId).getType();
+                	if (type.isAssignableFrom(Integer.class)){
+                		 field = new NumberTextField();
+                	     field.setCaption(createCaptionByPropertyId(propertyId));
+                	} else {
+                		 field = super.createField(item, propertyId, uiContext);
+                	}
+                   
                     AvailableOptions opts = reflectField.getAnnotation(AvailableOptions.class);
                     if (opts != null && opts.value() != null) {
                         NativeSelect ns = new NativeSelect();

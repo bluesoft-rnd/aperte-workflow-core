@@ -198,6 +198,9 @@ public class ProcessDataHierarchyEditor extends VerticalLayout {
     }
 
     public WidgetsDefinitionElement processXml(String value) {
+    	if (value==null){
+    		return null;
+    	}
         hierarchicalContainer.removeAllItems();
         try {
             rootWidget = (WidgetsDefinitionElement) definitionLoader.unmarshall(String.valueOf(value));

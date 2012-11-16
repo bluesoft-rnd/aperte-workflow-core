@@ -58,7 +58,7 @@ public class MessageEditor extends VerticalLayout implements TabSheet.CloseHandl
         }
 
         private void initLayout() {
-            getContent().setSizeUndefined();
+           
 
             addComponent(languageForm);
             addComponent(addButton);

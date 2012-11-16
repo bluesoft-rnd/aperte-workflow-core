@@ -41,8 +41,8 @@ public class HibernateBeanUtil {
     static {
         xs.registerConverter(new MyPersistentSetConverter(xs.getMapper()), XStream.PRIORITY_VERY_HIGH);
     }
-
-    public static <T> T fetchHibernateData(T o) {
+ 
+    public static <T> T fetchHibernateData(T o) { 
         try {
 			if (o == null) return null;
 			new LazyLoadExpander().expand(o);
@@ -57,6 +57,8 @@ public class HibernateBeanUtil {
 			throw new RuntimeException(e);
 		}
     }
+
+
 
 	private static class LazyLoadExpander {
 		private final Set<Object> expanded = new HashSet<Object>();

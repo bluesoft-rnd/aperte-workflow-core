@@ -37,6 +37,8 @@ import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessDictionaryDAO;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceDAO;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceFilterDAO;
+import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceSimpleAttributeDAO;
+import pl.net.bluesoft.rnd.processtool.dao.ProcessStateActionDAO;
 import pl.net.bluesoft.rnd.processtool.dao.UserDataDAO;
 import pl.net.bluesoft.rnd.processtool.dao.UserProcessQueueDAO;
 import pl.net.bluesoft.rnd.processtool.dao.UserSubstitutionDAO;
@@ -44,6 +46,8 @@ import pl.net.bluesoft.rnd.processtool.dao.impl.ProcessDefinitionDAOImpl;
 import pl.net.bluesoft.rnd.processtool.dao.impl.ProcessDictionaryDAOImpl;
 import pl.net.bluesoft.rnd.processtool.dao.impl.ProcessInstanceDAOImpl;
 import pl.net.bluesoft.rnd.processtool.dao.impl.ProcessInstanceFilterDAOImpl;
+import pl.net.bluesoft.rnd.processtool.dao.impl.ProcessInstanceSimpleAttributeDAOImpl;
+import pl.net.bluesoft.rnd.processtool.dao.impl.ProcessStateActionDAOImpl;
 import pl.net.bluesoft.rnd.processtool.dao.impl.UserDataDAOImpl;
 import pl.net.bluesoft.rnd.processtool.dao.impl.UserProcessQueueDAOImpl;
 import pl.net.bluesoft.rnd.processtool.dao.impl.UserSubstitutionDAOImpl;
@@ -54,6 +58,7 @@ import pl.net.bluesoft.rnd.processtool.event.ProcessToolEventBusManager;
 import pl.net.bluesoft.rnd.processtool.model.Cacheable;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessToolAutowire;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionary;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryPermission;
@@ -72,9 +77,10 @@ import pl.net.bluesoft.util.eventbus.EventBusManager;
 import pl.net.bluesoft.util.lang.FormatUtil;
 import pl.net.bluesoft.util.lang.Strings;
 
-/**
+/** 
  * @author tlipski@bluesoft.net.pl
  * @author amichalak@bluesoft.net.pl
+ * @author kkolodziej@bluesoft.net.pl
  */
 public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 
@@ -101,7 +107,7 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
     private ProcessToolContextFactory processToolContextFactory;
 	private SessionFactory sessionFactory;
     private PluginManager pluginManager;
-    private SearchProvider searchProvider;
+    private SearchProvider searchProvider; 
     private boolean jta;
     private BundleContext bundleContext;
     private String bpmDefinitionLanguage;
@@ -438,15 +444,26 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
            }
            return processToolContextFactory.withExistingOrNewContext(callback);
        }
-
+ 
     @Override
     public ProcessDictionaryDAO getProcessDictionaryDAO(Session hibernateSession) {
-        return new ProcessDictionaryDAOImpl(hibernateSession);
+        return new ProcessDictionaryDAOImpl(hibernateSession);  
     }
 
     @Override
 	public ProcessInstanceDAO getProcessInstanceDAO(Session hibernateSession) {
 		return new ProcessInstanceDAOImpl(hibernateSession, searchProvider);
+	}
+     
+    @Override
+	public ProcessInstanceSimpleAttributeDAO getProcessInstanceSimpleAttributeDAO(
+			Session hibernateSession) {
+		return new ProcessInstanceSimpleAttributeDAOImpl(hibernateSession);
+	}
+
+	@Override
+	public ProcessStateActionDAO getProcessStateAction(Session hibernateSession) {
+		return new ProcessStateActionDAOImpl(hibernateSession);
 	}
 
 	@Override

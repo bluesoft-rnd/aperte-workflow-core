@@ -10,7 +10,7 @@ import java.util.*;
 /**
  * @author tlipski@bluesoft.net.pl
  */
-public class DefaultViewRegistryImpl implements ViewRegistry {
+public class DefaultViewRegistryImpl implements ViewRegistry { 
     private Set<Func<ViewRenderer>> viewFunctions = new HashSet<Func<ViewRenderer>>();
 	private Map<String, Set<GenericPortletViewRenderer>> genericPortletViewRenderers = new HashMap<String, Set<GenericPortletViewRenderer>>();
 

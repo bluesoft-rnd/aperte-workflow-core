@@ -104,13 +104,13 @@ public abstract class AbstractProcessToolSession
     public ProcessInstance createProcessInstance(ProcessDefinitionConfig config,
                                                  String externalKey,
                                                  ProcessToolContext ctx,
-                                                 String description, String keyword,
+                                                 String description,
+                                                 String keyword,
                                                  String source, String internalId, UserData creator) {
-        
-    	
-    	/** If given configuration is disabled, throw exception */
-    	if (!config.getEnabled()) 
+    	long start = System.currentTimeMillis();
+        if (!config.getEnabled()) {
             throw new IllegalArgumentException("Process definition has been disabled!");
+        }
         
         ProcessInstance newProcessInstance = new ProcessInstance();
         newProcessInstance.setDefinition(config);
@@ -156,7 +156,12 @@ public abstract class AbstractProcessToolSession
         log.setLogType(ProcessInstanceLog.LOG_TYPE_START_PROCESS);
         log.setOwnProcessInstance(newProcessInstance);
         newProcessInstance.getRootProcessInstance().addProcessLog(log);
+        List<BpmTask> findProcessTasks = findProcessTasks(newProcessInstance, ctx);
+        String taskName = findProcessTasks.get(0).getTaskName();
 
+
+            newProcessInstance.setState(taskName);
+ 
         ctx.getProcessInstanceDAO().saveProcessInstance(newProcessInstance);
 
         Collection<IEvent> events = new ArrayList<IEvent>();
@@ -194,15 +199,15 @@ public abstract class AbstractProcessToolSession
         if (substitutingUserEventBusManager != null)
             substitutingUserEventBusManager.publish(event);
         ctx.addTransactionCallback(new TransactionFinishedCallback() {
-            @Override
-            public void onFinished() {
+            @Override 
+            public void onFinished() { 
                 ctx.getEventBusManager().post(event);
             }
         });
     }
 
     protected UserData findOrCreateUser(UserData user, ProcessToolContext ctx) {
-        return ctx.getProcessInstanceDAO().findOrCreateUser(user);
+        return ctx.getUserDataDAO().findOrCreateUser(user);
     }
 
     protected Set<String> getPermissions(Collection<? extends AbstractPermission> col) {

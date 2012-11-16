@@ -50,6 +50,7 @@ import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
 
 public class PluginHelper implements PluginManager, SearchProvider {
 
+
     public static final String AWF__ID = "__AWF__ID";
     public static final String AWF__TYPE = "__AWF__TYPE";
     public static final String AWF__ROLE = "__AWF__ROLE";
@@ -64,6 +65,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
     private static final String AWF__QUEUE = "__AWF__queue";
     
     private static final String SEPARATOR = "/";
+	private static final int SEARCH_LIMIT = 1000;
 
     private StringBuffer monitorInfo = new StringBuffer();
 
@@ -369,7 +371,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
                             bundleHelper.getBundleResourceStream(basePath + "processtool-config.xml"),
                             bundleHelper.getBundleResourceStream(basePath + "queues-config.xml"),
                             bundleHelper.getBundleResourceStream(basePath + "processdefinition.png"),
-                            bundleHelper.getBundleResourceStream(basePath + "processdefinition-logo.png"));
+                            bundleHelper.getBundleResourceStream(basePath + "processdefinition-logo.png")); 
 
                     toolRegistry.registerI18NProvider(new PropertiesBasedI18NProvider(new PropertyLoader() {
                         @Override
@@ -431,6 +433,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
 		}
 	}
 
+
 	private Collection<ProcessRoleConfig> getRoles(InputStream input) {
 		if (input == null) {
 			return null;
@@ -455,10 +458,12 @@ public class PluginHelper implements PluginManager, SearchProvider {
 				} catch (RuntimeException e) {
 					forwardErrorInfoToMonitor("adding role " + role.getName(), e);
 					throw e;
+
 				}
 			}
 		}
 	}
+
 
 
     private void handleBundleResources(int eventType, OSGiBundleHelper bundleHelper, ProcessToolRegistry toolRegistry) {
@@ -1184,50 +1189,64 @@ public class PluginHelper implements PluginManager, SearchProvider {
         updateIndex(doc);
     }
 
-    @Override
-    public List<Long> searchProcesses(String query, int offset, int limit, boolean onlyRunning,
-                                      String[] userRoles,
-                                      String assignee, String... queues) {
+	@Override
+	public List<Long> searchProcesses(String query, Integer offset,
+			Integer limit, boolean onlyRunning, String[] userRoles,
+			String assignee, String... queues) {
 
-        List<Document> results;
-        List<Query> addQueries = new ArrayList<Query>();
-        if (assignee != null) {
-            addQueries.add(new TermQuery(new Term(AWF__ASSIGNEE, assignee)));
-        }
-        if (queues != null) for (String queue : queues) {
-            addQueries.add(new TermQuery(new Term(AWF__QUEUE, queue)));
-        }
-        if (onlyRunning) {
-            addQueries.add(new TermQuery(new Term(AWF_RUNNING, String.valueOf(true))));
-        }
+		List<Document> results;
+		List<Query> addQueries = new ArrayList<Query>();
+		if (offset == null) {
+			offset = null;
 
-        if (userRoles != null) {
-            BooleanQuery bq = new BooleanQuery();
-            bq.add(new TermQuery(new Term(AWF__ROLE, "__AWF__ROLE_ALL".toLowerCase())), BooleanClause.Occur.SHOULD);
-            for (String roleName : userRoles) {
-                bq.add(new TermQuery(new Term(AWF__ROLE, roleName.replace(' ', '_').toLowerCase())),
-                        BooleanClause.Occur.SHOULD);
-            }
-            addQueries.add(bq);
-        }
-        results = search(query, 0, 1000, addQueries.toArray(new Query[addQueries.size()]));
-        //always check 1000 first results - larger limit means no sense and Lucene provides the results
-        //with no sort guarantees
+		}
+		if (limit == null) {
+			limit = SEARCH_LIMIT;
 
-        List<Long> res = new ArrayList<Long>(results.size());
-        for (Document doc : results) {
-            Fieldable fieldable = doc.getFieldable(AWF__ID);
-            if (fieldable != null) {
-                String s = fieldable.stringValue();
-                if (s != null) {
-                    res.add(Long.parseLong(s));
-                }
-            }
-        }
-        Collections.sort(res);
-        Collections.reverse(res);
-        return res.subList(offset, Math.min(offset+limit, res.size()));
-    }
+		}
+
+		if (assignee != null) {
+			addQueries.add(new TermQuery(new Term(AWF__ASSIGNEE, assignee)));
+		}
+		if (queues != null)
+			for (String queue : queues) {
+				addQueries.add(new TermQuery(new Term(AWF__QUEUE, queue)));
+			}
+		if (onlyRunning) {
+			addQueries.add(new TermQuery(new Term(AWF_RUNNING, String
+					.valueOf(true))));
+		}
+
+		if (userRoles != null) {
+			BooleanQuery bq = new BooleanQuery();
+			bq.add(new TermQuery(new Term(AWF__ROLE, "__AWF__ROLE_ALL"
+					.toLowerCase())), BooleanClause.Occur.SHOULD);
+			for (String roleName : userRoles) {
+				bq.add(new TermQuery(new Term(AWF__ROLE, roleName.replace(' ',
+						'_').toLowerCase())), BooleanClause.Occur.SHOULD);
+			}
+			addQueries.add(bq);
+		}
+		results = search(query, 0, SEARCH_LIMIT,
+				addQueries.toArray(new Query[addQueries.size()]));
+		// always check 1000 first results - larger limit means no sense and
+		// Lucene provides the results
+		// with no sort guarantees
+
+		List<Long> res = new ArrayList<Long>(results.size());
+		for (Document doc : results) {
+			Fieldable fieldable = doc.getFieldable(AWF__ID);
+			if (fieldable != null) {
+				String s = fieldable.stringValue();
+				if (s != null) {
+					res.add(Long.parseLong(s));
+				}
+			}
+		}
+		Collections.sort(res);
+		Collections.reverse(res);
+		return res.subList(offset, Math.min(offset + limit, res.size()));
+	}
 
     public List<Document> search(String query, int offset, int limit, Query... addQueries) {
         try {
@@ -1306,4 +1325,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
     public StringBuffer getMonitorInfo() {
         return monitorInfo;
     }
+
+	
+
 }

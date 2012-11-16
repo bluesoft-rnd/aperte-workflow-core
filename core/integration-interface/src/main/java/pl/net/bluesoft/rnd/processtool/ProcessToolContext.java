@@ -12,6 +12,8 @@ import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessDictionaryDAO;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceDAO;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceFilterDAO;
+import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceSimpleAttributeDAO;
+import pl.net.bluesoft.rnd.processtool.dao.ProcessStateActionDAO;
 import pl.net.bluesoft.rnd.processtool.dao.UserDataDAO;
 import pl.net.bluesoft.rnd.processtool.dao.UserProcessQueueDAO;
 import pl.net.bluesoft.rnd.processtool.dao.UserSubstitutionDAO;
@@ -45,6 +47,8 @@ public interface ProcessToolContext  extends ProcessToolBpmConstants
 	Session getHibernateSession();
 	UserDataDAO getUserDataDAO();
     UserSubstitutionDAO getUserSubstitutionDAO();
+    ProcessInstanceSimpleAttributeDAO getProcessInstanceSimpleAttributeDAO();
+    ProcessStateActionDAO getProcessStateActionDAO();
 	ProcessToolSessionFactory getProcessToolSessionFactory();
 
 	ProcessDefinitionDAO getProcessDefinitionDAO();

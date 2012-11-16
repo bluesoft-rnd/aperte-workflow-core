@@ -3,6 +3,7 @@ package org.aperteworkflow.editor.ui.permission;
 import org.aperteworkflow.editor.domain.Permission;
 import pl.net.bluesoft.rnd.processtool.model.config.AbstractPermission;
 
+
 public class PermissionWrapper extends AbstractPermission {
 
     // Properties

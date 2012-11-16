@@ -537,7 +537,7 @@ public class ProcessDataPane extends VerticalLayout implements WidgetContextSupp
                 } else if (a1.getActionType() == null && a2.getActionType() != null) {
                     return 1;
                 } else {
-                    if (a1.getPriority() != null && a1.getPriority() != null) {
+                    if (a1.getPriority() != null && a2.getPriority() != null) {
                         return a1.getPriority().compareTo(a2.getPriority());
                     } else if (a1.getPriority() != null && a2.getPriority() == null) {
                         return 1;

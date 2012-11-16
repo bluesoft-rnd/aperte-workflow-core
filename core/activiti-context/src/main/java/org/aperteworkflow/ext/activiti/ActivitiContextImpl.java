@@ -50,7 +50,7 @@ public class ActivitiContextImpl implements ProcessToolContext {
 	ProcessEngine processEngine;
 
 	private ProcessToolContextFactory factory;
-
+  
     private Map<String, String> autowiringCache;
     private Map<Class<? extends HibernateBean>, HibernateBean> daoCache = new HashMap<Class<? extends HibernateBean>, HibernateBean>();
 
@@ -65,7 +65,7 @@ public class ActivitiContextImpl implements ProcessToolContext {
                                ActivitiContextFactoryImpl.CustomStandaloneProcessEngineConfiguration customStandaloneProcessEngineConfiguration) {
 		this.hibernateSession = hibernateSession;
         this.customStandaloneProcessEngineConfiguration = customStandaloneProcessEngineConfiguration;
-		this.factory = factory;
+		this.factory = factory; 
 		this.processEngine = processEngine;
         this.autowiringCache = getRegistry().getCache(ProcessToolAutowire.class.getName());
 		this.userProcessQueueManager = new UserProcessQueueManager(hibernateSession, getUserProcessQueueDAO());
@@ -145,6 +145,10 @@ public class ActivitiContextImpl implements ProcessToolContext {
                 dao = (T) getRegistry().getProcessDefinitionDAO(hibernateSession);
             } else if (UserSubstitutionDAO.class.equals(daoClass)) {
                 dao = (T) getRegistry().getUserSubstitutionDAO(hibernateSession);
+            }else if (ProcessInstanceSimpleAttributeDAO.class.equals(daoClass)) {
+                dao = (T) getRegistry().getProcessInstanceSimpleAttributeDAO(hibernateSession);
+            }else if (ProcessStateActionDAO.class.equals(daoClass)) {
+                dao = (T) getRegistry().getProcessStateAction(hibernateSession);
             }
             if (dao != null) {
                 daoCache.put(daoClass, dao);
@@ -181,6 +185,16 @@ public class ActivitiContextImpl implements ProcessToolContext {
     public UserSubstitutionDAO getUserSubstitutionDAO() {
         return getHibernateDAO(UserSubstitutionDAO.class);
     }
+    
+    @Override
+	public ProcessInstanceSimpleAttributeDAO getProcessInstanceSimpleAttributeDAO() {
+    	 return getHibernateDAO(ProcessInstanceSimpleAttributeDAO.class);
+	}
+    
+    @Override
+	public ProcessStateActionDAO getProcessStateActionDAO() {
+    	return getHibernateDAO(ProcessStateActionDAO.class);
+	}
 
 	@Override
 	public UserProcessQueueDAO getUserProcessQueueDAO() {

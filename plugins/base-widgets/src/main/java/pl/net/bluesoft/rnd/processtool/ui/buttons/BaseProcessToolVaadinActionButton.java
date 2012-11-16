@@ -9,7 +9,7 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 
 import org.apache.commons.lang3.StringUtils;
-import org.aperteworkflow.util.vaadin.TaskAlreadyCompletedException;
+import org.aperteworkflow.util.vaadin.TaskAlreadyCompletedException; 
 import pl.net.bluesoft.rnd.processtool.ui.WidgetContextSupport;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinRenderable;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolActionButton;
@@ -63,7 +63,7 @@ public abstract class BaseProcessToolVaadinActionButton extends BaseProcessToolA
 			showTransitionNotification();
 		}
 		if (task == null) {
-			throw new TaskAlreadyCompletedException();
+			throw new TaskAlreadyCompletedException(); 
 		}
 		callback.getWidgetContextSupport().updateTask(task);
 	}

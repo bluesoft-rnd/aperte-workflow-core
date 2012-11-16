@@ -14,7 +14,8 @@ public class ContextUtil {
                 public T processWithContext(ProcessToolContext ctx) {
                     ProcessToolContext.Util.setThreadProcessToolContext(ctx);
                     try {
-                        return callback.processWithContext(ctx);
+                    	
+                        return callback.processWithContext(ctx); 
                     }
                     finally {
                         ProcessToolContext.Util.removeThreadProcessToolContext();

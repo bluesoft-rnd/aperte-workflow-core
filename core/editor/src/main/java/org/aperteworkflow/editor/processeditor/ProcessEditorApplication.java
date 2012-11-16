@@ -1,14 +1,16 @@
 package org.aperteworkflow.editor.processeditor;
 
-import com.vaadin.terminal.ParameterHandler;
-import com.vaadin.ui.Window;
+import java.util.Map;
+
 import org.aperteworkflow.editor.domain.ProcessConfig;
 import org.aperteworkflow.editor.json.ProcessConfigJSONHandler;
 import org.aperteworkflow.editor.stepeditor.JavaScriptHelper;
 import org.aperteworkflow.editor.vaadin.GenericEditorApplication;
+
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
-import java.util.Map;
+import com.vaadin.terminal.ParameterHandler;
+import com.vaadin.ui.Window;
 
 /**
  * @author kdowbecki@bluesoft.net.pl

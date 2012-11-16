@@ -69,6 +69,7 @@ public class ActionEditorApplication extends GenericEditorApplication implements
 		}
 		refreshWindow(buttonType, buttonName);
 	}
+	
 
 	private void refreshWindow(String buttonType, String buttonName) {
 		mainWindow.removeAllComponents();
@@ -83,7 +84,7 @@ public class ActionEditorApplication extends GenericEditorApplication implements
 		buttonList = prepareButtonList(buttonType);
 		main.addComponent(buttonList);
 		if (!StringUtils.isEmpty(buttonType)) {
-			Class<? extends ProcessToolActionButton> buttonClass = getRegistry().getAvailableButtons().get(buttonType);
+			Class<? extends ProcessToolActionButton> buttonClass = getRegistry().getAvailableButtons().get(buttonType); 
 			propertiesPanel.init(buttonClass);
 			propertiesPanel.refreshForm(true, oldActionParameters);
 			main.addComponent(propertiesPanel);

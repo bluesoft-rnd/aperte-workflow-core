@@ -14,4 +14,5 @@ public interface UserDataDAO extends HibernateBean<UserData> {
 	UserData loadOrCreateUserByLogin(UserData ud);
 	UserData loadUserByLogin(String login);
     Map<String, UserData> loadUsersByLogin(Collection<String> logins);
+	UserData findOrCreateUser(UserData ud);
 }

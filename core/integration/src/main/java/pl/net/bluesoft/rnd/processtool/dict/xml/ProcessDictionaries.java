@@ -19,7 +19,7 @@ public class ProcessDictionaries {
     private List<DictionaryPermission> permissions;
     @XStreamImplicit
     protected List<Dictionary> dictionaries;
-
+  
     public String getDefaultLanguage() {
         return defaultLanguage;
     }

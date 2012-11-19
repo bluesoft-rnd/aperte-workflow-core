@@ -24,7 +24,7 @@ public class DictionaryLoader extends OXHelper {
 
     @Override
     protected Class[] getSupportedClasses() {
-        return new Class[] {
+        return new Class[] { 
                 Dictionary.class,
                 DictionaryPermission.class,
                 DictionaryEntry.class,

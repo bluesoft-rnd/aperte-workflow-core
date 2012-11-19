@@ -9,6 +9,7 @@ import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
 import pl.net.bluesoft.rnd.processtool.dao.*;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolActionButton;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
@@ -111,6 +112,10 @@ public interface ProcessToolRegistry extends ProcessToolBpmConstants {
 	UserDataDAO getUserDataDAO(Session hibernateSession);
 
     UserSubstitutionDAO getUserSubstitutionDAO(Session hibernateSession);
+    
+    ProcessInstanceSimpleAttributeDAO getProcessInstanceSimpleAttributeDAO(Session hibernateSession);
+    
+    ProcessStateActionDAO getProcessStateAction(Session hibernateSession);
 
 	ProcessDefinitionDAO getProcessDefinitionDAO(Session hibernateSession);
 	

@@ -98,7 +98,7 @@ public class ProcessDictionaryDAOImpl extends SimpleHibernateBean<ProcessDBDicti
         String languageCode = dict.getLanguageCode();
 		DictionaryCacheKey key = new DictionaryCacheKey(definitionId, dictionaryId, languageCode);
 		cache.put(key, dict);
-        //        logger.info("Cached dictionary: " + objectId);
+           //     logger.info("Cached dictionary: " + objectId);
         if (dict.isDefaultDictionary() != null && dict.isDefaultDictionary()) {
             key = new DictionaryCacheKey(definitionId, dictionaryId, getCacheDefaultToken(dict.isDefaultDictionary()));
             cache.put(key, dict);

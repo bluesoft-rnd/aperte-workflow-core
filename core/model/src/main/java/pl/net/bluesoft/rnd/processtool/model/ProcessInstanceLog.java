@@ -184,6 +184,7 @@ public class ProcessInstanceLog extends AbstractPersistentEntity {
 		this.executionId = executionId;
 	}
 
+	@XmlTransient 
 	public ProcessInstance getOwnProcessInstance() {
 		if(ownProcessInstance == null)
 			return processInstance;

@@ -74,6 +74,7 @@
                             com.vaadin.event.dd.acceptcriteria,
                             com.vaadin.event.dd,
                             com.vaadin.event,
+                            pl.net.bluesoft.rnd.pt.utils.lang,
                             com.vaadin.terminal.gwt.client.ui.dd,
                             com.vaadin.terminal,
                             com.vaadin.data.util,

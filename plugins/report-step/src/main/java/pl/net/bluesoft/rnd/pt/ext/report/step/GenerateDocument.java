@@ -37,7 +37,7 @@ import java.util.logging.Logger;
 import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 
 @AliasName(name = "GenerateDocumentStep")
-public class GenerateDocument implements ProcessToolProcessStep {
+public class GenerateDocument implements ProcessToolProcessStep { 
 
 	private static final String DATETIME_PATTERN = "dd-MM-yyyy HH:mm";
 	private static final String PROCESS_INSTANCE_KEY = "processInstance";
@@ -126,6 +126,8 @@ public class GenerateDocument implements ProcessToolProcessStep {
 	@Override
 	public String invoke(BpmStep step, Map<String, String> params) throws Exception {
 		try {
+			
+			ProcessInstance processInstance = step.getProcessInstance();
 			// GET PARAMETERS FOR REPORT
 			reportName = (String) params.get("reportName");
 			subFolder = (String) params.get("subFolder");
@@ -139,8 +141,6 @@ public class GenerateDocument implements ProcessToolProcessStep {
 				localeAttributeKey = (String) params.get("localeAttributeKey");
 			}
 			defaultLocaleName = (String) params.get("defaultLocaleName");
-
-			ProcessInstance processInstance = step.getProcessInstance();
 
 			initLocale(processInstance);
 			// BUILD REPORT
@@ -422,5 +422,7 @@ public class GenerateDocument implements ProcessToolProcessStep {
 	public void setPopup(String popup) {
 		this.popup = popup;
 	}
+
+	
 
 }

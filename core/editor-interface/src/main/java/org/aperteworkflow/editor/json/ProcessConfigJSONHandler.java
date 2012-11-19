@@ -110,5 +110,6 @@ public class ProcessConfigJSONHandler implements Serializable {
         in.defaultReadObject();
         mapper = new ObjectMapper();
     }
+    
 
 }

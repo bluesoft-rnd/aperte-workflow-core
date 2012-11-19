@@ -20,6 +20,8 @@ import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessDictionaryDAO;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceDAO;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceFilterDAO;
+import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceSimpleAttributeDAO;
+import pl.net.bluesoft.rnd.processtool.dao.ProcessStateActionDAO;
 import pl.net.bluesoft.rnd.processtool.dao.UserDataDAO;
 import pl.net.bluesoft.rnd.processtool.dao.UserProcessQueueDAO;
 import pl.net.bluesoft.rnd.processtool.dao.UserSubstitutionDAO;
@@ -45,7 +47,7 @@ import pl.net.bluesoft.util.lang.Formats;
  *
  * @author tlipski@bluesoft.net.pl
  */
-public class ProcessToolContextImpl implements ProcessToolContext {
+public class ProcessToolContextImpl implements ProcessToolContext { 
     private Session hibernateSession;
     private Transaction transaction;
     private ProcessToolJbpmSessionFactory processToolJbpmSessionFactory;
@@ -149,6 +151,10 @@ public class ProcessToolContextImpl implements ProcessToolContext {
                 dao = (T) getRegistry().getUserProcessQueueDAO(hibernateSession);
             } else if (UserSubstitutionDAO.class.equals(daoClass)) {
                 dao = (T) getRegistry().getUserSubstitutionDAO(hibernateSession);
+            }else if (ProcessInstanceSimpleAttributeDAO.class.equals(daoClass)) {
+                dao = (T) getRegistry().getProcessInstanceSimpleAttributeDAO(hibernateSession);
+            }else if (ProcessStateActionDAO.class.equals(daoClass)) {
+                dao = (T) getRegistry().getProcessStateAction(hibernateSession);
             }
             if (dao != null) {
                 daoCache.put(daoClass, dao);
@@ -190,6 +196,16 @@ public class ProcessToolContextImpl implements ProcessToolContext {
 	public UserProcessQueueDAO getUserProcessQueueDAO() {
 		return getHibernateDAO(UserProcessQueueDAO.class);
 	}
+    @Override
+	public ProcessInstanceSimpleAttributeDAO getProcessInstanceSimpleAttributeDAO() {
+		return getHibernateDAO(ProcessInstanceSimpleAttributeDAO.class);
+	}
+    
+    @Override
+	public ProcessStateActionDAO getProcessStateActionDAO() {
+		return getHibernateDAO(ProcessStateActionDAO.class);
+	}
+
 
     @Override
     public Session getHibernateSession() {

@@ -10,7 +10,7 @@ import java.util.List;
 public interface SearchProvider {
 
     void updateIndex(ProcessInstanceSearchData processInstanceSearchData);
-    List<Long> searchProcesses(String query, int offset, int limit, boolean onlyRunning, 
-                               String[] userRoles,
-                               String assignee, String... queues);
+	List<Long> searchProcesses(String query, Integer offset, Integer limit,
+			boolean onlyRunning, String[] userRoles, String assignee,
+			String[] queues);
 }

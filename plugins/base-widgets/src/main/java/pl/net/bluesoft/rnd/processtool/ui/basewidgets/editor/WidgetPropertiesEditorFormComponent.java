@@ -7,6 +7,8 @@ import com.vaadin.data.validator.IntegerValidator;
 import com.vaadin.ui.*;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.aperteworkflow.util.vaadin.ui.GenericValueFieldFactory;
+import org.aperteworkflow.util.vaadin.ui.GenericValueTextField;
 
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.jaxb.WidgetElement;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.validation.XmlValidationError;
@@ -95,7 +97,7 @@ public class WidgetPropertiesEditorFormComponent extends VerticalLayout {
     }
 
     private DefaultFieldFactory getFieldFactory(final Class classOfItem) {
-        return new DefaultFieldFactory() {
+        return new GenericValueFieldFactory() {
 
             @Override
             public Field createField(Item item, Object propertyId, Component uiContext) {
@@ -108,14 +110,9 @@ public class WidgetPropertiesEditorFormComponent extends VerticalLayout {
                 java.lang.reflect.Field reflectField = findField(propertyId, classOfItem);
                 if (reflectField != null) {
                 	Field field=null;
-                	Class<?> type = item.getItemProperty(propertyId).getType();
-                	if (type.isAssignableFrom(Integer.class)){
-                		 field = new NumberTextField();
-                	     field.setCaption(createCaptionByPropertyId(propertyId));
-                	} else {
-                		 field = super.createField(item, propertyId, uiContext);
-                	}
-                   
+                	
+                	field = super.createField(item, propertyId, uiContext);
+                	
                     AvailableOptions opts = reflectField.getAnnotation(AvailableOptions.class);
                     if (opts != null && opts.value() != null) {
                         NativeSelect ns = new NativeSelect();
@@ -167,7 +164,7 @@ public class WidgetPropertiesEditorFormComponent extends VerticalLayout {
                     return field;
                 }
                 return null;
-            }
+            }			
         };
     }
 

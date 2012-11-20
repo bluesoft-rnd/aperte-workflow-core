@@ -83,46 +83,4 @@
             </plugin>
         </plugins>
     </build>
-	
-	<!-- Profil dev do automatycznego kopiowania jarow do osgi -->
-    <profiles>
-    
-        <profile>
-            <id>dev</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <build>
-	            <plugins>
-		            <plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-dependency-plugin</artifactId>
-						<version>2.4</version>
-						<executions>
-							<execution>
-								<id>copy</id>
-								<phase>package</phase>
-								<goals>
-									<goal>copy</goal>
-								</goals>
-								<configuration>
-									<artifactItems>
-										<artifactItem>
-											<groupId>${project.groupId}</groupId>
-											<artifactId>${project.artifactId}</artifactId>
-											<type>jar</type>
-											<version>${project.version}</version>
-											<overWrite>true</overWrite>
-											<outputDirectory>${osgi.dir}</outputDirectory>
-											<destFileName>${project.artifactId}-${project.version}.jar</destFileName>
-										</artifactItem>
-									</artifactItems>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>

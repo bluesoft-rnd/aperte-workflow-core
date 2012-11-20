@@ -34,7 +34,7 @@ public class NotificationHistoryTable extends ReadOnlyTable<NotificationHistoryE
 	@Override
 	protected String[] getPropertyColumnHeaders() {
 		return new String[] {
-			getMessage("Odbiorca"), getMessage("Tytuł"), getMessage("Przyjęto"), getMessage("Wysłano")
+			getMessage("bpmnot.receiver"), getMessage("bpmnot.subject"), getMessage("bpmnot.acquired"), getMessage("bpmnot.sent")
 		};
 	}
 

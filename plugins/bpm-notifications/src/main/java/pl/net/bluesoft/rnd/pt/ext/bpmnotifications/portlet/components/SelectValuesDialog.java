@@ -38,13 +38,13 @@ public abstract class SelectValuesDialog<ItemType> extends Dialog {
 
 		addDialogContent(itemSelect);
 
-		addDialogAction(getMessage("Wybierz"), new ActionListener() {
+		addDialogAction(getMessage("bpmnot.button.choose"), new ActionListener() {
 			@Override
 			public void handleAction(String action) {
 				valuesSelected((Set<ItemType>)itemSelect.getValue());
 			}
 		});
-		addDialogAction(getMessage("Anuluj"), null);
+		addDialogAction(getMessage("bpmnot.button.cancel"), null);
 	}
 
 	protected abstract void valuesSelected(Set<ItemType> items);

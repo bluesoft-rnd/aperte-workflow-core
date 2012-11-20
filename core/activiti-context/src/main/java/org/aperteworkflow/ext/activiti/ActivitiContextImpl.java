@@ -50,7 +50,7 @@ public class ActivitiContextImpl implements ProcessToolContext {
 	ProcessEngine processEngine;
 
 	private ProcessToolContextFactory factory;
-
+  
     private Map<String, String> autowiringCache;
     private Map<Class<? extends HibernateBean>, HibernateBean> daoCache = new HashMap<Class<? extends HibernateBean>, HibernateBean>();
 

@@ -13,7 +13,7 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
  
 import javax.jws.WebMethod;
-import javax.jws.WebParam;
+import javax.jws.WebParam; 
 import javax.jws.WebService;
 
 import org.aperteworkflow.service.fault.AperteWsIllegalArgumentException;
@@ -215,26 +215,26 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 
 	@Override
 	@WebMethod 
-    public BpmTask getTaskDataForProcessInstance(@WebParam(name="internalId")final String internalId,
+    public List<BpmTask> getTaskData(@WebParam(name="internalId")final String internalId,
                                                  @WebParam(name="taskName")final String taskName) throws AperteWsWrongArgumentException, AperteWsIllegalArgumentException {
 		
 		final ProcessInstance processData = getProcessData(internalId);
-		
+		 
 		AperteErrorCheckUtil.checkCorrectnessOfArgument(taskName, AperteIllegalArgumentCodes.TASK);
 		
-		BpmTask bpmTask = withContext(new ReturningProcessToolContextCallback<BpmTask>() {
+		List<BpmTask> bpmTasks = withContext(new ReturningProcessToolContextCallback<List<BpmTask>>() {
             @Override
-            public BpmTask processWithContext(ProcessToolContext ctx) {
+            public List<BpmTask> processWithContext(ProcessToolContext ctx) {
                 return fetchHibernateData(getSession(ctx).getTaskData(processData.getInternalId(), taskName, ctx));
             }
         });
 		
-		if(bpmTask== null){
+		if(bpmTasks== null || bpmTasks.isEmpty()){
 			
 			AperteWrongArgumentCodes.BPMTASK.throwAperteWebServiceException();
 		}
          
-         return bpmTask;
+         return bpmTasks;
     }
 	
 
@@ -297,7 +297,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
         return withContext(new ReturningProcessToolContextCallback<List<BpmTask>>() {
             @Override
             public List<BpmTask> processWithContext(ProcessToolContext ctx) {
-                return fetchHibernateData(getSession(ctx, user).findProcessTasks(processInstance, ctx));
+                return fetchHibernateData(getSession(ctx, user).findProcessTasksWithUser(processInstance, ctx));
             }
         });
     }
@@ -440,17 +440,23 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 
 	@Override
     @WebMethod
-    public List<String> getOutgoingTransitionNames(@WebParam(name="executionId")final String executionId) throws AperteWsWrongArgumentException {
-		final ProcessInstance processData = getProcessData(executionId);
-		return withContext(new ReturningProcessToolContextCallback<List<String>>() {
+    public List<String> getOutgoingTransitionNamesByTaskId(@WebParam(name="taskId")final String taskId) throws AperteWsWrongArgumentException {
+		AperteErrorCheckUtil.checkCorrectnessOfArgument(taskId, AperteIllegalArgumentCodes.TASK);
+
+		 List<String> outgoingTransmisionsList = withContext(new ReturningProcessToolContextCallback<List<String>>() {
             @Override
             public List<String> processWithContext(ProcessToolContext ctx) {
-                return getSession(ctx).getOutgoingTransitionNames(processData.getInternalId(), ctx);
+                return getSession(ctx).getOutgoingTransitionNames(taskId, ctx);
             }
         });
-    }
-	
+		 
+		 if( outgoingTransmisionsList.isEmpty() ){
+			  AperteWrongArgumentCodes.BPMTASK.throwAperteWebServiceException();
+		 }
 
+		 return outgoingTransmisionsList;
+		 
+    }
 	 
 	@Override
 	@WebMethod (exclude=true)
@@ -600,6 +606,52 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
             }
         });
     }
+	
+	@Override
+    @WebMethod
+	public List<ProcessStateAction> getAvalivableActionForProcess( 
+			@WebParam(name = "internalId") final String internalId) throws AperteWsWrongArgumentException {
+
+		 final ProcessInstance instance = getProcessData(internalId);
+		 final ProcessDefinitionConfig definition = instance.getDefinition();
+		List<BpmTask> findProcessTasks = findProcessTasks(internalId, null);
+		 
+		return withContext(new ReturningProcessToolContextCallback<List<ProcessStateAction>>() {
+			
+			@Override
+			public List<ProcessStateAction> processWithContext(ProcessToolContext ctx) {
+				String state = instance.getState();
+				if(state==null || state.isEmpty()){//TODO its for compatibility with 1.X aperte data. In future its should be removed
+					if(instance.getStatus().equals(ProcessStatus.NEW)){
+						List<BpmTask> bpmTasks = getSession(ctx).findProcessTasks(instance, ctx);
+						state=bpmTasks.get(0).getTaskName();
+					}
+					
+				 } 
+				return fetchHibernateData(ctx.getProcessStateActionDAO().getActionsBasedOnStateAndDefinitionId(state, definition.getId())); 
+			}
+		});
+ 
+	}
+	
+	@Override
+    @WebMethod  (exclude=true)
+	public List<ProcessStateAction> getActionsListByNameFromInstance( 
+			@WebParam(name = "internalId") final String internalId,@WebParam(name = "actionName") final String actionName) throws AperteWsWrongArgumentException {
+
+		ProcessInstance instanceByInternalId = getProcessData(internalId);
+		final ProcessDefinitionConfig definition = instanceByInternalId.getDefinition();
+		return withContext(new ReturningProcessToolContextCallback<List<ProcessStateAction>>() {
+			
+			@Override
+			public List<ProcessStateAction> processWithContext(ProcessToolContext ctx) {
+				
+				return fetchHibernateData(ctx.getProcessStateActionDAO().getActionByNameFromDefinition(definition, actionName));
+			}
+		});
+
+	}
+	
 
 	private ProcessToolBpmSession getSession(ProcessToolContext ctx) {
 		return getSession(ctx, null);
@@ -608,4 +660,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 	private ProcessToolBpmSession getSession(ProcessToolContext ctx, UserData user) {
 		return ctx.getProcessToolSessionFactory().createSession(user, new HashSet<String>());
 	}
+	
+	
+	
 }

@@ -63,50 +63,7 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
 
 	}
 	
-	@Override
-    @WebMethod
-	public List<ProcessStateAction> getAvalivableActionForProcess( 
-			@WebParam(name = "internalId") final String internalId) throws AperteWsWrongArgumentException {
-
-		 final ProcessInstance instance = getProcessInstanceByInternalId(internalId);
-		 final ProcessDefinitionConfig definition = instance.getDefinition();
-		
-		 
-		return withContext(new ReturningProcessToolContextCallback<List<ProcessStateAction>>() {
-			
-			@Override
-			public List<ProcessStateAction> processWithContext(ProcessToolContext ctx) {
-				String state = instance.getState();
-				if(state==null || state.isEmpty()){//TODO its for compatibility with 1.X aperte data. In future its should be removed
-					if(instance.getStatus().equals(ProcessStatus.NEW)){
-						List<BpmTask> bpmTasks = getSession(ctx).findProcessTasks(instance, ctx);
-						state=bpmTasks.get(0).getTaskName();
-					}
-					
-				 } 
-				return fetchHibernateData(ctx.getProcessStateActionDAO().getActionsBasedOnStateAndDefinitionId(state, definition.getId())); 
-			}
-		});
- 
-	}
 	
-	@Override
-    @WebMethod  (exclude=true)
-	public List<ProcessStateAction> getActionsListByNameFromInstance(
-			@WebParam(name = "internalId") final String internalId,@WebParam(name = "actionName") final String actionName) throws AperteWsWrongArgumentException {
-
-		ProcessInstance instanceByInternalId = getProcessInstanceByInternalId(internalId);
-		final ProcessDefinitionConfig definition = instanceByInternalId.getDefinition();
-		return withContext(new ReturningProcessToolContextCallback<List<ProcessStateAction>>() {
-			
-			@Override
-			public List<ProcessStateAction> processWithContext(ProcessToolContext ctx) {
-				
-				return fetchHibernateData(ctx.getProcessStateActionDAO().getActionByNameFromDefinition(definition, actionName));
-			}
-		});
-
-	}
 
 	@Override
 	@WebMethod (exclude=true)

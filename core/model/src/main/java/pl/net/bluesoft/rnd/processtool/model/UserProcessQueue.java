@@ -1,12 +1,11 @@
 package pl.net.bluesoft.rnd.processtool.model;
 
-import javax.persistence.Column;
+import javax.persistence.*;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.Parameter;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.Index;
+import org.hibernate.annotations.*;
 
 /**
  * The entity represents one process instance which is attached 
@@ -23,8 +22,22 @@ import org.hibernate.annotations.Index;
 @org.hibernate.annotations.Table(appliesTo="pt_user_process_queue", indexes={
 		@Index(name = "idx_user_login_queue_type",columnNames={"user_login", "queue_type"})})
 
-public class UserProcessQueue extends PersistentEntity
+public class UserProcessQueue extends AbstractPersistentEntity
 {
+	@Id
+	@GeneratedValue(generator = "idGenerator")
+	@GenericGenerator(
+			name = "idGenerator",
+			strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
+			parameters = {
+					@org.hibernate.annotations.Parameter(name = "initial_value", value = "" + 1),
+					@org.hibernate.annotations.Parameter(name = "value_column", value = "_DB_ID"),
+					@org.hibernate.annotations.Parameter(name = "sequence_name", value = "DB_SEQ_ID_USER_PROC_QUEUE")
+			}
+	)
+	@Column(name = "id")
+	protected Long id;
+
 	/** User login as string */
 	@Column(name="user_login")
 	private String login;
@@ -42,7 +55,15 @@ public class UserProcessQueue extends PersistentEntity
 	@Index(name="idx_task_id")
 	@Column(name="task_id")
 	private Long taskId;
-	
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
 	public String getLogin() {
 		return login;
 	}

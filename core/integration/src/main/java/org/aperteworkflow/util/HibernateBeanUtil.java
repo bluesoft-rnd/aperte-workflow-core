@@ -7,6 +7,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.mapper.Mapper;
 import org.hibernate.Hibernate;
 import org.hibernate.collection.PersistentSet;
+import pl.net.bluesoft.rnd.processtool.model.AbstractPersistentEntity;
 import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 import pl.net.bluesoft.util.lang.Lang;
 
@@ -67,13 +68,13 @@ public class HibernateBeanUtil {
 				return;
 			}
 			expanded.add(t);
-			if (t instanceof PersistentEntity) {
+			if (t instanceof AbstractPersistentEntity) {
 				Hibernate.initialize(t);
 
 				for (Field field : Lang.getFieldsFromClassAndAncestors(t.getClass())) {
 					try {
 						Object value = Lang.get(t, field.getName());
-						if (value instanceof PersistentEntity) {
+						if (value instanceof AbstractPersistentEntity) {
 							expand(value);
 						}
 						if (value instanceof Collection) {

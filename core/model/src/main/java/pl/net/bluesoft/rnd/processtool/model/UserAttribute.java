@@ -3,7 +3,13 @@ package pl.net.bluesoft.rnd.processtool.model;
 //import org.hibernate.annotations.OnDelete;
 //import org.hibernate.annotations.OnDeleteAction;
 
+import org.hibernate.annotations.*;
+
 import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Parameter;
+import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlTransient;
 import java.util.HashSet;
 import java.util.Set;
@@ -11,6 +17,20 @@ import java.util.Set;
 @Entity
 @Table(name = "pt_user_attribute")
 public class UserAttribute extends UserAttributesSupport {
+	@Id
+	@GeneratedValue(generator = "idGenerator")
+	@GenericGenerator(
+			name = "idGenerator",
+			strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
+			parameters = {
+					@org.hibernate.annotations.Parameter(name = "initial_value", value = "" + 1),
+					@org.hibernate.annotations.Parameter(name = "value_column", value = "_DB_ID"),
+					@org.hibernate.annotations.Parameter(name = "sequence_name", value = "DB_SEQ_ID_USER_ATTR")
+			}
+	)
+	@Column(name = "id")
+	protected Long id;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private UserData user;
@@ -51,7 +71,15 @@ public class UserAttribute extends UserAttributesSupport {
         this.parent = parent;
     }
 
-    @Override
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	@Override
     public Set<UserAttribute> getAttributes() {
         return attributes != null ? attributes : (attributes = new HashSet<UserAttribute>());
     }

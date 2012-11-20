@@ -52,9 +52,9 @@ public abstract class ItemEditorLayout<ItemType extends PersistentEntity> extend
 
 		Component itemDetails = createItemDetailsLayout();
 		Component infoLayout = createInfoLayout();
-		saveButton = new Button(getMessage("Zapisz"));
+		saveButton = new Button(getMessage("bpmnot.button.save"));
 		saveButton.addListener((Button.ClickListener)this);
-		newButton = new Button(getMessage("Nowy"));
+		newButton = new Button(getMessage("bpmnot.button.new"));
 		newButton.addListener((Button.ClickListener)this);
 
 		VerticalLayout rightLayout = new VerticalLayout();

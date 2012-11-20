@@ -131,7 +131,7 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
    	}
 
    	@Override
-   	public BpmTask getTaskData(String taskExecutionId, String taskName, ProcessToolContext ctx) {
+   	public List<BpmTask> getTaskData(String taskExecutionId, String taskName, ProcessToolContext ctx) {
    		List<Task> tasks = getProcessEngine().getTaskService().createTaskQuery()
    				//.notSuspended()
                 .taskName(taskName)
@@ -143,7 +143,7 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
    			return null;
    		}
    		List<BpmTask> bpmTasks = findProcessInstancesForTasks(tasks, ctx);
-   		return bpmTasks.isEmpty() ? null : bpmTasks.get(0);
+   		return bpmTasks;
    	}
 
     private List<BpmTask> findProcessInstancesForTasks(List<Task> tasks, final ProcessToolContext ctx) {
@@ -1344,5 +1344,11 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
 				.taskUnnassigned()
 				.list();
 		return findProcessInstancesForTasks(tasks, ctx);
+	}
+
+	@Override
+	public List<BpmTask> findProcessTasksWithUser(ProcessInstance pi,
+			ProcessToolContext ctx) {
+		return findProcessTasks(pi, user.getLogin(), ctx);
 	}
 }

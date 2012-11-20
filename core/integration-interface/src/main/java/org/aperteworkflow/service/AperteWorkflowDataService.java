@@ -345,26 +345,6 @@ public interface AperteWorkflowDataService {
 	String getSimpleAttributeValue(String key, String internalId)
 			throws AperteWsWrongArgumentException;
 
-	/**<pre>
-	 * Returns action by name from given process Instance.
-	 * 
-	 * @param internalId Internal id of process instance.
-	 * @param actionName Name of Action to be returned. 
-	 * @return List of actions by name from instance.
-	 * @throws AperteWsWrongArgumentException If internalId is wrong and process Instance, does not exists (including param null or empty values).
-	 *</pre>*/
-	List<ProcessStateAction> getActionsListByNameFromInstance(
-			String internalId, String actionName) throws AperteWsWrongArgumentException;
-
-	/**<pre>
-	 * This method returns a list of actions that can be performed in the current process state.
-	 * 
-	 * @param internalId InternalID from pt_process_instance table
-	 * @return List of all posible actions.
-	 * @throws AperteWsWrongArgumentException If internalId is wrong and process Instance, does not exists (including param null or empty values).
-	 *</pre>*/
-	List<ProcessStateAction> getAvalivableActionForProcess(String internalId)
-			throws AperteWsWrongArgumentException;
 
 	/**<pre>
 	 * This method returns all the possible attributes for the process.

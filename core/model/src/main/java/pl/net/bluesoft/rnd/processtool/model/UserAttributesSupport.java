@@ -14,7 +14,7 @@ import java.util.Set;
  * @author: amichalak@bluesoft.net.pl
  */
 @MappedSuperclass
-public abstract class UserAttributesSupport extends PersistentEntity {
+public abstract class UserAttributesSupport extends AbstractPersistentEntity {
     public abstract UserData getUser();
     public abstract Set<UserAttribute> getAttributes();
 

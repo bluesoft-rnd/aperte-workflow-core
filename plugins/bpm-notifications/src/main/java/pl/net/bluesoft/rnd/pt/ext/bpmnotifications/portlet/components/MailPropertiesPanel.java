@@ -40,7 +40,7 @@ public class MailPropertiesPanel extends ItemEditorLayout<BpmNotificationMailPro
 	protected Component createItemDetailsLayout() {
 		FormLayout formLayout = new FormLayout();
 
-		formLayout.addComponent(profileName = textField("Profil", 400));
+		formLayout.addComponent(profileName = textField("bpmnot.profile", 400));
 		formLayout.addComponent(smtpHost = textField("SMTP Host", 400));
 		formLayout.addComponent(smtpPort = textField("SMTP Port", 400));
 		formLayout.addComponent(smtpUser = textField("SMTP User", 400));

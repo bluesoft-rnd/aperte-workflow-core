@@ -1,7 +1,9 @@
 package pl.net.bluesoft.rnd.pt.ext.bpmnotifications.facade;
 
 import java.util.Collection;
+import java.util.List;
 
+import org.hibernate.LockMode;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 
@@ -20,12 +22,10 @@ public class NotificationsFacade
 	/** Get all notifications waiting to be sent */
 	public static Collection<BpmNotification> getNotificationsToSend()
 	{
-		Session session = getSession();
-		
-		SQLQuery query = session.createSQLQuery("select * from PT_EXT_BPM_NOTIFICATION for update NOWAIT");
-		query.addEntity(BpmNotification.class);
-		
-		return query.list();
+		return (List<BpmNotification>)getSession()
+				.createCriteria(BpmNotification.class)
+				.setLockMode(LockMode.UPGRADE_NOWAIT)
+				.list();
 	}
 	/** Get all notifications properties */
 	public static Collection<BpmNotificationMailProperties> getNotificationMailProperties()

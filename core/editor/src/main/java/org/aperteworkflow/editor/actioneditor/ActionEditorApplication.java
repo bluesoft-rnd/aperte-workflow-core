@@ -23,7 +23,10 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.util.lang.Classes;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -112,18 +115,42 @@ public class ActionEditorApplication extends GenericEditorApplication implements
 		final Select buttonList = new Select();
 		buttonList.setNullSelectionAllowed(false);
 		buttonList.setImmediate(true);
-
-		ProcessToolRegistry reg = getRegistry();
-
-		Map<String, Class<? extends ProcessToolActionButton>> availableButtons = reg.getAvailableButtons();
+		
+		 // method-level class used for sorting
+        class Item implements Comparable<Item> {
+        	public Class<? extends ProcessToolActionButton> stepClass;
+        	public String caption;
+        	
+			public Item(Class<? extends ProcessToolActionButton> stepClass, String caption) {
+				this.stepClass = stepClass;
+				this.caption = caption;
+			}
+			
+			@Override
+			public int compareTo(Item o) {
+				return caption.compareTo(o.caption);
+			}
+        }
+        
+        List<Item> items = new LinkedList<Item>();
+        Class<? extends ProcessToolActionButton> active = null;
+		Map<String, Class<? extends ProcessToolActionButton>> availableButtons = getRegistry().getAvailableButtons();
 		for (Class<? extends ProcessToolActionButton> stepClass : availableButtons.values()) {
 			AliasName a = Classes.getClassAnnotation(stepClass, AliasName.class);
-			buttonList.addItem(stepClass);
-			buttonList.setItemCaption(stepClass, a.name());
+			items.add(new Item(stepClass,a.name()));
+			
 			if (a.name().equals(buttonType))
-				buttonList.setValue(stepClass);
+				active=stepClass;
 		}
 		
+		
+		Collections.sort(items);
+	        
+	    for (Item item:items){
+	    	buttonList.addItem(item.stepClass);
+	    	buttonList.setItemCaption(item.stepClass, item.caption);
+	    }
+	    buttonList.setValue(active);
 		buttonList.addListener(new Property.ValueChangeListener() {
 			@Override
 			public void valueChange(ValueChangeEvent event) {

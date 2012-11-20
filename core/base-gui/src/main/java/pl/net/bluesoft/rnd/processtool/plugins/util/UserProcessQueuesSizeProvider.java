@@ -60,8 +60,14 @@ public class UserProcessQueuesSizeProvider
 				ProcessToolContext.Util.setThreadProcessToolContext(ctx);
 				
 				UserData userData = reg.getUserDataDAO(ctx.getHibernateSession()).loadUserByLogin(userLogin);
+
+				/* prevent null pointers during restart when old client instance is open in browser */
+				if (userData == null) {
+					return;
+				}
+
 				UserProcessQueuesSizeProvider.this.ctx = ctx;
-				
+
 				/* Fill queues for main user */
 				ProcessToolBpmSession mainUserSession = ctx.getProcessToolSessionFactory().createSession(userData, userData.getRoleNames());
 				

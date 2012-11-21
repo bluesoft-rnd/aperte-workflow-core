@@ -1,39 +1,30 @@
 package pl.net.bluesoft.rnd.processtool.ui.queues;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import org.aperteworkflow.util.liferay.LiferayBridge;
 import org.vaadin.addon.customfield.CustomField;
 
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueRight;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
-import org.aperteworkflow.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.util.lang.Strings;
 
-import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.model.Role;
-import com.liferay.portal.service.RoleLocalServiceUtil;
 import com.vaadin.data.Container;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.DefaultFieldFactory;
 import com.vaadin.ui.Field;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.Select;
 import com.vaadin.ui.Table;
-import com.vaadin.ui.TableFieldFactory;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
@@ -46,7 +37,6 @@ public class RightsTable extends CustomField {
 	private BeanItemContainer<ProcessQueueRight> dataSource = new BeanItemContainer<ProcessQueueRight>(ProcessQueueRight.class);
 	private final I18NSource source;
 	private GenericVaadinPortlet2BpmApplication application;
-	private Logger logger = Logger.getLogger(RightsTable.class.getName());
 	private Window addWindow;
 	private Window addNewWindow;
 	
@@ -170,15 +160,10 @@ public class RightsTable extends CustomField {
     	VerticalLayout vl = new VerticalLayout();
     	vl.setMargin(true);
     	vl.setSpacing(true);
-    	
-    	List<Role> roles = new ArrayList<Role>();
-		try {
-			roles = RoleLocalServiceUtil.getRoles(application.getUser().getCompanyId());
-		} catch (SystemException e) {
-			logger.log(Level.SEVERE, "Error getting liferay roles", e);
-		}
-    	BeanItemContainer<Role> ds = new BeanItemContainer<Role>(Role.class);
-    	ds.addAll(roles);
+
+		List<String> roleNames = LiferayBridge.getRoleNames(application.getUser().getCompanyId());
+    	BeanItemContainer<String> ds = new BeanItemContainer<String>(String.class);
+    	ds.addAll(roleNames);
     	
     	final Select select = new Select(source.getMessage("queues.add.form.rights.new.combo"));
 		select.setContainerDataSource(ds);
@@ -196,11 +181,11 @@ public class RightsTable extends CustomField {
 					return;
 				}
 				
-				Role r = (Role)select.getValue();
+				String roleName = (String)select.getValue();
 				
 				ProcessQueueRight bean = new ProcessQueueRight();
 				bean.setBrowseAllowed(true);
-				bean.setRoleName(r.getName());
+				bean.setRoleName(roleName);
 				dataSource.addBean(bean);
 				
 				getApplication().getMainWindow().removeWindow(addWindow);
@@ -212,8 +197,8 @@ public class RightsTable extends CustomField {
     	
     	return vl;
     }
-    
-    private VerticalLayout getNewRoleFinder() {
+
+	private VerticalLayout getNewRoleFinder() {
     	
     	VerticalLayout vl = new VerticalLayout();
     	vl.setMargin(true);

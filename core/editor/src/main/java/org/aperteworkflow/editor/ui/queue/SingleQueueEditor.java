@@ -1,22 +1,16 @@
 package org.aperteworkflow.editor.ui.queue;
 
-import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.model.Role;
-import com.liferay.portal.model.RoleConstants;
-import com.liferay.portal.service.RoleLocalServiceUtil;
-import com.liferay.portal.util.PortalUtil;
 import com.vaadin.data.Property;
 import com.vaadin.ui.*;
 import org.aperteworkflow.editor.domain.Queue;
 import org.aperteworkflow.editor.domain.QueueRolePermission;
 import org.aperteworkflow.editor.vaadin.DataHandler;
+import org.aperteworkflow.util.liferay.LiferayBridge;
 import org.aperteworkflow.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class SingleQueueEditor extends GridLayout implements QueueRolePermissionBoxHandler, DataHandler {
@@ -132,16 +126,9 @@ public class SingleQueueEditor extends GridLayout implements QueueRolePermission
     public void loadData() {
         roleNameComboBox.removeAllItems();
         roleNameComboBox.addItem(".*");
-        try {
-            List<Role> roles = RoleLocalServiceUtil.getRoles(PortalUtil.getDefaultCompanyId());
-            for (Role r : roles) {
-                if (r.getType() == RoleConstants.TYPE_REGULAR) {
-                    roleNameComboBox.addItem(r.getName());
-                }
-            }
-        } catch (SystemException e) {
-            logger.log(Level.SEVERE, e.getMessage(), e);
-        }
+		for (String roleName : LiferayBridge.getRegularRoleNames()) {
+			roleNameComboBox.addItem(roleName);
+		}
 
         if (queue.getDescription() != null && !queue.getDescription().trim().isEmpty()) {
             queueDescriptionField.setValue(queue.getDescription());

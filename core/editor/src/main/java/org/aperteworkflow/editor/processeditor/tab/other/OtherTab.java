@@ -55,11 +55,7 @@ public class OtherTab extends VerticalLayout implements DataHandler {
     @Override
     public void saveData() {
         processLogoEditor.saveData();
-        if (taskItemClassField.getValue()==null){
-        	processConfig.setTaskItemClass("");
-        } else {
-        	processConfig.setTaskItemClass(taskItemClassField.getValue().toString());
-        }
+		processConfig.setTaskItemClass((String)taskItemClassField.getValue());
     }
 
     @Override

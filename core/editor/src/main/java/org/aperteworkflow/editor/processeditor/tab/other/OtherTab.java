@@ -1,6 +1,7 @@
 package org.aperteworkflow.editor.processeditor.tab.other;
 
 import static org.aperteworkflow.util.vaadin.VaadinUtility.styled;
+import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
 
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Select;
@@ -48,7 +49,7 @@ public class OtherTab extends VerticalLayout implements DataHandler {
     public void loadData() {
         processLogoEditor.loadData();
 		ProcessToolRegistry registry = ((ProcessEditorApplication)ProcessEditorApplication.getCurrent()).getRegistry();
-		for (String taskItemClass : registry.getAvailableTaskItemProviders().keySet()) {
+		for (String taskItemClass : from(registry.getAvailableTaskItemProviders().keySet()).ordered()) {
 			taskItemClassField.addItem(taskItemClass);
 		}
 		taskItemClassField.setValue(processConfig.getTaskItemClass());

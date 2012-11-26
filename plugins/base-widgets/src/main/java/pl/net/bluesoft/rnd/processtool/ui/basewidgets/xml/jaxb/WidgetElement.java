@@ -273,6 +273,6 @@ public abstract class WidgetElement implements Serializable {
 
     @Override
     public int hashCode() {
-        return id != null ? id.hashCode() : 0;
+        return 0;
     }
 }

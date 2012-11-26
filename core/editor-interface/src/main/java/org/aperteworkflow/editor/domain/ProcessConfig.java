@@ -25,9 +25,10 @@ public class ProcessConfig implements Serializable {
     private Map<String, String> messages;
 
     private byte[] processIcon;
-    
+	private String defaultLanguage;
 
-    public List<Permission> getProcessPermissions() {
+
+	public List<Permission> getProcessPermissions() {
         return processPermissions;
     }
 
@@ -91,4 +92,11 @@ public class ProcessConfig implements Serializable {
 		this.taskItemClass = taskItemClass;
 	}
 
+	public String getDefaultLanguage() {
+		return defaultLanguage;
+	}
+
+	public void setDefaultLanguage(String defaultLanguage) {
+		this.defaultLanguage = defaultLanguage;
+	}
 }

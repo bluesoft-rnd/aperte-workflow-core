@@ -9,6 +9,7 @@ public class StateNode implements GraphElement {
     private boolean unfinished;
     private int x,y;
     private int width,height;
+    private String nodeType;
 
     public String getLabel() {
         return label;
@@ -66,6 +67,7 @@ public class StateNode implements GraphElement {
         clone.width = width;
         clone.height = height;
         clone.id = id;
+        clone.nodeType=nodeType;
         return clone;
     }
 
@@ -77,7 +79,15 @@ public class StateNode implements GraphElement {
         this.id = id;
     }
 
-    @Override
+    public String getNodeType() {
+		return nodeType;
+	}
+
+	public void setNodeType(String nodeType) {
+		this.nodeType = nodeType;
+	}
+
+	@Override
     public String toString() {
         return "StateNode{" +
                 "label='" + label + '\'' +

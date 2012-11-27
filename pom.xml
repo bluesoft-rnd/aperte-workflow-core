@@ -45,7 +45,7 @@
         <project.build.compiler.target>1.6</project.build.compiler.target>
         <jbpm.version>4.4</jbpm.version>
         <spring.version>3.0.5.RELEASE</spring.version>
-        <vaadin.version>6.8.4</vaadin.version>
+        <vaadin.version>6.8.3</vaadin.version>
         <hibernate.version>3.6.10.Final</hibernate.version>
         <postgres.version>8.4-702.jdbc4</postgres.version>
         <junit.version>4.8.2</junit.version>

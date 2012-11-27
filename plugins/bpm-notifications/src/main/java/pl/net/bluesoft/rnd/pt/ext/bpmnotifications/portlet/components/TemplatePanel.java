@@ -33,10 +33,10 @@ public class TemplatePanel extends ItemEditorLayout<BpmNotificationTemplate> {
 	protected Component createItemDetailsLayout() {
 		FormLayout formLayout = new FormLayout();
 
-		formLayout.addComponent(templateName = textField("Nazwa", 400));
-		formLayout.addComponent(templateSender = textField("Nadawca", 400));
-		formLayout.addComponent(templateSubject = textField("Tytuł", -1));
-		formLayout.addComponent(templateBody = textArea("Treść", -1));
+		formLayout.addComponent(templateName = textField(getMessage("bpmnot.template.name"), 400));
+		formLayout.addComponent(templateSender = textField(getMessage("bpmnot.sender"), 400));
+		formLayout.addComponent(templateSubject = textField(getMessage("bpmnot.subject"), -1));
+		formLayout.addComponent(templateBody = textArea(getMessage("bpmnot.body"), -1));
 
 		return formLayout;
 	}
@@ -61,14 +61,14 @@ public class TemplatePanel extends ItemEditorLayout<BpmNotificationTemplate> {
 		StringBuilder sb = new StringBuilder();
 
 		sb.append("<b>")
-			.append(getMessage("Poniższe parametry możesz umieścić w dowolnym szablonie:"))
+			.append(getMessage("bpmnot.parameters.below.can.be.placed.in.any.template"))
 			.append("</b>");
 
 		getParamDesc(sb, getService().getDefaultArgumentDescriptions(getI18NSource()));
 
 		for (TemplateArgumentProvider argumentProvider : getService().getTemplateArgumentProviders()) {
 			sb.append("<b>")
-				.append(MessageFormat.format(getMessage("Dodatkowo dostawca parametrów <i>{0}</i> udostępnia:"), argumentProvider.getName()))
+				.append(MessageFormat.format(getMessage("bpmnot.param.provider.x.provides"), argumentProvider.getName()))
 				.append("</b>");
 
 			getParamDesc(sb, argumentProvider.getArgumentDescriptions(getI18NSource()));

@@ -6,7 +6,7 @@ import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
+import pl.net.bluesoft.rnd.processtool.model.AbstractPersistentEntity;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
@@ -116,8 +116,8 @@ public abstract class SimpleHibernateBean<T> implements HibernateBean<T> {
 	}
 
 	protected Object getId(T object) {
-		if (object instanceof PersistentEntity) {
-			return ((PersistentEntity)object).getId();
+		if (object instanceof AbstractPersistentEntity) {
+			return ((AbstractPersistentEntity)object).getId();
 		}
 		throw new RuntimeException("Could not determine id for " + object.getClass().getName());
 	}

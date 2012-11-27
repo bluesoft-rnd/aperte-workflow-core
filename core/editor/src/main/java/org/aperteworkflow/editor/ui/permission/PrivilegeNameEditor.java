@@ -1,28 +1,20 @@
 package org.aperteworkflow.editor.ui.permission;
 
-import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.model.Role;
-import com.liferay.portal.model.RoleConstants;
-import com.liferay.portal.service.RoleLocalServiceUtil;
-import com.liferay.portal.util.PortalUtil;
 import com.vaadin.ui.*;
 import org.aperteworkflow.editor.domain.Permission;
 import org.aperteworkflow.editor.vaadin.DataHandler;
+import org.aperteworkflow.util.liferay.LiferayBridge;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Component used to edit role names inside single privilege name
  */
 public class PrivilegeNameEditor extends GridLayout implements PermissionWrapperHandler, DataHandler {
-
-    public static final Logger LOGGER = Logger.getLogger(PrivilegeNameEditor.class.getName());
     private PermissionDefinition permissionDefinition;
     private PermissionProvider provider;
 
@@ -149,16 +141,10 @@ public class PrivilegeNameEditor extends GridLayout implements PermissionWrapper
     public void loadData() {
         roleNameComboBox.removeAllItems();
         roleNameComboBox.addItem(".*");
-        try {
-            List<Role> roles = RoleLocalServiceUtil.getRoles(PortalUtil.getDefaultCompanyId());
-            for (Role r : roles) {
-                if (r.getType() == RoleConstants.TYPE_REGULAR)
-                    roleNameComboBox.addItem(r.getName());
-            }
-        } catch (SystemException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        }
-        roleNameLayout.removeAllComponents();
+		for (String roleName : LiferayBridge.getRegularRoleNames()) {
+			roleNameComboBox.addItem(roleName);
+		}
+		roleNameLayout.removeAllComponents();
         if (provider.getPermissions() != null) {
             for (Permission permission : provider.getPermissions()) {
                 addPermissionWrapper(new PermissionWrapper(permission));
@@ -166,7 +152,7 @@ public class PrivilegeNameEditor extends GridLayout implements PermissionWrapper
         }
     }
 
-    @Override
+	@Override
     public void saveData() {
 
     }

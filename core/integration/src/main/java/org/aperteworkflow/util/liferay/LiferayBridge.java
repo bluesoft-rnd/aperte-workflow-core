@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.aperteworkflow.util.liferay.exceptions.RoleNotFoundException;
@@ -27,7 +28,6 @@ import com.liferay.portal.model.User;
 import com.liferay.portal.model.UserGroup;
 import com.liferay.portal.service.GroupLocalServiceUtil;
 import com.liferay.portal.service.RoleLocalServiceUtil;
-import com.liferay.portal.service.UserGroupLocalServiceUtil;
 import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.util.PortalUtil;
 
@@ -335,4 +335,33 @@ public class LiferayBridge {
 			throw new LiferayBridgeException(e);
 		}
     }
+
+	public static List<String> getRoleNames(long companyId) {
+		List<String> roleNames = new ArrayList<String>();
+		try {
+			List<Role> roles = RoleLocalServiceUtil.getRoles(companyId);
+			for (Role r : roles) {
+				roleNames.add(r.getName());
+			}
+		} catch (SystemException e) {
+			logger.log(Level.SEVERE, "Error getting liferay roles", e);
+		}
+		return roleNames;
+	}
+
+	public static List<String> getRegularRoleNames() {
+		List<String> roleNames = new ArrayList<String>();
+		try {
+			List<Role> roles = RoleLocalServiceUtil.getRoles(PortalUtil.getDefaultCompanyId());
+			for (Role r : roles) {
+				if (r.getType() == RoleConstants.TYPE_REGULAR) {
+					roleNames.add(r.getName());
+				}
+			}
+		}
+		catch (SystemException e) {
+			logger.log(Level.SEVERE, e.getMessage(), e);
+		}
+		return roleNames;
+	}
 }

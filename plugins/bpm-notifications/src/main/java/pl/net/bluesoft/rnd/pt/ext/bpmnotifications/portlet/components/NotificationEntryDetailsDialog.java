@@ -18,7 +18,7 @@ public class NotificationEntryDetailsDialog extends Dialog {
 	private Label body;
 
 	public NotificationEntryDetailsDialog(I18NSource i18NSource) {
-		super(i18NSource.getMessage("Szczegóły powiadomienia"));
+		super(i18NSource.getMessage("bpmnot.notification.details"));
 		this.i18NSource = i18NSource;
 		buildDialogLayout();
 	}
@@ -28,12 +28,12 @@ public class NotificationEntryDetailsDialog extends Dialog {
 		formLayout.addComponent(subject = new Label());
 		formLayout.addComponent(body = new Label());
 
-		subject.setCaption(getMessage("Tytuł"));
-		body.setCaption(getMessage("Treść"));
+		subject.setCaption(getMessage("bpmnot.subject"));
+		body.setCaption(getMessage("bpmnot.body"));
 
 		addDialogContent(formLayout);
 
-		addDialogAction(getMessage("Zamknij"), null);
+		addDialogAction(getMessage("bpmnot.button.close"), null);
 	}
 
 	private String getMessage(String key) {

@@ -6,13 +6,7 @@ import static pl.net.bluesoft.util.lang.Strings.hasText;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
@@ -672,7 +666,12 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 		return aClass.newInstance();
 	}
 
-       @Override
+	@Override
+	public Map<String, Class<? extends TaskItemProvider>> getAvailableTaskItemProviders() {
+		return Collections.unmodifiableMap(TASK_ITEM_REGISTRY);
+	}
+
+	@Override
        public void registerGlobalDictionaries(InputStream is) {
            if (is != null) {
                ProcessDictionaries dictionaries = (ProcessDictionaries) DictionaryLoader.getInstance().unmarshall(is);

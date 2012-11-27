@@ -1,6 +1,11 @@
 package pl.net.bluesoft.rnd.processtool.model;
 
+import org.hibernate.annotations.*;
+
 import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Parameter;
+import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlTransient;
 
 /**
@@ -8,7 +13,21 @@ import javax.xml.bind.annotation.XmlTransient;
  */
 @Entity
 @Table(name = "pt_user_roles")
-public class UserRole extends PersistentEntity {
+public class UserRole extends AbstractPersistentEntity {
+	@Id
+	@GeneratedValue(generator = "idGenerator")
+	@GenericGenerator(
+			name = "idGenerator",
+			strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
+			parameters = {
+					@org.hibernate.annotations.Parameter(name = "initial_value", value = "" + 1),
+					@org.hibernate.annotations.Parameter(name = "value_column", value = "_DB_ID"),
+					@org.hibernate.annotations.Parameter(name = "sequence_name", value = "DB_SEQ_ID_USER_ROLE")
+			}
+	)
+	@Column(name = "id")
+	protected Long id;
+
     @XmlTransient
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -27,7 +46,15 @@ public class UserRole extends PersistentEntity {
     private String name;
     private String description;
 
-    @XmlTransient
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	@XmlTransient
     public UserData getUser() {
         return user;
     }

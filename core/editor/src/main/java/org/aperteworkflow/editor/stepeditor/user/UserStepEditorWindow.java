@@ -193,6 +193,13 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 
     private void prepareAvailableWidgetsComponent() {
         List<WidgetItem> availableWidgetItems = getAvailableWidgetItems();
+        Collections.sort(availableWidgetItems, new Comparator<WidgetItem>(){
+			@Override
+			public int compare(WidgetItem o1, WidgetItem o2) {
+				return o1.getName().compareTo(o2.getName());
+			}
+        });
+        
         CssLayout pane = new CssLayout() {
             @Override
             protected String getCss(Component component) {

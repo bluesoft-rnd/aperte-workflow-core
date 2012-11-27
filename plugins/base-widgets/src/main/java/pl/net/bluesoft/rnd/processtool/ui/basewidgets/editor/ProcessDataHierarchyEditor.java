@@ -199,12 +199,18 @@ public class ProcessDataHierarchyEditor extends VerticalLayout {
 
     public WidgetsDefinitionElement processXml(String value) {
         hierarchicalContainer.removeAllItems();
-        try {
-            rootWidget = (WidgetsDefinitionElement) definitionLoader.unmarshall(String.valueOf(value));
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            rootWidget = new WidgetsDefinitionElement();
-        }
+
+		if (value != null) {
+			try {
+				rootWidget = (WidgetsDefinitionElement) definitionLoader.unmarshall(String.valueOf(value));
+			} catch (Exception e) {
+				LOGGER.log(Level.SEVERE, e.getMessage(), e);
+				rootWidget = new WidgetsDefinitionElement();
+			}
+		}
+		else {
+			rootWidget = new WidgetsDefinitionElement();
+		}
 
         Item item = hierarchicalContainer.addItem(rootWidget);
         item.getItemProperty("name").setValue(rootWidget.getClass().getSimpleName());

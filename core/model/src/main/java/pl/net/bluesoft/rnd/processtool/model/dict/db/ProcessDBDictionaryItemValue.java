@@ -2,14 +2,18 @@ package pl.net.bluesoft.rnd.processtool.model.dict.db;
 
 //import org.hibernate.annotations.OnDelete;
 //import org.hibernate.annotations.OnDeleteAction;
-import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.*;
 import org.hibernate.annotations.CascadeType;
-import org.hibernate.annotations.Type;
+import pl.net.bluesoft.rnd.processtool.model.AbstractPersistentEntity;
 import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItemExtension;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItemValue;
 
 import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.MapKey;
+import javax.persistence.Parameter;
+import javax.persistence.Table;
 
 import org.apache.commons.lang3.time.DateUtils;
 
@@ -17,8 +21,22 @@ import java.util.*;
 
 @Entity
 @Table(name = "pt_dictionary_item_value")
-public class ProcessDBDictionaryItemValue extends PersistentEntity implements ProcessDictionaryItemValue<String> 
+public class ProcessDBDictionaryItemValue extends AbstractPersistentEntity implements ProcessDictionaryItemValue<String>
 {
+	@Id
+	@GeneratedValue(generator = "idGenerator")
+	@GenericGenerator(
+			name = "idGenerator",
+			strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
+			parameters = {
+					@org.hibernate.annotations.Parameter(name = "initial_value", value = "" + 1),
+					@org.hibernate.annotations.Parameter(name = "value_column", value = "_DB_ID"),
+					@org.hibernate.annotations.Parameter(name = "sequence_name", value = "DB_SEQ_ID_DB_DICT_ITEM_VAL")
+			}
+	)
+	@Column(name = "id")
+	protected Long id;
+
     @ManyToOne(fetch = FetchType.LAZY)
     private ProcessDBDictionaryItem item;
 
@@ -47,7 +65,15 @@ public class ProcessDBDictionaryItemValue extends PersistentEntity implements Pr
         }
     }
 
-    public ProcessDBDictionaryItemValue exactCopy() {
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public ProcessDBDictionaryItemValue exactCopy() {
         return new ProcessDBDictionaryItemValue(this);
     }
 

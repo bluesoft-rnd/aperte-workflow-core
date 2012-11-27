@@ -15,6 +15,9 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.util.lang.Classes;
 
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 public class StepEditorApplication extends GenericEditorApplication implements ParameterHandler {
@@ -125,18 +128,41 @@ public class StepEditorApplication extends GenericEditorApplication implements P
 		stepList.setNullSelectionAllowed(false);
         stepList.setImmediate(true);
         stepList.setWidth("250px");
-        //add User tasktype
-        stepList.addItem("User");
-        stepList.setItemCaption("User", "User");
         
-		ProcessToolRegistry reg = getRegistry();
-
-        Map<String,ProcessToolProcessStep> availableSteps = reg.getAvailableSteps();
+        // method-level class used for sorting
+        class Item implements Comparable<Item> {
+        	public String name;
+        	public String caption;
+        	
+			public Item(String name, String caption) {
+				this.name = name;
+				this.caption = caption;
+			}
+			
+			@Override
+			public int compareTo(Item o) {
+				return caption.compareTo(o.caption);
+			}
+        }
+        
+        List<Item> items = new LinkedList<Item>();
+        
+        // add User tasktype
+        items.add(new Item("User","User"));
+       
+        // other tasks
+        Map<String,ProcessToolProcessStep> availableSteps = getRegistry().getAvailableSteps();
         for (ProcessToolProcessStep stepInstance : availableSteps.values()) {
             Class stepClass = stepInstance.getClass();
             AliasName a = Classes.getClassAnnotation(stepClass, AliasName.class);
-            stepList.addItem(a.name());
-            stepList.setItemCaption(a.name(), a.name());
+            items.add(new Item(a.name(),a.name()));
+        }
+        
+        Collections.sort(items);
+        
+        for (Item item:items){
+        	stepList.addItem(item.name);
+        	stepList.setItemCaption(item.name, item.caption);
         }
 		stepList.setValue(stepType);
 		

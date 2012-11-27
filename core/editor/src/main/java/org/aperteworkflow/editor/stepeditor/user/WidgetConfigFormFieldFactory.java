@@ -13,7 +13,9 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class WidgetConfigFormFieldFactory extends DefaultFieldFactory {
+import org.aperteworkflow.util.vaadin.ui.GenericValueFieldFactory;
+
+public class WidgetConfigFormFieldFactory extends GenericValueFieldFactory {
 
     private static final Logger logger = Logger.getLogger(WidgetConfigFormFieldFactory.class.getName());
 

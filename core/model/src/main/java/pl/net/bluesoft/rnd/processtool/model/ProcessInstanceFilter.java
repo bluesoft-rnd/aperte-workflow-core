@@ -5,24 +5,31 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
+import javax.persistence.*;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
+import javax.persistence.Parameter;
 import javax.persistence.Table;
 
 import org.apache.commons.lang3.time.DateUtils;
+import org.hibernate.annotations.*;
 
 @Entity
 @Table(name = "pt_pi_filters")
-public class ProcessInstanceFilter extends PersistentEntity {
+public class ProcessInstanceFilter extends AbstractPersistentEntity {
+	@Id
+	@GeneratedValue(generator = "idGenerator")
+	@GenericGenerator(
+			name = "idGenerator",
+			strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
+			parameters = {
+					@org.hibernate.annotations.Parameter(name = "initial_value", value = "" + 1),
+					@org.hibernate.annotations.Parameter(name = "value_column", value = "_DB_ID"),
+					@org.hibernate.annotations.Parameter(name = "sequence_name", value = "DB_SEQ_ID_PROC_INST_FILTER")
+			}
+	)
+	@Column(name = "id")
+	protected Long id;
+
 	private Date createdAfter;
 	private Date createdBefore;
 	private Date updatedAfter;
@@ -60,6 +67,14 @@ public class ProcessInstanceFilter extends PersistentEntity {
 	private Set<String> taskNames = new HashSet<String>();
 
 	public static final String[] LAZY_RELATIONS = new String[]{"owners", "creators", "queues", "states", "notOwners", "notCreators"};
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
 
 	public Set<UserData> getOwners() {
 		return owners;

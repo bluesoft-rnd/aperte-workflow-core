@@ -67,39 +67,39 @@ public class NotificationPanel extends ItemEditorLayout<BpmNotificationConfig> {
 	protected Component createItemDetailsLayout() {
 		FormLayout formLayout = new FormLayout();
 
-		formLayout.addComponent(profileName = select("Profil", 400));
-		formLayout.addComponent(templateName = select("Szablon", 400));
-		formLayout.addComponent(templateArgumentProvider = select("Dostawca parametrów", 400));
-		formLayout.addComponent(active = checkBox("Aktywny"));
-		formLayout.addComponent(sendHtml = checkBox("Wyślij jako HTML"));
-		formLayout.addComponent(localeField = textField("Locale"));
+		formLayout.addComponent(profileName = select(getMessage("bpmnot.profile"), 400));
+		formLayout.addComponent(templateName = select(getMessage("bpmnot.template"), 400));
+		formLayout.addComponent(templateArgumentProvider = select(getMessage("bpmnot.param.provider"), 400));
+		formLayout.addComponent(active = checkBox(getMessage("bpmnot.active")));
+		formLayout.addComponent(sendHtml = checkBox(getMessage("bpmnot.send.as.html")));
+		formLayout.addComponent(localeField = textField(getMessage("bpmnot.locale")));
 
 		processTypeRegex = textField(null, 400);
 		stateRegex = textField(null, 400);
 		lastActionRegex = textField(null, 400);
 
-		selectProcess = new Button("Wybierz");
-		selectState = new Button("Wybierz");
-		selectAction = new Button("Wybierz");
+		selectProcess = new Button(getMessage("bpmnot.button.choose"));
+		selectState = new Button(getMessage("bpmnot.button.choose"));
+		selectAction = new Button(getMessage("bpmnot.button.choose"));
 
 		selectProcess.addListener((Button.ClickListener)this);
 		selectState.addListener((Button.ClickListener)this);
 		selectAction.addListener((Button.ClickListener)this);
 
-		formLayout.addComponent(hl("Proces", processTypeRegex, selectProcess));
-		formLayout.addComponent(hl("Stan", stateRegex, selectState));
-		formLayout.addComponent(hl("Ostatnia akcja", lastActionRegex, selectAction));
+		formLayout.addComponent(hl(getMessage("bpmnot.process"), processTypeRegex, selectProcess));
+		formLayout.addComponent(hl(getMessage("bpmnot.state"), stateRegex, selectState));
+		formLayout.addComponent(hl(getMessage("bpmnot.last.action"), lastActionRegex, selectAction));
 
-		formLayout.addComponent(notifyOnProcessStart = checkBox("Wyślij przy utworzeniu procesu"));
-		formLayout.addComponent(notifyOnProcessEnd = checkBox("Wyślij przy zakończeniu procesu"));
-		formLayout.addComponent(onEnteringStep = checkBox("Wyślij przy wejściu w krok (???)"));
-		formLayout.addComponent(skipNotificationWhenTriggeredByAssignee = checkBox("Pomiń, gdy wyzwolone przez osobę przypisaną"));
+		formLayout.addComponent(notifyOnProcessStart = checkBox(getMessage("bpmnot.send.on.process.start")));
+		formLayout.addComponent(notifyOnProcessEnd = checkBox(getMessage("bpmnot.send.on.process.end")));
+		formLayout.addComponent(onEnteringStep = checkBox(getMessage("bpmnot.send.on.entering.step")));
+		formLayout.addComponent(skipNotificationWhenTriggeredByAssignee = checkBox(getMessage("bpmnot.skip.when.triggered.by.assignee")));
 
-		formLayout.addComponent(notifyTaskAssignee = checkBox("Powiadom osobę przypisaną"));
-		formLayout.addComponent(notifyEmailAddresses = textField("Wyślij na adresy", 400));
-		formLayout.addComponent(notifyUserAttributes = textField("Wyślij do użytkowników", 400));
+		formLayout.addComponent(notifyTaskAssignee = checkBox(getMessage("bpmnot.notify.assignee")));
+		formLayout.addComponent(notifyEmailAddresses = textField(getMessage("bpmnot.notify.emails"), 400));
+		formLayout.addComponent(notifyUserAttributes = textField(getMessage("bpmnot.notify.users"), 400));
 		formLayout.addComponent(new Label(
-				getMessage("Loginy użytkowników/atrybuty procesu ujęte w #{ } należy rozdzielić przecinkami.<br/>Np. <i>pracownik,#{owner}</i>"), Label.CONTENT_XHTML));
+				getMessage("bpmnot.attribute.explanation"), Label.CONTENT_XHTML));
 
 		return formLayout;
 	}
@@ -248,7 +248,7 @@ public class NotificationPanel extends ItemEditorLayout<BpmNotificationConfig> {
 	}
 
 	private void selectProcesses() {
-		SelectValuesDialog<String> dialog = new SelectValuesDialog<String>(String.class, getMessage("Wybierz procesy"), getI18NSource()) {
+		SelectValuesDialog<String> dialog = new SelectValuesDialog<String>(String.class, getMessage("bpmnot.pick.processes"), getI18NSource()) {
 			@Override
 			protected void valuesSelected(Set<String> items) {
 				processTypeRegex.setValue(listToRegex(items));
@@ -289,7 +289,7 @@ public class NotificationPanel extends ItemEditorLayout<BpmNotificationConfig> {
 	}
 
 	private void selectStates() {
-		SelectValuesDialog<Tuple> dialog = new SelectValuesDialog<Tuple>(Tuple.class, getMessage("Wybierz stany"), getI18NSource()) {
+		SelectValuesDialog<Tuple> dialog = new SelectValuesDialog<Tuple>(Tuple.class, getMessage("bpmnot.pick.states"), getI18NSource()) {
 			@Override
 			protected void valuesSelected(Set<Tuple> items) {
 				stateRegex.setValue(listToRegex(items, 1));
@@ -343,7 +343,7 @@ public class NotificationPanel extends ItemEditorLayout<BpmNotificationConfig> {
 	}
 
 	private void selectActions() {
-		SelectValuesDialog<Tuple> dialog = new SelectValuesDialog<Tuple>(Tuple.class, getMessage("Wybierz akcje"), getI18NSource()) {
+		SelectValuesDialog<Tuple> dialog = new SelectValuesDialog<Tuple>(Tuple.class, getMessage("bpmnot.pick.actions"), getI18NSource()) {
 			@Override
 			protected void valuesSelected(Set<Tuple> items) {
 				lastActionRegex.setValue(listToRegex(items, 1));

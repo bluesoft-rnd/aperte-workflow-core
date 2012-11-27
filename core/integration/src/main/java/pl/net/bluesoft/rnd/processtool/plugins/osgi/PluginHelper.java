@@ -46,7 +46,7 @@ import java.util.regex.Pattern;
 
 import static pl.net.bluesoft.rnd.processtool.plugins.osgi.OSGiBundleHelper.*;
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
-import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
+import static pl.net.bluesoft.util.lang.cquery.CQuery.repeat;
 
 public class PluginHelper implements PluginManager, SearchProvider {
 
@@ -624,17 +624,20 @@ public class PluginHelper implements PluginManager, SearchProvider {
                     registry.setOsgiBundleContext(context);
                     serviceBridge = new FelixServiceBridge(felix);
                     registry.addServiceLoader(serviceBridge);
-                    context.registerService(ProcessToolRegistry.class.getName(), registry, new Hashtable());
-                    context.registerService(ViewRegistry.class.getName(), new DefaultViewRegistryImpl(),
-                            new Hashtable<String, Object>());
+					registerDefaultServices(context);
                 }
             }
 
-            @Override
+			@Override
             public void stop(BundleContext context) throws Exception {
                 registry.removeServiceLoader(serviceBridge);
             }
-        });
+
+			private void registerDefaultServices(BundleContext context) {
+				context.registerService(ProcessToolRegistry.class.getName(), registry, new Hashtable<String, Object>());
+				context.registerService(ViewRegistry.class.getName(), new DefaultViewRegistryImpl(), new Hashtable<String, Object>());
+			}
+		});
 
         configMap.put(FelixConstants.SYSTEMBUNDLE_ACTIVATORS_PROP, activators);
     }
@@ -683,23 +686,44 @@ public class PluginHelper implements PluginManager, SearchProvider {
 
         List<String> toInstall = new ArrayList<String>(installableBundlePaths);
 
-        long start = new Date().getTime();
+        long start = System.currentTimeMillis();
         installBundles(installableBundlePaths, pluginsDir, false);
-        long end = new Date().getTime() - start;
+        long end = System.currentTimeMillis() - start;
 
-        LOGGER.info(from(toInstall).select(new F<String, String>() {
-            @Override
-            public String invoke(String path) {
-                return String.format("Bundle %s installed in %s seconds", path, nvl(getBundleInfo(path).getInstallDuration(), 0L)/1000.0);
-            }
-        }).toString("\n"));
+		logInstallationStatus(installableBundlePaths, toInstall, end);
+	}
 
-        LOGGER.info(String.format("Bundles installed in %s seconds", end / 1000.0));
+	private void logInstallationStatus(List<String> installableBundlePaths, List<String> toInstall, long end) {
+		StringBuilder status = new StringBuilder();
 
-        if (!installableBundlePaths.isEmpty()) {
-            LOGGER.warning("UNABLE TO INSTALL BUNDLES: " + installableBundlePaths.toString());
-        }
-    }
+		status.append('\n');
+		status.append(STATUS_SEPARATOR);
+		status.append("Bundle installation status\n");
+		status.append(STATUS_SEPARATOR);
+
+		for (String path : toInstall) {
+			status.append(String.format("%-40s installed in %8.3f seconds",
+					new File(path).getName().replaceAll("\\.jar$", ""),
+					nvl(getBundleInfo(path).getInstallDuration(), 0L)/1000.0));
+			status.append('\n');
+		}
+
+		status.append(STATUS_SEPARATOR);
+		status.append(String.format("Bundles installed in %s seconds\n", end / 1000.0));
+
+		if (installableBundlePaths.isEmpty()) {
+			status.append("ALL BUNDLES INSTALLED CORRECTLY\n");
+		}
+		else {
+			status.append("UNABLE TO INSTALL BUNDLES: ").append(installableBundlePaths.toString()).append('\n');
+		}
+
+		status.append(STATUS_SEPARATOR);
+
+		LOGGER.info(status.toString());
+	}
+
+	private static final String STATUS_SEPARATOR = repeat("-", 80).toString("", "", "\n");
 
     private void installBundles(List<String> installableBundlePaths, String pluginsDir, boolean depedencyWiseInstall) {
         if (!depedencyWiseInstall) {
@@ -803,13 +827,15 @@ public class PluginHelper implements PluginManager, SearchProvider {
         while (!installableBundlePaths.isEmpty() && installed) {
             installed = false;
             for (Iterator<String> it = installableBundlePaths.iterator(); it.hasNext(); ) {
-                Bundle bundle = installBundle(it.next());
+				long start = System.currentTimeMillis();
+				String path = it.next();
+				Bundle bundle = installBundle(path);
                 if (bundle != null) {
                     try {
                         processBundleExtensions(bundle, Bundle.ACTIVE);
                         
                         bundle.start();
-                        LOGGER.info("STARTED: " + it);
+                        LOGGER.info("STARTED: " + path);
                         
                         it.remove();
                         installed = true;
@@ -826,13 +852,13 @@ public class PluginHelper implements PluginManager, SearchProvider {
                         forwardErrorInfoToMonitor(bundle.getSymbolicName(), ex);
                     }
                 }
+				getBundleInfo(path).setInstallDuration(System.currentTimeMillis() - start);
             }
         }
     }
 
     private synchronized Bundle installBundle(String path) {
         Bundle bundle;
-        long start = new Date().getTime();
         try {
             LOGGER.info("INSTALLING: " + path);
             bundle = felix.getBundleContext().installBundle("file://" + path.replace('\\','/'), new FileInputStream(path));
@@ -844,7 +870,6 @@ public class PluginHelper implements PluginManager, SearchProvider {
             LOGGER.log(Level.WARNING, e.getMessage(), e);
             bundle = null;
         }
-        getBundleInfo(path).setInstallDuration(new Date().getTime() - start);
         return bundle;
     }
 
@@ -879,6 +904,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
 
         for (String dep : orderedDeps) {
             if (installableBundlePaths.contains(dep)) {
+				long start = System.currentTimeMillis();
                 Bundle bundle = installBundle(dep);
                 if (bundle != null) {
                     try {
@@ -901,6 +927,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
                         forwardErrorInfoToMonitor(bundle.getSymbolicName(), ex);
                     }
                 }
+				getBundleInfo(dep).setInstallDuration(System.currentTimeMillis() - start);
             }
         }
     }
@@ -1067,9 +1094,11 @@ public class PluginHelper implements PluginManager, SearchProvider {
             }
             fileRef = dest;
             LOGGER.info("Installing bundle: " + dest.getAbsolutePath());
+			long start = System.currentTimeMillis();
             Bundle bundle = installBundle(dest.getAbsolutePath());
             
             bundle.start();
+			getBundleInfo(dest.getAbsolutePath()).setInstallDuration(System.currentTimeMillis() - start);
             LOGGER.info("STARTED: " + dest.getAbsolutePath());
             
             fileRef = null;

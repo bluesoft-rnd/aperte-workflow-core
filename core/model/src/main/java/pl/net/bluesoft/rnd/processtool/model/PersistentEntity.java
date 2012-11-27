@@ -7,9 +7,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 @MappedSuperclass
-public abstract class PersistentEntity implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public abstract class PersistentEntity extends AbstractPersistentEntity {
     @Id
     @GeneratedValue(generator = "idGenerator")
     @GenericGenerator(
@@ -31,16 +29,4 @@ public abstract class PersistentEntity implements Serializable {
     public void setId(Long id) {
         this.id = id;
     }
-
-/*    @Version
-    @Column(name = "optlock")
-    protected Integer optLock;
-
-    public Integer getOptLock() {
-        return optLock;
-    }
-
-    public void setOptLock(Integer optLock) {
-        this.optLock = optLock;
-    }*/
 }

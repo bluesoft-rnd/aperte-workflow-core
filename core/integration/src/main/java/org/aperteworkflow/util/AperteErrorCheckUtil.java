@@ -12,6 +12,8 @@ public class AperteErrorCheckUtil {
 			String string = (String) object;
 			if(string.isEmpty()){
 				aperteIllegalArgumentCodes.throwAperteWebServiceException();	
+				
+				System.out.println("asdasd");
 			}	
 		}
 	}

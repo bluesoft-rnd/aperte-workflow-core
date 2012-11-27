@@ -61,6 +61,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import com.sun.org.apache.bcel.internal.generic.ISTORE;
+
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
@@ -96,6 +98,8 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
 {
     private static final String AUTO_SKIP_TASK_NAME_PREFIX = "AUTO_SKIP";
 	private static final String AUTO_SKIP_ACTION_NAME = "AUTO_SKIP";
+	private static final String JOIN_NODE_NAME = "join";
+	private static final String FORK_NODE_NAME = "fork";
 	protected Logger log = Logger.getLogger(ProcessToolJbpmSession.class.getName());
 
     private static final Integer DEFAULT_OFFSET_VALUE = 0;
@@ -723,10 +727,12 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
     }
 
    	private List<BpmTask> collectTasks(List<Task> tasks, final ProcessInstance pi, final ProcessToolContext ctx) {
+   		
+   		
    		return new Mapcar<Task, BpmTask>(tasks) {
    			@Override
    			public BpmTask lambda(Task x) {
-   				return collectTask(x, pi, ctx);
+   				return collectTask(x, pi, ctx);   
    			}
    		}.go();
    	}
@@ -744,6 +750,9 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
    		t.setFinished(task.getEndTime() != null);
    		return t;
    	}
+   	
+   	
+   	
 
    	/** Get the last step name of the process */
     private String findEndActivityName(ProcessInstance pi, ProcessToolContext ctx) 
@@ -1538,17 +1547,39 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
             java.util.Collections.sort(res);
             return res;
 
-        }
+        }  
 
         @Override
         public List<GraphElement> getProcessHistory(final ProcessInstance pi) {
             ProcessEngine processEngine = getProcessEngine(ProcessToolContext.Util.getThreadProcessToolContext());
             HistoryService service = processEngine.getHistoryService();
-            HistoryActivityInstanceQuery activityInstanceQuery = service.createHistoryActivityInstanceQuery().executionId(pi.getInternalId());
+             
+            HistoryActivityInstanceQuery createHistoryActivityInstanceQuery = service.createHistoryActivityInstanceQuery();
+            HistoryActivityInstanceQuery activityInstanceQuery = createHistoryActivityInstanceQuery.processInstanceId(pi.getInternalId());
             List<HistoryActivityInstance> list = activityInstanceQuery.list();
-
+            
+            
+            
+            
+   
             Map<String,GraphElement> processGraphElements = parseProcessDefinition(pi);
 
+            
+            
+            List<GraphElement> transitionaArcsList = new ArrayList<GraphElement>();
+            Collection<GraphElement> pge = processGraphElements.values() ;
+            
+            
+            for (GraphElement ge : pge) {	
+            	  if( ge instanceof TransitionArc){
+            		  TransitionArc ta = (TransitionArc)ge;
+            			  transitionaArcsList.add(ta);
+              		
+          		}
+            }
+            
+    		
+            
             ArrayList<GraphElement> res = new ArrayList<GraphElement>();
             for (HistoryActivityInstance hpi : list) {
                 loger.fine("Handling: " + hpi.getActivityName());
@@ -1565,7 +1596,20 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
                             res.add(firstTransition);
                         }
                     }
+                   
                     StateNode sn = (StateNode) processGraphElements.get(activityName);
+                    
+                   
+                    
+                    ArrayList<StateNode> arrayList = new ArrayList<StateNode>();
+                    Collection<GraphElement> values = processGraphElements.values();
+                    for (GraphElement graphElement : values) {
+						if(graphElement instanceof StateNode){
+							arrayList.add((StateNode) graphElement);
+						}
+                    	
+                    	
+					}
                     if (sn == null) continue;
                     sn = sn.cloneNode();
                     sn.setUnfinished(activity.getEndTime() == null);
@@ -1579,11 +1623,20 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
                     if (ta == null) {
                         continue;
                     }
+                    
+            
+                    
+                  
+                    
                     res.add(ta.cloneNode());
                 } else {
                     loger.severe("Unsupported entry: " + hpi);
                 }
             }
+            
+           addJoinAndForkElements(res,processGraphElements);
+            
+            
             HistoryProcessInstanceQuery historyProcessInstanceQuery = processEngine.getHistoryService()
                     .createHistoryProcessInstanceQuery().processInstanceId(pi.getInternalId());
             HistoryProcessInstance historyProcessInstance = historyProcessInstanceQuery.uniqueResult();
@@ -1595,8 +1648,21 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
                     res.add(e);
                 }
             }
+            
+            
             return res;
         }
+    	
+     
+       
+        
+        
+
+        
+
+        
+        
+        
 
         private HashMap<String, GraphElement> parseProcessDefinition(ProcessInstance pi) {
             HashMap<String, GraphElement> res = new HashMap<String, GraphElement>();
@@ -1610,7 +1676,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
                 //parse using builder to get DOM representation of the XML file
                 Document dom = db.parse(new ByteArrayInputStream(processDefinition));
                 Element documentElement = dom.getDocumentElement();
-                String[] nodeTypes = new String[]{"start", "end", "java", "task", "decision"};
+                String[] nodeTypes = new String[]{"start", "end", "java", "task", "decision","join","fork"};
                 for (String nodeType : nodeTypes) {
                     NodeList nodes = documentElement.getElementsByTagName(nodeType);
                     for (int i = 0; i < nodes.getLength(); i++) {
@@ -1627,7 +1693,8 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
                             sn.setY(y);
                             sn.setWidth(w);
                             sn.setHeight(h);
-                            String name = node.getAttribute("name");
+                            sn.setNodeType(nodeType);
+                            String name = node.getAttribute("name"); 
                             sn.setLabel(name);
                             res.put(name, sn);
                             if ("start".equals(nodeType)) {
@@ -1777,6 +1844,8 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
                                     }
                                     arc.getPath().get(arc.getPath().size()-1).setX(endX);
                                     arc.getPath().get(arc.getPath().size()-1).setY(endY);
+                                    arc.setDestination(to);
+                                    arc.setSource(startNodeName);
 
                                     res.put(startNodeName + "_" + name,arc);
                                     if ("start".equals(nodeType)) {
@@ -1803,6 +1872,189 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
             }
             return res;
         }
+        
+        
+        
+    	private void addJoinAndForkElements(ArrayList<GraphElement> historyGraph,
+    			Map<String, GraphElement> originalGraphMap) {
+
+    		Map<String, StateNode> joinList = new HashMap<String, StateNode>();
+    		Map<String, StateNode> forkList = new HashMap<String, StateNode>();
+
+    		Map<GraphElement, List<TransitionArc>> joinWithTransitions = new HashMap<GraphElement, List<TransitionArc>>();
+    		Map<GraphElement, List<TransitionArc>> forkWithTransitions = new HashMap<GraphElement, List<TransitionArc>>();
+
+    		List<TransitionArc> transitionArcList = new ArrayList<TransitionArc>();
+
+    		Collection<GraphElement> originalGraph = originalGraphMap.values();
+
+    		for (GraphElement originalGraphElement : originalGraph) {
+
+    			fillListWithAllPosibleTransitionArc(originalGraphElement,
+    					transitionArcList);
+    			fillListsWithAllPosibleJoinAndForkNodes(originalGraphElement,
+    					joinList, forkList);
+
+    		}
+
+    		if (joinList.size() > 0 || forkList.size() > 0) {
+
+    			for (TransitionArc transitionArc : transitionArcList) {
+    				relateNodesWithTransitionArcs(forkList, transitionArc,
+    						forkWithTransitions);
+    				relateNodesWithTransitionArcs(joinList, transitionArc,
+    						joinWithTransitions);
+    			}
+
+    			Set<GraphElement> forks = forkWithTransitions.keySet();
+    			ArrayList<String> tasksNamesFromHistoryAsArray = getTasksNamesFromHistoryAsArray(historyGraph);
+
+    			for (GraphElement fork : forks) {
+    				List<TransitionArc> forkTransitions = forkWithTransitions
+    						.get(fork);
+    				if (isForkOutgoingsExistsInHistoryGraph(forkTransitions, fork,
+    						tasksNamesFromHistoryAsArray)) {
+    					historyGraph.addAll(forkTransitions);
+    					historyGraph.add(fork);
+    				}
+
+    			}
+
+    			Set<GraphElement> joins = joinWithTransitions.keySet();
+    			for (GraphElement join : joins) {
+    				List<TransitionArc> list = joinWithTransitions.get(join);
+    				if (isJoinOutgoingWasMissingInHistoryGraph(list,
+    						tasksNamesFromHistoryAsArray, historyGraph)) {
+    					historyGraph.add(join);
+    				}
+
+    			}
+    		}
+
+    	}
+
+    	private void fillListWithAllPosibleTransitionArc(
+    			GraphElement originalGraphElement,
+    			List<TransitionArc> transitionArcList) {
+
+    		if (originalGraphElement instanceof TransitionArc) {
+    			TransitionArc transitionArc = (TransitionArc) originalGraphElement;
+    			transitionArcList.add(transitionArc);
+    		}
+
+    	}
+
+    	private void fillListsWithAllPosibleJoinAndForkNodes(
+    			GraphElement originalGraphElement, Map<String, StateNode> joinList,
+    			Map<String, StateNode> forkList) {
+
+    		if (originalGraphElement instanceof StateNode) {
+
+    			updateNodeList(joinList, JOIN_NODE_NAME, originalGraphElement);
+
+    			updateNodeList(forkList, FORK_NODE_NAME, originalGraphElement);
+
+    		}
+
+    	}
+
+    	private void updateNodeList(Map<String, StateNode> nodeList,
+    			String nodeType, GraphElement originalGraphElement) {
+
+    		StateNode stateNode = (StateNode) originalGraphElement;
+
+    		if (stateNode.getNodeType() != null
+    				&& (stateNode.getNodeType().equals(nodeType))) {
+
+    			nodeList.put(stateNode.getLabel(), stateNode);
+    		}
+
+    	}
+
+    	private void relateNodesWithTransitionArcs(
+    			Map<String, StateNode> joinForkList, TransitionArc transitionArc,
+    			Map<GraphElement, List<TransitionArc>> joinOrForkWithTransitions) {
+    		if (joinForkList.containsKey(transitionArc.getSource())) {
+    			StateNode stateNode = joinForkList.get(transitionArc.getSource());
+    			List<TransitionArc> listOfTransition = null;
+
+    			if (joinOrForkWithTransitions.containsKey(stateNode)) {
+
+    				listOfTransition = joinOrForkWithTransitions.get(stateNode);
+    			} else {
+    				listOfTransition = new ArrayList<TransitionArc>();
+    			}
+
+    			listOfTransition.add(transitionArc);
+    			joinOrForkWithTransitions.put(stateNode, listOfTransition);
+
+    		}
+
+    	}
+
+    	private ArrayList<String> getTasksNamesFromHistoryAsArray(
+    			ArrayList<GraphElement> historyGraph) {
+
+    		ArrayList<String> newHistoryElement = new ArrayList<String>();
+    		for (GraphElement historyElement : historyGraph) {
+    			if (historyElement instanceof StateNode) {
+    				StateNode historyNode = (StateNode) historyElement;
+    				String histloryNodeLabel = historyNode.getLabel();
+    				String[] split = histloryNodeLabel.split(":");
+
+    				String taskNameFromHistory = split[0];
+    				newHistoryElement.add(taskNameFromHistory);
+    			}
+
+    		}
+
+    		return newHistoryElement;
+    	}
+
+    	private boolean isForkOutgoingsExistsInHistoryGraph(
+    			List<TransitionArc> list, GraphElement fork,
+    			ArrayList<String> tasksNamesFromHistoryAsArray) {
+
+    		int apperenceCounter = list.size();
+    		for (TransitionArc transitionArc : list) {
+    			if (tasksNamesFromHistoryAsArray.contains(transitionArc
+    					.getDestination())) {
+    				apperenceCounter--;
+    			}
+
+    		}
+    		if (apperenceCounter == 0) {
+    			return true;
+
+    		}
+
+    		return false;
+
+    	}
+
+    	private boolean isJoinOutgoingWasMissingInHistoryGraph(
+    			List<TransitionArc> list,
+    			ArrayList<String> tasksNamesFromHistoryAsArray,
+    			ArrayList<GraphElement> historyGraph) {
+    		boolean addedTransition = false;
+
+    		for (TransitionArc transitionArc : list) {
+    			if (tasksNamesFromHistoryAsArray.contains(transitionArc
+    					.getDestination())) {
+    				historyGraph.add(transitionArc);
+    				addedTransition = true;
+    			}
+    		}
+
+    		if (addedTransition == true) {
+    			return true;
+
+    		}
+
+    		return false;
+
+    	}
+        
 
         @Override
         public byte[] getProcessLatestDefinition(String definitionKey, String processName) {

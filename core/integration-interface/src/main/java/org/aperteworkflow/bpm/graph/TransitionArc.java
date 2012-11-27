@@ -9,6 +9,8 @@ import java.util.List;
 public class TransitionArc implements GraphElement{
     private String name;
     private String id;
+    private String destination;
+    private String source;
 
     private List<TransitionArcPoint> path = new ArrayList<TransitionArcPoint>();
 
@@ -17,7 +19,7 @@ public class TransitionArc implements GraphElement{
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.name = name; 
     }
 
     public void addPoint(int x, int y) {
@@ -30,11 +32,29 @@ public class TransitionArc implements GraphElement{
     public void setPath(List<TransitionArcPoint> path) {
         this.path = path;
     }
+    
+    public String getDestination() {
+		return destination;
+	}
 
-    public GraphElement cloneNode() {
+	public void setDestination(String destination) {
+		this.destination = destination;
+	}
+
+	public String getSource() {
+		return source;
+	}
+
+	public void setSource(String source) {
+		this.source = source;
+	}
+
+	public GraphElement cloneNode() {
         TransitionArc clone = new TransitionArc();
         clone.name = name;
         clone.id = id;
+        clone.destination = destination;
+        clone.source = source;
         for (TransitionArcPoint tap : path) {
             clone.addPoint(tap.getX(), tap.getY());
         }

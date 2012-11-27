@@ -88,8 +88,10 @@ public class MessageEditor extends VerticalLayout implements TabSheet.CloseHandl
 
     public void setLanguageMessages(Map<Language, String> languageMessages) {
         this.languageMessages = languageMessages;
-		for (Language language : languageMessages.keySet()) {
-			addAvailableDefaultLanguage(language.getCode());
+		if (languageMessages != null) {
+			for (Language language : languageMessages.keySet()) {
+				addAvailableDefaultLanguage(language.getCode());
+			}
 		}
     }
 

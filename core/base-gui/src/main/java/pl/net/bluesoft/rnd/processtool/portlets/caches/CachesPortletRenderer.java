@@ -19,12 +19,12 @@ public class CachesPortletRenderer implements GenericPortletViewRenderer {
 
 	@Override
 	public String getName(I18NSource i18NSource) {
-		return null;  // TODO
+		return i18NSource.getMessage("AWF Caches");
 	}
 
 	@Override
 	public int getPosition() {
-		return 100;
+		return 500;
 	}
 
 	@Override

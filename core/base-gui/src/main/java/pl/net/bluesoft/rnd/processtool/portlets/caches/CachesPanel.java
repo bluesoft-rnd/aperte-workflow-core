@@ -23,6 +23,7 @@ public class CachesPanel extends VerticalLayout implements Button.ClickListener 
 	private void buildLayout() {
 		invalidateCachesBtn = new Button(i18NSource.getMessage("Wyczyść cache"));
 		invalidateCachesBtn.addListener(this);
+		addComponent(invalidateCachesBtn);
 	}
 
 	@Override

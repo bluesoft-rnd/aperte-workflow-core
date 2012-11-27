@@ -15,6 +15,7 @@ import org.aperteworkflow.util.liferay.exceptions.RoleNotFoundException;
 import pl.net.bluesoft.rnd.processtool.model.UserAttribute;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.util.lang.Collections;
+import pl.net.bluesoft.util.lang.ExpiringCache;
 import pl.net.bluesoft.util.lang.Predicate;
 
 import com.liferay.portal.NoSuchRoleException;
@@ -52,6 +53,9 @@ public class LiferayBridge {
             super(cause);
         }
     }
+
+	private static final ExpiringCache<Long, List<UserData>> allUsersByCurrentUser = new ExpiringCache<Long, List<UserData>>(6 * 60 * 60 * 1000);
+	private static final ExpiringCache<Object, List<UserData>> allUsers = new ExpiringCache<Object, List<UserData>>(6 * 60 * 60 * 1000);
 
     public static UserData convertLiferayUser(User user) throws SystemException {
         if (user == null) {
@@ -167,15 +171,20 @@ public class LiferayBridge {
     }
 
     public static List<UserData> getAllUsersByCurrentUser(UserData currentUser) {
-        try {
-            if (currentUser == null) {
-                return new ArrayList<UserData>(0);
-            }
-            return convertLiferayUsers(UserLocalServiceUtil.getCompanyUsers(currentUser.getCompanyId(), 0, Integer.MAX_VALUE));
-        }
-        catch (SystemException e) {
-            throw new LiferayBridgeException(e);
-        }
+		if (currentUser == null) {
+			return new ArrayList<UserData>(0);
+		}
+		return allUsersByCurrentUser.get(currentUser.getCompanyId(), new ExpiringCache.NewValueCallback<Long, List<UserData>>() {
+			@Override
+			public List<UserData> getNewValue(Long companyId) {
+				try {
+					return convertLiferayUsers(UserLocalServiceUtil.getCompanyUsers(companyId, 0, Integer.MAX_VALUE));
+				}
+				catch (SystemException e) {
+					throw new LiferayBridgeException(e);
+				}
+			}
+		});
     }
 
     public static List<UserData> getUsersByCompanyId(Long companyId) {
@@ -191,12 +200,17 @@ public class LiferayBridge {
     }
 
     public static List<UserData> getAllUsers() {
-        try {
-            return convertLiferayUsers(UserLocalServiceUtil.getUsers(0, UserLocalServiceUtil.getUsersCount()));
-        }
-        catch (SystemException e) {
-            throw new LiferayBridgeException(e);
-        }
+		return allUsers.get(null, new ExpiringCache.NewValueCallback<Object, List<UserData>>() {
+			@Override
+			public List<UserData> getNewValue(Object key) {
+				try {
+					return convertLiferayUsers(UserLocalServiceUtil.getUsers(0, UserLocalServiceUtil.getUsersCount()));
+				}
+				catch (SystemException e) {
+					throw new LiferayBridgeException(e);
+				}
+			}
+		});
     }
 
     public static List<UserData> getLiferayUsers(final Collection<String> logins) {
@@ -364,4 +378,9 @@ public class LiferayBridge {
 		}
 		return roleNames;
 	}
+
+    public static synchronized void invalidateCaches() {
+        allUsers.clear();
+        allUsersByCurrentUser.clear();
+    }
 }

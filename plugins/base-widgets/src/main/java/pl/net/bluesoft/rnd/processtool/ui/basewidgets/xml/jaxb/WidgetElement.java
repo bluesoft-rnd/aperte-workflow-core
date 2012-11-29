@@ -262,11 +262,17 @@ public abstract class WidgetElement implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
+        if (!(o instanceof WidgetElement)) return false;
+
+        WidgetElement that = (WidgetElement) o;
+
+        if (id != null && id.equals(that.id)) return true;
+
         return false;
     }
 
     @Override
     public int hashCode() {
-        return super.hashCode();
+        return 0;
     }
 }

@@ -4,7 +4,10 @@ import com.vaadin.ui.VerticalLayout;
 import org.aperteworkflow.editor.domain.Language;
 import org.aperteworkflow.editor.domain.ProcessConfig;
 import org.aperteworkflow.editor.vaadin.DataHandler;
+import pl.net.bluesoft.rnd.processtool.dict.DictionaryLoader;
 
+import java.io.ByteArrayInputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +33,14 @@ public class DictionaryTab extends VerticalLayout implements DataHandler {
         if (processConfig.getDictionary() == null) {
             editor.setDictionaryToUpload(null);
         } else {
-            editor.setDictionaryToUpload(processConfig.getDictionary());
+			try {
+				Object obj = DictionaryLoader.getInstance().unmarshall(new ByteArrayInputStream(processConfig.getDictionary().getBytes("UTF-8")));
+				System.out.println(obj.getClass());
+			}
+			catch (UnsupportedEncodingException e) {
+				e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+			}
+			editor.setDictionaryToUpload(processConfig.getDictionary());
         }
         editor.loadData();
     }

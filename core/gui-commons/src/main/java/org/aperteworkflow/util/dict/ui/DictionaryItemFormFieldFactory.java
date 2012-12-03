@@ -1,4 +1,4 @@
-package pl.net.bluesoft.rnd.processtool.ui.dict;
+package org.aperteworkflow.util.dict.ui;
 
 import com.vaadin.Application;
 import com.vaadin.data.Item;
@@ -7,14 +7,16 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.DefaultFieldFactory;
 import com.vaadin.ui.Field;
 import com.vaadin.ui.TextField;
-import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItem;
-import pl.net.bluesoft.rnd.processtool.ui.dict.fields.DictionaryItemValuesField;
+import org.aperteworkflow.util.dict.ui.fields.DictionaryItemValuesField;
+import org.aperteworkflow.util.dict.wrappers.DictionaryItemWrapper;
 import pl.net.bluesoft.rnd.pt.utils.lang.Lang2;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import java.util.Set;
 
-public class DictionaryItemFormFieldFactory extends DefaultFieldFactory {
+import static org.aperteworkflow.util.dict.wrappers.DictionaryItemWrapper._VALUES;
+
+public abstract class DictionaryItemFormFieldFactory extends DefaultFieldFactory {
     private Set<String> visiblePropertyIds;
     private Set<String> editablePropertyIds;
     private Set<String> requiredPropertyIds;
@@ -36,9 +38,10 @@ public class DictionaryItemFormFieldFactory extends DefaultFieldFactory {
         if (!isPropertyVisible(propertyId)) {
             return null;
         }
-        BeanItem<ProcessDBDictionaryItem> beanItem = Lang2.assumeType(item, BeanItem.class);
-        ProcessDBDictionaryItem bean = beanItem.getBean();
-        Field field = "dbValues".equals(propertyId) ? new DictionaryItemValuesField(application, source, bean.getValueType())
+        BeanItem<DictionaryItemWrapper> beanItem = Lang2.assumeType(item, BeanItem.class);
+        DictionaryItemWrapper bean = beanItem.getBean();
+        Field field = _VALUES.equals(propertyId)
+				? createItemValuesField(application, source, bean.getValueType())
                 : new TextField(source.getMessage("dict.item." + propertyId));
         field.setWidth("100%");
         if (isPropertyEditable(propertyId)) {
@@ -51,7 +54,9 @@ public class DictionaryItemFormFieldFactory extends DefaultFieldFactory {
         return field;
     }
 
-    private boolean isPropertyRequired(Object propertyId) {
+	protected abstract DictionaryItemValuesField createItemValuesField(Application application, I18NSource source, String valueType);
+
+	private boolean isPropertyRequired(Object propertyId) {
         return requiredPropertyIds.contains(propertyId);
     }
 

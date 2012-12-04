@@ -56,14 +56,24 @@ public class DictionariesMainPane extends VerticalLayout implements ProcessToolB
     private Map<String, Set<ProcessDBDictionary>> globalDictionariesMap;
 	private DictionaryItemTableBuilder<ProcessDBDictionaryItem, DBDictionaryItemValueWrapper, DBDictionaryItemWrapper> builder;
 
-	public DictionariesMainPane(GenericVaadinPortlet2BpmApplication application, I18NSource i18NSource, TransactionProvider transactionProvider) {
+	public DictionariesMainPane(final GenericVaadinPortlet2BpmApplication application, final I18NSource i18NSource, TransactionProvider transactionProvider) {
         this.application = application;
         this.i18NSource = i18NSource;
         this.transactionProvider = transactionProvider;
-		this.builder = new DictionaryItemTableBuilder<ProcessDBDictionaryItem, DBDictionaryItemValueWrapper, DBDictionaryItemWrapper>(application, i18NSource, this) {
+		this.builder = new DictionaryItemTableBuilder<ProcessDBDictionaryItem, DBDictionaryItemValueWrapper, DBDictionaryItemWrapper>(this) {
 			@Override
 			protected DictionaryItemForm createDictionaryItemForm(Application application, I18NSource source, BeanItem<DBDictionaryItemWrapper> item) {
 				return new DBDictionaryItemForm(application, source, item);
+			}
+
+			@Override
+			protected Application getApplication() {
+				return application;
+			}
+
+			@Override
+			protected I18NSource getI18NSource() {
+				return i18NSource;
 			}
 		};
         setWidth("100%");
@@ -390,7 +400,7 @@ public class DictionariesMainPane extends VerticalLayout implements ProcessToolB
 	}
 
 	@Override
-	public void handleItemDeletion(DBDictionaryItemWrapper wrapper) {
+	public void handleItemDelete(DBDictionaryItemWrapper wrapper) {
 		ProcessDBDictionaryItem item = wrapper.getWrappedObject();
 		final ProcessDBDictionary dictionary = item.getDictionary();
 		dictionary.removeItem(item.getKey());

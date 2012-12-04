@@ -2,6 +2,8 @@ package org.aperteworkflow.util.vaadin;
 
 import com.vaadin.Application;
 import com.vaadin.data.Container;
+import com.vaadin.data.Property;
+import com.vaadin.data.util.MethodProperty;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.service.ApplicationContext;
 import com.vaadin.terminal.ClassResource;
@@ -647,5 +649,10 @@ public class VaadinUtility {
 				}
 				return hl;
 		}
+	}
+
+	public static <V extends Property.Viewer, T> V bindProperty(V viewer, T object, String property) {
+		viewer.setPropertyDataSource(new MethodProperty(object, property));
+		return viewer;
 	}
 }

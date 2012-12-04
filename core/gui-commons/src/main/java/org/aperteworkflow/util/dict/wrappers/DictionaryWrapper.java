@@ -8,9 +8,6 @@ package org.aperteworkflow.util.dict.wrappers;
 public interface DictionaryWrapper<WrappedDictionaryType> {
 	WrappedDictionaryType getWrappedObject();
 
-	Boolean isDefaultDictionary();
-	void setDefaultDictionary(Boolean defaultDictionary);
-
 	String getDictionaryId();
 	void setDictionaryId(String dictionaryId);
 

@@ -21,16 +21,6 @@ public class DBDictionaryWrapper implements DictionaryWrapper<ProcessDBDictionar
 	}
 
 	@Override
-	public Boolean isDefaultDictionary() {
-		return dictionary.isDefaultDictionary();
-	}
-
-	@Override
-	public void setDefaultDictionary(Boolean defaultDictionary) {
-		dictionary.setDefaultDictionary(defaultDictionary);
-	}
-
-	@Override
 	public String getDictionaryId() {
 		return dictionary.getDictionaryId();
 	}

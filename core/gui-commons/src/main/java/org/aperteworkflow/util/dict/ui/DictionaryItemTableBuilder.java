@@ -36,15 +36,11 @@ public abstract class DictionaryItemTableBuilder<
 	public static final String GEN_EXTENSIONS = "extensions";
 	public static final String GEN_DELETE = "delete";
 
-	private Application application;
-	private I18NSource i18NSource;
 	private DictionaryItemModificationHandler<DictionaryItemWrapperType> handler;
 
 	private Window detailsWindow = null;
 
-	public DictionaryItemTableBuilder(Application application, I18NSource i18NSource, DictionaryItemModificationHandler<DictionaryItemWrapperType> handler) {
-		this.application = application;
-		this.i18NSource = i18NSource;
+	public DictionaryItemTableBuilder(DictionaryItemModificationHandler<DictionaryItemWrapperType> handler) {
 		this.handler = handler;
 	}
 
@@ -54,7 +50,7 @@ public abstract class DictionaryItemTableBuilder<
 
 	public interface DictionaryItemModificationHandler<DictionaryItemWrapperType extends DictionaryItemWrapper> {
 		void handleItemSave(DictionaryItemWrapperType item);
-		void handleItemDeletion(DictionaryItemWrapperType item);
+		void handleItemDelete(DictionaryItemWrapperType item);
 	}
 
 	private class DictPopupView extends PopupView {
@@ -157,7 +153,7 @@ public abstract class DictionaryItemTableBuilder<
 				});
 			}
 		});
-		return wrapPagedTable(i18NSource, table);
+		return wrapPagedTable(getI18NSource(), table);
 	}
 
 	private Table.ColumnGenerator createValueColumn(final BeanItemContainer<DictionaryItemWrapperType> container) {
@@ -238,7 +234,7 @@ public abstract class DictionaryItemTableBuilder<
 					public void buttonClick(Button.ClickEvent event) {
 						DictionaryItemWrapperType item = container.getItem(itemId).getBean();
 						container.removeItem(itemId);
-						handler.handleItemDeletion(item);
+						handler.handleItemDelete(item);
 					}
 				});
 				return b;
@@ -251,7 +247,7 @@ public abstract class DictionaryItemTableBuilder<
 			return;
 		}
 
-		final DictionaryItemForm form = createDictionaryItemForm(application, i18NSource, item);
+		final DictionaryItemForm form = createDictionaryItemForm(getApplication(), getI18NSource(), item);
 		form.setWidth("100%");
 
 		form.addSaveClickListener(new Button.ClickListener() {
@@ -276,7 +272,7 @@ public abstract class DictionaryItemTableBuilder<
 					for (String msg : messages.values()) {
 						sb.append(msg).append("<br/>");
 					}
-					validationNotification(getApplication(), i18NSource, sb.toString());
+					validationNotification(getApplication(), getI18NSource(), sb.toString());
 				}
 			}
 		});
@@ -313,12 +309,11 @@ public abstract class DictionaryItemTableBuilder<
 	}
 
 	private String getMessage(String key) {
-		return i18NSource.getMessage(key);
+		return getI18NSource().getMessage(key);
 	}
 
-	private Application getApplication() {
-		return application;
-	}
+	protected abstract Application getApplication();
+	protected abstract I18NSource getI18NSource();
 
 	private Window getDetailsWindow() {
 		return detailsWindow;

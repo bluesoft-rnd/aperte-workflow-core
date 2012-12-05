@@ -12,6 +12,7 @@ import com.vaadin.ui.*;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.vaadin.dialogs.ConfirmDialog;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.WidgetDefinitionLoader;
+import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.XmlConstants;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.jaxb.*;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.validation.XmlValidationError;
 
@@ -21,7 +22,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -179,9 +182,24 @@ public class ProcessDataHierarchyEditor extends VerticalLayout {
         }
     }
 
-    public void refreshRawXmlAndPreview() {
+	public void refreshRawXmlAndPreview() {
         updateXml(rootWidget);
         List<XmlValidationError> xmlValidationErrors = rootWidget.validate();
+        
+		Collection<?> all = hierarchicalContainer.getItemIds();
+        Set<String> ids=new HashSet<String>();
+        boolean duplicated=false;
+        for (Object obj : all) {
+        	if (obj instanceof WidgetElement){
+        		WidgetElement we = (WidgetElement) obj;
+        		if (!ids.add(we.getId()) && we.getId()!=null){
+            		duplicated=true;
+            	}
+        	}
+        	
+        }
+        if (duplicated)xmlValidationErrors.add(new XmlValidationError("select", "id", XmlConstants.XML_TAG_DUPLICATED));
+        
         if (xmlValidationErrors != null && !xmlValidationErrors.isEmpty()) {
             String msg = joinValidationErrors(xmlValidationErrors);
             Window.Notification n = new Window.Notification(getLocalizedMessage("validation-errors"),

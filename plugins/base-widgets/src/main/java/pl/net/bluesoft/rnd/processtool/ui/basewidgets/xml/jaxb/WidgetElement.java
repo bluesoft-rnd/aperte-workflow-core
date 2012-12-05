@@ -82,7 +82,7 @@ public abstract class WidgetElement implements Serializable {
     @XmlAttribute
     @XStreamAsAttribute
     @AperteDoc(humanNameKey = "any.visible", descriptionKey = "any.visible.description")
-    protected Boolean visible;
+    protected Boolean visible = true;
 
     @XmlAttribute
     @XStreamAsAttribute

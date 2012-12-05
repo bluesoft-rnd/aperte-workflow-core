@@ -26,6 +26,7 @@ public class GridWidgetElement extends HasWidgetsElement {
 
     @XmlAttribute
     @XStreamAsAttribute
+	@RequiredAttribute
     @AperteDoc(humanNameKey = "grid.cols", descriptionKey = "grid.cols.description")
     private Integer cols;
 

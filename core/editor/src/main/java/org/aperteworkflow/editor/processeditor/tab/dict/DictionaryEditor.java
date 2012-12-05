@@ -4,6 +4,7 @@ import com.vaadin.Application;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.data.validator.RegexpValidator;
 import com.vaadin.ui.*;
 import org.aperteworkflow.editor.processeditor.tab.dict.wrappers.*;
 import org.aperteworkflow.editor.vaadin.DataHandler;
@@ -31,7 +32,7 @@ import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
 
 public class DictionaryEditor extends VerticalLayout implements TabSheet.CloseHandler, Button.ClickListener, DataHandler,
 		DictionaryItemTableBuilder.DictionaryItemModificationHandler<XmlDictionaryItemWrapper> {
-//	private Label languageDescriptionLabel;
+
 	private XmlProcessDictionariesWrapper processDictionaries;
 
 	private Panel dictionaryLayout;
@@ -39,10 +40,12 @@ public class DictionaryEditor extends VerticalLayout implements TabSheet.CloseHa
 	private Select languageSelect;
 	private Button addDictionaryButton;
 	private Button addLanguageButton;
+	private Select defaultLanguageField;
+	private CheckBox overwriteField;
 	private TextField dictionaryNameField;
 	private TextField dictionaryDescriptionField;
 	private TextField editPermissionField;
-	private Select defaultLanguageField;
+
 	private Button addEntryButton;
 
 	private BeanItemContainer<XmlDictionaryItemWrapper> container;
@@ -104,9 +107,8 @@ public class DictionaryEditor extends VerticalLayout implements TabSheet.CloseHa
 
     private void initComponent() {
         I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
-//        languageDescriptionLabel = new Label(messages.getMessage("messages.dictionary.description"));
 
-		dictionarySelect = new Select(messages.getMessage("Słownik"));
+		dictionarySelect = new Select(messages.getMessage("dict.editor.dictionary"));
 		dictionarySelect.setWidth("250px");
 		dictionarySelect.setImmediate(true);
 		dictionarySelect.addListener(new Property.ValueChangeListener() {
@@ -116,8 +118,8 @@ public class DictionaryEditor extends VerticalLayout implements TabSheet.CloseHa
 			}
 		});
 
-		languageSelect = new Select(messages.getMessage("Język"));
-		languageSelect.setWidth("80px");
+		languageSelect = new Select(messages.getMessage("dict.editor.lang"));
+		languageSelect.setWidth("90px");
 		languageSelect.setImmediate(true);
 		languageSelect.addListener(new Property.ValueChangeListener() {
 			@Override
@@ -126,39 +128,44 @@ public class DictionaryEditor extends VerticalLayout implements TabSheet.CloseHa
 			}
 		});
 
-		addDictionaryButton = new Button(messages.getMessage("Nowy słownik"));
+		addDictionaryButton = new Button(messages.getMessage("dict.editor.new.dict"));
 		addDictionaryButton.addListener(this);
 
-		addLanguageButton = new Button(messages.getMessage("Nowy język"));
+		addLanguageButton = new Button(messages.getMessage("dict.editor.new.lang"));
 		addLanguageButton.addListener(this);
+
+		defaultLanguageField = new Select(messages.getMessage("dict.editor.default.lang"));
+		defaultLanguageField.setWidth("90px");
+		defaultLanguageField.setImmediate(true);
+		defaultLanguageField.setContainerDataSource(languageSelect.getContainerDataSource());
+
+		overwriteField = new CheckBox(messages.getMessage("dict.editor.overwrite"));
+		overwriteField.setImmediate(true);
 
 		VerticalLayout newContent = new VerticalLayout();
 		newContent.setSpacing(true);
 
-		dictionaryLayout = new Panel(messages.getMessage("Definicja"));
+		dictionaryLayout = new Panel(messages.getMessage("dict.editor.definition"));
 		dictionaryLayout.setContent(newContent);
 		dictionaryLayout.setWidth("100%");
 
-		dictionaryNameField = new TextField(messages.getMessage("Nazwa"));
+		dictionaryNameField = new TextField(messages.getMessage("dict.editor.dict.name"));
 		dictionaryNameField.setWidth("400px");
 		dictionaryNameField.setNullRepresentation("");
 		dictionaryNameField.setImmediate(true);
+		dictionaryNameField.setRequired(true);
 
-		dictionaryDescriptionField = new TextField(messages.getMessage("Opis"));
+		dictionaryDescriptionField = new TextField(messages.getMessage("dict.editor.dict.descr"));
 		dictionaryDescriptionField.setWidth("400px");
 		dictionaryDescriptionField.setNullRepresentation("");
 		dictionaryDescriptionField.setImmediate(true);
+		dictionaryDescriptionField.setRequired(true);
 
-		editPermissionField = new TextField(messages.getMessage("Rola uprawniająca do edycji"));
+		editPermissionField = new TextField(messages.getMessage("dict.editor.edit.roles"));
 		editPermissionField.setWidth("400px");
 		editPermissionField.setNullRepresentation("");
 		editPermissionField.setImmediate(true);
-
-		defaultLanguageField = new Select(messages.getMessage("Język domyślny"));
-		defaultLanguageField.setWidth("80px");
-		defaultLanguageField.setImmediate(true);
-		defaultLanguageField.setContainerDataSource(languageSelect.getContainerDataSource());
-    } 
+    }
     
     private void initLayout() {
         setSpacing(true);
@@ -173,8 +180,18 @@ public class DictionaryEditor extends VerticalLayout implements TabSheet.CloseHa
 			hl.setComponentAlignment(component, Alignment.BOTTOM_LEFT);
 		}
 
+		HorizontalLayout hl2 = new HorizontalLayout();
+		hl2.setSpacing(true);
+
+		for (Component component : new Component[] {
+				defaultLanguageField, overwriteField
+		}) {
+			hl2.addComponent(component);
+			hl2.setComponentAlignment(component, Alignment.BOTTOM_LEFT);
+		}
+
 		addComponent(hl);
-//        addComponent(languageDescriptionLabel);
+		addComponent(hl2);
 		addComponent(dictionaryLayout);
     }
 
@@ -215,6 +232,7 @@ public class DictionaryEditor extends VerticalLayout implements TabSheet.CloseHa
 		}
 
 		bindProperty(defaultLanguageField, processDictionaries, XmlProcessDictionariesWrapper._DEFAULT_LANGUAGE);
+		bindProperty(overwriteField, processDictionaries, XmlProcessDictionariesWrapper._OVERWRITE);
 	}
 
 	private ProcessDictionaries parseProcessDictionaries(String dictionary) {
@@ -252,7 +270,6 @@ public class DictionaryEditor extends VerticalLayout implements TabSheet.CloseHa
 			HorizontalLayout hl2 = new HorizontalLayout();
 			hl2.setSpacing(true);
 			hl2.addComponent(editPermissionField);
-			hl2.addComponent(defaultLanguageField);
 
 			container = new BeanItemContainer<XmlDictionaryItemWrapper>(XmlDictionaryItemWrapper.class, processDictionaries.getItems(dictionaryId, languageCode));
 
@@ -301,18 +318,19 @@ public class DictionaryEditor extends VerticalLayout implements TabSheet.CloseHa
 		final I18NSource i18NSource = I18NSource.ThreadUtil.getThreadI18nSource();
 
 		if (clickEvent.getButton() == addDictionaryButton) {
-			InputDialog dialog = new InputDialog(i18NSource.getMessage("Dodawanie nowego słownika")) {
+			InputDialog dialog = new InputDialog(i18NSource.getMessage("dict.editor.adding.new.dict")) {
 				@Override
 				protected void handleAdd(String dictionaryId) {
 					dictionarySelect.addItem(dictionaryId);
 					dictionarySelect.setValue(dictionaryId);
 				}
 			};
-			dialog.setInputCaption(i18NSource.getMessage("Id słownika"));
+			dialog.setInputCaption(i18NSource.getMessage("dict.editor.dict.id"));
+			dialog.setInputRegexValidator("[a-zA-Z][a-zA-Z_\\-]*", i18NSource.getMessage("dict.editor.incorrect.dict.id"));
 			dialog.show(getApplication());
 		}
 		else if (clickEvent.getButton() == addLanguageButton) {
-			InputDialog dialog = new InputDialog(i18NSource.getMessage("Dodawanie nowego języka")) {
+			InputDialog dialog = new InputDialog(i18NSource.getMessage("dict.editor.adding.new.lang")) {
 				@Override
 				protected void handleAdd(String langCode) {
 					languageSelect.addItem(langCode);
@@ -323,7 +341,8 @@ public class DictionaryEditor extends VerticalLayout implements TabSheet.CloseHa
 					}
 				}
 			};
-			dialog.setInputCaption(i18NSource.getMessage("Kod języka"));
+			dialog.setInputCaption(i18NSource.getMessage("dict.editor.lang.code"));
+			dialog.setInputRegexValidator("[a-zA-Z]{2}(-[a-zA-Z]{2})?", i18NSource.getMessage("dict.editor.incorrect.lang.code"));
 			dialog.show(getApplication());
 		}
 		else if (clickEvent.getButton() == addEntryButton) {
@@ -363,20 +382,25 @@ public class DictionaryEditor extends VerticalLayout implements TabSheet.CloseHa
 			inputField = new TextField();
 			inputField.setNullRepresentation("");
 			inputField.setWidth("300px");
+			inputField.setRequired(true);
 			addDialogContent(inputField);
 
-			addDialogAction(i18NSource.getMessage("Dodaj"), new Dialog.ActionListener() {
+			addDialogAction(i18NSource.getMessage("dict.editor.btn.add"), new Dialog.ActionListener() {
 				@Override
 				public void handleAction(String action) {
 					inputField.commit();
 					handleAdd((String)inputField.getValue());
 				}
 			});
-			addDialogAction(i18NSource.getMessage("Anuluj"), null);
+			addDialogAction(i18NSource.getMessage("dict.editor.btn.cancel"), null);
 		}
 
 		public void setInputCaption(String caption) {
 			inputField.setCaption(caption);
+		}
+
+		public void setInputRegexValidator(String regex, String errorMessage) {
+			inputField.addValidator(new RegexpValidator(regex, errorMessage));
 		}
 
 		protected abstract void handleAdd(String value);

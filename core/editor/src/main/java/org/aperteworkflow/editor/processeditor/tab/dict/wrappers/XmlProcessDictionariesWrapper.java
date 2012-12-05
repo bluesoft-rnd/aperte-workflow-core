@@ -17,6 +17,7 @@ import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
  */
 public class XmlProcessDictionariesWrapper {
 	public static final String _DEFAULT_LANGUAGE = "defaultLanguage";
+	public static final String _OVERWRITE = "overwrite";
 
 	private final ProcessDictionaries processDictionaries;
 
@@ -34,6 +35,14 @@ public class XmlProcessDictionariesWrapper {
 
 	public void setDefaultLanguage(String defaultLanguage) {
 		processDictionaries.setDefaultLanguage(defaultLanguage);
+	}
+
+	public Boolean getOverwrite() {
+		return processDictionaries.getOverwrite();
+	}
+
+	public void setOverwrite(Boolean overwrite) {
+		processDictionaries.setOverwrite(overwrite);
 	}
 
 	public Collection<String> getDictionaryIds() {

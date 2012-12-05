@@ -1,17 +1,17 @@
 package org.aperteworkflow.util.vaadin;
 
+import com.vaadin.ui.Label;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
-import pl.net.bluesoft.rnd.processtool.bpm.exception.ProcessToolException;
-import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
-import pl.net.bluesoft.rnd.util.i18n.impl.DefaultI18NSource;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 
 import javax.portlet.PortletException;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
 import java.io.IOException;
+import java.util.logging.Logger;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -45,7 +45,14 @@ public class ProcessToolVaadinApplicationPortlet2 extends ApplicationPortlet2Wit
             ProcessToolRegistry registry = (ProcessToolRegistry) getPortletConfig().getPortletContext()
                     .getAttribute(ProcessToolRegistry.class.getName());
             if (registry == null) {
-                throw new ProcessToolException(ProcessToolRegistry.class.getName() + " not found in servlet context");
+				if (getApplication() != null) {
+					getApplication().getMainWindow().addComponent(new Label(
+							"Aperte Workflow is being installed. Please refresh your page."
+					));
+				}
+				Logger.getLogger(ProcessToolVaadinApplicationPortlet2.class.getSimpleName()).severe(ProcessToolRegistry.class.getName() + " not found in servlet context");
+				//throw new ProcessToolException(ProcessToolRegistry.class.getName() + " not found in servlet context");
+				return;
             }
             registry.withProcessToolContext(new ProcessToolContextCallback() {
                 @Override

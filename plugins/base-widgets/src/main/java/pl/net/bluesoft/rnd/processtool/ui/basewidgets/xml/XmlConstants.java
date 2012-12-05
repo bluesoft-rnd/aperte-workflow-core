@@ -5,6 +5,7 @@ public interface XmlConstants {
     public static final String XML_FIELD_OR = "processdata.block.xml.validation.or";
     public static final String XML_TAG_EMPTY = "processdata.block.xml.validation.empty";
     public static final String XML_TAG_INVALID = "processdata.block.xml.validation.invalid";
+    public static final String XML_TAG_DUPLICATED = "processdata.block.xml.validation.duplicate";
 
     public static final String ALIGN_POS_LEFT_TOP = "left-top";
     public static final String ALIGN_POS_LEFT_MIDDLE = "left-middle";

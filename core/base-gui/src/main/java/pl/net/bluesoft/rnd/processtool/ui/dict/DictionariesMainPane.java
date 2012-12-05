@@ -1,19 +1,19 @@
 package pl.net.bluesoft.rnd.processtool.ui.dict;
 
+import com.vaadin.Application;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
-import com.vaadin.event.ItemClickEvent;
-import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.ui.*;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.PopupView.PopupVisibilityEvent;
-import com.vaadin.ui.PopupView.PopupVisibilityListener;
-import com.vaadin.ui.Table.ColumnGenerator;
+import org.aperteworkflow.util.dict.ui.DictionaryItemForm;
+import org.aperteworkflow.util.dict.ui.DictionaryItemTableBuilder;
+import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
+import org.aperteworkflow.util.vaadin.TransactionProvider;
+import org.aperteworkflow.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
@@ -22,22 +22,21 @@ import pl.net.bluesoft.rnd.processtool.dict.ProcessDictionaryProvider;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItem;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.*;
+import pl.net.bluesoft.rnd.processtool.ui.dict.wrappers.DBDictionaryItemValueWrapper;
+import pl.net.bluesoft.rnd.processtool.ui.dict.wrappers.DBDictionaryItemWrapper;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolGuiCallback;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
-import org.aperteworkflow.util.vaadin.TransactionProvider;
-import org.aperteworkflow.util.vaadin.VaadinUtility;
-import org.aperteworkflow.util.vaadin.ui.table.LocalizedPagedTable;
 import pl.net.bluesoft.util.lang.Collections;
 import pl.net.bluesoft.util.lang.Predicate;
 import pl.net.bluesoft.util.lang.Strings;
+import pl.net.bluesoft.util.lang.cquery.func.F;
 
-import java.text.DateFormat;
 import java.util.*;
 
 import static org.aperteworkflow.util.vaadin.VaadinUtility.*;
+import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
 
-public class DictionariesMainPane extends VerticalLayout implements ProcessToolBpmConstants, Refreshable {
+public class DictionariesMainPane extends VerticalLayout implements ProcessToolBpmConstants, Refreshable, DictionaryItemTableBuilder.DictionaryItemModificationHandler<DBDictionaryItemWrapper> {
     private GenericVaadinPortlet2BpmApplication application;
     private I18NSource i18NSource;
     private TransactionProvider transactionProvider;
@@ -47,23 +46,36 @@ public class DictionariesMainPane extends VerticalLayout implements ProcessToolB
     private Select globalDictionarySelect;
     private Select processDefinitionSelect;
 
-    private Window detailsWindow = null;
-
     private HorizontalLayout processHeaderLayout;
     private VerticalLayout processTableLayout;
 
     private BeanItemContainer<ProcessDefinitionConfig> processContainer;
     private BeanItemContainer<ProcessDBDictionary> globalDictionaryContainer;
-    private Map<ProcessDBDictionary, BeanItemContainer<ProcessDBDictionaryItem>> dictItemContainers;
+    private Map<ProcessDBDictionary, BeanItemContainer<DBDictionaryItemWrapper>> dictItemContainers;
     private Map<ProcessDefinitionConfig, Map<String, Set<ProcessDBDictionary>>> processDictionariesMap;
     private Map<String, Set<ProcessDBDictionary>> globalDictionariesMap;
+	private DictionaryItemTableBuilder<ProcessDBDictionaryItem, DBDictionaryItemValueWrapper, DBDictionaryItemWrapper> builder;
 
-    private static final String EMPTY_VALID_DATE = "...";
-
-    public DictionariesMainPane(GenericVaadinPortlet2BpmApplication application, I18NSource i18NSource, TransactionProvider transactionProvider) {
+	public DictionariesMainPane(final GenericVaadinPortlet2BpmApplication application, final I18NSource i18NSource, TransactionProvider transactionProvider) {
         this.application = application;
         this.i18NSource = i18NSource;
         this.transactionProvider = transactionProvider;
+		this.builder = new DictionaryItemTableBuilder<ProcessDBDictionaryItem, DBDictionaryItemValueWrapper, DBDictionaryItemWrapper>(this) {
+			@Override
+			protected DictionaryItemForm createDictionaryItemForm(Application application, I18NSource source, BeanItem<DBDictionaryItemWrapper> item) {
+				return new DBDictionaryItemForm(application, source, item);
+			}
+
+			@Override
+			protected Application getApplication() {
+				return application;
+			}
+
+			@Override
+			protected I18NSource getI18NSource() {
+				return i18NSource;
+			}
+		};
         setWidth("100%");
         initWidget();
         loadData();
@@ -72,7 +84,7 @@ public class DictionariesMainPane extends VerticalLayout implements ProcessToolB
     private void initWidget() {
         removeAllComponents();
 
-        dictItemContainers = new LinkedHashMap<ProcessDBDictionary, BeanItemContainer<ProcessDBDictionaryItem>>();
+        dictItemContainers = new LinkedHashMap<ProcessDBDictionary, BeanItemContainer<DBDictionaryItemWrapper>>();
         processContainer = new BeanItemContainer<ProcessDefinitionConfig>(ProcessDefinitionConfig.class);
         globalDictionaryContainer = new BeanItemContainer<ProcessDBDictionary>(ProcessDBDictionary.class);
         globalDictionariesMap = new TreeMap<String, Set<ProcessDBDictionary>>();
@@ -122,10 +134,6 @@ public class DictionariesMainPane extends VerticalLayout implements ProcessToolB
             @Override
             public void callback(ProcessToolContext ctx, ProcessToolBpmSession session) {
                 Collection<ProcessDefinitionConfig> configs = ctx.getProcessDefinitionDAO().getActiveConfigurations();
-                //LOL - it overwrites descriptions in database with language of the first user who logs in :)
-//                for (ProcessDefinitionConfig config : configs) {
-//                    config.setDescription(i18NSource.getMessage(config.getDescription()));
-//                }
                 processContainer.addAll(configs);
                 for (ProcessDefinitionConfig config : processContainer.getItemIds()) {
                 	processDefinitionSelect.setItemCaption(config, i18NSource.getMessage(config.getDescription()));
@@ -176,14 +184,19 @@ public class DictionariesMainPane extends VerticalLayout implements ProcessToolB
     }
 
     private void bindBeanItemContainer(ProcessDBDictionary dict) {
-        BeanItemContainer<ProcessDBDictionaryItem> container = new BeanItemContainer<ProcessDBDictionaryItem>(ProcessDBDictionaryItem.class);
+        BeanItemContainer<DBDictionaryItemWrapper> container = new BeanItemContainer<DBDictionaryItemWrapper>(DBDictionaryItemWrapper.class);
         List<ProcessDBDictionaryItem> items = new ArrayList<ProcessDBDictionaryItem>(dict.getItems().values());
-        container.addAll(items);
+        container.addAll(from(items).select(new F<ProcessDBDictionaryItem, DBDictionaryItemWrapper>() {
+			@Override
+			public DBDictionaryItemWrapper invoke(ProcessDBDictionaryItem x) {
+				return new DBDictionaryItemWrapper(x);
+			}
+		}));
         container.sort(new Object[] {"key"}, new boolean[] {false});
         dictItemContainers.put(dict, container);
     }
 
-    private BeanItemContainer<ProcessDBDictionaryItem> getDictionaryItems(ProcessDBDictionary dict) {
+    private BeanItemContainer<DBDictionaryItemWrapper> getDictionaryItems(ProcessDBDictionary dict) {
         return dictItemContainers.get(dict);
     }
 
@@ -290,9 +303,9 @@ public class DictionariesMainPane extends VerticalLayout implements ProcessToolB
         addButton.addListener(new ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
-                showItemDetails(new BeanItem<ProcessDBDictionaryItem>(new ProcessDBDictionaryItem()), new SaveCallback() {
+                showItemDetails(new BeanItem<DBDictionaryItemWrapper>(new DBDictionaryItemWrapper()), new DictionaryItemTableBuilder.SaveCallback<DBDictionaryItemWrapper>() {
                     @Override
-                    public void onSave(BeanItem<ProcessDBDictionaryItem> item) {
+                    public void onSave(BeanItem<DBDictionaryItemWrapper> item) {
                         prepareAndSaveNewItem(item, (ProcessDBDictionary) localeSelect.getValue());
                     }
                 });
@@ -311,30 +324,9 @@ public class DictionariesMainPane extends VerticalLayout implements ProcessToolB
         return localeSelect;
     }
 
-    private Component localeSelected(final ProcessDBDictionary dict) {
-        final BeanItemContainer container = getDictionaryItems(dict);
-        Map<String, ColumnGenerator> customColumns = new HashMap<String, ColumnGenerator>();
-        customColumns.put("value", createValueColumn(container));
-        customColumns.put("extensions", createAdditionalValuesColumn(container));
-        customColumns.put("delete", createDeleteColumn(container));
-
-        String[] visibleColumns = new String[] {"key", "description", "value", "extensions", "delete"};
-        String[] columnHeaders = new String[] {getMessage("dict.item.key"), getMessage("dict.item.description"),
-                getMessage("dict.item.values"), getMessage("dict.item.extensions"),
-                getMessage("pagedtable.delete")};
-
-        LocalizedPagedTable table = pagedTable(container, visibleColumns, columnHeaders, customColumns, new ItemClickListener() {
-            @Override
-            public void itemClick(ItemClickEvent event) {
-                showItemDetails(container.getItem(event.getItemId()), new SaveCallback() {
-                    @Override
-                    public void onSave(BeanItem<ProcessDBDictionaryItem> item) {
-                        saveDictionaryItem(item.getBean());
-                    }
-                });
-            }
-        });
-        return wrapPagedTable(i18NSource, table);
+    private Component localeSelected(ProcessDBDictionary dict) {
+        BeanItemContainer<DBDictionaryItemWrapper> container = getDictionaryItems(dict);
+        return builder.createTable(container);
     }
 
     public String getMessage(String key) {
@@ -345,268 +337,26 @@ public class DictionariesMainPane extends VerticalLayout implements ProcessToolB
         return i18NSource.getMessage(key, defaultValue);
     }
 
-    private interface SaveCallback {
-        void onSave(BeanItem<ProcessDBDictionaryItem> item);
-    }
-
-    private void prepareAndSaveNewItem(BeanItem<ProcessDBDictionaryItem> item, ProcessDBDictionary dictionary) {
-        ProcessDBDictionaryItem bean = item.getBean();
+    private void prepareAndSaveNewItem(BeanItem<DBDictionaryItemWrapper> item, ProcessDBDictionary dictionary) {
+		DBDictionaryItemWrapper bean = item.getBean();
         ProcessDictionaryItem lookedUpItem = dictionary.lookup(bean.getKey());
         if (lookedUpItem != null) {
             validationNotification(application, i18NSource, getMessage("validate.dictentry.exists"));
         }
         else {
-            bean.setDictionary(dictionary);
-            dictionary.addItem(bean);
+            bean.getWrappedObject().setDictionary(dictionary);
+            dictionary.addItem(bean.getWrappedObject());
             dictItemContainers.get(dictionary).addBean(bean);
-            saveDictionaryItem(bean);
+            handleItemSave(bean);
+			builder.closeDetailsWindow();
         }
     }
 
-    private void showItemDetails(final BeanItem<ProcessDBDictionaryItem> item, final SaveCallback callback) {
-        if (detailsWindow != null) {
-            return;
-        }
-
-        final DictionaryItemForm form = new DictionaryItemForm(application, i18NSource, item);
-        form.setWidth("100%");
-
-        form.addSaveClickListener(new ClickListener() {
-            @Override
-            public void buttonClick(ClickEvent event) {
-                Map<Field, String> messages = new LinkedHashMap<Field, String>();
-                for (Object propertyId : form.getItemPropertyIds()) {
-                    Field field = form.getField(propertyId);
-                    try {
-                        field.validate();
-                    }
-                    catch (InvalidValueException e) {
-                        messages.put(field, e.getMessage());
-                    }
-                }
-                if (messages.isEmpty()) {
-                    form.commit();
-                    callback.onSave(item);
-                }
-                else {
-                    StringBuilder sb = new StringBuilder();
-					for (String msg : messages.values()) {
-                        sb.append(msg).append("<br/>");
-                    }
-                    validationNotification(application, i18NSource, sb.toString());
-                }
-            }
-        });
-
-        form.addCancelClickListener(new ClickListener() {
-            @Override
-            public void buttonClick(ClickEvent event) {
-                form.discard();
-                application.getMainWindow().removeWindow(detailsWindow);
-                detailsWindow = null;
-            }
-        });
-
-        wrapWithModalWindow(form);
-        application.getMainWindow().addWindow(detailsWindow);
+    private void showItemDetails(BeanItem<DBDictionaryItemWrapper> item, DictionaryItemTableBuilder.SaveCallback<DBDictionaryItemWrapper> callback) {
+        builder.showItemDetails(item, callback);
     }
 
-    private void wrapWithModalWindow(Form form) {
-        Panel panel = new Panel();
-        panel.setWidth("800px");
-        panel.setScrollable(true);
-        panel.addComponent(form);
-        detailsWindow = modalWindow(getMessage("dict.item"), panel);
-    }
-
-    private void saveDictionaryItem(final ProcessDBDictionaryItem item) {
-        if (item.getValues() == null) {
-            item.setValues(new HashSet<ProcessDBDictionaryItemValue>());
-        }
-        else {
-            for (ProcessDBDictionaryItemValue itemValue : item.getValues()) {
-                itemValue.setItem(item);
-                for (ProcessDBDictionaryItemExtension ext : itemValue.getExtensions().values()) {
-                    ext.setItemValue(itemValue);
-                }
-            }
-        }
-        transactionProvider.withTransaction(new ProcessToolGuiCallback() {
-            @Override
-            public void callback(ProcessToolContext ctx, ProcessToolBpmSession session) {
-                ctx.getProcessDictionaryDAO().updateDictionary(item.getDictionary());
-            }
-        });
-        application.getMainWindow().removeWindow(detailsWindow);
-        detailsWindow = null;
-    }
-
-    private ColumnGenerator createValueColumn(final BeanItemContainer container) {
-        return new ColumnGenerator() {
-            @Override
-            public Component generateCell(Table source, final Object itemId, Object columnId) {
-                return new DictPopupView(getMessage("dict.showValues"), new DictPopupVisibilityListener(container, itemId) {
-                    @Override
-                    public String getEmptyDescription() {
-                        return getMessage("dict.item.novalues");
-                    }
-                    @Override
-                    public String getItemRepresentation(ProcessDBDictionaryItemValue item) {
-                        DateFormat dateFormat = VaadinUtility.simpleDateFormat();
-                        StringBuilder sb = new StringBuilder().append("<b>").append(item.getValue()).append("</b>").append(" (").append("<i>");
-                        if (item.hasFullDatesRange()) {
-                            sb.append(getMessage("dict.full.range"));
-                        }
-                        else {
-                            sb.append(item.getValidStartDate() != null ? dateFormat.format(item.getValidStartDate()) : EMPTY_VALID_DATE)
-                                    .append(" - ")
-                                    .append(item.getValidEndDate() != null ? dateFormat.format(item.getValidEndDate()) : EMPTY_VALID_DATE);
-                        }
-                        sb.append("</i>)");
-                        return sb.toString();
-                    }
-                });
-            }
-        };
-    }
-
-    private ColumnGenerator createAdditionalValuesColumn(final BeanItemContainer container) {
-        return new ColumnGenerator() {
-            @Override
-            public Component generateCell(Table source, final Object itemId, Object columnId) {
-                return new DictPopupView(getMessage("dict.showExtensions"), new DictPopupVisibilityListener(container, itemId) {
-                    @Override
-                    public String getEmptyDescription() {
-                        return getMessage("dict.item.noextensions");
-                    }
-
-                    @Override
-                    public String getItemRepresentation(ProcessDBDictionaryItemValue item) {
-                        StringBuilder sb = new StringBuilder().append("<b>").append(item.getValue()).append("</b>").append("<ul>");
-                        List<String> extensionNames = new ArrayList<String>(item.getExtensionNames());
-                        if (extensionNames.isEmpty()) {
-                            sb.append("<li>").append(getMessage("dict.item.noextensions")).append("</li>");
-                        }
-                        else {
-                            java.util.Collections.sort(extensionNames);
-                            for (String extensionName : extensionNames) {
-                                ProcessDBDictionaryItemExtension ext = item.getExtensionByName(extensionName);
-                                sb.append("<li>")
-                                        .append("<b>").append(ext.getName()).append("</b>")
-                                        .append(Strings.hasText(ext.getDescription())
-                                                ? " (" + ext.getDescription() + ")" : "")
-                                        .append(": ")
-                                        .append(Strings.hasText(ext.getValue()) ? "<b>" + ext.getValue() + "</b>"
-                                                : getMessage("dict.item.extensions.novalue"))
-                                        .append("</li>");
-                            }
-                        }
-                        sb.append("</ul>");
-                        return sb.toString();
-                    }
-                });
-            }
-        };
-    }
-
-    private class DictPopupView extends PopupView {
-        private Label info;
-
-        public DictPopupView(final String smallTitle, DictPopupVisibilityListener listener) {
-            super(smallTitle, null);
-            this.info = new Label("", Label.CONTENT_XHTML);
-            this.info.setWidth(400, UNITS_PIXELS);
-            setContent(new Content() {
-                @Override
-                public String getMinimizedValueAsHTML() {
-                    return smallTitle;
-                }
-
-                @Override
-                public Component getPopupComponent() {
-                    return info;
-                }
-            });
-            listener.setLargeView(info);
-            addListener(listener);
-            setHideOnMouseOut(true);
-            addStyleName("bubble");
-        }
-    }
-
-    private abstract class DictPopupVisibilityListener implements PopupVisibilityListener {
-        private final BeanItemContainer container;
-        private final Object itemId;
-        private Label largeView;
-
-        private DictPopupVisibilityListener(BeanItemContainer container, Object itemId) {
-            this.container = container;
-            this.itemId = itemId;
-        }
-
-        public void setLargeView(Label largeView) {
-            this.largeView = largeView;
-        }
-
-        public abstract String getEmptyDescription();
-
-        public abstract String getItemRepresentation(ProcessDBDictionaryItemValue item);
-
-        @Override
-        public void popupVisibilityChange(PopupVisibilityEvent event) {
-            if (event.isPopupVisible()) {
-                ProcessDBDictionaryItem item = (ProcessDBDictionaryItem) container.getItem(itemId).getBean();
-                List<ProcessDBDictionaryItemValue> values = new ArrayList<ProcessDBDictionaryItemValue>(item.getValues());
-                StringBuilder sb = new StringBuilder();
-                if (values.isEmpty()) {
-                    sb.append(getEmptyDescription());
-                }
-                else {
-                    sb.append("<ul>");
-                    java.util.Collections.sort(values, new Comparator<ProcessDBDictionaryItemValue>() {
-                        @Override
-                        public int compare(ProcessDBDictionaryItemValue o1, ProcessDBDictionaryItemValue o2) {
-                            return o1.getValue().compareTo(o2.getValue());
-                        }
-                    });
-                    for (ProcessDBDictionaryItemValue value : values) {
-                        sb.append("<li>").append(getItemRepresentation(value)).append("</li>");
-                    }
-                    sb.append("</ul>");
-                }
-                sb.append("</b>");
-                largeView.setValue(sb.toString());
-            }
-        }
-    }
-
-    private ColumnGenerator createDeleteColumn(final BeanItemContainer container) {
-        return new ColumnGenerator() {
-            @Override
-            public Component generateCell(Table source, final Object itemId, Object columnId) {
-                Button b = smallButton(getMessage("pagedtable.delete"));
-                b.addListener(new ClickListener() {
-                    @Override
-                    public void buttonClick(ClickEvent event) {
-                        ProcessDBDictionaryItem item = (ProcessDBDictionaryItem) container.getItem(itemId).getBean();
-                        final ProcessDBDictionary dictionary = item.getDictionary();
-                        dictionary.removeItem(item.getKey());
-                        item.setDictionary(null);
-                        container.removeItem(itemId);
-                        transactionProvider.withTransaction(new ProcessToolGuiCallback() {
-                            @Override
-                            public void callback(ProcessToolContext ctx, ProcessToolBpmSession session) {
-                                ctx.getProcessDictionaryDAO().updateDictionary(dictionary);
-                            }
-                        });
-                    }
-                });
-                return b;
-            }
-        };
-    }
-
-    private boolean hasPermissionsForDictionary(ProcessDBDictionary config) {
+	private boolean hasPermissionsForDictionary(ProcessDBDictionary config) {
         if (config.getPermissions() == null || config.getPermissions().isEmpty()) {
             return true;
         }
@@ -626,6 +376,42 @@ public class DictionariesMainPane extends VerticalLayout implements ProcessToolB
         });
         return permission != null;
     }
+
+	@Override
+	public void handleItemSave(DBDictionaryItemWrapper wrapper) {
+		final ProcessDBDictionaryItem item = wrapper.getWrappedObject();
+		if (item.getValues() == null) {
+			item.setValues(new HashSet<ProcessDBDictionaryItemValue>());
+		}
+		else {
+			for (ProcessDBDictionaryItemValue itemValue : item.getValues()) {
+				itemValue.setItem(item);
+				for (ProcessDBDictionaryItemExtension ext : itemValue.getExtensions().values()) {
+					ext.setItemValue(itemValue);
+				}
+			}
+		}
+		transactionProvider.withTransaction(new ProcessToolGuiCallback() {
+			@Override
+			public void callback(ProcessToolContext ctx, ProcessToolBpmSession session) {
+				ctx.getProcessDictionaryDAO().updateDictionary(item.getDictionary());
+			}
+		});
+	}
+
+	@Override
+	public void handleItemDelete(DBDictionaryItemWrapper wrapper) {
+		ProcessDBDictionaryItem item = wrapper.getWrappedObject();
+		final ProcessDBDictionary dictionary = item.getDictionary();
+		dictionary.removeItem(item.getKey());
+		item.setDictionary(null);
+		transactionProvider.withTransaction(new ProcessToolGuiCallback() {
+			@Override
+			public void callback(ProcessToolContext ctx, ProcessToolBpmSession session) {
+				ctx.getProcessDictionaryDAO().updateDictionary(dictionary);
+			}
+		});
+	}
 }
 
 

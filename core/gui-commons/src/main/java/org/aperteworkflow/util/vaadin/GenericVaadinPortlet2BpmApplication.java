@@ -57,19 +57,22 @@ public abstract class GenericVaadinPortlet2BpmApplication extends Application im
     protected Collection<String> userRoles = null;
     protected boolean initialized = false;
     protected Locale locale = null;
-
+    
     protected ProcessToolBpmSession bpmSession;
     protected I18NSource i18NSource;
 
     private List<UserData> users;
     private String showKeysString;
     private boolean showExitWarning = false;
-
+    private Locale lastLocale;
+    
     protected abstract void initializePortlet();
 
     protected abstract void renderPortlet();
 
     protected final ListenableSupport<RequestParameterListener> listenable = ListenableSupport.strongListenable();
+
+	
 
     @Override
     public void init() {
@@ -99,6 +102,12 @@ public abstract class GenericVaadinPortlet2BpmApplication extends Application im
 		else {
 			setLocale(Locale.getDefault());
 		}
+		
+		if (lastLocale!=null && !getLocale().equals(lastLocale)){
+			VaadinUtility.informationNotification(this, getMessage("please.relog.lang.change"));
+		}
+		lastLocale = getLocale();
+		
 
 		user = PortalBridge.getLiferayUser(request);
         userRoles = user != null ? user.getRoleNames() : Collections.<String>emptyList();

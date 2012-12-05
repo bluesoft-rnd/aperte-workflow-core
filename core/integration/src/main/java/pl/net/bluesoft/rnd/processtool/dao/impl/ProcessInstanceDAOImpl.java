@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.aperteworkflow.search.ProcessInstanceSearchAttribute;
 import org.aperteworkflow.search.ProcessInstanceSearchData;
@@ -39,6 +40,7 @@ import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
 import pl.net.bluesoft.rnd.processtool.hibernate.transform.NestedAliasToBeanResultTransformer;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttachmentAttribute;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog;
@@ -82,6 +84,12 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
             for (Object o : processInstance.getToDelete()) {
                 session.delete(o);
             }
+        }
+        Set<ProcessInstanceAttribute> procAttrib = processInstance.getProcessAttributes();
+        for (ProcessInstanceAttribute attrib:procAttrib){
+        	if (attrib instanceof ProcessInstanceAttachmentAttribute && attrib.getId()!=null){
+        		session.evict(session.get(attrib.getClass(), attrib.getId()));
+        	}
         }
 		session.saveOrUpdate(processInstance);
         session.flush();

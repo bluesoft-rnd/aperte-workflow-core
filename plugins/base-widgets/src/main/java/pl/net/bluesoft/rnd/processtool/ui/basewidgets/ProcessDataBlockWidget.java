@@ -258,7 +258,14 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
             public void evaluate(Property component, WidgetElement element) throws Exception {
                 if (!component.isReadOnly()) {
                     ProcessInstanceAttribute attribute = fetchOrCreateAttribute(element);
-                    if (attribute instanceof ProcessInstanceSimpleAttribute) {
+                    if (component instanceof FileUploadComponent) {
+                        ProcessInstanceAttachmentAttribute attachment = (ProcessInstanceAttachmentAttribute) component.getValue();
+                        if (attachment==null) return;
+                        attachment.setProcessState(task.getTaskName());
+                        attachment.setProcessInstance(task.getProcessInstance());
+                        attachment.setKey(attribute.getKey());
+                        PropertyUtils.setProperty(processAttributes, element.getBind(), component.getValue());
+                    } else if (attribute instanceof ProcessInstanceSimpleAttribute) {
                         if (element instanceof DateWidgetElement) {
                             String dateString = null;
                             if (component.getValue() != null)
@@ -268,12 +275,6 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                             ((ProcessInstanceSimpleAttribute) attribute).setValue(component.getValue().toString());
                         }
                     } else {
-                        if (component instanceof FileUploadComponent) {
-                            ProcessInstanceAttachmentAttribute attachment = (ProcessInstanceAttachmentAttribute) component.getValue();
-                            attachment.setProcessState(task.getTaskName());
-                            attachment.setProcessInstance(task.getProcessInstance());
-                            attachment.setKey(attribute.getKey());
-                        }
                         PropertyUtils.setProperty(processAttributes, element.getBind(), component.getValue());
                     }
                 }
@@ -308,6 +309,12 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                 } catch (NestedNullException e) {
                     logger.log(Level.SEVERE, e.getMessage(), e);
                 }
+                
+                // file upload fix
+                if (component instanceof FileUploadComponent && value instanceof ProcessInstanceAttachmentAttribute){
+                	component.setValue(value);
+                }
+                
                 value = value instanceof ProcessInstanceSimpleAttribute ?
                         ((ProcessInstanceSimpleAttribute) value).getValue() : value;
                 if (value != null) {

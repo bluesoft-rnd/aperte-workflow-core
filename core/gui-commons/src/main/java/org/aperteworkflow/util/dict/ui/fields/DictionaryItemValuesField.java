@@ -1,4 +1,4 @@
-package pl.net.bluesoft.rnd.processtool.ui.dict.fields;
+package org.aperteworkflow.util.dict.ui.fields;
 
 import com.vaadin.Application;
 import com.vaadin.data.Item;
@@ -9,25 +9,26 @@ import com.vaadin.data.validator.IntegerValidator;
 import com.vaadin.ui.*;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import org.vaadin.addon.customfield.CustomField;
-import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemValue;
-import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+import org.aperteworkflow.util.dict.wrappers.DictionaryItemValueWrapper;
 import org.aperteworkflow.util.vaadin.ui.date.OptionalDateField;
+import org.vaadin.addon.customfield.CustomField;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import java.util.*;
 
+import static org.aperteworkflow.util.dict.wrappers.DictionaryItemValueWrapper.*;
 import static org.aperteworkflow.util.vaadin.VaadinUtility.*;
 
-public class DictionaryItemValuesField extends CustomField {
-    private I18NSource source;
+public abstract class DictionaryItemValuesField extends CustomField {
+	private I18NSource source;
     private Application application;
     private String valueType;
 
     private VerticalLayout itemsLayout;
     private List<ItemValueForm> forms;
 
-    private List<ProcessDBDictionaryItemValue> originalValue = new ArrayList<ProcessDBDictionaryItemValue>();
-    private List<ProcessDBDictionaryItemValue> modifiedValue;
+    private List<DictionaryItemValueWrapper> originalValue = new ArrayList<DictionaryItemValueWrapper>();
+    private List<DictionaryItemValueWrapper> modifiedValue;
     private Label noValuesLabel;
 
     public DictionaryItemValuesField(Application application, I18NSource source, String valueType) {
@@ -50,14 +51,16 @@ public class DictionaryItemValuesField extends CustomField {
         return new ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
-                ProcessDBDictionaryItemValue itemValue = new ProcessDBDictionaryItemValue();
+                DictionaryItemValueWrapper itemValue = createItemValueWrapper();
                 modifiedValue.add(itemValue);
                 createValueRow(itemValue);
             }
         };
     }
 
-    public String getMessage(String key) {
+	protected abstract DictionaryItemValueWrapper createItemValueWrapper();
+
+	public String getMessage(String key) {
         return source.getMessage(key);
     }
 
@@ -73,26 +76,26 @@ public class DictionaryItemValuesField extends CustomField {
             itemsLayout.addComponent(noValuesLabel);
         }
         else {
-            for (ProcessDBDictionaryItemValue itemValue : modifiedValue) {
+            for (DictionaryItemValueWrapper itemValue : modifiedValue) {
                 createValueRow(itemValue);
             }
         }
     }
 
     private void createModifiedListFromOriginal() {
-        modifiedValue = new ArrayList<ProcessDBDictionaryItemValue>();
-        for (ProcessDBDictionaryItemValue val : originalValue) {
+        modifiedValue = new ArrayList<DictionaryItemValueWrapper>();
+        for (DictionaryItemValueWrapper val : originalValue) {
             modifiedValue.add(val.exactCopy());
         }
-        Collections.sort(modifiedValue, new Comparator<ProcessDBDictionaryItemValue>() {
+        Collections.sort(modifiedValue, new Comparator<DictionaryItemValueWrapper>() {
             @Override
-            public int compare(ProcessDBDictionaryItemValue o1, ProcessDBDictionaryItemValue o2) {
+            public int compare(DictionaryItemValueWrapper o1, DictionaryItemValueWrapper o2) {
                 return o1.getValue().compareTo(o2.getValue());
             }
         });
     }
 
-    private void createValueRow(final ProcessDBDictionaryItemValue val) {
+    private void createValueRow(final DictionaryItemValueWrapper val) {
         VerticalLayout content = new VerticalLayout();
         content.setMargin(false, false, true, false);
         content.setWidth("100%");
@@ -108,7 +111,7 @@ public class DictionaryItemValuesField extends CustomField {
         form.addCopyButton(new ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
-                ProcessDBDictionaryItemValue itemValue = val.shallowCopy();
+                DictionaryItemValueWrapper itemValue = val.shallowCopy();
                 modifiedValue.add(itemValue);
                 createValueRow(itemValue);
             }
@@ -137,7 +140,7 @@ public class DictionaryItemValuesField extends CustomField {
         if (!(newValue instanceof Collection)) {
             throw new IllegalArgumentException("Unable to handle non-collection values");
         }
-        originalValue = new ArrayList<ProcessDBDictionaryItemValue>((Collection<? extends ProcessDBDictionaryItemValue>) newValue);
+        originalValue = new ArrayList<DictionaryItemValueWrapper>((Collection<? extends DictionaryItemValueWrapper>) newValue);
         loadData();
         super.setInternalValue(newValue);
     }
@@ -145,8 +148,8 @@ public class DictionaryItemValuesField extends CustomField {
     @Override
     public Object getValue() {
         validateInternal();
-        Set<ProcessDBDictionaryItemValue> value = new HashSet<ProcessDBDictionaryItemValue>();
-        for (ProcessDBDictionaryItemValue val : modifiedValue) {
+        Set<DictionaryItemValueWrapper> value = new HashSet<DictionaryItemValueWrapper>();
+        for (DictionaryItemValueWrapper val : modifiedValue) {
             value.add(val);
         }
         return value;
@@ -163,7 +166,7 @@ public class DictionaryItemValuesField extends CustomField {
             for (ItemValueForm form : forms) {
                 form.commit();
             }
-            for (ProcessDBDictionaryItemValue val : modifiedValue) {
+            for (DictionaryItemValueWrapper val : modifiedValue) {
                 Date startDate = val.getValidStartDate();
                 Date endDate = val.getValidEndDate();
                 if (endDate != null && startDate != null && endDate.before(startDate)) {
@@ -171,14 +174,14 @@ public class DictionaryItemValuesField extends CustomField {
                 }
             }
             boolean startDateFullRange = false, endDateFullRange = false;
-            for (ProcessDBDictionaryItemValue val : modifiedValue) {
+            for (DictionaryItemValueWrapper val : modifiedValue) {
                 startDateFullRange = validateSingleDate(startDateFullRange, val, val.getValidStartDate());
                 endDateFullRange = validateSingleDate(endDateFullRange, val, val.getValidEndDate());
             }
         }
     }
 
-    private boolean validateSingleDate(boolean fullRangeFound, ProcessDBDictionaryItemValue val, Date date) {
+    private boolean validateSingleDate(boolean fullRangeFound, DictionaryItemValueWrapper val, Date date) {
         if (date == null) {
             if (fullRangeFound) {
                 throw new InvalidValueException(getMessage("validate.item.val.dates"));
@@ -188,7 +191,7 @@ public class DictionaryItemValuesField extends CustomField {
             }
         }
         else {
-            for (ProcessDBDictionaryItemValue otherVal : modifiedValue) {
+            for (DictionaryItemValueWrapper otherVal : modifiedValue) {
                 if (val != otherVal && otherVal.isValidForDate(date)) {
                     throw new InvalidValueException(getMessage("validate.item.val.dates"));
                 }
@@ -220,7 +223,7 @@ public class DictionaryItemValuesField extends CustomField {
         @Override
         public Field createField(Item item, Object propertyId, Component uiContext) {
             Field field = null;
-            if (propertyId.equals("stringValue")) {
+            if (propertyId.equals(_VALUE)) {
                 TextField textField = new TextField(getMessage("dict.item.value"));
                 textField.setNullRepresentation("");
                 textField.setRequired(true);
@@ -236,26 +239,28 @@ public class DictionaryItemValuesField extends CustomField {
                 textField.setWidth("100%");
                 field = textField;
             }
-            else if (propertyId.equals("validStartDate") || propertyId.equals("validEndDate")) {
+            else if (propertyId.equals(_VALID_START_DATE) || propertyId.equals(_VALID_END_DATE)) {
                 OptionalDateField dateField = new OptionalDateField(source);
-                dateField.setCaption(getMessage("dict.item.value.valid." + (propertyId.equals("validStartDate") ? "from" : "to")));
+                dateField.setCaption(getMessage("dict.item.value.valid." + (propertyId.equals(_VALID_START_DATE) ? "from" : "to")));
                 dateField.setDateFormat(SIMPLE_DATE_FORMAT_STRING);
                 field = dateField;
             }
-            else if (propertyId.equals("extensions")) {
-                field = new DictionaryItemExtensionField(application, source);
+            else if (propertyId.equals(_EXTENSIONS)) {
+                field = createItemExtensionField(application, source);
             }
             return field;
         }
     }
 
-    private class ItemValueForm extends Form {
+	protected abstract DictionaryItemExtensionField createItemExtensionField(Application application, I18NSource source);
+
+	private class ItemValueForm extends Form {
         private GridLayout layout;
         private HorizontalLayout buttonLayout;
         private Button deleteButton;
         private Button copyButton;
 
-        private ItemValueForm(ProcessDBDictionaryItemValue val) {
+        private ItemValueForm(DictionaryItemValueWrapper val) {
             layout = new GridLayout(3, 3);
             layout.setSpacing(true);
             layout.setMargin(false, false, false, true);
@@ -280,8 +285,8 @@ public class DictionaryItemValuesField extends CustomField {
             setImmediate(true);
             setInvalidCommitted(false);
             setFormFieldFactory(new ItemValueFormFieldFactory());
-            setItemDataSource(new BeanItem<ProcessDBDictionaryItemValue>(val));
-            setVisibleItemProperties(new String[] {"stringValue", "validStartDate", "validEndDate", "extensions"});
+            setItemDataSource(new BeanItem<DictionaryItemValueWrapper>(val));
+            setVisibleItemProperties(new String[] { _VALUE, _VALID_START_DATE, _VALID_END_DATE, _EXTENSIONS});
         }
 
         public void addDeleteButton(ClickListener listener) {
@@ -300,16 +305,16 @@ public class DictionaryItemValuesField extends CustomField {
 
         @Override
         protected void attachField(Object propertyId, Field field) {
-            if ("stringValue".equals(propertyId)) {
+            if (_VALUE.equals(propertyId)) {
                 layout.addComponent(field, 0, 0, 1, 0);
             }
-            else if ("validStartDate".equals(propertyId)) {
+            else if (_VALID_START_DATE.equals(propertyId)) {
                 layout.addComponent(field, 0, 1);
             }
-            else if ("validEndDate".equals(propertyId)) {
+            else if (_VALID_END_DATE.equals(propertyId)) {
                 layout.addComponent(field, 1, 1);
             }
-            else if ("extensions".equals(propertyId)) {
+            else if (_EXTENSIONS.equals(propertyId)) {
                 layout.addComponent(field, 0, 2, 2, 2);
             }
             layout.setComponentAlignment(field, Alignment.MIDDLE_LEFT);

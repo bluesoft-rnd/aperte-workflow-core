@@ -1,13 +1,10 @@
-package org.aperteworkflow.editor.processeditor.tab.message;
+package org.aperteworkflow.editor.processeditor.tab.dict;
 
 import com.vaadin.ui.VerticalLayout;
-import org.aperteworkflow.editor.domain.Language;
 import org.aperteworkflow.editor.domain.ProcessConfig;
 import org.aperteworkflow.editor.vaadin.DataHandler;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 public class DictionaryTab extends VerticalLayout implements DataHandler {
 
@@ -27,22 +24,14 @@ public class DictionaryTab extends VerticalLayout implements DataHandler {
 
     @Override
     public void loadData() {
-        if (processConfig.getDictionary() == null) {
-            editor.setDictionaryToUpload(null);
-        } else {
-            editor.setDictionaryToUpload(processConfig.getDictionary());
-        }
+		editor.setDictionary(processConfig.getDictionary());
         editor.loadData();
     }
 
-    @Override
+	@Override
     public void saveData() {
         editor.saveData();
-        if (editor.getDictionaryToUpload() == null) {
-            processConfig.setDictionary(null);
-        } else {
-            processConfig.setDictionary(editor.getDictionaryToUpload());
-        }
+		processConfig.setDictionary(editor.getDictionary());
     }
 
     @Override

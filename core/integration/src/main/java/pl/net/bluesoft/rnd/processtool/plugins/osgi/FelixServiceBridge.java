@@ -16,7 +16,8 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.*;
 
-import static pl.net.bluesoft.rnd.processtool.plugins.osgi.OSGiBundleHelper.*;
+import static pl.net.bluesoft.rnd.processtool.plugins.osgi.BundleInstallationHandler.*;
+import static pl.net.bluesoft.rnd.processtool.plugins.osgi.OSGiBundleHelper.getBundleResourceStream;
 import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 
 public class FelixServiceBridge implements ProcessToolServiceBridge {

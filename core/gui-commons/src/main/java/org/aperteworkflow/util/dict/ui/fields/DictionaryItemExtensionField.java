@@ -1,4 +1,4 @@
-package pl.net.bluesoft.rnd.processtool.ui.dict.fields;
+package org.aperteworkflow.util.dict.ui.fields;
 
 import com.vaadin.Application;
 import com.vaadin.data.Item;
@@ -7,25 +7,27 @@ import com.vaadin.data.util.BeanItem;
 import com.vaadin.ui.*;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import org.aperteworkflow.util.dict.wrappers.DictionaryItemExtensionWrapper;
 import org.vaadin.addon.customfield.CustomField;
-import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemExtension;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import java.util.*;
 
+import static org.aperteworkflow.util.dict.wrappers.DictionaryItemExtensionWrapper._NAME;
+import static org.aperteworkflow.util.dict.wrappers.DictionaryItemExtensionWrapper._VALUE;
 import static org.aperteworkflow.util.vaadin.VaadinUtility.addIcon;
 import static org.aperteworkflow.util.vaadin.VaadinUtility.deleteIcon;
 
-public class DictionaryItemExtensionField extends CustomField  {
-    private I18NSource source;
+public abstract class DictionaryItemExtensionField extends CustomField  {
+	private I18NSource source;
     private Application application;
     private Button addButton;
 
     private VerticalLayout itemsLayout;
     private Label noExtensionsLabel;
 
-    private Map<String, ProcessDBDictionaryItemExtension> originalValue = new HashMap<String, ProcessDBDictionaryItemExtension>();
-    private List<ProcessDBDictionaryItemExtension> modifiedValue;
+    private Map<String, DictionaryItemExtensionWrapper> originalValue = new HashMap<String, DictionaryItemExtensionWrapper>();
+    private List<DictionaryItemExtensionWrapper> modifiedValue;
 
     public DictionaryItemExtensionField(Application application, I18NSource source) {
         this.source = source;
@@ -50,7 +52,7 @@ public class DictionaryItemExtensionField extends CustomField  {
         addButton.addListener(new ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
-                ProcessDBDictionaryItemExtension itemExtension = new ProcessDBDictionaryItemExtension();
+				DictionaryItemExtensionWrapper itemExtension = createDictionaryItemExtensionWrapper();
                 modifiedValue.add(itemExtension);
                 createExtensionRow(itemExtension);
             }
@@ -72,7 +74,9 @@ public class DictionaryItemExtensionField extends CustomField  {
         setCompositionRoot(root);
     }
 
-    public String getMessage(String key) {
+	protected abstract DictionaryItemExtensionWrapper createDictionaryItemExtensionWrapper();
+
+	public String getMessage(String key) {
         return source.getMessage(key);
     }
 
@@ -87,26 +91,26 @@ public class DictionaryItemExtensionField extends CustomField  {
             itemsLayout.addComponent(noExtensionsLabel);
         }
         else {
-            for (ProcessDBDictionaryItemExtension itemExtension : modifiedValue) {
+            for (DictionaryItemExtensionWrapper itemExtension : modifiedValue) {
                 createExtensionRow(itemExtension);
             }
         }
     }
 
     private void createModifiedListFromOriginal() {
-        modifiedValue = new ArrayList<ProcessDBDictionaryItemExtension>();
-        for (ProcessDBDictionaryItemExtension ext : originalValue.values()) {
+        modifiedValue = new ArrayList<DictionaryItemExtensionWrapper>();
+        for (DictionaryItemExtensionWrapper ext : originalValue.values()) {
             modifiedValue.add(ext.exactCopy());
         }
-        Collections.sort(modifiedValue, new Comparator<ProcessDBDictionaryItemExtension>() {
+        Collections.sort(modifiedValue, new Comparator<DictionaryItemExtensionWrapper>() {
             @Override
-            public int compare(ProcessDBDictionaryItemExtension o1, ProcessDBDictionaryItemExtension o2) {
+            public int compare(DictionaryItemExtensionWrapper o1, DictionaryItemExtensionWrapper o2) {
                 return o1.getName().compareTo(o2.getName());
             }
         });
     }
 
-    private void createExtensionRow(final ProcessDBDictionaryItemExtension ext) {
+    private void createExtensionRow(final DictionaryItemExtensionWrapper ext) {
         final ItemExtensionForm form = new ItemExtensionForm(ext);
         form.setWidth("100%");
         form.addDeleteButton(new ClickListener() {
@@ -130,7 +134,7 @@ public class DictionaryItemExtensionField extends CustomField  {
         if (newValue != null && !(newValue instanceof Map)) {
             throw new IllegalArgumentException("Unable to handle non-map values");
         }
-        originalValue = (Map<String, ProcessDBDictionaryItemExtension>) newValue;
+        originalValue = (Map<String, DictionaryItemExtensionWrapper>) newValue;
         loadData();
         super.setInternalValue(newValue);
     }
@@ -138,8 +142,8 @@ public class DictionaryItemExtensionField extends CustomField  {
     @Override
     public Object getValue() {
         validateInternal();
-        Map<String, ProcessDBDictionaryItemExtension> value = new HashMap<String, ProcessDBDictionaryItemExtension>();
-        for (ProcessDBDictionaryItemExtension ext : modifiedValue) {
+        Map<String, DictionaryItemExtensionWrapper> value = new HashMap<String, DictionaryItemExtensionWrapper>();
+        for (DictionaryItemExtensionWrapper ext : modifiedValue) {
             value.put(ext.getName(), ext);
         }
         return value;
@@ -157,8 +161,8 @@ public class DictionaryItemExtensionField extends CustomField  {
                 ItemExtensionForm form = (ItemExtensionForm) it.next();
                 form.commit();
             }
-            for (ProcessDBDictionaryItemExtension ext : modifiedValue) {
-                for (ProcessDBDictionaryItemExtension otherExt : modifiedValue) {
+            for (DictionaryItemExtensionWrapper ext : modifiedValue) {
+                for (DictionaryItemExtensionWrapper otherExt : modifiedValue) {
                     if (ext != otherExt && ext.getName().equals(otherExt.getName())) {
                         throw new InvalidValueException(getMessage("validate.item.ext.name.duplicate").replaceFirst("%s", ext.getName()));
                     }
@@ -191,7 +195,7 @@ public class DictionaryItemExtensionField extends CustomField  {
         private HorizontalLayout layout;
         private Button deleteButton;
 
-        private ItemExtensionForm(ProcessDBDictionaryItemExtension ext) {
+        private ItemExtensionForm(DictionaryItemExtensionWrapper ext) {
             layout = new HorizontalLayout();
             layout.setSpacing(true);
             layout.setWidth("100%");
@@ -203,8 +207,8 @@ public class DictionaryItemExtensionField extends CustomField  {
             setImmediate(true);
             setInvalidCommitted(false);
             setFormFieldFactory(new ItemExtensionFormFieldFactory());
-            setVisibleItemProperties(new String[] {"name", "stringValue"});
-            setItemDataSource(new BeanItem<ProcessDBDictionaryItemExtension>(ext));
+            setVisibleItemProperties(new String[] { _NAME, _VALUE });
+            setItemDataSource(new BeanItem<DictionaryItemExtensionWrapper>(ext));
 
             deleteButton = deleteIcon(application);
             deleteButton.setCaption(getMessage("dict.delete.ext"));
@@ -232,10 +236,10 @@ public class DictionaryItemExtensionField extends CustomField  {
         @Override
         public Field createField(Item item, Object propertyId, Component uiContext) {
             Field field = null;
-            if (propertyId.equals("name") || propertyId.equals("stringValue")) {
+            if (propertyId.equals(_NAME) || propertyId.equals(_VALUE)) {
                 TextField textField = new TextField();
                 textField.setNullRepresentation("");
-                if ("name".equals(propertyId)) {
+                if (_NAME.equals(propertyId)) {
                     textField.setRequired(true);
                     textField.setRequiredError(getMessage("validate.item.ext.name.empty"));
                     textField.setCaption(getMessage("dict.item.extensions.name"));

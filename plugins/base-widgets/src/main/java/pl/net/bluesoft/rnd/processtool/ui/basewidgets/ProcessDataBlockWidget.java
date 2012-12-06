@@ -312,6 +312,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                 
                 // file upload fix
                 if (component instanceof FileUploadComponent && value instanceof ProcessInstanceAttachmentAttribute){
+                	element.setValue(value);
                 	component.setValue(value);
                 }
                 
@@ -530,14 +531,6 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         try {
             if (!hasText(getScriptEngineType()) || !hasText(getScriptSourceCode()) && !hasText(getScriptExternalUrl()))
                 return executed;
-
-            
-            Iterator<Component> componentIterator = mainPanel.getComponentIterator();
-            while (componentIterator.hasNext()) {
-				Component component = (Component) componentIterator.next();
-				
-				
-			}
             Map<String, Object> fields = getFieldsMap(widgetsDefinitionElement.getWidgets());
             fields.put("process", processInstance);
 
@@ -729,6 +722,10 @@ addListinersToComponents(dynamicValidationComponents);
 
     private AbstractComponent createFileUploadField(UploadWidgetElement element) {
         FileUploadComponent upload = new FileUploadComponent(i18NSource);
+        if(element.getValue()!=null){
+        	upload.setValue(element.getValue());
+        	
+        }
         return upload;
     }
 

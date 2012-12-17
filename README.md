@@ -5,7 +5,7 @@ Aperte Workflow is a compilation of well-known, stable and mature frameworks int
 at [http://www.aperteworkflow.org/](http://www.aperteworkflow.org/).
 
 # Version history
-* 2012-12-13: Aperte Workflow 2.0 RC1 [[2.0 RC1 Release notes]] | [Download](https://sourceforge.net/projects/aperteworkflow/files/AW2.0-RC1/)
+* 2012-12-13: Aperte Workflow 2.0 RC1 [Release notes](https://github.com/bluesoft-rnd/aperte-workflow-core/wiki/2.0-RC1-Release-notes) | [Download](https://sourceforge.net/projects/aperteworkflow/files/AW2.0-RC1/)
 * 2011-02-17: Aperte Workflow 1.0 [Release notes](https://github.com/bluesoft-rnd/aperte-workflow-core/wiki/1.0-release-notes) | [Download](https://sourceforge.net/projects/aperteworkflow/files/AW1.0/)
 * 2011-02-02: Aperte Workflow BETA2 [Release notes](https://github.com/bluesoft-rnd/aperte-workflow-core/wiki/Beta2-release-notes) | [Download](https://sourceforge.net/projects/aperteworkflow/files/BETA2/)
 

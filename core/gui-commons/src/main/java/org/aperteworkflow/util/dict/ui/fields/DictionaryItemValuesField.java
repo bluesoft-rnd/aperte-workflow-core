@@ -91,6 +91,7 @@ public abstract class DictionaryItemValuesField extends CustomField {
             @Override
             public int compare(DictionaryItemValueWrapper o1, DictionaryItemValueWrapper o2) 
             {
+            	
             	/* The null value is higher then anything else */
             	if(o1.getValidStartDate() == null)
             		return Integer.MIN_VALUE;
@@ -98,8 +99,14 @@ public abstract class DictionaryItemValuesField extends CustomField {
             	else if(o2.getValidStartDate() == null)
             		return Integer.MAX_VALUE;
             	
+    			/* Fix na IBMowa impelementacje TimeStampa, który próbuje rzutować
+    			 * obiekt Date na Timestamp i przez to leci wyjątek. 
+    			 */
+    			Date paymentDate1 = new Date(o1.getValidStartDate().getTime());
+    			Date paymentDate2 = new Date(o2.getValidStartDate().getTime());
+            	
             	/* The newer the date is the position of value is higher in collection */
-                return o2.getValidStartDate().compareTo(o1.getValidStartDate());
+                return paymentDate2.compareTo(paymentDate1);
             }
         });
     }

@@ -89,8 +89,17 @@ public abstract class DictionaryItemValuesField extends CustomField {
         }
         Collections.sort(modifiedValue, new Comparator<DictionaryItemValueWrapper>() {
             @Override
-            public int compare(DictionaryItemValueWrapper o1, DictionaryItemValueWrapper o2) {
-                return o1.getValue().compareTo(o2.getValue());
+            public int compare(DictionaryItemValueWrapper o1, DictionaryItemValueWrapper o2) 
+            {
+            	/* The null value is higher then anything else */
+            	if(o1.getValidStartDate() == null)
+            		return Integer.MIN_VALUE;
+            	
+            	else if(o2.getValidStartDate() == null)
+            		return Integer.MAX_VALUE;
+            	
+            	/* The newer the date is the position of value is higher in collection */
+                return o2.getValidStartDate().compareTo(o1.getValidStartDate());
             }
         });
     }

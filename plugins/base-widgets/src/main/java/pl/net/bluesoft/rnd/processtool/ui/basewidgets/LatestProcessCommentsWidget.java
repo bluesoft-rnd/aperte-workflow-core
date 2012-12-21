@@ -2,13 +2,16 @@ package pl.net.bluesoft.rnd.processtool.ui.basewidgets;
 
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.ui.*;
+import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComment;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComments;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinRenderable;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.*;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolVaadinWidget;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
 import pl.net.bluesoft.util.lang.FormatUtil;
 
 import java.util.*;
@@ -18,22 +21,33 @@ import static pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessHistoryWidge
 @AliasName(name = "LatestComments")
 @AperteDoc(humanNameKey="widget.latest_process_comments.name", descriptionKey="widget.latest_process_comments.description")
 @ChildrenAllowed(false)
-@WidgetGroup("base-widgets")
-public class LatestProcessCommentsWidget extends BaseProcessToolVaadinWidget implements ProcessToolDataWidget {
+public class LatestProcessCommentsWidget extends BaseProcessToolVaadinWidget implements ProcessToolVaadinRenderable, ProcessToolDataWidget {
+	@AutoWiredProperty(required = false)
+	@AperteDoc(humanNameKey="widget.latest_process_comments.property.displayed_comments.name", descriptionKey="widget.latest_process_comments.property.displayed_comments.description")
+	private int displayedComments = 1;
+
+    public static final String MODE_DEFAULT = "DEFAULT";
+    public static final String MODE_SMART = "SMART";
 
     @AutoWiredProperty(required = false)
-    @AperteDoc(
-            humanNameKey="widget.latest_process_comments.property.displayed_comments.name",
-            descriptionKey="widget.latest_process_comments.property.displayed_comments.description"
-    )
-    private Integer displayedComments = 1;
+    private String mode = MODE_DEFAULT;
+
+    private boolean showContent = true;
 
     private BeanItemContainer<ProcessComment> bic = new BeanItemContainer<ProcessComment>(ProcessComment.class);
 
     @Override
-    public void loadData(ProcessInstance processInstance) {
+	public void loadData(BpmTask task) {
+        ProcessInstance pi = task.getProcessInstance().getRootProcessInstance();
+
+        if (mode.equalsIgnoreCase(MODE_SMART)) {
+            if (!"true".equalsIgnoreCase(pi.getSimpleAttributeValue("commentAdded", "false"))) {
+                showContent = false;
+            }
+        }
+
         bic.removeAllItems();
-        ProcessComments comments = processInstance.findAttributeByClass(ProcessComments.class);
+		ProcessComments comments = pi.findAttributeByClass(ProcessComments.class);
         if (comments != null) {
             List<ProcessComment> lst = new ArrayList<ProcessComment>(comments.getComments());
             Collections.sort(lst, new Comparator<ProcessComment>() {
@@ -50,6 +64,10 @@ public class LatestProcessCommentsWidget extends BaseProcessToolVaadinWidget imp
 
     @Override
     public Component render() {
+        if (!showContent) {
+            return null;
+        }
+
         Panel commentsPanel = new Panel();
         commentsPanel.setStyleName("borderless light");
         commentsPanel.setWidth("100%");
@@ -64,7 +82,10 @@ public class LatestProcessCommentsWidget extends BaseProcessToolVaadinWidget imp
             layout.addComponent(l);
         }
         else {
+			boolean first = true;
             for (ProcessComment pc : bic.getItemIds()) {
+				VerticalLayout vl = new VerticalLayout();
+
                 HorizontalLayout hl;
                 hl = new HorizontalLayout();
                 hl.setSpacing(true);
@@ -76,9 +97,9 @@ public class LatestProcessCommentsWidget extends BaseProcessToolVaadinWidget imp
                                 + " )";
                 }
                 hl.addComponent(label("<b>" + authorLabel + "</b>", 150));
-                hl.addComponent(label("<b>" + FormatUtil.formatFullDate(pc.getCreateTime()) + "</b>", 130));
-                hl.addComponent(label(pc.getComment(), 450));
-                layout.addComponent(hl);
+                hl.addComponent(label("<b>" + FormatUtil.formatFullDate(pc.getCreateTime()) + "</b>", 150));
+				//                hl.addComponent(label(pc.getComment(), 450));
+                vl.addComponent(hl);
 
                 hl = new HorizontalLayout();
                 hl.setWidth("100%");
@@ -88,7 +109,13 @@ public class LatestProcessCommentsWidget extends BaseProcessToolVaadinWidget imp
                 l.setWidth("100%");
                 hl.addComponent(l);
                 hl.setExpandRatio(l, 1.0f);
-                layout.addComponent(hl);
+                vl.addComponent(hl);
+
+				if (first) {
+					vl.addStyleName("latest-comment-indication");
+					first = false;
+				}
+				layout.addComponent(vl);
             }
         }
 
@@ -103,11 +130,11 @@ public class LatestProcessCommentsWidget extends BaseProcessToolVaadinWidget imp
     }
 
     @Override
-    public void saveData(ProcessInstance processInstance) {
+	public void saveData(BpmTask task) {
     }
 
     @Override
-    public Collection<String> validateData(ProcessInstance processInstance) {
+	public Collection<String> validateData(BpmTask task, boolean skipRequired) {
         return null;
     }
 
@@ -124,4 +151,11 @@ public class LatestProcessCommentsWidget extends BaseProcessToolVaadinWidget imp
         this.displayedComments = displayedComments;
     }
 
+    public String getMode() {
+        return mode;
+    }
+
+    public void setMode(String mode) {
+        this.mode = mode;
+    }
 }

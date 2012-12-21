@@ -1,10 +1,12 @@
 package pl.net.bluesoft.rnd.processtool.ui.activity;
 
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-
 import java.util.Calendar;
 import java.util.List;
+
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
+import pl.net.bluesoft.rnd.processtool.model.QueueType;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -13,16 +15,27 @@ public class RecentProcessesListPane extends MyProcessesListPane {
 
 	private Calendar minDate;
 
-	public RecentProcessesListPane(ActivityMainPane activityMainPane, String title, Calendar minDate) {
+	public RecentProcessesListPane(ActivityMainPane activityMainPane, String title) {
 		super(activityMainPane, title);
-		this.minDate = minDate;
+	}
+
+    public void setMinDate(Calendar minDate) {
+        this.minDate = minDate;
+    }
+
+    @Override
+	public List<BpmTask> getBpmTasks() {
+		ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
+        return getBpmSession().findRecentTasks(minDate, offset, limit, ctx);
 	}
 
 	@Override
-	protected List<ProcessInstance> getProcessInstances(String filterExpression, int offset, int limit) {
-        //rather straightforward approach
+	protected ProcessInstanceFilter getDefaultFilter() {
+		ProcessInstanceFilter tfi = new ProcessInstanceFilter();
 		ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-		return ctx.getProcessInstanceDAO().getRecentProcesses(getBpmSession().getUser(ctx), minDate, filterExpression,
-                offset, limit);
+		tfi.addOwner(getBpmSession().getUser(ctx));
+		tfi.setUpdatedAfter(minDate.getTime());
+		tfi.addQueueType(QueueType.ASSIGNED_TO_CURRENT_USER);
+		return tfi;
 	}
 }

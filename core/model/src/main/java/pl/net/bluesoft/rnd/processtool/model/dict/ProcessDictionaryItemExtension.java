@@ -7,4 +7,6 @@ public interface ProcessDictionaryItemExtension<V> {
     void setValue(V value);
     String getValueType();
     void setValueType(String valueType);
+    String getDescription();
+    void setDescription(String description);
 }

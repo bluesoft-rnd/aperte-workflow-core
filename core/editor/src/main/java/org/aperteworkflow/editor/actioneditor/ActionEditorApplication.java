@@ -23,7 +23,10 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.util.lang.Classes;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -51,12 +54,14 @@ public class ActionEditorApplication extends GenericEditorApplication implements
 		}
 
 		url = getStringParameterByName("callbackUrl", parameters);
-		String buttonType = getStringParameterByName("buttonType", parameters);
+		String buttonType = getStringParameterByName("buttonType", parameters); 
 		String buttonName = getStringParameterByName("buttonName", parameters);
 		String actionParameters = getStringParameterByName("actionParameters", parameters);
+		
+	
 		if (!StringUtils.isEmpty(actionParameters)) {
 			try {
-				oldActionParameters = mapper.readValue(actionParameters, new TypeReference<HashMap<String,Object>>(){});
+						 oldActionParameters=mapper.readValue(actionParameters, new TypeReference<HashMap<String,Object>>(){});
 			} catch (JsonParseException e) {
 				logger.log(Level.SEVERE, "Error reading action parameters", e);
 			} catch (JsonMappingException e) {
@@ -67,6 +72,7 @@ public class ActionEditorApplication extends GenericEditorApplication implements
 		}
 		refreshWindow(buttonType, buttonName);
 	}
+	
 
 	private void refreshWindow(String buttonType, String buttonName) {
 		mainWindow.removeAllComponents();
@@ -81,7 +87,7 @@ public class ActionEditorApplication extends GenericEditorApplication implements
 		buttonList = prepareButtonList(buttonType);
 		main.addComponent(buttonList);
 		if (!StringUtils.isEmpty(buttonType)) {
-			Class<? extends ProcessToolActionButton> buttonClass = getRegistry().getAvailableButtons().get(buttonType);
+			Class<? extends ProcessToolActionButton> buttonClass = getRegistry().getAvailableButtons().get(buttonType); 
 			propertiesPanel.init(buttonClass);
 			propertiesPanel.refreshForm(true, oldActionParameters);
 			main.addComponent(propertiesPanel);
@@ -109,18 +115,42 @@ public class ActionEditorApplication extends GenericEditorApplication implements
 		final Select buttonList = new Select();
 		buttonList.setNullSelectionAllowed(false);
 		buttonList.setImmediate(true);
-
-		ProcessToolRegistry reg = getRegistry();
-
-		Map<String, Class<? extends ProcessToolActionButton>> availableButtons = reg.getAvailableButtons();
+		
+		 // method-level class used for sorting
+        class Item implements Comparable<Item> {
+        	public Class<? extends ProcessToolActionButton> stepClass;
+        	public String caption;
+        	
+			public Item(Class<? extends ProcessToolActionButton> stepClass, String caption) {
+				this.stepClass = stepClass;
+				this.caption = caption;
+			}
+			
+			@Override
+			public int compareTo(Item o) {
+				return caption.compareTo(o.caption);
+			}
+        }
+        
+        List<Item> items = new LinkedList<Item>();
+        Class<? extends ProcessToolActionButton> active = null;
+		Map<String, Class<? extends ProcessToolActionButton>> availableButtons = getRegistry().getAvailableButtons();
 		for (Class<? extends ProcessToolActionButton> stepClass : availableButtons.values()) {
 			AliasName a = Classes.getClassAnnotation(stepClass, AliasName.class);
-			buttonList.addItem(stepClass);
-			buttonList.setItemCaption(stepClass, a.name());
+			items.add(new Item(stepClass,a.name()));
+			
 			if (a.name().equals(buttonType))
-				buttonList.setValue(stepClass);
+				active=stepClass;
 		}
 		
+		
+		Collections.sort(items);
+	        
+	    for (Item item:items){
+	    	buttonList.addItem(item.stepClass);
+	    	buttonList.setItemCaption(item.stepClass, item.caption);
+	    }
+	    buttonList.setValue(active);
 		buttonList.addListener(new Property.ValueChangeListener() {
 			@Override
 			public void valueChange(ValueChangeEvent event) {
@@ -134,7 +164,6 @@ public class ActionEditorApplication extends GenericEditorApplication implements
 	}
 
 
-
 	@Override
 	public void buttonClick(ClickEvent event) {
 		if (event.getComponent() == saveButton) {
@@ -145,7 +174,9 @@ public class ActionEditorApplication extends GenericEditorApplication implements
 			}
 			ActionDef actionDef = new ActionDef();
 			actionDef.setButtonType(buttonList.getItemCaption(buttonList.getValue()));
+			//Map<String, Object> codedPropertiesValue = codePropertiesValue(propertiesPanel.getPropertiesMap());
 			actionDef.setItems(propertiesPanel.getPropertiesMap());
+			 
 			
 			try {
 			  String s = mapper.writeValueAsString(actionDef);
@@ -159,4 +190,7 @@ public class ActionEditorApplication extends GenericEditorApplication implements
 			}
 		}
 	}
-}
+
+
+	
+	}

@@ -1,12 +1,8 @@
 package pl.net.bluesoft.rnd.pt.ext.emailcapture;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.bpm.BpmTask;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceSimpleAttribute;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.processtool.model.*;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.pt.ext.emailcapture.model.EmailCheckerConfiguration;
 import pl.net.bluesoft.rnd.pt.ext.emailcapture.model.EmailCheckerRuleConfiguration;
@@ -94,17 +90,26 @@ public class EmailChecker {
 
     private void processMessage(Message msg, EmailCheckerConfiguration cfg, ProcessToolBpmSession toolBpmSession) throws MessagingException, IOException {
         String subject = msg.getSubject();
-        String recipients = "";
-        if (msg.getHeader("To") != null) for (String h : msg.getHeader("To")) {
-            recipients += h + ",";
-        }
-        if (msg.getHeader("Cc") != null) for (String h : msg.getHeader("Cc")) {
-            recipients += h + ",";
-        }
-        String sender = "";
-        if (msg.getFrom() != null) for (Address a : msg.getFrom()) {
-            sender += a.toString() + ",";
-        }
+        StringBuilder recipientBuilder = new StringBuilder();
+		if (msg.getHeader("To") != null) {
+			for (String h : msg.getHeader("To")) {
+				recipientBuilder.append(h).append(",");
+			}
+		}
+		if (msg.getHeader("Cc") != null) {
+			for (String h : msg.getHeader("Cc")) {
+				recipientBuilder.append(h).append(",");
+			}
+		}
+		String recipients = recipientBuilder.toString();
+        StringBuilder senderBuilder = new StringBuilder();
+		if (msg.getFrom() != null) {
+			for (Address a : msg.getFrom()) {
+				senderBuilder.append(a.toString()).append(",");
+			}
+		}
+		String sender = senderBuilder.toString();
+
         String description = subject + ", from: " + recipients + ", sent by: " + sender;
         logger.fine("Processing message: " + description);
 
@@ -142,12 +147,12 @@ public class EmailChecker {
             }
             if (existingPi == null) {
                 if (hasText(rule.getRecipientRegexp())) {
-                    if (recipients == null || !recipients.matches(rule.getRecipientRegexp())) {
+                    if (recipients == null || recipients.isEmpty() || !recipients.matches(rule.getRecipientRegexp())) {
                         continue;
                     }
                 }
                 if (hasText(rule.getSenderRegexp())) {
-                    if (sender == null || !sender.matches(rule.getSenderRegexp())) {
+                    if (sender == null || sender.isEmpty() || !sender.matches(rule.getSenderRegexp())) {
                         continue;
                     }
                 }
@@ -173,7 +178,7 @@ public class EmailChecker {
                 existingPi = toolBpmSession.createProcessInstance(context.getProcessDefinitionDAO().getActiveConfigurationByKey(rule.getProcessCode()),
                         null, context,
                         subject,
-                        preparedSubject, "email");
+                        preparedSubject, "email", null);
                 //save initial email data
                 existingPi.addAttribute(new ProcessInstanceSimpleAttribute("email_from", sender));
                 existingPi.addAttribute(new ProcessInstanceSimpleAttribute("email_subject", msg.getSubject()));
@@ -197,13 +202,13 @@ public class EmailChecker {
             }
 
             if (existingPi != null && hasText(rule.getRunningProcessActionName())) {
-                Collection<BpmTask> taskList = toolBpmSession.getTaskList(existingPi, context);
+                Collection<BpmTask> taskList = toolBpmSession.findProcessTasks(existingPi, context);
                 for (BpmTask t : taskList) {
                     if (!hasText(rule.getProcessTaskName()) || rule.getProcessTaskName().equalsIgnoreCase(t.getTaskName())) {
-                        Set<ProcessStateAction> actions = context.getProcessDefinitionDAO().getProcessStateConfiguration(existingPi).getActions();
+                        Set<ProcessStateAction> actions = context.getProcessDefinitionDAO().getProcessStateConfiguration(t).getActions();
                         for (ProcessStateAction a : actions) {
                             if (rule.getRunningProcessActionName().equals(a.getBpmName())) {
-                                toolBpmSession.performAction(a, existingPi, context, t);
+                                toolBpmSession.performAction(a, t, context);
                                 logger.info("Performed action " + rule.getId() + " on matched message " + description +
                                         ", process code: " + rule.getProcessCode() + " process id: " + existingPi.getInternalId());
                                 break;

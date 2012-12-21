@@ -54,6 +54,16 @@ public class DateWidgetElement extends WidgetElement {
 
     @XmlAttribute
     @XStreamAsAttribute
+    @AperteDoc(humanNameKey = "date.discludeNotBefore", descriptionKey = "date.discludeNotBefore.description")
+    private Boolean discludeNotBefore;
+    
+    @XmlAttribute
+    @XStreamAsAttribute
+    @AperteDoc(humanNameKey = "date.discludeNotAfter", descriptionKey = "date.discludeNotAfter.description")
+    private Boolean discludeNotAfter;
+    
+    @XmlAttribute
+    @XStreamAsAttribute
     @AperteDoc(humanNameKey = "any.required", descriptionKey = "any.required.description")
     private Boolean required;
 
@@ -79,7 +89,7 @@ public class DateWidgetElement extends WidgetElement {
 
     public void setDiscludeNotBefore(Boolean discludeNotBefore) {
         this.discludeNotBefore = discludeNotBefore;
-    }
+    }    
 
     public String getFormat() {
         return format;

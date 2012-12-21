@@ -6,11 +6,13 @@
 		<portlet id="ProcessTool Dictionaries"/>
 		<portlet id="ProcessTool Queues"/>
 		<portlet id="ProcessTool Activities"/>
-		<!--<portlet id="Processtoolportlets Application portlet"/>-->
+        <portlet id="Aperte Workflow User Portlet"/>
 	</category>
     <category name="category.hidden">
         <portlet id="Aperte Workflow Plugin Manager"/>
+        <portlet id="AperteWorkflow User Substitutions"/>
         <portlet id="Aperte Workflow Process Definition Manager"/>
         <portlet id="Aperte Workflow Process Instance Manager"/>
+        <portlet id="Aperte Workflow Admin Portlet"/>
     </category>
 </display>

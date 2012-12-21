@@ -62,11 +62,11 @@ class EditorHelper {
     }
 
     public static String joinValidationErrors(List<XmlValidationError> xmlValidationErrors) {
-        String msg = "";
+        StringBuilder msg = new StringBuilder();
         for (XmlValidationError err : xmlValidationErrors) {
-            msg += getLocalizedMessage(err.getMessageKey()).replace("%s", extractFieldNames(err)) + " \n";
+            msg.append(getLocalizedMessage(err.getMessageKey()).replace("%s", extractFieldNames(err))).append(" \n");
         }
-        return msg;
+        return msg.toString();
     }
 
 	private static String extractFieldNames(XmlValidationError err) {
@@ -86,7 +86,7 @@ class EditorHelper {
 				sb.append(getLocalizedMessage(key));
 				sb.append(" ");
 			}
-			
+
 			return sb.toString().trim();
 		} else {
 			return getLocalizedMessage(err.getParent() + "." + err.getField());

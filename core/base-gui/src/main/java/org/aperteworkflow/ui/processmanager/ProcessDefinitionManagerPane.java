@@ -30,7 +30,7 @@ public class ProcessDefinitionManagerPane extends VerticalLayout {
         definitionList.setSpacing(true);
 
         addComponent(width(horizontalLayout(
-                refreshIcon(application, new HasRefreshButton() {
+                refreshIcon(application, new Refreshable() {
                     @Override
                     public void refreshData() {
                         displayDefinitionList();
@@ -50,8 +50,8 @@ public class ProcessDefinitionManagerPane extends VerticalLayout {
         ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
         ProcessToolRegistry registry = ctx.getRegistry();
         ProcessDefinitionDAO dao = registry.getProcessDefinitionDAO(ctx.getHibernateSession());
-        List<ProcessDefinitionConfig> latestConfigurations = new ArrayList(dao.getLatestConfigurations());
-        Collections.sort(latestConfigurations);
+        List<ProcessDefinitionConfig> latestConfigurations = new ArrayList(dao.getActiveConfigurations());
+        Collections.sort(latestConfigurations, ProcessDefinitionConfig.DEFAULT_COMPARATOR);
 
         for (final ProcessDefinitionConfig cfg : latestConfigurations) {
             HorizontalLayout buttonLayout = new HorizontalLayout();
@@ -140,7 +140,7 @@ public class ProcessDefinitionManagerPane extends VerticalLayout {
         final ProcessToolRegistry registry = ctx.getRegistry();
         final ProcessDefinitionDAO dao = registry.getProcessDefinitionDAO(ctx.getHibernateSession());
         List<ProcessDefinitionConfig> configurationVersions = new ArrayList<ProcessDefinitionConfig>(dao.getConfigurationVersions(cfg));
-        Collections.sort(configurationVersions);
+        Collections.sort(configurationVersions, ProcessDefinitionConfig.DEFAULT_COMPARATOR);
 
         VerticalLayout vl = new VerticalLayout();
         vl.setWidth("100%");

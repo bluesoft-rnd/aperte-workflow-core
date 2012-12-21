@@ -1,8 +1,10 @@
 package pl.net.bluesoft.rnd.processtool.model;
 
+import org.hibernate.annotations.*;
+
+import javax.persistence.*;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.Parameter;
 import javax.persistence.Table;
 import java.util.Date;
 
@@ -13,17 +15,42 @@ import java.util.Date;
  */
 @Entity
 @Table(name="pt_user_substitution")
-public class UserSubstitution extends PersistentEntity {
-    @ManyToOne
+public class UserSubstitution extends AbstractPersistentEntity {
+	public static final String _USER = "user";
+	public static final String _USER_SUBSTITUTE = "userSubstitute";
+
+	@Id
+	@GeneratedValue(generator = "idGenerator")
+	@GenericGenerator(
+			name = "idGenerator",
+			strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
+			parameters = {
+					@org.hibernate.annotations.Parameter(name = "initial_value", value = "" + 1),
+					@org.hibernate.annotations.Parameter(name = "value_column", value = "_DB_ID"),
+					@org.hibernate.annotations.Parameter(name = "sequence_name", value = "DB_SEQ_ID_USER_SUBST")
+			}
+	)
+	@Column(name = "id")
+	protected Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id")
     private UserData user;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_substitute_id")
     private UserData userSubstitute;
     private Date dateFrom;
     private Date dateTo;
 
-    public UserData getUser() {
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public UserData getUser() {
         return user;
     }
 

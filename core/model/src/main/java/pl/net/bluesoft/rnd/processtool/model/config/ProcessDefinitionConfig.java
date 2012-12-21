@@ -1,11 +1,18 @@
 package pl.net.bluesoft.rnd.processtool.model.config;
 
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.*;
+import pl.net.bluesoft.rnd.processtool.model.AbstractPersistentEntity;
 import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.pt.utils.lang.Lang2;
 
 import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Parameter;
+import javax.persistence.Table;
 import java.io.Serializable;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -20,7 +27,21 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
 @Entity
 @Table(name="pt_process_definition_config")
-public class ProcessDefinitionConfig extends PersistentEntity implements Serializable, Comparable<ProcessDefinitionConfig> {
+public class ProcessDefinitionConfig extends AbstractPersistentEntity implements Serializable {
+	@Id
+	@GeneratedValue(generator = "idGenerator")
+	@GenericGenerator(
+			name = "idGenerator",
+			strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
+			parameters = {
+					@org.hibernate.annotations.Parameter(name = "initial_value", value = "" + 1),
+					@org.hibernate.annotations.Parameter(name = "value_column", value = "_DB_ID"),
+					@org.hibernate.annotations.Parameter(name = "sequence_name", value = "DB_SEQ_ID_PROC_DEF_CONF")
+			}
+	)
+	@Column(name = "id")
+	protected Long id;
+
 	private String processName;
 	private String description;
 	private String bpmDefinitionKey;
@@ -28,17 +49,17 @@ public class ProcessDefinitionConfig extends PersistentEntity implements Seriali
     @Column(name="comment_")
 	private String comment;
 
-	@ManyToOne
+	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="creator_id")
 	private UserData creator;
 
 	private Date createDate;
 
-	@OneToMany(cascade = {CascadeType.ALL})
+	@OneToMany(cascade = {CascadeType.ALL}, fetch=FetchType.LAZY)
 	@JoinColumn(name="definition_id")
-	private Set<ProcessStateConfiguration> states;
+	private Set<ProcessStateConfiguration> states = new HashSet<ProcessStateConfiguration>();
 
-	@OneToMany(cascade = {CascadeType.ALL})
+	@OneToMany(cascade = {CascadeType.ALL}, fetch=FetchType.LAZY)
 	@JoinColumn(name="definition_id")
 	private Set<ProcessDefinitionPermission> permissions = new HashSet<ProcessDefinitionPermission>();
 
@@ -47,17 +68,34 @@ public class ProcessDefinitionConfig extends PersistentEntity implements Seriali
 	
     private Boolean enabled;
 
+    private String taskItemClass;
 	/**
 	 * latest definition of process with processName ensures uniqueness and versioning of definitions
 	 */
 	private Boolean latest;
 
-    public byte[] getProcessLogo() {
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public byte[] getProcessLogo() {
         return processLogo;
     }
 
     public void setProcessLogo(byte[] processLogo) {
-        this.processLogo = processLogo;
+        this.processLogo = Lang2.noCopy(processLogo);
+    }
+
+    public String getTaskItemClass() {
+        return taskItemClass;
+    }
+
+    public void setTaskItemClass(String taskItemClass) {
+        this.taskItemClass = taskItemClass;
     }
 
     public String getProcessName() {
@@ -133,14 +171,16 @@ public class ProcessDefinitionConfig extends PersistentEntity implements Seriali
         this.enabled = enabled;
     }
 
-    @Override
-    public int compareTo(ProcessDefinitionConfig o) {
-        int res = nvl(getDescription(), "").compareToIgnoreCase(nvl(o.getDescription(), ""));
-        if (res == 0) {
-            res = nvl(o.getId(), Long.MIN_VALUE).compareTo(nvl(getId(), Long.MIN_VALUE));
-        }
-        return res;
-    }
+	public static final Comparator<ProcessDefinitionConfig> DEFAULT_COMPARATOR = new Comparator<ProcessDefinitionConfig>() {
+		@Override
+		public int compare(ProcessDefinitionConfig o1, ProcessDefinitionConfig o2) {
+			int res = nvl(o1.getDescription(), "").compareToIgnoreCase(nvl(o2.getDescription(), ""));
+			if (res == 0) {
+				res = nvl(o2.getId(), Long.MIN_VALUE).compareTo(nvl(o1.getId(), Long.MIN_VALUE));
+			}
+			return res;
+		}
+	};
 
     public Set<ProcessDefinitionPermission> getPermissions() {
         if (permissions == null) {

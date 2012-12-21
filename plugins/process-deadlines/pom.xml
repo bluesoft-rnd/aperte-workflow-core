@@ -4,7 +4,7 @@
     <parent>
         <artifactId>plugins</artifactId>
         <groupId>org.aperteworkflow</groupId>
-        <version>1.2-SNAPSHOT</version>
+        <version>2.0-RC2-SNAPSHOT</version>
     </parent>
 
     <artifactId>process-deadlines</artifactId>
@@ -15,24 +15,37 @@
         <dependency>
             <groupId>org.quartz-scheduler</groupId>
             <artifactId>quartz</artifactId>
-            <version>2.0.1</version>
+            <version>2.1.1</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>integration-interface</artifactId>
-            <version>1.2-SNAPSHOT</version>
+            <version>2.0-RC2-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>model</artifactId>
-            <version>1.2-SNAPSHOT</version>
+            <version>2.0-RC2-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>    
+        <dependency>
+            <groupId>org.aperteworkflow</groupId>
+            <artifactId>aperte-utils</artifactId>
+            <version>2.0-RC2-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
-            <artifactId>aperte-utils</artifactId>
-            <version>1.2-SNAPSHOT</version>
+            <artifactId>gui-commons</artifactId>
+            <version>2.0-RC2-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.aperteworkflow</groupId>
+            <artifactId>scheduler-integration</artifactId>
+            <version>2.0-RC2-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -42,9 +55,9 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>javax.mail</groupId>
-            <artifactId>mail</artifactId>
-            <version>1.4.3</version>
+            <groupId>org.aperteworkflow</groupId>
+            <artifactId>bpm-notifications</artifactId>
+            <version>2.0-RC2-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -71,13 +84,13 @@
                             pl.net.bluesoft.rnd.pt.ext.deadline.step
                         </Export-Package>
                         <Import-Package>
-                            javax.mail;version=!,
-                            javax.mail.internet;version=!,
-                            javax.mail.search;version=!,
                             *;resolution:=optional,
                             pl.net.bluesoft.util.eventbus,
-                            pl.net.bluesoft.rnd.pt.utils.template,
-                            pl.net.bluesoft.rnd.processtool.model
+                            pl.net.bluesoft.rnd.processtool.model,
+                            pl.net.bluesoft.rnd.pt.ext.sched.service,
+                            org.quartz,
+                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service,
+                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.util,
                         </Import-Package>
                         <Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>
                         <Bundle-Activator>pl.net.bluesoft.rnd.pt.ext.deadline.DeadlineActivator</Bundle-Activator>

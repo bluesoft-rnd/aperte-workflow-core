@@ -5,14 +5,14 @@ import org.aperteworkflow.editor.domain.Language;
 import org.aperteworkflow.editor.vaadin.DataHandler;
 import org.aperteworkflow.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+import pl.net.bluesoft.util.lang.Lang;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 public class MessageEditor extends VerticalLayout implements TabSheet.CloseHandler, DataHandler {
-
-    /**
+	/**
      * The window which allows to define and add new language to the editor
      */
     private class NewLanguageWindow extends Window {
@@ -58,7 +58,7 @@ public class MessageEditor extends VerticalLayout implements TabSheet.CloseHandl
         }
 
         private void initLayout() {
-            getContent().setSizeUndefined();
+           
 
             addComponent(languageForm);
             addComponent(addButton);
@@ -71,6 +71,7 @@ public class MessageEditor extends VerticalLayout implements TabSheet.CloseHandl
     private Map<Language, String> languageMessages;
     private Map<Language, PropertiesArea> languageProperties;
     private Button newLanguageButton;
+	private Select defaultLanguageSelect;
     private Label languageDescriptionLabel;
     private TabSheet languageTabs;
 
@@ -87,6 +88,11 @@ public class MessageEditor extends VerticalLayout implements TabSheet.CloseHandl
 
     public void setLanguageMessages(Map<Language, String> languageMessages) {
         this.languageMessages = languageMessages;
+		if (languageMessages != null) {
+			for (Language language : languageMessages.keySet()) {
+				addAvailableDefaultLanguage(language.getCode());
+			}
+		}
     }
 
     @Override
@@ -124,6 +130,7 @@ public class MessageEditor extends VerticalLayout implements TabSheet.CloseHandl
         setSpacing(true);
         addComponent(languageDescriptionLabel);
         addComponent(newLanguageButton);
+		addComponent(defaultLanguageSelect);
         addComponent(languageTabs);
     }
 
@@ -141,6 +148,9 @@ public class MessageEditor extends VerticalLayout implements TabSheet.CloseHandl
                 }
         );
 
+		defaultLanguageSelect = new Select(messages.getMessage("messages.default.language"));
+		defaultLanguageSelect.setWidth(150, UNITS_PIXELS);
+
         languageDescriptionLabel = new Label(messages.getMessage("messages.language.description"));
 
         languageTabs = new TabSheet();
@@ -155,17 +165,47 @@ public class MessageEditor extends VerticalLayout implements TabSheet.CloseHandl
 
         TabSheet.Tab tab = languageTabs.addTab(area, language.getCode());
         tab.setClosable(true);
+
+		addAvailableDefaultLanguage(language.getCode());
+		if (getAvailableDefaultLanguageCount() == 1 && getDefaultLanguage() == null) {
+			setDefaultLanguage(language.getCode());
+		}
     }
-    
-    private void removeLanguageTab(Component c) {
+
+	private void removeLanguageTab(Component c) {
         PropertiesArea area = (PropertiesArea) c;
         Language language = area.getLanguage();
         languageProperties.remove(language);
 
         languageTabs.removeComponent(c);
-    }
 
-    @Override
+		if (Lang.equals(getDefaultLanguage(), language.getCode())) {
+			setDefaultLanguage(null);
+		}
+		removeAvailableDefaultLanguage(language.getCode());
+	}
+
+	public String getDefaultLanguage() {
+		return (String)defaultLanguageSelect.getValue();
+	}
+
+	public void setDefaultLanguage(String languageCode) {
+		defaultLanguageSelect.setValue(languageCode);
+	}
+
+	private void addAvailableDefaultLanguage(String languageCode) {
+		defaultLanguageSelect.getContainerDataSource().addItem(languageCode);
+	}
+
+	private void removeAvailableDefaultLanguage(String languageCode) {
+		defaultLanguageSelect.getContainerDataSource().removeItem(languageCode);
+	}
+
+	private int getAvailableDefaultLanguageCount() {
+		return defaultLanguageSelect.getContainerDataSource().getItemIds().size();
+	}
+
+	@Override
     public void loadData() {
         languageProperties.clear();
         languageTabs.removeAllComponents();

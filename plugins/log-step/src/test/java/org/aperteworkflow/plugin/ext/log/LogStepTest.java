@@ -3,8 +3,12 @@ package org.aperteworkflow.plugin.ext.log;
 import junit.framework.Assert;
 import org.apache.commons.beanutils.BeanUtils;
 import org.junit.Test;
+import pl.net.bluesoft.rnd.processtool.model.BpmStep;
+import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceSimpleAttribute;
+import pl.net.bluesoft.rnd.processtool.model.nonpersistent.MutableBpmStep;
+import pl.net.bluesoft.rnd.processtool.model.nonpersistent.MutableBpmTask;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 
@@ -47,10 +51,16 @@ public class LogStepTest {
     }
 
     // TODO move to common test case class for Steps
-    private String processStep(ProcessToolProcessStep step, ProcessInstance process, Map<String, String> properties)
+    private String processStep(final ProcessToolProcessStep step, final ProcessInstance process, final Map<String, String> properties)
             throws Exception{
         processAutowiredProperties(step, properties);
-        return step.invoke(process, properties);
+        BpmStep bpmTask = new MutableBpmStep() {
+            @Override
+            public ProcessInstance getProcessInstance() {
+                return process;
+            }
+        };
+        return step.invoke(bpmTask, properties);
     }
 
     private void processAutowiredProperties(Object object, Map<String, String> m) {

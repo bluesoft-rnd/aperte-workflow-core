@@ -3,18 +3,19 @@ package pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor;
 import com.vaadin.Application;
 import com.vaadin.data.Property;
 import com.vaadin.ui.*;
+import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
+import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
+import pl.net.bluesoft.rnd.processtool.model.nonpersistent.MutableBpmTask;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDataBlockWidget;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.jaxb.WidgetElement;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.jaxb.WidgetsDefinitionElement;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -88,7 +89,9 @@ public class ProcessDataPreviewer extends ProcessDataBlockWidget {
         formProperties = form;
         compositionRoot = new VerticalLayout();
 
-        loadData(new ProcessInstance());
+        MutableBpmTask task = new MutableBpmTask();
+        task.setProcessInstance(new ProcessInstance());
+        loadData(task);
         widgetsDefinitionElement = element;
         Component rendered = null;
         try {

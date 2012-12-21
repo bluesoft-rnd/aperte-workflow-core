@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process name="user_substitution" xmlns="http://jbpm.org/4.4/jpdl">
+    <start g="179,43,48,48" name="start1">
+      <transition g="-140,-18" name="TO_REQUEST_SUBSTITUTE" to="REQUEST_SUBSTITUTE"/>
+    </start>
+    <task assignee="#{initiator}" g="119,149,164,38" name="REQUEST_SUBSTITUTE">
+      <transition g="-132,-18" name="TO_ACCEPT_REQUEST" to="ACCEPT_REQUEST"/>
+      <transition name="CANCEL" to="end2" g="-42,-18"/>
+   	</task>
+    <task assignee="#{userSubstitute}" g="112,246,174,40" name="ACCEPT_REQUEST">
+      <transition g="-102,-18" name="TO_HANDLE_ACCEPTANCE" to="HANDLE_ACCEPTANCE"/>
+      <transition g="291,222:-42,-18" name="REJECT" to="REQUEST_SUBSTITUTE"/>
+    </task>
+    <end g="177,447,48,48" name="end1"/>
+    <end name="end2" g="378,143,48,48"/>
+
+    <java auto-wire="true" cache="false" class="pl.net.bluesoft.rnd.pt.ext.jbpm.JbpmStepAction" g="114,347,172,38"
+          method="invoke" name="HANDLE_ACCEPTANCE" var="result">
+        <field name="stepName">
+            <string value="HandleSubstitutionAcceptanceStep"/>
+        </field>
+        <field name="params">
+            <map>
+            </map>
+        </field>
+        <transition g="9,-22" name="FINISH" to="end1"/>
+    </java>
+</process>

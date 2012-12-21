@@ -1,232 +1,152 @@
 package pl.net.bluesoft.rnd.processtool.ui.buttons;
 
-import com.vaadin.Application;
-import com.vaadin.ui.*;
-import org.aperteworkflow.util.vaadin.VaadinUtility;
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import com.vaadin.ui.Button;
+import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolActionCallback;
+import pl.net.bluesoft.rnd.processtool.ui.WidgetContextSupport;
+import pl.net.bluesoft.rnd.processtool.ui.buttons.dialog.DialogWindow;
+import pl.net.bluesoft.rnd.processtool.ui.buttons.dialog.SkipSavingDialog;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinActionButton;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
-import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
 /**
  * @author tlipski@bluesoft.net.pl
+ * @author amichalak@bluesoft.net.pl
  */
 
 @AliasName(name = "Default")
-public class StandardValidatingButton implements ProcessToolVaadinActionButton {
+public class StandardValidatingButton extends BaseProcessToolVaadinActionButton {
+    protected Logger logger = Logger.getLogger(StandardValidatingButton.class.getName());
+    private ProcessStateAction psa;
 
-	protected Logger logger = Logger.getLogger(StandardValidatingButton.class.getName());
+    protected static class PerformedActionParams {
+		private WidgetContextSupport support;
+		private Map<ProcessToolDataWidget, Collection<String>> validationErrors;
+		private boolean saveData;
 
-	@AutoWiredProperty
-	protected String label;
-
-	@AutoWiredProperty
-	protected String description;
-
-	@AutoWiredProperty
-	protected Boolean skipSaving = false;
-
-	@AutoWiredProperty
-	protected Boolean autoHide = false;
-	
-	@AutoWiredProperty(required=true)
-	protected Integer priority;
-
-	
-	protected ProcessStateAction definition;
-	protected Application application;
-	protected I18NSource i18NSource;
-	protected UserData loggedUser;
-
-	@Override
-	public void onButtonPress(final ProcessInstance processInstance,
-	                          ProcessToolContext ctx,
-	                          Set<ProcessToolDataWidget> dataWidgets,
-	                          Map<ProcessToolDataWidget,
-			                          Collection<String>> validationErrors,
-	                          final ProcessToolActionCallback callback) {
-		try {
-			if (validationErrors.isEmpty()) {
-				if(callback.saveProcessData())
-					callback.performAction(definition);
-			} else {
-				if (!isSkipSaving()) {
-					displayValidationErros(validationErrors);
-				} else {
-					final Window w = new Window(i18NSource.getMessage("process.action.validation.skip.save"));
-					w.setModal(true);
-					VerticalLayout vl = new VerticalLayout();
-					vl.setSpacing(true);
-					vl.setMargin(true);
-					vl.addComponent(new Label(i18NSource.getMessage("process.action.validation.skip.save.description"), Label.CONTENT_XHTML));
-					vl.addComponent(new Label(VaadinUtility.widgetsErrorMessage(i18NSource, validationErrors),
-                            Label.CONTENT_XHTML));
-					vl.addComponent(new Label(i18NSource.getMessage("process.action.validation.skip.save.continue"), Label.CONTENT_XHTML));
-
-					HorizontalLayout hl = new HorizontalLayout();
-
-					hl.setSpacing(true);
-					hl.setMargin(true);
-					Button buttonYes = new Button(i18NSource.getMessage("process.action.yes"));
-                    buttonYes.addStyleName("default");
-					hl.addComponent(buttonYes);
-					buttonYes.addListener(new Button.ClickListener() {
-						@Override
-						public void buttonClick(Button.ClickEvent clickEvent) {
-//							if(callback.saveProcessData())
-							callback.performAction(definition);
-							application.getMainWindow().removeWindow(w);
-						}
-					});
-					Button buttonNo = new Button(i18NSource.getMessage("process.action.no"));
-                    buttonNo.addStyleName("default");
-					buttonNo.addListener(new Button.ClickListener() {
-
-						@Override
-						public void buttonClick(Button.ClickEvent clickEvent) {
-							application.getMainWindow().removeWindow(w);
-						}
-					});
-					hl.addComponent(buttonNo);
-
-					vl.addComponent(hl);
-					vl.setComponentAlignment(hl, Alignment.BOTTOM_CENTER);
-					w.setContent(vl);
-					application.getMainWindow().addWindow(w);
-					w.center();
-				}
-			}
-		} catch (Exception e) {
-			logger.log(Level.SEVERE, e.getMessage(), e);
-            VaadinUtility.validationNotification(application, i18NSource, e.getMessage());
+		public PerformedActionParams(WidgetContextSupport support, Map<ProcessToolDataWidget, Collection<String>> validationErrors, boolean saveData) {
+			this.support = support;
+			this.validationErrors = validationErrors;
+			this.saveData = saveData;
 		}
 
+		public WidgetContextSupport getSupport() {
+			return support;
+		}
+
+		public Map<ProcessToolDataWidget, Collection<String>> getValidationErrors() {
+			return validationErrors;
+		}
+
+		public boolean isSaveData() {
+			return saveData;
+		}
 	}
 
-	private void displayValidationErros(Map<ProcessToolDataWidget, Collection<String>> errorMap) {
-		String errorMessage = VaadinUtility.widgetsErrorMessage(i18NSource, errorMap);
-        VaadinUtility.validationNotification(application, i18NSource, errorMessage);
-	}
-
-	public boolean isVisible(ProcessInstance processInstance) {
-		return true;
-	}
-
-	public boolean isEnabled(ProcessInstance processInstance) {
-		return true;
-	}
-
-	public void changeButton(Button button) {
-		//nothing
-	}
-
-	@Override
-	public String getLabel(ProcessInstance processInstance) {
-		return nvl(label, description);
-	}
-
-	@Override
-	public String getDescription(ProcessInstance processInstance) {
-		return nvl(description, label);
-	}
-
-	public void setAutoHide(boolean autoHide) {
-		this.autoHide = autoHide;
-	}
-
-	@Override
-	public boolean isAutoHide() {
-		return autoHide;
-	}
-
-	@Override
-	public void setDefinition(ProcessStateAction psa) {
-
-		this.definition = psa;
-	}
-
-	@Override
-	public void saveData(ProcessInstance pi) {
-		//nothing
-	}
-
-	public String getLabel() {
-		return label;
-	}
-
-	public void setLabel(String label) {
-		this.label = label;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public boolean isSkipSaving() {
-		return skipSaving;
-	}
-
-	public void setSkipSaving(boolean skipSaving) {
-		this.skipSaving = skipSaving;
-	}
-
-	@Override
-	public void setApplication(Application application) {
-		this.application = application;
-	}
-
-	@Override
-	public void setI18NSource(I18NSource i18NSource) {
-		this.i18NSource = i18NSource;
-	}
-
-	public UserData getLoggedUser() {
-		return loggedUser;
-	}
-
-	public void setLoggedUser(UserData loggedUser) {
-		this.loggedUser = loggedUser;
-	}
-
-    public Boolean getSkipSaving() {
-        return skipSaving;
+    @Override
+    protected void performAction(WidgetContextSupport support) {
+        showValidationErrorsOrSave(support, support.getWidgetsErrors(task, false));
     }
 
-    public void setSkipSaving(Boolean skipSaving) {
-        this.skipSaving = skipSaving;
+    protected void showValidationErrorsOrSave(WidgetContextSupport support, Map<ProcessToolDataWidget, Collection<String>> validationErrors) {
+        if (validationErrors.isEmpty()) {
+			doShowValidationErrorsOrSave(new PerformedActionParams(support, validationErrors, true));
+        }
+        else if (skipSaving) {
+			showSkipSavingDialog(new PerformedActionParams(support, validationErrors, false));
+        }
+        else {
+			support.displayValidationErrors(validationErrors);
+        }
     }
 
-    public Boolean getAutoHide() {
+	protected void doShowValidationErrorsOrSave(PerformedActionParams params) {
+		finalizeAction(params.isSaveData());
+	}
+
+	protected void finalizeAction(boolean saveData) {
+		if (saveData) {
+			invokeSaveTask();
+		}
+		else {
+			invokeSaveTaskWithoutData();
+		}
+		invokeBpmTransition();
+		callback.actionPerformed(definition);
+	}
+
+    @Override
+    public boolean isVisible(BpmTask task) {
+        return true;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public boolean isEnabled(BpmTask task) {
+        return true;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void changeButton(Button button) {
+
+    }
+
+    @Override
+    public String getLabel(BpmTask task) {
+        return label;
+    }
+
+    @Override
+    public String getDescription(BpmTask task) {
+        return description;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void setLoggedUser(UserData userData) {
+       //nothing
+    }
+
+    @Override
+    public boolean isAutoHide() {
         return autoHide;
     }
 
-    public void setAutoHide(Boolean autoHide) {
-        this.autoHide = autoHide;
+    @Override
+    public void setDefinition(ProcessStateAction psa) {
+        this.psa = psa;
     }
 
-    public Integer getPriority() {
-        return priority;
-    }
+    @Override
+	public void saveData(BpmTask task) {
+		super.saveData(task);
+		ProcessInstance pi = task.getProcessInstance();
+		
+		pi.setSimpleAttribute("commentAdded", "false");
+	}
 
-    public void setPriority(Integer priority) {
-        this.priority = priority;
-    }
+	private void showSkipSavingDialog(final PerformedActionParams params) {
+		SkipSavingDialog dialog = showDialog(new SkipSavingDialog(params.getValidationErrors()));
+		dialog.getSaveIgnoringErrorsButton().addListener(new Button.ClickListener() {
+			@Override
+			public void buttonClick(Button.ClickEvent clickEvent) {
+				handleSaveIgnoringErrorsButtonClick(params);
+			}
+		});
+	}
+	
+	protected <DialogType extends DialogWindow> DialogType showDialog(DialogType dialog) {
+		dialog.setI18NSource(messageSource);
+		dialog.buildLayout();
+		application.getMainWindow().addWindow(dialog);
+		return dialog;
+	}
+
+	protected void handleSaveIgnoringErrorsButtonClick(PerformedActionParams params) {
+		doShowValidationErrorsOrSave(params);
+	}
 }

@@ -21,6 +21,9 @@ public class Dictionary {
     @XStreamImplicit
     private List<DictionaryEntry> entries;
 
+    @XStreamImplicit
+    private List<DictionaryPermission> permissions;
+
     public String getDictionaryId() {
         return dictionaryId;
     }
@@ -59,5 +62,13 @@ public class Dictionary {
 
     public void setEntries(List<DictionaryEntry> entries) {
         this.entries = entries;
+    }
+
+    public List<DictionaryPermission> getPermissions() {
+        return permissions == null ? (permissions = new ArrayList<DictionaryPermission>()) : permissions;
+    }
+
+    public void setPermissions(List<DictionaryPermission> permissions) {
+        this.permissions = permissions;
     }
 }

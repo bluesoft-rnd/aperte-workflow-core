@@ -1,5 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.ui.basewidgets;
 
+
+
 import com.vaadin.data.Item;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
@@ -7,22 +9,32 @@ import com.vaadin.event.ItemClickEvent;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.Reindeer;
+
 import org.aperteworkflow.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComment;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComments;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinRenderable;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.*;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolVaadinWidget;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
 import pl.net.bluesoft.util.lang.FormatUtil;
+import pl.net.bluesoft.util.lang.Formats;
+import pl.net.bluesoft.util.lang.Lang;
+
 
 import java.util.*;
 
+
+
 import static pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessHistoryWidget.label;
-import static pl.net.bluesoft.util.lang.FormatUtil.formatFullDate;
-import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
+import static pl.net.bluesoft.util.lang.Formats.formatFullDate;
+import static pl.net.bluesoft.util.lang.Formats.nvl;
+
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -37,7 +49,7 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
         @Permission(key="VIEW", desc="widget.process_comments.permission.desc.VIEW")
 })
 @WidgetGroup("base-widgets")
-public class ProcessCommentsWidget extends BaseProcessToolVaadinWidget implements ProcessToolDataWidget {
+public class ProcessCommentsWidget extends BaseProcessToolVaadinWidget implements ProcessToolVaadinRenderable, ProcessToolDataWidget {
 
 	private BeanItemContainer<ProcessComment> bic = new BeanItemContainer<ProcessComment>(ProcessComment.class);
 
@@ -48,24 +60,30 @@ public class ProcessCommentsWidget extends BaseProcessToolVaadinWidget implement
     )
 	private Boolean table;
 
+	@AutoWiredProperty
+	private Boolean mustAddComment;
+
+
 	private String processState = null;
 	private Panel commentsPanel;
 
-	public void loadData(ProcessInstance processInstance) {
-		ProcessComments comments = processInstance.findAttributeByClass(ProcessComments.class);
+	@Override
+	public void loadData(BpmTask task) { 
+        ProcessInstance pi = task.getProcessInstance().getRootProcessInstance();
+		ProcessComments comments = pi.findAttributeByClass(ProcessComments.class);
 		if (comments != null) {
 			List<ProcessComment> lst = new ArrayList<ProcessComment>(comments.getComments());
 			Collections.sort(lst, new Comparator<ProcessComment>() {
 				@Override
 				public int compare(ProcessComment o1, ProcessComment o2) {
-					return o1.getCreateTime().compareTo(o2.getCreateTime());
+					return -o1.getCreateTime().compareTo(o2.getCreateTime());
 				}
 			});
 			for (ProcessComment cmt : lst) {
 				bic.addBean(cmt);
 			}
 		}
-		processState = processInstance.getState();
+		processState = task.getTaskName();
 	}
 
 	@Override
@@ -78,7 +96,7 @@ public class ProcessCommentsWidget extends BaseProcessToolVaadinWidget implement
 			if (nvl(table, false)) {
 				final Table table = new Table();
 				table.setContainerDataSource(bic);
-				table.setVisibleColumns(new Object[]{"author", "createTime", "comment"});
+				table.setVisibleColumns(new Object[]{"author", "createTime"});
 				table.setWidth("100%");
 
 				table.addGeneratedColumn("author", new Table.ColumnGenerator() {
@@ -108,6 +126,7 @@ public class ProcessCommentsWidget extends BaseProcessToolVaadinWidget implement
 
 				table.addListener(
 						new ItemClickEvent.ItemClickListener() {
+				            @Override
 							public void itemClick(ItemClickEvent event) {
 								if (event.isDoubleClick()) {
 									Component component = event.getComponent();
@@ -159,7 +178,9 @@ public class ProcessCommentsWidget extends BaseProcessToolVaadinWidget implement
 		for (ProcessComment pc : bic.getItemIds()) {
 			HorizontalLayout hl;
 			hl = new HorizontalLayout();
+            hl.addStyleName("comment-header");
 			hl.setSpacing(true);
+            hl.setWidth("100%");
             String authorLabel = pc.getAuthor() != null ? pc.getAuthor().getRealName() : "System";
             if (pc.getAuthorSubstitute() != null) {
                 authorLabel = (pc.getAuthorSubstitute() != null ? pc.getAuthorSubstitute().getRealName() : "System")
@@ -167,12 +188,16 @@ public class ProcessCommentsWidget extends BaseProcessToolVaadinWidget implement
                             + authorLabel
                             + " )";
             }
-            hl.addComponent(label("<b>" + authorLabel + "</b>", 150));
-			hl.addComponent(label("<b>" + FormatUtil.formatFullDate(pc.getCreateTime()) + "</b>", 130));
-			hl.addComponent(label(pc.getComment(), 450));
+            hl.addComponent(label("<b class=\"header-author\">" + authorLabel + "</b>", 150));
+			hl.addComponent(label("<b class=\"header-time\">" + FormatUtil.formatFullDate(pc.getCreateTime()) + "</b>", 150));
+			//			hl.addComponent(label(pc.getComment(), 450));
+            Label spacer = new Label("");
+            hl.addComponent(spacer);
+            hl.setExpandRatio(spacer, 1);
 			layout.addComponent(hl);
 
 			hl = new HorizontalLayout();
+            hl.addStyleName("comment-body");
             hl.setWidth("100%");
 			hl.setSpacing(true);
 			hl.setMargin(new Layout.MarginInfo(false, false, true, true));
@@ -187,10 +212,11 @@ public class ProcessCommentsWidget extends BaseProcessToolVaadinWidget implement
 	private void displayCommentDetails(Component component, final BeanItem<ProcessComment> bi) {
 		final Form f = getCommentDetailsForm(bi,
 		                                     isOwner &&
-				                                     (hasPermission("EDIT") &&
-						                                     bi.getBean().getAuthor().getId() == bpmSession.getUser(ProcessToolContext.Util.getThreadProcessToolContext()).getId())
-				                                     || bi.getBean().getId() == null
-				                                     || hasPermission("EDIT_ALL"));
+											 (hasPermission("EDIT") && Lang.equals(
+													 bi.getBean().getAuthor().getId(),
+													 bpmSession.getUser(ProcessToolContext.Util.getThreadProcessToolContext()).getId()))
+											 || bi.getBean().getId() == null
+											 || hasPermission("EDIT_ALL"));
 
 		final Window newCommentWindow = new Window(getMessage("processdata.comments.comment.edit.title"));
 		newCommentWindow.setModal(true);
@@ -268,20 +294,22 @@ public class ProcessCommentsWidget extends BaseProcessToolVaadinWidget implement
 			public Field createField(Item item, Object propertyId, Component uiContext) {
 //						Field f = super.createField(item, propertyId, uiContext);
 				Field f = null;
-				if ("comment".equals(propertyId)) {
-					TextField tf = new TextField();
-					tf.setRequired(true);
-					tf.setRequiredError(getMessage("processdata.comments.comment.comment.required"));
-					tf.setNullRepresentation("");
-					tf.setInputPrompt(getMessage("processdata.comments.comment.comment.prompt"));
-					tf.setWidth(400, Sizeable.UNITS_PIXELS);
-					f = tf;
-				} else if ("body".equals(propertyId)) {
+				//				if ("comment".equals(propertyId)) {
+				//					TextField tf = new TextField();
+				//					tf.setRequired(true);
+				//					tf.setRequiredError(getMessage("processdata.comments.comment.comment.required"));
+				//					tf.setNullRepresentation("");
+				//					tf.setInputPrompt(getMessage("processdata.comments.comment.comment.prompt"));
+				//					tf.setWidth(400, Sizeable.UNITS_PIXELS);
+				//					f = tf;
+				//				} else
+				if ("body".equals(propertyId)) {
 					RichTextArea rta = new RichTextArea();
 					rta.setRequired(true);
 					rta.setNullRepresentation("");
 					rta.setRequiredError(getMessage("processdata.comments.comment.body.required"));
 					rta.setWidth(400, Sizeable.UNITS_PIXELS);
+                    rta.focus();
 					f = rta;
 				}
 				if (f != null)
@@ -291,7 +319,7 @@ public class ProcessCommentsWidget extends BaseProcessToolVaadinWidget implement
 			}
 		});
 		f.setItemDataSource(bi);
-		f.setVisibleItemProperties(Arrays.asList("comment", "body"));
+		f.setVisibleItemProperties(Arrays.asList("body"));
 
 		TextField field = new TextField();
 		field.setValue(formatFullDate(bi.getBean().getCreateTime()));
@@ -317,13 +345,13 @@ public class ProcessCommentsWidget extends BaseProcessToolVaadinWidget implement
 	}
 
 	@Override
-	public Collection<String> validateData(ProcessInstance processInstance) {
+	public Collection<String> validateData(BpmTask task, boolean skipRequired) {
 		if ("true".equals(getAttributeValue("mustAddComment"))) {
 			//look for a fresh comment or added in this state
 			for (ProcessComment pc : bic.getItemIds()) {
 				if (pc.getId() == null)
 					return null;
-				if (processInstance.getState().equals(pc.getProcessState())) {
+				if (task.getTaskName().equals(pc.getProcessState())) {
 					return null;
 				}
 			}
@@ -335,13 +363,14 @@ public class ProcessCommentsWidget extends BaseProcessToolVaadinWidget implement
 	}
 
 	@Override
-	public void saveData(ProcessInstance processInstance) {
-		ProcessComments comments = processInstance.findAttributeByClass(ProcessComments.class);
+	public void saveData(BpmTask task) {
+        ProcessInstance pi = task.getProcessInstance().getRootProcessInstance();
+		ProcessComments comments = pi.findAttributeByClass(ProcessComments.class);
 		if (comments == null) {
 			comments = new ProcessComments();
-			comments.setProcessInstance(processInstance);
+			comments.setProcessInstance(pi);
 			comments.setKey(ProcessComments.class.getName());
-			processInstance.getProcessAttributes().add(comments);
+			pi.getProcessAttributes().add(comments);
 		}
 		comments.setComments(new HashSet());
 		for (ProcessComment pc : bic.getItemIds()) {
@@ -355,12 +384,29 @@ public class ProcessCommentsWidget extends BaseProcessToolVaadinWidget implement
 		throw new IllegalArgumentException("children are not supported in this widget");
 	}
 
-    public Boolean getTable() {
-        return table;
+	public String getCaption() {
+		return caption;
     }
 
-    public void setTable(Boolean table) {
-        this.table = table;
+	public void setCaption(String caption) {
+		this.caption = caption;
     }
+
+	public String getComment() {
+		return comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
+
+	public Boolean getMustAddComment() {
+		return mustAddComment;
+	}
+
+	public void setMustAddComment(Boolean mustAddComment) {
+		this.mustAddComment = mustAddComment;
+	}
+
 
 }

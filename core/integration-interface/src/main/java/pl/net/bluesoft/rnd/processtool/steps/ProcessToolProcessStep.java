@@ -1,6 +1,6 @@
 package pl.net.bluesoft.rnd.processtool.steps;
 
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
+import pl.net.bluesoft.rnd.processtool.model.BpmStep;
 
 import java.util.Map;
 
@@ -10,5 +10,5 @@ import java.util.Map;
 public interface ProcessToolProcessStep {
     String STATUS_OK = "OK";
     String STATUS_ERROR = "ERROR";
-	String invoke(ProcessInstance processInstance, Map params) throws Exception;
+    String invoke(BpmStep step, Map<String, String> params) throws Exception;
 }

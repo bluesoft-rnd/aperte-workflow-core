@@ -10,7 +10,7 @@ package org.aperteworkflow.util.vaadin;
 public interface VaadinExceptionHandler {
 
     class Util {
-        public static void onException(Object handler, Exception e) {
+        public static void onException(Object handler, Throwable e) {
             if (handler instanceof VaadinExceptionHandler) {
                 ((VaadinExceptionHandler)handler).onThrowable(e);
             } else {

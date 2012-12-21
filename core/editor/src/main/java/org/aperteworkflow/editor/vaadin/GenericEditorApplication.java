@@ -7,7 +7,8 @@ import com.vaadin.terminal.gwt.server.WebApplicationContext;
 import org.apache.commons.lang.StringUtils;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
-import pl.net.bluesoft.rnd.processtool.i18n.DefaultI18NSource;
+import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
+import pl.net.bluesoft.rnd.util.i18n.impl.DefaultI18NSource;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.i18n.impl.PropertiesBasedI18NProvider;
@@ -55,7 +56,7 @@ public class GenericEditorApplication extends Application implements HttpServlet
     public void onRequestStart(final HttpServletRequest request, HttpServletResponse response) {
         current.set(this);
 
-        I18NSource.ThreadUtil.setThreadI18nSource(new DefaultI18NSource(request.getLocale()));
+        I18NSource.ThreadUtil.setThreadI18nSource(I18NSourceFactory.createI18NSource(request.getLocale()));
 
         // Setting ProcessToolContext was taken from ProcessToolVaadinApplicationPortlet2
         // to preserve functionality used in portlet based Vaadin applications

@@ -1,9 +1,15 @@
 package pl.net.bluesoft.rnd.processtool.model.config;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
+import org.hibernate.annotations.*;
+import pl.net.bluesoft.rnd.processtool.model.AbstractPersistentEntity;
 import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 
 import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Parameter;
+import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlTransient;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,11 +21,27 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
 @Entity
 @Table(name="pt_process_state_widget")
-public class ProcessStateWidget extends PersistentEntity {
+public class ProcessStateWidget extends AbstractPersistentEntity {
+	@Id
+	@GeneratedValue(generator = "idGenerator")
+	@GenericGenerator(
+			name = "idGenerator",
+			strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
+			parameters = {
+					@org.hibernate.annotations.Parameter(name = "initial_value", value = "" + 1),
+					@org.hibernate.annotations.Parameter(name = "value_column", value = "_DB_ID"),
+					@org.hibernate.annotations.Parameter(name = "sequence_name", value = "DB_SEQ_ID_PROC_STATE_WIDGET")
+			}
+	)
+	@Column(name = "id")
+	protected Long id;
+
+	//    @XmlTransient
 	@ManyToOne
 	@JoinColumn(name="state_id")
 	private ProcessStateConfiguration config;
 
+//    @XmlTransient
 	@ManyToOne
 	@JoinColumn(name="parent_id")
 	private ProcessStateWidget parent;
@@ -42,7 +64,19 @@ public class ProcessStateWidget extends PersistentEntity {
     private Boolean optional;
 	private Integer priority = Integer.valueOf(0);
 
-    public String getClassName() {
+    private String generateFromCollection;
+	@Transient
+	private String generatorKey;
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getClassName() {
 		return className;
 	}
 
@@ -50,10 +84,12 @@ public class ProcessStateWidget extends PersistentEntity {
 		this.className = className;
 	}
 
+    @XmlTransient
 	public ProcessStateWidget getParent() {
 		return parent;
 	}
 
+//    @XmlTransient
 	public void setParent(ProcessStateWidget parent) {
 		this.parent = parent;
 	}
@@ -76,10 +112,12 @@ public class ProcessStateWidget extends PersistentEntity {
 		this.attributes = attributes;
 	}
 
+    @XmlTransient
 	public ProcessStateConfiguration getConfig() {
 		return config;
 	}
 
+//    @XmlTransient
 	public void setConfig(ProcessStateConfiguration config) {
 		this.config = config;
 	}
@@ -116,5 +154,21 @@ public class ProcessStateWidget extends PersistentEntity {
 
     public void setOptional(Boolean optional) {
         this.optional = optional;
+    }
+
+    public String getGeneratorKey() {
+		return generatorKey;
+	}
+
+	public void setGeneratorKey(String generatorKey) {
+		this.generatorKey = generatorKey;
+	}
+
+	public String getGenerateFromCollection() {
+		return generateFromCollection;
+	}
+
+	public void setGenerateFromCollection(String generateFromCollection) {
+		this.generateFromCollection = generateFromCollection;
     }
 }

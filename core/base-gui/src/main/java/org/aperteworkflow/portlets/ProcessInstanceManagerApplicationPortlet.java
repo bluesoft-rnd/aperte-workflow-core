@@ -9,7 +9,8 @@ import org.aperteworkflow.bpm.graph.TransitionArcPoint;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
-import pl.net.bluesoft.rnd.processtool.i18n.DefaultI18NSource;
+import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
+import pl.net.bluesoft.rnd.util.i18n.impl.DefaultI18NSource;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
@@ -45,7 +46,7 @@ public class ProcessInstanceManagerApplicationPortlet extends ApplicationPortlet
                     ProcessToolContext.Util.setThreadProcessToolContext(ctx);
                     try {
                         try {
-                            I18NSource.ThreadUtil.setThreadI18nSource(new DefaultI18NSource(request.getLocale()));
+                            I18NSource.ThreadUtil.setThreadI18nSource(I18NSourceFactory.createI18NSource(request.getLocale()));
                             if (request instanceof ResourceRequest) {
                                 ResourceRequest rr = (ResourceRequest) request;
                                 ResourceResponse resp = (ResourceResponse) response;
@@ -71,8 +72,7 @@ public class ProcessInstanceManagerApplicationPortlet extends ApplicationPortlet
                                     List<GraphElement> processHistory = session.getProcessHistory(pi);
 //                                    final StringBuffer svg = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n");
                                     final StringBuffer svg = new StringBuffer("<html><body style=\"margin:0; padding:0\">\n\n");
-                                    svg.append("<svg xmlns=\"http://www.w3.org/2000/svg\"\n" +
-                                            "     xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n");
+                                    
                                     final byte[] png = session.getProcessMapImage(pi);
                                     if (png != null) {
                                         BufferedImage read;
@@ -82,6 +82,10 @@ public class ProcessInstanceManagerApplicationPortlet extends ApplicationPortlet
                                             resourceURL.setParameter("instanceId", pi.getInternalId());
                                             String url = resourceURL.toString();
                                             url = StringEscapeUtils.escapeXml(url);
+                                            svg.append(String.format("<svg xmlns=\"http://www.w3.org/2000/svg\"\n" + "   viewBox='0 0 %d %d'  " +
+                                                    "     xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n",
+                                                    read.getWidth(),
+                                                    read.getHeight()));
                                             svg.append(String.format("<image x=\"0\" y=\"0\" width=\"%d\" height=\"%d\"\n" +
                                                     "xlink:href=\"%s\" />",
                                                     read.getWidth(),

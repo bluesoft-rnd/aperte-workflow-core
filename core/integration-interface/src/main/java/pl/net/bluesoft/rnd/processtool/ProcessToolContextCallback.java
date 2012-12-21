@@ -1,8 +1,12 @@
 package pl.net.bluesoft.rnd.processtool;
 
-/**
- * @author tlipski@bluesoft.net.pl
- */
-public interface ProcessToolContextCallback {
-	void withContext(ProcessToolContext ctx);
+public abstract class ProcessToolContextCallback implements ReturningProcessToolContextCallback<Void> {
+    public abstract void withContext(ProcessToolContext ctx);
+
+    @Override
+    public Void processWithContext(ProcessToolContext ctx) {
+        withContext(ctx);
+        return null;
 }
+}
+

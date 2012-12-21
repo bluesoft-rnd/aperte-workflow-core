@@ -1,11 +1,9 @@
 package pl.net.bluesoft.rnd.processtool.ui.activity;
 
-import org.aperteworkflow.util.liferay.LiferayBridge;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
+import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
-import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
 
 /**
  * User: POlszewski
@@ -13,26 +11,31 @@ import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
  * Time: 10:44:16
  */
 public class OtherUserQueueListPane extends QueueListPane {
-    private final UserData userData;
-    private ProcessToolBpmSession bmpSession;
+    private UserData userData;
+    private ProcessToolBpmSession bpmSession;
 
-    public OtherUserQueueListPane(ActivityMainPane activityMainPane, String title, ProcessQueue q, UserData userData) {
-		super(activityMainPane, title, q, false);
-		this.userData = userData;
-        init(title);
-	}
+    public OtherUserQueueListPane(ActivityMainPane activityMainPane) {
+        super(activityMainPane);
+    }
+
+    public void setUserData(UserData userData) {
+		if (!pl.net.bluesoft.util.lang.Lang.equals(getLogin(userData), getLogin(this.userData))) {
+			bpmSession = null;
+		}
+        this.userData = userData;
+    }
 
     @Override
-    protected void displayProcessData(ProcessInstance processInstance) {
-        activityMainPane.displayProcessData(processInstance, getBpmSession());
+    protected void displayProcessData(BpmTask task) {
+        activityMainPane.displayProcessData(task, getBpmSession());
     }
 
     @Override
     protected ProcessToolBpmSession getBpmSession() {
-        if (bmpSession == null) {
+        if (bpmSession == null) {
             ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-            bmpSession = activityMainPane.getBpmSession().createSession(userData, LiferayBridge.getUserRoles(userData), ctx);
+            bpmSession = activityMainPane.getBpmSession().createSession(userData, userData.getRoleNames(), ctx);
         }
-        return bmpSession;
+        return bpmSession;
     }
 }

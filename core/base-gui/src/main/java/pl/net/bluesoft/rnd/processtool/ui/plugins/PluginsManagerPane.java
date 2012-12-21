@@ -67,7 +67,7 @@ public class PluginsManagerPane extends VerticalLayout {
         bundleList.setSpacing(true);
 
         addComponent(width(horizontalLayout(
-                refreshIcon(application, new HasRefreshButton() {
+                refreshIcon(application, new Refreshable() {
                     @Override
                     public void refreshData() {
                         displayBundleList();

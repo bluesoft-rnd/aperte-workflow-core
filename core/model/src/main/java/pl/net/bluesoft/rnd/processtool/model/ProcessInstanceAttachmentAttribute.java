@@ -1,8 +1,10 @@
 package pl.net.bluesoft.rnd.processtool.model;
 
-import org.hibernate.annotations.Type;
+import pl.net.bluesoft.rnd.pt.utils.lang.Lang2;
 
+import javax.persistence.Basic;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 
@@ -11,6 +13,7 @@ import javax.persistence.Table;
 public class ProcessInstanceAttachmentAttribute extends ProcessInstanceAttribute {
 
     @Lob
+    @Basic(fetch = FetchType.LAZY)
     private byte[] data;
 
     private String mimeType;
@@ -24,7 +27,7 @@ public class ProcessInstanceAttachmentAttribute extends ProcessInstanceAttribute
     }
 
     public void setData(byte[] data) {
-        this.data = data;
+        this.data = Lang2.noCopy(data);
     }
 
     public String getMimeType() {

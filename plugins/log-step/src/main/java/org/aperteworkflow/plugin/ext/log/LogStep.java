@@ -1,6 +1,7 @@
 package org.aperteworkflow.plugin.ext.log;
 
 import com.vaadin.ui.TextArea;
+import pl.net.bluesoft.rnd.processtool.model.BpmStep;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
@@ -51,7 +52,7 @@ public class LogStep implements ProcessToolProcessStep {
     private String loggerLevel;
 
     @Override
-    public String invoke(ProcessInstance processInstance, Map params) throws Exception {
+    public String invoke(BpmStep step, Map params) throws Exception {
         Logger usedLogger = DEFAULT_LOGGER;
         if (loggerName != null) {
             usedLogger = Logger.getLogger(loggerName);
@@ -66,7 +67,7 @@ public class LogStep implements ProcessToolProcessStep {
             }
         }
 
-        String parsedMessage = parseLogMessage(message, processInstance);
+        String parsedMessage = parseLogMessage(message, step.getProcessInstance());
         usedLogger.log(usedLevel, parsedMessage);
         return parsedMessage;
     }

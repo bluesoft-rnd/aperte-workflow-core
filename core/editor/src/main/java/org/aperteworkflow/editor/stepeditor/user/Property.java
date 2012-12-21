@@ -41,7 +41,24 @@ public class Property<T> extends ObjectProperty<T> implements Serializable, Clon
         return propertyId.compareTo(other.propertyId);
     }
 
-    @Override
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		Property property = (Property)o;
+
+		if (propertyId != null ? !propertyId.equals(property.propertyId) : property.propertyId != null) return false;
+
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		return propertyId != null ? propertyId.hashCode() : 0;
+	}
+
+	@Override
 	protected Object clone() throws CloneNotSupportedException {
 		return super.clone();
 	}

@@ -1,10 +1,12 @@
 package pl.net.bluesoft.rnd.processtool.portlets.substitutions;
 
+import com.vaadin.ui.Label;
+
 import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
 import pl.net.bluesoft.rnd.processtool.ui.substitutions.SubstitutionsMainPane;
 
 /**
- * @author tlipski@bluesoft.net.pl
+ * @author POlszewski
  */
 public class ProcessToolSubstitutionsPortletApplication extends GenericVaadinPortlet2BpmApplication {
 	public ProcessToolSubstitutionsPortletApplication() {

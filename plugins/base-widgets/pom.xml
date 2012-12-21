@@ -4,7 +4,7 @@
     <parent>
         <artifactId>plugins</artifactId>
         <groupId>org.aperteworkflow</groupId>
-        <version>1.2-SNAPSHOT</version>
+        <version>2.0-RC2-SNAPSHOT</version>
     </parent>
 
     <artifactId>base-widgets</artifactId>
@@ -15,24 +15,24 @@
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>integration-interface</artifactId>
-            <version>1.2-SNAPSHOT</version>
+            <version>2.0-RC2-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>gui-commons</artifactId>
-            <version>1.2-SNAPSHOT</version>
+            <version>2.0-RC2-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>xml-utils</artifactId>
-            <version>1.2-SNAPSHOT</version>
+            <version>2.0-RC2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>scripting</artifactId>
-            <version>1.2-SNAPSHOT</version>
+            <version>2.0-RC2-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -67,19 +67,21 @@
                 <configuration>
                     <instructions>
                         <Export-Package>
-                            pl.net.bluesoft.rnd.processtool.ui.basewidgets,pl.net.bluesoft.rnd.processtool.ui.buttons
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets,pl.net.bluesoft.rnd.processtool.ui.buttons, pl.net.bluesoft.rnd.processtool.ui.buttons.dialog
                         </Export-Package>
                         <Import-Package>
                             org.aperteworkflow.scripting,
                             com.vaadin.event.dd.acceptcriteria,
                             com.vaadin.event.dd,
                             com.vaadin.event,
+                            pl.net.bluesoft.rnd.pt.utils.lang,
                             com.vaadin.terminal.gwt.client.ui.dd,
                             com.vaadin.terminal,
                             com.vaadin.data.util,
                             org.vaadin.dialogs,
                             org.vaadin.addon.customfield,
                             org.aperteworkflow.util.vaadin,
+                            org.aperteworkflow.util.vaadin.ui,
                             pl.net.bluesoft.rnd.util.i18n,javassist.util.proxy,org.hibernate.proxy,org.osgi.framework,pl.net.bluesoft.rnd.processtool.plugins.osgi,pl.net.bluesoft.rnd.processtool.plugins,pl.net.bluesoft.rnd.processtool.model,javax.persistence,pl.net.bluesoft.rnd.processtool.ui.widgets,com.vaadin.data,com.vaadin.ui,com.vaadin,pl.net.bluesoft.rnd.processtool.ui.widgets.impl,*;resolution:=optional
                         </Import-Package>
                         <Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>
@@ -87,8 +89,26 @@
                         <Bundle-Version>0.1</Bundle-Version>
                         <Embed-Directory>lib</Embed-Directory>
                         <Embed-Transitive>true</Embed-Transitive>
-                        <ProcessTool-Widget-Enhancement>pl.net.bluesoft.rnd.processtool.ui.basewidgets.LocaleCaptureWidget,pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessHistoryWidget,pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessCommentsWidget,pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDataBlockWidget,pl.net.bluesoft.rnd.processtool.ui.basewidgets.LatestProcessCommentsWidget,pl.net.bluesoft.rnd.processtool.ui.basewidgets.TabSheetWidget,pl.net.bluesoft.rnd.processtool.ui.basewidgets.VerticalLayoutWidget</ProcessTool-Widget-Enhancement>
-                        <ProcessTool-Button-Enhancement>pl.net.bluesoft.rnd.processtool.ui.buttons.StandardValidatingButton,pl.net.bluesoft.rnd.processtool.ui.buttons.CommentEnabledStandardValidatingButton</ProcessTool-Button-Enhancement>
+                        <ProcessTool-Widget-Enhancement>
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.LatestProcessCommentsWidget,
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.LocaleCaptureWidget,
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.PanelWidget,
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessCommentsWidget,
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDataBlockWidget,
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessHistoryWidget,
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.TabSheetWidget,
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.VerticalLayoutWidget,
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.SwitchWidget
+                        </ProcessTool-Widget-Enhancement>
+                        <ProcessTool-Button-Enhancement>
+                            pl.net.bluesoft.rnd.processtool.ui.buttons.AssignUserTaskButton,
+                            pl.net.bluesoft.rnd.processtool.ui.buttons.CancelTaskButton,
+                            pl.net.bluesoft.rnd.processtool.ui.buttons.CommentRequiredValidatingButton,
+                            pl.net.bluesoft.rnd.processtool.ui.buttons.StandardValidatingButton,
+                            pl.net.bluesoft.rnd.processtool.ui.buttons.YesNoButton,
+                            pl.net.bluesoft.rnd.processtool.ui.buttons.OpenURLButton,
+                            pl.net.bluesoft.rnd.processtool.ui.buttons.YesNoCommentButton
+                        </ProcessTool-Button-Enhancement>
                         <ProcessTool-I18N-Property>basewidgets-messages</ProcessTool-I18N-Property>
                     </instructions>
                 </configuration>

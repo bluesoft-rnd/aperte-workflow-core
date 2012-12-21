@@ -76,8 +76,7 @@ public class JSONHandler {
                 resultMap.put(DESCRIPTION, map.get(DESCRIPTION).toString());
             }
             if (map.get(COMMENTARY) != null) {
-                byte[] bytes = ((String) map.get(COMMENTARY)).getBytes();
-                resultMap.put(COMMENTARY, new String(Base64.decodeBase64(bytes)));
+                resultMap.put(COMMENTARY, decodeAndCreateString( map.get(COMMENTARY).toString()));
             }
             
             if (map.containsKey(STEP_PERMISSIONS)) {
@@ -98,6 +97,11 @@ public class JSONHandler {
             logger.log(Level.SEVERE, "Error loading configuration", e);
 			throw new ParsingFailedException(e);
 		}
+	}
+	
+	public static String decodeAndCreateString(String stringToDecode){
+		
+		return new String(Base64.decodeBase64(stringToDecode.getBytes()));
 	}
 
 	private static void analyzeChildren(Map<String, Object> map, HierarchicalContainer hc, WidgetItemInStep rootItem) throws WidgetNotFoundException {
@@ -120,10 +124,10 @@ public class JSONHandler {
 
 		Map<String, Object> properties = (Map<String, Object>) node.get(PROPERTIES);
 		if (properties != null) {
-			for (String key : properties.keySet()) {
+			for (Map.Entry<String, Object> e : properties.entrySet()) {
 				for (Property<?> property : item.getProperties()) {
-					if (property.getPropertyId().equals(key)) {
-						property.setValue(new String(Base64.decodeBase64(properties.get(key).toString())));
+					if (property.getPropertyId().equals(e.getKey())) {
+						property.setValue(new String(Base64.decodeBase64(e.getValue().toString())));
 					}
 				}
 			}
@@ -220,11 +224,11 @@ public class JSONHandler {
             treeMap.put(STEP_PERMISSIONS, permissions);
         }
         if (description != null) {
-            treeMap.put(DESCRIPTION, description);
+            treeMap.put(DESCRIPTION,description);
         }
         if (commentary != null) {
-            byte[] bytes = commentary.toString().getBytes();
-            treeMap.put(COMMENTARY, Base64.encodeBase64URLSafeString(bytes));
+            
+            treeMap.put(COMMENTARY, encodeString(commentary));
         }
 		
         tc.setParams(treeMap);
@@ -239,6 +243,14 @@ public class JSONHandler {
             logger.log(Level.SEVERE, "Error dumping tree", e);
 		}
 		return messages.getMessage("dump.failed");
+	}
+	
+	
+	public static String encodeString(Object objectToConvert){
+		byte[] bytes = objectToConvert.toString().getBytes();
+		return Base64.encodeBase64URLSafeString(bytes);
+		
+		
 	}
 
 }

@@ -98,7 +98,7 @@
     </portlet>
 
     <portlet>
-		<portlet-name>ProcessTool User Substitutions</portlet-name>
+		<portlet-name>AperteWorkflow User Substitutions</portlet-name>
 		<display-name>Aperte Workflow User Substitutions</display-name>
         <portlet-class>org.aperteworkflow.util.vaadin.ProcessToolVaadinApplicationPortlet2</portlet-class>
 		<init-param>
@@ -182,5 +182,52 @@
 			<short-title>Process Instances</short-title>
 		</portlet-info>
 	</portlet>
+
+    <portlet>
+        <portlet-name>Aperte Workflow Admin Portlet</portlet-name>
+        <display-name>Aperte Workflow Admin Portlet</display-name>
+        <portlet-class>org.aperteworkflow.util.vaadin.ProcessToolVaadinApplicationPortlet2</portlet-class>
+
+        <init-param>
+            <name>application</name>
+            <value>pl.net.bluesoft.rnd.processtool.portlets.generic.GenericAdminPortletApplication</value>
+        </init-param>
+        <init-param>
+            <name>widgetset</name>
+            <value>com.vaadin.portal.gwt.PortalDefaultWidgetSet</value>
+        </init-param>
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>view</portlet-mode>
+        </supports>
+        <portlet-info>
+            <title>Aperte Workflow Admin Portlet</title>
+            <short-title>Aperte Workflow Admin Portlet</short-title>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
+        <portlet-name>Aperte Workflow User Portlet</portlet-name>
+        <display-name>Aperte Workflow User Portlet</display-name>
+        <portlet-class>org.aperteworkflow.util.vaadin.ProcessToolVaadinApplicationPortlet2</portlet-class>
+
+        <init-param>
+            <name>application</name>
+            <value>pl.net.bluesoft.rnd.processtool.portlets.generic.GenericUserPortletApplication</value>
+        </init-param>
+        <init-param>
+            <name>widgetset</name>
+            <value>com.vaadin.portal.gwt.PortalDefaultWidgetSet</value>
+        </init-param>
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>view</portlet-mode>
+            <portlet-mode>edit</portlet-mode>
+        </supports>
+        <portlet-info>
+            <title>Aperte Workflow User Portlet</title>
+            <short-title>Aperte Workflow User Portlet</short-title>
+        </portlet-info>
+    </portlet>
 
 </portlet-app>

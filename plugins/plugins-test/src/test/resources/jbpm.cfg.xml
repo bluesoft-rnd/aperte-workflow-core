@@ -1,0 +1,91 @@
+<jbpm-configuration xmlns="http://jbpm.org/xsd/cfg">
+
+    <import resource="jbpm.jpdl.cfg.xml"/>
+    <import resource="jbpm.identity.cfg.xml"/>
+    <import resource="jbpm.jobexecutor.cfg.xml"/>
+    <import resource="jbpm.tx.hibernate.cfg.xml"/>
+
+    <process-engine-context>
+
+        <repository-service/>
+        <repository-cache/>
+        <execution-service/>
+        <history-service/>
+        <management-service/>
+        <identity-service/>
+        <task-service/>
+
+        <object class="org.jbpm.pvm.internal.id.DatabaseDbidGenerator">
+            <field name="commandService">
+                <ref object="newTxRequiredCommandService"/>
+            </field>
+        </object>
+
+        <object class="org.jbpm.pvm.internal.id.DatabaseIdComposer" init="eager"/>
+
+        <script-manager default-expression-language="juel"
+                        default-script-language="juel">
+            <script-language name="juel" factory="org.jbpm.pvm.internal.script.JuelScriptEngineFactory"/>
+        </script-manager>
+
+        <types resource="jbpm.variable.types.xml"/>
+
+        <address-resolver/>
+
+        <mail-template name='task-notification'>
+            <to users="${task.assignee}"/>
+            <subject>${task.name}</subject>
+            <text><![CDATA[Hi ${task.assignee},
+        Task "${task.name}" has been assigned to you.
+        ${task.description}
+
+        Sent by JBoss jBPM
+        ]]></text>
+        </mail-template>
+
+        <mail-template name='task-reminder'>
+            <to users="${task.assignee}"/>
+            <subject>${task.name}</subject>
+            <text><![CDATA[Hey ${task.assignee},
+        Do not forget about task "${task.name}".
+        ${task.description}
+
+        Sent by JBoss jBPM
+        ]]></text>
+        </mail-template>
+
+        <command-service name="txRequiredCommandService">
+            <skip-interceptor/>
+            <retry-interceptor/>
+            <environment-interceptor/>
+            <standard-transaction-interceptor/>
+        </command-service>
+
+        <command-service name="newTxRequiredCommandService">
+            <retry-interceptor/>
+            <environment-interceptor policy="requiresNew"/>
+            <standard-transaction-interceptor/>
+        </command-service>
+
+    </process-engine-context>
+
+    <transaction-context>
+        <repository-session/>
+        <db-session/>
+        <message-session/>
+        <timer-session/>
+        <history-sessions>
+            <object class="org.jbpm.pvm.internal.history.HistorySessionImpl"/>
+        </history-sessions>
+        <transaction/>
+        <hibernate-session current="true" close="false"/>
+    </transaction-context>
+
+    <!--<transaction-context>-->
+
+    <!--&lt;!&ndash;-->
+    <!--Need to set explicitly that we don't want jbpm to create sessions-->
+    <!--&ndash;&gt;-->
+    <!--<hibernate-session current="true" close="false"/>-->
+    <!--</transaction-context>-->
+</jbpm-configuration>

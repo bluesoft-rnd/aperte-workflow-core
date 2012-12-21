@@ -9,12 +9,16 @@ import org.jbpm.api.ProcessEngine;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
+import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
+import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionPermission;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.util.lang.Strings;
 
 import javax.naming.InitialContext;
 import javax.transaction.Status;
@@ -31,7 +35,7 @@ import java.util.logging.Logger;
 /**
  * @author tlipski@bluesoft.net.pl
  */
-public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory {
+public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory, ProcessToolBpmConstants {
 
     private static Logger logger = Logger.getLogger(ProcessToolContextFactoryImpl.class.getName());
     private Configuration configuration;
@@ -43,14 +47,23 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory 
     }
 
     @Override
-	public void withProcessToolContext(ProcessToolContextCallback callback) {
+    public <T> T withExistingOrNewContext(ReturningProcessToolContextCallback<T> callback) {
+        ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
+        return ctx != null && ctx.isActive() ? callback.processWithContext(ctx) : withProcessToolContext(callback);
+    }
+
+    @Override
+	public <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback) {
         if (registry.isJta()) {
-            withProcessToolContextJta(callback);
+            return withProcessToolContextJta(callback);
         } else {
-            withProcessToolContextNonJta(callback);
+            return withProcessToolContextNonJta(callback);
         }
     }
-	public void withProcessToolContextNonJta(ProcessToolContextCallback callback) {
+
+	public <T> T withProcessToolContextNonJta(ReturningProcessToolContextCallback<T> callback) {
+        T result = null;
+
 		Session session = registry.getSessionFactory().openSession();
 		try {
 			ProcessEngine pi = getProcessEngine();
@@ -58,7 +71,7 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory 
 				Transaction tx = session.beginTransaction();
 				try {
 					ProcessToolContextImpl ctx = new ProcessToolContextImpl(session, this, pi);
-					callback.withContext(ctx);
+					result = callback.processWithContext(ctx);
 				} catch (RuntimeException e) {
 					logger.log(Level.SEVERE, e.getMessage(), e);
 					try {
@@ -76,9 +89,12 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory 
 		} finally {
 			session.close();
 		}
+        return result;
     }
 
-    public void withProcessToolContextJta(ProcessToolContextCallback callback) {
+    public <T> T withProcessToolContextJta(ReturningProcessToolContextCallback<T> callback) {
+        T result = null;
+
         try {
             UserTransaction ut=null;
             try {
@@ -101,7 +117,7 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory 
                 try {
                     try {
                         ProcessToolContextImpl ctx = new ProcessToolContextImpl(session, this, pi);
-                        callback.withContext(ctx);
+                        result = callback.processWithContext(ctx);
                     } catch (Exception e) {
                         logger.log(Level.SEVERE, e.getMessage(), e);
                         try {
@@ -121,6 +137,8 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory 
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        return result;
+
 
     }
 
@@ -158,6 +176,16 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory 
                     InputStream is = bpmStream;
                     ProcessToolBpmSession session = processToolContext.getProcessToolSessionFactory().createSession(
                             new UserData("admin", "admin@aperteworkflow.org", "Admin"), Arrays.asList("ADMIN"));
+                    if (cfg.getPermissions() != null) {
+                        for (ProcessDefinitionPermission p : cfg.getPermissions()) {
+                            if (!Strings.hasText(p.getPrivilegeName())) {
+                                p.setPrivilegeName(PRIVILEGE_INCLUDE);
+                            }
+                            if (!Strings.hasText(p.getRoleName())) {
+                                p.setRoleName(PATTERN_MATCH_ALL);
+                            }
+                        }
+                    }
                     byte[] oldDefinition = session.getProcessLatestDefinition(cfg.getBpmDefinitionKey(), cfg.getProcessName());
                     if (oldDefinition != null) {
                         byte[] newDefinition = loadBytesFromStream(is);
@@ -178,7 +206,7 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory 
                     processDefinitionDAO.updateOrCreateProcessDefinitionConfig(cfg);
                     logger.log(Level.INFO, "created  definition with id: " + cfg.getId());
                     if (queues != null && queues.length > 0) {
-                        processDefinitionDAO.updateOrCreateQueueConfigs(queues);
+                        processDefinitionDAO.updateOrCreateQueueConfigs(Arrays.asList(queues));
                         logger.log(Level.INFO, "created/updated " + queues.length + " queues");
                     }
                 } finally {

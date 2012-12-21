@@ -10,17 +10,57 @@ import javax.persistence.*;
 @Entity
 @Table(name="pt_ext_bpm_notify_config")
 public class BpmNotificationConfig extends PersistentEntity {
-	private String processTypeRegex, stateRegex;
+    private String profileName;
+	private String processTypeRegex;
+    private String stateRegex;
+    private String lastActionRegex;
 	private boolean notifyTaskAssignee;
     @Column(name = "skipNotification")
 	private boolean skipNotificationWhenTriggeredByAssignee;
 	private boolean active;
 	private String notifyEmailAddresses;
-
+	private String notifyUserAttributes;
 	private String templateName;
 	private boolean sendHtml;
+    private String locale;
+    private boolean notifyOnProcessStart;
+	private boolean notifyOnProcessEnd;
+    private boolean onEnteringStep;
+	private String templateArgumentProvider;
 
-	public String getProcessTypeRegex() {
+	public boolean isNotifyOnProcessStart() {
+        return notifyOnProcessStart;
+    }
+
+    public void setNotifyOnProcessStart(boolean notifyOnProcessStart) {
+        this.notifyOnProcessStart = notifyOnProcessStart;
+    }
+
+	public boolean isNotifyOnProcessEnd() {
+		return notifyOnProcessEnd;
+	}
+
+	public void setNotifyOnProcessEnd(boolean notifyOnProcessEnd) {
+		this.notifyOnProcessEnd = notifyOnProcessEnd;
+	}
+
+	public String getLocale() {
+        return locale;
+    }
+
+    public void setLocale(String locale) {
+        this.locale = locale;
+    }
+
+    public String getProfileName() {
+        return profileName;
+    }
+
+    public void setProfileName(String profileName) {
+        this.profileName = profileName;
+    }
+
+    public String getProcessTypeRegex() {
 		return processTypeRegex;
 	}
 
@@ -50,6 +90,14 @@ public class BpmNotificationConfig extends PersistentEntity {
 
 	public void setNotifyEmailAddresses(String notifyEmailAddresses) {
 		this.notifyEmailAddresses = notifyEmailAddresses;
+	}
+
+	public String getNotifyUserAttributes() {
+		return notifyUserAttributes;
+	}
+
+	public void setNotifyUserAttributes(String notifyUserAttributes) {
+		this.notifyUserAttributes = notifyUserAttributes;
 	}
 
 	public String getTemplateName() {
@@ -82,5 +130,29 @@ public class BpmNotificationConfig extends PersistentEntity {
 
 	public void setSkipNotificationWhenTriggeredByAssignee(boolean skipNotificationWhenTriggeredByAssignee) {
 		this.skipNotificationWhenTriggeredByAssignee = skipNotificationWhenTriggeredByAssignee;
+	}
+
+	public String getTemplateArgumentProvider() {
+		return templateArgumentProvider;
+	}
+
+	public void setTemplateArgumentProvider(String templateArgumentProvider) {
+		this.templateArgumentProvider = templateArgumentProvider;
+	}
+
+	public String getLastActionRegex() {
+		return lastActionRegex;
+	}
+
+	public void setLastActionRegex(String lastTransitionRegex) {
+		this.lastActionRegex = lastTransitionRegex;
+	}
+
+	public boolean isOnEnteringStep() {
+		return onEnteringStep;
+	}
+
+	public void setOnEnteringStep(boolean onEnteringStep) {
+		this.onEnteringStep = onEnteringStep;
 	}
 }

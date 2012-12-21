@@ -13,6 +13,7 @@ import org.apache.chemistry.opencmis.client.api.Folder;
 import org.apache.commons.codec.binary.Base64;
 import org.hibernate.collection.PersistentSet;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.model.BpmStep;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceSimpleAttribute;
@@ -36,7 +37,7 @@ import java.util.logging.Logger;
 import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 
 @AliasName(name = "GenerateDocumentStep")
-public class GenerateDocument implements ProcessToolProcessStep {
+public class GenerateDocument implements ProcessToolProcessStep { 
 
 	private static final String DATETIME_PATTERN = "dd-MM-yyyy HH:mm";
 	private static final String PROCESS_INSTANCE_KEY = "processInstance";
@@ -123,8 +124,10 @@ public class GenerateDocument implements ProcessToolProcessStep {
 	private static final String POPUP_ALWAYS = "ALWAYS";
 
 	@Override
-	public String invoke(ProcessInstance processInstance, Map params) throws Exception {
+	public String invoke(BpmStep step, Map<String, String> params) throws Exception {
 		try {
+			
+			ProcessInstance processInstance = step.getProcessInstance();
 			// GET PARAMETERS FOR REPORT
 			reportName = (String) params.get("reportName");
 			subFolder = (String) params.get("subFolder");
@@ -138,6 +141,7 @@ public class GenerateDocument implements ProcessToolProcessStep {
 				localeAttributeKey = (String) params.get("localeAttributeKey");
 			}
 			defaultLocaleName = (String) params.get("defaultLocaleName");
+
 			initLocale(processInstance);
 			// BUILD REPORT
 			logger.warning("GenerateDocument start, building report");
@@ -418,5 +422,7 @@ public class GenerateDocument implements ProcessToolProcessStep {
 	public void setPopup(String popup) {
 		this.popup = popup;
 	}
+
+	
 
 }

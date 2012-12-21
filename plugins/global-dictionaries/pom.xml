@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>plugins</artifactId>
+        <groupId>org.aperteworkflow</groupId>
+        <version>2.0-RC2-SNAPSHOT</version>
+    </parent>
+
+    <packaging>bundle</packaging>
+    <artifactId>global-dictionaries</artifactId>
+    <name>global-dictionaries</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.aperteworkflow</groupId>
+            <artifactId>integration-interface</artifactId>
+            <version>2.0-RC2-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.aperteworkflow</groupId>
+            <artifactId>xml-utils</artifactId>
+            <version>2.0-RC2-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+		<dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>${hibernate.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+	
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <version>2.1.0</version>
+                <configuration>
+                    <instructions>
+                        <!--<Implementation-Build>${buildNumber}</Implementation-Build>-->
+                        <Export-Package>
+                            pl.net.bluesoft.rnd.pt.dict.global.i18n
+                        </Export-Package>
+                        <Import-Package>
+                            *;resolution:=optional,
+                            pl.net.bluesoft.rnd.util.i18n,
+                            pl.net.bluesoft.rnd.processtool.dict.exception
+                        </Import-Package>
+                        <Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>
+                        <Bundle-Activator>pl.net.bluesoft.rnd.pt.dict.global.GlobalDictionariesActivator</Bundle-Activator>
+                        <Bundle-SymbolicName>pl.net.bluesoft.rnd.pt.dict.global</Bundle-SymbolicName>
+                        <Bundle-Version>0.1</Bundle-Version>
+                        <Bundle-Name>Global dictionaries</Bundle-Name>
+                        <Bundle-Description>Global dictionaries</Bundle-Description>
+                        <Embed-Directory>lib</Embed-Directory>
+                        <Embed-Transitive>true</Embed-Transitive>
+                        <ProcessTool-Global-Dictionary>pl.net.bluesoft.rnd.pt.dict.global</ProcessTool-Global-Dictionary>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

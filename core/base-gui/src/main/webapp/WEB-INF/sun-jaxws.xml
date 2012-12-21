@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<endpoints
+        xmlns="http://java.sun.com/xml/ns/jax-ws/ri/runtime"
+        version="2.0">
+    <endpoint
+            name="AperteWorkflowDataService"
+            implementation="org.aperteworkflow.service.AperteWorkflowDataServiceImpl"
+            url-pattern="/services/data"/>
+    <endpoint
+            name="AperteWorkflowProcessService"
+            implementation="org.aperteworkflow.service.AperteWorkflowProcessServiceImpl"
+            url-pattern="/services/process"/>
+</endpoints>

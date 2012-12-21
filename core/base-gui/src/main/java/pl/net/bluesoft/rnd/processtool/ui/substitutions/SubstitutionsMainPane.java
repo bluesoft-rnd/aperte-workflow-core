@@ -10,33 +10,32 @@ import com.vaadin.data.util.PropertyFormatter;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.ui.*;
 import org.aperteworkflow.util.liferay.LiferayBridge;
-import org.aperteworkflow.util.vaadin.TransactionProvider;
-import org.aperteworkflow.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.UserSubstitution;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolGuiCallback;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import org.aperteworkflow.util.vaadin.ui.LocalizedPagedTable;
-import pl.net.bluesoft.util.lang.MapUtil;
-import static org.aperteworkflow.util.vaadin.VaadinUtility.*;
+import org.aperteworkflow.util.vaadin.TransactionProvider;
+import org.aperteworkflow.util.vaadin.ui.table.LocalizedPagedTable;
+import pl.net.bluesoft.util.lang.Maps;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static pl.net.bluesoft.rnd.poutils.DateUtil.truncHours;
-import static pl.net.bluesoft.rnd.poutils.cquery.CQuery.from;
+import static pl.net.bluesoft.util.lang.DateUtil.truncHours;
+import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
 import static org.aperteworkflow.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.*;
 
 /**
  * User: POlszewski
  * Date: 2011-09-09
  * Time: 13:05:13
  */
-public class SubstitutionsMainPane extends VerticalLayout implements VaadinUtility.HasRefreshButton {
+public class SubstitutionsMainPane extends VerticalLayout implements Refreshable {
     private Application application;
     private I18NSource i18NSource;
     private TransactionProvider transactionProvider;
@@ -59,12 +58,12 @@ public class SubstitutionsMainPane extends VerticalLayout implements VaadinUtili
     private void initWidget() {
         removeAllComponents();
 
-        Label titleLabel = new Label(i18NSource.getMessage("user.substitutions.title"));
+        Label titleLabel = new Label(getMessage("user.substitutions.title"));
         titleLabel.addStyleName("h1 color processtool-title");
         titleLabel.setWidth("100%");
 
         Button addEntryButton = addIcon(application);
-        addEntryButton.setCaption(i18NSource.getMessage("substitutions.substitution"));
+        addEntryButton.setCaption(getMessage("substitutions.substitution"));
         addEntryButton.addListener(new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent event) {
@@ -89,9 +88,9 @@ public class SubstitutionsMainPane extends VerticalLayout implements VaadinUtili
         customColumns.put("delete", createDeleteColumn(container));
 
         String[] visibleColumns = new String[] {"user", "userSubstitute", "dateFrom", "dateTo", "delete"};
-        String[] columnHeaders = new String[] {i18NSource.getMessage("substitutions.user"), i18NSource.getMessage("substitutions.user.substitute"),
-                i18NSource.getMessage("substitutions.date.from"), i18NSource.getMessage("substitutions.date.to"),
-                i18NSource.getMessage("pagedtable.delete")};
+        String[] columnHeaders = new String[] {getMessage("substitutions.user"), getMessage("substitutions.user.substitute"),
+                getMessage("substitutions.date.from"), getMessage("substitutions.date.to"),
+                getMessage("pagedtable.delete")};
 
         LocalizedPagedTable table = pagedTable(container, visibleColumns, columnHeaders, customColumns, new ItemClickEvent.ItemClickListener() {
             @Override
@@ -111,9 +110,10 @@ public class SubstitutionsMainPane extends VerticalLayout implements VaadinUtili
         transactionProvider.withTransaction(new ProcessToolGuiCallback() {
             @Override
             public void callback(ProcessToolContext ctx, ProcessToolBpmSession session) {
-                container.addAll(ctx.getUserSubstitutionDAO().findAll());
-                usersByLogin = MapUtil.collectionToMap(LiferayBridge.getAllUsers(session.getUser(ctx)), "login");
+                container.addAll(ctx.getUserSubstitutionDAO().findAllEagerUserFetch());
+                usersByLogin = Maps.collectionToMap(LiferayBridge.getAllUsersByCurrentUser(session.getUser(ctx)), "login");
                 userDataContainer.addAll(usersByLogin.values());
+				userDataContainer.sort(new String[]{ "realName" }, new boolean[]{ true });
             }
         });
     }
@@ -159,22 +159,29 @@ public class SubstitutionsMainPane extends VerticalLayout implements VaadinUtili
             @Override
             public Field createField(Item item, Object propertyId, Component component) {
                 if ("user".equals(propertyId)) {
-                    Select s = select("Substituted User", userDataContainer, "realName");
+                    Select s = select(getMessage("substitutions.user"), userDataContainer, "filteredName");
                     s.setRequired(true);
                     s.setRequiredError("Substituted User required");
                     return s;
                 }
                 if ("userSubstitute".equals(propertyId)) {
-                    Select s = select("Substituting User", userDataContainer, "realName");
+                    Select s = select(getMessage("substitutions.user.substitute"), userDataContainer, "filteredName");
                     s.setRequired(true);
                     s.setRequiredError("Substituting User required");
+					s.setWidth(250, UNITS_PIXELS);
                     return s;
                 }
                 if ("dateFrom".equals(propertyId)) {
-                    return createDateField("Date From");
+                    DateField df = createDateField(getMessage("substitutions.date.from"));
+                    df.setRequired(true);
+                    df.setRequiredError(getMessage("substitutions.date.from.required"));
+                    return df;
                 }
                 if ("dateTo".equals(propertyId)) {
-                    return createDateField("Date To");
+                    DateField df = createDateField(getMessage("substitutions.date.to"));
+                    df.setRequired(true);
+                    df.setRequiredError(getMessage("substitutions.date.to.required"));
+                    return df;
                 }                
                 return null;
             }
@@ -185,7 +192,7 @@ public class SubstitutionsMainPane extends VerticalLayout implements VaadinUtili
         form.setValidationVisibleOnCommit(false);
         form.setImmediate(true);
         form.setWriteThrough(false);
-        Button cancelButton = smallButton(i18NSource.getMessage("button.cancel"));
+        Button cancelButton = smallButton(getMessage("button.cancel"));
         cancelButton.addListener(new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent event) {
@@ -194,7 +201,7 @@ public class SubstitutionsMainPane extends VerticalLayout implements VaadinUtili
                 detailsWindow = null;
             }
         });
-        Button saveButton = smallButton(i18NSource.getMessage("button.save"));
+        Button saveButton = smallButton(getMessage("button.save"));
         saveButton.addListener(new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent event) {
@@ -243,7 +250,7 @@ public class SubstitutionsMainPane extends VerticalLayout implements VaadinUtili
         panel.setWidth("550px");
         panel.setScrollable(true);
         panel.addComponent(form);
-        detailsWindow = modalWindow(i18NSource.getMessage("dict.item"), panel);
+        detailsWindow = modalWindow(getMessage("substitutions.Substitution"), panel);
     }
 
     private void saveSubstitution(final UserSubstitution item) {
@@ -291,6 +298,7 @@ public class SubstitutionsMainPane extends VerticalLayout implements VaadinUtili
                 Property prop = source.getItem(itemId).getItemProperty(columnId);
                 if (prop.getType().equals(Date.class)) {
                     DateField df = createDateField(null);
+                    df.setRequired(true);
                     df.setReadOnly(true);
                     df.setPropertyDataSource(prop);
                     return df;
@@ -304,7 +312,7 @@ public class SubstitutionsMainPane extends VerticalLayout implements VaadinUtili
         return new Table.ColumnGenerator() {
             @Override
             public Component generateCell(Table source, final Object itemId, Object columnId) {
-                Button b = smallButton(i18NSource.getMessage("pagedtable.delete"));
+                Button b = smallButton(getMessage("pagedtable.delete"));
                 b.addListener(new Button.ClickListener() {
                     @Override
                     public void buttonClick(Button.ClickEvent event) {
@@ -313,7 +321,7 @@ public class SubstitutionsMainPane extends VerticalLayout implements VaadinUtili
                         transactionProvider.withTransaction(new ProcessToolGuiCallback() {
                             @Override
                             public void callback(ProcessToolContext ctx, ProcessToolBpmSession session) {
-                                ctx.getUserSubstitutionDAO().delete(item);
+								ctx.getUserSubstitutionDAO().deleteById(item.getId());                                
                             }
                         });
                     }
@@ -330,10 +338,12 @@ public class SubstitutionsMainPane extends VerticalLayout implements VaadinUtili
     private PopupDateField createDateField(String caption) {
         PopupDateField dateField = new PopupDateField(caption);
         dateField.setDateFormat("yyyy-MM-dd");
-        dateField.setResolution(PopupDateField.RESOLUTION_DAY);
-        dateField.setRequired(true);
-        dateField.setRequiredError(caption + " required");
+        dateField.setResolution(PopupDateField.RESOLUTION_DAY);        
         dateField.setImmediate(true);
         return dateField;
+    }
+
+    private String getMessage(String key) {
+        return i18NSource.getMessage(key);
     }
 }

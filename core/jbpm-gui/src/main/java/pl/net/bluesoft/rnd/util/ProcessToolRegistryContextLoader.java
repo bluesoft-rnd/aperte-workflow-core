@@ -2,6 +2,7 @@ package pl.net.bluesoft.rnd.util;
 
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistryImpl;
+import pl.net.bluesoft.rnd.processtool.plugins.RegistryHolder;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.ProcessToolContextFactoryImpl;
 
 import javax.servlet.ServletContextEvent;
@@ -23,6 +24,7 @@ public class ProcessToolRegistryContextLoader implements ServletContextListener 
 			toolRegistry.setProcessToolContextFactory(new ProcessToolContextFactoryImpl(toolRegistry));
 			sce.getServletContext().setAttribute(ProcessToolRegistry.class.getName(),
 			                                     toolRegistry);
+            RegistryHolder.setRegistry(toolRegistry);
 		} catch (Exception e) {
 			Logger.getLogger(ProcessToolRegistryContextLoader.class.getName()).log(Level.SEVERE, e.getMessage(), e);
 		}

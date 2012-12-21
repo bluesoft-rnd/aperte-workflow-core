@@ -6,8 +6,10 @@ import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
+import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
@@ -24,7 +26,7 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
  */
 public abstract class UserDataWidget
 		extends BaseProcessToolVaadinWidget
-		implements ProcessToolDataWidget, Property.ValueChangeListener {
+		implements ProcessToolDataWidget, ProcessToolVaadinWidget, Property.ValueChangeListener {
 
 	UserData selectedUser = null;
 	private ComboBox combo;
@@ -52,7 +54,7 @@ public abstract class UserDataWidget
     private Boolean required;
 
 	@Override
-	public Collection<String> validateData(ProcessInstance processInstance) {
+	public Collection<String> validateData(BpmTask task, boolean skipRequired) {
 		Collection<String> res = new HashSet<String>();
 		if (getRequired() && selectedUser==null) {
 			res.add("ext.userdata.validate.required."+ roleInProcess);
@@ -61,13 +63,14 @@ public abstract class UserDataWidget
 	}
 
 	@Override
-	public void saveData(ProcessInstance processInstance) {
+	public void saveData(BpmTask task) {
 		boolean found = false;
-		for (ProcessInstanceUserAssignment assign : getAttributes(ProcessInstanceUserAssignment.class, processInstance)) {
+        ProcessInstance pi = task.getProcessInstance();
+		for (ProcessInstanceUserAssignment assign : getAttributes(ProcessInstanceUserAssignment.class, pi)) {
 			if ((roleInProcess == null && assign.getRole() == null) || (assign.getRole() != null && assign.getRole().equals(roleInProcess))) {
 				found = true;
 				if (selectedUser == null) {
-					processInstance.removeAttribute(assign);
+                    pi.removeAttribute(assign);
 				} else {
                     assign.setBpmLogin(selectedUser.getBpmLogin());
 					assign.setUserLogin(selectedUser.getLogin());
@@ -82,12 +85,13 @@ public abstract class UserDataWidget
 			assign.setBpmLogin(selectedUser.getBpmLogin());
 			assign.setRole(roleInProcess);
 			assign.setKey(roleInProcess);
-			processInstance.addAttribute(assign);
+            pi.addAttribute(assign);
 		}
 	}
 
 	@Override
-	public void loadData(ProcessInstance processInstance) {
+	public void loadData(BpmTask task) {
+        ProcessInstance processInstance = task.getProcessInstance();
 		for (ProcessInstanceUserAssignment assign : getAttributes(ProcessInstanceUserAssignment.class, processInstance)) {
 			if ((roleInProcess == null && assign.getRole() == null) || (assign.getRole() != null && assign.getRole().equals(roleInProcess))) {
 				selectedUser = new UserData();
@@ -126,7 +130,7 @@ public abstract class UserDataWidget
 		combo.setContainerDataSource(bic);
 		bic.sort(new Object[] { "description" }, new boolean[] { true });
 
-		if (selectedUser != null && combo != null) {
+		if (selectedUser != null) {
 			for (UserData ud : users) {
 				if (selectedUser.getLogin().equals(ud.getLogin())) {
 					combo.setValue(ud);

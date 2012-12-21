@@ -82,7 +82,7 @@ public abstract class WidgetElement implements Serializable {
     @XmlAttribute
     @XStreamAsAttribute
     @AperteDoc(humanNameKey = "any.visible", descriptionKey = "any.visible.description")
-    protected Boolean visible;
+    protected Boolean visible = true;
 
     @XmlAttribute
     @XStreamAsAttribute
@@ -96,6 +96,28 @@ public abstract class WidgetElement implements Serializable {
     @XmlTransient
     @XStreamOmitField
     protected Object value;
+
+    @XmlAttribute
+    @XStreamAsAttribute
+    protected Boolean global;
+    @XmlAttribute
+    @XStreamAsAttribute
+    protected String validFor;
+    public String getValidFor() {
+        return validFor;
+    }
+
+    public void setValidFor(String validFor) {
+        this.validFor = validFor;
+    }
+
+    public Boolean getGlobal() {
+        return global;
+    }
+
+    public void setGlobal(Boolean global) {
+        this.global = global;
+    }
 
     public Object getValue() {
         return value;
@@ -251,6 +273,6 @@ public abstract class WidgetElement implements Serializable {
 
     @Override
     public int hashCode() {
-        return id != null ? id.hashCode() : 0;
+        return 0;
     }
 }

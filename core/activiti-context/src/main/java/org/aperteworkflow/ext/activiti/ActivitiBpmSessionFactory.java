@@ -6,17 +6,32 @@ import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolSessionFactory;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 
 import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * @author tlipski@bluesoft.net.pl
  */
 public class ActivitiBpmSessionFactory implements ProcessToolSessionFactory {
 
-	public ActivitiBpmSessionFactory() {
-	}
+    UserData autoUser;
+    public ActivitiBpmSessionFactory() {
+    }
 
-	public ProcessToolBpmSession createSession(UserData user, Collection<String> roles) {
-		ActivitiBpmSession sess = new ActivitiBpmSession(user, roles);
-		return sess;
-	}
+    public ProcessToolBpmSession createSession(UserData user, Collection<String> roles) {
+        ActivitiBpmSession sess = new ActivitiBpmSession(user, roles);
+        return sess;
+    }
+
+    public ProcessToolBpmSession createAutoSession() {
+        return createAutoSession(new HashSet<String>());
+    }
+
+    public ProcessToolBpmSession createAutoSession(Collection<String> roles) {
+        ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
+        if (autoUser == null) {
+            autoUser = ctx.getAutoUser();
+        }
+        return new ActivitiBpmSession(autoUser, roles);
+    }
+
 }

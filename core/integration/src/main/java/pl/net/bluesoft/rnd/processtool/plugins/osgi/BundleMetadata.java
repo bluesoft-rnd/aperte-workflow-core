@@ -237,4 +237,21 @@ public class BundleMetadata implements PluginMetadata {
     public int compareTo(PluginMetadata o) {
         return Long.valueOf(getId()).compareTo(Long.valueOf(o.getId()));
     }
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		BundleMetadata that = (BundleMetadata)o;
+
+		if (id != that.id) return false;
+
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		return (int)(id ^ (id >>> 32));
+	}
 }

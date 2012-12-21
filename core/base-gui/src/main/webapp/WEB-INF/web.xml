@@ -1,459 +1,570 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<web-app id="AperteWorkflow"
-         version="2.4"
-         >
-    <display-name>AperteWorkflow</display-name>
-    <context-param>
-        <description>Vaadin production mode</description>
-        <param-name>productionMode</param-name>
-        <param-value>false</param-value>
-    </context-param>
+<web-app id="AperteWorkflow" version="2.4">
+	<display-name>AperteWorkflow</display-name>
+	<context-param>
+		<description>Vaadin production mode</description>
+		<param-name>productionMode</param-name>
+		<param-value>false</param-value>
+	</context-param>
 
-    <filter>
-        <filter-name>Cache Filter - Resource</filter-name>
-        <filter-class>com.liferay.portal.kernel.servlet.PortalClassLoaderFilter</filter-class>
-        <init-param>
-            <param-name>filter-class</param-name>
-            <param-value>com.liferay.portal.servlet.filters.cache.CacheFilter</param-value>
-        </init-param>
-        <init-param>
-            <param-name>url-regex-ignore-pattern</param-name>
-            <param-value>.+/-/.+</param-value>
-        </init-param>
-        <init-param>
-            <param-name>pattern</param-name>
-            <param-value>2</param-value>
-        </init-param>
-    </filter>
-    <filter>
-        <filter-name>Cache Filter - Resource JSP</filter-name>
-        <filter-class>com.liferay.portal.kernel.servlet.PortalClassLoaderFilter</filter-class>
-        <init-param>
-            <param-name>filter-class</param-name>
-            <param-value>com.liferay.portal.servlet.filters.cache.CacheFilter</param-value>
-        </init-param>
-        <init-param>
-            <param-name>url-regex-pattern</param-name>
-            <param-value>.+/(css|main)\.jsp</param-value>
-        </init-param>
-        <init-param>
-            <param-name>pattern</param-name>
-            <param-value>2</param-value>
-        </init-param>
-    </filter>
-    <filter>
-        <filter-name>ETag Filter</filter-name>
-        <filter-class>com.liferay.portal.kernel.servlet.PortalClassLoaderFilter</filter-class>
-        <init-param>
-            <param-name>filter-class</param-name>
-            <param-value>com.liferay.portal.servlet.filters.etag.ETagFilter</param-value>
-        </init-param>
-        <init-param>
-            <param-name>url-regex-ignore-pattern</param-name>
-            <param-value>.+/-/.+</param-value>
-        </init-param>
-    </filter>
-    <filter>
-        <filter-name>ETag Filter - JSP</filter-name>
-        <filter-class>com.liferay.portal.kernel.servlet.PortalClassLoaderFilter</filter-class>
-        <init-param>
-            <param-name>filter-class</param-name>
-            <param-value>com.liferay.portal.servlet.filters.etag.ETagFilter</param-value>
-        </init-param>
-        <init-param>
-            <param-name>url-regex-pattern</param-name>
-            <param-value>.+/(css|main)\.jsp</param-value>
-        </init-param>
-    </filter>
-    <filter>
-        <filter-name>GZip Filter</filter-name>
-        <filter-class>com.liferay.portal.kernel.servlet.PortalClassLoaderFilter</filter-class>
-        <init-param>
-            <param-name>filter-class</param-name>
-            <param-value>com.liferay.portal.servlet.filters.gzip.GZipFilter</param-value>
-        </init-param>
-    </filter>
-    <filter>
-        <filter-name>Header Filter</filter-name>
-        <filter-class>com.liferay.portal.kernel.servlet.PortalClassLoaderFilter</filter-class>
-        <init-param>
-            <param-name>filter-class</param-name>
-            <param-value>com.liferay.portal.servlet.filters.header.HeaderFilter</param-value>
-        </init-param>
-        <init-param>
-            <param-name>url-regex-ignore-pattern</param-name>
-            <param-value>.+/-/.+</param-value>
-        </init-param>
-        <init-param>
-            <param-name>Cache-Control</param-name>
-            <param-value>max-age=315360000, public</param-value>
-        </init-param>
-        <init-param>
-            <param-name>Expires</param-name>
-            <param-value>315360000</param-value>
-        </init-param>
-        <init-param>
+	<security-constraint>
+		<display-name>excluded</display-name>
+		<web-resource-collection>
+			<web-resource-name>Web Service API</web-resource-name>
+			<url-pattern>/services/*</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>AWF_API</role-name>
+		</auth-constraint>
+	</security-constraint>
 
-            <param-name>Vary</param-name>
-            <param-value>Accept-Encoding</param-value>
-        </init-param>
-    </filter>
-    <filter>
-        <filter-name>Header Filter - JSP</filter-name>
-        <filter-class>com.liferay.portal.kernel.servlet.PortalClassLoaderFilter</filter-class>
-        <init-param>
-            <param-name>filter-class</param-name>
-            <param-value>com.liferay.portal.servlet.filters.header.HeaderFilter</param-value>
-        </init-param>
-        <init-param>
-            <param-name>url-regex-pattern</param-name>
-            <param-value>.+/(css|main)\.jsp</param-value>
-        </init-param>
-        <init-param>
-            <param-name>Cache-Control</param-name>
-            <param-value>max-age=315360000, public</param-value>
-        </init-param>
-        <init-param>
-            <param-name>Expires</param-name>
-            <param-value>315360000</param-value>
-        </init-param>
-        <init-param>
-            <param-name>Vary</param-name>
-            <param-value>Accept-Encoding</param-value>
-        </init-param>
-    </filter>
-    <filter>
-        <filter-name>Language Filter</filter-name>
-        <filter-class>com.liferay.portal.kernel.servlet.PortalClassLoaderFilter</filter-class>
-        <init-param>
-            <param-name>filter-class</param-name>
-            <param-value>com.liferay.portal.servlet.filters.language.LanguageFilter</param-value>
-        </init-param>
-    </filter>
-    <filter>
-        <filter-name>Minifier Filter</filter-name>
-        <filter-class>com.liferay.portal.kernel.servlet.PortalClassLoaderFilter</filter-class>
-        <init-param>
-            <param-name>filter-class</param-name>
-            <param-value>com.liferay.portal.servlet.filters.minifier.MinifierFilter</param-value>
-        </init-param>
-    </filter>
-    <filter>
-        <filter-name>Minifier Filter - JSP</filter-name>
-        <filter-class>com.liferay.portal.kernel.servlet.PortalClassLoaderFilter</filter-class>
-        <init-param>
-            <param-name>filter-class</param-name>
-            <param-value>com.liferay.portal.servlet.filters.minifier.MinifierFilter</param-value>
-        </init-param>
-        <init-param>
-            <param-name>url-regex-pattern</param-name>
-            <param-value>.+/(css|main)\.jsp</param-value>
-        </init-param>
-    </filter>
+	<login-config>
+		<auth-method>BASIC</auth-method>
+		<realm-name>default</realm-name>
+	</login-config>
+
+	<filter>
+		<filter-name>Cache Filter - Resource</filter-name>
+		<filter-class>com.liferay.portal.kernel.servlet.PortalClassLoaderFilter
+		</filter-class>
+		<init-param>
+			<param-name>filter-class</param-name>
+			<param-value>com.liferay.portal.servlet.filters.cache.CacheFilter
+			</param-value>
+		</init-param>
+		<init-param>
+			<param-name>url-regex-ignore-pattern</param-name>
+			<param-value>.+/-/.+</param-value>
+		</init-param>
+		<init-param>
+			<param-name>pattern</param-name>
+			<param-value>2</param-value>
+		</init-param>
+	</filter>
+
+	<filter>
+		<filter-name>SetCharacterEncodingFilter</filter-name>
+		<filter-class>org.aperteworkflow.editor.actioneditor.EncodingFilter
+		</filter-class>
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+	</filter>
+
+	<filter>
+		<filter-name>Cache Filter - Resource JSP</filter-name>
+		<filter-class>com.liferay.portal.kernel.servlet.PortalClassLoaderFilter
+		</filter-class>
+		<init-param>
+			<param-name>filter-class</param-name>
+			<param-value>com.liferay.portal.servlet.filters.cache.CacheFilter
+			</param-value>
+		</init-param>
+		<init-param>
+			<param-name>url-regex-pattern</param-name>
+			<param-value>.+/(css|main)\.jsp</param-value>
+		</init-param>
+		<init-param>
+			<param-name>pattern</param-name>
+			<param-value>2</param-value>
+		</init-param>
+	</filter>
+	<filter>
+		<filter-name>ETag Filter</filter-name>
+		<filter-class>com.liferay.portal.kernel.servlet.PortalClassLoaderFilter
+		</filter-class>
+		<init-param>
+			<param-name>filter-class</param-name>
+			<param-value>com.liferay.portal.servlet.filters.etag.ETagFilter
+			</param-value>
+		</init-param>
+		<init-param>
+			<param-name>url-regex-ignore-pattern</param-name>
+			<param-value>.+/-/.+</param-value>
+		</init-param>
+	</filter>
+	<filter>
+		<filter-name>ETag Filter - JSP</filter-name>
+		<filter-class>com.liferay.portal.kernel.servlet.PortalClassLoaderFilter
+		</filter-class>
+		<init-param>
+			<param-name>filter-class</param-name>
+			<param-value>com.liferay.portal.servlet.filters.etag.ETagFilter
+			</param-value>
+		</init-param>
+		<init-param>
+			<param-name>url-regex-pattern</param-name>
+			<param-value>.+/(css|main)\.jsp</param-value>
+		</init-param>
+	</filter>
+	<filter>
+		<filter-name>GZip Filter</filter-name>
+		<filter-class>com.liferay.portal.kernel.servlet.PortalClassLoaderFilter
+		</filter-class>
+		<init-param>
+			<param-name>filter-class</param-name>
+			<param-value>com.liferay.portal.servlet.filters.gzip.GZipFilter
+			</param-value>
+		</init-param>
+	</filter>
+	<filter>
+		<filter-name>Header Filter</filter-name>
+		<filter-class>com.liferay.portal.kernel.servlet.PortalClassLoaderFilter
+		</filter-class>
+		<init-param>
+			<param-name>filter-class</param-name>
+			<param-value>com.liferay.portal.servlet.filters.header.HeaderFilter
+			</param-value>
+		</init-param>
+		<init-param>
+			<param-name>url-regex-ignore-pattern</param-name>
+			<param-value>.+/-/.+</param-value>
+		</init-param>
+		<init-param>
+			<param-name>Cache-Control</param-name>
+			<param-value>max-age=315360000, public</param-value>
+		</init-param>
+		<init-param>
+			<param-name>Expires</param-name>
+			<param-value>315360000</param-value>
+		</init-param>
+		<init-param>
+
+			<param-name>Vary</param-name>
+			<param-value>Accept-Encoding</param-value>
+		</init-param>
+	</filter>
+	<filter>
+		<filter-name>Header Filter - JSP</filter-name>
+		<filter-class>com.liferay.portal.kernel.servlet.PortalClassLoaderFilter
+		</filter-class>
+		<init-param>
+			<param-name>filter-class</param-name>
+			<param-value>com.liferay.portal.servlet.filters.header.HeaderFilter
+			</param-value>
+		</init-param>
+		<init-param>
+			<param-name>url-regex-pattern</param-name>
+			<param-value>.+/(css|main)\.jsp</param-value>
+		</init-param>
+		<init-param>
+			<param-name>Cache-Control</param-name>
+			<param-value>max-age=315360000, public</param-value>
+		</init-param>
+		<init-param>
+			<param-name>Expires</param-name>
+			<param-value>315360000</param-value>
+		</init-param>
+		<init-param>
+			<param-name>Vary</param-name>
+			<param-value>Accept-Encoding</param-value>
+		</init-param>
+	</filter>
+	<filter>
+		<filter-name>Language Filter</filter-name>
+		<filter-class>com.liferay.portal.kernel.servlet.PortalClassLoaderFilter
+		</filter-class>
+		<init-param>
+			<param-name>filter-class</param-name>
+			<param-value>com.liferay.portal.servlet.filters.language.LanguageFilter
+			</param-value>
+		</init-param>
+	</filter>
+	<filter>
+		<filter-name>Minifier Filter</filter-name>
+		<filter-class>com.liferay.portal.kernel.servlet.PortalClassLoaderFilter
+		</filter-class>
+		<init-param>
+			<param-name>filter-class</param-name>
+			<param-value>com.liferay.portal.servlet.filters.minifier.MinifierFilter
+			</param-value>
+		</init-param>
+	</filter>
+	<filter>
+		<filter-name>Minifier Filter - JSP</filter-name>
+		<filter-class>com.liferay.portal.kernel.servlet.PortalClassLoaderFilter
+		</filter-class>
+		<init-param>
+			<param-name>filter-class</param-name>
+			<param-value>com.liferay.portal.servlet.filters.minifier.MinifierFilter
+			</param-value>
+		</init-param>
+		<init-param>
+			<param-name>url-regex-pattern</param-name>
+			<param-value>.+/(css|main)\.jsp</param-value>
+		</init-param>
+	</filter>
 	<filter>
 		<filter-name>PermissionFilter</filter-name>
-		<filter-class>pl.net.bluesoft.rnd.processtool.plugins.PermissionFilter</filter-class>
-	</filter> 
-    <filter-mapping>
-        <filter-name>Header Filter</filter-name>
-        <url-pattern>*.css</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>Header Filter</filter-name>
-        <url-pattern>*.gif</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>Header Filter</filter-name>
-        <url-pattern>*.html</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>Header Filter</filter-name>
-        <url-pattern>*.ico</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>Header Filter</filter-name>
-        <url-pattern>*.jpg</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>Header Filter</filter-name>
-        <url-pattern>*.js</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>Header Filter</filter-name>
-        <url-pattern>*.png</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>Header Filter - JSP</filter-name>
-        <url-pattern>*.jsp</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>ETag Filter</filter-name>
-        <url-pattern>*.css</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>ETag Filter</filter-name>
-        <url-pattern>*.gif</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>ETag Filter</filter-name>
-        <url-pattern>*.html</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>ETag Filter</filter-name>
-        <url-pattern>*.ico</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>ETag Filter</filter-name>
-        <url-pattern>*.jpg</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>ETag Filter</filter-name>
-        <url-pattern>*.js</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>ETag Filter</filter-name>
-        <url-pattern>*.png</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>ETag Filter - JSP</filter-name>
-        <url-pattern>*.jsp</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>Cache Filter - Resource</filter-name>
-        <url-pattern>*.css</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>Cache Filter - Resource</filter-name>
-        <url-pattern>*.html</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>Cache Filter - Resource</filter-name>
-        <url-pattern>*.js</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>Cache Filter - Resource JSP</filter-name>
-        <url-pattern>*.jsp</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>GZip Filter</filter-name>
-        <url-pattern>*.css</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>GZip Filter</filter-name>
-        <url-pattern>*.html</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>GZip Filter</filter-name>
-        <url-pattern>*.js</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>GZip Filter</filter-name>
-        <url-pattern>*.jsp</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>Language Filter</filter-name>
-        <url-pattern>*.js</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>Minifier Filter</filter-name>
-        <url-pattern>*.css</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>Minifier Filter</filter-name>
-        <url-pattern>*.js</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>Minifier Filter - JSP</filter-name>
-        <url-pattern>*.jsp</url-pattern>
-    </filter-mapping>
-    <!-- we don't have to protect this information for now -->
-	<!--<filter-mapping>-->
-        <!--<filter-name>PermissionFilter</filter-name>-->
-        <!--<url-pattern>/osgiex/steps</url-pattern>-->
-    <!--</filter-mapping>-->
+		<filter-class>pl.net.bluesoft.rnd.processtool.plugins.PermissionFilter
+		</filter-class>
+	</filter>
 	<filter-mapping>
-        <filter-name>PermissionFilter</filter-name>
-        <url-pattern>/step_editor/*</url-pattern>
-    </filter-mapping>
+		<filter-name>Header Filter</filter-name>
+		<url-pattern>*.css</url-pattern>
+	</filter-mapping>
 	<filter-mapping>
-        <filter-name>PermissionFilter</filter-name>
-        <url-pattern>/action_editor/*</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>PermissionFilter</filter-name>
-        <url-pattern>/process_editor/*</url-pattern>
-    </filter-mapping>
+		<filter-name>Header Filter</filter-name>
+		<url-pattern>*.gif</url-pattern>
+	</filter-mapping>
 	<filter-mapping>
-        <filter-name>PermissionFilter</filter-name>
-        <url-pattern>/osgi</url-pattern>
-    </filter-mapping>
+		<filter-name>Header Filter</filter-name>
+		<url-pattern>*.html</url-pattern>
+	</filter-mapping>
 	<filter-mapping>
-        <filter-name>PermissionFilter</filter-name>
-        <url-pattern>/g_token</url-pattern>
-    </filter-mapping>
+		<filter-name>Header Filter</filter-name>
+		<url-pattern>*.ico</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>Header Filter</filter-name>
+		<url-pattern>*.jpg</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>Header Filter</filter-name>
+		<url-pattern>*.js</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>Header Filter</filter-name>
+		<url-pattern>*.png</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>Header Filter - JSP</filter-name>
+		<url-pattern>*.jsp</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>ETag Filter</filter-name>
+		<url-pattern>*.css</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>ETag Filter</filter-name>
+		<url-pattern>*.gif</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>ETag Filter</filter-name>
+		<url-pattern>*.html</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>ETag Filter</filter-name>
+		<url-pattern>*.ico</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>ETag Filter</filter-name>
+		<url-pattern>*.jpg</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>ETag Filter</filter-name>
+		<url-pattern>*.js</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>ETag Filter</filter-name>
+		<url-pattern>*.png</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>ETag Filter - JSP</filter-name>
+		<url-pattern>*.jsp</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>Cache Filter - Resource</filter-name>
+		<url-pattern>*.css</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>Cache Filter - Resource</filter-name>
+		<url-pattern>*.html</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>Cache Filter - Resource</filter-name>
+		<url-pattern>*.js</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>Cache Filter - Resource JSP</filter-name>
+		<url-pattern>*.jsp</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>GZip Filter</filter-name>
+		<url-pattern>*.css</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>GZip Filter</filter-name>
+		<url-pattern>*.html</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>GZip Filter</filter-name>
+		<url-pattern>*.js</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>GZip Filter</filter-name>
+		<url-pattern>*.jsp</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>Language Filter</filter-name>
+		<url-pattern>*.js</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>Minifier Filter</filter-name>
+		<url-pattern>*.css</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>Minifier Filter</filter-name>
+		<url-pattern>*.js</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>Minifier Filter - JSP</filter-name>
+		<url-pattern>*.jsp</url-pattern>
+	</filter-mapping>
+	<!-- we don't have to protect this information for now -->
+	<!--<filter-mapping> -->
+	<!--<filter-name>PermissionFilter</filter-name> -->
+	<!--<url-pattern>/osgiex/steps</url-pattern> -->
+	<!--</filter-mapping> -->
+	<filter-mapping>
+		<filter-name>PermissionFilter</filter-name>
+		<url-pattern>/step_editor/*</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>PermissionFilter</filter-name>
+		<url-pattern>/action_editor/*</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>PermissionFilter</filter-name>
+		<url-pattern>/process_editor/*</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>SetCharacterEncodingFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>PermissionFilter</filter-name>
+		<url-pattern>/osgi</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>PermissionFilter</filter-name>
+		<url-pattern>/g_token</url-pattern>
+	</filter-mapping>
 
-    <listener>
-        <listener-class>com.liferay.portal.kernel.servlet.SerializableSessionAttributeListener</listener-class>
-    </listener>
-    <listener>
-        <listener-class>com.liferay.portal.kernel.servlet.PortletContextListener</listener-class>
-    </listener>
-    <listener>
-        <!-- each gui for each BPM engine should provide its own implementation of this class -->
-        <listener-class>pl.net.bluesoft.rnd.util.ProcessToolRegistryContextLoader</listener-class>
-    </listener>
+	<listener>
+		<listener-class>com.liferay.portal.kernel.servlet.SerializableSessionAttributeListener
+		</listener-class>
+	</listener>
+	<listener>
+		<listener-class>com.liferay.portal.kernel.servlet.PortletContextListener
+		</listener-class>
+	</listener>
+	<listener>
+		<!-- each gui for each BPM engine should provide its own implementation 
+			of this class -->
+		<listener-class>pl.net.bluesoft.rnd.util.ProcessToolRegistryContextLoader
+		</listener-class>
+	</listener>
 
-    <session-config>
-        <session-timeout>60</session-timeout>
-    </session-config>
+	<session-config>
+		<session-timeout>60</session-timeout>
+	</session-config>
 
-    <servlet>
-        <servlet-name>VaadinPortletServlet</servlet-name>
-        <servlet-class>com.liferay.portal.kernel.servlet.PortletServlet</servlet-class>
-        <init-param>
-            <param-name>portlet-class</param-name>
-            <param-value>com.vaadin.terminal.gwt.server.ApplicationPortlet2</param-value>
-        </init-param>
-        <load-on-startup>0</load-on-startup>
-    </servlet>
-
-    <servlet>
-        <servlet-name>GenerateTokenServlet</servlet-name>
-        <servlet-class>org.aperteworkflow.gui.auth.GenerateTokenServlet</servlet-class>
-    </servlet>
-
-    <servlet>
-        <servlet-name>OSGIServlet</servlet-name>
-        <servlet-class>pl.net.bluesoft.rnd.processtool.plugins.PluginServlet</servlet-class>
-        <!--
-        The default should be guessed basing on: aperte.workflow.home/liferay.home/catalina.home/ etc.
-        <init-param>
-            <param-name>osgi-plugins-directory</param-name>
-            <param-value>${aperte.workflow.home}/osgi-plugins</param-value>
-        </init-param>
-        <init-param>
-            <param-name>felix-cache-directory</param-name>
-            <param-value>${aperte.workflow.home}/felix-cache</param-value>
-        </init-param>
-        -->
-        <load-on-startup>1</load-on-startup>
-    </servlet>
-
-    <servlet>
-        <servlet-name>OSGIStepExposureServlet</servlet-name>
-        <servlet-class>pl.net.bluesoft.rnd.processtool.plugins.StepExposureServlet</servlet-class>
-        <load-on-startup>2</load-on-startup>
-    </servlet>
-    <servlet>
-        <servlet-name>StepEditorServlet</servlet-name>
-        <servlet-class>com.vaadin.terminal.gwt.server.ApplicationServlet</servlet-class>
-        <init-param>
-            <param-name>application</param-name>
-            <param-value>org.aperteworkflow.editor.stepeditor.StepEditorApplication</param-value>
-        </init-param>
-        <load-on-startup>3</load-on-startup>
-    </servlet>
-
-    <servlet>
-        <servlet-name>ProcessEditorServlet</servlet-name>
-        <servlet-class>com.vaadin.terminal.gwt.server.ApplicationServlet</servlet-class>
-        <init-param>
-            <param-name>application</param-name>
-            <param-value>org.aperteworkflow.editor.processeditor.ProcessEditorApplication</param-value>
-        </init-param>
-        <load-on-startup>5</load-on-startup>
-    </servlet>
 	<servlet>
-        <servlet-name>DummyVaadinServlet</servlet-name>
-        <servlet-class>com.vaadin.terminal.gwt.server.ApplicationServlet</servlet-class>
-        <init-param>
-            <param-name>application</param-name>
-            <param-value>org.aperteworkflow.editor.stepeditor.DummyApplication</param-value>
-        </init-param>
-        <load-on-startup>6</load-on-startup>
-    </servlet>
+		<servlet-name>VaadinPortletServlet</servlet-name>
+		<servlet-class>com.liferay.portal.kernel.servlet.PortletServlet
+		</servlet-class>
+		<init-param>
+			<param-name>portlet-class</param-name>
+			<param-value>com.vaadin.terminal.gwt.server.ApplicationPortlet2
+			</param-value>
+		</init-param>
+		<load-on-startup>0</load-on-startup>
+	</servlet>
+
 	<servlet>
-        <servlet-name>ButtonExposureServlet</servlet-name>
-        <servlet-class>pl.net.bluesoft.rnd.processtool.plugins.ButtonExposureServlet</servlet-class>
-        <load-on-startup>7</load-on-startup>
-    </servlet>
-    <servlet>
-        <servlet-name>AperteWorkflowConfigurationExposureServlet</servlet-name>
-        <servlet-class>pl.net.bluesoft.rnd.processtool.plugins.AperteWorkflowConfigurationExposureServlet</servlet-class>
-        <load-on-startup>8</load-on-startup>
-    </servlet>
+		<servlet-name>GenerateTokenServlet</servlet-name>
+		<servlet-class>org.aperteworkflow.gui.auth.GenerateTokenServlet
+		</servlet-class>
+	</servlet>
+
 	<servlet>
-        <servlet-name>ActionEditorServlet</servlet-name>
-        <servlet-class>com.vaadin.terminal.gwt.server.ApplicationServlet</servlet-class>
-        <init-param>
-            <param-name>application</param-name>
-            <param-value>org.aperteworkflow.editor.actioneditor.ActionEditorApplication</param-value>
-        </init-param>
-        <load-on-startup>8</load-on-startup>
-    </servlet>
+		<servlet-name>OSGIServlet</servlet-name>
+		<servlet-class>pl.net.bluesoft.rnd.processtool.plugins.PluginServlet
+		</servlet-class>
+		<!-- The default should be guessed basing on: aperte.workflow.home/liferay.home/catalina.home/ 
+			etc. <init-param> <param-name>osgi-plugins-directory</param-name> <param-value>${aperte.workflow.home}/osgi-plugins</param-value> 
+			</init-param> <init-param> <param-name>felix-cache-directory</param-name> 
+			<param-value>${aperte.workflow.home}/felix-cache</param-value> </init-param> -->
+		<load-on-startup>1</load-on-startup>
+	</servlet>
 
-    <servlet-mapping>
-        <servlet-name>GenerateTokenServlet</servlet-name>
-        <url-pattern>/g_token</url-pattern>
-    </servlet-mapping>
+	<servlet>
+		<servlet-name>OSGIStepExposureServlet</servlet-name>
+		<servlet-class>pl.net.bluesoft.rnd.processtool.plugins.StepExposureServlet
+		</servlet-class>
+		<load-on-startup>2</load-on-startup>
+	</servlet>
+	<servlet>
+		<servlet-name>OSGIUserProcessQueuesServlet</servlet-name>
+		<servlet-class>pl.net.bluesoft.rnd.processtool.plugins.UserProcessQueuesServlet
+		</servlet-class>
+		<load-on-startup>4</load-on-startup>
+	</servlet>
+	<servlet>
+		<servlet-name>HelpContextChangerServlet</servlet-name>
+		<servlet-class>com.liferay.portal.kernel.servlet.PortalDelegateServlet</servlet-class>
+		<init-param>
+			<param-name>servlet-class</param-name>
+			<param-value>pl.net.bluesoft.rnd.processtool.plugins.HelpContextChangerServlet
+			</param-value>
+		</init-param>
+		<init-param>
+		  <param-name>sub-context</param-name>
+		  <param-value>help_context</param-value>
+		</init-param>
+		
+		<load-on-startup>4</load-on-startup>
+	</servlet>
+	<servlet>
+		<servlet-name>StepEditorServlet</servlet-name>
+		<servlet-class>com.vaadin.terminal.gwt.server.ApplicationServlet
+		</servlet-class>
+		<init-param>
+			<param-name>application</param-name>
+			<param-value>org.aperteworkflow.editor.stepeditor.StepEditorApplication
+			</param-value>
+		</init-param>
+		<load-on-startup>3</load-on-startup>
+	</servlet>
 
-	 <servlet-mapping>
-        <servlet-name>GenerateTokenServlet</servlet-name>
-        <url-pattern>/v_token</url-pattern>
-    </servlet-mapping>
+	<servlet>
+		<servlet-name>ProcessEditorServlet</servlet-name>
+		<servlet-class>com.vaadin.terminal.gwt.server.ApplicationServlet
+		</servlet-class>
+		<init-param>
+			<param-name>application</param-name>
+			<param-value>org.aperteworkflow.editor.processeditor.ProcessEditorApplication
+			</param-value>
+		</init-param>
+		<load-on-startup>5</load-on-startup>
+	</servlet>
+	<servlet>
+		<servlet-name>DummyVaadinServlet</servlet-name>
+		<servlet-class>com.vaadin.terminal.gwt.server.ApplicationServlet
+		</servlet-class>
+		<init-param>
+			<param-name>application</param-name>
+			<param-value>org.aperteworkflow.editor.stepeditor.DummyApplication
+			</param-value>
+		</init-param>
+		<load-on-startup>6</load-on-startup>
+	</servlet>
+	<servlet>
+		<servlet-name>ButtonExposureServlet</servlet-name>
+		<servlet-class>pl.net.bluesoft.rnd.processtool.plugins.ButtonExposureServlet
+		</servlet-class>
+		<load-on-startup>7</load-on-startup>
+	</servlet>
+	<servlet>
+		<servlet-name>AperteWorkflowConfigurationExposureServlet
+		</servlet-name>
+		<servlet-class>pl.net.bluesoft.rnd.processtool.plugins.AperteWorkflowConfigurationExposureServlet
+		</servlet-class>
+		<load-on-startup>8</load-on-startup>
+	</servlet>
+	<servlet>
+		<servlet-name>ActionEditorServlet</servlet-name>
+		<servlet-class>com.vaadin.terminal.gwt.server.ApplicationServlet
+		</servlet-class>
+		<init-param>
+			<param-name>application</param-name>
+			<param-value>org.aperteworkflow.editor.actioneditor.ActionEditorApplication
+			</param-value>
+		</init-param>
+		<load-on-startup>8</load-on-startup>
+	</servlet>
+	<servlet>
+		<servlet-name>CXFServlet</servlet-name>
+		<display-name>CXF Servlet</display-name>
+		<servlet-class>
+			org.aperteworkflow.service.CXFWrapperServlet <!-- no spring, please! -->
+		</servlet-class>
+		<init-param>
+			<param-name>config-location</param-name>
+			<param-value>/WEB-INF/beans.xml</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
 
-    <servlet-mapping>
-        <servlet-name>OSGIStepExposureServlet</servlet-name>
-        <url-pattern>/osgiex/steps</url-pattern>
-    </servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>CXFServlet</servlet-name>
+		<url-pattern>/services/*</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>GenerateTokenServlet</servlet-name>
+		<url-pattern>/g_token</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>GenerateTokenServlet</servlet-name>
+		<url-pattern>/v_token</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>OSGIStepExposureServlet</servlet-name>
+		<url-pattern>/osgiex/steps</url-pattern>
+	</servlet-mapping>
 	
 	<servlet-mapping>
-        <servlet-name>ButtonExposureServlet</servlet-name>
-        <url-pattern>/osgiex/buttons</url-pattern>
-    </servlet-mapping>
-
-	<servlet-mapping>
-        <servlet-name>AperteWorkflowConfigurationExposureServlet</servlet-name>
-        <url-pattern>/osgiex/configuration</url-pattern>
-    </servlet-mapping>
-
-
-    <servlet-mapping>
-        <servlet-name>StepEditorServlet</servlet-name>
-        <url-pattern>/step_editor/*</url-pattern>
-    </servlet-mapping>
+		<servlet-name>OSGIUserProcessQueuesServlet</servlet-name>
+		<url-pattern>/osgiex/queues</url-pattern>
+	</servlet-mapping>
 	
-
-    <servlet-mapping>
-        <servlet-name>DummyVaadinServlet</servlet-name>
-        <url-pattern>/VAADIN/*</url-pattern>
-    </servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>HelpContextChangerServlet</servlet-name>
+		<url-pattern>/helpchanger</url-pattern>
+	</servlet-mapping>
 
 	<servlet-mapping>
-        <servlet-name>ActionEditorServlet</servlet-name>
-        <url-pattern>/action_editor/*</url-pattern>
-    </servlet-mapping>
+		<servlet-name>ButtonExposureServlet</servlet-name>
+		<url-pattern>/osgiex/buttons</url-pattern>
+	</servlet-mapping>
 
-    <servlet-mapping>
-        <servlet-name>ProcessEditorServlet</servlet-name>
-        <url-pattern>/process_editor/*</url-pattern>
-    </servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>AperteWorkflowConfigurationExposureServlet
+		</servlet-name>
+		<url-pattern>/osgiex/configuration</url-pattern>
+	</servlet-mapping>
 
-    <servlet-mapping>
-        <servlet-name>VaadinPortletServlet</servlet-name>
-        <url-pattern>/*</url-pattern>
-    </servlet-mapping>
 
-    <servlet-mapping>
-        <servlet-name>OSGIServlet</servlet-name>
-        <url-pattern>/osgi</url-pattern>
-    </servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>StepEditorServlet</servlet-name>
+		<url-pattern>/step_editor/*</url-pattern>
+	</servlet-mapping>
 
-    <resource-ref>
-        <description>Aperte Workflow Datasource Reference</description>
-        <res-ref-name>jdbc/aperte-workflow-ds</res-ref-name>
-        <res-type>javax.sql.DataSource</res-type>
-        <res-auth>Container</res-auth>
-    </resource-ref>
+	<servlet-mapping>
+		<servlet-name>DummyVaadinServlet</servlet-name>
+		<url-pattern>/VAADIN/*</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>ActionEditorServlet</servlet-name>
+		<url-pattern>/action_editor/*</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>ProcessEditorServlet</servlet-name>
+		<url-pattern>/process_editor/*</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>VaadinPortletServlet</servlet-name>
+		<url-pattern>/*</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>OSGIServlet</servlet-name>
+		<url-pattern>/osgi</url-pattern>
+	</servlet-mapping>
+
+	<resource-ref>
+		<description>Aperte Workflow Datasource Reference</description>
+		<res-ref-name>jdbc/aperte-workflow-ds</res-ref-name>
+		<res-type>javax.sql.DataSource</res-type>
+		<res-auth>Container</res-auth>
+	</resource-ref>
 </web-app>

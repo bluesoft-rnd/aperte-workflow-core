@@ -34,21 +34,21 @@ public class PropertiesBasedI18NProvider implements I18NProvider {
 		String resourcePath = path + lang + ".properties";
 		Properties p = new Properties();
 		try {
-			logger.log(Level.INFO, "Attempting to load i18n resource: " + resourcePath);
+			logger.log(Level.FINEST, "Attempting to load i18n resource: " + resourcePath);
 			InputStream stream = propertyLoader.loadProperty(resourcePath);
 			try {
 				if (stream == null) {
-					logger.log(Level.SEVERE, "FAILED to load i18n resource: " + resourcePath + " using " + propertyLoader);
+					logger.log(Level.FINEST, "FAILED to load i18n resource: " + resourcePath + " using " + propertyLoader);
 				} else {
 					p.load(stream);
-					logger.log(Level.INFO, "Successful load of i18n resource: " + resourcePath + " using " + propertyLoader);
+					logger.log(Level.FINEST, "Successful load of i18n resource: " + resourcePath + " using " + propertyLoader);
 				}
 			}
 			finally {
 				if (stream != null) stream.close();
 			}
 		} catch (IOException e) {
-			logger.log(Level.SEVERE, "FAILED to load i18n resource: " + resourcePath + " using " + propertyLoader, e);
+			logger.log(Level.FINEST, "FAILED to load i18n resource: " + resourcePath + " using " + propertyLoader, e);
 		}
 		propertiesCache.put(lang, p);
 

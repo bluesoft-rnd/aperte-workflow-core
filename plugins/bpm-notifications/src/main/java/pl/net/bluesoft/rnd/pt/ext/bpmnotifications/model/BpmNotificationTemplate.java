@@ -3,7 +3,6 @@ package pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model;
 import org.hibernate.annotations.Type;
 import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Lob;
 import javax.persistence.Table;
@@ -15,14 +14,10 @@ import javax.persistence.Table;
 @Table(name="pt_ext_bpm_notify_template")
 public class BpmNotificationTemplate extends PersistentEntity {
 	private String sender;
+    private String templateName;
     private String subjectTemplate;
-	private String templateName;
-
 	@Lob
-//    @Type(type = "org.hibernate.type.MaterializedClobType")
     @Type(type = "org.hibernate.type.StringClobType")
-    @Column(length = Integer.MAX_VALUE)
-
 	private String templateBody;
 
 	public String getSender() {

@@ -4,12 +4,16 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
+import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
+import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
 import pl.net.bluesoft.rnd.processtool.dao.*;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolActionButton;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.taskitem.TaskItemProvider;
 import pl.net.bluesoft.rnd.util.func.Func;
 import pl.net.bluesoft.rnd.util.i18n.I18NProvider;
 import pl.net.bluesoft.util.eventbus.EventBusManager;
@@ -19,11 +23,21 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+
 
 /**
  * @author tlipski@bluesoft.net.pl
  */
-public interface ProcessToolRegistry {
+public interface ProcessToolRegistry extends ProcessToolBpmConstants {
+
+    void registerResource(String bundleSymbolicName, String path);
+
+    void removeRegisteredResources(String bundleSymbolicName);
+
+    InputStream loadResource(String bundleSymbolicName, String path);
+
+    InputStream loadResource(String path);
 
 	boolean registerModelExtension(Class<?>... cls);
 
@@ -51,7 +65,9 @@ public interface ProcessToolRegistry {
 
 	ProcessToolProcessStep getStep(String name);
 
-    void registerDictionaries(InputStream dictionariesStream);
+    void registerProcessDictionaries(InputStream dictionariesStream);
+
+    void registerGlobalDictionaries(InputStream dictionariesStream);
 
 	void deployOrUpdateProcessDefinition(InputStream jpdlStream,
 	                                     ProcessDefinitionConfig cfg,
@@ -81,19 +97,32 @@ public interface ProcessToolRegistry {
 
     boolean hasI18NProvider(String providerId);
 
-	void withProcessToolContext(ProcessToolContextCallback callback);
+    <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback);
+
+    <T> T withExistingOrNewContext(ReturningProcessToolContextCallback<T> callback);
+
+//	void withProcessToolContext(ProcessToolContextCallback callback);
 
     ProcessDictionaryDAO getProcessDictionaryDAO(Session hibernateSession);
 
 	ProcessInstanceDAO getProcessInstanceDAO(Session hibernateSession);
 
+    ProcessInstanceFilterDAO getProcessInstanceFilterDAO(Session hibernateSession);
+
 	UserDataDAO getUserDataDAO(Session hibernateSession);
 
     UserSubstitutionDAO getUserSubstitutionDAO(Session hibernateSession);
+    
+    ProcessInstanceSimpleAttributeDAO getProcessInstanceSimpleAttributeDAO(Session hibernateSession);
+    
+    ProcessStateActionDAO getProcessStateAction(Session hibernateSession);
 
 	ProcessDefinitionDAO getProcessDefinitionDAO(Session hibernateSession);
+	
+	UserProcessQueueDAO getUserProcessQueueDAO(Session hibernateSession);
 
 	ProcessToolContextFactory getProcessToolContextFactory();
+	
 
 	void setProcessToolContextFactory(ProcessToolContextFactory processToolContextFactory);
 
@@ -138,4 +167,37 @@ public interface ProcessToolRegistry {
     <T> T lookupService(String name);
 
     String getBpmDefinitionLanguage();
+
+    ExecutorService getExecutorService();
+
+    <K, V> void registerCache(String cacheName, Map<K, V> cache);
+
+    <K, V> Map<K, V> getCache(String cacheName);
+
+    void registerTaskItemProvider(Class<?> cls);
+
+    void unregisterTaskItemProvider(Class<?> cls);
+
+    TaskItemProvider makeTaskItemProvider(String name) throws IllegalAccessException, InstantiationException;
+
+	Map<String, Class<? extends TaskItemProvider>> getAvailableTaskItemProviders();
+
+    //no way!
+//    public boolean createRoleIfNotExists(String roleName, String description);
+
+	public class ThreadUtil {
+		private static final ThreadLocal<ProcessToolRegistry> processToolRegistry = new ThreadLocal<ProcessToolRegistry>();
+
+		public static void setThreadRegistry(ProcessToolRegistry registry) {
+			processToolRegistry.set(registry);
+		}
+
+		public static ProcessToolRegistry getThreadRegistry() {
+			return processToolRegistry.get();
+		}
+
+		public static void removeThreadRegistry() {
+			processToolRegistry.remove();
+		}
+	}
 }

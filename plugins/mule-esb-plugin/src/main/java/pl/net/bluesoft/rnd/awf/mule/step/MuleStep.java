@@ -4,6 +4,8 @@ import org.mule.api.ExceptionPayload;
 import org.mule.api.MuleMessage;
 import org.mule.api.client.LocalMuleClient;
 import pl.net.bluesoft.rnd.awf.mule.MulePluginManager;
+import pl.net.bluesoft.rnd.processtool.model.BpmStep;
+import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
@@ -44,8 +46,9 @@ public class MuleStep implements ProcessToolProcessStep {
     }
 
     @Override
-    public String invoke(ProcessInstance processInstance, Map params) throws Exception {
+    public String invoke(BpmStep step, Map params) throws Exception {
         try {
+            ProcessInstance processInstance = step.getProcessInstance();
             payload = params.get("payload");
             LocalMuleClient client = mulePluginManager.getMuleContext().getClient();
 //            XStream xs = new XStream();
@@ -132,23 +135,6 @@ public class MuleStep implements ProcessToolProcessStep {
     public void setPayload(Object payload) {
         this.payload = payload;
     }
-
-    //     private static class MyPersistentSetConverter extends CollectionConverter {
-//        public MyPersistentSetConverter(Mapper mapper) {
-//            super(mapper);
-//        }
-//
-//        @Override
-//        public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
-//            Set ps = (Set) source;
-//            super.marshal(new HashSet(ps), writer, context);
-//        }
-//
-//        @Override
-//        public boolean canConvert(Class type) {
-//            return type.isAssignableFrom(PersistentSet.class);
-//        }
-//    }
 
     public long getTimeout() {
         return timeout;

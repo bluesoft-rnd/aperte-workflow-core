@@ -16,8 +16,8 @@ import org.aperteworkflow.bpm.graph.TransitionArcPoint;
 import org.aperteworkflow.portlets.ProcessInstanceManagerPortlet;
 import org.aperteworkflow.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.bpm.BpmTask;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
+import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
@@ -45,7 +45,7 @@ import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 /**
  * @author tlipski@bluesoft.net.pl
  */
-public class ProcessInstanceAdminManagerPane extends VerticalLayout implements VaadinUtility.HasRefreshButton {
+public class ProcessInstanceAdminManagerPane extends VerticalLayout implements Refreshable {
 
     private Logger logger = Logger.getLogger(ProcessInstanceAdminManagerPane.class.getName());
     
@@ -148,7 +148,8 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements V
                 return;
             }
             List<ProcessInstance> processInstances = new ArrayList<ProcessInstance>(ProcessToolContext.Util.getThreadProcessToolContext().getProcessInstanceDAO()
-                    .searchProcesses(filter, offset, limit + 1, (Boolean) onlyActive.getValue(), null, null));
+                    .searchProcesses(filter, offset, limit + 1,
+                            (Boolean) onlyActive.getValue(), null, null));
             cnt = processInstances.size();
             if (processInstances.size() > limit) {
                 processInstances = processInstances.subList(0, limit);
@@ -226,13 +227,13 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements V
 
         vl.addComponent(history);
 
-        List<BpmTask> taskList = 
-                new ArrayList<BpmTask>(bpmSession.getTaskList(pi,
-                        ProcessToolContext.Util.getThreadProcessToolContext(),
-                        false));
+        List<BpmTask> taskList =
+                new ArrayList<BpmTask>(bpmSession.findProcessTasks(pi,
+                        ProcessToolContext.Util.getThreadProcessToolContext()));
         for (final BpmTask task : taskList) {
             vl.addComponent(getTaskStateComponent(pi, task));
-            ProcessStateConfiguration cfg = bpmSession.getProcessStateConfiguration(pi, ProcessToolContext.Util.getThreadProcessToolContext());
+            ProcessStateConfiguration cfg = ProcessToolContext.Util.getThreadProcessToolContext()
+                    .getProcessDefinitionDAO().getProcessStateConfiguration(task);
             if (cfg != null && !cfg.getActions().isEmpty()) {
                 vl.addComponent(new Label(getLocalizedMessage("processinstances.console.entry.available-actions")));
                 HorizontalLayout hl = new HorizontalLayout();
@@ -298,80 +299,80 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements V
                 return button;            
     }
 
-    private void showWindowWithProcessMapEmbedded(ProcessInstance pi) {
-        List<GraphElement> processHistory = bpmSession.getProcessHistory(pi);
-        final StringBuffer svg = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n");
-        svg.append("<svg xmlns=\"http://www.w3.org/2000/svg\"\n" +
-                "     xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n");
-        final byte[] png = bpmSession.getProcessMapImage(pi);
-        if (png != null) {
-            BufferedImage read;
-            try {
-                read = ImageIO.read(new ByteArrayInputStream(png));
-                String url = ProcessInstanceManagerPortlet.getProcessInstanceMapRequestUrl(getApplication(),
-                        pi.getInternalId());
-                url = StringEscapeUtils.escapeXml(url);
-//                                                svg.append(String.format("<image x=\"0\" y=\"0\" width=\"%d\" height=\"%d\"\n" +
-//                                                        "xlink:href=\"%s\" />",
-//                                                        read.getWidth(),
-//                                                        read.getHeight(),
-//                                                        url));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-            String strokeStyle = "stroke:#C14F45;stroke-width:3;stroke-opacity:0.25;";
-
-            for (GraphElement el : processHistory) {
-                if (el instanceof StateNode) {
-                    StateNode sn = (StateNode) el;
-                    svg.append(String.format("<rect x=\"%d\" y=\"%d\" height=\"%d\" width=\"%d\"\n" +
-                                        " rx=\"5\" ry=\"5\"\n" +
-                                        " style=\"" + strokeStyle + "fill-opacity:0.0\"/>\n",
-                                        sn.getX(),
-                                        sn.getY(),
-                                        sn.getHeight(),
-                                        sn.getWidth()));
-                } else if (el instanceof TransitionArc) {
-                    TransitionArc ta = (TransitionArc) el;
-                    TransitionArcPoint prevPoint = null;
-                    for (TransitionArcPoint p : ta.getPath()) {
-                        if (prevPoint != null) {
-                            svg.append(String.format("<line x1=\"%d\" y1=\"%d\" x2=\"%d\" y2=\"%d\"\n" +
-                                    "  style=\"" + strokeStyle + "\"/>\n",
-                                    prevPoint.getX(),
-                                    prevPoint.getY(),
-                                    p.getX(),
-                                    p.getY()
-                                    ));
-                        }
-                        prevPoint = p;
-                    }
-                }
-            }
-            svg.append("</svg>");
-
-            Window w = new Window(getLocalizedMessage("process.image-map"));
-            w.setWidth(read.getWidth() + "px");
-            w.setHeight(read.getHeight() + "px");
-            w.center();
-            Embedded e = new Embedded();
-            e.setSizeFull();
-            e.setType(Embedded.TYPE_OBJECT);
-            e.setMimeType("image/svg+xml");
-            e.setSource(new StreamResource(new StreamResource.StreamSource() {
-                @Override
-                public InputStream getStream() {
-                    return new ByteArrayInputStream(svg.toString().getBytes());
-                }
-            },  "map.svg", getApplication()));
-            w.getContent().addComponent(e);
-            w.setResizable(false);
-            getApplication().getMainWindow().addWindow(w);
-        } else {
-            getApplication().getMainWindow().showNotification(getLocalizedMessage("process.no-image.error"));
-        }
-    }
+//    private void showWindowWithProcessMapEmbedded(ProcessInstance pi) {
+//        List<GraphElement> processHistory = bpmSession.getProcessHistory(pi);
+//        final StringBuffer svg = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n");
+//        svg.append("<svg xmlns=\"http://www.w3.org/2000/svg\"\n" +
+//                "     xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n");
+//        final byte[] png = bpmSession.getProcessMapImage(pi);
+//        if (png != null) {
+//            BufferedImage read;
+//            try {
+//                read = ImageIO.read(new ByteArrayInputStream(png));
+//                String url = ProcessInstanceManagerPortlet.getProcessInstanceMapRequestUrl(getApplication(),
+//                        pi.getInternalId());
+//                url = StringEscapeUtils.escapeXml(url);
+////                                                svg.append(String.format("<image x=\"0\" y=\"0\" width=\"%d\" height=\"%d\"\n" +
+////                                                        "xlink:href=\"%s\" />",
+////                                                        read.getWidth(),
+////                                                        read.getHeight(),
+////                                                        url));
+//            } catch (IOException e) {
+//                throw new RuntimeException(e);
+//            }
+//
+//            String strokeStyle = "stroke:#C14F45;stroke-width:3;stroke-opacity:0.25;";
+//
+//            for (GraphElement el : processHistory) {
+//                if (el instanceof StateNode) {
+//                    StateNode sn = (StateNode) el;
+//                    svg.append(String.format("<rect x=\"%d\" y=\"%d\" height=\"%d\" width=\"%d\"\n" +
+//                                        " rx=\"5\" ry=\"5\"\n" +
+//                                        " style=\"" + strokeStyle + "fill-opacity:0.0\"/>\n",
+//                                        sn.getX(),
+//                                        sn.getY(),
+//                                        sn.getHeight(),
+//                                        sn.getWidth()));
+//                } else if (el instanceof TransitionArc) {
+//                    TransitionArc ta = (TransitionArc) el;
+//                    TransitionArcPoint prevPoint = null;
+//                    for (TransitionArcPoint p : ta.getPath()) {
+//                        if (prevPoint != null) {
+//                            svg.append(String.format("<line x1=\"%d\" y1=\"%d\" x2=\"%d\" y2=\"%d\"\n" +
+//                                    "  style=\"" + strokeStyle + "\"/>\n",
+//                                    prevPoint.getX(),
+//                                    prevPoint.getY(),
+//                                    p.getX(),
+//                                    p.getY()
+//                                    ));
+//                        }
+//                        prevPoint = p;
+//                    }
+//                }
+//            }
+//            svg.append("</svg>");
+//
+//            Window w = new Window(getLocalizedMessage("process.image-map"));
+//            w.setWidth(read.getWidth() + "px");
+//            w.setHeight(read.getHeight() + "px");
+//            w.center();
+//            Embedded e = new Embedded();
+//            e.setSizeFull();
+//            e.setType(Embedded.TYPE_OBJECT);
+//            e.setMimeType("image/svg+xml");
+//            e.setSource(new StreamResource(new StreamResource.StreamSource() {
+//                @Override
+//                public InputStream getStream() {
+//                    return new ByteArrayInputStream(svg.toString().getBytes());
+//                }
+//            },  "map.svg", getApplication()));
+//            w.getContent().addComponent(e);
+//            w.setResizable(false);
+//            getApplication().getMainWindow().addWindow(w);
+//        } else {
+//            getApplication().getMainWindow().showNotification(getLocalizedMessage("process.no-image.error"));
+//        }
+//    }
 
     private Button getCancelProcessButton(final ProcessInstance pi) {
         Button button = linkButton(getLocalizedMessage("processinstances.console.cancel-process"),
@@ -576,7 +577,7 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements V
         pi = ProcessToolContext.Util.getThreadProcessToolContext().getProcessInstanceDAO().getProcessInstance(pi.getId());
 
         List<ProcessInstanceLog> processLogs = new ArrayList<ProcessInstanceLog>(pi.getProcessLogs());
-        Collections.sort(processLogs);
+        Collections.sort(processLogs, ProcessInstanceLog.DEFAULT_COMPARATOR);
         VerticalLayout vl = new VerticalLayout();
         HorizontalLayout hl;
         for (ProcessInstanceLog pil : processLogs) {

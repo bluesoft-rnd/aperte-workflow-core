@@ -1,13 +1,20 @@
 package pl.net.bluesoft.rnd.processtool.model;
 
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
+import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
-import javax.persistence.*;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
+import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Parameter;
+import javax.persistence.Table;
+
+import org.hibernate.annotations.*;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
+import pl.net.bluesoft.rnd.pt.utils.lang.Lang2;
 
 /**
  * Entity representing process instance data. It should be persisted in appropriate database.
@@ -18,7 +25,21 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
 @Entity
 @Table(name="pt_process_instance")
-public class ProcessInstance extends PersistentEntity {
+public class ProcessInstance extends AbstractPersistentEntity {
+	@Id
+	@GeneratedValue(generator = "idGenerator")
+	@GenericGenerator(
+			name = "idGenerator",
+			strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
+			parameters = {
+					@org.hibernate.annotations.Parameter(name = "initial_value", value = "" + 1),
+					@org.hibernate.annotations.Parameter(name = "value_column", value = "_DB_ID"),
+					@org.hibernate.annotations.Parameter(name = "sequence_name", value = "DB_SEQ_ID_PROC_INST")
+			}
+	)
+	@Column(name = "id")
+	protected Long id;
+
 	private String externalKey;
 	private String internalId;
 	private String definitionName;
@@ -26,41 +47,70 @@ public class ProcessInstance extends PersistentEntity {
 	private String description;
 	private String keyword;
 
+    @Enumerated(EnumType.STRING)
+    private ProcessStatus status;
+
 	@Transient
 	private String taskId;
     @Transient
     private String[] assignees;
     @Transient
     private String[] taskQueues;
-    
+
+    @Transient
+    private BpmTask[] activeTasks;
+
     private Boolean running;
 
 	private Date createDate;
 
-	@ManyToOne(cascade = {})
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name="creator_id")
 	private UserData creator;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name="definition_id")
 	private ProcessDefinitionConfig definition;
 
-	@OneToMany(cascade = {CascadeType.ALL})
+	@OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
 	@JoinColumn(name="process_instance_id")
-	private Set<ProcessInstanceAttribute> processAttributes = new HashSet();
+	private Set<ProcessInstanceAttribute> processAttributes = new HashSet<ProcessInstanceAttribute>();
 
 	@OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
 	@JoinColumn(name="process_instance_id")
-	private Set<ProcessInstanceLog> processLogs = new HashSet();
+	private Set<ProcessInstanceLog> processLogs = new HashSet<ProcessInstanceLog>();
+
+	@OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
+	@JoinColumn(name="parent_id")
+	private Set<ProcessInstance> children = new HashSet<ProcessInstance>();
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name="parent_id")
+	private ProcessInstance parent;
+	
+	/** Owners of the process. Owner is diffrent then process creator. Process can have many owners */
+	@ElementCollection(fetch = FetchType.LAZY)
+	@CollectionTable(name = "pt_process_instance_owners", joinColumns = @JoinColumn(name = "process_id"))
+	private Set<String> owners = new HashSet<String>();
 
 	@Transient
-	private Set toDelete;
+	private Set<ProcessInstanceAttribute> toDelete;
 
-
-	public ProcessInstance() {
-
+	public Long getId() {
+		return id;
 	}
 
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public ProcessInstance getRootProcessInstance() {
+    	ProcessInstance parentProcess = this;
+    	while(parentProcess.getParent() != null){
+    		parentProcess = parentProcess.getParent();
+    	}
+    	return parentProcess;
+    }
 
 	public String getDescription() {
 		return description;
@@ -85,11 +135,22 @@ public class ProcessInstance extends PersistentEntity {
 		this.createDate = new Date();
 	}
 
+	public ProcessInstance() {
+		// TODO Auto-generated constructor stub
+	}
+
 	public String getExternalKey() {
+		if(externalKey == null && parent != null){
+			return parent.getExternalKey();
+		}
+		return externalKey;
+	}
+	
+	public String getOwnExternalKey() {
 		return externalKey;
 	}
 
-	public void setExternalKey(String externalKey) {
+	public void setExternalKey(String externalKey) {	
 		this.externalKey = externalKey;
 	}
 
@@ -132,6 +193,24 @@ public class ProcessInstance extends PersistentEntity {
 	public void setState(String state) {
 		this.state = state;
 	}
+	
+	public Set<String> getOwners() {
+		return owners;
+	}
+
+	public void setOwners(Set<String> ownersLogins) {
+		this.owners = ownersLogins;
+	}
+	
+	public void addOwner(String ownerLogin)
+	{
+		this.owners.add(ownerLogin);
+	}
+	
+	public void removeOwner(String ownerLogin)
+	{
+		this.owners.remove(ownerLogin);
+	}
 
 	public Set<ProcessInstanceAttribute> getProcessAttributes() {
 		if (processAttributes == null) processAttributes = new HashSet<ProcessInstanceAttribute>();
@@ -155,13 +234,13 @@ public class ProcessInstance extends PersistentEntity {
 		processAttributes.remove(attr);
 		if (attr.getId() > 0) {
             if (toDelete == null) {
-                toDelete = new HashSet();
+                toDelete = new HashSet<ProcessInstanceAttribute>();
             }
             toDelete.add(attr);
         }
 	}
 
-	public Set getToDelete() {
+	public Set<ProcessInstanceAttribute> getToDelete() {
 		return toDelete;
 	}
 
@@ -211,6 +290,21 @@ public class ProcessInstance extends PersistentEntity {
         return null;
     }
 
+	public <T extends ProcessInstanceAttribute> T findOrCreateAttribute(Class<T> attrClass) {
+		T attribute = findAttributeByClass(attrClass);
+		if(attribute == null) {
+			try {
+				attribute = attrClass.newInstance();
+				addAttribute(attribute);
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			}
+		}
+		return attribute;	
+	}
+    
     public <T extends ProcessInstanceAttribute> Set<T> findAttributesByClass(Class<T> clazz) {
         Set<T> result = new HashSet<T>();
         Set<ProcessInstanceAttribute> attrs = getProcessAttributes();
@@ -232,6 +326,20 @@ public class ProcessInstance extends PersistentEntity {
         return attr != null ? ((ProcessInstanceSimpleAttribute)attr).getValue() : default_;
     }
 
+	public String getInheritedSimpleAttributeValue(String key) {
+		return getInheritedSimpleAttributeValue(key, null);
+	}
+
+	public String getInheritedSimpleAttributeValue(String key, String default_) {
+		for (ProcessInstance pi = this; pi != null; pi = pi.getParent()) {
+			ProcessInstanceAttribute attr = findAttributeByKey(key);
+			if (attr instanceof ProcessInstanceSimpleAttribute) {
+				return ((ProcessInstanceSimpleAttribute)attr).getValue();
+			}
+		}
+		return default_;
+	}
+
     public void setSimpleAttribute(String key, String value) {
         ProcessInstanceSimpleAttribute attr = (ProcessInstanceSimpleAttribute)findAttributeByKey(key);
         if (attr != null) {
@@ -241,7 +349,7 @@ public class ProcessInstance extends PersistentEntity {
             addAttribute(new ProcessInstanceSimpleAttribute(key, value));
         }
     }
-    
+
     public void addDictionaryAttributeItem(String dictionary, String key, String value){
         ProcessInstanceDictionaryAttribute attr = (ProcessInstanceDictionaryAttribute)findAttributeByKey(dictionary);
         if (attr == null) {
@@ -275,4 +383,75 @@ public class ProcessInstance extends PersistentEntity {
     public void setRunning(Boolean running) {
         this.running = running;
     }
+
+    public ProcessStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ProcessStatus status) {
+        this.status = status;
+    }
+
+    public BpmTask[] getActiveTasks() {
+        return activeTasks;
+    }
+
+    public void setActiveTasks(BpmTask[] activeTasks) {
+        this.activeTasks = Lang2.noCopy(activeTasks);
+    }
+
+	public Set<ProcessInstance> getChildren() {
+		return children;
+	}
+
+
+	public void setChildren(Set<ProcessInstance> children) {
+		this.children = children;
+	}
+
+
+	public ProcessInstance getParent() {
+		return parent;
+	}
+
+
+	public void setParent(ProcessInstance parent) {
+		this.parent = parent;
+	}
+	
+	/** Method checks if the process is in running or new state */
+	public boolean isProcessRunning()
+	{
+		if(getStatus() == null)
+			return false;
+		
+		if(getRunning() != null && !getRunning())
+			return false;
+		
+		return getStatus().equals(ProcessStatus.NEW) || 
+				getStatus().equals(ProcessStatus.RUNNING);
+	}
+	
+	/** Method check, if the given user login is in assigness list */
+	public boolean isAssignee(String assigneeLogin)
+	{
+		if(assignees == null)
+			return false;
+		
+		for(String login: assignees)
+			if(login.equals(assigneeLogin))
+				return true;
+		
+		return false;
+	}
+
+	@Override
+	public String toString() {
+		return "ProcessInstance [externalKey=" + getExternalKey() + ", internalId=" + internalId + "]";
+	}
+
+	/** Check if process is subprocess (has parent process) */
+	public boolean isSubprocess() {
+		return getParent() != null;
+	}
 }

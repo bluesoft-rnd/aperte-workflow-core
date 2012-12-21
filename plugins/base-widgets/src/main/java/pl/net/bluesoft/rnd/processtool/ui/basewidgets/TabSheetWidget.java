@@ -1,6 +1,8 @@
 package pl.net.bluesoft.rnd.processtool.ui.basewidgets;
 
+import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinRenderable;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
@@ -23,7 +25,7 @@ import static com.vaadin.ui.Label.CONTENT_XHTML;
 @AperteDoc(humanNameKey="widget.tab_sheet.name", descriptionKey="widget.tab_sheet.description")
 @ChildrenAllowed(true)
 @WidgetGroup("base-widgets")
-public class TabSheetWidget extends BaseProcessToolVaadinWidget {
+public class TabSheetWidget extends BaseProcessToolVaadinWidget implements ProcessToolVaadinRenderable {
 
 	private static final Logger logger = Logger.getLogger(TabSheetWidget.class.getName());
 	private TabSheet ts = new TabSheet();
@@ -31,7 +33,7 @@ public class TabSheetWidget extends BaseProcessToolVaadinWidget {
 
 	@Override
 	public Component render() {
-		ts.setWidth("100%");
+		ts.setWidth(100, Sizeable.UNITS_PERCENTAGE);
 		return ts;
 	}
 
@@ -45,7 +47,7 @@ public class TabSheetWidget extends BaseProcessToolVaadinWidget {
 		ProcessToolVaadinWidget vChild = (ProcessToolVaadinWidget) child;
 		try {
 			component = vChild.render();
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			logger.log(Level.SEVERE, e.getMessage(), e);
             Panel p = new Panel();
             VerticalLayout vl = new VerticalLayout();

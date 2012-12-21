@@ -10,34 +10,28 @@ import com.vaadin.ui.Table.ColumnGenerator;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
+import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.ui.newprocess.NewProcessPane;
 import pl.net.bluesoft.rnd.processtool.ui.process.ProcessDataPane;
+import pl.net.bluesoft.rnd.processtool.ui.process.WindowProcessDataDisplayContext;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import org.aperteworkflow.util.vaadin.VaadinUtility.HasRefreshButton;
+import org.aperteworkflow.util.vaadin.VaadinUtility.Refreshable;
 import pl.net.bluesoft.util.eventbus.EventListener;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.io.Serializable;
 import java.util.List;
 
 import static org.aperteworkflow.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
 import static org.aperteworkflow.util.vaadin.VaadinUtility.horizontalLayout;
 import static org.aperteworkflow.util.vaadin.VaadinUtility.refreshIcon;
-import static pl.net.bluesoft.util.lang.StringUtil.hasText;
+import static pl.net.bluesoft.util.lang.Strings.hasText;
 
-/**
- * @author tlipski@bluesoft.net.pl
- */
-public class TasksMainPane extends VerticalLayout implements HasRefreshButton {
-
+public class TasksMainPane extends VerticalLayout implements Refreshable {
     private I18NSource i18NSource;
     private TextField searchField = new TextField();
 
     private ProcessToolBpmSession session;
-    private EventListener<BpmEvent> bpmEventSubScriber;
+    private EventListener<BpmEvent> eventListener;
     private BeanItemContainer<TaskTableItem> bic;
     private Application application;
     private String filterExpression;
@@ -78,93 +72,15 @@ public class TasksMainPane extends VerticalLayout implements HasRefreshButton {
 
     }
 
-    public static class TaskTableItem {
-        private String definitionName, internalId, state;
-        private ProcessInstance processInstance;
-        private ProcessStateConfiguration stateConfiguration;
-
-        public TaskTableItem(String definitionName, String internalId, String state, ProcessInstance processInstance,
-                             ProcessStateConfiguration stateConfiguration) {
-            this.definitionName = definitionName;
-            this.internalId = internalId;
-            this.state = state;
-            this.processInstance = processInstance;
-            this.stateConfiguration = stateConfiguration;
-        }
-
-        public TaskTableItem() {
-        }
-
-        public String getDefinitionName() {
-            return definitionName;
-        }
-
-        public void setDefinitionName(String definitionName) {
-            this.definitionName = definitionName;
-        }
-
-        public String getInternalId() {
-            return internalId;
-        }
-
-        public void setInternalId(String internalId) {
-            this.internalId = internalId;
-        }
-
-        public String getState() {
-            return state;
-        }
-
-        public void setState(String state) {
-            this.state = state;
-        }
-
-        public ProcessInstance getProcessInstance() {
-            return processInstance;
-        }
-
-        public void setProcessInstance(ProcessInstance processInstance) {
-            this.processInstance = processInstance;
-        }
-
-        public ProcessStateConfiguration getStateConfiguration() {
-            return stateConfiguration;
-        }
-
-        public void setStateConfiguration(ProcessStateConfiguration stateConfiguration) {
-            this.stateConfiguration = stateConfiguration;
-        }
-
-        public boolean matchSearchCriteria(String expression) {
-            String[] fields = new String[] {
-                    state,
-                    internalId,
-                    definitionName,
-                    processInstance.getDescription(),
-                    processInstance.getKeyword(),
-                    stateConfiguration != null ? stateConfiguration.getCommentary() : null
-            };
-            for (String f : fields) {
-                if (f != null && f.toUpperCase().contains(expression.toUpperCase())) {
-                    return true;
-                }
-            }
-            return false;
-        }
-    }
-
     private Table getUserTasksTable() {
         final Table table = new Table();
         table.setWidth("100%");
         table.setHeight("200px");
-
         table.setImmediate(true); // react at once when something is selected
         table.setSelectable(true);
 
-        ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-
         bic = new BeanItemContainer<TaskTableItem>(TaskTableItem.class);
-        fillTaskList(ctx, bic);
+        fillTaskList(bic);
         table.setContainerDataSource(bic);
         table.addGeneratedColumn("definitionName", new ColumnGenerator() {
             @Override
@@ -182,38 +98,32 @@ public class TasksMainPane extends VerticalLayout implements HasRefreshButton {
                 return new Label(state, Label.CONTENT_XHTML);
             }
         });
-        table.setVisibleColumns(new Object[] {"definitionName", "internalId", "state"});
+        table.setVisibleColumns(new Object[] {"definitionName", "internalId", "externalId", "state"});
 
         for (Object o : table.getVisibleColumns()) {
             table.setColumnHeader(o, getMessage("tasks." + o));
         }
 
-        table.addListener(
-                new ItemClickEvent.ItemClickListener() {
-                    public void itemClick(final ItemClickEvent event) {
-                        if (event.isDoubleClick()) {
-                            withErrorHandling(getApplication(), new Runnable() {
-                                public void run() {
-                                    BeanItem<TaskTableItem> instanceBeanItem = bic.getItem(event.getItemId());
-                                    Window w = new Window(instanceBeanItem.getBean().internalId);
-                                    w.setContent(new ProcessDataPane(getApplication(), session, i18NSource,
-                                            instanceBeanItem.getBean().processInstance,
-                                            new ProcessDataPane.WindowDisplayProcessContextImpl(w)));
-                                    w.center();
-                                    getWindow().addWindow(w);
-                                    w.focus();
-                                }
-                            });
+        table.addListener(new ItemClickEvent.ItemClickListener() {
+            public void itemClick(final ItemClickEvent event) {
+                if (event.isDoubleClick()) {
+                    withErrorHandling(getApplication(), new Runnable() {
+                        public void run() {
+                            BeanItem<TaskTableItem> beanItem = bic.getItem(event.getItemId());
+                            TaskTableItem tti = beanItem.getBean();
+                            Window w = new Window(tti.getInternalId());
+                            w.setContent(new ProcessDataPane(getApplication(), session, i18NSource, tti.getTask(), new WindowProcessDataDisplayContext(w)));
+                            w.center();
+                            getWindow().addWindow(w);
+                            w.focus();
                         }
-                    }
-                });
-        if (bpmEventSubScriber == null) {
-            session.getEventBusManager().subscribe(BpmEvent.class, bpmEventSubScriber = new EventListener<BpmEvent>() {
-                @Override
-                public void onEvent(BpmEvent e) {
-                    refreshData();
+                    });
                 }
-            });
+            }
+        });
+
+        if (eventListener == null) {
+            session.getEventBusManager().subscribe(BpmEvent.class, eventListener = new MyEventListener());
         }
 
         return table;
@@ -221,29 +131,14 @@ public class TasksMainPane extends VerticalLayout implements HasRefreshButton {
 
     public void refreshData() {
         bic.removeAllItems();
-        ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-        fillTaskList(ctx, bic);
+        fillTaskList(bic);
     }
 
-    private void fillTaskList(ProcessToolContext ctx, BeanItemContainer<TaskTableItem> bic) {
-        List<ProcessInstance> userProcesses = new ArrayList(session.getUserProcesses(0, 1000, ctx));
-        Collections.sort(userProcesses, new Comparator<ProcessInstance>() {
-            @Override
-            public int compare(ProcessInstance o1, ProcessInstance o2) {
-                return -1 * new Long(o1.getId()).compareTo(o2.getId());
-            }
-        });
-        for (ProcessInstance pi : userProcesses) {
-            TaskTableItem tti = new TaskTableItem(pi.getDefinition().getDescription(), pi.getInternalId(), pi.getState(), pi, null);
-            if (tti.getState() != null) {
-                for (ProcessStateConfiguration st : pi.getDefinition().getStates()) {
-                    if (tti.getState().equals(st.getName())) {
-                        tti.setState(st.getDescription());
-                        tti.setStateConfiguration(st);
-                        break;
-                    }
-                }
-            }
+    private void fillTaskList(BeanItemContainer<TaskTableItem> bic) {
+        ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
+        List<BpmTask> tasks = session.findUserTasks(0, 1000, ctx);
+        for (BpmTask task : tasks) {
+            TaskTableItem tti = new TaskTableItem(task);
             if (!hasText(filterExpression) || tti.matchSearchCriteria(filterExpression)) {
                 bic.addBean(tti);
             }
@@ -269,4 +164,13 @@ public class TasksMainPane extends VerticalLayout implements HasRefreshButton {
     public void setSearchField(TextField searchField) {
         this.searchField = searchField;
     }
+
+	private class MyEventListener implements EventListener<BpmEvent>, Serializable {
+		@Override
+		public void onEvent(BpmEvent e) {
+			if (TasksMainPane.this.isVisible() && TasksMainPane.this.getApplication() != null) {
+				refreshData();
+			}
+		}
+	}
 }

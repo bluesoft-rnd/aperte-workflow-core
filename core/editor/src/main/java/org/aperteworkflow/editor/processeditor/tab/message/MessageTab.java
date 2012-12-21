@@ -30,6 +30,7 @@ public class MessageTab extends VerticalLayout implements DataHandler {
     public void loadData() {
         if (processConfig.getMessages() == null) {
             editor.setLanguageMessages(null);
+			editor.setDefaultLanguage(null);
         } else {
             Map<Language, String> messages = new HashMap<Language, String>();
             for (String langCode : processConfig.getMessages().keySet()) {
@@ -38,6 +39,7 @@ public class MessageTab extends VerticalLayout implements DataHandler {
                 messages.put(lang, processConfig.getMessages().get(langCode));
             }
             editor.setLanguageMessages(messages);
+			editor.setDefaultLanguage(processConfig.getDefaultLanguage());
         }
 
         editor.loadData();
@@ -49,12 +51,14 @@ public class MessageTab extends VerticalLayout implements DataHandler {
 
         if (editor.getLanguageMessages() == null) {
             processConfig.setMessages(null);
+			processConfig.setDefaultLanguage(null);
         } else {
             Map<String, String> messages = new HashMap<String, String>();
             for (Language lang : editor.getLanguageMessages().keySet()) {
                 messages.put(lang.getCode(), editor.getLanguageMessages().get(lang));
             }
             processConfig.setMessages(messages);
+			processConfig.setDefaultLanguage(editor.getDefaultLanguage());
         }
     }
 

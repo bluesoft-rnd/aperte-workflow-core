@@ -1,6 +1,8 @@
 package pl.net.bluesoft.rnd.processtool.ui.basewidgets;
 
+import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinRenderable;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
@@ -25,27 +27,27 @@ import static com.vaadin.ui.Label.CONTENT_XHTML;
 @AperteDoc(humanNameKey="widget.vertical_layout.name", descriptionKey="widget.vertical_layout.description")
 @ChildrenAllowed(true)
 @WidgetGroup("base-widgets")
-public class VerticalLayoutWidget extends BaseProcessToolVaadinWidget {
+public class VerticalLayoutWidget extends BaseProcessToolVaadinWidget implements ProcessToolVaadinRenderable {
     private static final Logger logger = Logger.getLogger(VerticalLayout.class.getName());
 
     VerticalLayout vl = new VerticalLayout();
 
-    List<ProcessToolVaadinWidget> widgets = new ArrayList();
+    List<ProcessToolVaadinRenderable> widgets = new ArrayList();
 
     public VerticalLayoutWidget() {
         vl.setMargin(true);
         vl.setSpacing(true);
-        vl.setWidth(100, AbstractComponent.UNITS_PERCENTAGE);
+        vl.setWidth(100, Sizeable.UNITS_PERCENTAGE);
     }
 
     @Override
     public Component render() {
         vl.removeAllComponents();
-        for (ProcessToolVaadinWidget vChild : widgets) {
+        for (ProcessToolVaadinRenderable vChild : widgets) {
             Component component;
             try {
                 component = vChild.render();
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 logger.log(Level.SEVERE, e.getMessage(), e);
                 Panel p = new Panel();
                 VerticalLayout vl = new VerticalLayout();
@@ -56,36 +58,48 @@ public class VerticalLayoutWidget extends BaseProcessToolVaadinWidget {
                 vl.addComponent(new Label("<pre>" + baos.toString() + "</pre>", CONTENT_XHTML));
                 vl.addStyleName("error");
                 p.addComponent(vl);
-                p.setHeight("150px");
+                p.setHeight(150, Sizeable.UNITS_PIXELS);
                 component = p;
             }
-            String comment = vChild.getAttributeValue("comment");
-            if (comment != null) {
-                VerticalLayout vl = new VerticalLayout();
-                vl.addComponent(new Label(getMessage(comment), Label.CONTENT_XHTML));
-                vl.addComponent(component);
-                component = vl;
-            }
-            String caption = vChild.getAttributeValue("caption");
-            if (caption != null) {
-                Panel p = new Panel(getMessage(caption));
-                p.addComponent(component);
-                vl.addComponent(p);
-                vl.setExpandRatio(p, 1.0f);
-                p.setWidth(100, AbstractComponent.UNITS_PERCENTAGE);
-            } else {
-                vl.addComponent(component);
-            }
+			if (component != null) {
+				if (vChild instanceof BaseProcessToolVaadinWidget) {
+					String comment = ((BaseProcessToolVaadinWidget)vChild).getAttributeValue("comment");
+					if (comment != null) {
+						VerticalLayout vl = new VerticalLayout();
+						vl.addComponent(new Label(getMessage(comment), Label.CONTENT_XHTML));
+						vl.addComponent(component);
+						component = vl;
+					}
+					String caption = ((BaseProcessToolVaadinWidget)vChild).getAttributeValue("caption");
+					if (caption != null) {
+						Panel p = new Panel(getMessage(caption));
+						p.addComponent(component);
+						vl.addComponent(p);
+						vl.setExpandRatio(p, 1.0f);
+						p.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+					} else 
+					{
+						vl.addComponent(component);
+						vl.setExpandRatio(component, 1.0f);
+						
+					}
+				}  
+				else 
+				{
+					vl.addComponent(component);
+					vl.setExpandRatio(component, 1.0f);
+				}
+			}
         }
         return vl;
     }
 
     @Override
     public void addChild(ProcessToolWidget child) {
-        if (!(child instanceof ProcessToolVaadinWidget)) {
-            throw new IllegalArgumentException("child is not instance of " + ProcessToolVaadinWidget.class.getName());
+        if (!(child instanceof ProcessToolVaadinRenderable)) {
+            throw new IllegalArgumentException("child is not instance of " + ProcessToolVaadinRenderable.class.getName());
         }
-        ProcessToolVaadinWidget vChild = (ProcessToolVaadinWidget) child;
+        ProcessToolVaadinRenderable vChild = (ProcessToolVaadinRenderable) child;
         widgets.add(vChild);
     }
 

@@ -94,10 +94,14 @@ public abstract class DictionaryItemValuesField extends CustomField {
             	
             	/* The null value is higher then anything else */
             	if(o1.getValidStartDate() == null)
+            		return Integer.MAX_VALUE;
+            	
+            	else if(o1.getValidEndDate() == null)
             		return Integer.MIN_VALUE;
             	
             	else if(o2.getValidStartDate() == null)
-            		return Integer.MAX_VALUE;
+            		return Integer.MIN_VALUE;
+            	
             	
     			/* Fix na IBMowa impelementacje TimeStampa, który próbuje rzutować
     			 * obiekt Date na Timestamp i przez to leci wyjątek. 

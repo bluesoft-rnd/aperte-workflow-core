@@ -311,17 +311,10 @@ public class ProcessDictionaryDAOImpl extends SimpleHibernateBean<ProcessDBDicti
     @Override
     public void updateDictionary(ProcessDBDictionary dictionary) {
         Session session = getSession();
-        session.update(dictionary);
+        session.merge(dictionary);
         session.flush();
         updateCache(dictionary);
     }
-
-//	@Override
-//	public void copyDictionaries(ProcessDefinitionConfig oldDefinitionConfig,
-//			ProcessDefinitionConfig newDefinitionConfig) {
-//		// TODO Auto-generated method stub
-//
-//	}
 
     @Override
     public void copyDictionaries(ProcessDefinitionConfig oldDefinitionConfig,
@@ -332,21 +325,6 @@ public class ProcessDictionaryDAOImpl extends SimpleHibernateBean<ProcessDBDicti
         List<ProcessDBDictionary> oldDBDictionariesList = fetchProcessDictionaries(oldDefinitionConfig);
 
         Collection<ProcessDBDictionary> oldDBDictionaries = CollectionUtils.select(oldDBDictionariesList, new UniquePredicate());
-
-        //newDefinitionConfig.getBpmDefinitionKey()
-
-//		PropertyFilter vetoer = new PropertyFilter() {
-//		    public boolean propagate(String propertyName, Method readerMethod) {
-//		        return readerMethod.getReturnType() != ProcessDefinitionConfig.class;
-//		    }
-//		};
-//		Hibernate3BeanReplicator replicator = new Hibernate3BeanReplicator(null, null, vetoer);
-//
-//		for (ProcessDBDictionary existingDict : existingDBDictionaries) {
-//			ProcessDBDictionary newDict = replicator.deepCopy(existingDict);
-//			newDict.setProcessDefinition(newDefinitionConfig);
-//			session.save(newDict);
-//		}
 
 
         for (ProcessDBDictionary oldDict : oldDBDictionaries) {

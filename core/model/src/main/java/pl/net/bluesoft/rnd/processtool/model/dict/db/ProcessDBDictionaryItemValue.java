@@ -5,6 +5,9 @@ package pl.net.bluesoft.rnd.processtool.model.dict.db;
 import org.hibernate.annotations.*;
 import org.hibernate.annotations.CascadeType;
 import pl.net.bluesoft.rnd.processtool.model.AbstractPersistentEntity;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.annotations.Type;
 import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItemExtension;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItemValue;
@@ -47,7 +50,8 @@ public class ProcessDBDictionaryItemValue extends AbstractPersistentEntity imple
     private Date validStartDate;
     private Date validEndDate;
 
-    @OneToMany(mappedBy = "itemValue", fetch = FetchType.EAGER, orphanRemoval = true)
+
+    @OneToMany(mappedBy = "itemValue", fetch = FetchType.EAGER, orphanRemoval = true, cascade=javax.persistence.CascadeType.ALL)
     @Cascade(value = {CascadeType.ALL})
     @MapKey(name = "name")
     private Map<String, ProcessDBDictionaryItemExtension> extensions = new HashMap<String, ProcessDBDictionaryItemExtension>();
@@ -189,4 +193,51 @@ public class ProcessDBDictionaryItemValue extends AbstractPersistentEntity imple
     public void setExtensions(Map<String, ProcessDBDictionaryItemExtension> extensions) {
         this.extensions = extensions;
     }
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((item == null) ? 0 : item.hashCode());
+		result = prime * result
+				+ ((validEndDate == null) ? 0 : validEndDate.hashCode());
+		result = prime * result
+				+ ((validStartDate == null) ? 0 : validStartDate.hashCode());
+		result = prime * result + ((value == null) ? 0 : value.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ProcessDBDictionaryItemValue other = (ProcessDBDictionaryItemValue) obj;
+		if (item == null) {
+			if (other.item != null)
+				return false;
+		} else if (!item.equals(other.item))
+			return false;
+		if (validEndDate == null) {
+			if (other.validEndDate != null)
+				return false;
+		} else if (!validEndDate.equals(other.validEndDate))
+			return false;
+		if (validStartDate == null) {
+			if (other.validStartDate != null)
+				return false;
+		} else if (!validStartDate.equals(other.validStartDate))
+			return false;
+		if (value == null) {
+			if (other.value != null)
+				return false;
+		} else if (!value.equals(other.value))
+			return false;
+		return true;
+	}
+	
+    
 }

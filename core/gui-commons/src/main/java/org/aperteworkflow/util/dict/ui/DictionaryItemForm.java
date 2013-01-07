@@ -41,6 +41,7 @@ public abstract class DictionaryItemForm extends Form {
         saveButton = smallButton(getMessage("button.save"));
         cancelButton = smallButton(getMessage("button.cancel"));
         initForm();
+		validationEnabled = true;
     }
 
     public void addSaveClickListener(ClickListener clickListener) {
@@ -130,4 +131,8 @@ public abstract class DictionaryItemForm extends Form {
         addButton.setReadOnly(readOnly);
         super.setReadOnly(readOnly);
     }
+
+	public boolean isValidationEnabled() {
+		return validationEnabled;
+	}
 }

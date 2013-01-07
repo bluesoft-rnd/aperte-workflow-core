@@ -17,17 +17,19 @@ import java.util.Set;
 import static org.aperteworkflow.util.dict.wrappers.DictionaryItemWrapper._VALUES;
 
 public abstract class DictionaryItemFormFieldFactory extends DefaultFieldFactory {
+    private DictionaryItemForm dictionaryItemForm;
     private Set<String> visiblePropertyIds;
     private Set<String> editablePropertyIds;
     private Set<String> requiredPropertyIds;
     private I18NSource source;
     private Application application;
 
-    public DictionaryItemFormFieldFactory(Application application, I18NSource source, Set<String> visiblePropertyIds,
-                                          Set<String> editablePropertyIds, Set<String> requiredPropertyIds) {
+    public DictionaryItemFormFieldFactory(Application application, DictionaryItemForm dictionaryItemForm, I18NSource source, Set<String> visiblePropertyIds,
+										  Set<String> editablePropertyIds, Set<String> requiredPropertyIds) {
         super();
         this.application = application;
-        this.visiblePropertyIds = visiblePropertyIds;
+		this.dictionaryItemForm = dictionaryItemForm;
+		this.visiblePropertyIds = visiblePropertyIds;
         this.editablePropertyIds = editablePropertyIds;
         this.requiredPropertyIds = requiredPropertyIds;
         this.source = source;

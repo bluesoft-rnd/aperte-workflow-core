@@ -16,20 +16,17 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
-import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolActionButton;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.util.lang.Classes;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction.getAutowiredPropertyNames;
 
 public class ActionEditorApplication extends GenericEditorApplication implements	ParameterHandler, ClickListener {
 
@@ -167,7 +164,6 @@ public class ActionEditorApplication extends GenericEditorApplication implements
 	@Override
 	public void buttonClick(ClickEvent event) {
 		if (event.getComponent() == saveButton) {
-			
 			if (!propertiesPanel.getPropertiesForm().isValid()) {
 				getCurrent().getMainWindow().showNotification(VaadinUtility.validationNotification("Validation error", "Correct data"));
 				return;
@@ -175,8 +171,8 @@ public class ActionEditorApplication extends GenericEditorApplication implements
 			ActionDef actionDef = new ActionDef();
 			actionDef.setButtonType(buttonList.getItemCaption(buttonList.getValue()));
 			//Map<String, Object> codedPropertiesValue = codePropertiesValue(propertiesPanel.getPropertiesMap());
-			actionDef.setItems(propertiesPanel.getPropertiesMap());
-			 
+			actionDef.setItems(getProperties());
+			actionDef.setAttributes(getAttributes());
 			
 			try {
 			  String s = mapper.writeValueAsString(actionDef);
@@ -191,6 +187,26 @@ public class ActionEditorApplication extends GenericEditorApplication implements
 		}
 	}
 
-
-	
+	private Map<String, Object> getProperties() {
+		return getStringObjectMap(true);
 	}
+
+	private Map<String, Object> getAttributes() {
+		return getStringObjectMap(false);
+	}
+
+	private Map<String, Object> getStringObjectMap(boolean copyAutowiredProperties) {
+		Map<String, Object> result = new HashMap<String, Object>();
+
+		for (Map.Entry<String, Object> entry : propertiesPanel.getPropertiesMap().entrySet()) {
+			if (isAutowiredProperty(entry.getKey()) == copyAutowiredProperties) {
+				result.put(entry.getKey(), entry.getValue());
+			}
+		}
+		return result;
+	}
+
+	private boolean isAutowiredProperty(String key) {
+		return getAutowiredPropertyNames().contains(key);
+	}
+}

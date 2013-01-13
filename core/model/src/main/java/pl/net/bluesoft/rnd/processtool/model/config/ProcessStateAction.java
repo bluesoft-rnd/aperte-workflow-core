@@ -1,15 +1,12 @@
 package pl.net.bluesoft.rnd.processtool.model.config;
 
-import org.hibernate.annotations.*;
+import org.hibernate.annotations.GenericGenerator;
 import pl.net.bluesoft.rnd.processtool.model.AbstractPersistentEntity;
-import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 
 import javax.persistence.*;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.Parameter;
-import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlTransient;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -70,6 +67,22 @@ public class ProcessStateAction extends AbstractPersistentEntity {
     private Boolean autohide = false;
 
     private Integer priority;
+
+	public static Collection<String> getAutowiredPropertyNames() {
+		return Arrays.asList(
+			"autoHide",
+			"description",
+			"label",
+			"actionType",
+			"skipSaving",
+			"markProcessImportant",
+			"priority",
+			"url",
+			"title",
+			"question",
+			"notification"
+		);		
+	}
 
 	public Long getId() {
 		return id;

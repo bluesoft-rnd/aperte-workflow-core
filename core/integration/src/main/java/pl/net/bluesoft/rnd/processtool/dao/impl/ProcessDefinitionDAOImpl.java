@@ -1,19 +1,37 @@
 package pl.net.bluesoft.rnd.processtool.dao.impl;
 
+import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Logger;
+
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
+
 import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
 import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.model.config.*;
+import pl.net.bluesoft.rnd.processtool.model.config.AbstractPermission;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionPermission;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueRight;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateActionAttribute;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateActionPermission;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidgetAttribute;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidgetPermission;
 import pl.net.bluesoft.util.lang.Lang;
-
-import java.util.*;
-import java.util.logging.Logger;
-
-import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -101,6 +119,8 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 			}
 			c.setLatest(false);
 			session.saveOrUpdate(c);
+			
+			logger.warning("New process definition installed: "+c.getProcessName());
 		}
 		
 		session.saveOrUpdate(cfg);
@@ -136,8 +156,12 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 
 	}
 
-    private boolean stringEq(String s1, String s2) {
-        return s1 == null && s2 == null || !(s1 != null && s2 == null) && !(s2 != null && s1 == null) && s1.equals(s2);
+    private boolean stringEq(String s1, String s2) 
+    {
+        return s1 == null && s2 == null 
+        		|| "".equals(s1) && s2 == null
+        		|| s1 == null && "".equals(s2)
+        		|| !(s1 != null && s2 == null) && !(s2 != null && s1 == null) && s1.equals(s2);
     }
 	private boolean compareStates(ProcessStateConfiguration newState, ProcessStateConfiguration oldState) {
 		if (newState.getActions().size() != oldState.getActions().size()) return false;

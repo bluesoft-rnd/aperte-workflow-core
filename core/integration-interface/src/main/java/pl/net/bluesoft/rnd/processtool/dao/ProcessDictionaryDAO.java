@@ -3,6 +3,7 @@ package pl.net.bluesoft.rnd.processtool.dao;
 import pl.net.bluesoft.rnd.processtool.hibernate.HibernateBean;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionary;
+import pl.net.bluesoft.rnd.util.ConfigurationResult;
 
 import java.util.List;
 
@@ -14,8 +15,8 @@ public interface ProcessDictionaryDAO extends HibernateBean<ProcessDBDictionary>
     ProcessDBDictionary fetchGlobalDictionary(String dictionaryId, String languageCode);
     List<ProcessDBDictionary> fetchAllGlobalDictionaries();
 
-    void createOrUpdateDictionary(ProcessDefinitionConfig definition, ProcessDBDictionary dictionary, boolean overwrite);
-    void createOrUpdateDictionaries(ProcessDefinitionConfig definition, List<ProcessDBDictionary> dictionary, boolean overwrite);
+    void createOrUpdateDictionary(ConfigurationResult result, ProcessDBDictionary dictionary, boolean overwrite);
+    void createOrUpdateDictionaries(ConfigurationResult result, List<ProcessDBDictionary> dictionary, boolean overwrite);
     void updateDictionary(ProcessDBDictionary dictionary);
 	void copyDictionaries(ProcessDefinitionConfig oldDefinitionConfig,
 			ProcessDefinitionConfig newDefinitionConfig);

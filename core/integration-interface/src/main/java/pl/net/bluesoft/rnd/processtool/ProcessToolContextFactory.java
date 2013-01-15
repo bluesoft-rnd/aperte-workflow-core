@@ -4,6 +4,7 @@ import org.hibernate.SessionFactory;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.rnd.util.ConfigurationResult;
 
 import java.io.InputStream;
 
@@ -16,13 +17,13 @@ public interface ProcessToolContextFactory {
 
 	ProcessToolRegistry getRegistry();
 
-	void deployOrUpdateProcessDefinition(final InputStream bpmStream,
+	ConfigurationResult deployOrUpdateProcessDefinition(final InputStream bpmStream,
 	                                     final ProcessDefinitionConfig cfg,
 	                                     final ProcessQueueConfig[] queues,
 	                                     final InputStream imageStream,
 	                                     final InputStream logoStream);
 
-	void deployOrUpdateProcessDefinition(InputStream jpdlStream,
+	ConfigurationResult deployOrUpdateProcessDefinition(InputStream jpdlStream,
 	                                     InputStream processToolConfigStream,
 	                                     InputStream queueConfigStream,
 	                                     final InputStream imageStream,

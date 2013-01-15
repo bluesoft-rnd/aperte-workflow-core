@@ -1,12 +1,25 @@
 package pl.net.bluesoft.rnd.processtool.plugins;
 
+import java.io.InputStream;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
+
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
-import pl.net.bluesoft.rnd.processtool.dao.*;
+import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
+import pl.net.bluesoft.rnd.processtool.dao.ProcessDictionaryDAO;
+import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceDAO;
+import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceFilterDAO;
+import pl.net.bluesoft.rnd.processtool.dao.UserDataDAO;
+import pl.net.bluesoft.rnd.processtool.dao.UserProcessQueueDAO;
+import pl.net.bluesoft.rnd.processtool.dao.UserSubstitutionDAO;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
@@ -14,16 +27,10 @@ import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolActionButton;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.taskitem.TaskItemProvider;
+import pl.net.bluesoft.rnd.util.ConfigurationResult;
 import pl.net.bluesoft.rnd.util.func.Func;
 import pl.net.bluesoft.rnd.util.i18n.I18NProvider;
 import pl.net.bluesoft.util.eventbus.EventBusManager;
-
-import java.io.InputStream;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.ExecutorService;
 
 
 /**
@@ -65,17 +72,17 @@ public interface ProcessToolRegistry extends ProcessToolBpmConstants {
 
 	ProcessToolProcessStep getStep(String name);
 
-    void registerProcessDictionaries(InputStream dictionariesStream);
+    void registerProcessDictionaries(InputStream dictionariesStream, ConfigurationResult result);
 
     void registerGlobalDictionaries(InputStream dictionariesStream);
 
-	void deployOrUpdateProcessDefinition(InputStream jpdlStream,
+    ConfigurationResult deployOrUpdateProcessDefinition(InputStream jpdlStream,
 	                                     ProcessDefinitionConfig cfg,
 	                                     ProcessQueueConfig[] queues,
 	                                     final InputStream imageStream,
 	                                     InputStream logoStream);
 
-	void deployOrUpdateProcessDefinition(InputStream jpdlStream,
+    ConfigurationResult deployOrUpdateProcessDefinition(InputStream jpdlStream,
 	                                     InputStream processToolConfigStream,
 	                                     InputStream queueConfigStream,
 	                                     InputStream imageStream,

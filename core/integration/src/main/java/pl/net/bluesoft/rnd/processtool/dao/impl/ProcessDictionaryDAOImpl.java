@@ -13,6 +13,7 @@ import pl.net.bluesoft.rnd.processtool.dict.ProcessDictionaryProvider;
 import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.*;
+import pl.net.bluesoft.rnd.util.ConfigurationResult;
 import pl.net.bluesoft.util.cache.Caches;
 import pl.net.bluesoft.util.lang.ExpiringCache;
 
@@ -186,8 +187,8 @@ public class ProcessDictionaryDAOImpl extends SimpleHibernateBean<ProcessDBDicti
     }
 
     @Override
-    public void createOrUpdateDictionary(ProcessDefinitionConfig definition, ProcessDBDictionary dictionary, boolean overwrite) {
-        createOrUpdateDictionaries(definition, Collections.singletonList(dictionary), overwrite);
+    public void createOrUpdateDictionary(ConfigurationResult result, ProcessDBDictionary dictionary, boolean overwrite) {
+        createOrUpdateDictionaries(result, Collections.singletonList(dictionary), overwrite);
     }
 
     public ProcessDBDictionary findDictionaryById(Long dictionaryId)
@@ -257,8 +258,14 @@ public class ProcessDictionaryDAOImpl extends SimpleHibernateBean<ProcessDBDicti
     }
 
     @Override
-    public void createOrUpdateDictionaries(ProcessDefinitionConfig definition, List<ProcessDBDictionary> newDictionaries, boolean overwrite) {
-        List<ProcessDBDictionary> existingDBDictionaries = definition != null ? fetchProcessDictionaries(definition)
+    public void createOrUpdateDictionaries(ConfigurationResult result, List<ProcessDBDictionary> newDictionaries, boolean overwrite) 
+    {
+    	ProcessDefinitionConfig newOne = result.getNewOne();
+    	ProcessDefinitionConfig oldOne = result.getOldOne();
+    	
+    	boolean isTheSame = newOne.getId().equals(oldOne.getId());
+    	
+        List<ProcessDBDictionary> existingDBDictionaries = oldOne != null || newOne != null ? fetchProcessDictionaries(oldOne != null ? oldOne : newOne)
                 : fetchAllGlobalDictionaries();
         Session session = getSession();
         for (ProcessDBDictionary newDict : newDictionaries) 
@@ -278,7 +285,7 @@ public class ProcessDictionaryDAOImpl extends SimpleHibernateBean<ProcessDBDicti
                 {
                     session.delete(existingDictionary);
                 } 
-                else 
+                else if(isTheSame)
                 {
                 	existingDictionary.getPermissions().clear();
                 	for(ProcessDBDictionaryPermission permission: newDict.getPermissions())
@@ -298,15 +305,25 @@ public class ProcessDictionaryDAOImpl extends SimpleHibernateBean<ProcessDBDicti
                     updateCache(existingDictionary);
                     updated = true;
                 }
+                else
+                {
+                    for (ProcessDBDictionaryItem oldItem : existingDictionary.getItems().values()) {
+                        if (!newDict.getItems().containsKey(oldItem.getKey())) {
+                        	newDict.addItem(oldItem);
+                        }
+                    }
+                }
         	}
         	
-            if (!updated) {
-                newDict.setProcessDefinition(definition);
+            if (!updated || !isTheSame) {
+                newDict.setProcessDefinition(newOne);
                 session.saveOrUpdate(newDict);
                 updateCache(newDict);
             }
         }
     }
+    
+
 
     @Override
     public void updateDictionary(ProcessDBDictionary dictionary) {

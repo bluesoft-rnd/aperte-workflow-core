@@ -263,6 +263,9 @@ public class ProcessDictionaryDAOImpl extends SimpleHibernateBean<ProcessDBDicti
     	ProcessDefinitionConfig newOne = result.getNewOne();
     	ProcessDefinitionConfig oldOne = result.getOldOne();
     	
+    	if(oldOne == null)
+    		oldOne = newOne;
+    	
     	boolean isTheSame = newOne.getId().equals(oldOne.getId());
     	
         List<ProcessDBDictionary> existingDBDictionaries = oldOne != null || newOne != null ? fetchProcessDictionaries(oldOne != null ? oldOne : newOne)

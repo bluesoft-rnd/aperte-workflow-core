@@ -15,8 +15,12 @@ public interface ProcessDictionaryDAO extends HibernateBean<ProcessDBDictionary>
     ProcessDBDictionary fetchGlobalDictionary(String dictionaryId, String languageCode);
     List<ProcessDBDictionary> fetchAllGlobalDictionaries();
 
-    void createOrUpdateDictionary(ConfigurationResult result, ProcessDBDictionary dictionary, boolean overwrite);
-    void createOrUpdateDictionaries(ConfigurationResult result, List<ProcessDBDictionary> dictionary, boolean overwrite);
+    /** Add or update process dictionaries */
+    void processProcessDictionaries(List<ProcessDBDictionary> dictionary, ConfigurationResult result, boolean overwrite);
+    
+    /** Add or update global dictionaries */
+    void processGlobalDictionaries(List<ProcessDBDictionary> dictionary, boolean overwrite);
+    
     void updateDictionary(ProcessDBDictionary dictionary);
 	void copyDictionaries(ProcessDefinitionConfig oldDefinitionConfig,
 			ProcessDefinitionConfig newDefinitionConfig);

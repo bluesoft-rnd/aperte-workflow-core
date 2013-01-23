@@ -737,11 +737,12 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
            }
            DictionaryLoader.validateDictionaries(processDBDictionaries);
            
+           boolean overwrite = dictionaries.getOverwrite() != null && dictionaries.getOverwrite();
            
-           
-           
-           dao.createOrUpdateDictionaries(result, processDBDictionaries,
-                   dictionaries.getOverwrite() != null && dictionaries.getOverwrite());
+           if(result == null)
+        	   dao.processGlobalDictionaries(processDBDictionaries, overwrite);
+           else
+        	   dao.processProcessDictionaries(processDBDictionaries, result, overwrite);
        }
     @Override
 	public ConfigurationResult deployOrUpdateProcessDefinition(final InputStream jpdlStream,

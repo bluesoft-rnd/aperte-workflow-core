@@ -22,7 +22,6 @@
         <module>plugins</module>
         <module>utils</module>
         <module>samples</module>
-        <module>vaadin-addons</module>
     </modules>
 
     <licenses>

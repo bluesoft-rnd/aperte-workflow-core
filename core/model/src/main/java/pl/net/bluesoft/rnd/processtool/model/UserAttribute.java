@@ -40,13 +40,11 @@ public class UserAttribute extends UserAttributesSupport {
     @Column(name="value_")
     private String value;
 
-//    @XmlTransient
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private UserAttribute parent;
 
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-//    @OnDelete(action = OnDeleteAction.CASCADE)
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval=true)
     private Set<UserAttribute> attributes;
 
     public UserAttribute() {

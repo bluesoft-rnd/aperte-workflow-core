@@ -4,6 +4,8 @@ import com.vaadin.data.Container;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.Select;
+
+import pl.net.bluesoft.rnd.processtool.dict.exception.DictionaryLoadingException;
 import pl.net.bluesoft.rnd.processtool.dict.mapping.annotations.entry.*;
 import pl.net.bluesoft.rnd.processtool.dict.mapping.annotations.key.DictKey;
 import pl.net.bluesoft.rnd.processtool.dict.mapping.metadata.dict.DictDescription;
@@ -246,12 +248,17 @@ public class DictMapper {
 		return dictContainers.get(key);
 	}
 
-	public Map getKeyValueMap(String dictName) {
-		return getDictEntryProvider(dictName).getKeyValueMap();
+	public Map getKeyValueMap(String dictName) 
+	{
+		DictEntryProvider dictEntryProvider = getDictEntryProvider(dictName);
+		return dictEntryProvider.getKeyValueMap();
 	}
 
-	public Map getKeyValueMap(String dictName, DictEntryFilter entryFilter) {
-		return getDictEntryProvider(dictName).getKeyValueMap(entryFilter);
+	public Map getKeyValueMap(String dictName, DictEntryFilter entryFilter) 
+	{
+		DictEntryProvider dictEntryProvider = getDictEntryProvider(dictName);
+		
+		return dictEntryProvider.getKeyValueMap(entryFilter);
 	}
 
 	private IndexedContainer createContainer(Map<?,?> elements) {
@@ -347,5 +354,27 @@ public class DictMapper {
 			entryInfos.put(clazz, entryInfo);
 		}
 		return entryInfos.get(clazz);
+	}
+
+	/** Check if dictionary has all values for given date */
+	public Collection<String> checkDictValuesForDate(String dictionaryName, Date validationdAte) 
+	{
+		Collection<String> errorMessages = new HashSet<String>();
+		
+		DictEntryProvider dictEntryProvider = getDictEntryProvider(dictionaryName);
+		
+		Map<String, ?>  entries = dictEntryProvider.getEntries();
+		for(String key: entries.keySet())
+		{
+			try
+			{
+				dictEntryProvider.getValue(key);
+			}
+			catch(DictionaryLoadingException ex)
+			{
+				errorMessages.add(ex.getMessage());
+			}
+		}
+		return errorMessages;
 	}
 }

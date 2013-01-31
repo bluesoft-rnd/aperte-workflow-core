@@ -3,6 +3,7 @@ package pl.net.bluesoft.rnd.processtool.dict.mapping.providers;
 import org.apache.commons.beanutils.ConvertUtilsBean;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.dict.ProcessDictionaryRegistry;
+import pl.net.bluesoft.rnd.processtool.dict.exception.DictItemHasNoValueException;
 import pl.net.bluesoft.rnd.processtool.dict.mapping.DictEntryFilter;
 import pl.net.bluesoft.rnd.processtool.dict.mapping.metadata.dict.PTDictDescription;
 import pl.net.bluesoft.rnd.processtool.dict.mapping.metadata.entry.EntryInfo;
@@ -30,6 +31,7 @@ public abstract class PTDictEntryProvider implements DictEntryProvider {
 	private Map<String, ?> entries;
 	private EntryInfo entryInfo;
 	private I18NSource i18NSource;
+	private Date entriesDate;
 	
 	private ProcessDictionary dict;
 
@@ -70,16 +72,19 @@ public abstract class PTDictEntryProvider implements DictEntryProvider {
 		ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
 		ProcessDictionaryRegistry processDictionaryRegistry = ctx.getProcessDictionaryRegistry();
 		dict = getDictionary(processDictionaryRegistry, params);
+		
+		/* Save entries value date */
+		entriesDate = params.getDate();
 
 		if (dict != null) {
 			if (dictDesc.getEntryClass() != null) {
 				entries = getDictionaryItemMap(
 						dict,
 						entryInfo,
-						params.getDate());
+						entriesDate);
 			}
 			else {
-				entries = getDictionaryItemMap(dict, params.getDate());
+				entries = getDictionaryItemMap(dict, entriesDate);
 			}
 		}
 		else {
@@ -113,14 +118,24 @@ public abstract class PTDictEntryProvider implements DictEntryProvider {
 		return getKeyValueMap().get(key);
 	}
 
-	private Object getMapValue(String key) {
-		return dictDesc.getCustomValueProvider() != null
-				? dictDesc.getCustomValueProvider().getValue(key, this, i18NSource)
-				: entryInfo.getDescriptionProperty() != null
-				? getProperty(entries.get(key), entryInfo.getDescriptionProperty())
-				: entryInfo.getValueProperty() != null
-				? getProperty(entries.get(key), entryInfo.getValueProperty())
-				: key;
+	private Object getMapValue(String key) 
+	{
+		if(dictDesc.getCustomValueProvider() != null)
+			return dictDesc.getCustomValueProvider().getValue(key, this, i18NSource);
+		
+		Object entry = entries.get(key);
+		
+		/* There is no entry value for dictionry item, throw exception */
+		if(entry == null)
+			throw new DictItemHasNoValueException(i18NSource.getMessage("dictionary.novaluefor", "currency item", key, entriesDate));
+
+		if(entryInfo.getDescriptionProperty() != null)
+			return getProperty(entry, entryInfo.getDescriptionProperty());
+		
+		if(entryInfo.getValueProperty() != null)
+			return getProperty(entry, entryInfo.getValueProperty());
+		
+		return key;
 	}	
 
 	private Map<String, Object> getDictionaryItemMap(ProcessDictionary dict, EntryInfo entryInfo, Date date) {

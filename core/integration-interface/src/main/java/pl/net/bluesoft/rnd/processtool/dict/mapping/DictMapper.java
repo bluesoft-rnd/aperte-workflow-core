@@ -356,25 +356,18 @@ public class DictMapper {
 		return entryInfos.get(clazz);
 	}
 
-	/** Check if dictionary has all values for given date */
+	/** Check if dictionary has all values for given date 
+	 * 
+	 * @param dictionaryName
+	 * @param validationdAte
+	 * @return colletion of error message, empty if there is no any
+	 */
 	public Collection<String> checkDictValuesForDate(String dictionaryName, Date validationdAte) 
 	{
 		Collection<String> errorMessages = new HashSet<String>();
 		
 		DictEntryProvider dictEntryProvider = getDictEntryProvider(dictionaryName);
 		
-		Map<String, ?>  entries = dictEntryProvider.getEntries();
-		for(String key: entries.keySet())
-		{
-			try
-			{
-				dictEntryProvider.getValue(key);
-			}
-			catch(DictionaryLoadingException ex)
-			{
-				errorMessages.add(ex.getMessage());
-			}
-		}
-		return errorMessages;
+		return dictEntryProvider.getErrorMessages();
 	}
 }

@@ -3,8 +3,10 @@ package pl.net.bluesoft.rnd.processtool.dict.mapping.providers;
 import pl.net.bluesoft.rnd.processtool.dict.mapping.DictEntryFilter;
 import pl.net.bluesoft.rnd.processtool.dict.mapping.metadata.dict.CustomDictDescription;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import static pl.net.bluesoft.util.lang.Classes.getProperty;
@@ -18,6 +20,7 @@ public class DerivedDictEntryProvider implements DictEntryProvider {
 	private final CustomDictDescription dictDesc;
 
 	private Map<String, Object> entries;
+	private Collection<String> emptyValues = new HashSet<String>();
 
 	public DerivedDictEntryProvider(CustomDictDescription dictDesc) {
 		this.dictDesc = dictDesc;
@@ -26,6 +29,12 @@ public class DerivedDictEntryProvider implements DictEntryProvider {
 	@Override
 	public Map getEntries() {
 		return getEntries(null);
+	}
+	
+	@Override
+	public Collection getErrorMessages() 
+	{
+		return emptyValues;
 	}
 
 	@Override
@@ -53,7 +62,10 @@ public class DerivedDictEntryProvider implements DictEntryProvider {
 		for (Object entry : params.getDictMapper().getEntries(dictDesc.getBaseDictName()).values()) {
 			Object key = getProperty(entry, dictDesc.getKeyProperty());
 			Object value = dictDesc.getValueProperty() != null ? getProperty(entry, dictDesc.getValueProperty()) : key;
-			entries.put(key != null ? String.valueOf(key) : null, value);
+			if(value == null)
+				emptyValues.add(key.toString());
+			else
+				entries.put(key != null ? String.valueOf(key) : null, value);
 		}
 	}
 
@@ -76,4 +88,5 @@ public class DerivedDictEntryProvider implements DictEntryProvider {
 	public Object getEntryForDate(String key, Date date) {
 		throw new UnsupportedOperationException();
 	}
+
 }

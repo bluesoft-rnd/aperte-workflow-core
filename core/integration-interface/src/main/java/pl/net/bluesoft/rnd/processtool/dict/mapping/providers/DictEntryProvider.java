@@ -2,6 +2,7 @@ package pl.net.bluesoft.rnd.processtool.dict.mapping.providers;
 
 import pl.net.bluesoft.rnd.processtool.dict.mapping.DictEntryFilter;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 
@@ -15,6 +16,7 @@ public interface DictEntryProvider<EntryType> {
 	Map<String, EntryType> getEntries(DictEntryFilter entryFilter);
 	Map<String, ?> getKeyValueMap();
 	Map<String, ?> getKeyValueMap(DictEntryFilter entryFilter);
+	Collection<String> getErrorMessages();
 	Object getValue(String key);
 	EntryType getEntryForDate(String key, Date date);
 

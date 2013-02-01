@@ -33,6 +33,8 @@ public abstract class PTDictEntryProvider implements DictEntryProvider {
 	private I18NSource i18NSource;
 	private Date entriesDate;
 	
+	private Collection<String> errorMessages = new HashSet<String>();
+	
 	private ProcessDictionary dict;
 
 	public PTDictEntryProvider(PTDictDescription dictDesc) {
@@ -42,6 +44,12 @@ public abstract class PTDictEntryProvider implements DictEntryProvider {
 	@Override
 	public Map getEntries() {
 		return getEntries(null);
+	}
+	
+	@Override
+	public Collection<String> getErrorMessages()
+	{
+		return errorMessages;
 	}
 
 	@Override
@@ -127,7 +135,7 @@ public abstract class PTDictEntryProvider implements DictEntryProvider {
 		
 		/* There is no entry value for dictionry item, throw exception */
 		if(entry == null)
-			throw new DictItemHasNoValueException(i18NSource.getMessage("dictionary.novaluefor", "currency item", key, entriesDate));
+			throw new DictItemHasNoValueException(i18NSource.getMessage("dictionary.novaluefor", "item", key, entriesDate));
 
 		if(entryInfo.getDescriptionProperty() != null)
 			return getProperty(entry, entryInfo.getDescriptionProperty());
@@ -144,8 +152,16 @@ public abstract class PTDictEntryProvider implements DictEntryProvider {
         for (Object item : dict.items()) {
             ProcessDictionaryItem pdItem = (ProcessDictionaryItem)item; 
             ProcessDictionaryItemValue<String> value = date != null ? pdItem.getValueForDate(date) : pdItem.getValueForCurrentDate();
-			Object mappedItem = mapTo(entryInfo, pdItem, value);
-			items.put(getKey(pdItem), mappedItem);
+            
+            if(value != null)
+            {
+				Object mappedItem = mapTo(entryInfo, pdItem, value);
+				items.put(getKey(pdItem), mappedItem);
+            }
+            else
+            {
+            	errorMessages.add(i18NSource.getMessage("dictionary.novaluefor", "item", pdItem.getKey().toString(), entriesDate));
+            }
         }
         return items;
     }

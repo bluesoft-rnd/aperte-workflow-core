@@ -3,6 +3,7 @@ package pl.net.bluesoft.rnd.processtool.dict.mapping.providers;
 import pl.net.bluesoft.rnd.processtool.dict.mapping.DictEntryFilter;
 import pl.net.bluesoft.rnd.processtool.dict.mapping.metadata.dict.DictDescription;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
@@ -68,8 +69,11 @@ public class LazyLoadDictEntryProvider implements DictEntryProvider {
 	}
 
 	@Override
-	public Collection getErrorMessages() 
+	public Collection<String> getErrorMessages() 
 	{
+		if(dictEntryProvider == null)
+			return new ArrayList<String>();
+		
 		return dictEntryProvider.getErrorMessages();
 	}
 }

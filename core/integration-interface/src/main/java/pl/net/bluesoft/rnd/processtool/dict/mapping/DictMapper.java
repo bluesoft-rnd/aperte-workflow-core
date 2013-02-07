@@ -363,9 +363,7 @@ public class DictMapper {
 	 * @return colletion of error message, empty if there is no any
 	 */
 	public Collection<String> checkDictValuesForDate(String dictionaryName, Date validationdAte) 
-	{
-		Collection<String> errorMessages = new HashSet<String>();
-		
+	{		
 		DictEntryProvider dictEntryProvider = getDictEntryProvider(dictionaryName);
 		
 		return dictEntryProvider.getErrorMessages();

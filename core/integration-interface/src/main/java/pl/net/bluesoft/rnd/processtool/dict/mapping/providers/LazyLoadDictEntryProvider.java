@@ -70,10 +70,7 @@ public class LazyLoadDictEntryProvider implements DictEntryProvider {
 
 	@Override
 	public Collection<String> getErrorMessages() 
-	{
-		if(dictEntryProvider == null)
-			return new ArrayList<String>();
-		
-		return dictEntryProvider.getErrorMessages();
+	{	
+		return getDictEntryProvider().getErrorMessages();
 	}
 }

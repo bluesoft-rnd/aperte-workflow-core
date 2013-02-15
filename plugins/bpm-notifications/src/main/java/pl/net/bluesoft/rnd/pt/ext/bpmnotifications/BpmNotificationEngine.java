@@ -37,6 +37,7 @@ import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.rnd.processtool.template.ProcessToolTemplateErrorException;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.facade.NotificationsFacade;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotification;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotificationConfig;
@@ -567,6 +568,15 @@ public class BpmNotificationEngine implements BpmNotificationService
 	public String processTemplate(String templateName, Map<String, Object> data)
 	{
 		refreshConfigIfNecessary();
-		return templateProvider.processTemplate(templateName,data);
+		try
+		{
+			String messageBody = templateProvider.processTemplate(templateName,data);
+			return messageBody;
+		}
+		/* There was a unknown variable used */
+		catch(ProcessToolTemplateErrorException ex)
+		{
+			return "[ERROR] There was a problem with message template! <br>Plase contact administrator and send him following error message: <br>"+ex.getMessage();
+		}
 	}
 }

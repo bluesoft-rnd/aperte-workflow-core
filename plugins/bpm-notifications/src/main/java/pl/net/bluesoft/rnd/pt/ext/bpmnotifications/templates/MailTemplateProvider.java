@@ -80,7 +80,7 @@ public class MailTemplateProvider implements TemplateLoader
 		return templateMap.get(templateName);
 	}
     
-	public String processTemplate(String templateName, Map data) 
+	public String processTemplate(String templateName, Map data) throws ProcessToolTemplateErrorException
 	{
         logger.info("Using template " + templateName);
         StringWriter sw = new StringWriter();

@@ -192,4 +192,9 @@ public class ProcessDefinitionConfig extends AbstractPersistentEntity implements
     public void setPermissions(Set<ProcessDefinitionPermission> permissions) {
         this.permissions = permissions;
     }
+    
+    @Override
+    public String toString() {
+    	return processName;
+    }
 }

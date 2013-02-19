@@ -27,6 +27,7 @@ import org.aperteworkflow.util.liferay.LiferayBridge;
 import org.aperteworkflow.util.liferay.PortalBridge;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolGuiCallback;
@@ -91,6 +92,13 @@ public abstract class GenericVaadinPortlet2BpmApplication extends Application im
     public void withTransaction(final ProcessToolGuiCallback r) {
         ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
         r.callback(ctx, bpmSession);
+    }
+    
+    @Override
+    public <T> T withTransaction(ReturningProcessToolContextCallback<T> r) 
+    {
+        ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
+        return r.processWithContext(ctx);
     }
 
     public void handleRenderRequest(RenderRequest request, RenderResponse response, Window window) {

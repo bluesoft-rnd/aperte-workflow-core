@@ -12,8 +12,6 @@ public interface ProcessDictionaryItemValue<V> {
     void setValidEndDate(Date validEndDate);
     Date getValidEndDate();
     boolean isValidForDate(Date date);
-
-    Collection<ProcessDictionaryItemExtension> extensions();
-    Collection<String> getExtensionNames();
-    ProcessDictionaryItemExtension getExtensionByName(String extensionName);
+    
+    Collection<ProcessDictionaryItemExtension<V>> getItemExtensions();
 }

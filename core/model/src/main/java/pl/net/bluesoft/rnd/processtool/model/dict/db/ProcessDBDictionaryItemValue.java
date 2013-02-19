@@ -1,22 +1,16 @@
 package pl.net.bluesoft.rnd.processtool.model.dict.db;
 
-//import org.hibernate.annotations.OnDelete;
-//import org.hibernate.annotations.OnDeleteAction;
-import org.hibernate.annotations.*;
+
+import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
-import pl.net.bluesoft.rnd.processtool.model.AbstractPersistentEntity;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
-import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
+import pl.net.bluesoft.rnd.processtool.model.AbstractPersistentEntity;
+
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItemExtension;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItemValue;
 
 import javax.persistence.*;
-import javax.persistence.Entity;
-import javax.persistence.MapKey;
-import javax.persistence.Parameter;
-import javax.persistence.Table;
 
 import org.apache.commons.lang3.time.DateUtils;
 
@@ -53,10 +47,27 @@ public class ProcessDBDictionaryItemValue extends AbstractPersistentEntity imple
 
     @OneToMany(mappedBy = "itemValue", fetch = FetchType.EAGER, orphanRemoval = true, cascade=javax.persistence.CascadeType.ALL)
     @Cascade(value = {CascadeType.ALL})
-    @MapKey(name = "name")
-    private Map<String, ProcessDBDictionaryItemExtension> extensions = new HashMap<String, ProcessDBDictionaryItemExtension>();
+    private Set<ProcessDBDictionaryItemExtension> extensions = new HashSet<ProcessDBDictionaryItemExtension>();
 
-    public ProcessDBDictionaryItemValue() {
+    public Set<ProcessDBDictionaryItemExtension> getExtensions() {
+		return extensions;
+	}
+    
+    public Set<ProcessDictionaryItemExtension<String>> getItemExtensions() 
+    {
+    	Set<ProcessDictionaryItemExtension<String>> itemExtensions = new HashSet<ProcessDictionaryItemExtension<String>>();
+    	
+    	for(ProcessDBDictionaryItemExtension item: extensions)
+    		itemExtensions.add(item);
+    	
+		return itemExtensions;
+	}
+
+	public void setExtensions(Set<ProcessDBDictionaryItemExtension> extensions) {
+		this.extensions = extensions;
+	}
+
+	public ProcessDBDictionaryItemValue() {
     }
 
     private ProcessDBDictionaryItemValue(ProcessDBDictionaryItemValue itemValue) {
@@ -64,8 +75,9 @@ public class ProcessDBDictionaryItemValue extends AbstractPersistentEntity imple
         this.id = itemValue.getId();
         this.validStartDate = itemValue.getValidStartDate();
         this.validEndDate = itemValue.getValidEndDate();
-        for (ProcessDBDictionaryItemExtension ext : itemValue.getExtensions().values()) {
-            addItemExtension(ext.exactCopy());
+        for (ProcessDBDictionaryItemExtension ext : itemValue.getExtensions())
+        {
+        	extensions.add(ext.exactCopy());
         }
     }
 
@@ -85,7 +97,7 @@ public class ProcessDBDictionaryItemValue extends AbstractPersistentEntity imple
         ProcessDBDictionaryItemValue val = exactCopy();
         val.setId(null);
         val.setItem(null);
-        for (ProcessDBDictionaryItemExtension ext : val.getExtensions().values()) {
+        for (ProcessDBDictionaryItemExtension ext : val.getExtensions()) {
             ext.setId(null);
         }
         return val;
@@ -157,53 +169,11 @@ public class ProcessDBDictionaryItemValue extends AbstractPersistentEntity imple
         return true;
     }
 
-    public void removeItemExtension(String name) {
-        ProcessDBDictionaryItemExtension ext = extensions.get(name);
-        if (ext != null) {
-            ext.setItemValue(null);
-            extensions.remove(name);
-        }
-    }
-
-    public void addItemExtension(ProcessDBDictionaryItemExtension itemExtension) {
-        itemExtension.setItemValue(this);
-        extensions.put(itemExtension.getName(), itemExtension);
-    }
-
-    public Map<String, ProcessDBDictionaryItemExtension> getExtensions() {
-        return extensions;
-    }
-
-    public Collection<ProcessDictionaryItemExtension> extensions() {
-        Set<ProcessDictionaryItemExtension> set = new HashSet<ProcessDictionaryItemExtension>();
-        for (ProcessDictionaryItemExtension ext : extensions.values()) {
-            set.add(ext);
-        }
-        return set;
-    }
-
-    public Collection<String> getExtensionNames() {
-        return extensions.keySet();
-    }
-
-    public ProcessDBDictionaryItemExtension getExtensionByName(String extensionName) {
-        return extensions.get(extensionName);
-    }
-
-    public void setExtensions(Map<String, ProcessDBDictionaryItemExtension> extensions) {
-        this.extensions = extensions;
-    }
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((item == null) ? 0 : item.hashCode());
-		result = prime * result
-				+ ((validEndDate == null) ? 0 : validEndDate.hashCode());
-		result = prime * result
-				+ ((validStartDate == null) ? 0 : validStartDate.hashCode());
-		result = prime * result + ((value == null) ? 0 : value.hashCode());
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		return result;
 	}
 
@@ -216,28 +186,17 @@ public class ProcessDBDictionaryItemValue extends AbstractPersistentEntity imple
 		if (getClass() != obj.getClass())
 			return false;
 		ProcessDBDictionaryItemValue other = (ProcessDBDictionaryItemValue) obj;
-		if (item == null) {
-			if (other.item != null)
+		if (id == null) {
+			if (other.id != null)
 				return false;
-		} else if (!item.equals(other.item))
-			return false;
-		if (validEndDate == null) {
-			if (other.validEndDate != null)
-				return false;
-		} else if (!validEndDate.equals(other.validEndDate))
-			return false;
-		if (validStartDate == null) {
-			if (other.validStartDate != null)
-				return false;
-		} else if (!validStartDate.equals(other.validStartDate))
-			return false;
-		if (value == null) {
-			if (other.value != null)
-				return false;
-		} else if (!value.equals(other.value))
+			else
+				return this == other;
+		} else if (!id.equals(other.id))
 			return false;
 		return true;
 	}
+
+
 	
     
 }

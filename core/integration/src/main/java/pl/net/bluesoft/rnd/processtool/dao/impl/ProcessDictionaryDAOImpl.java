@@ -129,6 +129,7 @@ public class ProcessDictionaryDAOImpl extends SimpleHibernateBean<ProcessDBDicti
                 Criteria criteria = getSession().createCriteria(ProcessDBDictionary.class)
                         .add(Restrictions.eq("dictionaryId", dictionaryId))
                         .add(Restrictions.eq("languageCode", languageCode))
+                        .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
                         .add(definition == null ? Restrictions.isNull("processDefinition") : Restrictions.eq("processDefinition", definition));
                 return (ProcessDBDictionary) criteria.uniqueResult();
             }
@@ -145,6 +146,7 @@ public class ProcessDictionaryDAOImpl extends SimpleHibernateBean<ProcessDBDicti
 				Criteria criteria = getSession().createCriteria(ProcessDBDictionary.class)
 						.add(Restrictions.eq("dictionaryId", dictionaryId))
 						.add(Restrictions.eq("defaultDictionary", Boolean.TRUE))
+						.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
 						.add(definition == null ? Restrictions.isNull("processDefinition") : Restrictions.eq("processDefinition", definition));
 				return (ProcessDBDictionary)criteria.uniqueResult();
 			}
@@ -155,6 +157,7 @@ public class ProcessDictionaryDAOImpl extends SimpleHibernateBean<ProcessDBDicti
     public List<ProcessDBDictionary> fetchProcessDictionaries(ProcessDefinitionConfig definition) {
         Criteria criteria = getSession().createCriteria(ProcessDBDictionary.class)
                 .add(definition == null ? Restrictions.isNull("processDefinition") : Restrictions.eq("processDefinition", definition))
+                .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
                 .addOrder(Order.desc("dictionaryName"));
         List<ProcessDBDictionary> dictionaries = criteria.list();
         updateCache(dictionaries);
@@ -166,17 +169,20 @@ public class ProcessDictionaryDAOImpl extends SimpleHibernateBean<ProcessDBDicti
         List<ProcessDBDictionary> dictionaries = getSession().createCriteria(ProcessDBDictionary.class)
                 .add(Restrictions.isNotNull("processDefinition"))
                 .addOrder(Order.desc("dictionaryName"))
+                .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
                 .list();
         updateCache(dictionaries);
         return dictionaries;
     }
 
     @Override
-    public List<ProcessDBDictionary> fetchAllActiveProcessDictionaries() {
+    public List<ProcessDBDictionary> fetchAllActiveProcessDictionaries() 
+    {
         List<ProcessDBDictionary> dictionaries = getSession().createCriteria(ProcessDBDictionary.class)
                 .addOrder(Order.desc("dictionaryName"))
                 .createCriteria("processDefinition")
                 .add(Restrictions.eq("latest", Boolean.TRUE))
+                .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
                 .list();
         updateCache(dictionaries);
         return dictionaries;
@@ -425,16 +431,17 @@ public class ProcessDictionaryDAOImpl extends SimpleHibernateBean<ProcessDBDicti
                         newValue.setItem(newItem);
                         newItem.getValues().add(newValue);
 
-                        Map<String, ProcessDBDictionaryItemExtension> extensions = value.getExtensions();
-                        newValue.setExtensions(new HashMap<String, ProcessDBDictionaryItemExtension>());
+                        Set<ProcessDBDictionaryItemExtension> extensions = value.getExtensions();
+                        newValue.setExtensions(new HashSet<ProcessDBDictionaryItemExtension>());
 
-                        for (Entry<String, ProcessDBDictionaryItemExtension> extension : extensions.entrySet()) {
+                        for (ProcessDBDictionaryItemExtension extension : extensions) 
+                        {
                             ProcessDBDictionaryItemExtension newExtension = new ProcessDBDictionaryItemExtension();
-                            PropertyUtils.copyProperties(newExtension, extension.getValue());
+                            PropertyUtils.copyProperties(newExtension, extension);
                             newExtension.setId(null);
 
                             newExtension.setItemValue(newValue);
-                            newValue.getExtensions().put(extension.getKey(), newExtension);
+                            newValue.getExtensions().add(newExtension);
                         }
                     }
                 }

@@ -122,12 +122,7 @@ public class ProcessDBDictionaryItemExtension extends AbstractPersistentEntity i
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result
-				+ ((itemValue == null) ? 0 : itemValue.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((value == null) ? 0 : value.hashCode());
-		result = prime * result
-				+ ((valueType == null) ? 0 : valueType.hashCode());
 		return result;
 	}
 
@@ -140,28 +135,18 @@ public class ProcessDBDictionaryItemExtension extends AbstractPersistentEntity i
 		if (getClass() != obj.getClass())
 			return false;
 		ProcessDBDictionaryItemExtension other = (ProcessDBDictionaryItemExtension) obj;
-		if (itemValue == null) {
-			if (other.itemValue != null)
-				return false;
-		} else if (!itemValue.equals(other.itemValue))
-			return false;
 		if (name == null) {
 			if (other.name != null)
 				return false;
-		} else if (!name.equals(other.name))
-			return false;
-		if (value == null) {
-			if (other.value != null)
-				return false;
-		} else if (!value.equals(other.value))
-			return false;
-		if (valueType == null) {
-			if (other.valueType != null)
-				return false;
-		} else if (!valueType.equals(other.valueType))
+			else
+				return this == other;
+		} 
+		else if (!name.equals(other.name))
 			return false;
 		return true;
 	}
+
+
     
     
 }

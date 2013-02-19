@@ -1,5 +1,7 @@
 package org.aperteworkflow.util.vaadin.ui.date;
 
+import com.vaadin.data.Property;
+import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.DateField;
 import com.vaadin.ui.HorizontalLayout;
@@ -73,10 +75,35 @@ public class OptionalDateField extends CustomField {
     public void addDateChangedListener(ValueChangeListener listener) {
         dateField.addListener(listener);
     }
+    
+    @Override
+    public void setPropertyDataSource(Property newDataSource) 
+    {
+    	super.setPropertyDataSource(newDataSource);
+    	dateField.setPropertyDataSource(newDataSource);
+    }
 
     @Override
     public Object getValue() {
         return dateField.getValue();
+    }
+    
+    @Override
+    public void commit() throws SourceException, InvalidValueException {
+    	super.commit();
+    	dateField.commit();
+    }
+    
+    @Override
+    public boolean isModified() {
+    	return dateField.isModified();
+    }
+    
+    @Override
+    public void setValue(Object newValue) throws ReadOnlyException,
+    		ConversionException {
+    	super.setValue(newValue);
+    	dateField.setValue(newValue);
     }
 
     public Date dateValue() {

@@ -179,4 +179,65 @@ public class ProcessDBDictionary extends AbstractPersistentEntity implements Pro
     public void setItems(Map<String, ProcessDBDictionaryItem> items) {
         this.items = items;
     }
+    
+    public boolean isGlobalDictionary()
+    {
+    	return getProcessDefinition() == null;
+    }
+    
+    @Override
+    public String toString() {
+    	return dictionaryName;
+    }
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((dictionaryId == null) ? 0 : dictionaryId.hashCode());
+		result = prime * result
+				+ ((dictionaryName == null) ? 0 : dictionaryName.hashCode());
+		result = prime * result
+				+ ((languageCode == null) ? 0 : languageCode.hashCode());
+		result = prime
+				* result
+				+ ((processDefinition == null) ? 0 : processDefinition
+						.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ProcessDBDictionary other = (ProcessDBDictionary) obj;
+		if (dictionaryId == null) {
+			if (other.dictionaryId != null)
+				return false;
+		} else if (!dictionaryId.equals(other.dictionaryId))
+			return false;
+		if (dictionaryName == null) {
+			if (other.dictionaryName != null)
+				return false;
+		} else if (!dictionaryName.equals(other.dictionaryName))
+			return false;
+		if (languageCode == null) {
+			if (other.languageCode != null)
+				return false;
+		} else if (!languageCode.equals(other.languageCode))
+			return false;
+		if (processDefinition == null) {
+			if (other.processDefinition != null)
+				return false;
+		} else if (!processDefinition.equals(other.processDefinition))
+			return false;
+		return true;
+	}
+    
+    
 }

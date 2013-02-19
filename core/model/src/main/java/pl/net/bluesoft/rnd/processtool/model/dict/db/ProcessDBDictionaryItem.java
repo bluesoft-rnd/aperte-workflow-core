@@ -42,7 +42,7 @@ public class ProcessDBDictionaryItem extends AbstractPersistentEntity implements
     @Cascade(value = {CascadeType.REFRESH})
     private ProcessDBDictionary dictionary;
 
-    @Column(name="key_")
+    @Column(name="key_", nullable=false)
     private String key;
     private String valueType;
     @Lob
@@ -177,11 +177,7 @@ public class ProcessDBDictionaryItem extends AbstractPersistentEntity implements
 				return false;
 		} else if (!key.equals(other.key))
 			return false;
-		if (valueType == null) {
-			if (other.valueType != null)
-				return false;
-		} else if (!valueType.equals(other.valueType))
-			return false;
+
 		return true;
 	}
     

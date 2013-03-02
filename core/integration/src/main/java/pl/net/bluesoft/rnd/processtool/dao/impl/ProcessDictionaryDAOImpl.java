@@ -441,7 +441,7 @@ public class ProcessDictionaryDAOImpl extends SimpleHibernateBean<ProcessDBDicti
                             newExtension.setId(null);
 
                             newExtension.setItemValue(newValue);
-                            newValue.getExtensions().add(newExtension);
+                            newValue.addExtension(newExtension);
                         }
                     }
                 }

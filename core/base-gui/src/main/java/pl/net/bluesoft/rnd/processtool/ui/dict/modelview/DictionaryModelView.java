@@ -2,6 +2,7 @@ package pl.net.bluesoft.rnd.processtool.ui.dict.modelview;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
 import org.aperteworkflow.util.vaadin.TransactionProvider;
@@ -18,6 +19,9 @@ import pl.net.bluesoft.util.lang.Collections;
 import pl.net.bluesoft.util.lang.Predicate;
 
 import com.vaadin.data.util.BeanItemContainer;
+import pl.net.bluesoft.util.lang.cquery.func.F;
+
+import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
 
 /**
  * Controller to perform dictionary operations 
@@ -176,7 +180,14 @@ public class DictionaryModelView
 	public void addDictionaryItem(ProcessDBDictionaryItem item) 
 	{
     	getBeanItemContainerDictionaryItems().addBean(item);
-		
 	}
-	
+
+	protected List<ProcessDBDictionary> orderByDictionaryName(List<ProcessDBDictionary> dictionaries) {
+		return from(dictionaries).orderBy(new F<ProcessDBDictionary, String>() {
+			@Override
+			public String invoke(ProcessDBDictionary x) {
+				return x.getDictionaryName();
+			}
+		}).toList();
+	}
 }

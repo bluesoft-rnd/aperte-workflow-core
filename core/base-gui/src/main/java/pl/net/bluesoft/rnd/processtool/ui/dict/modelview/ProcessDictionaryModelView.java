@@ -72,7 +72,7 @@ public class ProcessDictionaryModelView extends DictionaryModelView
         
         ProcessDictionaryProvider pdp = ctx.getProcessDictionaryRegistry().getProcessDictionaryProvider("db");
         List<ProcessDBDictionary> allDictnionaries = pdp.fetchAllActiveProcessDictionaries();
-        for (ProcessDBDictionary dict : allDictnionaries) 
+        for (ProcessDBDictionary dict : orderByDictionaryName(allDictnionaries))
         {
             if (hasPermissionsForDictionary(dict)) 
             {
@@ -80,8 +80,8 @@ public class ProcessDictionaryModelView extends DictionaryModelView
             }
         }
 	}
-	
-    @Override
+
+	@Override
 	public void refreshData() 
     {
     	/** If there is selected dictionary to refresh, update it */

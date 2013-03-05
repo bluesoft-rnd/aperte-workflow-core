@@ -2,6 +2,7 @@ package pl.net.bluesoft.rnd.processtool.ui.dict.modelview;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 
 import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
 import org.aperteworkflow.util.vaadin.TransactionProvider;
@@ -62,9 +63,9 @@ public class GlobalDictionaryModelView extends DictionaryModelView
  
         
         GlobalDictionaryProvider gdp = ctx.getProcessDictionaryRegistry().getGlobalDictionaryProvider("db");
-        Collection<ProcessDBDictionary> allDictionaries = gdp.fetchAllGlobalDictionaries();
+        List<ProcessDBDictionary> allDictionaries = gdp.fetchAllGlobalDictionaries();
         
-        for (ProcessDBDictionary dict : allDictionaries) 
+        for (ProcessDBDictionary dict : orderByDictionaryName(allDictionaries))
         {
             if (hasPermissionsForDictionary(dict)) 
             {

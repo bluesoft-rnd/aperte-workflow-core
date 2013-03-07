@@ -1,22 +1,22 @@
 package pl.net.bluesoft.rnd.processtool.ui.generic.exception;
 
-public class PropertyNameNotDefined extends RuntimeException {
+public class PropertyNameNotDefinedException extends RuntimeException {
 
-	public PropertyNameNotDefined() {
+	public PropertyNameNotDefinedException() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public PropertyNameNotDefined(String message) {
+	public PropertyNameNotDefinedException(String message) {
 		super(message);
 		// TODO Auto-generated constructor stub
 	}
 
-	public PropertyNameNotDefined(Throwable cause) {
+	public PropertyNameNotDefinedException(Throwable cause) {
 		super(cause);
 		// TODO Auto-generated constructor stub
 	}
 
-	public PropertyNameNotDefined(String message, Throwable cause) {
+	public PropertyNameNotDefinedException(String message, Throwable cause) {
 		super(message, cause);
 		// TODO Auto-generated constructor stub
 	}

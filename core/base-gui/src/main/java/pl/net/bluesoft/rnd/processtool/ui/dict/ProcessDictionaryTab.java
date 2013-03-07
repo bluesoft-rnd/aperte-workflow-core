@@ -88,6 +88,9 @@ public class ProcessDictionaryTab extends DictionaryTab implements ValueChangeLi
 		/* Process selected, filter dictionaries by this process */
 		if(event.getProperty().equals(selectProcess))
 		{
+			/* Disable dictionary item edition */
+			dicardChanges();
+			
 			ProcessDefinitionConfig selectedConfig = (ProcessDefinitionConfig)selectProcess.getValue();
 			
 			getProcessModelView().setSelectedProcess(selectedConfig);
@@ -101,6 +104,9 @@ public class ProcessDictionaryTab extends DictionaryTab implements ValueChangeLi
 		/* Locale selected, show items */
 		else if(event.getProperty().equals(selectLocale))
 		{		
+			/* Disable dictionary item edition */
+			dicardChanges();
+			
 			getProcessModelView().setSelectedLocale((String)selectLocale.getValue());
 			
 			/* Selecting new locale changes selected dictionary */
@@ -113,9 +119,12 @@ public class ProcessDictionaryTab extends DictionaryTab implements ValueChangeLi
 		/* Dictionary selected, filter locals by this dictionary */
 		else if(event.getProperty().equals(selectDictionary))
 		{
-			ProcessDBDictionary selectedDictionary = (ProcessDBDictionary)selectDictionary.getValue();
+			/* Disable dictionary item edition */
+			dicardChanges();
 			
+			ProcessDBDictionary selectedDictionary = (ProcessDBDictionary)selectDictionary.getValue();
 			getProcessModelView().setSelectedDictionary(selectedDictionary);
+
 			dictionaryItemTable.sort();
 
 			addButton.setVisible(selectedDictionary != null);

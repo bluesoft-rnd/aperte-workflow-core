@@ -58,13 +58,14 @@ public abstract class DictionaryItemExtensionField extends CustomField  {
     private void initView() {
         VerticalLayout root = new VerticalLayout();
         root.setStyleName("borderless light");
-        root.setWidth("100%");
+        root.setSizeFull();
         root.setMargin(false);
 
         noExtensionsLabel = new Label("<i>" + getMessage("dict.item.noextensions") + "</i>", Label.CONTENT_XHTML);
+        noExtensionsLabel.setSizeFull();
 
         itemsLayout = new VerticalLayout();
-        itemsLayout.setWidth("100%");
+        itemsLayout.setSizeFull();
 
         addButton = addIcon(application);
         addButton.setDescription(getMessage("dict.add.extension"));

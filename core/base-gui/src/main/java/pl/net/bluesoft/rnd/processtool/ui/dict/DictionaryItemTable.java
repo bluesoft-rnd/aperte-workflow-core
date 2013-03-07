@@ -3,6 +3,7 @@ package pl.net.bluesoft.rnd.processtool.ui.dict;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
@@ -16,7 +17,7 @@ import pl.net.bluesoft.rnd.processtool.ui.dict.request.DeleteDictionaryItemActio
 import pl.net.bluesoft.rnd.processtool.ui.dict.request.SaveDictionaryItemActionRequest;
 import pl.net.bluesoft.rnd.processtool.ui.dict.request.SaveNewDictionaryItemActionRequest;
 import pl.net.bluesoft.rnd.processtool.ui.dict.request.ShowDictionaryItemActionRequest;
-import pl.net.bluesoft.rnd.processtool.ui.generic.exception.PropertyNameNotDefined;
+import pl.net.bluesoft.rnd.processtool.ui.generic.exception.PropertyNameNotDefinedException;
 import pl.net.bluesoft.rnd.processtool.ui.table.GenericTable;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.util.lang.Strings;
@@ -159,7 +160,7 @@ public class DictionaryItemTable extends GenericTable<ProcessDBDictionaryItem>
 			}
 		}
 		
-		throw new PropertyNameNotDefined("Column name not defined: "+columnId);
+		throw new PropertyNameNotDefinedException("Column name not defined: "+columnId);
 	}
 	
 	@Override
@@ -437,10 +438,31 @@ public class DictionaryItemTable extends GenericTable<ProcessDBDictionaryItem>
                 }
                 else {
                     sb.append("<ul>");
-                    java.util.Collections.sort(values, new Comparator<ProcessDBDictionaryItemValue>() {
+                    java.util.Collections.sort(values, new Comparator<ProcessDBDictionaryItemValue>() 
+                    {
                         @Override
-                        public int compare(ProcessDBDictionaryItemValue o1, ProcessDBDictionaryItemValue o2) {
-                            return o1.getValue().compareTo(o2.getValue());
+                        public int compare(ProcessDBDictionaryItemValue o1, ProcessDBDictionaryItemValue o2) 
+                        {
+                        	
+                        	/* The null value is higher then anything else */
+                        	if(o1.getValidStartDate() == null)
+                        		return Integer.MAX_VALUE;
+                        	
+                        	else if(o1.getValidEndDate() == null)
+                        		return Integer.MIN_VALUE;
+                        	
+                        	else if(o2.getValidStartDate() == null)
+                        		return Integer.MIN_VALUE;
+                        	
+                        	
+                			/* Fix na IBMowa impelementacje TimeStampa, który próbuje rzutować
+                			 * obiekt Date na Timestamp i przez to leci wyjątek. 
+                			 */
+                			Date paymentDate1 = new Date(o1.getValidStartDate().getTime());
+                			Date paymentDate2 = new Date(o2.getValidStartDate().getTime());
+                        	
+                        	/* The newer the date is the position of value is higher in collection */
+                            return paymentDate2.compareTo(paymentDate1);
                         }
                     });
                     for (ProcessDBDictionaryItemValue value : values) {

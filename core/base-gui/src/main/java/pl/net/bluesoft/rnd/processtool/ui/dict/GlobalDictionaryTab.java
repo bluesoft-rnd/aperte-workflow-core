@@ -90,6 +90,9 @@ public class GlobalDictionaryTab extends DictionaryTab implements ValueChangeLis
 		/* Locale selected, show items */
 		if(event.getProperty().equals(selectLocale))
 		{		
+			/* Disable dictionary item edition */
+			dicardChanges();
+			
 			getGlobalModelView().setSelectedLocale((String)selectLocale.getValue());
 			
 			/* Selecting new locale changes selected dictionary */
@@ -102,9 +105,12 @@ public class GlobalDictionaryTab extends DictionaryTab implements ValueChangeLis
 		/* Dictionary selected, filter locals by this dictionary */
 		else if(event.getProperty().equals(selectDictionary))
 		{
-			ProcessDBDictionary selectedDictionary = (ProcessDBDictionary)selectDictionary.getValue();
+			/* Disable dictionary item edition */
+			dicardChanges();
 			
+			ProcessDBDictionary selectedDictionary = (ProcessDBDictionary)selectDictionary.getValue();
 			getGlobalModelView().setSelectedDictionary(selectedDictionary);
+			refreshData();
 			dictionaryItemTable.sort();
 
 			addButton.setVisible(selectedDictionary != null);

@@ -39,6 +39,7 @@ public abstract class DictionaryTab extends VerticalLayout implements ClickListe
 	
 	protected void refreshData()
 	{
+		getModelView().refreshData();
     	dictionaryItemTable.sort();
 	}
 	
@@ -138,6 +139,8 @@ public abstract class DictionaryTab extends VerticalLayout implements ClickListe
     	
     	dictionaryItemValuesTable.setVisible(false);
     	addValueButton.setVisible(false);
+    	
+    	getModelView().refreshData();
     	
     	dictionaryItemTable.sort();
     }

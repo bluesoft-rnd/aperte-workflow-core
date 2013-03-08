@@ -81,27 +81,6 @@ public class ProcessDictionaryModelView extends DictionaryModelView
         }
 	}
 
-	@Override
-	public void refreshData() 
-    {
-    	/** If there is selected dictionary to refresh, update it */
-    	if(getSelectedDictionary() != null)
-    	{
-    		getTransactionProvider().withTransaction(new ProcessToolGuiCallback() {
-				
-				@Override
-				public void callback(ProcessToolContext ctx, ProcessToolBpmSession session) {
-					ctx.getProcessDictionaryDAO().refresh(getSelectedDictionary());
-					
-				}
-			});
-
-    		refreshDictionaryItems();
-    		
-    	}
-    	super.refreshData();
-    }
-
 	public BeanItemContainer<ProcessDefinitionConfig> getBeanItemContainerConfigs() {
 		return beanItemContainerConfigs;
 	}

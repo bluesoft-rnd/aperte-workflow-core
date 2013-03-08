@@ -69,6 +69,7 @@ public class ProcessDictionaryTab extends DictionaryTab implements ValueChangeLi
         addButton.setCaption(getMessage("dict.addentry"));
         addButton.setVisible(false);
         addButton.addListener((ClickListener)this);
+        addButton.setDisableOnClick(true);
     	
     	headerLayout.addComponent(selectProcess);
     	headerLayout.addComponent(selectLocale);
@@ -129,6 +130,14 @@ public class ProcessDictionaryTab extends DictionaryTab implements ValueChangeLi
 
 			addButton.setVisible(selectedDictionary != null);
 		}
+	}
+	
+	@Override
+	protected void disableEdition() 
+	{
+		addButton.setEnabled(true);
+		
+		super.disableEdition();
 	}
 	
 	@Override

@@ -27,7 +27,7 @@ import pl.net.bluesoft.rnd.processtool.ui.dict.request.DeleteDictionaryItemActio
 import pl.net.bluesoft.rnd.processtool.ui.dict.request.DeleteDictionaryItemValueActionRequest;
 import pl.net.bluesoft.rnd.processtool.ui.dict.request.SaveDictionaryItemActionRequest;
 import pl.net.bluesoft.rnd.processtool.ui.dict.request.SaveNewDictionaryItemActionRequest;
-import pl.net.bluesoft.rnd.processtool.ui.dict.request.ShowDictionaryItemActionRequest;
+import pl.net.bluesoft.rnd.processtool.ui.dict.request.EditDictionaryItemActionRequest;
 import pl.net.bluesoft.rnd.processtool.ui.dict.validator.DictionaryItemValidator;
 import pl.net.bluesoft.rnd.processtool.ui.request.IActionRequest;
 import pl.net.bluesoft.rnd.processtool.ui.request.IActionRequestListener;
@@ -171,19 +171,8 @@ public class DictionariesMainPane extends VerticalLayout implements ProcessToolB
 		if(actionRequest instanceof DeleteDictionaryItemActionRequest)
 		{
 			DeleteDictionaryItemActionRequest deleteRequest = (DeleteDictionaryItemActionRequest)actionRequest;
-			ProcessDBDictionaryItem item = deleteRequest.getItemToDelete();
-			BeanItemContainer<ProcessDBDictionaryItem> container = deleteRequest.getContainer();
 			
-            final ProcessDBDictionary dictionary = item.getDictionary();
-            dictionary.removeItem(item.getKey());
-            item.setDictionary(null);
-            container.removeItem(item);
-            getTransactionProvider().withTransaction(new ProcessToolGuiCallback() {
-                @Override
-                public void callback(ProcessToolContext ctx, ProcessToolBpmSession session) {
-                    ctx.getProcessDictionaryDAO().updateDictionary(dictionary);
-                }
-            });
+			getTabByItem(deleteRequest.getItemToDelete()).removeItem(deleteRequest.getItemToDelete());
 		}
 		else if(actionRequest instanceof SaveNewDictionaryItemActionRequest)
 		{
@@ -213,9 +202,9 @@ public class DictionariesMainPane extends VerticalLayout implements ProcessToolB
 			/* Show edition window for new item */
 			getTabByItem(addNewRequest.getItemToShow()).editItem(addNewRequest.getItemToShow());
 		}
-		else if(actionRequest instanceof ShowDictionaryItemActionRequest)
+		else if(actionRequest instanceof EditDictionaryItemActionRequest)
 		{
-			ShowDictionaryItemActionRequest showRequest = (ShowDictionaryItemActionRequest)actionRequest;
+			EditDictionaryItemActionRequest showRequest = (EditDictionaryItemActionRequest)actionRequest;
 			
 			/* Show edition window for item to edit */
 			getTabByItem(showRequest.getItemToShow()).editItem(showRequest.getItemToShow());
@@ -224,9 +213,17 @@ public class DictionariesMainPane extends VerticalLayout implements ProcessToolB
 		{
 			CancelEditionOfDictionaryItemActionRequest cancelRequest = (CancelEditionOfDictionaryItemActionRequest)actionRequest;
 			
+			/* New item creantion cancellation */
+			if(cancelRequest.getItemToRollback().getId() == null)
+			{
+				getTabByItem(cancelRequest.getItemToRollback()).dicardChanges();
+				getTabByItem(cancelRequest.getItemToRollback()).removeItem(cancelRequest.getItemToRollback());
+			}
 			/* Discard current change and refresh dictionary and view */
-	        getTabByItem(cancelRequest.getItemToRollback()).dicardChanges();
-	        refreshData();
+			else
+			{
+		        getTabByItem(cancelRequest.getItemToRollback()).dicardChanges();
+			}
 		}
 		else if(actionRequest instanceof CopyDictionaryItemValueActionRequest)
 		{

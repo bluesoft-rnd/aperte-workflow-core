@@ -4,6 +4,7 @@ import static org.aperteworkflow.util.vaadin.VaadinUtility.validationNotificatio
 
 import org.aperteworkflow.util.vaadin.VaadinUtility;
 
+import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionary;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItem;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemValue;
 import pl.net.bluesoft.rnd.processtool.ui.dict.modelview.DictionaryModelView;
@@ -40,7 +41,7 @@ public abstract class DictionaryTab extends VerticalLayout implements ClickListe
 	protected void refreshData()
 	{
 		getModelView().refreshData();
-    	dictionaryItemTable.sort();
+		dictionaryItemTable.sort(new Object[]{"key"}, new boolean[]{true});
 	}
 	
 	protected void init()
@@ -51,11 +52,12 @@ public abstract class DictionaryTab extends VerticalLayout implements ClickListe
 		dictionaryItemTable = new DictionaryItemTable(getModelView().getBeanItemContainerDictionaryItems(), mainPanel.getI18NSource(), mainPanel.getVaadinApplication());
 		dictionaryItemTable.addActionRequestListener(mainPanel);
 		dictionaryItemTable.addEntryValidator(mainPanel);
+		dictionaryItemTable.setHeight(400, UNITS_PIXELS);
 		
 		dictionaryItemValuesTable = new DictionaryItemValueTable(getModelView().getBeanItemContainerDictionaryItemsValues(), mainPanel.getI18NSource(), mainPanel.getVaadinApplication());
 		dictionaryItemValuesTable.addActionRequestListener(mainPanel);
 		dictionaryItemValuesTable.setVisible(false);
-	
+		dictionaryItemValuesTable.setHeight(400, UNITS_PIXELS);
 		
 		addValueButton = VaadinUtility.addIcon(mainPanel.getApplication());
 		addValueButton.setCaption(getMessage("dict.add.value"));
@@ -85,6 +87,10 @@ public abstract class DictionaryTab extends VerticalLayout implements ClickListe
 		
 	}
 	
+	public void removeItem(ProcessDBDictionaryItem itemToRemove) 
+	{
+		getModelView().removeItem(itemToRemove);
+	}
     
     public void editItem(ProcessDBDictionaryItem item)
     {
@@ -96,20 +102,25 @@ public abstract class DictionaryTab extends VerticalLayout implements ClickListe
     
     	
     	dictionaryItemTable.setEditable(true);
-    	dictionaryItemTable.setEditableItem(item);
+    	dictionaryItemTable.select(item);
     	/* Refresh */
     	dictionaryItemValuesTable.setVisible(true);
     	dictionaryItemValuesTable.setEditable(true);
     	dictionaryItemValuesTable.sort();
     	addValueButton.setVisible(true);
     	
-    	dictionaryItemTable.setContainerDataSource(modelView.getBeanItemContainerDictionaryItems());
+    	dictionaryItemTable.refreshRowCache();
     }
     
     public void dicardChanges()
     {
+    	/* Rollback changes applied only to selected item, no need to refresh all dictionary */
+		getModelView().discardChanges();
+		
 		dictionaryItemTable.discard();
 		dictionaryItemValuesTable.discard();
+		
+		dictionaryItemTable.refreshRowCache();
 		
 		disableEdition();
     }
@@ -130,19 +141,17 @@ public abstract class DictionaryTab extends VerticalLayout implements ClickListe
 
     }
     
-    private void disableEdition()
+    protected void disableEdition()
     {
     	dictionaryItemTable.setEditable(false);
-    	dictionaryItemTable.setEditableItem(null);
+    	dictionaryItemTable.select(null);
     	
     	dictionaryItemValuesTable.setEditable(false);
     	
     	dictionaryItemValuesTable.setVisible(false);
     	addValueButton.setVisible(false);
     	
-    	getModelView().refreshData();
-    	
-    	dictionaryItemTable.sort();
+    	dictionaryItemTable.refreshRowCache();
     }
   
     
@@ -151,7 +160,7 @@ public abstract class DictionaryTab extends VerticalLayout implements ClickListe
 	{
 		if(event.getButton().equals(addValueButton))
 		{
-			ProcessDBDictionaryItem item = dictionaryItemTable.getEditableItem();
+			ProcessDBDictionaryItem item = (ProcessDBDictionaryItem)dictionaryItemTable.getValue();
 			if(item == null)
 				throw new RuntimeException("Error, there is no item selected");
 			
@@ -160,7 +169,6 @@ public abstract class DictionaryTab extends VerticalLayout implements ClickListe
 			newValue.setValue("");
 			item.getValues().add(newValue);
 			
-			modelView.setSelectedDictionaryItem(item);
 			modelView.addDictionaryItemValue(newValue);
 		}
 		
@@ -173,4 +181,6 @@ public abstract class DictionaryTab extends VerticalLayout implements ClickListe
 	protected void setModelView(DictionaryModelView modelView) {
 		this.modelView = modelView;
 	}
+
+
 }

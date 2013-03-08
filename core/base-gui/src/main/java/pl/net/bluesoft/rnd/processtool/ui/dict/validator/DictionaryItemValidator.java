@@ -78,7 +78,7 @@ public class DictionaryItemValidator implements Validator
 		String key = itemToValidate.getKey();
 		
 		ProcessDBDictionaryItem lookUpItem = (ProcessDBDictionaryItem)dictionary.lookup(key);
-		if(lookUpItem != null && lookUpItem != itemToValidate && itemToValidate.getKey().equals(lookUpItem.getKey()))
+		if(lookUpItem != null && !lookUpItem.equals(itemToValidate))
 			throw new InvalidValueException(application.getMessage("validation.duplicated.key", key, key));
 	}
 	

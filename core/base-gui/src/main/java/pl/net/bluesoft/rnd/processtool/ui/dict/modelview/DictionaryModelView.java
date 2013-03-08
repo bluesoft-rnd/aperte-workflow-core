@@ -8,6 +8,8 @@ import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
 import org.aperteworkflow.util.vaadin.TransactionProvider;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
+import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionary;
@@ -18,6 +20,8 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolGuiCallback;
 import pl.net.bluesoft.util.lang.Collections;
 import pl.net.bluesoft.util.lang.Predicate;
 
+import com.vaadin.data.Property;
+import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
 import pl.net.bluesoft.util.lang.cquery.func.F;
 
@@ -35,12 +39,13 @@ public class DictionaryModelView
 	private GenericVaadinPortlet2BpmApplication application;
 	
     private Collection<ProcessDBDictionary> dictionaries;
-    private BeanItemContainer<ProcessDBDictionary> beanItemContainerDictionaries;
-    private BeanItemContainer<ProcessDBDictionaryItem> beanItemContainerDictionaryItems;
-    private BeanItemContainer<ProcessDBDictionaryItemValue> beanItemContainerDictionaryItemsValues;
+    private EnteryBeanItemContainer<ProcessDBDictionary> beanItemContainerDictionaries;
+    private EnteryBeanItemContainer<ProcessDBDictionaryItem> beanItemContainerDictionaryItems;
+    private EnteryBeanItemContainer<ProcessDBDictionaryItemValue> beanItemContainerDictionaryItemsValues;
     
     private ProcessDBDictionary selectedDictionary;
     private ProcessDBDictionaryItem selectedDictionaryItem;
+    private String selectedDictionaryItemKey;
     
 
 	public DictionaryModelView(TransactionProvider transactionProvider, GenericVaadinPortlet2BpmApplication application) 
@@ -54,9 +59,9 @@ public class DictionaryModelView
 	protected void init()
 	{
 		dictionaries = new ArrayList<ProcessDBDictionary>();
-		beanItemContainerDictionaries = new BeanItemContainer<ProcessDBDictionary>(ProcessDBDictionary.class); 
-		beanItemContainerDictionaryItems = new BeanItemContainer<ProcessDBDictionaryItem>(ProcessDBDictionaryItem.class);
-		beanItemContainerDictionaryItemsValues = new BeanItemContainer<ProcessDBDictionaryItemValue>(ProcessDBDictionaryItemValue.class);
+		beanItemContainerDictionaries = new EnteryBeanItemContainer<ProcessDBDictionary>(ProcessDBDictionary.class); 
+		beanItemContainerDictionaryItems = new EnteryBeanItemContainer<ProcessDBDictionaryItem>(ProcessDBDictionaryItem.class);
+		beanItemContainerDictionaryItemsValues = new EnteryBeanItemContainer<ProcessDBDictionaryItemValue>(ProcessDBDictionaryItemValue.class);
 	}
 	
 	public void reloadData()
@@ -77,11 +82,64 @@ public class DictionaryModelView
     	beanItemContainerDictionaries.removeAllItems();
 	}
 	
-	public void refreshData() 
+	public void discardChanges() 
 	{
-		// TODO Auto-generated method stub
+		/* No selected item, nothing to discard */
+		if(selectedDictionaryItem == null)
+			return;
 		
+		/* restore key for equals */
+		selectedDictionaryItem.setKey(selectedDictionaryItemKey);
+		
+		BeanItem<ProcessDBDictionaryItem> modifiedItem =  beanItemContainerDictionaryItems.getItem(selectedDictionaryItem);
+		
+		selectedDictionaryItem = getTransactionProvider().withTransaction(new ReturningProcessToolContextCallback<ProcessDBDictionaryItem>() {
+			
+
+			@Override
+			public ProcessDBDictionaryItem processWithContext(ProcessToolContext ctx) 
+			{
+				return 	ctx.getProcessDictionaryDAO().refresh(selectedDictionaryItem);
+			}
+		});
+		
+		/* Restore all properties */
+		BeanItem<ProcessDBDictionaryItem> refreshedItem = new BeanItem<ProcessDBDictionaryItem>(selectedDictionaryItem);
+		
+		for(Object propertyId: modifiedItem.getItemPropertyIds())
+		{
+			Property propertyToRefresh = modifiedItem.getItemProperty(propertyId);
+			if(propertyToRefresh.isReadOnly())
+				continue;
+			
+			Property property = refreshedItem.getItemProperty(propertyId);
+			
+			propertyToRefresh.setValue(property.getValue());
+		}
+		
+		this.selectedDictionaryItem = null;
+		this.selectedDictionaryItemKey = null;
+		//beanItemContainerDictionaryItems.refresh();
 	}
+	
+	public void refreshData() 
+    {
+    	/** If there is selected dictionary to refresh, update it */
+    	if(getSelectedDictionary() != null)
+    	{
+    		ProcessDBDictionary refresheDictionary = getTransactionProvider().withTransaction(new ReturningProcessToolContextCallback<ProcessDBDictionary>() {
+				
+
+				@Override
+				public ProcessDBDictionary processWithContext(ProcessToolContext ctx) 
+				{
+					return 	ctx.getProcessDictionaryDAO().refresh(getSelectedDictionary());
+				}
+			});
+
+    		setSelectedDictionary(refresheDictionary);	
+    	}
+    }
 	
 	public void refreshDictionaryItems()
 	{
@@ -111,6 +169,7 @@ public class DictionaryModelView
 	public void setSelectedDictionaryItem(ProcessDBDictionaryItem item) 
 	{		
     	this.selectedDictionaryItem = item;
+    	this.selectedDictionaryItemKey = item.getKey();
     	
     	beanItemContainerDictionaryItemsValues.removeAllItems();
     	beanItemContainerDictionaryItemsValues.addAll(item.getValues());
@@ -118,6 +177,30 @@ public class DictionaryModelView
 	
 	public ProcessDBDictionaryItem getSelectedDictionaryItem() {
 		return selectedDictionaryItem;
+	}
+	
+	public void removeItem(ProcessDBDictionaryItem itemToRemove) 
+	{
+		boolean isPersistedItem = itemToRemove.getId() == null;
+		
+		beanItemContainerDictionaryItems.removeItem(itemToRemove);
+		
+		/* Item has been stored in database, remove it */
+		if(isPersistedItem)
+		{
+			final ProcessDBDictionary dictionary = itemToRemove.getDictionary();
+			dictionary.removeItem(itemToRemove.getKey());
+        
+			itemToRemove.setDictionary(null);
+			
+            getTransactionProvider().withTransaction(new ProcessToolGuiCallback() {
+                @Override
+                public void callback(ProcessToolContext ctx, ProcessToolBpmSession session) {
+                    ctx.getProcessDictionaryDAO().updateDictionary(dictionary);
+                }
+            });
+		}
+		
 	}
 	
 	public void removeItemValue(ProcessDBDictionaryItemValue value) 
@@ -190,4 +273,6 @@ public class DictionaryModelView
 			}
 		}).toList();
 	}
+
+
 }

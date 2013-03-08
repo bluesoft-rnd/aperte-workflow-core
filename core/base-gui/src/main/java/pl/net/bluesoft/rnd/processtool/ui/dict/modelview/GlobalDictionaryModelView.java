@@ -73,30 +73,6 @@ public class GlobalDictionaryModelView extends DictionaryModelView
             }
         }
 	}
-	
-    @Override
-	public void refreshData() 
-    {
-    	/** If there is selected dictionary to refresh, update it */
-    	if(getSelectedDictionary() != null)
-    	{
-    		ProcessDBDictionary refresheDictionary = getTransactionProvider().withTransaction(new ReturningProcessToolContextCallback<ProcessDBDictionary>() {
-				
-
-				@Override
-				public ProcessDBDictionary processWithContext(ProcessToolContext ctx) 
-				{
-					return 	ctx.getProcessDictionaryDAO().refresh(getSelectedDictionary());
-				}
-			});
-
-    		setSelectedDictionary(refresheDictionary);
-    		refreshDictionaryItems();
-    		
-    	}
-    	
-    	super.refreshData();
-    }
 
 	public BeanItemContainer<String> getBeanItemContainerLanguageCodes() {
 		return beanItemContainerLanguageCodes;

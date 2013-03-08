@@ -15,6 +15,7 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.functors.UniquePredicate;
 import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
@@ -385,7 +386,8 @@ public class ProcessDictionaryDAOImpl extends SimpleHibernateBean<ProcessDBDicti
     @Override
     public void updateDictionary(ProcessDBDictionary dictionary) {
         Session session = getSession();
-        session.merge(dictionary);
+        session.saveOrUpdate(dictionary);
+        dictionary = (ProcessDBDictionary)session.merge(dictionary);
         session.flush();
         updateCache(dictionary);
     }
@@ -472,4 +474,20 @@ public class ProcessDictionaryDAOImpl extends SimpleHibernateBean<ProcessDBDicti
             }
         }
     }
+
+	@Override
+	public ProcessDBDictionaryItem refresh(ProcessDBDictionaryItem item) 
+	{
+		if(item == null)
+			return null;
+		
+		if(item.getId() == null)
+			return item;
+		
+		return (ProcessDBDictionaryItem)getSession()
+				.createCriteria(ProcessDBDictionaryItem.class)
+				.add(Restrictions.eq("id", item.getId()))
+				.setFetchMode("dictionary", FetchMode.JOIN)
+				.uniqueResult();
+	}
 }

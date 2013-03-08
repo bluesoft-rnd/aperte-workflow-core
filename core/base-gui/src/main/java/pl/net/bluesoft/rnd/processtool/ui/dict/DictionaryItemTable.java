@@ -14,15 +14,14 @@ import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemExte
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemValue;
 import pl.net.bluesoft.rnd.processtool.ui.dict.request.CancelEditionOfDictionaryItemActionRequest;
 import pl.net.bluesoft.rnd.processtool.ui.dict.request.DeleteDictionaryItemActionRequest;
+import pl.net.bluesoft.rnd.processtool.ui.dict.request.EditDictionaryItemActionRequest;
 import pl.net.bluesoft.rnd.processtool.ui.dict.request.SaveDictionaryItemActionRequest;
 import pl.net.bluesoft.rnd.processtool.ui.dict.request.SaveNewDictionaryItemActionRequest;
-import pl.net.bluesoft.rnd.processtool.ui.dict.request.ShowDictionaryItemActionRequest;
 import pl.net.bluesoft.rnd.processtool.ui.generic.exception.PropertyNameNotDefinedException;
 import pl.net.bluesoft.rnd.processtool.ui.table.GenericTable;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.util.lang.Strings;
 
-import com.vaadin.data.Container;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.ui.Button;
@@ -44,7 +43,6 @@ import com.vaadin.ui.TextField;
  */
 public class DictionaryItemTable extends GenericTable<ProcessDBDictionaryItem>
 {
-	private ProcessDBDictionaryItem editableItem;
 	
     private static final String EMPTY_VALID_DATE = "...";
     
@@ -96,7 +94,6 @@ public class DictionaryItemTable extends GenericTable<ProcessDBDictionaryItem>
 			TextField textField = new TextField();
 			textField.setPropertyDataSource(bean.getItemProperty(KEY_COLUMN_NAME));
 			textField.setReadOnly(true);
-			textField.setWriteThrough(false);
 
 			return textField;
 		}
@@ -124,7 +121,7 @@ public class DictionaryItemTable extends GenericTable<ProcessDBDictionaryItem>
 		{
 			if(isEditable())
 			{
-				if(getEditableItem() == entry)
+				if(getValue() == entry)
 				{				
 					CssLayout layout = new CssLayout();
 					SaveItemButton saveItemButton = new SaveItemButton(entry);
@@ -174,7 +171,6 @@ public class DictionaryItemTable extends GenericTable<ProcessDBDictionaryItem>
 		{
 			TextField textField = new TextField();
 			textField.setPropertyDataSource(bean.getItemProperty(KEY_COLUMN_NAME));
-			textField.setReadOnly(editableItem != entry);
 			textField.setNullRepresentation("");
 			textField.setNullSettingAllowed(false);
 			textField.setRequired(true);
@@ -183,6 +179,9 @@ public class DictionaryItemTable extends GenericTable<ProcessDBDictionaryItem>
 			textField.setImmediate(true);
 			textField.setValidationVisible(true);
 			
+			/* if this is selected item, enable its edition */
+			textField.setReadOnly(this.getValue() != entry);
+			
 			return textField;
 		}
 		
@@ -190,10 +189,12 @@ public class DictionaryItemTable extends GenericTable<ProcessDBDictionaryItem>
 		{
 			TextField textField = new TextField();
 			textField.setNullRepresentation("");
-			textField.setReadOnly(editableItem != entry);
 			textField.setNullSettingAllowed(false);
 			textField.setPropertyDataSource(bean.getItemProperty(DESCRIPTION_COLUMN_NAME));
 			textField.setValidationVisible(true);
+			
+			/* if this is selected item, enable its edition */
+			textField.setReadOnly(this.getValue() != entry);
 			
 			return textField;
 		}
@@ -231,7 +232,7 @@ public class DictionaryItemTable extends GenericTable<ProcessDBDictionaryItem>
 		@Override
 		public void buttonClick(ClickEvent event) 
 		{
-			ShowDictionaryItemActionRequest actionRequest = new ShowDictionaryItemActionRequest(entryToEdit);
+			EditDictionaryItemActionRequest actionRequest = new EditDictionaryItemActionRequest(entryToEdit);
 			DictionaryItemTable.this.notifyListeners(actionRequest);
 		}
 	}
@@ -475,17 +476,4 @@ public class DictionaryItemTable extends GenericTable<ProcessDBDictionaryItem>
             }
         }
     }
-
-	ProcessDBDictionaryItem getEditableItem() {
-		return editableItem;
-	}
-
-	void setEditableItem(ProcessDBDictionaryItem editableItem) {
-		this.editableItem = editableItem;
-	}
-
-
-
-
-
 }

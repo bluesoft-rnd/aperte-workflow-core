@@ -55,6 +55,7 @@ public class GlobalDictionaryTab extends DictionaryTab implements ValueChangeLis
         addButton.setCaption(getMessage("dict.addentry"));
         addButton.setVisible(false);
         addButton.addListener((ClickListener)this);
+        addButton.setDisableOnClick(true);
     	
     	headerLayout.addComponent(selectLocale);
     	headerLayout.addComponent(selectDictionary);
@@ -72,6 +73,14 @@ public class GlobalDictionaryTab extends DictionaryTab implements ValueChangeLis
 		super.refreshData();
 		
 
+	}
+	
+	@Override
+	protected void disableEdition() 
+	{
+		addButton.setEnabled(true);
+		
+		super.disableEdition();
 	}
 
     public void loadData(ProcessToolContext ctx)

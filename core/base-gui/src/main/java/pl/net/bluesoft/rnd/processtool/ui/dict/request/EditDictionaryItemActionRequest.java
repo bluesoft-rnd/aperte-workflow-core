@@ -9,11 +9,11 @@ import pl.net.bluesoft.rnd.processtool.ui.request.IActionRequest;
  * @author mpawlak@bluesoft.net.pl
  *
  */
-public class ShowDictionaryItemActionRequest implements IActionRequest 
+public class EditDictionaryItemActionRequest implements IActionRequest 
 {
 	private ProcessDBDictionaryItem itemToShow;
 
-	public ShowDictionaryItemActionRequest(ProcessDBDictionaryItem itemToDelete) 
+	public EditDictionaryItemActionRequest(ProcessDBDictionaryItem itemToDelete) 
 	{
 		this.itemToShow = itemToDelete;
 	}

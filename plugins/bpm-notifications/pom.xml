@@ -81,6 +81,7 @@
                         <Export-Package>
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.util,
+                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.data,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.templates,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.sessions,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model

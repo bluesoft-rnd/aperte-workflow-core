@@ -19,6 +19,10 @@ import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessDeadline;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.data.ITemplateDataProvider;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.data.NotificationData;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.data.TemplateData;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.data.TemplateDataProvider;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.BpmNotificationService;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.util.EmailSender;
 import pl.net.bluesoft.rnd.pt.ext.sched.service.ProcessToolSchedulerService;
@@ -196,37 +200,42 @@ public class DeadlineEngine {
     	ProcessInstance pi = ctx.getProcessInstanceDAO().getProcessInstanceByInternalId(processInstanceId);
         ProcessToolBpmSession bpmSession = ctx.getProcessToolSessionFactory().createAutoSession();
         List<BpmTask> tasks = bpmSession.findProcessTasks(pi, ctx);
-        for (BpmTask task : tasks) {
-            if (task.getTaskName().equals(processDeadline.getTaskName())) {
+        
+    	ITemplateDataProvider templateDataProvider = new TemplateDataProvider();
+    	
+    	
+        for (BpmTask task : tasks) 
+        {
+            if (task.getTaskName().equals(processDeadline.getTaskName())) 
+            {
                 String assigneeLogin = task.getAssignee();
 				Map<String, UserData> notifyUsers = prepareUsersForNotification(ctx, assigneeLogin, processDeadline);
 
-                // everything is good, unless it’s not
-				I18NSource messageSource = getI18NSource();
-                ProcessStateConfiguration st = ctx.getProcessDefinitionDAO().getProcessStateConfiguration(task);
-                String taskName = messageSource.getMessage(st.getDescription());
-
-                for (UserData user : notifyUsers.values()) {
+                for (UserData user : notifyUsers.values()) 
+                {
                     if (processDeadline.getSkipAssignee() != null && processDeadline.getSkipAssignee() && user.getLogin().equals(assigneeLogin)) {
                         logger.info("Skipping deadline signal for assignee: " + assigneeLogin);
                         continue;
                     }
-                    Map dataModel = new HashMap();
-                    dataModel.put("process", pi);
-                    dataModel.put("taskName", taskName);
-                    dataModel.put("processVisibleId", Strings.hasText(pi.getExternalKey()) ? pi.getExternalKey() : pi.getInternalId());
-                    dataModel.put("notifiedUser", user);
-                    dataModel.put("assignedUser", notifyUsers.get(assigneeLogin));
+                    
+                    TemplateData templateData = templateDataProvider.createTemplateData(processDeadline.getTemplateName(), Locale.getDefault());
+                    templateDataProvider
+                    	.addProcessData(templateData, pi)
+                    	.addTaskData(templateData, task)
+                    	.addUserToNotifyData(templateData, user);
+                    
+                    templateData.addEntry("notifiedUser", user);
+                    templateData.addEntry("assignedUser", notifyUsers.get(assigneeLogin));
+                    
+                    NotificationData notificationData = new NotificationData();
+                    notificationData
+                    	.setProfileName("Default")
+                    	.setRecipient(user)
+                    	.setTemplateData(templateData);
 
 					logger.info("Signaling deadline for task: " + task.getTaskName() + " owned by: " + assigneeLogin + ", mailed to: " + user.getLogin());
-					
-					if(processDeadline.getProfileName()==null){
-						EmailSender.sendEmail(DEFAULT_PROFILE_NAME, getBpmNotifications(), user.getEmail(), processDeadline.getTemplateName(), dataModel);	
-					}
-					else{
-						EmailSender.sendEmail(processDeadline.getProfileName(), getBpmNotifications(), user.getEmail(), processDeadline.getTemplateName(), dataModel);
-					}
-					
+
+					EmailSender.sendEmail(getBpmNotifications(), notificationData);
                 }
                 processDeadline.setAlreadyNotified(true);
                 ctx.getHibernateSession().saveOrUpdate(processDeadline);

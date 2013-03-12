@@ -1,17 +1,21 @@
 package pl.net.bluesoft.rnd.processtool.dao.impl;
 
+import static org.hibernate.criterion.Restrictions.eq;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
+
 import pl.net.bluesoft.rnd.processtool.dao.UserDataDAO;
 import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
 import pl.net.bluesoft.rnd.processtool.model.UserAttribute;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
-
-import java.util.*;
-
-import static org.hibernate.criterion.Restrictions.eq;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -97,4 +101,11 @@ public class UserDataDAOImpl extends SimpleHibernateBean<UserData> implements Us
               }
           }};
       }
+
+	@Override
+	public UserData loadUserByEmail(String userEmail) 
+	{
+        DetachedCriteria criteria = getDetachedCriteria().setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+        return findUnique(criteria, eq("email", userEmail));
+	}
 }

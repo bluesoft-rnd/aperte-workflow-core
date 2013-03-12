@@ -16,6 +16,7 @@ import org.hibernate.criterion.Restrictions;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.template.ProcessToolTemplateErrorException;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.data.TemplateData;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotificationTemplate;
 import freemarker.cache.TemplateLoader;
 import freemarker.template.Configuration;
@@ -80,14 +81,14 @@ public class MailTemplateProvider implements TemplateLoader
 		return templateMap.get(templateName);
 	}
     
-	public String processTemplate(String templateName, Map data) throws ProcessToolTemplateErrorException
+	public String processTemplate(String templateName, TemplateData templateData) throws ProcessToolTemplateErrorException
 	{
         logger.info("Using template " + templateName);
         StringWriter sw = new StringWriter();
         try 
         {
             Template template = freemarkerConfiguration.getTemplate(templateName);
-            template.process(data != null ? data : new HashMap(), sw);
+            template.process(templateData.getData() != null ? templateData.getData() : new HashMap(), sw);
         }
         catch (Exception e) {
             throw new ProcessToolTemplateErrorException(e);

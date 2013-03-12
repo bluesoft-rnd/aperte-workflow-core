@@ -27,7 +27,7 @@ public class MailEventListener implements EventListener<MailEvent> {
 		
 		try 
 		{	
-			engine.addNotificationToSend(e.getMailSessionProfileName(), e.getSender(), e.getRecipient(), e.getSubject(), e.getBody(), false, e.getAttachments());
+			engine.addNotificationToSend(e.getNotificationData());
 		}
 		catch (Exception ex) {
 			logger.log(Level.SEVERE, "Error sending email with attachments", ex);

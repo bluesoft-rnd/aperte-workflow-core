@@ -1,12 +1,18 @@
 package pl.net.bluesoft.rnd.pt.ext.bpmnotifications.portlet.components;
 
-import com.vaadin.ui.*;
+import static com.vaadin.ui.Window.Notification.POSITION_CENTERED;
+import static com.vaadin.ui.Window.Notification.TYPE_HUMANIZED_MESSAGE;
+import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.data.ProcessedNotificationData;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.BpmNotificationService;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
-import static com.vaadin.ui.Window.Notification.POSITION_CENTERED;
-import static com.vaadin.ui.Window.Notification.TYPE_HUMANIZED_MESSAGE;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 
 /**
  * User: POlszewski
@@ -84,8 +90,19 @@ public class OthersPanel extends VerticalLayout implements Button.ClickListener 
 					informationNotification(i18NSource.getMessage("bpmnot.send.test.mail.recipient.empty"));
 					return;
 				}
+				
+				UserData recipientUser = new UserData();
+				recipientUser.setEmail(recipient);
+				
+				ProcessedNotificationData notificationData = new ProcessedNotificationData();
+                notificationData
+	            	.setBody("tekst <br><b>tekst html</b><br> tekst polski: żołądków")
+	            	.setSubject("Test E-mail")
+	            	.setSender(sender)
+	            	.setProfileName("Default")
+	            	.setRecipient(recipientUser);
 
-				getService().addNotificationToSend("Default", sender, recipient, "Test E-mail", "tekst <br><b>tekst html</b><br> tekst polski: żołądków", true);
+				getService().addNotificationToSend(notificationData);
 				informationNotification(i18NSource.getMessage("bpmnot.send.test.mail.sent"));
 			}
 			catch (Exception e)

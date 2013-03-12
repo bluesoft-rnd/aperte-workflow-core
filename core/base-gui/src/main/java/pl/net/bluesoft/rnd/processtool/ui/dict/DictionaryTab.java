@@ -4,7 +4,6 @@ import static org.aperteworkflow.util.vaadin.VaadinUtility.validationNotificatio
 
 import org.aperteworkflow.util.vaadin.VaadinUtility;
 
-import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionary;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItem;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemValue;
 import pl.net.bluesoft.rnd.processtool.ui.dict.modelview.DictionaryModelView;

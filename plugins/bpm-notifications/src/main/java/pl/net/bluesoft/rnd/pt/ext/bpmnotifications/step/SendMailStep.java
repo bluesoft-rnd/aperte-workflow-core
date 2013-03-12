@@ -9,6 +9,8 @@ import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComments;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.data.NotificationData;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.data.TemplateData;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.BpmNotificationService;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.util.EmailSender;
 import pl.net.bluesoft.util.lang.Strings;
@@ -16,6 +18,7 @@ import pl.net.bluesoft.util.lang.cquery.func.F;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -47,14 +50,23 @@ public class SendMailStep implements ProcessToolProcessStep {
 		
 		UserData user = findUser(recipient, ctx, step.getProcessInstance());
 		
-        data.put("processId", processId);
-		data.put("processVisibleId", processId);
-		data.put("user", user);  
-		data.put("latestComment", getLatestComment(step.getProcessInstance()));
-		data.put("creator", step.getProcessInstance().getCreator());
+		TemplateData templateData =	service.createTemplateData(template, Locale.getDefault());
+		
+		service.getTemplateDataProvider()
+			.addProcessData(templateData, step.getProcessInstance())
+			.addUserToNotifyData(templateData, user);
+	
+		templateData.addEntry("latestComment", getLatestComment(step.getProcessInstance()));
+		
+		NotificationData notificationData = new NotificationData()
+			.setProfileName("Default")
+			.setRecipient(user)
+			.setTemplateData(templateData);
+
+		EmailSender.sendEmail(service, notificationData);
 
         try {
-        	EmailSender.sendEmail(profileName,service, user.getEmail(), template, data);
+        	EmailSender.sendEmail(service, notificationData);
         } catch (Exception e) {
         	logger.log(Level.SEVERE, "Error sending email", e);
         	return STATUS_ERROR;

@@ -33,7 +33,6 @@ public class ProcessDBDictionaryItemExtension extends AbstractPersistentEntity i
     private ProcessDBDictionaryItemValue itemValue;
 
     private String name;
-    private Long id;
     @Column(name="value_")
     private String value;
     @Column(name="description_")

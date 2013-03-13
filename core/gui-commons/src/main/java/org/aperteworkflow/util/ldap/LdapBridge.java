@@ -103,7 +103,7 @@ public class LdapBridge {
             ldapUserAttributes = loadUserAttributesProperty(ctx);
         }
         
-        logger.info("ldapUserAttributes are: "+ldapUserAttributes);
+        logger.fine("ldapUserAttributes are: "+ldapUserAttributes);
         
         Map<Long, Set<Long>> ldapServerMappings = new HashMap<Long, Set<Long>>();
         Map<String, Properties> result = new HashMap<String, Properties>();
@@ -207,20 +207,22 @@ public class LdapBridge {
 
                 if (login != null) 
                 {
-                	logger.info("Teta user login: "+login);
                     Properties userAttributes = propertiesMap.get(login);
                     if (userAttributes != null) {
                         for (String propertyName : customAttributes.stringPropertyNames()) {
                             String value = getAttributeValue(attributes, customAttributes.getProperty(propertyName), null);
-                            logger.info("Teta user property="+propertyName+", value="+value);
                             if (value != null) {
                                 userAttributes.setProperty(propertyName, value);
+                            }
+                            else
+                            {
+                            	logger.warning("Teta user property="+propertyName+", is empty!");
                             }
                         }
                     }
                     else
                     {
-                    	 logger.info("Teta user userAttributes are empty for login="+login);
+                    	 logger.warning("Teta user userAttributes are empty for login="+login);
                     }
 
                 }

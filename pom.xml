@@ -49,6 +49,8 @@
         <postgres.version>8.4-702.jdbc4</postgres.version>
         <junit.version>4.8.2</junit.version>
         <liferay.version>6.0.6</liferay.version>
+        
+        <plugin.maven.bundle.version>2.3.7</plugin.maven.bundle.version>
     </properties>
 
     <dependencies>

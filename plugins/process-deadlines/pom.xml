@@ -76,7 +76,7 @@
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <extensions>true</extensions>
-                <version>2.1.0</version>
+                <version>${plugin.maven.bundle.version}</version>
                 <configuration>
                     <instructions>
                         <Export-Package>
@@ -84,13 +84,15 @@
                             pl.net.bluesoft.rnd.pt.ext.deadline.step
                         </Export-Package>
                         <Import-Package>
-                            *;resolution:=optional,
                             pl.net.bluesoft.util.eventbus,
                             pl.net.bluesoft.rnd.processtool.model,
                             pl.net.bluesoft.rnd.pt.ext.sched.service,
-                            org.quartz,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service,
+                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.data,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.util,
+                            org.quartz,
+                            org.hibernate.transform,
+                            *
                         </Import-Package>
                         <Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>
                         <Bundle-Activator>pl.net.bluesoft.rnd.pt.ext.deadline.DeadlineActivator</Bundle-Activator>

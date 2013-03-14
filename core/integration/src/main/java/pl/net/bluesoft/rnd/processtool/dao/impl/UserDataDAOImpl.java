@@ -2,8 +2,11 @@ package pl.net.bluesoft.rnd.processtool.dao.impl;
 
 import static org.hibernate.criterion.Restrictions.eq;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +15,7 @@ import org.hibernate.Session;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 
+import pl.net.bluesoft.rnd.processtool.dao.PagedCollection;
 import pl.net.bluesoft.rnd.processtool.dao.UserDataDAO;
 import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
 import pl.net.bluesoft.rnd.processtool.model.UserAttribute;
@@ -20,7 +24,9 @@ import pl.net.bluesoft.rnd.processtool.model.UserData;
 /**
  * @author tlipski@bluesoft.net.pl
  */
-public class UserDataDAOImpl extends SimpleHibernateBean<UserData> implements UserDataDAO {
+public class UserDataDAOImpl extends SimpleHibernateBean<UserData> implements UserDataDAO 
+{
+	private static final int PAGE_LENGTH = 500;
 
     public UserDataDAOImpl(Session session) {
           super(session);
@@ -91,10 +97,36 @@ public class UserDataDAOImpl extends SimpleHibernateBean<UserData> implements Us
       }
 
       @Override
-      public Map<String, UserData> loadUsersByLogin(Collection<String> logins) {
+      public Map<String, UserData> loadUsersByLogin(Collection<String> logins) 
+      {
+    	  /* Logins size is smaller then max page size, no need to advanced 
+    	   * processing */
+    	  if(logins.size() <= PAGE_LENGTH)
+    		  return loadUsersPageByLogin(logins);
+    	  
+    	  Map<String, UserData> users = new HashMap<String, UserData>(logins.size());
+    	  
+    	  PagedCollection<String> pagedCollection = new PagedCollection<String>(logins);
+    	  
+    	  /* Iterate through pages */
+    	  while(pagedCollection.hasMoreElements())
+    	  {
+    		  Collection<String> loginsPage = pagedCollection.getNextPage();
+    		  Map<String, UserData> usersPage = loadUsersPageByLogin(loginsPage);
+    		  
+    		  users.putAll(usersPage);
+    	  }
+    	  
+    	  return users;
+    	      	      	 
+      }
+      
+      private Map<String, UserData> loadUsersPageByLogin(Collection<String> logins)
+      {
           final List<UserData> users = findByCriteria(getDetachedCriteria()
                   .add(Restrictions.in("login", logins))
                   .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY));
+          
           return new HashMap<String, UserData>(users.size()) {{
               for (UserData user : users) {
                   put(user.getLogin(), user);

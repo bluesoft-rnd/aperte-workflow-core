@@ -1,5 +1,17 @@
 package pl.net.bluesoft.rnd.pt.ext.deadline;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.apache.commons.lang3.time.DateUtils;
 import org.aperteworkflow.util.liferay.LiferayBridge;
 import org.hibernate.Criteria;
@@ -8,7 +20,13 @@ import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
-import org.quartz.*;
+import org.quartz.JobBuilder;
+import org.quartz.JobDataMap;
+import org.quartz.JobDetail;
+import org.quartz.SchedulerException;
+import org.quartz.Trigger;
+import org.quartz.TriggerBuilder;
+
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
@@ -16,15 +34,14 @@ import pl.net.bluesoft.rnd.processtool.bpm.exception.ProcessToolException;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessDeadline;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.data.ITemplateDataProvider;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.data.NotificationData;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.data.TemplateData;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.data.TemplateDataProvider;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.BpmNotificationService;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.util.EmailSender;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.IBpmNotificationService;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.EmailSender;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.ITemplateDataProvider;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.NotificationData;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.TemplateData;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.TemplateDataProvider;
 import pl.net.bluesoft.rnd.pt.ext.sched.service.ProcessToolSchedulerService;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
@@ -32,10 +49,6 @@ import pl.net.bluesoft.util.lang.Collections;
 import pl.net.bluesoft.util.lang.Predicate;
 import pl.net.bluesoft.util.lang.Strings;
 import pl.net.bluesoft.util.lang.Transformer;
-
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class DeadlineEngine {
     private static final Logger logger = Logger.getLogger(DeadlineEngine.class.getName());
@@ -243,8 +256,8 @@ public class DeadlineEngine {
         }
     }
 
-	private BpmNotificationService getBpmNotifications() {
-		return registry.getRegisteredService(BpmNotificationService.class);
+	private IBpmNotificationService getBpmNotifications() {
+		return registry.getRegisteredService(IBpmNotificationService.class);
 	}
 
 	private I18NSource getI18NSource() {

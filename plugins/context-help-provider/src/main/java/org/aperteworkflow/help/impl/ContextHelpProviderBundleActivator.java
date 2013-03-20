@@ -3,7 +3,7 @@ package org.aperteworkflow.help.impl;
 import com.vaadin.Application;
 import org.aperteworkflow.ui.help.HelpProvider;
 import org.aperteworkflow.ui.help.HelpProviderFactory;
-import org.aperteworkflow.ui.view.ViewRegistry;
+import org.aperteworkflow.ui.view.IViewRegistry;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;

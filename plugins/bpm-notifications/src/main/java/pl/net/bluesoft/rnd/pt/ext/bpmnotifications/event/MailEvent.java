@@ -3,7 +3,7 @@ package pl.net.bluesoft.rnd.pt.ext.bpmnotifications.event;
 import java.io.Serializable;
 import java.util.List;
 
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.data.ProcessedNotificationData;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.ProcessedNotificationData;
 
 /**
  * Event wysylania wiadomosci email

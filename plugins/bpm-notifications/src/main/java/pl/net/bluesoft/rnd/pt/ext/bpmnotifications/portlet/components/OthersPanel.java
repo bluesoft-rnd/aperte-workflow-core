@@ -4,8 +4,8 @@ import static com.vaadin.ui.Window.Notification.POSITION_CENTERED;
 import static com.vaadin.ui.Window.Notification.TYPE_HUMANIZED_MESSAGE;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.data.ProcessedNotificationData;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.BpmNotificationService;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.IBpmNotificationService;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.ProcessedNotificationData;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import com.vaadin.ui.Button;
@@ -117,8 +117,8 @@ public class OthersPanel extends VerticalLayout implements Button.ClickListener 
 		return i18NSource.getMessage(key);
 	}
 
-	private BpmNotificationService getService() {
-		return registry.getRegisteredService(BpmNotificationService.class);
+	private IBpmNotificationService getService() {
+		return registry.getRegisteredService(IBpmNotificationService.class);
 	}
 
 	private void informationNotification(String message) {

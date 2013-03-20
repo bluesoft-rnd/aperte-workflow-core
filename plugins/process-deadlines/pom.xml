@@ -88,8 +88,6 @@
                             pl.net.bluesoft.rnd.processtool.model,
                             pl.net.bluesoft.rnd.pt.ext.sched.service,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service,
-                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.data,
-                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.util,
                             org.quartz,
                             org.hibernate.transform,
                             *

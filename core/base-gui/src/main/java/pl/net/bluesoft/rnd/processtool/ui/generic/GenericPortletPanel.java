@@ -4,7 +4,7 @@ import com.vaadin.Application;
 import com.vaadin.ui.*;
 import org.aperteworkflow.ui.view.GenericPortletViewRenderer;
 import org.aperteworkflow.ui.view.RenderParams;
-import org.aperteworkflow.ui.view.ViewRegistry;
+import org.aperteworkflow.ui.view.IViewRegistry;
 import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
 import org.aperteworkflow.util.vaadin.TransactionProvider;
 import org.aperteworkflow.util.vaadin.VaadinUtility;
@@ -134,7 +134,7 @@ public abstract class GenericPortletPanel extends VerticalLayout {
 	}
 
 	protected List<GenericPortletViewRenderer> getPermittedRenderers() {
-		ViewRegistry viewRegistry = getThreadProcessToolContext().getRegistry().getRegisteredService(ViewRegistry.class);
+		IViewRegistry viewRegistry = getThreadProcessToolContext().getRegistry().getRegisteredService(IViewRegistry.class);
 		List<GenericPortletViewRenderer> permittedViews = new ArrayList<GenericPortletViewRenderer>();
 
 		for (GenericPortletViewRenderer renderer : viewRegistry.getGenericPortletViews(portletKey)) {

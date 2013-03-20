@@ -7,7 +7,7 @@ import java.util.Collection;
 /**
  * @author tlipski@bluesoft.net.pl
  */
-public interface ViewRegistry {
+public interface IViewRegistry {
 
     Collection<ViewRenderer> getViews();
     void registerView(Func<ViewRenderer> v);

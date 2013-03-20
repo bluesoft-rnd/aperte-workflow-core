@@ -1,4 +1,4 @@
-package pl.net.bluesoft.rnd.pt.ext.bpmnotifications.data;
+package pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service;
 
 import static pl.net.bluesoft.rnd.util.TaskUtil.getTaskLink;
 import static pl.net.bluesoft.util.lang.Strings.hasText;
@@ -18,9 +18,6 @@ import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotificationConfig;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.TemplateArgumentDescription;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.TemplateArgumentProvider;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.TemplateArgumentProviderParams;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 import pl.net.bluesoft.util.lang.Strings;

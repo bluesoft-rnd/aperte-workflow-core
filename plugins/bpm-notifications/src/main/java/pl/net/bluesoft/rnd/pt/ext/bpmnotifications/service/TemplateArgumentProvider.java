@@ -1,6 +1,5 @@
 package pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service;
 
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.data.TemplateData;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import java.util.List;

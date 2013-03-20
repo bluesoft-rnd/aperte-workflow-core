@@ -4,7 +4,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import org.aperteworkflow.ui.view.GenericPortletViewRenderer;
-import org.aperteworkflow.ui.view.ViewRegistry;
+import org.aperteworkflow.ui.view.IViewRegistry;
 import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
@@ -100,7 +100,7 @@ public class GenericUserPortletApplication extends GenericVaadinPortlet2BpmAppli
 
 	private Collection<GenericPortletViewRenderer> getRegisteredViews() {
 		ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-		ViewRegistry viewRegistry = ctx.getRegistry().getRegisteredService(ViewRegistry.class);
+		IViewRegistry viewRegistry = ctx.getRegistry().getRegisteredService(IViewRegistry.class);
 		return viewRegistry.getGenericPortletViews(PortletKeys.USER);
 	}
 }

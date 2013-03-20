@@ -1,8 +1,6 @@
-package pl.net.bluesoft.rnd.pt.ext.bpmnotifications.data;
+package pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service;
 
 import java.util.Collection;
-
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.TemplateArgumentProvider;
 
 /**
  * Handler for template argument providers

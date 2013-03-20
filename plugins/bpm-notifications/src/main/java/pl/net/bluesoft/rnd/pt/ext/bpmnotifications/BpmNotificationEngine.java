@@ -35,24 +35,24 @@ import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.template.ProcessToolTemplateErrorException;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.data.ITemplateDataProvider;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.data.NotificationData;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.data.ProcessedNotificationData;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.data.TemplateData;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.data.TemplateDataProvider;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.facade.NotificationsFacade;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotification;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotificationConfig;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotificationTemplate;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.BpmNotificationService;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.IBpmNotificationService;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.ITemplateDataProvider;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.NotificationData;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.NotificationHistory;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.NotificationHistoryEntry;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.ProcessedNotificationData;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.TemplateArgumentDescription;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.TemplateArgumentProvider;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.TemplateData;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.TemplateDataProvider;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.sessions.DatabaseMailSessionProvider;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.sessions.IMailSessionProvider;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.sessions.JndiMailSessionProvider;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.templates.MailTemplateProvider;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.util.NotificationHistory;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.util.lang.Strings;
 
@@ -62,7 +62,7 @@ import pl.net.bluesoft.util.lang.Strings;
  * @author tlipski@bluesoft.net.pl
  * @author mpawlak@bluesoft.net.pl
  */
-public class BpmNotificationEngine implements BpmNotificationService 
+public class BpmNotificationEngine implements IBpmNotificationService 
 {
     private static final long CONFIG_DEFAULT_CACHE_REFRESH_INTERVAL = 5* 1000;
     

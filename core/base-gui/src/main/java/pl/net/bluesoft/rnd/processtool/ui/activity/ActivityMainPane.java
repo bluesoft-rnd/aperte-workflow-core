@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.aperteworkflow.ui.view.ViewCallback;
-import org.aperteworkflow.ui.view.ViewRegistry;
+import org.aperteworkflow.ui.view.IViewRegistry;
 import org.aperteworkflow.ui.view.ViewRenderer;
 import org.aperteworkflow.util.vaadin.EventHandler;
 import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
@@ -246,7 +246,7 @@ public class ActivityMainPane extends VerticalLayout implements ViewCallback
 
 		// to remove "strange" views, depending on external addons. Such
 		// approach also gives us much greater flexibility
-		ViewRegistry registeredService = ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().getRegisteredService(ViewRegistry.class);
+		IViewRegistry registeredService = ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().getRegisteredService(IViewRegistry.class);
 		if(registeredService != null)
 		{
 			for(final ViewRenderer viewRenderer: registeredService.getViews())

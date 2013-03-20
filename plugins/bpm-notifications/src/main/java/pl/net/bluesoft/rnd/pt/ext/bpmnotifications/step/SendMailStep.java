@@ -9,10 +9,10 @@ import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComments;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.data.NotificationData;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.data.TemplateData;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.BpmNotificationService;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.util.EmailSender;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.IBpmNotificationService;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.EmailSender;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.NotificationData;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.TemplateData;
 import pl.net.bluesoft.util.lang.Strings;
 import pl.net.bluesoft.util.lang.cquery.func.F;
 
@@ -41,7 +41,7 @@ public class SendMailStep implements ProcessToolProcessStep {
     @Override
     public String invoke(BpmStep step, Map<String, String> params) throws Exception {
         ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-        BpmNotificationService service = ctx.getRegistry().getRegisteredService(BpmNotificationService.class);
+        IBpmNotificationService service = ctx.getRegistry().getRegisteredService(IBpmNotificationService.class);
         
         Map<String, Object> data = new HashMap<String, Object>();
         String processId = step.getProcessInstance().getExternalKey();

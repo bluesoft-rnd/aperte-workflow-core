@@ -1,16 +1,13 @@
-package pl.net.bluesoft.rnd.pt.ext.bpmnotifications.util;
+package pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service;
 
 import java.util.logging.Logger;
 
 import pl.net.bluesoft.rnd.processtool.template.ProcessToolTemplateErrorException;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.data.NotificationData;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.data.ProcessedNotificationData;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.BpmNotificationService;
 
 public class EmailSender {
 	private static final Logger logger = Logger.getLogger(EmailSender.class.getName());
 	
-	public static void sendEmail(BpmNotificationService service, NotificationData notificationData) throws Exception 
+	public static void sendEmail(IBpmNotificationService service, NotificationData notificationData) throws Exception 
 	{
 
         logger.info("EmailSender with params " + notificationData.getRecipient() + " " + notificationData.getTemplateData().getTemplateName());

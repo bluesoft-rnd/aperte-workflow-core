@@ -4,7 +4,7 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.aperteworkflow.ui.view.ViewRegistry;
+import org.aperteworkflow.ui.view.IViewRegistry;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -15,7 +15,7 @@ import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.event.MailEvent;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.event.MailEventListener;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.portlet.BpmAdminPortletRender;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.BpmNotificationService;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.IBpmNotificationService;
 import pl.net.bluesoft.util.eventbus.EventListener;
 
 /**
@@ -40,7 +40,7 @@ public class Activator implements BundleActivator, EventListener<BpmEvent> {
 		/* Init the bpm notification engine */
 		engine = new BpmNotificationEngine(registry);
 		
-        registry.registerService(BpmNotificationService.class, engine, new Properties());
+        registry.registerService(IBpmNotificationService.class, engine, new Properties());
 		registry.getEventBusManager().subscribe(BpmEvent.class, this);
 		
 		mailEventListener = new MailEventListener(engine);
@@ -58,7 +58,7 @@ public class Activator implements BundleActivator, EventListener<BpmEvent> {
 	@Override
 	public void stop(BundleContext context) throws Exception {
 		ProcessToolRegistry registry = getRegistry(context);
-        registry.removeRegisteredService(BpmNotificationService.class);
+        registry.removeRegisteredService(IBpmNotificationService.class);
 		registry.getEventBusManager().unsubscribe(BpmEvent.class, this);
 		registry.getEventBusManager().unsubscribe(MailEvent.class, mailEventListener);
 		mailEventListener = null;
@@ -91,7 +91,7 @@ public class Activator implements BundleActivator, EventListener<BpmEvent> {
         }
 	}
 	
-	private ViewRegistry getViewRegistry(ProcessToolRegistry registry) {
-		return registry.getRegisteredService(ViewRegistry.class);
+	private IViewRegistry getViewRegistry(ProcessToolRegistry registry) {
+		return registry.getRegisteredService(IViewRegistry.class);
 	}
 }

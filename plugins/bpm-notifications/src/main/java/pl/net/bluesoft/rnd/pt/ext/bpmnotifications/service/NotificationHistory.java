@@ -1,7 +1,6 @@
-package pl.net.bluesoft.rnd.pt.ext.bpmnotifications.util;
+package pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service;
 
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotification;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.NotificationHistoryEntry;
 
 import java.util.*;
 

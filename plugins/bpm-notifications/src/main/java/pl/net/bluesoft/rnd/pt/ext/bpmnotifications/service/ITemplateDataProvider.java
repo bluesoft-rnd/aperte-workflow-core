@@ -1,4 +1,4 @@
-package pl.net.bluesoft.rnd.pt.ext.bpmnotifications.data;
+package pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service;
 
 import java.util.List;
 import java.util.Locale;
@@ -8,7 +8,6 @@ import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotificationConfig;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.TemplateArgumentDescription;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 /** 

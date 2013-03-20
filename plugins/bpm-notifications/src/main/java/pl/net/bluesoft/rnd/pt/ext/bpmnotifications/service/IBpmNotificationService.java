@@ -1,15 +1,10 @@
 package pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service;
 
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.data.ITemplateDataProvider;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.data.NotificationData;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.data.ProcessedNotificationData;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.data.TemplateData;
-import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
+
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 /**
  * Bpm notification service 
@@ -17,7 +12,7 @@ import java.util.Map;
  * @author Maciej Pawlak
  *
  */
-public interface BpmNotificationService 
+public interface IBpmNotificationService 
 {
 	/** Create and add notification with given parameter to queue. It will be send in the next scheduler run */
 	void addNotificationToSend(ProcessedNotificationData notificationData) throws Exception;

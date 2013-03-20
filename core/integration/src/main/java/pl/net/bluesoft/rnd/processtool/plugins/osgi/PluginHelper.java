@@ -21,6 +21,54 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.felix.framework.Felix;
+import org.apache.felix.framework.Logger;
+import org.apache.felix.framework.util.FelixConstants;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.Fieldable;
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.util.Version;
+import org.aperteworkflow.search.ProcessInstanceSearchAttribute;
+import org.aperteworkflow.search.ProcessInstanceSearchData;
+import org.aperteworkflow.search.SearchProvider;
+import org.aperteworkflow.ui.view.IViewRegistry;
+import org.aperteworkflow.ui.view.impl.DefaultViewRegistryImpl;
+import org.aperteworkflow.util.liferay.LiferayBridge;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.ServiceReference;
+
+import pl.net.bluesoft.rnd.processtool.plugins.PluginManagementException;
+import pl.net.bluesoft.rnd.processtool.plugins.PluginManager;
+import pl.net.bluesoft.rnd.processtool.plugins.PluginMetadata;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistryImpl;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolServiceBridge;
+import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
+import pl.net.bluesoft.rnd.util.ConfigurationResult;
+import pl.net.bluesoft.rnd.util.i18n.impl.PropertiesBasedI18NProvider;
+import pl.net.bluesoft.rnd.util.i18n.impl.PropertyLoader;
+import pl.net.bluesoft.util.lang.cquery.func.F;
+
+import com.thoughtworks.xstream.XStream;
+
 public class PluginHelper implements PluginManager, SearchProvider {
 	public enum State {
         STOPPED, INITIALIZING, ACTIVE
@@ -67,6 +115,74 @@ public class PluginHelper implements PluginManager, SearchProvider {
 
 	private void initializeFelix(String felixDir, ProcessToolRegistryImpl registry) throws BundleException {
         felixService.initialize(felixDir, registry);
+    }
+
+    /**
+     * Sets Felix storage properties
+     *
+     * @param storageDir
+     * @param configMap
+     */
+    private void putStorageConfig(String storageDir, Map<String, Object> configMap) {
+        configMap.put(FelixConstants.FRAMEWORK_STORAGE, storageDir);
+        configMap.put(FelixConstants.FRAMEWORK_STORAGE_CLEAN, FelixConstants.FRAMEWORK_STORAGE_CLEAN_ONFIRSTINIT);
+    }
+
+    /**
+     * Sets basic Felix properties
+     *
+     * @param configMap
+     */
+    private void putBasicConfig(String pluginsDir, Map<String, Object> configMap) {
+        configMap.put(FelixConstants.LOG_LEVEL_PROP, "4");
+        configMap.put(FelixConstants.LOG_LOGGER_PROP, new Logger() {
+            @Override
+            protected void doLog(Bundle bundle, ServiceReference sr, int level,
+                                 String msg, Throwable throwable) {
+                if (throwable != null) {
+                    LOGGER.log(Level.SEVERE, "Felix: " + msg + ", Throwable: " + throwable.getMessage(), throwable);
+                } else {
+                    LOGGER.log(Level.FINE, "Felix: " + msg);
+                }
+            }
+        });
+
+        configMap.put(FelixConstants.SERVICE_URLHANDLERS_PROP, true);
+        configMap.put(FelixConstants.FRAMEWORK_BUNDLE_PARENT, FelixConstants.FRAMEWORK_BUNDLE_PARENT_FRAMEWORK);
+        configMap.put("felix.auto.deploy.action", "install,update,start");
+        configMap.put(FelixConstants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, getSystemPackages(pluginsDir));
+    }
+
+    /**
+     * Sets Felix activator properties
+     *
+     * @param registry
+     * @param configMap
+     */
+    private void putActivatorConfig(final ProcessToolRegistryImpl registry, Map<String, Object> configMap) {
+        ArrayList<BundleActivator> activators = new ArrayList<BundleActivator>();
+        activators.add(new BundleActivator() {
+            private ProcessToolServiceBridge serviceBridge;
+
+            @Override
+            public void start(BundleContext context) throws Exception {
+                if (registry != null) {
+                    registry.setOsgiBundleContext(context);
+                    serviceBridge = new FelixServiceBridge(felix);
+                    registry.addServiceLoader(serviceBridge);
+                    context.registerService(ProcessToolRegistry.class.getName(), registry, new Hashtable());
+                    context.registerService(IViewRegistry.class.getName(), new DefaultViewRegistryImpl(),
+                            new Hashtable<String, Object>());
+                }
+            }
+
+            @Override
+            public void stop(BundleContext context) throws Exception {
+                registry.removeServiceLoader(serviceBridge);
+            }
+        });
+
+        configMap.put(FelixConstants.SYSTEMBUNDLE_ACTIVATORS_PROP, activators);
     }
 
     private void initCheckerThread() {

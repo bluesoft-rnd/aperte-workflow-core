@@ -1,6 +1,6 @@
 package pl.net.bluesoft.rnd.processtool.portlets.generic;
 
-import org.aperteworkflow.ui.view.ViewRegistry;
+import org.aperteworkflow.ui.view.IViewRegistry;
 import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
 import pl.net.bluesoft.rnd.processtool.portlets.caches.CachesPortletRenderer;
 import pl.net.bluesoft.rnd.processtool.ui.generic.GenericAdminPortletPanel;
@@ -27,7 +27,7 @@ public class GenericAdminPortletApplication extends GenericVaadinPortlet2BpmAppl
 		getViewRegistry().registerGenericPortletViewRenderer(PortletKeys.ADMIN, CachesPortletRenderer.INSTANCE);
 	}
 
-	private ViewRegistry getViewRegistry() {
-		return getThreadProcessToolContext().getRegistry().getRegisteredService(ViewRegistry.class);
+	private IViewRegistry getViewRegistry() {
+		return getThreadProcessToolContext().getRegistry().getRegisteredService(IViewRegistry.class);
 	}
 }

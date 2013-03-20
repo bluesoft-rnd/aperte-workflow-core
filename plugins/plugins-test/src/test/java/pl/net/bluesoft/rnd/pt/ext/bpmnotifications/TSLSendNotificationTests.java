@@ -25,7 +25,7 @@ import org.hibernate.exception.GenericJDBCException;
 
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.facade.NotificationsFacade;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotification;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.BpmNotificationService;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.IBpmNotificationService;
 import pl.net.bluesoft.rnd.pt.ext.testabstract.AperteDataSourceTestCase;
 import pl.net.bluesoft.util.lang.Strings;
 
@@ -41,7 +41,7 @@ public class TSLSendNotificationTests extends AperteDataSourceTestCase
 			public void test() 
 			{
 				final BpmNotificationEngine engine = new BpmNotificationEngine(registry);
-				registry.registerService(BpmNotificationService.class, engine, new Properties());
+				registry.registerService(IBpmNotificationService.class, engine, new Properties());
 				
 //				try 
 //				{

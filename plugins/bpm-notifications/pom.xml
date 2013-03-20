@@ -79,12 +79,11 @@
                 <configuration>
                     <instructions>
                         <Export-Package>
-                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service;version=1.0.0,
-                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.data;version=1.0.0,
-                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.util;version=1.0.0,
-                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.templates;version=1.0.0,
-                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.sessions;version=1.0.0,
-                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model;version=1.0.0
+                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service,
+                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.templates,
+                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.sessions,
+                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model,
+                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications
                         </Export-Package>
                         <Import-Package>
                             javax.mail;version=!,

@@ -3,7 +3,7 @@ package pl.net.bluesoft.rnd.pt.ext.bpmnotifications.portlet.components;
 import com.vaadin.ui.VerticalLayout;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.NotificationHistoryEntry;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.BpmNotificationService;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.IBpmNotificationService;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.util.lang.cquery.func.F;
 
@@ -48,7 +48,7 @@ public class NotificationHistoryPanel extends VerticalLayout implements DataLoad
 		table.setItems(notificationHistoryEntries);
 	}
 
-	protected BpmNotificationService getService() {
-		return registry.getRegisteredService(BpmNotificationService.class);
+	protected IBpmNotificationService getService() {
+		return registry.getRegisteredService(IBpmNotificationService.class);
 	}
 }

@@ -48,6 +48,7 @@ public class ProcessStateAction extends AbstractPersistentEntity {
     private String url;
     private String title;
     private String question;
+    
     private String notification;
 
     @OneToMany(cascade = CascadeType.ALL)
@@ -223,6 +224,7 @@ public class ProcessStateAction extends AbstractPersistentEntity {
 	public void setQuestion(String question) {
 		this.question = question;
 	}
+	
 
 	public String getNotification() {
 		return notification;

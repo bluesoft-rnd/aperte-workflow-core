@@ -40,6 +40,7 @@ public class ActionEditorApplication extends GenericEditorApplication implements
 	private JavaScriptHelper jsHelper;
 	private String url;
 	private Map<String,Object> oldActionParameters = new HashMap<String,Object>();
+	private Map<String,Object> oldActionAttributes = new HashMap<String,Object>();
 
 	@Override
 	public void handleParameters(Map<String, String[]> parameters) {
@@ -54,11 +55,21 @@ public class ActionEditorApplication extends GenericEditorApplication implements
 		String buttonType = getStringParameterByName("buttonType", parameters); 
 		String buttonName = getStringParameterByName("buttonName", parameters);
 		String actionParameters = getStringParameterByName("actionParameters", parameters);
+		String actionAttributes = getStringParameterByName("actionAttributes", parameters);
 		
 	
-		if (!StringUtils.isEmpty(actionParameters)) {
+		
 			try {
+				if (!StringUtils.isEmpty(actionParameters)) {
 						 oldActionParameters=mapper.readValue(actionParameters, new TypeReference<HashMap<String,Object>>(){});
+			}
+			if (!StringUtils.isEmpty(actionAttributes)) {
+						 oldActionAttributes=mapper.readValue(actionAttributes, new TypeReference<HashMap<String,Object>>(){});
+						 if(!oldActionParameters.isEmpty()){							 
+							 oldActionParameters.putAll(oldActionAttributes);
+						 }
+						 
+			}
 			} catch (JsonParseException e) {
 				logger.log(Level.SEVERE, "Error reading action parameters", e);
 			} catch (JsonMappingException e) {
@@ -66,7 +77,7 @@ public class ActionEditorApplication extends GenericEditorApplication implements
 			} catch (IOException e) {
 				logger.log(Level.SEVERE, "Error reading action parameters", e);
 			}
-		}
+		
 		refreshWindow(buttonType, buttonName);
 	}
 	

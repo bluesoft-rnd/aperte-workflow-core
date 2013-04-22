@@ -28,6 +28,9 @@ public class SendMailStep implements ProcessToolProcessStep {
     private String recipient;
     
     @AutoWiredProperty
+    private String profileName = "Default";
+    
+    @AutoWiredProperty
     private String template;
     
     private final static Logger logger = Logger.getLogger(SendMailStep.class.getName());
@@ -51,7 +54,7 @@ public class SendMailStep implements ProcessToolProcessStep {
 		data.put("creator", step.getProcessInstance().getCreator());
 
         try {
-        	EmailSender.sendEmail(service, user.getEmail(), template, data);
+        	EmailSender.sendEmail(profileName,service, user.getEmail(), template, data);
         } catch (Exception e) {
         	logger.log(Level.SEVERE, "Error sending email", e);
         	return STATUS_ERROR;

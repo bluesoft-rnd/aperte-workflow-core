@@ -179,6 +179,24 @@ public abstract class ItemEditorLayout<ItemType extends PersistentEntity> extend
 		}
 		return textField;
 	}
+	
+	protected PasswordField passwordField(String caption, int width) {
+		PasswordField passwordField = passwordField(caption);
+		if (width >= 0) {
+			passwordField.setWidth(width, UNITS_PIXELS);
+		}
+		else {
+			passwordField.setWidth(100, UNITS_PERCENTAGE);
+		}
+		return passwordField;
+	}
+	
+	protected PasswordField passwordField(String caption) {
+		PasswordField passwordField = new PasswordField(getMessage(caption));
+		passwordField.setNullRepresentation("");
+		return passwordField;
+	}
+	
 
 	protected TextField textField(String caption) {
 		TextField textField = new TextField(getMessage(caption));

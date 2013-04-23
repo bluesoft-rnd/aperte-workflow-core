@@ -80,13 +80,13 @@ public class CommentRequiredValidatingButton extends StandardValidatingButton {
 		}
     }
 	
-	@Override
-    public void setContext(ProcessStateAction processStateAction,
-    		ProcessToolBpmSession bpmSession, Application application,
-    		I18NSource messageSource) {
-    	super.setContext(processStateAction, bpmSession, application, messageSource);
-		PropertyAutoWiring.autowire(this, getAutowiredProperties());
-    }
+//	@Override
+//    public void setContext(ProcessStateAction processStateAction,
+//    		ProcessToolBpmSession bpmSession, Application application,
+//    		I18NSource messageSource) {
+//    	super.setContext(processStateAction, bpmSession, application, messageSource);
+//		PropertyAutoWiring.autowire(this, getAutowiredProperties());
+//    }
 
     private void saveComment() {
 		if (skipAddingComment) {

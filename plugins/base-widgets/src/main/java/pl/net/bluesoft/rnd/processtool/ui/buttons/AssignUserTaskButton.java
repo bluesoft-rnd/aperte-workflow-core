@@ -25,13 +25,17 @@ public class AssignUserTaskButton extends CommentRequiredValidatingButton {
 
     @Override
     protected void invokeBpmTransition() {   
+    	
+    	if(dialog==null){
+    		super.invokeBpmTransition();
+    	}
+    	else{
         ProcessToolContext ctx = getCurrentContext();
-        
-         
 		String login = dialog.getAssigneeBean().getAssignee().getLogin();
 		bpmSession.assignTaskToUser(ctx, task.getInternalTaskId(), login);
         callback.getWidgetContextSupport().updateTask(task);
         logger.info("Assigneed user: " + login);
+    	}
     }
 
 	@Override

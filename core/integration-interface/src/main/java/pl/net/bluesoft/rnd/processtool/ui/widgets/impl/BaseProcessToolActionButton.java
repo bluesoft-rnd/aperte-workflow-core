@@ -46,7 +46,7 @@ public abstract class BaseProcessToolActionButton implements ProcessToolActionBu
 	protected String actionType = ProcessStateAction.PRIMARY_ACTION;
 
     @AutoWiredProperty
-    protected Integer priority = 0;
+    protected Integer priority = 1;
 
     protected Application application;
 	protected I18NSource messageSource;

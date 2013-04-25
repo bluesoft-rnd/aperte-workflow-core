@@ -35,6 +35,7 @@ import java.util.logging.Logger;
 
 public class DeadlineEngine {
     private static final Logger logger = Logger.getLogger(DeadlineEngine.class.getName());
+    private static final String DEFAULT_PROFILE_NAME = "DefaultDeadLineProfile";
 
     private ProcessToolRegistry registry;
 
@@ -191,7 +192,8 @@ public class DeadlineEngine {
     }
 
     private void signalDeadline(ProcessToolContext ctx, String processInstanceId, ProcessDeadline processDeadline) throws Exception {
-        ProcessInstance pi = ctx.getProcessInstanceDAO().getProcessInstanceByInternalId(processInstanceId);
+        
+    	ProcessInstance pi = ctx.getProcessInstanceDAO().getProcessInstanceByInternalId(processInstanceId);
         ProcessToolBpmSession bpmSession = ctx.getProcessToolSessionFactory().createAutoSession();
         List<BpmTask> tasks = bpmSession.findProcessTasks(pi, ctx);
         for (BpmTask task : tasks) {
@@ -217,8 +219,14 @@ public class DeadlineEngine {
                     dataModel.put("assignedUser", notifyUsers.get(assigneeLogin));
 
 					logger.info("Signaling deadline for task: " + task.getTaskName() + " owned by: " + assigneeLogin + ", mailed to: " + user.getLogin());
-
-					EmailSender.sendEmail(getBpmNotifications(), user.getEmail(), processDeadline.getTemplateName(), dataModel);
+					
+					if(processDeadline.getProfileName()==null){
+						EmailSender.sendEmail(DEFAULT_PROFILE_NAME, getBpmNotifications(), user.getEmail(), processDeadline.getTemplateName(), dataModel);	
+					}
+					else{
+						EmailSender.sendEmail(processDeadline.getProfileName(), getBpmNotifications(), user.getEmail(), processDeadline.getTemplateName(), dataModel);
+					}
+					
                 }
                 processDeadline.setAlreadyNotified(true);
                 ctx.getHibernateSession().saveOrUpdate(processDeadline);

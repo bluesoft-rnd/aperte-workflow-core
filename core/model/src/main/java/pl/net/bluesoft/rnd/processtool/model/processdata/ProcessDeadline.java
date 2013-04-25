@@ -11,6 +11,7 @@ import java.util.Date;
 public class ProcessDeadline extends ProcessInstanceAttribute {
     private String taskName;
     private Date dueDate;
+    private String profileName;
     private String templateName;
     private String notifyUsersWithLogin;
     private String notifyUsersWithRole;
@@ -76,4 +77,12 @@ public class ProcessDeadline extends ProcessInstanceAttribute {
     public void setDueDate(Date dueDate) {
         this.dueDate = dueDate;
     }
+
+	public String getProfileName() {
+		return profileName;
+	}
+
+	public void setProfileName(String profileName) {
+		this.profileName = profileName;
+	}
 }

@@ -1,12 +1,13 @@
 package pl.net.bluesoft.rnd.processtool.plugins.osgi;
 
-import org.osgi.framework.Bundle;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.osgi.framework.Bundle;
 
 import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 
@@ -39,8 +40,8 @@ public class OSGiBundleHelper {
 
 	public Bundle getBundle() {
 		return bundle;
-	}
-
+	} 
+ 
 	public BundleMetadata getBundleMetadata() {
 		return new BundleMetadata(bundle.getLocation(), bundle.getSymbolicName(), bundle.getLastModified(), bundle.getState());
 	}

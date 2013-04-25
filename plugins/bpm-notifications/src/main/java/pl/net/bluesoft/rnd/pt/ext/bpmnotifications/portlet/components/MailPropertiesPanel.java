@@ -3,6 +3,7 @@ package pl.net.bluesoft.rnd.pt.ext.bpmnotifications.portlet.components;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.dao.BpmNotificationMailPropertiesDAO;
@@ -21,7 +22,7 @@ public class MailPropertiesPanel extends ItemEditorLayout<BpmNotificationMailPro
 	private TextField smtpHost;
 	private TextField smtpPort;
 	private TextField smtpUser;
-	private TextField smtpPassword;
+	private PasswordField smtpPassword;
 	private CheckBox smtpAuth;
 	private TextField smtpSocketFactoryPort;
 	private TextField smtpSocketFactoryClass;
@@ -44,7 +45,7 @@ public class MailPropertiesPanel extends ItemEditorLayout<BpmNotificationMailPro
 		formLayout.addComponent(smtpHost = textField("SMTP Host", 400));
 		formLayout.addComponent(smtpPort = textField("SMTP Port", 400));
 		formLayout.addComponent(smtpUser = textField("SMTP User", 400));
-		formLayout.addComponent(smtpPassword = textField("SMTP Password", 400));
+		formLayout.addComponent(smtpPassword = passwordField("SMTP Password", 400));
 		formLayout.addComponent(smtpAuth = checkBox("SMTP Auth"));
 		formLayout.addComponent(smtpSocketFactoryPort = textField("SMTP Socket Factory Port", 400));
 		formLayout.addComponent(smtpSocketFactoryClass = textField("SMTP Socket Factory Class", -1));

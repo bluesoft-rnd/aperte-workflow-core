@@ -26,12 +26,15 @@ import pl.net.bluesoft.util.lang.Strings;
 @AliasName(name = "SetupDeadlineStep")
 public class SetupDeadlineStep implements ProcessToolProcessStep {
     public static final String DEFAULT_TEMPLATE_NAME = "deadlineEmailTemplate";
+    private static final String DEFAULT_PROFILE_NAME = "DefaultDeadLineProfile";
     private final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd"); // multithread correctness
 
     private static final Logger logger = Logger.getLogger(SetupDeadlineStep.class.getName());
 
     @AutoWiredProperty
     private String taskName;
+    @AutoWiredProperty
+    private String profileName = DEFAULT_PROFILE_NAME;
     @AutoWiredProperty
     private String templateName = DEFAULT_TEMPLATE_NAME;
     @AutoWiredProperty
@@ -107,6 +110,7 @@ public class SetupDeadlineStep implements ProcessToolProcessStep {
                 pid.setProcessInstance(processInstance);
                 processInstance.getProcessAttributes().add(pid);
             }
+            pid.setProfileName(profileName);
             pid.setNotifyUsersWithLogin(notifyUsersWithLogin);
             pid.setNotifyUsersWithRole(notifyUsersWithRole);
             pid.setSkipAssignee("true".equalsIgnoreCase(skipAssignee));

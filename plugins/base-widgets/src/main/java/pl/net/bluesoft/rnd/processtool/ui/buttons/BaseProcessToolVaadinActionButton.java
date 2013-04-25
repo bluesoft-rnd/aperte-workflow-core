@@ -92,7 +92,7 @@ public abstract class BaseProcessToolVaadinActionButton extends BaseProcessToolA
 
 	@Override
 	public void saveData(BpmTask task) {
-		task.getProcessInstance().getRootProcessInstance().setSimpleAttribute("markedImportant", markProcessImportant);
+		task.getProcessInstance().getRootProcessInstance().setSimpleAttribute("markedImportant", String.valueOf(markProcessImportant));
 		// override
 	}
 

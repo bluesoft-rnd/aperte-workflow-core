@@ -11,7 +11,7 @@ public class EmailSender {
 	private static final String SENDER_TEMPLATE_SUFFIX = "_sender";
 	private static final Logger logger = Logger.getLogger(EmailSender.class.getName());
 	
-	public static void sendEmail(BpmNotificationService service, String recipient, String template, Map<String, Object> data) throws Exception {
+	public static void sendEmail(String profileName,BpmNotificationService service, String recipient, String template, Map<String, Object> data) throws Exception {
         logger.info("EmailSender with params " + recipient + " " + template);
         
         if (recipient == null){
@@ -32,7 +32,7 @@ public class EmailSender {
         	throw new Exception("Error sending email. Cannot find valid template configuration");
         }
         
-        service.addNotificationToSend("Default", sender, recipient, topic, body, true);
+        service.addNotificationToSend(profileName, sender, recipient, topic, body, true);
     	
     	logger.info("EmailSender email sent: " + sender + " " + recipient + " " + topic + " " + body);
 	}

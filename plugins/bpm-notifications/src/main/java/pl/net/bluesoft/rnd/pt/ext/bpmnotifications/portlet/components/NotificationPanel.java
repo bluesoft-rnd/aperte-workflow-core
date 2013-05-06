@@ -304,9 +304,16 @@ public class NotificationPanel extends ItemEditorLayout<BpmNotificationConfig> {
 				String descr;
 				if (currentlySelectedProcesses.size() == 1) {
 					descr = getMessage(state.getDescription());
+					descr.length();
+					if(descr.isEmpty()){
+						descr = state.getName();
+					}
 				}
 				else {
 					descr = getMessage(processDefinition.getDescription()) + " > " + getMessage(state.getDescription());
+					if(getMessage(state.getDescription()).isEmpty()){
+						descr = state.getName();
+					}
 				}
 				items.add(new Pair<String, Tuple>(
 						descr,

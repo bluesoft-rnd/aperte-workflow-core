@@ -4,7 +4,7 @@
     <parent>
         <artifactId>plugins</artifactId>
         <groupId>org.aperteworkflow</groupId>
-        <version>2.0-RC2-SNAPSHOT</version>
+        <version>2.0</version>
     </parent>
 
     <artifactId>process-deadlines</artifactId>
@@ -21,31 +21,31 @@
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>integration-interface</artifactId>
-            <version>2.0-RC2-SNAPSHOT</version>
+            <version>2.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>model</artifactId>
-            <version>2.0-RC2-SNAPSHOT</version>
+            <version>2.0</version>
             <scope>provided</scope>
         </dependency>    
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>aperte-utils</artifactId>
-            <version>2.0-RC2-SNAPSHOT</version>
+            <version>2.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>gui-commons</artifactId>
-            <version>2.0-RC2-SNAPSHOT</version>
+            <version>2.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>scheduler-integration</artifactId>
-            <version>2.0-RC2-SNAPSHOT</version>
+            <version>2.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -57,7 +57,7 @@
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>bpm-notifications</artifactId>
-            <version>2.0-RC2-SNAPSHOT</version>
+            <version>2.0</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

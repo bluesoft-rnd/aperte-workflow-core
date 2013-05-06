@@ -206,7 +206,7 @@ public class BpmNotificationEngine implements BpmNotificationService
 //            		logger.info("Not matched notification #" + cfg.getId() + ": enteringStep=" + enteringStep );
             		continue;
             	}
-				if (cfg.isNotifyOnProcessEnd() && task.getProcessInstance().getParent() != null) {
+				if (cfg.isNotifyOnProcessEnd() && (task != null && task.getProcessInstance().getParent() != null)) {
 					continue;
 				}
                 if (hasText(cfg.getProcessTypeRegex()) && !pi.getDefinitionName().toLowerCase().matches(cfg.getProcessTypeRegex().toLowerCase())) {

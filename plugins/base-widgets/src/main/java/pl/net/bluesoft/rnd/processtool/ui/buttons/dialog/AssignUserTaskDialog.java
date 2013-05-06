@@ -80,7 +80,7 @@ public class AssignUserTaskDialog extends AddCommentDialog {
                     rta.focus();
 					f = rta;
 				}
-				else if ("assignee".equals(propertyId)) {
+				else if ("assignee".equals(propertyId)) {    
 					Select users = new Select();
 					List<UserData> allUsers = Strings.hasText(roleName) ? LiferayBridge.getUsersByRole(roleName) : LiferayBridge.getAllUsers();
 					BeanItemContainer<UserData> ds = new BeanItemContainer<UserData>(UserData.class, allUsers);

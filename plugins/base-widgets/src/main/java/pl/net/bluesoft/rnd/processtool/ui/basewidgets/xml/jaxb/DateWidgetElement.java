@@ -52,15 +52,6 @@ public class DateWidgetElement extends WidgetElement {
     @AperteDoc(humanNameKey = "date.discludeNotAfter", descriptionKey = "date.discludeNotAfter.description")
     private Boolean discludeNotAfter;
 
-    @XmlAttribute
-    @XStreamAsAttribute
-    @AperteDoc(humanNameKey = "date.discludeNotBefore", descriptionKey = "date.discludeNotBefore.description")
-    private Boolean discludeNotBefore;
-    
-    @XmlAttribute
-    @XStreamAsAttribute
-    @AperteDoc(humanNameKey = "date.discludeNotAfter", descriptionKey = "date.discludeNotAfter.description")
-    private Boolean discludeNotAfter;
     
     @XmlAttribute
     @XStreamAsAttribute

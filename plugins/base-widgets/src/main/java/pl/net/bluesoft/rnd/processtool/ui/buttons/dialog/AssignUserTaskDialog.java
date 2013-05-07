@@ -6,7 +6,7 @@ import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
-import org.aperteworkflow.util.liferay.LiferayBridge;
+import org.aperteworkflow.util.liferay.LiferayBridge; 
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComment;
 import pl.net.bluesoft.util.lang.Strings;

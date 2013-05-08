@@ -7,6 +7,7 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.ChildrenAllowed;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.WidgetGroup;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
@@ -15,6 +16,7 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
  * @author tlipski@bluesoft.net.pl
  */
 @AliasName(name="CaptionPanel")
+@ChildrenAllowed(true) 
 public class PanelWidget extends BaseProcessToolVaadinWidget implements ProcessToolVaadinRenderable {
 
 	Panel panel = new Panel();

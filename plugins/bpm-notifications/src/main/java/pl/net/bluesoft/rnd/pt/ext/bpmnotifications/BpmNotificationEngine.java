@@ -193,25 +193,20 @@ public class BpmNotificationEngine implements BpmNotificationService
     
     public void onProcessStateChange(BpmTask task, ProcessInstance pi, UserData userData, boolean processStarted,
 									 boolean processEnded, boolean enteringStep) {
+    	
         refreshConfigIfNecessary();
         ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
 
 //		logger.log(Level.INFO, "BpmNotificationEngine processes " + configCache.size() + " rules");
-		
+		 
         for (BpmNotificationConfig cfg : configCache) {
             try {
-            	if(enteringStep != cfg.isOnEnteringStep()) {
+            	if(!((enteringStep & cfg.isOnEnteringStep())||(processStarted & cfg.isNotifyOnProcessStart())||(processEnded & cfg.isNotifyOnProcessEnd()))) {
+
 //            		logger.info("Not matched notification #" + cfg.getId() + ": enteringStep=" + enteringStep );
             		continue;
             	}
-            	if(processStarted != cfg.isNotifyOnProcessStart()) {
-//            		logger.info("Not matched notification #" + cfg.getId() + ": processStarted=" + processStarted );
-            		continue;
-            	}
-				if (processEnded != cfg.isNotifyOnProcessEnd()) {
-					continue;
-				}
-				if (cfg.isNotifyOnProcessEnd() && task.getProcessInstance().getParent() != null) {
+				if (cfg.isNotifyOnProcessEnd() && (task != null && task.getProcessInstance().getParent() != null)) {
 					continue;
 				}
                 if (hasText(cfg.getProcessTypeRegex()) && !pi.getDefinitionName().toLowerCase().matches(cfg.getProcessTypeRegex().toLowerCase())) {
@@ -258,6 +253,7 @@ public class BpmNotificationEngine implements BpmNotificationService
                     continue;
                 }
                 String templateName = cfg.getTemplateName();
+                String profileName = cfg.getProfileName();
                 
                 BpmNotificationTemplate template = templateProvider.getBpmNotificationTemplate(templateName);
 
@@ -268,7 +264,7 @@ public class BpmNotificationEngine implements BpmNotificationService
                 
                 /* Add all notification to queue */
                 for (String rcpt : new HashSet<String>(emailsToNotify)) {
-                	addNotificationToSend("Default", template.getSender(), rcpt, subject, body, cfg.isSendHtml());
+                	addNotificationToSend(profileName, template.getSender(), rcpt, subject, body, cfg.isSendHtml());
                 }
             }
             catch (Exception e) {

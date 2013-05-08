@@ -63,15 +63,33 @@ public class PropertiesPanel extends Panel {
 		}
 	}
 	
-    public void refreshForm(boolean setCaption, Map<String,Object> valuesMap) {
+    public void refreshForm(boolean setCaption, Map<String,Object> valuesMap) { 
 	    refreshForm(setCaption);
 	    
     	List<Property<?>> properties = classInfo.getProperties();
 		for (Property<?> property : properties) {
 			final com.vaadin.ui.Field field = fieldFactory.createField(property, propertiesForm);
 			propertiesForm.addField(property, field);
-			field.setValue(valuesMap.get(property.getPropertyId()));
+			Object value = valuesMap.get(property.getPropertyId());
+			
+			//BACKCOMPATIBILITY: this block is necessary for back-compatibility from 2.0 RC1 to 2.0.
+			if (property.getPropertyId().equals("markProcessImportant") ){
+				if(isValueNullOrEmpty(value)){
+				value = false;
+				}
+			}
+			
+			
+			field.setValue(value);
 		}
+    }
+    private boolean isValueNullOrEmpty(Object value){
+    	
+    	if(value==null || (value instanceof String && ((String)value).isEmpty())){
+			return true;
+			}
+    	return false;
+
     }
     
 	public Map<String,Object> getPropertiesMap() {

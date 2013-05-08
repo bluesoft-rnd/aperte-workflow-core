@@ -41,7 +41,7 @@ public class DateWidgetElement extends WidgetElement {
     @XStreamAsAttribute
     @AperteDoc(humanNameKey = "date.showMinutes", descriptionKey = "date.showMinutes.description")
     private Boolean showMinutes;
-
+    
     @XmlAttribute
     @XStreamAsAttribute
     @AperteDoc(humanNameKey = "date.discludeNotBefore", descriptionKey = "date.discludeNotBefore.description")
@@ -51,6 +51,7 @@ public class DateWidgetElement extends WidgetElement {
     @XStreamAsAttribute
     @AperteDoc(humanNameKey = "date.discludeNotAfter", descriptionKey = "date.discludeNotAfter.description")
     private Boolean discludeNotAfter;
+
     
     @XmlAttribute
     @XStreamAsAttribute

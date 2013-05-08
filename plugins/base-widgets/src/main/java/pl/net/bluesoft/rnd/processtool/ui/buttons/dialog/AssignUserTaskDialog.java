@@ -6,7 +6,7 @@ import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
-import org.aperteworkflow.util.liferay.LiferayBridge;
+import org.aperteworkflow.util.liferay.LiferayBridge; 
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComment;
 import pl.net.bluesoft.util.lang.Strings;
@@ -80,7 +80,7 @@ public class AssignUserTaskDialog extends AddCommentDialog {
                     rta.focus();
 					f = rta;
 				}
-				else if ("assignee".equals(propertyId)) {
+				else if ("assignee".equals(propertyId)) {    
 					Select users = new Select();
 					List<UserData> allUsers = Strings.hasText(roleName) ? LiferayBridge.getUsersByRole(roleName) : LiferayBridge.getAllUsers();
 					BeanItemContainer<UserData> ds = new BeanItemContainer<UserData>(UserData.class, allUsers);

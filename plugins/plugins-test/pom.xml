@@ -4,12 +4,12 @@
    <parent>
         <artifactId>plugins</artifactId>
         <groupId>org.aperteworkflow</groupId>
-        <version>2.0-SNAPSHOT</version>
+        <version>2.0</version>
     </parent>
    <groupId>org.aperteworkflow</groupId>
    <artifactId>plugins-test</artifactId>
    <packaging>jar</packaging>
-   <version>2.0-SNAPSHOT</version>
+   <version>2.0</version>
    <name>A sample test case for Infinispan</name>
    <url>http://www.myorganization.org</url>
 
@@ -40,13 +40,13 @@
            <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>jbpm-context</artifactId>
-            <version>2.0-SNAPSHOT</version>
+            <version>2.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>integration-interface</artifactId>
-            <version>2.0-SNAPSHOT</version>
+            <version>2.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -64,13 +64,13 @@
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>integration</artifactId>
-            <version>2.0-SNAPSHOT</version>
+            <version>2.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>bpm-notifications</artifactId>
-            <version>2.0-SNAPSHOT</version>
+            <version>2.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

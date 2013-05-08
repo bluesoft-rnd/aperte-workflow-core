@@ -1311,6 +1311,13 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
    	 long start = System.currentTimeMillis();
    		ProcessEngine processEngine = getProcessEngine(ctx);
    		processEngine.getTaskService().assignTask(taskId, userLogin);
+   		BpmTask taskData = getTaskData(taskId, ctx); 
+   		UserData newUser = new UserData();  
+   		newUser.setLogin(userLogin); 
+   		UserData loadOrCreateUser = loadOrCreateUser(ctx,newUser);
+   		broadcastEvent(ctx, new BpmEvent(BpmEvent.Type.ASSIGN_TASK, taskData, loadOrCreateUser));
+   		broadcastEvent(ctx, new BpmEvent(BpmEvent.Type.ASSIGN_TASK, taskData, user));
+		ctx.getUserProcessQueueManager().onTaskAssigne(taskData);
    	 long duration = System.currentTimeMillis() - start;
 		log.severe("assignTaskToUser: " +  duration);
    	}

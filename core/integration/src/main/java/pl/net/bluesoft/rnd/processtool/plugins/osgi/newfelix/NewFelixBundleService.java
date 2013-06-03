@@ -2,7 +2,7 @@ package pl.net.bluesoft.rnd.processtool.plugins.osgi.newfelix;
 
 import org.apache.felix.framework.Felix;
 import org.apache.felix.framework.util.FelixConstants;
-import org.aperteworkflow.ui.view.ViewRegistry;
+import org.aperteworkflow.ui.view.IViewRegistry;
 import org.aperteworkflow.ui.view.impl.DefaultViewRegistryImpl;
 import org.osgi.framework.*;
 import pl.net.bluesoft.rnd.processtool.plugins.*;
@@ -135,7 +135,7 @@ public class NewFelixBundleService implements FelixBundleService {
 
 			private void registerDefaultServices(BundleContext context) {
 				context.registerService(ProcessToolRegistry.class.getName(), registry, new Hashtable<String, Object>());
-				context.registerService(ViewRegistry.class.getName(), new DefaultViewRegistryImpl(), new Hashtable<String, Object>());
+				context.registerService(IViewRegistry.class.getName(), new DefaultViewRegistryImpl(), new Hashtable<String, Object>());
 			}
 		});
 

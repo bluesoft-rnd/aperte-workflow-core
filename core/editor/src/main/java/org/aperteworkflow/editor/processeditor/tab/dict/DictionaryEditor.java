@@ -59,8 +59,8 @@ public class DictionaryEditor extends VerticalLayout implements TabSheet.CloseHa
 		protected DictionaryItemForm createDictionaryItemForm(Application application, I18NSource source, BeanItem<XmlDictionaryItemWrapper> item) {
 			return new DictionaryItemForm(application, source, item) {
 				@Override
-				protected DictionaryItemFormFieldFactory createItemFormFieldFactory(Application application, I18NSource source, Set<String> visiblePropertyIds, Set<String> editablePropertyIds, Set<String> requiredPropertyIds) {
-					return new DictionaryItemFormFieldFactory(application, source, visiblePropertyIds, editablePropertyIds, requiredPropertyIds) {
+				protected DictionaryItemFormFieldFactory createItemFormFieldFactory(Application application,DictionaryItemForm dictionaryItemForm, I18NSource source, Set<String> visiblePropertyIds, Set<String> editablePropertyIds, Set<String> requiredPropertyIds) {
+					return new DictionaryItemFormFieldFactory(application ,dictionaryItemForm,  source, visiblePropertyIds, editablePropertyIds, requiredPropertyIds) {
 						@Override
 						protected DictionaryItemValuesField createItemValuesField(Application application, I18NSource source, String valueType) {
 							return new DictionaryItemValuesField(application, source, valueType) {

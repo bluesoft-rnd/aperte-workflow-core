@@ -72,7 +72,7 @@ public class DictionaryLoader extends OXHelper {
                         dbItemExt.setValue(ext.getValue());
                         dbItemExt.setValueType(ext.getValueType());
                         dbItemExt.setDescription(ext.getDescription());
-                        dbValue.addExtension(dbItemExt);
+                        dbValue.addItemExtension(dbItemExt);
                     }
                     dbItem.addValue(dbValue);
                 }

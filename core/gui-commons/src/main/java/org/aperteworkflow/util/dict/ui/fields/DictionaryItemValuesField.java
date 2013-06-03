@@ -9,23 +9,18 @@ import com.vaadin.data.validator.IntegerValidator;
 import com.vaadin.ui.*;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import org.aperteworkflow.util.dict.ui.DictionaryItemForm;
+import org.aperteworkflow.util.dict.ui.fields.DictionaryItemExtensionField;
 import org.aperteworkflow.util.dict.wrappers.DictionaryItemValueWrapper;
 import org.aperteworkflow.util.vaadin.ui.date.OptionalDateField;
 import org.vaadin.addon.customfield.CustomField;
-import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemValue;
-
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import org.aperteworkflow.util.vaadin.ui.date.OptionalDateField;
 
 import java.util.*;
 
 import static org.aperteworkflow.util.dict.wrappers.DictionaryItemValueWrapper.*;
 import static org.aperteworkflow.util.vaadin.VaadinUtility.*;
-import static pl.net.bluesoft.util.lang.DateUtil.truncHours;
 
 public abstract class DictionaryItemValuesField extends CustomField {
-    private DictionaryItemForm dictionaryItemForm;
     private I18NSource source;
     private Application application;
     private String valueType;
@@ -37,9 +32,8 @@ public abstract class DictionaryItemValuesField extends CustomField {
     private List<DictionaryItemValueWrapper> modifiedValue;
     private Label noValuesLabel;
 
-    public DictionaryItemValuesField(Application application, DictionaryItemForm dictionaryItemForm, I18NSource source, String valueType) {
-		this.dictionaryItemForm = dictionaryItemForm;
-		this.source = source;
+    public DictionaryItemValuesField(Application application, I18NSource source, String valueType) {
+        this.source = source;
         this.application = application;
         this.valueType = valueType;
         initView();
@@ -96,7 +90,7 @@ public abstract class DictionaryItemValuesField extends CustomField {
         }
         Collections.sort(modifiedValue, new Comparator<DictionaryItemValueWrapper>() {
             @Override
-            public int compare(DictionaryItemValueWrapper o1, DictionaryItemValueWrapper o2) 
+            public int compare(DictionaryItemValueWrapper o1, DictionaryItemValueWrapper o2)
             {
             	
             	/* The null value is higher then anything else */
@@ -189,7 +183,7 @@ public abstract class DictionaryItemValuesField extends CustomField {
     }
 
     public void validateInternal() {
-        if (dictionaryItemForm.isValidationEnabled() && !modifiedValue.isEmpty()) {
+        if (!modifiedValue.isEmpty()) {
             for (ItemValueForm form : forms) {
                 form.commit();
             }
@@ -207,6 +201,7 @@ public abstract class DictionaryItemValuesField extends CustomField {
             }
         }
     }
+
 
     private boolean validateSingleDate(boolean fullRangeFound, DictionaryItemValueWrapper val, Date date) {
         if (date == null) {

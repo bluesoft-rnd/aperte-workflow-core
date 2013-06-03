@@ -22,6 +22,7 @@ public abstract class DictionaryItemForm extends Form {
     private Application application;
     private GridLayout layout;
     private Button addButton;
+    private boolean validationEnabled;
 
 	private static final Set<String> FIELDS_VISIBLE = new HashSet<String>() {{
         add(_KEY);
@@ -60,7 +61,7 @@ public abstract class DictionaryItemForm extends Form {
 
         setLayout(layout);
         setLocale(application.getLocale());
-        setFormFieldFactory(createItemFormFieldFactory(application, source,
+        setFormFieldFactory(createItemFormFieldFactory(application,this, source,
 				FIELDS_VISIBLE, FIELDS_EDITABLE, FIELDS_REQUIRED));
         setItemDataSource(item);
         setVisibleItemProperties(FIELDS_VISIBLE);
@@ -72,7 +73,7 @@ public abstract class DictionaryItemForm extends Form {
     }
 
 	protected abstract DictionaryItemFormFieldFactory createItemFormFieldFactory(
-			Application application, I18NSource source, Set<String> visiblePropertyIds,
+			Application application,DictionaryItemForm dictionaryItemForm,  I18NSource source, Set<String> visiblePropertyIds,
 		  	Set<String> editablePropertyIds, Set<String> requiredPropertyIds);
 
 	protected void attachField(Object propertyId, Field field) {

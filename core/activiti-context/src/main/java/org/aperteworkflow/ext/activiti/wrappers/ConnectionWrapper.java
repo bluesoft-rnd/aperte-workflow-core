@@ -3,6 +3,7 @@ package org.aperteworkflow.ext.activiti.wrappers;
 import java.sql.*;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.Executor;
 
 /**
  * @author tlipski@bluesoft.net.pl

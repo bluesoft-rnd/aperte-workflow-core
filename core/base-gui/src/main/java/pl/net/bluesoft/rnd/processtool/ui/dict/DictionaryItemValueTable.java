@@ -2,11 +2,13 @@ package pl.net.bluesoft.rnd.processtool.ui.dict;
 
 import static org.aperteworkflow.util.vaadin.VaadinUtility.SIMPLE_DATE_FORMAT_STRING;
 
+
+import org.aperteworkflow.util.dict.ui.fields.DictionaryItemExtensionField;
 import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
 import org.aperteworkflow.util.vaadin.ui.date.OptionalDateField;
 
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemValue;
-import pl.net.bluesoft.rnd.processtool.ui.dict.fields.DictionaryItemExtensionField;
+import pl.net.bluesoft.rnd.processtool.ui.dict.fields.DBDictionaryItemExtensionField;
 import pl.net.bluesoft.rnd.processtool.ui.dict.request.CopyDictionaryItemValueActionRequest;
 import pl.net.bluesoft.rnd.processtool.ui.dict.request.DeleteDictionaryItemValueActionRequest;
 import pl.net.bluesoft.rnd.processtool.ui.generic.exception.PropertyNameNotDefinedException;
@@ -25,6 +27,7 @@ import com.vaadin.ui.TextField;
  * Table to display dictionary items 
  * 
  * @author mpawlak@bluesoft.net.pl
+ * @author kkolodziej@bluesoft.net.pl
  *
  */
 public class DictionaryItemValueTable extends GenericTable<ProcessDBDictionaryItemValue> 
@@ -117,7 +120,7 @@ public class DictionaryItemValueTable extends GenericTable<ProcessDBDictionaryIt
 		
 		if(columnId.equals(EXTENSIONS_COLUMN_NAME))
 		{
-			DictionaryItemExtensionField itemExtensionField = new DictionaryItemExtensionField(application, i18NSource);
+			DictionaryItemExtensionField itemExtensionField = new DBDictionaryItemExtensionField(application, i18NSource);
 			itemExtensionField.setPropertyDataSource(bean.getItemProperty(EXTENSIONS_COLUMN_NAME));
 			itemExtensionField.setWriteThrough(true);
 			

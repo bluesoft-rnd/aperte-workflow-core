@@ -433,17 +433,16 @@ public class ProcessDictionaryDAOImpl extends SimpleHibernateBean<ProcessDBDicti
                         newValue.setItem(newItem);
                         newItem.getValues().add(newValue);
 
-                        Set<ProcessDBDictionaryItemExtension> extensions = value.getExtensions();
-                        newValue.setExtensions(new HashSet<ProcessDBDictionaryItemExtension>());
+                        Map<String, ProcessDBDictionaryItemExtension> extensions = value.getExtensions();
+                        newValue.setExtensions(new HashMap<String, ProcessDBDictionaryItemExtension>());
 
-                        for (ProcessDBDictionaryItemExtension extension : extensions) 
-                        {
+                        for (Entry<String, ProcessDBDictionaryItemExtension> extension : extensions.entrySet()) {
                             ProcessDBDictionaryItemExtension newExtension = new ProcessDBDictionaryItemExtension();
-                            PropertyUtils.copyProperties(newExtension, extension);
+                            PropertyUtils.copyProperties(newExtension, extension.getValue());
                             newExtension.setId(null);
 
                             newExtension.setItemValue(newValue);
-                            newValue.addExtension(newExtension);
+                            newValue.getExtensions().put(extension.getKey(), newExtension);
                         }
                     }
                 }

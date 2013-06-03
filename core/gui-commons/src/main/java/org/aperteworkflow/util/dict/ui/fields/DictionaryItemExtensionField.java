@@ -105,8 +105,7 @@ public abstract class DictionaryItemExtensionField extends CustomField  {
         return source.getMessage(key, defaultValue);
     }
 
-    private void loadData() 
-    {
+    private void loadData() {
         itemsLayout.removeAllComponents();
         if (getExtensions().isEmpty()) {
             itemsLayout.addComponent(noExtensionsLabel);
@@ -115,6 +114,7 @@ public abstract class DictionaryItemExtensionField extends CustomField  {
             for (DictionaryItemExtensionWrapper itemExtension : modifiedValue) {
                 createExtensionRow(itemExtension);
         }
+    }
     }
 
     private void createModifiedListFromOriginal() {
@@ -135,21 +135,17 @@ public abstract class DictionaryItemExtensionField extends CustomField  {
         form.setWidth("100%");
         form.addDeleteButton(new ClickListener() {
             @Override
-            public void buttonClick(ClickEvent event) 
-            {
-            	ext.setItemValue(null);
-            	getExtensions().remove(ext);
+            public void buttonClick(ClickEvent event) {
                 itemsLayout.removeComponent(form);
-                if (getExtensions().isEmpty()) {
+                modifiedValue.remove(ext);
+                if (modifiedValue.isEmpty()) {
                     itemsLayout.addComponent(noExtensionsLabel);
                 }
-                forms.remove(form);
             }
         });
         if (itemsLayout.getComponentIndex(noExtensionsLabel) != -1) {
             itemsLayout.removeComponent(noExtensionsLabel);
         }
-        forms.add(form);
         itemsLayout.addComponent(form);
     }
 

@@ -6,6 +6,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
+import pl.net.bluesoft.rnd.util.ConfigurationResult;
 import pl.net.bluesoft.rnd.util.i18n.impl.PropertiesBasedI18NProvider;
 import pl.net.bluesoft.rnd.util.i18n.impl.PropertyLoader;
 
@@ -204,7 +205,7 @@ public class BundleInstallationHandler {
 			if (eventType == Bundle.ACTIVE) {
 				try {
 					String basePath = SEPARATOR + processPackage.replace(".", SEPARATOR) + SEPARATOR;
-					toolRegistry.deployOrUpdateProcessDefinition(
+                    ConfigurationResult result = toolRegistry.deployOrUpdateProcessDefinition(
 							bundleHelper.getBundleResourceStream(basePath + "processdefinition." +
 									toolRegistry.getBpmDefinitionLanguage() + ".xml"),
 							bundleHelper.getBundleResourceStream(basePath + "processtool-config.xml"),
@@ -219,8 +220,7 @@ public class BundleInstallationHandler {
 						}
 					}, "/" + processPackage.replace(".", SEPARATOR) + "/messages"), providerId);
 
-					toolRegistry.registerProcessDictionaries(bundleHelper.getBundleResourceStream(basePath + "process-dictionaries.xml"));
-
+                    toolRegistry.registerProcessDictionaries(bundleHelper.getBundleResourceStream(basePath + "process-dictionaries.xml"),result);
 				}
 				catch (Exception e) {
 					logger.log(Level.SEVERE, e.getMessage(), e);

@@ -15,7 +15,7 @@ public class DBDictionaryItemForm extends DictionaryItemForm {
     }
 
 	@Override
-	protected DictionaryItemFormFieldFactory createItemFormFieldFactory(Application application, I18NSource source, Set<String> visiblePropertyIds, Set<String> editablePropertyIds, Set<String> requiredPropertyIds) {
-		return new DBDictionaryItemFormFieldFactory(application, source, visiblePropertyIds, editablePropertyIds, requiredPropertyIds);
+	protected DictionaryItemFormFieldFactory createItemFormFieldFactory(Application application,DictionaryItemForm dictionaryItemForm, I18NSource source, Set<String> visiblePropertyIds, Set<String> editablePropertyIds, Set<String> requiredPropertyIds) {
+		return new DBDictionaryItemFormFieldFactory(application,  dictionaryItemForm,source, visiblePropertyIds, editablePropertyIds, requiredPropertyIds);
 	}
 }

@@ -1,7 +1,7 @@
 package org.aperteworkflow.ui.view.impl;
 
 import org.aperteworkflow.ui.view.GenericPortletViewRenderer;
-import org.aperteworkflow.ui.view.ViewRegistry;
+import org.aperteworkflow.ui.view.IViewRegistry;
 import org.aperteworkflow.ui.view.ViewRenderer;
 import pl.net.bluesoft.rnd.util.func.Func;
 
@@ -10,7 +10,7 @@ import java.util.*;
 /**
  * @author tlipski@bluesoft.net.pl
  */
-public class DefaultViewRegistryImpl implements ViewRegistry { 
+public class DefaultViewRegistryImpl implements IViewRegistry {
     private Set<Func<ViewRenderer>> viewFunctions = new HashSet<Func<ViewRenderer>>();
 	private Map<String, Set<GenericPortletViewRenderer>> genericPortletViewRenderers = new HashMap<String, Set<GenericPortletViewRenderer>>();
 

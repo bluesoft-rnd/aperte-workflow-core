@@ -50,7 +50,7 @@ public class DictionaryItemValidator implements Validator
 			validateItemValueContent(itemValue);
 			validateItemValueEndDateAfterStartDate(itemValue);
 			
-			for(ProcessDBDictionaryItemExtension extension: itemValue.getExtensions())
+			for(ProcessDBDictionaryItemExtension extension: itemValue.getExtensions().values())
 			{
 				validateItemValueExtensionForEmptyValues(extension);
 			}
@@ -154,8 +154,8 @@ public class DictionaryItemValidator implements Validator
 	/** Check if the item value extension key is duplicated */
 	private void validateItemValueExtensionKeyDuplication(ProcessDBDictionaryItemValue itemVaueToValidate) throws InvalidValueException
 	{
-        for (ProcessDBDictionaryItemExtension ext : itemVaueToValidate.getExtensions()) 
-            for (ProcessDBDictionaryItemExtension otherExt : itemVaueToValidate.getExtensions()) 
+        for (ProcessDBDictionaryItemExtension ext : itemVaueToValidate.getExtensions().values())
+            for (ProcessDBDictionaryItemExtension otherExt : itemVaueToValidate.getExtensions().values())
                 if (ext != otherExt && ext.getName().equals(otherExt.getName())) 
                     throw new InvalidValueException(application.getMessage("validate.item.ext.name.duplicate", "", ext.getName()));
 	}

@@ -28,6 +28,7 @@ import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.rnd.util.ConfigurationResult;
 import pl.net.bluesoft.util.io.IOUtils;
 
 import javax.naming.InitialContext;
@@ -209,14 +210,14 @@ public class ActivitiContextFactoryImpl implements ProcessToolContextFactory {
     }
 
     @Override
-    public void deployOrUpdateProcessDefinition(final InputStream bpmStream,
+    public ConfigurationResult deployOrUpdateProcessDefinition(final InputStream bpmStream,
                                                 final ProcessDefinitionConfig cfg,
                                                 final ProcessQueueConfig[] queues,
                                                 final InputStream imageStream,
                                                 InputStream logoStream) {
-        withProcessToolContext(new ProcessToolContextCallback() {
+        return withProcessToolContext(new ReturningProcessToolContextCallback<ConfigurationResult>() {
             @Override
-            public void withContext(ProcessToolContext processToolContext) {
+            public ConfigurationResult processWithContext(ProcessToolContext processToolContext) {
 
                 ProcessToolContext.Util.setThreadProcessToolContext(processToolContext);
                 try {
@@ -241,12 +242,19 @@ public class ActivitiContextFactoryImpl implements ProcessToolContextFactory {
                     }
 
                     ProcessDefinitionDAO processDefinitionDAO = processToolContext.getProcessDefinitionDAO();
+                    ProcessDefinitionConfig oldCfg = processDefinitionDAO.getActiveConfigurationByKey(cfg.getBpmDefinitionKey());
                     processDefinitionDAO.updateOrCreateProcessDefinitionConfig(cfg);
                     logger.log(Level.INFO, "created  definition with id: " + cfg.getId());
                     if (queues != null && queues.length > 0) {
                         processDefinitionDAO.updateOrCreateQueueConfigs(Arrays.asList(queues));
                         logger.log(Level.INFO, "created/updated " + queues.length + " queues");
                     }
+
+                    ConfigurationResult result = new ConfigurationResult();
+                    result.setNewOne(cfg);
+                    result.setOldOne(oldCfg);
+
+                    return result;
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 } finally {
@@ -257,7 +265,7 @@ public class ActivitiContextFactoryImpl implements ProcessToolContextFactory {
     }
 
     @Override
-    public void deployOrUpdateProcessDefinition(InputStream jpdlStream,
+    public ConfigurationResult deployOrUpdateProcessDefinition(InputStream jpdlStream,
                                                 InputStream processToolConfigStream,
                                                 InputStream queueConfigStream,
                                                 InputStream imageStream,
@@ -287,7 +295,7 @@ public class ActivitiContextFactoryImpl implements ProcessToolContextFactory {
             }
         }
         Collection<ProcessQueueConfig> qConfigs = (Collection<ProcessQueueConfig>) xstream.fromXML(queueConfigStream);
-        deployOrUpdateProcessDefinition(jpdlStream,
+       return deployOrUpdateProcessDefinition(jpdlStream,
                 config,
                 qConfigs.toArray(new ProcessQueueConfig[qConfigs.size()]),
                 imageStream,

@@ -28,7 +28,7 @@ public class ProcessDictionaryTab extends DictionaryTab implements ValueChangeLi
     {
 		super(mainPanel, processDictionaryModelView);
 	}
-    
+
     
     public void loadData(ProcessToolContext ctx)
     {
@@ -99,7 +99,7 @@ public class ProcessDictionaryTab extends DictionaryTab implements ValueChangeLi
 			selectLocale.setValue(null);
 			selectDictionary.setValue(null);
 			selectDictionary.setVisible(false);
-			
+
 			selectLocale.setVisible(selectedConfig != null);
 		}
 		/* Locale selected, show items */

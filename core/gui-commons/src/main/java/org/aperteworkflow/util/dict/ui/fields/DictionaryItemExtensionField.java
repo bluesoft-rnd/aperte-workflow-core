@@ -107,7 +107,8 @@ public abstract class DictionaryItemExtensionField extends CustomField  {
 
     private void loadData() {
         itemsLayout.removeAllComponents();
-        if (getExtensions().isEmpty()) {
+        createModifiedListFromOriginal();
+        if (modifiedValue== null || modifiedValue.isEmpty()) {
             itemsLayout.addComponent(noExtensionsLabel);
         }
         else {
@@ -116,6 +117,7 @@ public abstract class DictionaryItemExtensionField extends CustomField  {
         }
     }
     }
+
 
     private void createModifiedListFromOriginal() {
         modifiedValue = new ArrayList<DictionaryItemExtensionWrapper>();
@@ -159,15 +161,7 @@ public abstract class DictionaryItemExtensionField extends CustomField  {
         super.setInternalValue(newValue);
     }
 
-    @Override
-    public Object getValue() {
-        validateInternal();
-        Map<String, DictionaryItemExtensionWrapper> value = new HashMap<String, DictionaryItemExtensionWrapper>();
-        for (DictionaryItemExtensionWrapper ext : modifiedValue) {
-            value.put(ext.getName(), ext);
-        }
-        return value;
-    }
+
 
     @Override
     public void validate() throws InvalidValueException {
@@ -176,7 +170,7 @@ public abstract class DictionaryItemExtensionField extends CustomField  {
     }
 
     public void validateInternal() {
-        if (!getExtensions().isEmpty()) {
+        if (!modifiedValue.isEmpty()) {
             for (Iterator<Component> it = itemsLayout.getComponentIterator(); it.hasNext(); ) {
                 ItemExtensionForm form = (ItemExtensionForm) it.next();
                 form.commit();
@@ -189,6 +183,12 @@ public abstract class DictionaryItemExtensionField extends CustomField  {
                 }
             }
         }
+    }
+
+    @Override
+    public void discard() throws SourceException {
+        super.discard();
+        createModifiedListFromOriginal();
     }
     
     @Override
@@ -283,7 +283,7 @@ public abstract class DictionaryItemExtensionField extends CustomField  {
     {
     	if(getValue() == null)
     		return new HashSet<ProcessDBDictionaryItemExtension>();
-    	
+
     	Set<ProcessDBDictionaryItemExtension> extensions = (Set<ProcessDBDictionaryItemExtension>)getValue();
     	return extensions;
     }

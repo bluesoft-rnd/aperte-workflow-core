@@ -110,13 +110,19 @@ public class XmlDictionaryItemValueWrapper implements DictionaryItemValueWrapper
 
 	@Override
 	public void setExtensions(Map<String, XmlDictionaryItemExtensionWrapper> extensions) {
+        if(extensions!=null){
+
+
 		List<DictionaryEntryExtension> unwrappedExtensions = new ArrayList<DictionaryEntryExtension>();
 
 		for (XmlDictionaryItemExtensionWrapper wrapper : extensions.values()) {
 			unwrappedExtensions.add(wrapper.getWrappedObject());
 		}
 		itemValue.setExtensions(unwrappedExtensions);
+        }
 	}
+
+
 
 	@Override
 	public Collection<String> getExtensionNames() {

@@ -288,9 +288,14 @@ public class ProcessDictionaryDAOImpl extends SimpleHibernateBean<ProcessDBDicti
         	/* If there is already dictionary, delete it */
         	if(overwrite)
         		deleteDictionary(existingDictionary);
-        	
-        	existingDictionary = mergeDictnionaries(existingDictionary, newDict);
-        	
+
+			if (overwrite) {
+				existingDictionary = newDict; // new one replaces existing one since the latter is already deleted
+			}
+			else {
+				existingDictionary = mergeDictnionaries(existingDictionary, newDict);
+			}
+
         	updateDictionary(existingDictionary);
         }
     }
@@ -328,7 +333,12 @@ public class ProcessDictionaryDAOImpl extends SimpleHibernateBean<ProcessDBDicti
         	
         	if(isTheSame)
         	{
-        		existingDictionary = mergeDictnionaries(existingDictionary, newDict);
+				if (overwrite) {
+					existingDictionary = newDict; // new one replaces existing one since the latter is already deleted
+				}
+				else {
+        			existingDictionary = mergeDictnionaries(existingDictionary, newDict);
+				}
         		updateDictionary(existingDictionary);
         	}
         	else
@@ -338,7 +348,7 @@ public class ProcessDictionaryDAOImpl extends SimpleHibernateBean<ProcessDBDicti
         	}
         }
     }
-    
+
     private void saveDictionary(ProcessDBDictionary dictionary)
     {
     	Session session = getSession();

@@ -10,6 +10,8 @@ import java.util.concurrent.ExecutorService;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
+import com.google.common.eventbus.EventBus;
+
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;

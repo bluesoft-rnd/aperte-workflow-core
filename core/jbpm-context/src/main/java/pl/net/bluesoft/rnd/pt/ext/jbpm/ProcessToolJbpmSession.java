@@ -70,8 +70,10 @@ import pl.net.bluesoft.rnd.processtool.di.annotations.AutoInject;
 import pl.net.bluesoft.rnd.processtool.hibernate.ResultsPageWrapper;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceSimpleAttribute;
 import pl.net.bluesoft.rnd.processtool.model.ProcessStatus;
 import pl.net.bluesoft.rnd.processtool.model.QueueType;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
@@ -1009,6 +1011,12 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
                return bpmTask;
            
            ProcessInstance processInstance = bpmTask.getProcessInstance();
+           
+
+
+        		   
+           
+           
            ProcessInstanceLog log = addActionLogEntry(action, task, ctx);
            Map<String, Object> vars = new HashMap<String, Object>();
            vars.put("ACTION", action.getBpmName());
@@ -1028,6 +1036,15 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
                    return obj.getInternalTaskId();  
                }
            }, taskIdsBeforeCompletion);
+           
+           
+           /** Add simple attributes to process variable */
+           for(ProcessInstanceAttribute attr: processInstance.getProcessAttributes())
+        	   if(attr instanceof ProcessInstanceSimpleAttribute)
+        	   {
+        		   ProcessInstanceSimpleAttribute simple = (ProcessInstanceSimpleAttribute)attr;
+        		   vars.put(simple.getKey(), simple.getValue());
+        	   }
 
            
            

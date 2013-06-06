@@ -77,9 +77,13 @@
 			}
 			default: 
 			{
+			 <!-- You have to lave widgetid in adress or vaadin would have problems with windows management -->
 			  vaadinWidgetsCount += 1;
+			  var vaadinWidgetUrl = "widget/"+widget.id+"/?widgetId=" + widget.id + "&taskId="+taskId;
+			  console.log( "url:" + vaadinWidgetUrl); 
+			  
 			  $( "<iframe>", { 
-					  src : '<spring:url value="/widget?widgetId=' + widget.id + '&taskId='+taskId+'"/>', 
+					  src : '<spring:url value="/'+vaadinWidgetUrl+'"/>', 
 					  autoResize: true, 
 					  id: 'iframe-vaadin-'+widget.id,
 					  frameborder: 0,

@@ -128,7 +128,9 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory,
             }
             if (ut.getStatus() != Status.STATUS_ACTIVE)
                 ut.begin();
+            
             Session session = registry.getSessionFactory().getCurrentSession();
+            
             try {
                 ProcessEngine pi = getProcessEngine();
                 try 

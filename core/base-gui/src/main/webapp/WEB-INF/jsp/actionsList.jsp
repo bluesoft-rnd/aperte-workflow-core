@@ -123,28 +123,41 @@
 		})
 		.done(function(data) 
 		{ 
-			if(data.errors.length > 0)
+			console.log( "DONE: "+data); 
+			if(data == null)
+			{
+			    closeProcessView();
+				showProcessList();
+				
+				return;
+			}
+			else if(data.errors.length > 0)
 			{
 				addAlerts(data.errors);
 				return;
 			}
-			if(data == null)
-			{
-			    closeProcessView();
-				
-				return;
-			}
+
 			var taskId = data.taskId;
 			var processStateConfigurationId = data.processStateConfigurationId;
 			
-			console.log( "processStateConfigurationId: "+processStateConfigurationId ); 
-			
-			loadProcessView(processStateConfigurationId, taskId);
+			if(taskId != null)
+			{
+				loadProcessView(processStateConfigurationId, taskId);
+			}
+			else
+			{
+				closeProcessView();
+				showProcessList();
+			}
 		})
 		.fail(function() { addAlerts(data.errors); })
-		.always(function() 
+		.always(function(data) 
 		{ 
-			enableButtons();
+			if(data != null)
+			{
+				console.log( "enable buttons "); 
+				enableButtons();
+			}
 		});
 	}
 	

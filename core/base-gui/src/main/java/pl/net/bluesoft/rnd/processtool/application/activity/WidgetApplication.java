@@ -1,6 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.application.activity;
 
 import java.util.Locale;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -36,6 +37,8 @@ public class WidgetApplication extends Application  implements HttpServletReques
 {
 	protected I18NSource i18NSource;
 	protected Locale locale = null;
+	
+	private static Logger logger = Logger.getLogger(WidgetApplication.class.getName());
     
     private boolean initialized = false;
 
@@ -56,7 +59,7 @@ public class WidgetApplication extends Application  implements HttpServletReques
     
    
 	@Override
-	public Window getWindow(String name) 
+	public synchronized Window getWindow(String name) 
 	{
 
 		WebApplicationContext context = (WebApplicationContext)this.getContext();
@@ -70,6 +73,8 @@ public class WidgetApplication extends Application  implements HttpServletReques
 			
 			return blankWindow;
 		}
+		
+		logger.warning("Window get: "+name+", context: "+this.getContext()+" appId: "+Thread.currentThread().getName());
 
 		ProcessToolBpmSession bpmSession = (ProcessToolBpmSession)context.getHttpSession().getAttribute(ProcessToolBpmSession.class.getName());
 		
@@ -114,7 +119,7 @@ public class WidgetApplication extends Application  implements HttpServletReques
 //				removeWindow(window);
 //			}
 //		}
-		
+		logger.warning("request url: "+request.getRequestURL());
 		if(ctx == null)
 		{
 			UserData user = (UserData)request.getSession().getAttribute(UserData.class.getName());

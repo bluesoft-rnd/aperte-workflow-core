@@ -52,7 +52,7 @@ import com.vaadin.ui.Window;
  * @author mpawlak@bluesoft.net.pl
  *
  */
-public class WidgetViewWindow extends Window implements ParameterHandler, HttpServletRequestListener
+public class WidgetViewWindow extends Window implements ParameterHandler
 {
 	private static Logger logger = Logger.getLogger(WidgetViewWindow.class.getName());
 	
@@ -91,13 +91,13 @@ public class WidgetViewWindow extends Window implements ParameterHandler, HttpSe
     @Subscribe
     public void listen(final SaveTaskEvent event)
     {
-    	boolean test = isVisible();
+    	logger.warning("save?");
     	/* Check for task id, we don't want to save widget from another process view */
     	final String eventTaskId = event.getTaskId();
     	if(!eventTaskId.equals(this.bpmTaskId))
-    		return;
+    		return; 
     	
-    	logger.warning("Perform widget save for taskId: "+bpmTaskId+", windowName: "+this.getName());
+    	logger.warning("Perform widget save for taskId: "+bpmTaskId+", windowName: "+this.getName()+" window: "+this.getApplication());
     	processToolRegistry.withProcessToolContext(new ProcessToolContextCallback() {
 			
 			@Override
@@ -195,6 +195,7 @@ public class WidgetViewWindow extends Window implements ParameterHandler, HttpSe
 				
 				WidgetEventBus eventBus = new WidgetEventBus();
 
+				logger.warning("initlizaing... ");
 				ProcessToolWidget widget = getWidget(processStateWidget, ctx, "1", eventBus, task);
 				if (widget instanceof ProcessToolVaadinRenderable && (!nvl(processStateWidget.getOptional(), false) || widget.hasVisibleData())) 
 				{
@@ -206,18 +207,21 @@ public class WidgetViewWindow extends Window implements ParameterHandler, HttpSe
 					{
 						renderedWidget.setSizeFull();
 						WidgetViewWindow.this.addComponent(vaadinW.render());
+						
+	
 					}
 				}
 				
 				isInitlized = true;
 				
-				logger.fine("Widget window initlized");
+				logger.warning("Widget window initlized");
 			}
 		});
 		
-		this.eventBus.register(this);
+		eventBus.register(this);
+		
 	}
-	
+
 	
 	private ProcessToolWidget getWidget(ProcessStateWidget processStateWidget, ProcessToolContext ctx, String generatorKey, WidgetEventBus widgetEventBus, BpmTask task) 
 	{
@@ -316,47 +320,18 @@ public class WidgetViewWindow extends Window implements ParameterHandler, HttpSe
 	{
 		try
 		{
+			if(getApplication() != null)
+				this.getApplication().removeWindow(this);
+			
+			logger.warning("destroy...: "+getName());
 			/* We have to unregister view form bus */
 			eventBus.unregister(this);
-			logger.warning("destroy...: "+getName());
-			this.getApplication().removeWindow(this);
 		}
 		catch(IllegalArgumentException ex)
 		{
 			
 		}
 		super.close();
-	}
-	
-	@Override
-	public void detach() 
-	{
-		try
-		{
-			/* We have to unregister view form bus */
-			eventBus.unregister(this);
-			logger.warning("destroy...: "+getName());
-		}
-		catch(IllegalArgumentException ex)
-		{
-			
-		}
-		super.detach();
-	}
-	
-	
-
-	@Override
-	public void onRequestStart(HttpServletRequest request,HttpServletResponse response) 
-	{
-
-		
-	}
-
-	@Override
-	public void onRequestEnd(HttpServletRequest request,HttpServletResponse response) 
-	{
-		
 	}
 	
 	

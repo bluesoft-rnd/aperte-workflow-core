@@ -4,7 +4,7 @@
     <parent>
         <artifactId>plugins</artifactId>
         <groupId>org.aperteworkflow</groupId>
-        <version>2.0</version>
+        <version>2.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>report-step</artifactId>
@@ -19,87 +19,29 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>commons-httpclient</groupId>
-            <artifactId>commons-httpclient</artifactId>
-            <version>2.0.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openspml</groupId>
-            <artifactId>openspml</artifactId>
-            <version>0.5</version>
-        </dependency>
-        <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>integration-interface</artifactId>
-            <version>2.0</version>
+            <version>${aperteworkflow.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>net.sf.jasperreports</groupId>
-            <artifactId>jasperreports</artifactId>
-            <version>4.0.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>eclipse</groupId>
-                    <artifactId>jdtcore</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>xml-apis</groupId>
-                    <artifactId>xml-apis</artifactId>
-                </exclusion>
-            </exclusions>
+            <artifactId>cmis-widget</artifactId>
+            <groupId>org.aperteworkflow</groupId>
+            <version>${aperteworkflow.version}</version>
+            <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>xalan</groupId>
-            <artifactId>xalan</artifactId>
-            <version>2.7.1</version>
-        </dependency>
-        <dependency>
-            <groupId>net.sf.jasperreports</groupId>
-            <artifactId>jasperreports-fonts</artifactId>
-            <version>4.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-            <version>20041127.091804</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy-all</artifactId>
-            <version>1.8.0</version>
-        </dependency>
+         <dependency>
+		    <groupId>org.apache.chemistry.opencmis</groupId>
+		    <artifactId>chemistry-opencmis-osgi-client</artifactId>
+		    <version>0.9.0-SNAPSHOT</version>
+		    <scope>provided</scope>
+		 </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
-            <artifactId>cmis-interface</artifactId>
-            <version>2.0</version>
-        </dependency>
-        <dependency>
-            <groupId>net.sourceforge.barbecue</groupId>
-            <artifactId>barbecue</artifactId>
-            <version>1.5-beta1</version>
-        </dependency>
-        <dependency>
-            <groupId>xerces</groupId>
-            <artifactId>xercesImpl</artifactId>
-            <version>2.9.1</version>
-        </dependency>
-        <dependency>
-            <groupId>xml-apis</groupId>
-            <artifactId>xml-apis</artifactId>
-            <version>1.0.b2</version>
+            <artifactId>aperte-reports-integration</artifactId>
+            <version>${aperteworkflow.version}</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi</artifactId>
-            <version>3.8-beta2</version>
-        </dependency>
-        <dependency>
-            <groupId>com.thoughtworks.xstream</groupId>
-            <artifactId>xstream</artifactId>
-            <version>1.4.4</version>
-        </dependency>       
+        </dependency>     
     </dependencies>
 
     <build>
@@ -116,25 +58,90 @@
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <extensions>true</extensions>
-                <version>2.1.0</version>
+                <version>${maven.bundle.plugin}</version>
                 <configuration>
                     <instructions>
                         <Export-Package>
-                            pl.net.bluesoft.rnd.pt.ext.report.model,pl.net.bluesoft.rnd.pt.ext.report.step
+                            pl.net.bluesoft.rnd.pt.ext.report.step;version=${project.version}
                         </Export-Package>
                         <Import-Package>
-                            javax.xml.*,org.xml.sax,antlr.*,net.sf.jasperreports.*,*;resolution:=optional
+                        	pl.net.bluesoft.rnd.pt.ext.report.step;version=${project.version},
+                        	org.aperteworkflow.cmis.widget;version=${project.version},
+                        	
+                            pl.net.bluesoft.rnd.pt.ext.apertereportsintegration.model,
+                        	pl.net.bluesoft.rnd.pt.ext.apertereportsintegration.dao,
+                        	pl.net.bluesoft.rnd.pt.ext.apertereportsintegration,
+                        	
+                            javax.xml.*;resolution:=optional,
+                            org.xml.sax,
+                            org.jdom.output;resolution:=optional,
+                            org.slf4j.impl;resolution:=optional,
+                            com.lowagie.toolbox;resolution:=optional,
+                            com.sun.msv.*;resolution:=optional,
+                            org.w3c.dom.xpath;resolution:=optional,
+                            com.sun.org.apache.xerces.internal.dom;resolution:=optional,
+                            com.sun.xml.fastinfoset.dom;resolution:=optional,
+                            com.sun.xml.fastinfoset.vocab;resolution:=optional,
+                            org.apache.commons.codec.binary;resolution:=optional,
+                            
+                            org.apache.chemistry.opencmis.client.api;version="0.9.0.SNAPSHOT",
+                            org.apache.chemistry.opencmis.commons.*;version="0.9.0.SNAPSHOT",
+                            org.apache.chemistry.opencmis.commons.enums;version="0.9.0.SNAPSHOT",
+                            org.apache.chemistry.opencmis.commons.impl.dataobjects;version="0.9.0.SNAPSHOT",
+                            *
                         </Import-Package>
                         <Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>
                         <Bundle-SymbolicName>pl.net.bluesoft.rnd.pt.ext.report</Bundle-SymbolicName>
+                        <Bundle-Activator>pl.net.bluesoft.rnd.pt.ext.report.Activator</Bundle-Activator>
                         <Bundle-Version>0.1</Bundle-Version>
                         <Embed-Directory>lib</Embed-Directory>
                         <Embed-Transitive>true</Embed-Transitive>
-                        <ProcessTool-Model-Enhancement>pl.net.bluesoft.rnd.pt.ext.report.model.ReportTemplate</ProcessTool-Model-Enhancement>
                         <ProcessTool-Step-Enhancement>pl.net.bluesoft.rnd.pt.ext.report.step.GenerateDocument</ProcessTool-Step-Enhancement>
                     </instructions>
                 </configuration>
             </plugin>
         </plugins>
     </build>
+	
+	 <!-- Auto copy bundle jar to osgi directory -->
+    <profiles>
+    
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+	            <plugins>
+		            <plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-dependency-plugin</artifactId>
+						<version>${maven.dependency.version}</version>
+						<executions>
+							<execution>
+								<id>copy</id>
+								<phase>package</phase>
+								<goals>
+									<goal>copy</goal>
+								</goals>
+								<configuration>
+									<artifactItems>
+										<artifactItem>
+											<groupId>${project.groupId}</groupId>
+											<artifactId>${project.artifactId}</artifactId>
+											<type>jar</type>
+											<version>${project.version}</version>
+											<overWrite>true</overWrite>
+											<outputDirectory>${osgi.dir}</outputDirectory>
+											<destFileName>${project.artifactId}-${project.version}.jar</destFileName>
+										</artifactItem>
+									</artifactItems>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

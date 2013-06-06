@@ -11,4 +11,7 @@ public interface ProcessToolDataWidget {
 	Collection<String> validateData(BpmTask task, boolean skipRequired);
 	void saveData(BpmTask task);
 	void loadData(BpmTask task);
+	
+	/** Get widget name */
+	String getName();
 }

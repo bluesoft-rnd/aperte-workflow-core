@@ -1,18 +1,28 @@
 package pl.net.bluesoft.rnd.processtool.ui.buttons.dialog;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+
+import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
+import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComment;
+import pl.net.bluesoft.rnd.processtool.roles.IUserRolesManager;
+import pl.net.bluesoft.rnd.processtool.usersource.IUserSource;
+import pl.net.bluesoft.util.lang.Strings;
+
 import com.vaadin.data.Item;
 import com.vaadin.data.Validator;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.terminal.Sizeable;
-import com.vaadin.ui.*;
-import org.aperteworkflow.util.liferay.LiferayBridge;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
-import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComment;
-import pl.net.bluesoft.util.lang.Strings;
-
-import java.util.Arrays;
-import java.util.List;
+import com.vaadin.ui.AbstractSelect;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.DefaultFieldFactory;
+import com.vaadin.ui.Field;
+import com.vaadin.ui.Form;
+import com.vaadin.ui.RichTextArea;
+import com.vaadin.ui.Select;
 
 /**
  * User: POlszewski
@@ -80,9 +90,24 @@ public class AssignUserTaskDialog extends AddCommentDialog {
                     rta.focus();
 					f = rta;
 				}
-				else if ("assignee".equals(propertyId)) {    
+				else if ("assignee".equals(propertyId)) 
+				{
 					Select users = new Select();
-					List<UserData> allUsers = Strings.hasText(roleName) ? LiferayBridge.getUsersByRole(roleName) : LiferayBridge.getAllUsers();
+					Collection<UserData> allUsers = new ArrayList<UserData>();
+					
+					/* If there role is provieded, get all users with this role */
+					if(Strings.hasText(roleName))
+					{
+						IUserRolesManager userRoleManager = ObjectFactory.create(IUserRolesManager.class);
+						allUsers = userRoleManager.getUsersByRole(roleName);
+					}
+					/* Otherwise, get all users */
+					else
+					{
+						IUserSource userSource = ObjectFactory.create(IUserSource.class);
+						allUsers = userSource.getAllUsers();
+					}
+						
 					BeanItemContainer<UserData> ds = new BeanItemContainer<UserData>(UserData.class, allUsers);
 					ds.sort(new Object[] { "realName" }, new boolean[] { true });
 					users.setNullSelectionAllowed(false);

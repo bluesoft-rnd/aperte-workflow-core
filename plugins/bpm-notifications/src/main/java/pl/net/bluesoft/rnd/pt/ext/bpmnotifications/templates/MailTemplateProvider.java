@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,13 +11,11 @@ import java.util.logging.Logger;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.template.ProcessToolTemplateErrorException;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotificationTemplate;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.TemplateData;
-import freemarker.cache.TemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 
@@ -28,7 +25,7 @@ import freemarker.template.Template;
  * @author mpawlak
  *
  */
-public class MailTemplateProvider implements TemplateLoader
+public class MailTemplateProvider implements IMailTemplateLoader
 {
     private static final String SUBJECT_TEMPLATE_SUFFIX = "_subject";
     private static final String SENDER_TEMPLATE_SUFFIX = "_sender";

@@ -6,7 +6,9 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 
 import org.apache.commons.lang3.StringUtils;
 import org.aperteworkflow.util.vaadin.TaskAlreadyCompletedException; 
@@ -37,10 +39,21 @@ public abstract class BaseProcessToolVaadinActionButton extends BaseProcessToolA
 				                	  }
 				                  }, new Runnable() {
 				                	  @Override
-				                	  public void run() {
-				                		  WidgetContextSupport support = callback.getWidgetContextSupport();
-				                		  task = support.refreshTask(bpmSession, task);
-				                		  performAction(callback.getWidgetContextSupport());
+				                	  public void run() 
+				                	  {
+				                		  ProcessToolRegistry registry = ProcessToolRegistry.ThreadUtil.getThreadRegistry();
+				                		  
+				                		  registry.withProcessToolContext(new ProcessToolContextCallback() {
+											
+											@Override
+											public void withContext(ProcessToolContext ctx) 
+											{
+						                		  WidgetContextSupport support = callback.getWidgetContextSupport();
+						                		  task = support.refreshTask(bpmSession, task);
+						                		  performAction(callback.getWidgetContextSupport());
+											}
+										});
+
 				                	  }
 				                  }
 						);

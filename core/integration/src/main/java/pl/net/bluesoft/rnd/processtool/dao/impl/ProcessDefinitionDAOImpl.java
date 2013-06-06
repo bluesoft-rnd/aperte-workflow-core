@@ -19,7 +19,7 @@ import org.hibernate.criterion.Restrictions;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
 import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
-import pl.net.bluesoft.rnd.processtool.model.config.AbstractPermission;
+import pl.net.bluesoft.rnd.processtool.model.config.IPermission;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionPermission;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
@@ -45,14 +45,16 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 		super(session);
 	}
 
+	@SuppressWarnings("unchecked")
 	public Collection<ProcessDefinitionConfig> getAllConfigurations() {
 		return getSession().createCriteria(ProcessDefinitionConfig.class).addOrder(Order.desc("processName")).list();
 	}
 
+	@SuppressWarnings("unchecked")
 	public Collection<ProcessDefinitionConfig> getActiveConfigurations() {		
 		 long start = System.currentTimeMillis(); 
 		
-		List list = getSession().createCriteria(ProcessDefinitionConfig.class).addOrder(Order.desc("processName"))
+		List<ProcessDefinitionConfig> list = getSession().createCriteria(ProcessDefinitionConfig.class).addOrder(Order.desc("processName"))
 						.add(Restrictions.eq("latest", Boolean.TRUE))
 						.add(Restrictions.or(Restrictions.eq("enabled", Boolean.TRUE), Restrictions.isNull("enabled")))
                 .list();
@@ -70,14 +72,16 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 				.add(Restrictions.eq("bpmDefinitionKey", key)).uniqueResult();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Collection<ProcessQueueConfig> getQueueConfigs() {
 		return getSession().createCriteria(ProcessQueueConfig.class).list();
 	}
 
+	@SuppressWarnings("unchecked")
 	public ProcessStateConfiguration getProcessStateConfiguration(BpmTask task) {
 //		HibernateTemplate ht = getHibernateTemplate();
-        List res = getSession().createCriteria(ProcessStateConfiguration.class)
+        List<ProcessStateConfiguration> res = getSession().createCriteria(ProcessStateConfiguration.class)
 				.add(Restrictions.eq("definition", task.getProcessInstance().getDefinition()))
 				.add(Restrictions.eq("name", task.getTaskName())).list();
 		if (res.isEmpty())
@@ -86,6 +90,7 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public void updateOrCreateProcessDefinitionConfig(ProcessDefinitionConfig cfg) {
 		cfg.setCreateDate(new Date());
@@ -119,28 +124,49 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 			}
 			c.setLatest(false);
 			session.saveOrUpdate(c);
-			
-			logger.warning("New process definition installed: "+c.getProcessName());
 		}
 		
 		session.saveOrUpdate(cfg);
 	}
 
-	private boolean compareDefinitions(ProcessDefinitionConfig cfg, ProcessDefinitionConfig c) {
-
-		if (!cfg.getBpmDefinitionKey().equals(c.getBpmDefinitionKey())) return false;
-		if (!cfg.getDescription().equals(c.getDescription())) return false;
-		if (!cfg.getProcessName().equals(c.getProcessName())) return false;
+	private boolean compareDefinitions(ProcessDefinitionConfig cfg, ProcessDefinitionConfig c) 
+	{
+		
+		/* process name */
+		if (!cfg.getBpmDefinitionKey().equals(c.getBpmDefinitionKey())) 
+			return false;
+		
+		/* process description */
+		if (!cfg.getDescription().equals(c.getDescription())) 
+			return false;
+		
+		/* process name */
+		if (!cfg.getProcessName().equals(c.getProcessName())) 
+			return false;
+		
+		/* process version */
+		if (!cfg.getProcessVersion().equals(c.getProcessVersion())) 
+			return false;
+		
+		/* process comment or task item name */
 		if (!Lang.equals(cfg.getComment(), c.getComment()) ||
-            !Lang.equals(cfg.getTaskItemClass(), c.getTaskItemClass())) return false;
-		if (cfg.getStates().size() != c.getStates().size()) return false;
-        if (!Arrays.equals(cfg.getProcessLogo(), c.getProcessLogo())) return false;
+            !Lang.equals(cfg.getTaskItemClass(), c.getTaskItemClass())) 
+			return false;
+		
+		/* states count */
+		if (cfg.getStates().size() != c.getStates().size()) 
+			return false;
+		
+		/* process logo */
+        if (!Arrays.equals(cfg.getProcessLogo(), c.getProcessLogo())) 
+        	return false;
 
-		Map<String,ProcessStateConfiguration> oldMap = new HashMap();
+        
+		Map<String,ProcessStateConfiguration> oldMap = new HashMap<String,ProcessStateConfiguration>();
 		for (ProcessStateConfiguration s : cfg.getStates()) {
 			oldMap.put(s.getName(), s);
 		}
-		Map<String,ProcessStateConfiguration> newMap = new HashMap();
+		Map<String,ProcessStateConfiguration> newMap = new HashMap<String,ProcessStateConfiguration>();
 		for (ProcessStateConfiguration s : c.getStates()) {
 			if (!oldMap.containsKey(s.getName())) return false;
 			newMap.put(s.getName(), s);
@@ -156,20 +182,21 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 
 	}
 
-    private boolean stringEq(String s1, String s2) 
-    {
-        return s1 == null && s2 == null 
-        		|| "".equals(s1) && s2 == null
-        		|| s1 == null && "".equals(s2)
-        		|| !(s1 != null && s2 == null) && !(s2 != null && s1 == null) && s1.equals(s2);
+    private boolean isEqual(String s1, String s2) {
+        return s1 == null && s2 == null || !(s1 != null && s2 == null) && !(s2 != null && s1 == null) && s1.equals(s2);
+    }
+    
+    private boolean isEqual(Boolean s1, Boolean s2) {
+        return s1 == null && s2 == null || !(s1 != null && s2 == null) && !(s2 != null && s1 == null) && s1.equals(s2);
     }
 	private boolean compareStates(ProcessStateConfiguration newState, ProcessStateConfiguration oldState) {
 		if (newState.getActions().size() != oldState.getActions().size()) return false;
-        if (!stringEq(newState.getDescription(),oldState.getDescription())) return false;
-		if (!stringEq(newState.getCommentary(),oldState.getCommentary())) return false;
-		if (!stringEq(newState.getCommentary(),oldState.getCommentary())) return false;
-
-		Map<String,ProcessStateAction> newActionMap = new HashMap();
+        if (!isEqual(newState.getDescription(),oldState.getDescription())) return false;
+		if (!isEqual(newState.getCommentary(),oldState.getCommentary())) return false;
+		if (!isEqual(newState.getCommentary(),oldState.getCommentary())) return false;
+		if (!isEqual(newState.getEnableExternalAccess(),oldState.getEnableExternalAccess())) return false;
+		
+		Map<String,ProcessStateAction> newActionMap = new HashMap<String,ProcessStateAction>();
 		for (ProcessStateAction a : newState.getActions()) {
 			newActionMap.put(a.getBpmName(), a);
 		}
@@ -192,7 +219,7 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 
 	private boolean compareWidgets(Set<ProcessStateWidget> newWidgets, Set<ProcessStateWidget> oldWidgets) {
 		if (newWidgets.size() != oldWidgets.size()) return false;
-		Map<String,ProcessStateWidget> widgetMap = new HashMap();
+		Map<String,ProcessStateWidget> widgetMap = new HashMap<String,ProcessStateWidget>();
 		for (ProcessStateWidget w : newWidgets) {
 			widgetMap.put(w.getName()+w.getPriority(), w);
 		}
@@ -248,15 +275,19 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
         return true;
     }
 
-    private boolean comparePermissions(Set<? extends AbstractPermission> newPermissions, Set<? extends AbstractPermission> oldPermissions) {
-		if (newPermissions.size() != oldPermissions.size()) return false;
-		Set<String> permissionSet = new HashSet();
-		for (AbstractPermission p : newPermissions) {
+    private boolean comparePermissions(Set<? extends IPermission> newPermissions, Set<? extends IPermission> oldPermissions) 
+    {
+		if (newPermissions.size() != oldPermissions.size()) 
+			return false;
+		Set<String> permissionSet = new HashSet<String>();
+		
+		for (IPermission p : newPermissions) 
 			permissionSet.add(p.getPrivilegeName() + "|||" + p.getRoleName());
-		}
-		for (AbstractPermission p : oldPermissions) {
-			if (!permissionSet.contains(p.getPrivilegeName() + "|||" + p.getRoleName())) return false;
-		}
+		
+		for (IPermission p : oldPermissions) 
+			if (!permissionSet.contains(p.getPrivilegeName() + "|||" + p.getRoleName())) 
+				return false;
+
 		return true;
 	}
 
@@ -279,28 +310,32 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
     public void updateOrCreateQueueConfigs(Collection<ProcessQueueConfig> cfgs) {
         Session session = getSession();
 		for (ProcessQueueConfig q : cfgs) {
-			List queues = session.createCriteria(ProcessQueueConfig.class)
+			List<ProcessQueueConfig> queues = session.createCriteria(ProcessQueueConfig.class)
 					.add(Restrictions.eq("name", q.getName())).list();
-			for (Object o :queues) {
+			
+
+			for (Object o :queues) 
 				session.delete(o);
-			}
-			for (ProcessQueueRight r : q.getRights()) {
+			
+			for (ProcessQueueRight r : q.getRights()) 
 				r.setQueue(q);
-			}
-			//session.merge(q);
+			
+
 			session.save(q);
 		}
 	}
 
-    @Override
+    @SuppressWarnings("unchecked")
+	@Override
    public void removeQueueConfigs(Collection<ProcessQueueConfig> cfgs) {
        Session session = getSession();
        for (ProcessQueueConfig q : cfgs) {
-           List queues = session.createCriteria(ProcessQueueConfig.class)
+           List<ProcessQueueConfig> queues = session.createCriteria(ProcessQueueConfig.class)
                    .add(Restrictions.eq("name", q.getName())).list();
            for (Object o : queues) {
                session.delete(o);

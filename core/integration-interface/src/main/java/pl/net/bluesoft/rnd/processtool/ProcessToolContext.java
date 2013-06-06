@@ -26,7 +26,10 @@ import pl.net.bluesoft.rnd.processtool.userqueues.IUserProcessQueueManager;
 import pl.net.bluesoft.util.eventbus.EventBusManager;
 
 /**
+ *  Main application context
+ *  
  * @author tlipski@bluesoft.net.pl
+ * @author mpawlak@bluesoft.net.pl
  */
 public interface ProcessToolContext  extends ProcessToolBpmConstants 
 {
@@ -53,9 +56,9 @@ public interface ProcessToolContext  extends ProcessToolBpmConstants
 
 	ProcessDefinitionDAO getProcessDefinitionDAO();
 	EventBusManager getEventBusManager();
-	String getSetting(String key);
+	String getSetting(IProcessToolSettings key);
 
-    void setSetting(String key, String value);
+    void setSetting(IProcessToolSettings key, String value);
 
     String getAutowiredProperty(String key);
 
@@ -67,7 +70,11 @@ public interface ProcessToolContext  extends ProcessToolBpmConstants
 
     UserData getAutoUser();
 
+    /** Close hibernate session and process engine */
 	void close();
+	
+	/** Call when outer transaction had a rollback */
+	void rollback();
 
     void updateContext(ProcessInstance processInstance);
 
@@ -77,18 +84,23 @@ public interface ProcessToolContext  extends ProcessToolBpmConstants
     public Map<String, Object> getBpmVariables(ProcessInstance pi);
     public Object getBpmVariable(ProcessInstance pi, String variableName);
 
-	public static class Util {
-        private static ThreadLocal<ProcessToolContext> current = new ThreadLocal<ProcessToolContext>();
-
-		public static synchronized void setThreadProcessToolContext(ProcessToolContext ctx) {
+	public static class Util 
+	{
+		/** We use {@link InheritableThreadLocal} because we want context to be provided for child worker threads */
+        private static InheritableThreadLocal<ProcessToolContext> current = new InheritableThreadLocal<ProcessToolContext>();
+        
+		public static void setThreadProcessToolContext(ProcessToolContext ctx) 
+		{
 			current.set(ctx);
 		}
 
-		public static ProcessToolContext getThreadProcessToolContext() {
+		public static ProcessToolContext getThreadProcessToolContext() 
+		{		
 			return current.get();
 		}
 
-		public static synchronized void removeThreadProcessToolContext() {
+		public static void removeThreadProcessToolContext() 
+		{
 			current.remove();
 		}
 

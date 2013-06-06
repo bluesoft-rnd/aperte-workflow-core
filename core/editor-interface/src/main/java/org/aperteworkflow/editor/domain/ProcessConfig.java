@@ -1,10 +1,10 @@
 package org.aperteworkflow.editor.domain;
 
-import pl.net.bluesoft.rnd.pt.utils.lang.Lang2;
-
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+
+import pl.net.bluesoft.rnd.pt.utils.lang.Lang2;
 
 /**
  * Main configuration for the process editor application
@@ -18,6 +18,7 @@ public class ProcessConfig implements Serializable {
     private String description;
     private String comment;
     private String dictionary;
+    private String version;
     
     // This Map should be parametrized as <Language, String> however Jackson does not support
     // this out of the box, @see http://stackoverflow.com/questions/6371092/can-not-find-a-map-key-deserializer-for-type-simple-type-class-com-comcast-i
@@ -91,6 +92,15 @@ public class ProcessConfig implements Serializable {
 	public void setTaskItemClass(String taskItemClass) {
 		this.taskItemClass = taskItemClass;
 	}
+
+	public String getVersion() {
+		return version;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
+	}
+
 
 	public String getDefaultLanguage() {
 		return defaultLanguage;

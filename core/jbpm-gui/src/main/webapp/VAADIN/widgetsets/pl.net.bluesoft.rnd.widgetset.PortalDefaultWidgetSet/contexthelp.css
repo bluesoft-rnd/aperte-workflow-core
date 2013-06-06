@@ -1,0 +1,53 @@
+.v-helprouter-bubble {
+	margin: 0 0 0 0;
+	padding: 0 0 0 0;
+
+	font-family: Arial, Helvetica, Tahoma, Verdana, sans-serif;
+	font-size: 12px;
+	line-height: normal;
+}
+
+.v-helprouter-bubble .popupContent {
+	background-repeat: no-repeat;
+	max-width: 400px;
+}
+.v-helprouter-bubble.right .popupContent {
+	background-image: url(images/desc-arrow-left.png);
+	background-position: 0px 50%;
+	padding-left: 5px;
+}
+.v-helprouter-bubble.left .popupContent {
+	background-image: url(images/desc-arrow-right.png);
+	background-position: 100% 50%;
+	padding-right: 5px;
+}
+.v-helprouter-bubble.above .popupContent {
+	background-image: url(images/desc-arrow-down.png);
+	background-position: 50% 100%;
+	padding-bottom: 5px;
+}
+.v-helprouter-bubble.below .popupContent {
+	background-image: url(images/desc-arrow-up.png);
+	background-position: 50% 0px;
+	padding-top: 5px;
+}
+
+.v-helprouter-bubble .popupContent .helpText {
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#eeeeee', endColorstr='#dddddd'); /* for IE */
+	background: -webkit-gradient(linear, left top, left bottom, from(#eee), to(#ddd)); /* for webkit browsers */
+	background: -moz-linear-gradient(top,  #eee,  #ddd); /* for firefox	*/
+	border: 5px solid #292929;
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	border-radius: 10px;
+	-moz-box-shadow: 8px 8px 15px #999;
+	-webkit-box-shadow: 8px 8px 15px #999;
+	box-shadow: 8px 8px 15px #999;
+	padding: 2em;
+	text-shadow: #FFF 0px 1px 0px;
+	font-size: 11pt;
+}
+
+.v-button-context-help {
+	padding-left: 0.5em;
+}

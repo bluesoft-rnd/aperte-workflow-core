@@ -12,8 +12,9 @@ import org.hibernate.criterion.Restrictions;
 import org.jbpm.api.ExecutionService;
 import org.jbpm.api.ProcessEngine;
 
+import pl.net.bluesoft.rnd.processtool.BasicSettings;
+import pl.net.bluesoft.rnd.processtool.IProcessToolSettings;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolSessionFactory;
 import pl.net.bluesoft.rnd.processtool.bpm.exception.ProcessToolException;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
@@ -53,7 +54,7 @@ public class ProcessToolContextImpl implements ProcessToolContext {
     private ProcessToolJbpmSessionFactory processToolJbpmSessionFactory;
     private ProcessDictionaryRegistry processDictionaryRegistry;
     private ProcessEngine processEngine;
-    private ProcessToolContextFactory factory;
+    private ProcessToolRegistry registry;
     private IUserProcessQueueManager userProcessQueueManager;
 
     private Map<String, String> autowiringCache;
@@ -62,10 +63,10 @@ public class ProcessToolContextImpl implements ProcessToolContext {
     private Boolean closed = false;
 
     public ProcessToolContextImpl(Session hibernateSession,
-                                  ProcessToolContextFactory factory,
+    								ProcessToolRegistry registry,
                                   ProcessEngine processEngine) {
         this.hibernateSession = hibernateSession;
-        this.factory = factory;
+        this.registry = registry;
         this.processEngine = processEngine;
         this.autowiringCache = getRegistry().getCache(ProcessToolAutowire.class.getName());
         this.userProcessQueueManager = new UserProcessQueueManager(hibernateSession, getUserProcessQueueDAO());
@@ -83,19 +84,6 @@ public class ProcessToolContextImpl implements ProcessToolContext {
 
     }
 
-    public synchronized void close() {
-        try {
-            processEngine.close();
-        } finally {
-            try {
-                commit();
-            } finally {
-                hibernateSession.close();
-                closed = true;
-            }
-        }
-    }
-
     private synchronized void verifyContextOpen() {
         if (closed) {
             throw new ProcessToolException("Context already closed!");
@@ -106,7 +94,12 @@ public class ProcessToolContextImpl implements ProcessToolContext {
 
     }
 
-    public boolean isActive() {
+    public boolean isActive() 
+    {
+    	/* Check hibernate session */
+    	if(!hibernateSession.isOpen())
+    		return false;
+    	
         return !closed;
     }
 
@@ -129,7 +122,7 @@ public class ProcessToolContextImpl implements ProcessToolContext {
 
     @Override
     public ProcessToolRegistry getRegistry() {
-        return factory.getRegistry();
+        return registry;
     }
 
     @SuppressWarnings("unchecked")
@@ -223,25 +216,25 @@ public class ProcessToolContextImpl implements ProcessToolContext {
 
     @Override
     public EventBusManager getEventBusManager() {
-        return factory.getRegistry().getEventBusManager();
+        return registry.getEventBusManager();
     }
 
     @Override
-    public String getSetting(String key) {
+    public String getSetting(IProcessToolSettings key) {
         verifyContextOpen();
         ProcessToolSetting setting = (ProcessToolSetting) hibernateSession.createCriteria(ProcessToolSetting.class)
-                .add(Restrictions.eq("key", key)).uniqueResult();
+                .add(Restrictions.eq("key", key.toString())).uniqueResult();
         return setting != null ? setting.getValue() : null;
     }
 
     @Override
-    public void setSetting(String key, String value) {
+    public void setSetting(IProcessToolSettings key, String value) {
         verifyContextOpen();
         List list = hibernateSession.createCriteria(ProcessToolSetting.class).add(Restrictions.eq("key", key)).list();
         ProcessToolSetting setting;
         if (list.isEmpty()) {
             setting = new ProcessToolSetting();
-            setting.setKey(key);
+            setting.setKey(key.toString());
         } else {
             setting = (ProcessToolSetting) list.get(0);
         }
@@ -307,14 +300,9 @@ public class ProcessToolContextImpl implements ProcessToolContext {
 
     @Override
     public UserData getAutoUser() {
-        return new UserData(Formats.nvl(getSetting(AUTO_USER_LOGIN), "system"), Formats.nvl(getSetting(AUTO_USER_NAME), "System"),
-                Formats.nvl(getSetting(AUTO_USER_EMAIL), "awf@bluesoft.net.pl"));
+        return new UserData(Formats.nvl(getSetting(BasicSettings.AUTO_USER_LOGIN), "system"), Formats.nvl(getSetting(BasicSettings.AUTO_USER_NAME), "System"),
+                Formats.nvl(getSetting(BasicSettings.AUTO_USER_EMAIL), "awf@bluesoft.net.pl"));
     }
-
-    public ProcessToolContextFactory getFactory() {
-        return factory;
-    }
-
 
     public ProcessEngine getProcessEngine() {
         return processEngine;
@@ -347,5 +335,11 @@ public class ProcessToolContextImpl implements ProcessToolContext {
 	public IUserProcessQueueManager getUserProcessQueueManager()
 	{
 		return userProcessQueueManager;
+	}
+
+	@Override
+	public void close() {
+		this.closed = true;
+		
 	}
 }

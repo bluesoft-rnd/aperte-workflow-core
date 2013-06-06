@@ -44,6 +44,8 @@ public class ProcessToolVaadinApplicationPortlet2 extends ApplicationPortlet2Wit
         try {
             ProcessToolRegistry registry = (ProcessToolRegistry) getPortletConfig().getPortletContext()
                     .getAttribute(ProcessToolRegistry.class.getName());
+            ProcessToolRegistry.ThreadUtil.setThreadRegistry(registry);
+            
             if (registry == null) {
 				if (getApplication() != null) {
 					getApplication().getMainWindow().addComponent(new Label(
@@ -57,7 +59,6 @@ public class ProcessToolVaadinApplicationPortlet2 extends ApplicationPortlet2Wit
             registry.withProcessToolContext(new ProcessToolContextCallback() {
                 @Override
                 public void withContext(ProcessToolContext ctx) {
-                    ProcessToolContext.Util.setThreadProcessToolContext(ctx);
                     try {
                         try {
                             I18NSource.ThreadUtil.setThreadI18nSource(I18NSourceFactory.createI18NSource(request.getLocale()));
@@ -67,9 +68,7 @@ public class ProcessToolVaadinApplicationPortlet2 extends ApplicationPortlet2Wit
                         }
                     } catch (Exception e) {
                         throw new RuntimeException(e);
-                    } finally {
-                        ProcessToolContext.Util.removeThreadProcessToolContext();
-                    }
+                    } 
                 }
             });
         } finally {

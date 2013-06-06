@@ -1,16 +1,10 @@
 package pl.net.bluesoft.rnd.processtool.model.config;
 
-import org.hibernate.annotations.*;
-import pl.net.bluesoft.rnd.processtool.model.AbstractPersistentEntity;
 import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.pt.utils.lang.Lang2;
 
 import javax.persistence.*;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.Parameter;
-import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Date;
@@ -27,26 +21,20 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
 @Entity
 @Table(name="pt_process_definition_config")
-public class ProcessDefinitionConfig extends AbstractPersistentEntity implements Serializable {
-	@Id
-	@GeneratedValue(generator = "idGenerator")
-	@GenericGenerator(
-			name = "idGenerator",
-			strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
-			parameters = {
-					@org.hibernate.annotations.Parameter(name = "initial_value", value = "" + 1),
-					@org.hibernate.annotations.Parameter(name = "value_column", value = "_DB_ID"),
-					@org.hibernate.annotations.Parameter(name = "sequence_name", value = "DB_SEQ_ID_PROC_DEF_CONF")
-			}
-	)
-	@Column(name = "id")
-	protected Long id;
-
+public class ProcessDefinitionConfig extends PersistentEntity implements Serializable 
+{
+	private static final long serialVersionUID = 3568533142091163609L;
+	
 	private String processName;
 	private String description;
 	private String bpmDefinitionKey;
+	
+	/** Process version info */
+	@Column(name="process_version")
+	private String processVersion;
 
-    @Column(name="comment_")
+
+	@Column(name="comment_")
 	private String comment;
 
 	@ManyToOne(fetch=FetchType.LAZY)
@@ -55,11 +43,11 @@ public class ProcessDefinitionConfig extends AbstractPersistentEntity implements
 
 	private Date createDate;
 
-	@OneToMany(cascade = {CascadeType.ALL}, fetch=FetchType.LAZY)
+	@OneToMany(cascade = {CascadeType.ALL}, fetch=FetchType.EAGER)
 	@JoinColumn(name="definition_id")
 	private Set<ProcessStateConfiguration> states = new HashSet<ProcessStateConfiguration>();
 
-	@OneToMany(cascade = {CascadeType.ALL}, fetch=FetchType.LAZY)
+	@OneToMany(cascade = {CascadeType.ALL}, fetch=FetchType.EAGER)
 	@JoinColumn(name="definition_id")
 	private Set<ProcessDefinitionPermission> permissions = new HashSet<ProcessDefinitionPermission>();
 
@@ -74,15 +62,7 @@ public class ProcessDefinitionConfig extends AbstractPersistentEntity implements
 	 */
 	private Boolean latest;
 
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public byte[] getProcessLogo() {
+    public byte[] getProcessLogo() {
         return processLogo;
     }
 
@@ -146,11 +126,16 @@ public class ProcessDefinitionConfig extends AbstractPersistentEntity implements
 		this.creator = creator;
 	}
 
-	public Set<ProcessStateConfiguration> getStates() {
+	public Set<ProcessStateConfiguration> getStates() 
+	{
+        if (states == null) 
+        	states = new HashSet<ProcessStateConfiguration>();
+        
 		return states;
 	}
 
-	public void setStates(Set<ProcessStateConfiguration> states) {
+	public void setStates(Set<ProcessStateConfiguration> states) 
+	{
 		this.states = states;
 	}
 
@@ -170,6 +155,14 @@ public class ProcessDefinitionConfig extends AbstractPersistentEntity implements
     public void setEnabled(Boolean enabled) {
         this.enabled = enabled;
     }
+    
+    public String getProcessVersion() {
+		return nvl(processVersion, "");
+	}
+
+	public void setProcessVersion(String version) {
+		this.processVersion = version;
+	}
 
 	public static final Comparator<ProcessDefinitionConfig> DEFAULT_COMPARATOR = new Comparator<ProcessDefinitionConfig>() {
 		@Override
@@ -182,15 +175,27 @@ public class ProcessDefinitionConfig extends AbstractPersistentEntity implements
 		}
 	};
 
-    public Set<ProcessDefinitionPermission> getPermissions() {
-        if (permissions == null) {
-            permissions = new HashSet<ProcessDefinitionPermission>();
-        }
+    public Set<ProcessDefinitionPermission> getPermissions() 
+    {
+        if (permissions == null) 
+        	permissions = new HashSet<ProcessDefinitionPermission>();
+        
         return permissions;
     }
+    
+    /** Get the process state by action name */
+    public ProcessStateConfiguration getProcessStateConfigurationByName(String stateName)
+    {
+    	for(ProcessStateConfiguration state: getStates())
+    		if(state.getName().equals(stateName))
+    			return state;
+    	
+    	return null;
+    }
 
-    public void setPermissions(Set<ProcessDefinitionPermission> permissions) {
-        this.permissions = permissions;
+    public void setPermissions(Set<ProcessDefinitionPermission> permissions) 
+    {
+		this.permissions = permissions;
     }
     
     @Override

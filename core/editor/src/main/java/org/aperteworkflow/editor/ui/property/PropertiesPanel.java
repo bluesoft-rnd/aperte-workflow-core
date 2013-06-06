@@ -1,15 +1,20 @@
 package org.aperteworkflow.editor.ui.property;
 
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Panel;
-import com.vaadin.ui.VerticalLayout;
-import org.aperteworkflow.editor.stepeditor.user.Property;
-import org.aperteworkflow.editor.stepeditor.user.WidgetConfigFormFieldFactory;
-import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.aperteworkflow.editor.stepeditor.user.Property;
+import org.aperteworkflow.editor.stepeditor.user.WidgetConfigFormFieldFactory;
+
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Panel;
+import com.vaadin.ui.VerticalLayout;
 
 public class PropertiesPanel extends Panel {
 
@@ -54,13 +59,25 @@ public class PropertiesPanel extends Panel {
 		layout.addComponent(propertiesForm);
 	}
 	
-	public void refreshForm(boolean setCaption, List<Property<?>> properties) {
-		refreshForm(setCaption);
-		
-		for (Property<?> property : properties) {
-			final com.vaadin.ui.Field field = fieldFactory.createField(property, propertiesForm);
-			propertiesForm.addField(property, field);
-		}
+	public void refreshForm(final boolean setCaption, final List<Property<?>> properties) 
+	{
+    	ProcessToolRegistry reg = ProcessToolRegistry.ThreadUtil.getThreadRegistry();
+    	reg.withProcessToolContext(new ProcessToolContextCallback() 
+    			{
+
+					@Override
+					public void withContext(ProcessToolContext ctx) {
+						refreshForm(setCaption);
+						
+						for (Property<?> property : properties) {
+							final com.vaadin.ui.Field field = fieldFactory.createField(property, propertiesForm);
+							propertiesForm.addField(property, field);
+						}
+						
+					}
+    		
+		});
+
 	}
 	
     public void refreshForm(boolean setCaption, Map<String,Object> valuesMap) { 

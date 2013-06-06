@@ -1,5 +1,17 @@
 package pl.net.bluesoft.awf.ext.droolsstep;
 
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.ConcurrentModificationException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.drools.KnowledgeBase;
 import org.drools.KnowledgeBaseFactory;
 import org.drools.builder.KnowledgeBuilder;
@@ -12,13 +24,9 @@ import org.drools.logger.KnowledgeRuntimeLoggerFactory;
 import org.drools.rule.builder.dialect.mvel.MVELDialectConfiguration;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.StatelessKnowledgeSession;
+
 import pl.net.bluesoft.util.lang.Formats;
 import pl.net.bluesoft.util.lang.Mapcar;
-
-import java.io.InputStream;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class DroolsUtils {
 	private static final Logger log = Logger.getLogger(DroolsUtils.class.getName());

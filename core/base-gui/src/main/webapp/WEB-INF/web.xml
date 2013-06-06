@@ -373,6 +373,32 @@
 		</init-param>
 		<load-on-startup>0</load-on-startup>
 	</servlet>
+	
+    <servlet>
+		<servlet-name>VaadinApplicationServlet</servlet-name>
+		<servlet-class>
+			pl.net.bluesoft.rnd.processtool.application.activity.ResponsiveUIApplicationServlet
+		</servlet-class>
+		<init-param>
+		  <param-name>application</param-name>
+		  <param-value>pl.net.bluesoft.rnd.processtool.application.activity.ActivityStandAloneApplication</param-value>
+		</init-param>
+		<init-param>
+            <description>Application widgetset</description>
+            <param-name>widgetset</param-name>
+            <param-value>pl.net.bluesoft.rnd.widgetset.PortalDefaultWidgetSet</param-value>
+        </init-param>
+		<load-on-startup>1</load-on-startup>
+	  </servlet>
+	  
+	 <servlet-mapping>
+		<servlet-name>VaadinApplicationServlet</servlet-name>
+		<url-pattern>/standalone/*</url-pattern>
+	 </servlet-mapping>
+	 <servlet-mapping>
+        <servlet-name>VaadinApplicationServlet</servlet-name>
+        <url-pattern>/VAADIN/*</url-pattern>
+    </servlet-mapping>
 
 	<servlet>
 		<servlet-name>GenerateTokenServlet</servlet-name>
@@ -396,6 +422,12 @@
 		<servlet-class>pl.net.bluesoft.rnd.processtool.plugins.StepExposureServlet
 		</servlet-class>
 		<load-on-startup>2</load-on-startup>
+	</servlet>
+	<servlet>
+		<servlet-name>OSGIPerformActionServlet</servlet-name>
+		<servlet-class>pl.net.bluesoft.rnd.processtool.plugins.PerformActionServlet
+		</servlet-class>
+		<load-on-startup>5</load-on-startup>
 	</servlet>
 	<servlet>
 		<servlet-name>OSGIUserProcessQueuesServlet</servlet-name>
@@ -529,6 +561,11 @@
 		</servlet-name>
 		<url-pattern>/osgiex/configuration</url-pattern>
 	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>OSGIPerformActionServlet</servlet-name>
+		<url-pattern>/osgiex/token_access</url-pattern>
+	</servlet-mapping>
 
 
 	<servlet-mapping>
@@ -549,11 +586,6 @@
 	<servlet-mapping>
 		<servlet-name>ProcessEditorServlet</servlet-name>
 		<url-pattern>/process_editor/*</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>VaadinPortletServlet</servlet-name>
-		<url-pattern>/*</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>

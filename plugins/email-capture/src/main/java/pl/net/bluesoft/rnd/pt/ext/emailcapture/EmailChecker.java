@@ -1,27 +1,48 @@
 package pl.net.bluesoft.rnd.pt.ext.emailcapture;
 
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
-import pl.net.bluesoft.rnd.processtool.model.*;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
-import pl.net.bluesoft.rnd.pt.ext.emailcapture.model.EmailCheckerConfiguration;
-import pl.net.bluesoft.rnd.pt.ext.emailcapture.model.EmailCheckerRuleConfiguration;
-import pl.net.bluesoft.rnd.pt.utils.cmis.CmisAtomSessionFacade;
-import pl.net.bluesoft.util.lang.StringUtil;
+import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
+import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 
-import javax.mail.*;
-import javax.mail.search.FlagTerm;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 
-import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
-import static pl.net.bluesoft.util.lang.StringUtil.hasText;
+import javax.mail.Address;
+import javax.mail.Authenticator;
+import javax.mail.BodyPart;
+import javax.mail.Flags;
+import javax.mail.Folder;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Store;
+import javax.mail.search.FlagTerm;
+
+import org.aperteworkflow.cmis.widget.CmisAtomSessionFacade;
+
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
+import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceSimpleAttribute;
+import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
+import pl.net.bluesoft.rnd.pt.ext.emailcapture.model.EmailCheckerConfiguration;
+import pl.net.bluesoft.rnd.pt.ext.emailcapture.model.EmailCheckerRuleConfiguration;
+import pl.net.bluesoft.util.lang.StringUtil;
 
 public class EmailChecker {
 
@@ -218,12 +239,11 @@ public class EmailChecker {
                 }
 
             }
-            if (existingPi != null && hasText(rule.getRepositoryAtomUrl())) {
+            if (existingPi != null && hasText(rule.getRepositoryAtomUrl())) 
+            {
                 logger.fine("Uploading CMIS documents, process ID: " + existingPi.getInternalId());
-                CmisAtomSessionFacade sessionFacade = new CmisAtomSessionFacade(rule.getRepositoryUser(),
-                        rule.getRepositoryPassword(),
-                        rule.getRepositoryAtomUrl(),
-                        rule.getRepositoryId());
+                
+                CmisAtomSessionFacade sessionFacade = new CmisAtomSessionFacade();
 
                 String folderId = null;
                 for (ProcessInstanceAttribute at : existingPi.getProcessAttributes()) {

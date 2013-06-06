@@ -17,7 +17,7 @@ import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueRight;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
-import pl.net.bluesoft.rnd.processtool.ui.process.ProcessDataPane;
+import pl.net.bluesoft.rnd.processtool.ui.process.ProcessMultiViewDataPane;
 import pl.net.bluesoft.rnd.processtool.ui.process.WindowProcessDataDisplayContext;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
@@ -106,7 +106,9 @@ public class QueuesMainPane extends VerticalLayout implements Refreshable {
 				withErrorHandling(getApplication(), new Runnable() {
 
 					@Override
-					public void run() {
+					public void run() 
+					{
+						ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
 						ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().withProcessToolContext(new ProcessToolContextCallback() {
 							@Override
 							public void withContext(ProcessToolContext ctx) {
@@ -185,7 +187,7 @@ public class QueuesMainPane extends VerticalLayout implements Refreshable {
                                              + task.getProcessInstance().getInternalId() + "');");
                                      getWindow().executeJavaScript("vaadin.forceSync();");
                                      Window w = new Window(task.getProcessInstance().getInternalId());
-                                     w.setContent(new ProcessDataPane(getApplication(), session, i18NSource, task, new WindowProcessDataDisplayContext(w)));
+                                     w.setContent(new ProcessMultiViewDataPane(getApplication(), session, i18NSource, task, new WindowProcessDataDisplayContext(w)));
                                      w.center();
                                      getWindow().addWindow(w);
 	                                 w.focus();

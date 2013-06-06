@@ -1,5 +1,43 @@
 package org.aperteworkflow.view.impl.history;
 
+import java.text.DateFormat;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import org.aperteworkflow.ui.view.ViewCallback;
+import org.aperteworkflow.ui.view.ViewRenderer;
+import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
+import org.aperteworkflow.util.vaadin.VaadinUtility;
+import org.aperteworkflow.util.vaadin.text.TextValueChangeListener;
+import org.aperteworkflow.util.vaadin.ui.OrderedLayoutFactory;
+import org.aperteworkflow.util.vaadin.ui.table.LocalizedPagedTable;
+import org.aperteworkflow.util.vaadin.ui.table.LocalizedPagedTable.PageChangeListener;
+import org.aperteworkflow.util.vaadin.ui.table.LocalizedPagedTable.PagedTableChangeEvent;
+import org.aperteworkflow.util.view.AbstractListPane;
+import org.aperteworkflow.view.impl.history.DateRangeField.DateRange;
+import org.aperteworkflow.view.impl.history.DateRangeField.DateRangeChangedEvent;
+import org.aperteworkflow.view.impl.history.DateRangeField.DateRangeListener;
+import org.aperteworkflow.view.impl.history.settings.HistoryViewSettingsProvider;
+
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
+import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog;
+import pl.net.bluesoft.rnd.processtool.model.ProcessStatus;
+import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+import pl.net.bluesoft.util.lang.Formats;
+import pl.net.bluesoft.util.lang.Strings;
+
 import com.vaadin.Application;
 import com.vaadin.data.Container;
 import com.vaadin.data.Container.Filter;
@@ -17,35 +55,19 @@ import com.vaadin.event.LayoutEvents.LayoutClickEvent;
 import com.vaadin.event.LayoutEvents.LayoutClickListener;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.terminal.Sizeable;
-import com.vaadin.ui.*;
+import com.vaadin.ui.AbstractTextField;
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Table;
 import com.vaadin.ui.Table.ColumnGenerator;
-import org.aperteworkflow.ui.view.ViewCallback;
-import org.aperteworkflow.ui.view.ViewRenderer;
-import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
-import org.aperteworkflow.util.vaadin.text.TextValueChangeListener;
-import org.aperteworkflow.util.view.AbstractListPane;
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
-import pl.net.bluesoft.rnd.processtool.model.*;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
-import org.aperteworkflow.util.vaadin.VaadinUtility;
-import org.aperteworkflow.util.vaadin.ui.OrderedLayoutFactory;
-import org.aperteworkflow.view.impl.history.DateRangeField.DateRange;
-import org.aperteworkflow.view.impl.history.DateRangeField.DateRangeChangedEvent;
-import org.aperteworkflow.view.impl.history.DateRangeField.DateRangeListener;
-import org.aperteworkflow.util.vaadin.ui.table.LocalizedPagedTable;
-import org.aperteworkflow.util.vaadin.ui.table.LocalizedPagedTable.PageChangeListener;
-import org.aperteworkflow.util.vaadin.ui.table.LocalizedPagedTable.PagedTableChangeEvent;
-import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import pl.net.bluesoft.util.lang.Formats;
-import pl.net.bluesoft.util.lang.Strings;
-
-import java.text.DateFormat;
-import java.text.MessageFormat;
-import java.util.*;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
 
 
 /**
@@ -69,8 +91,6 @@ public class HistoryListPane extends AbstractListPane implements DateRangeListen
     public void setViewCallback(ViewCallback viewCallback) {
         this.viewCallback = viewCallback;
     }
-
-    private static final String HISTORY_SUPERUSER_CONFIG_KEY = "history.superuser.roles";
 
     private static final String[] allPropertyNames = new String[] {
             "log.entryDate", "def.desc", "pi.externalKey", "pi.internalId", "state.desc", "log.eventName", "log.actionName", "state.name",
@@ -265,15 +285,14 @@ public class HistoryListPane extends AbstractListPane implements DateRangeListen
             if (user.containsRole(HISTORY_SUPERUSER_ROLE_NAME)) {
                 isHistorySuperuser = true;
             }
-            else {
-                ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-                String config = ctx.getSetting(HISTORY_SUPERUSER_CONFIG_KEY);
-                if (Strings.hasText(config)) {
-                    for (String roleName : config.split(",")) {
-                        if (user.containsRole(roleName)) {
-                            isHistorySuperuser = true;
-                            break;
-                        }
+            else 
+            {
+            	Collection<String> roles = HistoryViewSettingsProvider.getSuperUserRoles();
+
+                for (String roleName : roles) {
+                    if (user.containsRole(roleName)) {
+                        isHistorySuperuser = true;
+                        break;
                     }
                 }
             }

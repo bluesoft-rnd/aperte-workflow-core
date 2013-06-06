@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -23,14 +22,15 @@ import javax.portlet.RenderResponse;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
 
-import org.aperteworkflow.util.liferay.LiferayBridge;
-import org.aperteworkflow.util.liferay.PortalBridge;
-
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
+import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
+import pl.net.bluesoft.rnd.processtool.di.annotations.AutoInject;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolGuiCallback;
+import pl.net.bluesoft.rnd.processtool.usersource.IPortalUserSource;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 import pl.net.bluesoft.util.eventbus.EventListener;
@@ -62,10 +62,13 @@ public abstract class GenericVaadinPortlet2BpmApplication extends Application im
     protected ProcessToolBpmSession bpmSession;
     protected I18NSource i18NSource;
 
-    private List<UserData> users;
+    private Collection<UserData> users;
     private String showKeysString;
     private boolean showExitWarning = false;
     private Locale lastLocale;
+    
+    @AutoInject
+    protected IPortalUserSource userSource;
     
     protected abstract void initializePortlet();
 
@@ -76,16 +79,22 @@ public abstract class GenericVaadinPortlet2BpmApplication extends Application im
 	
 
     @Override
-    public void init() {
+    public void init() 
+    {
+    	
         final Window mainWindow = new Window();
         setMainWindow(mainWindow);
         ApplicationContext applicationContext = getContext();
-        if (applicationContext instanceof PortletApplicationContext2) {
+        if (applicationContext instanceof PortletApplicationContext2) 
+        {
             PortletApplicationContext2 portletCtx = (PortletApplicationContext2) applicationContext;
+            
             portletCtx.addPortletListener(this, this);
         } else {
             mainWindow.addComponent(new Label(getMessage("please.use.from.a.portlet")));
         }
+
+
     }
 
     @Override
@@ -101,8 +110,9 @@ public abstract class GenericVaadinPortlet2BpmApplication extends Application im
         return r.processWithContext(ctx);
     }
 
-    public void handleRenderRequest(RenderRequest request, RenderResponse response, Window window) {
-        showKeysString = PortalBridge.getCurrentRequestParameter("showKeys");
+    public void handleRenderRequest(RenderRequest request, RenderResponse response, Window window) 
+    {
+        showKeysString = request.getParameter("showKeys");
 
 		if (request.getLocale() != null) {
 			setLocale(request.getLocale());
@@ -116,8 +126,10 @@ public abstract class GenericVaadinPortlet2BpmApplication extends Application im
 		}
 		lastLocale = getLocale();
 		
-
-		user = PortalBridge.getLiferayUser(request);
+    	/* init user source */
+		ObjectFactory.inject(this);
+		
+		user = userSource.getUserByRequest(request);
         userRoles = user != null ? user.getRoleNames() : Collections.<String>emptyList();
 
         if (user == null) {
@@ -129,6 +141,7 @@ public abstract class GenericVaadinPortlet2BpmApplication extends Application im
         } else {
             PortletSession session = ((PortletApplicationContext2) (getContext())).getPortletSession();
             bpmSession = (ProcessToolBpmSession) session.getAttribute("bpmSession", PortletSession.APPLICATION_SCOPE);
+
             if (bpmSession == null) {
                 ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
                 session.setAttribute("bpmSession",
@@ -143,7 +156,7 @@ public abstract class GenericVaadinPortlet2BpmApplication extends Application im
         }
         initialized = true;
         renderPortlet();
-        handleRequestListeners();
+        handleRequestListeners(request);
     }
 
     public boolean showKeys() {
@@ -162,16 +175,20 @@ public abstract class GenericVaadinPortlet2BpmApplication extends Application im
         return user;
     }
 
-    public UserData getUser(String login) {
-        return LiferayBridge.getLiferayUser(login, user.getCompanyId());
+    public UserData getUser(String login) 
+    {
+    	return userSource.getUserByLogin(login, user.getCompanyId());
     }
 
-    public UserData getUserByEmail(String email) {
-        return LiferayBridge.getLiferayUserByEmail(email, user.getCompanyId());
+    public UserData getUserByEmail(String email) 
+    {
+        return userSource.getUserByEmail(email);
     }
 
-    public List<UserData> getAllUsers() {
-        return users == null ? (users = LiferayBridge.getAllUsersByCurrentUser(user)) : users;
+    public Collection<UserData> getAllUsers() 
+    {
+    	
+        return users == null ? (users = userSource.getAllUsers()) : users;
     }
 
     public void setUser(UserData user) {
@@ -288,7 +305,7 @@ public abstract class GenericVaadinPortlet2BpmApplication extends Application im
             this.parameterMap = parameterMap;
         }
 
-        public Map getParameterMap() {
+        public Map<String, String[]> getParameterMap() {
             return parameterMap;
         }
     }
@@ -303,9 +320,10 @@ public abstract class GenericVaadinPortlet2BpmApplication extends Application im
         listenable.addListener(listener);
     }
 
-    private void handleRequestListeners() {
-        if (listenable.hasListeners()) {
-            Map<String, String[]> parameterMap = PortalBridge.getCurrentRequestParameterMap();
+    private void handleRequestListeners(RenderRequest request) {
+        if (listenable.hasListeners()) 
+        {
+            Map<String, String[]> parameterMap = request.getParameterMap();
             listenable.fireEvent(new RequestParameterEvent(parameterMap));
         }
     }

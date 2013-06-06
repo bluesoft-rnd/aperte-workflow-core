@@ -1,18 +1,19 @@
 package pl.net.bluesoft.rnd.pt.ext.usersubstitution.step;
 
-import org.aperteworkflow.util.liferay.LiferayBridge;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
 import pl.net.bluesoft.rnd.processtool.model.BpmStep;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.UserSubstitution;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
+import pl.net.bluesoft.rnd.processtool.usersource.IUserSource;
 import pl.net.bluesoft.util.lang.Formats;
-
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 @AliasName(name = "HandleSubstitutionAcceptanceStep")
 public class HandleSubstitutionAcceptance implements ProcessToolProcessStep {
@@ -29,9 +30,12 @@ public class HandleSubstitutionAcceptance implements ProcessToolProcessStep {
             userSubstitution.setDateTo(Formats.parseShortDate(processInstance.getSimpleAttributeValue("dateTo")));
             String substituteUserLogin = processInstance.getSimpleAttributeValue("userSubstitute");
             UserData substituteUser = ctx.getUserDataDAO().loadUserByLogin(substituteUserLogin);
-            if (substituteUser == null) {
-                substituteUser = LiferayBridge.getLiferayUser(substituteUserLogin,
-                        processInstance.getCreator().getCompanyId());
+            if (substituteUser == null) 
+            {
+            	IUserSource userSource = ObjectFactory.create(IUserSource.class);
+            	
+                substituteUser = userSource.getUserByLogin(substituteUserLogin, processInstance.getCreator().getCompanyId());
+                
                 ctx.getUserDataDAO().saveOrUpdate(substituteUser);
                 if (substituteUser == null) {
                     logger.warning("Unable to determine application user by login: " + substituteUserLogin);

@@ -1,11 +1,17 @@
 package org.aperteworkflow.ui.view.impl;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import org.aperteworkflow.ui.view.GenericPortletViewRenderer;
 import org.aperteworkflow.ui.view.IViewRegistry;
 import org.aperteworkflow.ui.view.ViewRenderer;
-import pl.net.bluesoft.rnd.util.func.Func;
 
-import java.util.*;
+import pl.net.bluesoft.rnd.util.func.Func;
 
 /**
  * @author tlipski@bluesoft.net.pl

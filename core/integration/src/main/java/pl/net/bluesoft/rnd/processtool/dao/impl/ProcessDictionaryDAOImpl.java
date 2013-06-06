@@ -30,7 +30,6 @@ import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItem;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemExtension;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemValue;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryPermission;
-import pl.net.bluesoft.rnd.util.ConfigurationResult;
 import pl.net.bluesoft.util.cache.Caches;
 import pl.net.bluesoft.util.lang.ExpiringCache;
 
@@ -130,7 +129,6 @@ public class ProcessDictionaryDAOImpl extends SimpleHibernateBean<ProcessDBDicti
                 Criteria criteria = getSession().createCriteria(ProcessDBDictionary.class)
                         .add(Restrictions.eq("dictionaryId", dictionaryId))
                         .add(Restrictions.eq("languageCode", languageCode))
-                        .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
                         .add(definition == null ? Restrictions.isNull("processDefinition") : Restrictions.eq("processDefinition", definition));
                 return (ProcessDBDictionary) criteria.uniqueResult();
             }
@@ -170,20 +168,17 @@ public class ProcessDictionaryDAOImpl extends SimpleHibernateBean<ProcessDBDicti
         List<ProcessDBDictionary> dictionaries = getSession().createCriteria(ProcessDBDictionary.class)
                 .add(Restrictions.isNotNull("processDefinition"))
                 .addOrder(Order.desc("dictionaryName"))
-                .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
                 .list();
         updateCache(dictionaries);
         return dictionaries;
     }
 
     @Override
-    public List<ProcessDBDictionary> fetchAllActiveProcessDictionaries() 
-    {
+    public List<ProcessDBDictionary> fetchAllActiveProcessDictionaries() {
         List<ProcessDBDictionary> dictionaries = getSession().createCriteria(ProcessDBDictionary.class)
                 .addOrder(Order.desc("dictionaryName"))
                 .createCriteria("processDefinition")
                 .add(Restrictions.eq("latest", Boolean.TRUE))
-                .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
                 .list();
         updateCache(dictionaries);
         return dictionaries;
@@ -269,11 +264,12 @@ public class ProcessDictionaryDAOImpl extends SimpleHibernateBean<ProcessDBDicti
 
         updateCache(dictionary);
     }
-    
+
     /** Create new global dicrionary. If there is already existing dictnioary, this method will delete it */
-    public void processGlobalDictionaries(List<ProcessDBDictionary> newDictionaries, boolean overwrite)
+    
+    public void processGlobalDictionaries(Collection<ProcessDBDictionary> newDictionaries, boolean overwrite)
     {
-    	List<ProcessDBDictionary> existingDBDictionaries = fetchAllGlobalDictionaries();
+    	Collection<ProcessDBDictionary> existingDBDictionaries = fetchAllGlobalDictionaries();
         for (ProcessDBDictionary newDict : newDictionaries) 
         {
         	ProcessDBDictionary existingDictionary = getExistingProcessDictnioary(existingDBDictionaries, newDict.getDictionaryId(), newDict.getLanguageCode());
@@ -296,22 +292,20 @@ public class ProcessDictionaryDAOImpl extends SimpleHibernateBean<ProcessDBDicti
     }
     
     /** Create new global dicrionary. If there is already existing dictnioary, this method will delete it */
-    public void processProcessDictionaries(List<ProcessDBDictionary> newDictionaries, ConfigurationResult result, boolean overwrite)
-    {
-    	ProcessDefinitionConfig newOne = result.getNewOne();
-    	ProcessDefinitionConfig oldOne = result.getOldOne();
+    @Override
+    public void processProcessDictionaries(Collection<ProcessDBDictionary> newDictionaries, ProcessDefinitionConfig newProcess, ProcessDefinitionConfig oldProcess, boolean overwrite)
+    {	
+    	if(oldProcess == null)
+    		oldProcess = newProcess;
     	
-    	if(oldOne == null)
-    		oldOne = newOne;
+    	boolean isTheSame = newProcess.getId().equals(oldProcess.getId());
     	
-    	boolean isTheSame = newOne.getId().equals(oldOne.getId());
-    	
-    	List<ProcessDBDictionary> existingDBDictionaries = fetchProcessDictionaries(oldOne);
+    	Collection<ProcessDBDictionary> existingDBDictionaries = fetchProcessDictionaries(oldProcess);
 
     	
         for (ProcessDBDictionary newDict : newDictionaries) 
         {
-        	newDict.setProcessDefinition(newOne);
+        	newDict.setProcessDefinition(newProcess);
         	
         	ProcessDBDictionary existingDictionary = getExistingProcessDictnioary(existingDBDictionaries, newDict.getDictionaryId(), newDict.getLanguageCode());
         	
@@ -382,7 +376,6 @@ public class ProcessDictionaryDAOImpl extends SimpleHibernateBean<ProcessDBDicti
     	return null;
     }
 
-
     @Override
     public void updateDictionary(ProcessDBDictionary dictionary) {
         Session session = getSession();
@@ -433,16 +426,17 @@ public class ProcessDictionaryDAOImpl extends SimpleHibernateBean<ProcessDBDicti
                         newValue.setItem(newItem);
                         newItem.getValues().add(newValue);
 
-                        Map<String, ProcessDBDictionaryItemExtension> extensions = value.getExtensions();
-                        newValue.setExtensions(new HashMap<String, ProcessDBDictionaryItemExtension>());
+                        Set<ProcessDBDictionaryItemExtension> extensions = value.getExtensions();
+                        newValue.setExtensions(new HashSet<ProcessDBDictionaryItemExtension>());
 
-                        for (Entry<String, ProcessDBDictionaryItemExtension> extension : extensions.entrySet()) {
+                        for (ProcessDBDictionaryItemExtension extension : extensions) 
+                        {
                             ProcessDBDictionaryItemExtension newExtension = new ProcessDBDictionaryItemExtension();
-                            PropertyUtils.copyProperties(newExtension, extension.getValue());
+                            PropertyUtils.copyProperties(newExtension, extension);
                             newExtension.setId(null);
 
                             newExtension.setItemValue(newValue);
-                            newValue.getExtensions().put(extension.getKey(), newExtension);
+                            newValue.addExtension(newExtension);
                         }
                     }
                 }

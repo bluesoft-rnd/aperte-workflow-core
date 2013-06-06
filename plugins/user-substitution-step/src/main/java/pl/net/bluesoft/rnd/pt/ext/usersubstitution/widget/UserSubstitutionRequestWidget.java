@@ -1,10 +1,12 @@
 package pl.net.bluesoft.rnd.pt.ext.usersubstitution.widget;
 
-import com.vaadin.data.Property;
-import com.vaadin.data.util.BeanItemContainer;
-import com.vaadin.data.util.MethodProperty;
-import com.vaadin.ui.*;
-import org.aperteworkflow.util.liferay.LiferayBridge;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
@@ -14,12 +16,20 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
-
+import pl.net.bluesoft.rnd.processtool.usersource.IUserSource;
 import pl.net.bluesoft.util.lang.Formats;
 import pl.net.bluesoft.util.lang.Maps;
 import pl.net.bluesoft.util.lang.Strings;
 
-import java.util.*;
+import com.vaadin.data.Property;
+import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.data.util.MethodProperty;
+import com.vaadin.ui.AbstractSelect;
+import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.PopupDateField;
 
 /**
  * User: POlszewski
@@ -40,15 +50,20 @@ public class UserSubstitutionRequestWidget extends BaseProcessToolWidget impleme
     private UserData userSubstitute = null;
     private Date dateFrom;
     private Date dateTo;
+    
 
     @Override
-    public void loadData(BpmTask task) {
+    public void loadData(BpmTask task) 
+    {	
         ProcessInstance pi = task.getProcessInstance();
         user = pi.getCreator();
         String userSubstituteLogin = pi.getSimpleAttributeValue(USER_SUBSTITUTE_LOGIN, null);
         dateFrom = parseShortDate(pi.getSimpleAttributeValue(DATE_FROM, null));
         dateTo = parseShortDate(pi.getSimpleAttributeValue(DATE_TO, null));
-        usersMap = Maps.collectionToMap(LiferayBridge.getAllUsersByCurrentUser(pi.getCreator()), "login");
+        
+        IUserSource userSource = ObjectFactory.create(IUserSource.class);
+     
+        usersMap = Maps.collectionToMap(userSource.getAllUsers(), "login");
         usersMap.remove(user.getLogin());
         if (Strings.hasText(userSubstituteLogin)) {
             userSubstitute = usersMap.get(userSubstituteLogin);
@@ -148,6 +163,7 @@ public class UserSubstitutionRequestWidget extends BaseProcessToolWidget impleme
         });
         return userBox;
     }
+   
 
     @Override
     public void addChild(ProcessToolWidget child) {

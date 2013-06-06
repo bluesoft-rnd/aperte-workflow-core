@@ -2,6 +2,7 @@ package pl.net.bluesoft.rnd.processtool.plugins;
 
 import org.osgi.framework.BundleException;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.di.DependencyInjectionInitializer;
 import pl.net.bluesoft.rnd.processtool.plugins.osgi.PluginHelper;
 
 import javax.servlet.ServletException;
@@ -32,6 +33,9 @@ public class PluginServlet extends HttpServlet {
 	@Override
     public void init() throws ServletException {
         LOGGER.info("init");
+        
+        /* Initialize dependencies */
+        DependencyInjectionInitializer.injectDefaultDependecies();
 
         initPluginHelper();
         LOGGER.info("initout");

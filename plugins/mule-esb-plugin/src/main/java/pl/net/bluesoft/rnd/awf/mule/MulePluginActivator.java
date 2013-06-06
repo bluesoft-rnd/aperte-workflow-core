@@ -1,14 +1,9 @@
 package pl.net.bluesoft.rnd.awf.mule;
 
-import org.apache.commons.io.IOUtils;
-import org.osgi.framework.*;
-import pl.net.bluesoft.rnd.awf.mule.step.MuleStep;
-import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
-import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
-import pl.net.bluesoft.rnd.util.func.Func;
+import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
+import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -18,8 +13,18 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
-import static pl.net.bluesoft.util.lang.StringUtil.hasText;
+import org.apache.commons.io.IOUtils;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleEvent;
+import org.osgi.framework.BundleListener;
+import org.osgi.framework.ServiceReference;
+
+import pl.net.bluesoft.rnd.awf.mule.step.MuleStep;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
+import pl.net.bluesoft.rnd.util.func.Func;
 
 /**
  * Created by IntelliJ IDEA.

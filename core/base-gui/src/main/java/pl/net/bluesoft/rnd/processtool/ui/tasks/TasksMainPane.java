@@ -12,7 +12,7 @@ import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.ui.newprocess.NewProcessPane;
-import pl.net.bluesoft.rnd.processtool.ui.process.ProcessDataPane;
+import pl.net.bluesoft.rnd.processtool.ui.process.ProcessMultiViewDataPane;
 import pl.net.bluesoft.rnd.processtool.ui.process.WindowProcessDataDisplayContext;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import org.aperteworkflow.util.vaadin.VaadinUtility.Refreshable;
@@ -112,7 +112,7 @@ public class TasksMainPane extends VerticalLayout implements Refreshable {
                             BeanItem<TaskTableItem> beanItem = bic.getItem(event.getItemId());
                             TaskTableItem tti = beanItem.getBean();
                             Window w = new Window(tti.getInternalId());
-                            w.setContent(new ProcessDataPane(getApplication(), session, i18NSource, tti.getTask(), new WindowProcessDataDisplayContext(w)));
+                            w.setContent(new ProcessMultiViewDataPane(getApplication(), session, i18NSource, tti.getTask(), new WindowProcessDataDisplayContext(w)));
                             w.center();
                             getWindow().addWindow(w);
                             w.focus();

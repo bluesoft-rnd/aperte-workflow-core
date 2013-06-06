@@ -1,26 +1,35 @@
 package pl.net.bluesoft.rnd.pt.ext.filescapture;
 
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
-import pl.net.bluesoft.rnd.processtool.model.*;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
-import pl.net.bluesoft.rnd.pt.ext.filescapture.model.FilesCheckerConfiguration;
-import pl.net.bluesoft.rnd.pt.ext.filescapture.model.FilesCheckerRuleConfiguration;
-import pl.net.bluesoft.rnd.pt.utils.cmis.CmisAtomSessionFacade;
-import pl.net.bluesoft.util.lang.StringUtil;
+import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
+import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 
-import javax.activation.MimetypesFileTypeMap;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 
-import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
-import static pl.net.bluesoft.util.lang.StringUtil.hasText;
+import javax.activation.MimetypesFileTypeMap;
+
+import org.aperteworkflow.cmis.widget.CmisAtomSessionFacade;
+
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
+import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceSimpleAttribute;
+import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
+import pl.net.bluesoft.rnd.pt.ext.filescapture.model.FilesCheckerConfiguration;
+import pl.net.bluesoft.rnd.pt.ext.filescapture.model.FilesCheckerRuleConfiguration;
+import pl.net.bluesoft.util.lang.StringUtil;
 
 /**
  * Created by Agata Taraszkiewicz
@@ -109,10 +118,7 @@ public class FilesChecker {
 
             }
             if (existingPi != null && hasText(rule.getRepositoryAtomUrl())) {
-                CmisAtomSessionFacade sessionFacade = new CmisAtomSessionFacade(rule.getRepositoryUser(),
-                        rule.getRepositoryPassword(),
-                        rule.getRepositoryAtomUrl(),
-                        rule.getRepositoryId());
+                CmisAtomSessionFacade sessionFacade = new CmisAtomSessionFacade();
                 String folderId = null;
 
                 for (ProcessInstanceAttribute at : existingPi.getProcessAttributes()) {

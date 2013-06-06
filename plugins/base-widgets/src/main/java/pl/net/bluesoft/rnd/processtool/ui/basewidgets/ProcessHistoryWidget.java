@@ -27,7 +27,13 @@ import static pl.net.bluesoft.util.lang.Formats.nvl;
 import static pl.net.bluesoft.util.lang.Strings.hasText;
 
 /**
+ * 
+ * History process widget. 
+ * 
+ * Refactored for css layout
+ * 
  * @author tlipski@bluesoft.net.pl
+ * @author mpawlak@bluesoft.net.pl
  */
 @AliasName(name = "ProcessHistory")
 @AperteDoc(humanNameKey="widget.process_history.name", descriptionKey="widget.process_history.description")
@@ -165,54 +171,39 @@ public class ProcessHistoryWidget extends BaseProcessToolVaadinWidget implements
 			for (Object o : table.getVisibleColumns()) {
 				table.setColumnHeader(o, getMessage("awf.basewidgets.process-history." + o));
 			}
-//			for (int i = 0; i < widths.length; i++) {
-//				table.setColumnWidth(cols[i], widths[i]);
-//			}
 
 			return table;
-		} else {
-			Panel p = new Panel();
-			p.setStyleName(Reindeer.PANEL_LIGHT);
-			p.setWidth("100%");
-			p.setHeight("240px");
+		}
+		else
+		{
 
-			VerticalLayout layout = (VerticalLayout) p.getContent();
-//			layout.setMargin(true);
-			layout.setSpacing(true);
 
-			for (ProcessLogInfo pli : logInfos) {
-				HorizontalLayout hl;
-				hl = new HorizontalLayout();
-                hl.addStyleName("history-item-header");
-				hl.setSpacing(true);
-	            hl.setWidth("100%");
-				if (hasText(pli.getUserDescription()))
-					hl.addComponent(label("<b class=\"header-author\">" + pli.getUserDescription() + "</b>", 150));
-				else
-					hl.addComponent(label("<b class=\"header-author\">System</b>", 150));
+			CssLayout layout = new CssLayout();
+			layout.setSizeFull();
+			layout.addStyleName("history-panel");
 
-				hl.addComponent(label("<b class=\"header-time\">" + pli.getPerformDate() + "</b>", 150));
-                if (Strings.hasText(pli.getStateDescription())) {
-                    hl.addComponent(new Label("<b class=\"header-state\">" + getMessage("awf.basewidgets.process-history.stateDescription") + "</b>", Label.CONTENT_XHTML));
-                    Label label = label(getMessage(pli.getStateDescription()), 350);
-                    label.setStyleName("header-state");
-					hl.addComponent(label);
+			for (ProcessLogInfo pli : logInfos) 
+			{
+				Label labelAuthor = new Label(hasText(pli.getUserDescription()) ? pli.getUserDescription() : "System");
+				labelAuthor.addStyleName("history-header-author");
+				layout.addComponent(labelAuthor);
+				
+				Label labelDate = new Label(pli.getPerformDate());
+				labelDate.addStyleName("history-header-time");
+				layout.addComponent(labelDate);
+				
+                if (Strings.hasText(pli.getStateDescription())) 
+                {
+    				Label labelState = new Label(getMessage(pli.getStateDescription()));
+    				labelState.addStyleName("history-header-state");
+    				layout.addComponent(labelState);
                 }
-                Label spacer = new Label("");
-                hl.addComponent(spacer);
-                hl.setExpandRatio(spacer, 1);
-				layout.addComponent(hl);
-				hl = new HorizontalLayout();
-                hl.addStyleName("history-item-body");
-				hl.setSpacing(true);
-	            hl.setWidth("100%");
-				hl.setMargin(new Layout.MarginInfo(false, false, true, true));
-				Label l = new Label(pli.getActionDescription(), Label.CONTENT_XHTML);
-				l.setWidth("730px");
-				hl.addComponent(l);
-				layout.addComponent(hl);
+                
+				Label labelBody = new Label(getMessage(pli.getActionDescription()));
+				labelBody.addStyleName("history-item-body");
+				layout.addComponent(labelBody);
 			}
-			return p;
+			return layout;
 		}
 	}
 

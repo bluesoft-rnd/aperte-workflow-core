@@ -2,6 +2,7 @@ package pl.net.bluesoft.rnd.processtool.ui.utils;
 
 import org.apache.commons.lang3.StringUtils;
 
+import pl.net.bluesoft.rnd.processtool.BasicSettings;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 
 import com.vaadin.ui.Window;
@@ -15,9 +16,6 @@ import com.vaadin.ui.Window;
  */
 public class QueuesPanelRefresherUtil 
 {
-	/** Refresh interval in seconds */
-	private static final String REFRESHER_INTERVAL_SETTINGS_KEY = "refresher.interval";
-	
 	public static String getQueueTaskId(String taskName)
 	{
 		/* remove whitespaces */
@@ -74,7 +72,7 @@ public class QueuesPanelRefresherUtil
 	
 	public static void changeRefresherInterval(Window mainWindow)
 	{
-		String refreshInterval = ProcessToolContext.Util.getThreadProcessToolContext().getSetting(REFRESHER_INTERVAL_SETTINGS_KEY);
+		String refreshInterval = ProcessToolContext.Util.getThreadProcessToolContext().getSetting(BasicSettings.REFRESHER_INTERVAL_SETTINGS_KEY);
 		if(refreshInterval == null || refreshInterval.isEmpty())
 			return;
 		

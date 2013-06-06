@@ -39,14 +39,9 @@ public class Activator implements BundleActivator {
 						try {
 							toolRegistry.withProcessToolContext(new ProcessToolContextCallback() {
 								@Override
-								public void withContext(ProcessToolContext ctx) {
-									ProcessToolContext.Util.setThreadProcessToolContext(ctx);
-									try {
-										new EmailChecker(ctx).run();
-									}
-									finally {
-										ProcessToolContext.Util.removeThreadProcessToolContext();
-									}
+								public void withContext(ProcessToolContext ctx) 
+								{
+									new EmailChecker(ctx).run();
 								}
 							});
 						}

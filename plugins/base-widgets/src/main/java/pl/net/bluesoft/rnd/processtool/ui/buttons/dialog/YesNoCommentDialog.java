@@ -2,6 +2,9 @@ package pl.net.bluesoft.rnd.processtool.ui.buttons.dialog;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.RichTextArea;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
+
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComment;
 
 /**
@@ -48,19 +51,35 @@ public class YesNoCommentDialog extends AddCommentDialog {
 	}
 
 	@Override
-	protected Button[] createActionButtons() {
-		return new Button[] {
-				addButton = createConfirmButton(),
-				noButton = createActionButton(getDeclineButtonCaption()),
-				cancelButton = createActionButton(getCancelButtonCaption())
-		};
+	protected Button[] createActionButtons() 
+	{
+		addButton = new Button(getConfirmButtonCaption());
+		addButton.addListener((ClickListener)this);
+		
+		cancelButton = new Button(getCancelButtonCaption());
+		cancelButton.addListener((ClickListener)this);
+		
+		noButton = new Button(getDeclineButtonCaption());
+		noButton.addListener((ClickListener)this);
+		
+		
+		return new Button[] {addButton, noButton, cancelButton};
 	}
-
+ 
 	public Button getYesButton() {
 		return addButton;
 	}
 
 	public Button getNoButton() {
 		return noButton;
+	}
+	
+	@Override
+	public void buttonClick(ClickEvent event) 
+	{
+		if(event.getButton().equals(noButton))
+			closeWindow();
+		else
+			super.buttonClick(event);
 	}
 }

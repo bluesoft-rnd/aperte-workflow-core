@@ -10,14 +10,17 @@ import java.util.List;
 import java.util.Set;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
 import pl.net.bluesoft.rnd.processtool.model.QueueType;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessDeadline;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.ui.tasks.TaskTableItem;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.taskitem.TaskItemProviderBase;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.taskitem.TaskItemProviderParams;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import com.vaadin.ui.Component;
 
@@ -58,8 +61,21 @@ public class MyProcessesListPane extends ProcessListPane {
     protected void onClick(final TaskItemProviderParams params) {
         withErrorHandling(getApplication(), new Runnable() {
             @Override
-			public void run() {
-                displayProcessData(params.getTask());
+			public void run() 
+            {
+            	ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
+            	ProcessToolRegistry registry = ProcessToolRegistry.ThreadUtil.getThreadRegistry();
+            	
+            	registry.withProcessToolContext(new ProcessToolContextCallback() {
+					
+					@Override
+					public void withContext(ProcessToolContext ctx) 
+					{
+						I18NSource.ThreadUtil.setThreadI18nSource(messageSource);
+						displayProcessData(params.getTask());
+						
+					}
+				});
             }
         });
     }

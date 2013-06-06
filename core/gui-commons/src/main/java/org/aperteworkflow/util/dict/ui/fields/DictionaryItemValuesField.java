@@ -9,7 +9,6 @@ import com.vaadin.data.validator.IntegerValidator;
 import com.vaadin.ui.*;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import org.aperteworkflow.util.dict.ui.fields.DictionaryItemExtensionField;
 import org.aperteworkflow.util.dict.wrappers.DictionaryItemValueWrapper;
 import org.aperteworkflow.util.vaadin.ui.date.OptionalDateField;
 import org.vaadin.addon.customfield.CustomField;
@@ -21,7 +20,7 @@ import static org.aperteworkflow.util.dict.wrappers.DictionaryItemValueWrapper.*
 import static org.aperteworkflow.util.vaadin.VaadinUtility.*;
 
 public abstract class DictionaryItemValuesField extends CustomField {
-    private I18NSource source;
+	private I18NSource source;
     private Application application;
     private String valueType;
 
@@ -90,28 +89,8 @@ public abstract class DictionaryItemValuesField extends CustomField {
         }
         Collections.sort(modifiedValue, new Comparator<DictionaryItemValueWrapper>() {
             @Override
-            public int compare(DictionaryItemValueWrapper o1, DictionaryItemValueWrapper o2)
-            {
-            	
-            	/* The null value is higher then anything else */
-            	if(o1.getValidStartDate() == null)
-            		return Integer.MAX_VALUE;
-            	
-            	else if(o1.getValidEndDate() == null)
-            		return Integer.MIN_VALUE;
-            	
-            	else if(o2.getValidStartDate() == null)
-            		return Integer.MIN_VALUE;
-            	
-            	
-    			/* Fix na IBMowa impelementacje TimeStampa, który próbuje rzutować
-    			 * obiekt Date na Timestamp i przez to leci wyjątek. 
-    			 */
-    			Date paymentDate1 = new Date(o1.getValidStartDate().getTime());
-    			Date paymentDate2 = new Date(o2.getValidStartDate().getTime());
-            	
-            	/* The newer the date is the position of value is higher in collection */
-                return paymentDate2.compareTo(paymentDate1);
+            public int compare(DictionaryItemValueWrapper o1, DictionaryItemValueWrapper o2) {
+                return o1.getValue().compareTo(o2.getValue());
             }
         });
     }
@@ -201,7 +180,6 @@ public abstract class DictionaryItemValuesField extends CustomField {
             }
         }
     }
-
 
     private boolean validateSingleDate(boolean fullRangeFound, DictionaryItemValueWrapper val, Date date) {
         if (date == null) {

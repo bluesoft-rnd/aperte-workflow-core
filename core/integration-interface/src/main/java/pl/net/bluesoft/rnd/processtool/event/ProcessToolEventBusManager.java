@@ -27,13 +27,9 @@ public class ProcessToolEventBusManager extends ConcurrentEventBusManager {
             public void run() {
                 registry.withProcessToolContext(new ProcessToolContextCallback() {
                     @Override
-                    public void withContext(ProcessToolContext ctx) {
-                        ProcessToolContext.Util.setThreadProcessToolContext(ctx);
-                        try {
-                            publish(event);
-                        } finally {
-                            ProcessToolContext.Util.removeThreadProcessToolContext();
-                        }
+                    public void withContext(ProcessToolContext ctx) 
+                    {
+                       publish(event);
                     }
                 });
             }

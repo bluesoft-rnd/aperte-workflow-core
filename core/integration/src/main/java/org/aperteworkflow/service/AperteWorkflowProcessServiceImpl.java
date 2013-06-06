@@ -1,5 +1,25 @@
 package org.aperteworkflow.service;
 
+import static org.aperteworkflow.util.ContextUtil.withContext;
+import static org.aperteworkflow.util.HibernateBeanUtil.fetchHibernateData;
+
+import java.io.ByteArrayInputStream;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.jws.WebMethod;
+import javax.jws.WebParam;
+import javax.jws.WebService;
+
+import org.aperteworkflow.service.fault.AperteWsIllegalArgumentException;
+import org.aperteworkflow.service.fault.AperteWsWrongArgumentException;
+import org.aperteworkflow.util.AperteErrorCheckUtil;
+import org.aperteworkflow.util.AperteIllegalArgumentCodes;
+import org.aperteworkflow.util.AperteWrongArgumentCodes;
+
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
@@ -11,22 +31,7 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
- 
-import javax.jws.WebMethod;
-import javax.jws.WebParam; 
-import javax.jws.WebService;
-
-import org.aperteworkflow.service.fault.AperteWsIllegalArgumentException;
-import org.aperteworkflow.service.fault.AperteWsWrongArgumentException;
-import org.aperteworkflow.util.AperteErrorCheckUtil;
-import org.aperteworkflow.util.AperteIllegalArgumentCodes;
-import org.aperteworkflow.util.AperteWrongArgumentCodes;
-
-import java.io.ByteArrayInputStream;
-import java.util.*; 
-
-import static org.aperteworkflow.util.ContextUtil.withContext;  
-import static org.aperteworkflow.util.HibernateBeanUtil.fetchHibernateData; 
+import pl.net.bluesoft.rnd.processtool.plugins.deployment.ProcessDeployer;
 
 /**
  * Most of WebMethods works, some of them are taged as (exclude=true), because they allow for too much interference in the aperet workflow  data.
@@ -215,21 +220,21 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 
 	@Override
 	@WebMethod 
-    public List<BpmTask> getTaskData(@WebParam(name="internalId")final String internalId,
+    public BpmTask getTaskData(@WebParam(name="internalId")final String internalId,
                                                  @WebParam(name="taskName")final String taskName) throws AperteWsWrongArgumentException, AperteWsIllegalArgumentException {
 		
 		final ProcessInstance processData = getProcessData(internalId);
 		 
 		AperteErrorCheckUtil.checkCorrectnessOfArgument(taskName, AperteIllegalArgumentCodes.TASK);
 		
-		List<BpmTask> bpmTasks = withContext(new ReturningProcessToolContextCallback<List<BpmTask>>() {
+		BpmTask bpmTasks = withContext(new ReturningProcessToolContextCallback<BpmTask>() {
             @Override
-            public List<BpmTask> processWithContext(ProcessToolContext ctx) {
+            public BpmTask processWithContext(ProcessToolContext ctx) {
                 return fetchHibernateData(getSession(ctx).getTaskData(processData.getInternalId(), taskName, ctx));
             }
         });
 		
-		if(bpmTasks== null || bpmTasks.isEmpty()){
+		if(bpmTasks== null){
 			
 			AperteWrongArgumentCodes.BPMTASK.throwAperteWebServiceException();
 		}
@@ -297,7 +302,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
         return withContext(new ReturningProcessToolContextCallback<List<BpmTask>>() {
             @Override
             public List<BpmTask> processWithContext(ProcessToolContext ctx) {
-                return fetchHibernateData(getSession(ctx, user).findProcessTasksWithUser(processInstance, ctx));
+                return fetchHibernateData(getSession(ctx, user).findProcessTasks(processInstance, ctx));
             }
         });
     }
@@ -564,8 +569,10 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
                                              @WebParam(name="logo")final byte[] logo) {
         withContext(new ReturningProcessToolContextCallback() {
             @Override
-            public Object processWithContext(ProcessToolContext ctx) {
-                ctx.getRegistry().deployOrUpdateProcessDefinition(
+            public Object processWithContext(ProcessToolContext ctx) 
+            {
+            	ProcessDeployer processDeployer = new ProcessDeployer(ctx);
+            	processDeployer.deployOrUpdateProcessDefinition(
                         new ByteArrayInputStream(processMapDefinition),
                         cfg, queues,
                         new ByteArrayInputStream(processMapImageStream),
@@ -595,8 +602,11 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
                                         @WebParam(name="logo")final byte[] logo) {
         withContext(new ReturningProcessToolContextCallback() {
             @Override
-            public Object processWithContext(ProcessToolContext ctx) {
-                ctx.getRegistry().deployOrUpdateProcessDefinition(
+            public Object processWithContext(ProcessToolContext ctx) 
+            {
+            	ProcessDeployer processDeployer = new ProcessDeployer(ctx);
+            	
+            	processDeployer.deployOrUpdateProcessDefinition(
                         new ByteArrayInputStream(processMapDefinition),
                         new ByteArrayInputStream(cfgXmlFile),
                         new ByteArrayInputStream(queueXmlFile),

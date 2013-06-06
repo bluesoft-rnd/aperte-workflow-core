@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<process-dictionaries processBpmDefinitionKey="user_substitution" defaultLanguage="pl_PL" overwrite="false">
+    
+	<dict dictionaryId="axa_contract_annex" dictionaryName="Pomoc do 1 ekranu aneksowania" languageCode="pl_PL">
+		<permission privilegeName="EDIT" roleName="DICT_CONTRACT_axa_annex" />
+    	<entry key="contractNumber">
+			<val value="Wprowadź numer umowy, którą chcesz aneksować."/>
+		</entry>
+		<entry key="contractPath">
+			<val value="Wybierz z listy rodzaj aneksowania."/>
+		</entry>
+    </dict>
+	
+	<dict dictionaryId="axa_contract_annex" dictionaryName="Help for first annex step" languageCode="en_US">
+		<permission privilegeName="EDIT" roleName="DICT_CONTRACT_axa_annex" />
+    	<entry key="contractNumber">
+			<val value="Fill in the number of the agreement for annexing."/>
+		</entry>
+		<entry key="contractPath">
+			<val value="Choose from the list the type of annexing"/>
+		</entry>
+    </dict>
+	
+</process-dictionaries>

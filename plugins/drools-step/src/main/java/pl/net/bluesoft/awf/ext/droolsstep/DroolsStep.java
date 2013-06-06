@@ -1,14 +1,23 @@
 package pl.net.bluesoft.awf.ext.droolsstep;
 
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import pl.net.bluesoft.awf.ext.droolsstep.settings.DroolsStepSettingsProvider;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.model.*;
+import pl.net.bluesoft.rnd.processtool.model.BpmStep;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceSimpleAttribute;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 import pl.net.bluesoft.util.lang.Strings;
-
-import java.io.InputStream;
-import java.util.*;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -32,7 +41,7 @@ public class DroolsStep implements ProcessToolProcessStep {
         }
         else {
             if (ruleUrl.startsWith("/")) {
-                ruleUrl = ctx.getSetting("drools.rules.baseurl") + ruleUrl;
+                ruleUrl = DroolsStepSettingsProvider.getRulesBaseURL() + ruleUrl;
             }
             resource = new DroolsUtils.DroolsResource(ruleUrl);
         }

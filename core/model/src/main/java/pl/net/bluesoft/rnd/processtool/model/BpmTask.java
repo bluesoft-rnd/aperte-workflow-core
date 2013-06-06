@@ -1,11 +1,17 @@
 package pl.net.bluesoft.rnd.processtool.model;
 
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
-
 import java.io.Serializable;
 import java.util.Date;
 
-public class BpmTask implements Serializable {
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
+
+public class BpmTask implements Serializable 
+{
+	private static final long serialVersionUID = -6922749510138539783L;
+
+	public static final String AUTO_SKIP_TASK_NAME_PREFIX = "AUTO_SKIP";
+	
     protected String assignee;
     protected UserData owner;
     protected String taskName;
@@ -110,6 +116,20 @@ public class BpmTask implements Serializable {
     public ProcessDefinitionConfig getProcessDefinition() {
         return processInstance != null ? processInstance.getDefinition() : null;
     }
+    
+    /** Method returns current state configuration */
+    public ProcessStateConfiguration getCurrentProcessStateConfiguration()
+    {
+    	/* Find current state by action name */
+    	ProcessDefinitionConfig processDefinitionConfig = getProcessDefinition();
+    	
+    	if(processDefinitionConfig == null)
+    		return null;
+    	
+    	String stateName = getTaskName();
+    	
+    	return processDefinitionConfig.getProcessStateConfigurationByName(stateName);
+    }
 
     public String getInternalProcessId() {
         return processInstance != null ? processInstance.getInternalId() : null;
@@ -122,6 +142,13 @@ public class BpmTask implements Serializable {
 	@Override
 	public String toString() {
 		return "BpmTask [taskName=" + taskName + "]";
+	}
+
+	/** Check if the task is set to auto skip */
+	public boolean isAutoSkip() 
+	{
+		
+		return getTaskName().contains(AUTO_SKIP_TASK_NAME_PREFIX); 
 	}
 
 }

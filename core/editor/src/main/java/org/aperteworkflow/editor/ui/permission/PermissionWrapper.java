@@ -1,10 +1,9 @@
 package org.aperteworkflow.editor.ui.permission;
 
 import org.aperteworkflow.editor.domain.Permission;
-import pl.net.bluesoft.rnd.processtool.model.config.AbstractPermission;
+import pl.net.bluesoft.rnd.processtool.model.config.IPermission;
 
-
-public class PermissionWrapper extends AbstractPermission {
+public class PermissionWrapper implements IPermission {
 
     // Properties
     public static String PROPERTY_PRIVILEDGE_NAME = "priviledgeName";
@@ -15,6 +14,8 @@ public class PermissionWrapper extends AbstractPermission {
      * This field is used to display the short, readable format of the bean.
      */
     private String shortName;
+    private String roleName;
+    private String privilegeName;
 
     public PermissionWrapper() {
         setShortName("undefined");
@@ -27,7 +28,9 @@ public class PermissionWrapper extends AbstractPermission {
         }
     }
 
-    public PermissionWrapper(Permission permission) {
+
+
+	public PermissionWrapper(Permission permission) {
         this();
         if (permission != null) {
             setPrivilegeName(permission.getPrivilegeName());
@@ -36,7 +39,9 @@ public class PermissionWrapper extends AbstractPermission {
         }
     }
     
-    public PermissionWrapper(AbstractPermission abstractPermission) {
+
+
+	public PermissionWrapper(IPermission abstractPermission) {
         this();
         if (abstractPermission != null) {
             setPrivilegeName(abstractPermission.getPrivilegeName());
@@ -69,5 +74,23 @@ public class PermissionWrapper extends AbstractPermission {
         perm.setRoleName(getRoleName());
         return perm;
     }
+
+	public String getRoleName() {
+		return roleName;
+	}
+
+	public void setRoleName(String roleName) {
+		this.roleName = roleName;
+	}
+
+	public String getPrivilegeName() {
+		return privilegeName;
+	}
+
+	public void setPrivilegeName(String privilegeName) {
+		this.privilegeName = privilegeName;
+	}
+
+
 
 }

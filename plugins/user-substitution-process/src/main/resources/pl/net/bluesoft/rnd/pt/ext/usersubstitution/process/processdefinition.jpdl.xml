@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<process name="user_substitution" xmlns="http://jbpm.org/4.4/jpdl">
+<process name="user_substitution" processVersion="1.0.0" xmlns="http://jbpm.org/4.4/jpdl">
     <start g="179,43,48,48" name="start1">
       <transition g="-140,-18" name="TO_REQUEST_SUBSTITUTE" to="REQUEST_SUBSTITUTE"/>
     </start>

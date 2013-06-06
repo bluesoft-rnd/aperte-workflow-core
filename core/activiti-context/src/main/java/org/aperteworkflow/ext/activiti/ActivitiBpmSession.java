@@ -1,12 +1,44 @@
 package org.aperteworkflow.ext.activiti;
 
-import org.activiti.engine.*;
-import org.activiti.engine.history.*;
+import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
+import static pl.net.bluesoft.util.lang.Lang.keyFilter;
+import static pl.net.bluesoft.util.lang.StringUtil.hasText;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.activiti.engine.HistoryService;
+import org.activiti.engine.IdentityService;
+import org.activiti.engine.ProcessEngine;
+import org.activiti.engine.RepositoryService;
+import org.activiti.engine.RuntimeService;
+import org.activiti.engine.TaskService;
+import org.activiti.engine.history.HistoricActivityInstance;
+import org.activiti.engine.history.HistoricActivityInstanceQuery;
+import org.activiti.engine.history.HistoricProcessInstance;
+import org.activiti.engine.history.HistoricProcessInstanceQuery;
+import org.activiti.engine.history.HistoricTaskInstance;
+import org.activiti.engine.history.HistoricTaskInstanceQuery;
 import org.activiti.engine.identity.User;
-import org.activiti.engine.impl.AbstractQuery;
 import org.activiti.engine.impl.Page;
-import org.activiti.engine.impl.context.Context;
-import org.activiti.engine.impl.db.DbSqlSession;
 import org.activiti.engine.impl.interceptor.Command;
 import org.activiti.engine.impl.interceptor.CommandContext;
 import org.activiti.engine.impl.interceptor.CommandExecutor;
@@ -15,51 +47,41 @@ import org.activiti.engine.impl.pvm.runtime.ExecutionImpl;
 import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.repository.DeploymentBuilder;
 import org.activiti.engine.repository.ProcessDefinition;
-import org.activiti.engine.runtime.*;
+import org.activiti.engine.runtime.Execution;
+import org.activiti.engine.runtime.ProcessInstanceQuery;
 import org.activiti.engine.task.IdentityLink;
 import org.activiti.engine.task.Task;
 import org.activiti.engine.task.TaskQuery;
-import org.apache.ibatis.session.Configuration;
 import org.aperteworkflow.bpm.graph.GraphElement;
 import org.aperteworkflow.bpm.graph.StateNode;
 import org.aperteworkflow.bpm.graph.TransitionArc;
 import org.aperteworkflow.bpm.graph.TransitionArcPoint;
 import org.aperteworkflow.ext.activiti.mybatis.TaskQueryImplEnhanced;
-import org.hibernate.Query;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.bpm.exception.ProcessToolSecurityException;
 import pl.net.bluesoft.rnd.processtool.bpm.impl.AbstractProcessToolSession;
 import pl.net.bluesoft.rnd.processtool.hibernate.ResultsPageWrapper;
-import pl.net.bluesoft.rnd.processtool.model.*;
+import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.processtool.model.BpmVariable;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog;
+import pl.net.bluesoft.rnd.processtool.model.QueueType;
+import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.MutableBpmTask;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
 import pl.net.bluesoft.util.lang.Mapcar;
-import pl.net.bluesoft.util.lang.Predicate;
 import pl.net.bluesoft.util.lang.Strings;
 import pl.net.bluesoft.util.lang.Transformer;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
-import static pl.net.bluesoft.util.lang.Lang.keyFilter;
-import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -131,7 +153,7 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
    	}
 
    	@Override
-   	public List<BpmTask> getTaskData(String taskExecutionId, String taskName, ProcessToolContext ctx) {
+   	public BpmTask getTaskData(String taskExecutionId, String taskName, ProcessToolContext ctx) {
    		List<Task> tasks = getProcessEngine().getTaskService().createTaskQuery()
    				//.notSuspended()
                 .taskName(taskName)
@@ -143,7 +165,7 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
    			return null;
    		}
    		List<BpmTask> bpmTasks = findProcessInstancesForTasks(tasks, ctx);
-   		return bpmTasks;
+   		return bpmTasks.get(0);
    	}
 
     private List<BpmTask> findProcessInstancesForTasks(List<Task> tasks, final ProcessToolContext ctx) {
@@ -1346,9 +1368,4 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
 		return findProcessInstancesForTasks(tasks, ctx);
 	}
 
-	@Override
-	public List<BpmTask> findProcessTasksWithUser(ProcessInstance pi,
-			ProcessToolContext ctx) {
-		return findProcessTasks(pi, user.getLogin(), ctx);
-	}
 }

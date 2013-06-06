@@ -1,5 +1,37 @@
 package pl.net.bluesoft.rnd.processtool.ui.substitutions;
 
+import static org.aperteworkflow.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.addIcon;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.horizontalLayout;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.modalWindow;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.pagedTable;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.refreshIcon;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.select;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.smallButton;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.validationNotification;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.wrapPagedTable;
+import static pl.net.bluesoft.util.lang.DateUtil.truncHours;
+import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import org.aperteworkflow.util.vaadin.TransactionProvider;
+import org.aperteworkflow.util.vaadin.VaadinUtility.Refreshable;
+import org.aperteworkflow.util.vaadin.ui.table.LocalizedPagedTable;
+
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
+import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
+import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.processtool.model.UserSubstitution;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolGuiCallback;
+import pl.net.bluesoft.rnd.processtool.usersource.IUserSource;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+import pl.net.bluesoft.util.lang.Maps;
+
 import com.vaadin.Application;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
@@ -8,27 +40,21 @@ import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.data.util.PropertyFormatter;
 import com.vaadin.event.ItemClickEvent;
-import com.vaadin.ui.*;
-import org.aperteworkflow.util.liferay.LiferayBridge;
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
-import pl.net.bluesoft.rnd.processtool.model.UserSubstitution;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolGuiCallback;
-import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import org.aperteworkflow.util.vaadin.TransactionProvider;
-import org.aperteworkflow.util.vaadin.ui.table.LocalizedPagedTable;
-import pl.net.bluesoft.util.lang.Maps;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import static pl.net.bluesoft.util.lang.DateUtil.truncHours;
-import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
-import static org.aperteworkflow.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
-import static org.aperteworkflow.util.vaadin.VaadinUtility.*;
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.DateField;
+import com.vaadin.ui.Field;
+import com.vaadin.ui.Form;
+import com.vaadin.ui.FormFieldFactory;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Panel;
+import com.vaadin.ui.PopupDateField;
+import com.vaadin.ui.Select;
+import com.vaadin.ui.Table;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 
 /**
  * User: POlszewski
@@ -111,7 +137,10 @@ public class SubstitutionsMainPane extends VerticalLayout implements Refreshable
             @Override
             public void callback(ProcessToolContext ctx, ProcessToolBpmSession session) {
                 container.addAll(ctx.getUserSubstitutionDAO().findAllEagerUserFetch());
-                usersByLogin = Maps.collectionToMap(LiferayBridge.getAllUsersByCurrentUser(session.getUser(ctx)), "login");
+                
+                IUserSource userSource = ObjectFactory.create(IUserSource.class);
+                
+                usersByLogin = Maps.collectionToMap(userSource.getAllUsers(), "login");
                 userDataContainer.addAll(usersByLogin.values());
 				userDataContainer.sort(new String[]{ "realName" }, new boolean[]{ true });
             }

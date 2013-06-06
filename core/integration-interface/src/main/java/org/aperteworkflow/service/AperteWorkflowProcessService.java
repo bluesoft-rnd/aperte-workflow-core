@@ -121,7 +121,7 @@ public interface AperteWorkflowProcessService {
 	 * @throws AperteWsIllegalArgumentException If taskName is null or empty.
 	 *</pre>*/
 	
-	List<BpmTask> getTaskData(String taskExecutionId,
+	BpmTask getTaskData(String taskExecutionId,
 			String taskName) throws AperteWsWrongArgumentException, AperteWsIllegalArgumentException; 
 
 	/**<pre>

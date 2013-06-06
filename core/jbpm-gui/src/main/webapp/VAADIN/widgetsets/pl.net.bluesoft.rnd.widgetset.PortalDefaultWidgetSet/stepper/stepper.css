@@ -1,0 +1,43 @@
+.v-stepper {
+	position: relative;
+}
+
+.v-stepper .v-stepper-updown {
+	position: absolute;
+	top: 2px;
+	right: 1px;
+	margin: 0 1px;
+}
+
+.v-stepper .v-stepper-up,
+.v-stepper .v-stepper-down {
+	padding: 0px 1px;
+	margin: 0;
+	width: 16px;
+	height: 10px;
+	display: block;
+	outline: none;
+}
+
+.v-stepper .v-stepper-up {
+	background: transparent url("bullet_arrow_up.png") no-repeat center center;
+	padding-top: 2px;
+}
+
+.v-stepper .v-stepper-down {
+	background: transparent url("bullet_arrow_down.png") no-repeat center center;
+}
+
+.v-ie7 .v-stepper .v-stepper-updown {
+	margin-top: 2px;
+}
+
+.v-ie7 .v-stepper .v-stepper-up,
+.v-ie7 .v-stepper .v-stepper-down {
+	line-height: 8px;
+	height: 8px;
+}
+
+.v-ie8 .v-stepper .v-stepper-updown {
+	top: 1px;
+}

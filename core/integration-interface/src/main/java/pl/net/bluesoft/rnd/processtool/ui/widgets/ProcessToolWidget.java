@@ -34,4 +34,6 @@ public interface ProcessToolWidget {
 
 	void setWidgetEventBus(WidgetEventBus widgetEventBus);
 	void handleWidgetEvent(WidgetEvent event);
+	
+	void setTaskId(String taskId);
 }

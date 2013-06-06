@@ -129,6 +129,7 @@ public class ProcessDictionaryDAOImpl extends SimpleHibernateBean<ProcessDBDicti
                 Criteria criteria = getSession().createCriteria(ProcessDBDictionary.class)
                         .add(Restrictions.eq("dictionaryId", dictionaryId))
                         .add(Restrictions.eq("languageCode", languageCode))
+                        .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
                         .add(definition == null ? Restrictions.isNull("processDefinition") : Restrictions.eq("processDefinition", definition));
                 return (ProcessDBDictionary) criteria.uniqueResult();
             }
@@ -179,6 +180,7 @@ public class ProcessDictionaryDAOImpl extends SimpleHibernateBean<ProcessDBDicti
                 .addOrder(Order.desc("dictionaryName"))
                 .createCriteria("processDefinition")
                 .add(Restrictions.eq("latest", Boolean.TRUE))
+                .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
                 .list();
         updateCache(dictionaries);
         return dictionaries;

@@ -1,5 +1,6 @@
 package pl.net.bluesoft.rnd.processtool.authorization;
 
+import javax.portlet.PortletRequest;
 import javax.servlet.http.HttpServletRequest;
 
 import pl.net.bluesoft.rnd.processtool.authorization.exception.AuthorizationException;
@@ -20,6 +21,8 @@ public interface IAuthorizationService
 	 * @return {@link UserData} instance if client is already logged in
 	 */
 	UserData getUserByRequest(HttpServletRequest servletRequest) throws AuthorizationException;
+	
+	UserData getUserByRequest(PortletRequest renderRequest) throws AuthorizationException;
 	
 	/**
 	 * Authenticate user by given login and password. If there is no user or password is 

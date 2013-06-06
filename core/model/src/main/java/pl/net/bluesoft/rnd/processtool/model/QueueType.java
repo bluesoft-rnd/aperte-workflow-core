@@ -11,19 +11,36 @@ import pl.net.bluesoft.util.lang.Strings;
 public enum QueueType 
 {
 	/** User created task, done by others */
-    OWN_IN_PROGRESS, 
+    OWN_IN_PROGRESS("activity.created.tasks"), 
     /** User created task, assigned to him */
-    OWN_ASSIGNED, 
+    OWN_ASSIGNED("activity.created.assigned.tasks"), 
     /** User created task, but it is put in queue */
-    OWN_IN_QUEUE,
+    OWN_IN_QUEUE("queues"),
     /** User created task in finished state */
-    OWN_FINISHED, 
+    OWN_FINISHED("activity.created.closed.tasks"), 
     /** Others task, assigned to current user */
-    ASSIGNED_TO_CURRENT_USER;
+    ASSIGNED_TO_CURRENT_USER("activity.assigned.tasks");
+    
+    private String queueId;
+    
+    private QueueType(String queueId)
+    {
+    	this.queueId = queueId;
+    }
 
     public static QueueType fromString(String name) {
         return Strings.hasText(name) ? valueOf(name.toUpperCase()) : null;
     }
+    
+    public static QueueType fromQueueId(String queueId) 
+    {
+        for (QueueType ps : values()) 
+            if (ps.getQueueId().equals(queueId))
+                return ps;
+    
+    	return null;
+    }
+    
 
     public static QueueType fromChar(char c) {
         String prefix = ("" + c).toUpperCase();
@@ -37,5 +54,10 @@ public enum QueueType
             }
         }
         return value;
+    }
+    
+    public String getQueueId()
+    {
+    	return queueId;
     }
 }

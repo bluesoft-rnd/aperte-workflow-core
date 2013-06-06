@@ -30,6 +30,8 @@ import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
@@ -82,7 +84,10 @@ import pl.net.bluesoft.util.lang.Strings;
  * @author tlipski@bluesoft.net.pl
  * @author amichalak@bluesoft.net.pl
  * @author kkolodziej@bluesoft.net.pl
+ * @author mpawlak@bluesoft.net.pl
  */
+@Component
+@Scope(value = "singleton")
 public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 
 	private static final Logger logger = Logger.getLogger(ProcessToolRegistryImpl.class.getName());
@@ -130,15 +135,6 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 
 	public synchronized void registerWidget(String name, Class<? extends ProcessToolWidget> cls) {
 		WIDGET_REGISTRY.put(name, cls);
-	}
-
-	public <T extends ProcessToolWidget> T makeWidget(String name) throws IllegalAccessException, InstantiationException {
-		Class<? extends ProcessToolWidget> aClass = WIDGET_REGISTRY.get(name);
-		if (aClass == null) {
-			throw new IllegalAccessException("No class nicknamed by: " + name);
-		}
-		return (T) aClass.newInstance();
-
 	}
 
 	public <T extends ProcessToolActionButton> T makeButton(String name) throws IllegalAccessException, InstantiationException {
@@ -404,10 +400,6 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
         }
         return ut;
     }
-
-    public <T extends ProcessToolWidget> T makeWidget(Class<? extends ProcessToolWidget> aClass) throws IllegalAccessException, InstantiationException {
-		return (T) aClass.newInstance();
-	}
 
 	public void registerI18NProvider(I18NProvider i18Provider, String providerId) {
 		I18N_PROVIDER_REGISTRY.put(providerId, i18Provider);
@@ -913,6 +905,14 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
             caches.put(cacheName, cache);
             logger.warning("Registered cache named: " + cacheName);
         }
+
+		@Override
+		public Class<? extends ProcessToolWidget> getWidgetClassName(String widgetName) 
+		{
+
+			return WIDGET_REGISTRY.get(widgetName);
+		}
+
 
 
 }

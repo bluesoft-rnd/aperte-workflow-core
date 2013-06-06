@@ -11,11 +11,22 @@ import com.vaadin.ui.*;
 import com.vaadin.ui.themes.Reindeer;
 
 import org.aperteworkflow.util.vaadin.VaadinUtility;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.access.BeanFactoryLocator;
+import org.springframework.beans.factory.access.BeanFactoryReference;
+import org.springframework.beans.factory.access.SingletonBeanFactoryLocator;
+import org.springframework.beans.factory.access.el.SpringBeanELResolver;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComment;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComments;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinRenderable;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
@@ -49,6 +60,7 @@ import static pl.net.bluesoft.util.lang.Formats.nvl;
         @Permission(key="VIEW", desc="widget.process_comments.permission.desc.VIEW")
 })
 @WidgetGroup("base-widgets")
+@Configurable
 public class ProcessCommentsWidget extends BaseProcessToolVaadinWidget implements ProcessToolVaadinRenderable, ProcessToolDataWidget {
 
 	private BeanItemContainer<ProcessComment> bic = new BeanItemContainer<ProcessComment>(ProcessComment.class);
@@ -62,7 +74,10 @@ public class ProcessCommentsWidget extends BaseProcessToolVaadinWidget implement
 
 	@AutoWiredProperty
 	private Boolean mustAddComment;
-
+	
+	@Autowired
+	@Qualifier("processToolRegistry")
+	private ProcessToolRegistry processToolRegistry;
 
 	private String processState = null;
 	private Panel commentsPanel;

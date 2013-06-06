@@ -1,0 +1,267 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="pl">
+<head>
+<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+<title>Image Viewer</title>
+</head>
+<style type="text/css">
+
+	body{ 
+		padding: 0% 0% 0% 0%;
+		margin: 0% 0% 0% 0%;
+		backgroud-color: #000;
+	}
+	#main_nav{
+		position:fixed;
+		width: 100%;	
+		top:5px;
+		left:0px;
+		height: 30px;		
+		
+	}
+	#zoom_panel{
+		float:left;		
+		display:block;
+			
+	}
+		
+	
+	#imgeview{
+		 position:absolute;
+		top:0;
+		display:block;
+		width: 100%;
+		height:99%;
+		overflow: auto;
+		
+		
+	}
+	
+	#scans_link_buttons{
+		float:left;
+		overflow: auto;		
+	}
+	.rselected{
+		color: #fff !important;
+	}
+	.imgbutton{
+		width: 24px;
+		height: 24px;
+		display:block;
+		cursor: pointer;
+		float:left;
+		text-align:center;
+		padding-left: 3px;
+		line-height: 24px;
+		font-size:16px;
+		font-weight:bold;		
+	}
+	.page_button{
+		background: url('/axa-esod-theme/images/zoom/b.png') top left no-repeat;
+		width: 24px;
+		height: 24px;
+		display:block;
+		cursor: pointer;
+		float:left;
+		text-align:center;
+		margin-left: 3px;
+		line-height: 19px;
+		font-size:16px;
+		font-weight:bold;
+		color:#000055 ;
+	}
+	#zin{ 		background: url('/axa-esod-theme/images/zoom/zp.png') top left no-repeat; }
+	#zreset{ 	background: url('/axa-esod-theme/images/zoom/z0.png') top left no-repeat; }
+	#zout{ 		background: url('/axa-esod-theme/images/zoom/zm.png') top left no-repeat; }
+	#privImage{ background: url('/axa-esod-theme/images/zoom/l.png')  top left no-repeat; }
+	#nextImage{ background: url('/axa-esod-theme/images/zoom/r.png')  top left no-repeat; }
+	
+</style>
+<script type="text/javascript" src="/axa-esod-theme/js/jquery.js"></script>  
+<script type="text/javascript" src="/axa-esod-theme/js/funkcje.js"></script>         
+ <script type="text/javascript">                                         
+ var base_w = 0;
+ var base_h = 0;
+ var zoom = 1.0;
+ var zoom_factor = 1.5;
+ // lista wszystkich przekazanych skanow
+ var scansList = [];
+ // numer indeksu aktualnego obtazka z zaladowanej listy
+ var currentImage = 0;
+ 
+	jQuery(document).ready(function()
+	{
+
+		initScansInWindow();
+	});
+
+ function changeZoom(fac)
+ {
+	var img = $("#scan_view")
+	var imgView = $("#imgeview") 
+	
+	if(base_w == 0)
+		base_w = img.width();
+		
+	if(base_h == 0)
+		base_h = img.height();
+		
+	zoom = zoom * fac;
+	var  w =  base_w * zoom;
+	var  h =  base_h * zoom;
+	img.width(w);
+	img.height(h);
+		
+ }
+ 
+ function initScansInWindow()
+{
+		// oczytaj liste skanow z okna ktore otworzylo aktualne
+	scansList = window.opener.getCurrentScanList();
+	
+	currentImage = 0;
+	zoom = 1.0;
+	base_w = 0;
+	base_h = 0;
+	
+	$('.page_button').remove();
+	
+	// dodaj przyciski z lista scanow
+	var divScansList = $("#scans_link_buttons");
+	var i = 0;
+	for(scan in scansList)
+	{
+		divScansList.append("<div class=\"page_button\" id='goto_scan_"+i+"'>"+scan +"</div>");
+		
+		var input = $("#goto_scan_"+i);
+		input.click(function() 
+		{		
+			var value = $(this).text();			
+			currentImage = parseInt(value);			
+			$(".page_button").removeClass("rselected");						
+			loadImage(scansList[currentImage]);			
+			$(this).addClass("rselected");							
+		});
+		
+		i++;
+	}
+	$("#goto_scan_0").first().addClass("rselected");		
+	// Ustaw przycisk nastepny na kocnu
+	var nextButton = $("#scans_link_buttons div#nextImage");
+	nextButton.remove;
+	divScansList.append(nextButton);
+	
+	registerFile("Name", scansList);
+	
+ 
+
+	
+	$(window).bind("beforeunload", function() 
+	{ 
+		createCookieWithWindowParameters();
+		window.close();
+	})
+ 
+   $("#zin").click(function() {		
+		changeZoom(zoom_factor);
+   });
+   $("#zout").click(function() {		
+		changeZoom(1.0/zoom_factor);
+   });
+   $("#zreset").click(function() {		
+		zoom = 1.0;
+		changeZoom(1.0);
+   });
+   $("#privImage").click(function() 
+   {	
+		// dekerementuj numer aktualnego obrazka, jezeli mniejszy
+		// od zera, to pokaz ostatni
+		currentImage--;
+		if(currentImage < 0)
+			currentImage = scansList.length - 1;
+			
+		loadImage(scansList[currentImage]);
+		$(".page_button").removeClass("rselected");			
+		$("#goto_scan_"+currentImage).addClass("rselected");		
+			
+   });
+   $("#nextImage").click(function() 
+   {		
+		// inkrementuj numer aktualnego obrazaka, jezeli jest wiekszy
+		// niz maksymalny, pokaz pierwszy
+   		currentImage++;
+		if(currentImage >= scansList.length)
+			currentImage = 0;
+			
+		loadImage(scansList[currentImage]);
+		$(".page_button").removeClass("rselected");			
+		$("#goto_scan_"+currentImage).addClass("rselected");		
+   });
+}
+ 
+  function changeZoomToFit()
+ {
+	var img = $("#scan_view")
+	var imgView = $("#imgeview") 
+	
+	if(base_w == 0)
+		base_w = img.width();
+		
+	if(base_h == 0)
+		base_h = img.height();
+	
+	var factorX = $(window).width()  /  base_w 
+	var factorY = $(window).height() /  base_h ;
+	
+	if(factorX <  factorY && factorX< 1 ){
+		zoom = factorX;
+	}else if (factorY<1.0){
+		zoom = factorY;
+	}
+		
+	var  w =  base_w * zoom;
+	var  h =  base_h * zoom;
+	img.width(w);
+	img.height(h);
+		
+ }
+
+ function registerFile()
+ {
+	// pierwszy argument to nazwa pod jaka ma sie otworzyc okienko
+	var name = arguments[0];
+	document.title = name;
+	
+	// otworz pierwszy plik z listy
+	currentImage = 0;
+	
+	var scans = arguments[1];
+
+	var firstScan = scans[0];
+	if(firstScan){
+		loadImage(firstScan);
+			
+	}
+	
+ } 
+
+ </script>
+<body>
+<div id="imgeview">
+	<img id="scan_view"/>
+	<div id="main_nav">
+		<div id="zoom_panel">
+			<div class="imgbutton" id="zin">&nbsp;</div>
+			<div class="imgbutton" id="zreset">&nbsp;</div>
+			<div class="imgbutton" id="zout">&nbsp;</div>
+		</div>
+		<div id="scans_link_buttons">	
+			<div class="imgbutton" id="privImage">&nbsp;</div>
+			<div class="imgbutton" id="nextImage"/>&nbsp;</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>
+  

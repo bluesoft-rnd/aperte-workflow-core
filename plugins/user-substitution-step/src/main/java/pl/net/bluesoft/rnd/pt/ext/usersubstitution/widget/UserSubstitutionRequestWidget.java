@@ -6,7 +6,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
+import pl.net.bluesoft.rnd.processtool.event.SaveTaskEvent;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
@@ -21,6 +24,7 @@ import pl.net.bluesoft.util.lang.Formats;
 import pl.net.bluesoft.util.lang.Maps;
 import pl.net.bluesoft.util.lang.Strings;
 
+import com.google.common.eventbus.Subscribe;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.data.util.MethodProperty;
@@ -136,7 +140,7 @@ public class UserSubstitutionRequestWidget extends BaseProcessToolWidget impleme
         dateField.setDateFormat("yyyy-MM-dd");
         dateField.setResolution(PopupDateField.RESOLUTION_DAY);
         dateField.setRequired(true);
-//        dateField.setImmediate(true);
+        dateField.setImmediate(true);
         dateField.setPropertyDataSource(new MethodProperty<Date>(this, boundProperty));
         dateField.setReadOnly(readonly);
         return dateField;

@@ -120,6 +120,15 @@ public class ProcessStateWidget extends PersistentEntity
 	{
 		this.attributes = attributes;
 	}
+	
+	public ProcessStateWidgetAttribute getAttributeByName(String attributeName)
+	{
+		for(ProcessStateWidgetAttribute attribute: this.attributes)
+			if(attribute.getName().equals(attributeName))
+				return attribute;
+		
+		return null;
+	}
 
 	public String getClassName() {
 		return className;

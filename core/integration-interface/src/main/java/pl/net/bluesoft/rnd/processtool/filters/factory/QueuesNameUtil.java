@@ -1,11 +1,6 @@
-package pl.net.bluesoft.rnd.processtool.ui.utils;
+package pl.net.bluesoft.rnd.processtool.filters.factory;
 
 import org.apache.commons.lang3.StringUtils;
-
-import pl.net.bluesoft.rnd.processtool.BasicSettings;
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-
-import com.vaadin.ui.Window;
 
 
 /**
@@ -14,8 +9,9 @@ import com.vaadin.ui.Window;
  * @author mpawlak@bluesoft.net.pl
  *
  */
-public class QueuesPanelRefresherUtil 
+public class QueuesNameUtil 
 {
+	
 	public static String getQueueTaskId(String taskName)
 	{
 		/* remove whitespaces */
@@ -51,33 +47,5 @@ public class QueuesPanelRefresherUtil
 		String fixedQueueId= StringUtils.trimToEmpty(queueId).replace(".", "-").replace(" ", "-");
 		
 		return "substituted-"+userLogin+"-user-queue-name-"+fixedQueueId;
-	}
-	
-	/** Register button with given button id */
-	public static void registerUser(Window mainWindow, String userLogin)
-	{
-		mainWindow.executeJavaScript("setCurrentUser('"+userLogin+"');");
-	}
-	
-	/** Change refresh interval in seconds */
-	public static void changeRefreshInterval(Window mainWindow, int seconds)
-	{
-		mainWindow.executeJavaScript("setRefreshInterval("+seconds*1000+");");
-	}
-
-	public static void unregisterUser(Window mainWindow, String login) 
-	{
-		mainWindow.executeJavaScript("clearRefreshCurrentUser();");
-	}
-	
-	public static void changeRefresherInterval(Window mainWindow)
-	{
-		String refreshInterval = ProcessToolContext.Util.getThreadProcessToolContext().getSetting(BasicSettings.REFRESHER_INTERVAL_SETTINGS_KEY);
-		if(refreshInterval == null || refreshInterval.isEmpty())
-			return;
-		
-		Integer interval = Integer.parseInt(refreshInterval);
-		QueuesPanelRefresherUtil.changeRefreshInterval(mainWindow, interval);
-		
 	}
 }

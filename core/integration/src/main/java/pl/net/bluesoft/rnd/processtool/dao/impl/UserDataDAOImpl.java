@@ -44,7 +44,7 @@ public class UserDataDAOImpl extends SimpleHibernateBean<UserData> implements Us
         }
         
         long duration = System.currentTimeMillis() - start;
-		logger.severe("findOrCreateUser: " +  duration);
+		logger.fine("findOrCreateUser: " +  duration);
         
         
         return user;
@@ -82,7 +82,7 @@ public class UserDataDAOImpl extends SimpleHibernateBean<UserData> implements Us
           DetachedCriteria criteria = getDetachedCriteria().setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
            UserData findUnique = findUnique(criteria, eq("login", login));
            long duration = System.currentTimeMillis() - start;
-			logger.severe("loadUserByLogin: " +  duration);
+			logger.fine("loadUserByLogin: " +  duration);
 			
 			return findUnique;
       }

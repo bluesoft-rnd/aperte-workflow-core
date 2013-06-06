@@ -61,7 +61,30 @@
                     <artifactId>slf4j-log4j12</artifactId>
                     <groupId>org.slf4j</groupId>
                 </exclusion>
+                <exclusion>
+                    <artifactId>juel-api</artifactId>
+                    <groupId>juel</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>antlr</artifactId>
+                    <groupId>antlr</groupId>
+                </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.jbpm.jbpm4</groupId>
+            <artifactId>jbpm-pvm</artifactId>
+            <version>${jbpm.version}</version>
+            <exclusions>
+               <exclusion>
+                    <artifactId>juel-api</artifactId>
+                    <groupId>juel</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>antlr</artifactId>
+                    <groupId>antlr</groupId>
+                </exclusion>
+             </exclusions>
         </dependency>
         <dependency>
             <groupId>com.thoughtworks.xstream</groupId>
@@ -80,6 +103,12 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+       		 <groupId>antlr</groupId>
+	        <artifactId>antlr</artifactId>
+	        <version>2.7.6</version>
+	        <scope>provided</scope>
+	    </dependency>
         <dependency>
         <groupId>javax.validation</groupId>
 	        <artifactId>validation-api</artifactId>

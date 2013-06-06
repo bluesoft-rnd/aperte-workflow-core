@@ -71,6 +71,9 @@ public interface ProcessToolRegistry extends ProcessToolBpmConstants {
 	UserRoleDAO getUserRoleDao(Session hibernateSession);
 
     Map<String,ProcessToolProcessStep> getAvailableSteps();
+    
+    /** Get widget class by given name */
+    Class<? extends ProcessToolWidget> getWidgetClassName(String widgetName);
 
 	ProcessToolProcessStep getStep(String name);
 
@@ -78,13 +81,7 @@ public interface ProcessToolRegistry extends ProcessToolBpmConstants {
 
     void registerGlobalDictionaries(InputStream dictionariesStream);
 
-	<T extends ProcessToolWidget> T makeWidget(String name)
-			throws IllegalAccessException, InstantiationException;
-
 	<T extends ProcessToolActionButton> T makeButton(String name) throws IllegalAccessException, InstantiationException;
-
-	<T extends ProcessToolWidget> T makeWidget(Class<? extends ProcessToolWidget> aClass)
-			throws IllegalAccessException, InstantiationException;
 
 	void registerI18NProvider(I18NProvider p, String providerId);
 

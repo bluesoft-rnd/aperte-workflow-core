@@ -173,9 +173,11 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory,
 
     private ProcessEngine getProcessEngine() {
         Thread t = Thread.currentThread();
-        ClassLoader previousLoader = t.getContextClassLoader();
+        
+        /* We need this to use correct ANTLR lib in Hibernate */
+        ClassLoader previousLoader = registry.getClass().getClassLoader();
         try {
-            ClassLoader newClassLoader = configuration.getClass().getClassLoader();
+            ClassLoader newClassLoader = getClass().getClassLoader();
             t.setContextClassLoader(newClassLoader);
             return configuration.buildProcessEngine();
         } finally {
@@ -196,7 +198,7 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory,
 
     public void initJbpmConfiguration() {
         Thread t = Thread.currentThread();
-        ClassLoader previousLoader = t.getContextClassLoader();
+        ClassLoader previousLoader = registry.getClass().getClassLoader();
         try {
             ClassLoader newClassLoader = getClass().getClassLoader();
             t.setContextClassLoader(newClassLoader);

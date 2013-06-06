@@ -1,0 +1,70 @@
+<nav class="sort-pages modify-pages" id="navigation">
+#*	<h1>
+		<span>#language("navigation")</span>
+	</h1>
+*#
+	<div class="menu-glowne">	
+		<ul class="poziom1">
+		#set($itemidx = 1)
+		#foreach ($nav_item in $nav_items)
+			
+			#set($liclass = "jq-menu")
+			
+			#if ($nav_item.isSelected())
+				#set($liclass = "$liclass selected")			
+			#end
+			#if ($itemidx == 1)
+			 	#set($liclass = "$liclass first")
+			#end
+			#if ($itemidx == $nav_items.size())
+				#set($liclass = "$liclass last")
+			#end
+			
+			#set($itemidx = $itemidx + 1)
+			
+			<li class="$liclass">
+
+				<a href="$nav_item.getURL()" $nav_item.getTarget()><span>$nav_item.icon() $htmlUtil.escape($nav_item.getName())</span></a>
+				
+				#if ($nav_item.hasChildren())
+					<div class="menu-poziom2">
+									
+						<div class="menu2-srodek">
+							<div class="menu2-bg">
+								<ul class="poziom2">
+								
+									#set($chidx = 1)
+									#foreach ($nav_child in $nav_item.getChildren())
+										
+										#set($liclass = "")
+										
+										#if ($nav_item.isSelected())
+											#set($liclass = "$liclass selected")			
+										#end
+										#if ($chidx == 1)
+										 	#set($liclass = "$liclass first")
+										#end
+										#if ($chidx == $nav_item.getChildren().size())
+											#set($liclass = "$liclass last")
+										#end
+										
+										#set($chidx = $chidx + 1)
+																				
+										<li class="$liclass">
+											<a href="$nav_child.getURL()" $nav_child.getTarget()><span>$nav_child.getName()</span></a>
+										</li>
+									#end
+								</ul>
+							</div>
+							<div class="poziom2-dol"></div>
+							
+						</div>
+						
+					</div>				
+				#end
+		
+			</li>		
+		#end
+		</ul>
+	</div>	
+</nav>

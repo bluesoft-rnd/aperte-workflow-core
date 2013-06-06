@@ -1,8 +1,11 @@
 package pl.net.bluesoft.rnd.processtool.authorization.impl;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.portlet.PortletRequest;
+import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -17,6 +20,7 @@ import pl.net.bluesoft.rnd.processtool.usersource.exception.UserSourceException;
 
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.util.KeyValuePair;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.model.User;
@@ -38,6 +42,14 @@ public class LiferayAuthorizationService implements IAuthorizationService
 			return PortalUtil.getDefaultCompanyId();
 
 	}
+	
+	@Override
+	public UserData getUserByRequest(PortletRequest renderRequest)
+	{
+		HttpServletRequest servletRequest = PortalUtil.getHttpServletRequest(renderRequest);
+		
+		return getUserByRequest(servletRequest);
+	}
 
 	@Override
 	public UserData getUserByRequest(HttpServletRequest servletRequest) 
@@ -45,10 +57,12 @@ public class LiferayAuthorizationService implements IAuthorizationService
 		try 
 		{
 			User liferayUser = PortalUtil.getUser(servletRequest);
-			
+
 			/* No user logged in, return null */
 			if(liferayUser == null)
-				return null;
+				return null; 
+			
+			
 			
 			return LiferayUserConverter.convertLiferayUser(liferayUser);
 		} 
@@ -59,6 +73,70 @@ public class LiferayAuthorizationService implements IAuthorizationService
 		catch (SystemException e) 
 		{
 			throw new AuthorizationException("Problem with authorization", e);
+		} 
+	}
+	
+	/** Get Liferay user by given servlet request */
+	protected User getLiferayUser(HttpServletRequest req) throws ServletException
+	{
+			User userByScreenName = null;
+			
+			/* Try to authorized user by given servlet request.
+			 * We have to use cookies, otherwise authentication 
+			 * won't work on WebSphere
+			 */
+			
+			String userId = null;
+			String password = null;
+			String companyId = null;
+			
+			for (Cookie c : req.getCookies()) 
+			{
+				if ("COMPANY_ID".equals(c.getName())) {
+					companyId = c.getValue();
+				} else if ("ID".equals(c.getName())) {
+					userId = hexStringToStringByAscii(c.getValue());
+				} else if ("PASSWORD".equals(c.getName())) {
+					password = hexStringToStringByAscii(c.getValue());
+				}
+			}
+			
+			if (userId != null && password != null && companyId != null) {
+				try {
+					
+					KeyValuePair kvp = UserLocalServiceUtil.decryptUserId(Long.parseLong(companyId), userId, password);
+
+					userByScreenName = UserLocalServiceUtil.getUserById(Long.valueOf(kvp.getKey()));
+				} catch (NumberFormatException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (PortalException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (SystemException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
+			if(userByScreenName == null)
+			{
+				return null;
+			}
+			
+			return userByScreenName;
+	}
+	
+	public String hexStringToStringByAscii(String hexString) {
+		byte[] bytes = new byte[hexString.length()/2];
+		for (int i = 0; i < hexString.length() / 2; i++) {
+			String oneHexa = hexString.substring(i * 2, i * 2 + 2);
+			bytes[i] = Byte.parseByte(oneHexa, 16);
+		}
+		try {
+			return new String(bytes, "ASCII");
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
 		}
 	}
 

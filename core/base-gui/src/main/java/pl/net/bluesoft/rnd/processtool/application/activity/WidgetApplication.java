@@ -1,6 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.application.activity;
 
 import java.util.Locale;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
@@ -74,11 +75,22 @@ public class WidgetApplication extends Application  implements HttpServletReques
 			return blankWindow;
 		}
 		
-		logger.warning("Window get: "+name+", context: "+this.getContext()+" appId: "+Thread.currentThread().getName());
+		RequestParameters requestParameters = analyseWindowName(name);
+		if(requestParameters == null)
+			return null;
 
 		ProcessToolBpmSession bpmSession = (ProcessToolBpmSession)context.getHttpSession().getAttribute(ProcessToolBpmSession.class.getName());
 		
-		Window window = super.getWindow(name);
+		Window window = super.getWindow(requestParameters.getWindowName());
+		
+		if(requestParameters.getClose())
+		{
+			logger.log(Level.WARNING, "close window: "+requestParameters.getWindowName()+", window: "+window);
+			if(window != null)
+				removeWindow(window);
+			
+			return null;
+		}
 		
 		/* Window for specified tab with given name already exists, return it */
 		if(window != null)
@@ -87,10 +99,14 @@ public class WidgetApplication extends Application  implements HttpServletReques
 		if(i18NSource == null)
 			this.i18NSource = I18NSourceFactory.createI18NSource(Locale.getDefault());
 		
+		
 		/* New tab was opened, create new window for it */
 		WidgetViewWindow newWindow = new WidgetViewWindow(processToolRegistry, bpmSession, this, i18NSource, eventBus);
 		newWindow.setSizeFull();
-		newWindow.setName(name);
+		newWindow.setName(requestParameters.getWindowName());
+		newWindow.initlizeWidget(requestParameters.getTaskId(), requestParameters.getWidgetId());
+		
+		logger.log(Level.WARNING, "New window created: "+newWindow.getName());
 		
 		addWindow(newWindow);
 		//newWindow.open(new ExternalResource(newWindow.getURL()));
@@ -172,6 +188,75 @@ public class WidgetApplication extends Application  implements HttpServletReques
 		setMainWindow(getWindow(null));
 		
 		SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+		
+	}
+	
+	/** Analyse given widnow name by Vaadin framework to get taskId, widgetId
+	 * and information if the window should be closed
+	 * @param windowRequestName
+	 * @return
+	 */
+	private RequestParameters analyseWindowName(String windowRequestName)
+	{
+		String[] parameters = windowRequestName.split("_");
+		
+		if(parameters == null || parameters.length < 2)
+		{
+			logger.severe("Invalid window name: "+windowRequestName);
+			return null;
+		}
+		
+		Boolean close = false;
+		String taskId = parameters[0];
+		String widgetId = parameters[1];
+		
+		String windowName = taskId+"_"+widgetId;
+		
+		if(parameters.length == 3)
+			close = true;
+		
+		RequestParameters requestParameters = new RequestParameters();
+		requestParameters.setClose(close);
+		requestParameters.setTaskId(taskId);
+		requestParameters.setWidgetId(widgetId);
+		requestParameters.setWindowName(windowName);
+		
+		return requestParameters;
+	}
+	
+	/** Class to encapsulate window name analysis */
+	public static class RequestParameters
+	{
+		private String windowName;
+		private String taskId;
+		private String widgetId;
+		private Boolean close;
+		
+		public String getWindowName() {
+			return windowName;
+		}
+		public void setWindowName(String windowRequestName) {
+			this.windowName = windowRequestName;
+		}
+		public String getTaskId() {
+			return taskId;
+		}
+		public void setTaskId(String taskId) {
+			this.taskId = taskId;
+		}
+		public String getWidgetId() {
+			return widgetId;
+		}
+		public void setWidgetId(String widgetId) {
+			this.widgetId = widgetId;
+		}
+		public Boolean getClose() {
+			return close;
+		}
+		public void setClose(Boolean close) {
+			this.close = close;
+		}
+		
 		
 	}
 }

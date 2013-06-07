@@ -42,6 +42,7 @@ import com.vaadin.terminal.gwt.server.HttpServletRequestListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.Window.CloseListener;
 
 /**
  * Widget view window. This window is created per parent widget which is
@@ -52,7 +53,7 @@ import com.vaadin.ui.Window;
  * @author mpawlak@bluesoft.net.pl
  *
  */
-public class WidgetViewWindow extends Window implements ParameterHandler
+public class WidgetViewWindow extends Window
 {
 	private static Logger logger = Logger.getLogger(WidgetViewWindow.class.getName());
 	
@@ -91,7 +92,6 @@ public class WidgetViewWindow extends Window implements ParameterHandler
     @Subscribe
     public void listen(final SaveTaskEvent event)
     {
-    	logger.warning("save?");
     	/* Check for task id, we don't want to save widget from another process view */
     	final String eventTaskId = event.getTaskId();
     	if(!eventTaskId.equals(this.bpmTaskId))
@@ -148,26 +148,27 @@ public class WidgetViewWindow extends Window implements ParameterHandler
 	@Override
 	public void handleParameters(Map<String, String[]> parameters) 
 	{
-		synchronized (isInitlized)
-		{
-			removeAllComponents();
-			
-			String[] widgetId = parameters.get("widgetId");
-			String[] taskId = parameters.get("taskId");
-			String[] close = parameters.get("close");
-			
-			if(widgetId == null || taskId == null)
-				return;
-			
-			if(close != null)
-			{
-				this.close();
-				return;
-			}
-			
-			if(!isInitlized)
-				initlizeWidget(taskId[0], widgetId[0]);
-		}
+//		synchronized (isInitlized)
+//		{
+//			removeAllComponents();
+//			widgets.clear();
+//			
+//			String[] widgetId = parameters.get("widgetId");
+//			String[] taskId = parameters.get("taskId");
+//			String[] close = parameters.get("close");
+//			
+//			if(widgetId == null || taskId == null)
+//				return;
+//			
+//			if(close != null)
+//			{
+//				this.close();
+//				return;
+//			}
+//			
+//			if(!isInitlized)
+//				initlizeWidget(taskId[0], widgetId[0]);
+//		}
 
 		
 
@@ -180,9 +181,6 @@ public class WidgetViewWindow extends Window implements ParameterHandler
 		
 		addComponent(new Label("widgetId: "+widgetId));
 		addComponent(new Label("taskId: "+taskId));
-		
-		logger.warning("windowName=: "+getName());
-		logger.warning("initlize ,widgetId "+processStateWidgetId+", bpmTaskId: "+bpmTaskId);
 
 		processToolRegistry.withProcessToolContext(new ProcessToolContextCallback() {
 			
@@ -195,7 +193,6 @@ public class WidgetViewWindow extends Window implements ParameterHandler
 				
 				WidgetEventBus eventBus = new WidgetEventBus();
 
-				logger.warning("initlizaing... ");
 				ProcessToolWidget widget = getWidget(processStateWidget, ctx, "1", eventBus, task);
 				if (widget instanceof ProcessToolVaadinRenderable && (!nvl(processStateWidget.getOptional(), false) || widget.hasVisibleData())) 
 				{
@@ -205,6 +202,7 @@ public class WidgetViewWindow extends Window implements ParameterHandler
 					Component renderedWidget = vaadinW.render();
 					if(renderedWidget != null)
 					{
+						logger.warning("add widget: "+vaadinW.getClass());
 						renderedWidget.setSizeFull();
 						WidgetViewWindow.this.addComponent(vaadinW.render());
 						
@@ -213,8 +211,6 @@ public class WidgetViewWindow extends Window implements ParameterHandler
 				}
 				
 				isInitlized = true;
-				
-				logger.warning("Widget window initlized");
 			}
 		});
 		
@@ -320,6 +316,11 @@ public class WidgetViewWindow extends Window implements ParameterHandler
 	{
 		try
 		{
+			removeAllComponents();
+			widgets.clear();
+			
+			bpmTaskId = null;
+			
 			if(getApplication() != null)
 				this.getApplication().removeWindow(this);
 			

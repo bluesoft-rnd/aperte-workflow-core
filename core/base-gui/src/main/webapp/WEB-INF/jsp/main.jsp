@@ -6,7 +6,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
-
+<script language='javascript' src='/aperteworkflow/VAADIN/widgetsets/pl.net.bluesoft.rnd.widgetset.PortalDefaultWidgetSet/pl.net.bluesoft.rnd.widgetset.PortalDefaultWidgetSet.nocache.js'></script>
 <!--<script src="<%=request.getContextPath()%>/js/mp-admin-utils.js" ></script>-->
 
 <h2>Aperte Workflow Maginificient Activities</h2>
@@ -68,9 +68,17 @@ UserLogin: ${aperteUser.login} <br>
 	{
 		<!-- required to close vaadin application -->
 		$('.vaadin-widget-view').each(function( ) 
-		{
-			console.log( "close!"); 
-			$(this).attr('src', $(this).attr('src')+'&close=true');
+		{ 
+			var widgetId = $(this).attr('widgetId');
+			var taskId = $(this).attr('taskId');
+			console.log( "close! taskId: "+taskId+", widgetId: "+widgetId);
+			
+			var source = "widget/"+taskId+"_"+widgetId+"_close/";
+			var url = '<spring:url value="/'+source+'"/>';
+			
+			console.log( "close! url: "+url);
+			
+			$(this).attr('src', url);
 			$(this).load(function() { $(this).remove(); console.log( "remove!"); });
 		});
 		

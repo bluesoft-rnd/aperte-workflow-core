@@ -87,10 +87,11 @@ public class Activator implements BundleActivator, EventListener<BpmEvent>
 		
 
     	String providerName = NotificationsSettingsProvider.getProviderType();
-    	if(providerName == null)
-    		throw new RuntimeException("There is no "+NotificationsSettings.PROVIDER_TYPE+" setting in database set");
-    	
-    	if(providerName.equals(ProviderType.JNDI.getParamterName()))
+    	if(providerName == null)         {
+            logger.info("Mail session provider set to database");
+        ClassDependencyManager.getInstance().injectImplementation(IMailSessionProvider.class, DatabaseMailSessionProvider.class, 1);
+        }
+    else if(providerName.equals(ProviderType.JNDI.getParamterName()))
     	{
     		logger.info("Mail session provider set to jndi resources");
     		ClassDependencyManager.getInstance().injectImplementation(IMailSessionProvider.class, JndiMailSessionProvider.class, 1);

@@ -31,11 +31,10 @@
             <scope>provided</scope>
         </dependency>
          <dependency>
-		    <groupId>org.apache.chemistry.opencmis</groupId>
-		    <artifactId>chemistry-opencmis-osgi-client</artifactId>
-		    <version>0.9.0-SNAPSHOT</version>
-		    <scope>provided</scope>
-		 </dependency>
+	<groupId>org.apache.chemistry.opencmis</groupId>
+	<artifactId>chemistry-opencmis-osgi-client</artifactId>
+	<version>0.9.0-beta-1</version>
+</dependency>
     </dependencies>
 
     <build>
@@ -80,6 +79,7 @@
                         <Import-Package>
                         	org.aperteworkflow.cmis.widget;version=${project.version},
                             pl.net.bluesoft.rnd.util.i18n,
+						
                             javassist.util.proxy,
                             org.hibernate.proxy,org.osgi.framework,
                             pl.net.bluesoft.rnd.processtool.di,
@@ -97,10 +97,6 @@
                             com.sun.org.apache.xerces.internal.dom;resolution:=optional,
                             com.sun.xml.fastinfoset.*;resolution:=optional,
                             com.ibm.uvm.tools;resolution:=optional,
-                            org.apache.chemistry.opencmis.client.api;version="0.9.0.SNAPSHOT",
-                            org.apache.chemistry.opencmis.commons.*;version="0.9.0.SNAPSHOT",
-                            org.apache.chemistry.opencmis.commons.enums;version="0.9.0.SNAPSHOT",
-                            org.apache.chemistry.opencmis.commons.impl.dataobjects;version="0.9.0.SNAPSHOT",
                             javax.xml.*;resolution:=optional,
                             *
                         </Import-Package>

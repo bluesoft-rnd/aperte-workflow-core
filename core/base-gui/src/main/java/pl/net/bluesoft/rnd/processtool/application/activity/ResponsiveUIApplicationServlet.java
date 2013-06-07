@@ -2,12 +2,15 @@ package pl.net.bluesoft.rnd.processtool.application.activity;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.net.MalformedURLException;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
+import com.vaadin.Application;
 import com.vaadin.terminal.gwt.client.BrowserInfo;
 import com.vaadin.terminal.gwt.server.ApplicationServlet;
+import com.vaadin.terminal.gwt.server.SessionExpiredException;
 import com.vaadin.terminal.gwt.server.WebApplicationContext;
 import com.vaadin.terminal.gwt.server.WebBrowser;
 
@@ -51,6 +54,21 @@ public class ResponsiveUIApplicationServlet extends ApplicationServlet
 		else
 		{
 			page.append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=yes\"/>");
+		}
+	}
+	
+	@Override
+	protected Application getExistingApplication(HttpServletRequest request,boolean allowSessionCreation) throws MalformedURLException, SessionExpiredException 
+	{
+		/* Fix for NullPointer in Mozzila */
+		try
+		{
+			Application application = super.getExistingApplication(request, allowSessionCreation);
+			return application;
+		}
+		catch(Throwable ex)
+		{
+			return null;
 		}
 	}
 }

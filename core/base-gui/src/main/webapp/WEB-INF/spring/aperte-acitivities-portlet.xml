@@ -36,7 +36,8 @@
 		<property name="defaultEncoding" value="UTF-8"></property>
 		<property name="useCodeAsDefaultMessage" value="true"/>
 	</bean>
-	
-	<bean id="eventBus" class="com.google.common.eventbus.EventBus" scope="singleton"/>
-	
+	<!-- session scope to disable interferences between browsers -->
+	<bean id="eventBus" class="com.google.common.eventbus.EventBus" scope="session">
+		<aop:scoped-proxy/>
+	</bean>
 </beans>

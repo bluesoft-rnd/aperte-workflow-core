@@ -54,6 +54,23 @@
 						
 					  e.target // activated tab
 					  e.relatedTarget // previous tab
+					  console.log("browser: "+$.browser.mozilla);	
+					  if($.browser.mozilla)
+					  {
+						  $("[id^='iframe-vaadin-']").each(function( ) 
+						  {
+							var isVis = $(this).is(":visible");
+							var isWidgetLoaded = $(this).attr('widgetLoaded');
+							
+							
+							
+							if((isVis == true) && (isWidgetLoaded == "false"))
+							{
+								console.log( "LOAD!: ");	
+								$(this).attr('src', $(this).attr('src'));
+							}
+						  });
+						}
 					});
 					
 					appendWidget(this, "#"+elementId, taskId);
@@ -82,6 +99,7 @@
 			  var vaadinWidgetUrl = "widget/"+taskId+"_"+widget.id+"/?widgetId=" + widget.id + "&taskId="+taskId;
 			  console.log( "url:" + vaadinWidgetUrl); 
 			  
+			  
 			  $( "<iframe>", { 
 					  src : '<spring:url value="/'+vaadinWidgetUrl+'"/>', 
 					  autoResize: true, 
@@ -89,10 +107,25 @@
 					  frameborder: 0,
 					  "taskId": taskId,
 					  "widgetId":widget.id ,
-					  "class": "vaadin-widget-view"
+					  "class": "vaadin-widget-view",
+					  "widgetLoaded": false,
+					  "name": widget.id
+				
 					  } )
 			    .load(function() 
-				{ 			
+				{ 		
+					var isVis = $(this).is(":visible");
+					console.log($(this).attr('id')+" isVis: "+isVis);	
+					if(isVis == false)
+					{
+						console.log($(this).attr('id')+" mark unloaded!" ); 
+						$(this).attr('widgetLoaded', false);
+					
+					}
+					else
+					{
+						$(this).attr('widgetLoaded', true);
+					}			
 					vaadinWidgetsLoadedCount += 1;  
 					console.log( "vaadinWidgetsLoadedCount: "+vaadinWidgetsLoadedCount + ", vaadinWidgetsCount: "+vaadinWidgetsCount ); 
 					if(vaadinWidgetsCount == vaadinWidgetsLoadedCount)
@@ -101,7 +134,7 @@
 					}
 				} )
 				.appendTo( parentId );
-				
+
 				
 				break;
 			} 

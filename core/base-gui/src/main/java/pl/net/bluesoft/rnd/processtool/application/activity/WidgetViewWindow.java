@@ -68,74 +68,57 @@ public class WidgetViewWindow extends Window
 	
 	private Boolean isInitlized = false;
 	
-	private EventBus eventBus;
-	
 	private Collection<ProcessToolDataWidget> widgets = new ArrayList<ProcessToolDataWidget>();
 	private Collection<String> errors = new ArrayList<String>();
 	
-	public WidgetViewWindow(ProcessToolRegistry processToolRegistry, ProcessToolBpmSession bpmSession, WidgetApplication application, I18NSource i18NSource, EventBus eventBus) 
+	public WidgetViewWindow(ProcessToolRegistry processToolRegistry, ProcessToolBpmSession bpmSession, WidgetApplication application, I18NSource i18NSource) 
 	{
 		this.processToolRegistry = processToolRegistry;
 		this.bpmSession = bpmSession;
 		this.application = application;
 		this.i18NSource = i18NSource;
-		this.eventBus = eventBus;
 		
 		
 		this.widgetFactory = new WidgetFactory(bpmSession, application, i18NSource);
 		
-		this.addParameterHandler(this);
-		
 		widgets.clear();
 	}
 	
-    @Subscribe
-    public void listen(final SaveTaskEvent event)
-    {
+	public void saveWidgets(SaveTaskEvent event, BpmTask task)
+	{
     	/* Check for task id, we don't want to save widget from another process view */
     	final String eventTaskId = event.getTaskId();
     	if(!eventTaskId.equals(this.bpmTaskId))
     		return; 
     	
-    	logger.warning("Perform widget save for taskId: "+bpmTaskId+", windowName: "+this.getName()+" window: "+this.getApplication());
-    	processToolRegistry.withProcessToolContext(new ProcessToolContextCallback() {
+		errors.clear();
+		
+		for(ProcessToolDataWidget widget: widgets)
+		{
+			Collection<String>  errors = widget.validateData(task, true);
 			
-			@Override
-			public void withContext(ProcessToolContext ctx) 
+			if(errors != null)
+				for(String error: errors)
+					event.addError(processStateWidgetId.toString(), error);
+		}
+		
+		if(event.hasErrors())
+			return;
+		
+		/* Save all widgets */
+		for(ProcessToolDataWidget widget: widgets)
+		{
+			try
 			{
-				BpmTask task = bpmSession.getTaskData(bpmTaskId, ctx);
-				
-				errors.clear();
-				
-				for(ProcessToolDataWidget widget: widgets)
-				{
-					Collection<String>  errors = widget.validateData(task, true);
-					
-					if(errors != null)
-						for(String error: errors)
-							event.addError(processStateWidgetId.toString(), error);
-				}
-				
-				if(event.hasErrors())
-					return;
-				
-				/* Save all widgets */
-				for(ProcessToolDataWidget widget: widgets)
-				{
-					try
-					{
-						widget.saveData(task);
-					}
-					catch(Throwable e)
-					{
-						logger.log(Level.SEVERE, e.getMessage(), e);
-						event.addError(processStateWidgetId.toString(), e.getMessage());
-					}
-				}
-
+				widget.saveData(task);
 			}
-		});
-    }
+			catch(Throwable e)
+			{
+				logger.log(Level.SEVERE, e.getMessage(), e);
+				event.addError(processStateWidgetId.toString(), e.getMessage());
+			}
+		}
+	}
 	
 	@Override
 	public void setLocale(Locale locale) 
@@ -144,38 +127,12 @@ public class WidgetViewWindow extends Window
 		super.setLocale(locale);
 	}
 
-
-	@Override
-	public void handleParameters(Map<String, String[]> parameters) 
-	{
-//		synchronized (isInitlized)
-//		{
-//			removeAllComponents();
-//			widgets.clear();
-//			
-//			String[] widgetId = parameters.get("widgetId");
-//			String[] taskId = parameters.get("taskId");
-//			String[] close = parameters.get("close");
-//			
-//			if(widgetId == null || taskId == null)
-//				return;
-//			
-//			if(close != null)
-//			{
-//				this.close();
-//				return;
-//			}
-//			
-//			if(!isInitlized)
-//				initlizeWidget(taskId[0], widgetId[0]);
-//		}
-
-		
-
-	}
 	
 	public void initlizeWidget(String taskId, String widgetId)
 	{
+		if(isInitlized)
+			return;
+		
 		processStateWidgetId = Long.parseLong(widgetId);
 		bpmTaskId = taskId;
 		
@@ -213,8 +170,6 @@ public class WidgetViewWindow extends Window
 				isInitlized = true;
 			}
 		});
-		
-		eventBus.register(this);
 		
 	}
 
@@ -267,10 +222,7 @@ public class WidgetViewWindow extends Window
 				return o1.getPriority().compareTo(o2.getPriority());
 			}
 		});
-		
-//		if(parentWidgetInstance instanceof ProcessToolChildrenFilteringWidget){
-//			sortedList = ((ProcessToolChildrenFilteringWidget)parentWidgetInstance).filterChildren(task, sortedList);
-//		}
+
 
 		for (ProcessStateWidget subW : sortedList) 
 		{
@@ -314,27 +266,19 @@ public class WidgetViewWindow extends Window
 	@Override
 	protected void close() 
 	{
-		try
-		{
-			removeAllComponents();
-			widgets.clear();
-			
-			bpmTaskId = null;
-			
-			if(getApplication() != null)
-				this.getApplication().removeWindow(this);
-			
-			logger.warning("destroy...: "+getName());
-			/* We have to unregister view form bus */
-			eventBus.unregister(this);
-		}
-		catch(IllegalArgumentException ex)
-		{
-			
-		}
+		destroy();
 		super.close();
 	}
-	
+
+	public void destroy()
+	{
+		removeAllComponents();
+		widgets.clear();
+		
+		bpmTaskId = null;
+		
+		logger.warning("destroy...: "+getName());
+	}
 	
 }
 

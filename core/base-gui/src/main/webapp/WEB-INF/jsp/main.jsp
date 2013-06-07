@@ -71,15 +71,20 @@ UserLogin: ${aperteUser.login} <br>
 		{ 
 			var widgetId = $(this).attr('widgetId');
 			var taskId = $(this).attr('taskId');
-			console.log( "close! taskId: "+taskId+", widgetId: "+widgetId);
 			
-			var source = "widget/"+taskId+"_"+widgetId+"_close/";
+			var windowName = taskId+"_"+widgetId;
+			console.log( "close! windowName: "+windowName);
+			
+			var source = "widget/"+windowName+"_close/";
 			var url = '<spring:url value="/'+source+'"/>';
 			
 			console.log( "close! url: "+url);
 			
-			$(this).attr('src', url);
-			$(this).load(function() { $(this).remove(); console.log( "remove!"); });
+			$.getJSON(url)
+			.done(function() {
+			  console.log( "killed!");
+			});
+			
 		});
 		
 		vaadinWidgetsCount = 0;

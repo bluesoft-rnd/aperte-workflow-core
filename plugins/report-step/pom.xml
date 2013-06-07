@@ -33,8 +33,7 @@
          <dependency>
 		    <groupId>org.apache.chemistry.opencmis</groupId>
 		    <artifactId>chemistry-opencmis-osgi-client</artifactId>
-		    <version>0.9.0-SNAPSHOT</version>
-		    <scope>provided</scope>
+		    <version>0.9.0-beta-1</version>
 		 </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
@@ -84,10 +83,10 @@
                             com.sun.xml.fastinfoset.vocab;resolution:=optional,
                             org.apache.commons.codec.binary;resolution:=optional,
                             
-                            org.apache.chemistry.opencmis.client.api;version="0.9.0.SNAPSHOT",
-                            org.apache.chemistry.opencmis.commons.*;version="0.9.0.SNAPSHOT",
-                            org.apache.chemistry.opencmis.commons.enums;version="0.9.0.SNAPSHOT",
-                            org.apache.chemistry.opencmis.commons.impl.dataobjects;version="0.9.0.SNAPSHOT",
+                            org.apache.chemistry.opencmis.client.api;version="0.9.0-beta-1",
+                            org.apache.chemistry.opencmis.commons.*;version="0.9.0-beta-1",
+                            org.apache.chemistry.opencmis.commons.enums;version="0.9.0-beta-1",
+                            org.apache.chemistry.opencmis.commons.impl.dataobjects;version="0.9.0-beta-1",
                             *
                         </Import-Package>
                         <Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>

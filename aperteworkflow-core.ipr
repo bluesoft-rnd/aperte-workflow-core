@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<project version="4" relativePaths="false"> 
+  <component name="ProjectRootManager" version="2" assert-keyword="true" project-jdk-name="1.7" jdk-15="true"/>  
+  <component name="CodeStyleManager"> 
+    <option name="USE_DEFAULT_CODE_STYLE_SCHEME" value="true"/>  
+    <option name="CODE_STYLE_SCHEME" value=""/> 
+  </component>  
+  <component name="libraryTable"/>  
+  <component name="CompilerConfiguration"> 
+    <option name="DEFAULT_COMPILER" value="Javac"/>  
+    <option name="CLEAR_OUTPUT_DIRECTORY" value="false"/>  
+    <!--
+    <wildcardResourcePatterns>
+      <entry name="${wildcardResourcePattern}"/>
+    </wildcardResourcePatterns>
+    -->  
+    <wildcardResourcePatterns>
+      <entry name="!?*.java"/>
+    </wildcardResourcePatterns>
+  </component>  
+  <component name="JavacSettings"> 
+    <option name="DEBUGGING_INFO" value="true"/>  
+    <option name="GENERATE_NO_WARNINGS" value="false"/>  
+    <option name="DEPRECATION" value="true"/>  
+    <option name="ADDITIONAL_OPTIONS_STRING" value=""/>  
+    <option name="MAXIMUM_HEAP_SIZE" value="128"/>  
+    <option name="USE_GENERICS_COMPILER" value="false"/> 
+  </component>  
+  <component name="JikesSettings"> 
+    <option name="DEBUGGING_INFO" value="true"/>  
+    <option name="DEPRECATION" value="true"/>  
+    <option name="GENERATE_NO_WARNINGS" value="false"/>  
+    <option name="GENERATE_MAKE_FILE_DEPENDENCIES" value="false"/>  
+    <option name="DO_FULL_DEPENDENCE_CHECK" value="false"/>  
+    <option name="IS_INCREMENTAL_MODE" value="false"/>  
+    <option name="IS_EMACS_ERRORS_MODE" value="true"/>  
+    <option name="ADDITIONAL_OPTIONS_STRING" value=""/>  
+    <option name="MAXIMUM_HEAP_SIZE" value="128"/> 
+  </component>  
+  <component name="AntConfiguration"> 
+    <option name="IS_AUTOSCROLL_TO_SOURCE" value="false"/>  
+    <option name="FILTER_TARGETS" value="false"/> 
+  </component>  
+  <component name="JavadocGenerationManager"> 
+    <option name="OUTPUT_DIRECTORY"/>  
+    <option name="OPTION_SCOPE" value="protected"/>  
+    <option name="OPTION_HIERARCHY" value="false"/>  
+    <option name="OPTION_NAVIGATOR" value="false"/>  
+    <option name="OPTION_INDEX" value="false"/>  
+    <option name="OPTION_SEPARATE_INDEX" value="false"/>  
+    <option name="OPTION_USE_1_1" value="false"/>  
+    <option name="OPTION_DOCUMENT_TAG_USE" value="false"/>  
+    <option name="OPTION_DOCUMENT_TAG_AUTHOR" value="false"/>  
+    <option name="OPTION_DOCUMENT_TAG_VERSION" value="false"/>  
+    <option name="OPTION_DOCUMENT_TAG_DEPRECATED" value="false"/>  
+    <option name="OPTION_DEPRECATED_LIST" value="false"/>  
+    <option name="OTHER_OPTIONS"/>  
+    <option name="HEAP_SIZE"/>  
+    <option name="OPEN_IN_BROWSER" value="false"/> 
+  </component>  
+  <component name="JUnitProjectSettings"> 
+    <option name="TEST_RUNNER" value="UI"/> 
+  </component>  
+  <component name="EntryPointsManager"> 
+    <entry_points/> 
+  </component>  
+  <component name="DataSourceManager"/>  
+  <component name="ExportToHTMLSettings"> 
+    <option name="PRINT_LINE_NUMBERS" value="false"/>  
+    <option name="OPEN_IN_BROWSER" value="false"/>  
+    <option name="OUTPUT_DIRECTORY"/> 
+  </component>  
+  <component name="ImportConfiguration"> 
+    <option name="VENDOR"/>  
+    <option name="RELEASE_TAG"/>  
+    <option name="LOG_MESSAGE"/>  
+    <option name="CHECKOUT_AFTER_IMPORT" value="true"/> 
+  </component>  
+  <component name="ProjectModuleManager"> 
+    <modules> 
+      <!-- module filepath="$$PROJECT_DIR$$/${pom.artifactId}.iml"/ -->  
+      <module filepath="$PROJECT_DIR$/aperteworkflow-core.iml"/>
+      <module filepath="$PROJECT_DIR$/core/model/model.iml"/>
+      <module filepath="$PROJECT_DIR$/core/gui-commons/gui-commons.iml"/>
+      <module filepath="$PROJECT_DIR$/core/base-gui/base-gui.iml"/>
+      <module filepath="$PROJECT_DIR$/core/integration/integration.iml"/>
+      <module filepath="$PROJECT_DIR$/core/integration-interface/integration-interface.iml"/>
+      <module filepath="$PROJECT_DIR$/core/activiti-gui/activiti-gui.iml"/>
+      <module filepath="$PROJECT_DIR$/core/activiti-context/activiti-context.iml"/>
+      <module filepath="$PROJECT_DIR$/core/jbpm-context/jbpm-context.iml"/>
+      <module filepath="$PROJECT_DIR$/core/jbpm-gui/jbpm-gui.iml"/>
+      <module filepath="$PROJECT_DIR$/core/editor/editor.iml"/>
+      <module filepath="$PROJECT_DIR$/core/editor-interface/editor-interface.iml"/>
+      <module filepath="$PROJECT_DIR$/core/core.iml"/>
+      <module filepath="$PROJECT_DIR$/plugins/base-widgets/base-widgets.iml"/>
+      <module filepath="$PROJECT_DIR$/plugins/bpm-notifications/bpm-notifications.iml"/>
+      <module filepath="$PROJECT_DIR$/plugins/cmis-widget/cmis-widget.iml"/>
+      <module filepath="$PROJECT_DIR$/plugins/doclist-widget/doclist-widget.iml"/>
+      <module filepath="$PROJECT_DIR$/plugins/drools-step/drools-step.iml"/>
+      <module filepath="$PROJECT_DIR$/plugins/context-help-provider/context-help-provider.iml"/>
+      <module filepath="$PROJECT_DIR$/plugins/email-capture/email-capture.iml"/>
+      <module filepath="$PROJECT_DIR$/plugins/files-capture/files-capture.iml"/>
+      <module filepath="$PROJECT_DIR$/plugins/history-view/history-view.iml"/>
+      <module filepath="$PROJECT_DIR$/plugins/mule-esb-plugin/mule-esb-plugin.iml"/>
+      <module filepath="$PROJECT_DIR$/plugins/log-step/log-step.iml"/>
+      <module filepath="$PROJECT_DIR$/plugins/process-deadlines/process-deadlines.iml"/>
+      <module filepath="$PROJECT_DIR$/plugins/user-substitution-process/user-substitution-process.iml"/>
+      <module filepath="$PROJECT_DIR$/plugins/user-substitution-step/user-substitution-step.iml"/>
+      <module filepath="$PROJECT_DIR$/plugins/userdata-widget/userdata-widget.iml"/>
+      <module filepath="$PROJECT_DIR$/plugins/userdata-service/userdata-service.iml"/>
+      <module filepath="$PROJECT_DIR$/plugins/scripting/scripting.iml"/>
+      <module filepath="$PROJECT_DIR$/plugins/scheduler-integration/scheduler-integration.iml"/>
+      <module filepath="$PROJECT_DIR$/plugins/global-dictionaries/global-dictionaries.iml"/>
+      <module filepath="$PROJECT_DIR$/plugins/integration-liferay/integration-liferay.iml"/>
+      <module filepath="$PROJECT_DIR$/plugins/external-plugins/external-plugins.iml"/>
+      <module filepath="$PROJECT_DIR$/plugins/report-step/report-step.iml"/>
+      <module filepath="$PROJECT_DIR$/plugins/aperte-reports-integration/aperte-reports-integration.iml"/>
+      <module filepath="$PROJECT_DIR$/plugins/plugins.iml"/>
+      <module filepath="$PROJECT_DIR$/utils/xml-utils/xml-utils.iml"/>
+      <module filepath="$PROJECT_DIR$/utils/aperte-utils/aperte-utils.iml"/>
+      <module filepath="$PROJECT_DIR$/utils/aperte-slim-utils/aperte-slim-utils.iml"/>
+      <module filepath="$PROJECT_DIR$/utils/jdbc-connector/jdbc-connector.iml"/>
+      <module filepath="$PROJECT_DIR$/utils/utils.iml"/>
+      <module filepath="$PROJECT_DIR$/samples/activiti-sample-process/activiti-sample-process.iml"/>
+      <module filepath="$PROJECT_DIR$/samples/liferay-poc-process/liferay-poc-process.iml"/>
+      <module filepath="$PROJECT_DIR$/samples/sample-mule-step/sample-mule-step.iml"/>
+      <module filepath="$PROJECT_DIR$/samples/mule-flightsearch-sample/mule-flightsearch-sample.iml"/>
+      <module filepath="$PROJECT_DIR$/samples/mule-attachment-sample/mule-attachment-sample.iml"/>
+      <module filepath="$PROJECT_DIR$/samples/samples.iml"/>
+    </modules> 
+  </component>  
+  <UsedPathMacros> 
+    <!--<macro name="cargo"></macro>--> 
+  </UsedPathMacros> 
+</project>

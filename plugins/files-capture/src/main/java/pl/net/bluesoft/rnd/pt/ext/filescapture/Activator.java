@@ -40,13 +40,9 @@ public class Activator implements BundleActivator {
                         try {
                             toolRegistry.withProcessToolContext(new ProcessToolContextCallback() {
                                 @Override
-                                public void withContext(ProcessToolContext ctx) {
-                                    ProcessToolContext.Util.setThreadProcessToolContext(ctx);
-                                    try {
-                                        new FilesChecker(ctx).run();
-                                    } finally {
-                                        ProcessToolContext.Util.removeThreadProcessToolContext();
-                                    }
+                                public void withContext(ProcessToolContext ctx) 
+                                {
+                                   new FilesChecker(ctx).run();
                                 }
                             });
                         } catch (Exception e) {

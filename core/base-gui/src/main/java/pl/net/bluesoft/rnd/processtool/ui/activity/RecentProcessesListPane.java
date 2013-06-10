@@ -35,7 +35,7 @@ public class RecentProcessesListPane extends MyProcessesListPane {
 		ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
 		tfi.addOwner(getBpmSession().getUser(ctx));
 		tfi.setUpdatedAfter(minDate.getTime());
-		tfi.addQueueType(QueueType.ASSIGNED_TO_CURRENT_USER);
+		tfi.addQueueType(QueueType.OWN_ASSIGNED);
 		return tfi;
 	}
 }

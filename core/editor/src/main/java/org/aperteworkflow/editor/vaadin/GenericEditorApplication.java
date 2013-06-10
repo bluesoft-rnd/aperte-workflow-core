@@ -91,8 +91,8 @@ public class GenericEditorApplication extends Application implements HttpServlet
     }
 
     @Override
-    public void onRequestEnd(HttpServletRequest request, HttpServletResponse response) {
-        ProcessToolContext.Util.removeThreadProcessToolContext();
+    public void onRequestEnd(HttpServletRequest request, HttpServletResponse response) 
+    {
         I18NSource.ThreadUtil.removeThreadI18nSource();
         current.remove();
     }

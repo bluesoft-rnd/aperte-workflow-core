@@ -1,16 +1,21 @@
 package org.aperteworkflow.ext.activiti;
 
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.converters.Converter;
-import com.thoughtworks.xstream.converters.MarshallingContext;
-import com.thoughtworks.xstream.converters.UnmarshallingContext;
-import com.thoughtworks.xstream.io.HierarchicalStreamReader;
-import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
+import static pl.net.bluesoft.util.lang.StringUtil.hasText;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.util.AbstractMap;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.Expression;
 import org.activiti.engine.delegate.JavaDelegate;
-import org.activiti.engine.runtime.Execution;
 import org.apache.commons.beanutils.BeanUtils;
+
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceDAO;
 import pl.net.bluesoft.rnd.processtool.model.BpmStep;
@@ -21,14 +26,12 @@ import pl.net.bluesoft.rnd.processtool.model.nonpersistent.MutableBpmStep;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
-import static pl.net.bluesoft.util.lang.StringUtil.hasText;
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.converters.Converter;
+import com.thoughtworks.xstream.converters.MarshallingContext;
+import com.thoughtworks.xstream.converters.UnmarshallingContext;
+import com.thoughtworks.xstream.io.HierarchicalStreamReader;
+import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -111,12 +114,7 @@ public class ActivitiStepAction implements JavaDelegate {
         step.setProcessInstance(pi);
         step.setExecutionId(exec.getId());
         step.setStateName((String) this.stepName.getValue(exec));
-//        makes no sense in BPMN2.0, anyway step should not rely its logic on its placement on process map
-//        List<String> transitionNames = new ArrayList<String>();
-//        for (Transition transition : exec.getActivity().getOutgoingTransitions()) {
-//            transitionNames.add(transition.getDestination().getName());
-//        }
-//        step.setOutgoingTransitions(transitionNames);
+
         return step;
     }
     private void processAutowiredProperties(Object object, Map<String, String> m) {
@@ -136,7 +134,7 @@ public class ActivitiStepAction implements JavaDelegate {
             }
             String value = nvl(
                     m.get(autoName),
-                    ProcessToolContext.Util.getThreadProcessToolContext().getSetting("autowire." + autoName)
+                    ProcessToolContext.Util.getThreadProcessToolContext().getAutowiredProperty("autowire." + autoName)
             );
             if (autoName != null && value != null) {
                 try {

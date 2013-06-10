@@ -68,7 +68,7 @@
 				<config.ProcessStateAction bpmName="TO_ACCEPT_REQUEST" label="user_substitution.Send" description="user_substitution.Send.descr" buttonName="Default" skipSaving="false" autohide="true" markProcessImportant="false" priority="2" />
 			</actions>
 		</config.ProcessStateConfiguration>
-		<config.ProcessStateConfiguration name="ACCEPT_REQUEST" description="user_substitution.ACCEPT_REQUEST.descr" commentary="user_substitution.ACCEPT_REQUEST.comment">
+		<config.ProcessStateConfiguration name="ACCEPT_REQUEST" description="user_substitution.ACCEPT_REQUEST.descr" enableExternalAccess="true" commentary="user_substitution.ACCEPT_REQUEST.comment">
 			<widgets>
 				<config.ProcessStateWidget className="TabSheet" priority="10">
 					<children>

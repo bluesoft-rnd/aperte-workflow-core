@@ -1,9 +1,16 @@
 package pl.net.bluesoft.rnd.processtool.ui.widgets.impl;
 
-import com.vaadin.Application;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
+import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
+import pl.net.bluesoft.rnd.processtool.di.annotations.AutoInject;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceSimpleAttribute;
@@ -16,14 +23,10 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.PropertyAutoWiring;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.event.WidgetEvent;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.event.WidgetEventBus;
+import pl.net.bluesoft.rnd.processtool.usersource.IPortalUserSource;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import com.vaadin.Application;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -41,6 +44,16 @@ public abstract class BaseProcessToolWidget implements ProcessToolWidget {
 	protected boolean isOwner;
 	private Application application;
 	protected WidgetEventBus widgetEventBus;
+	
+    @AutoInject
+    protected IPortalUserSource userSource;
+	
+	public BaseProcessToolWidget()
+	{
+    	/* init user source */
+		ObjectFactory.inject(this);
+		
+	}
 
 	@Override
 	public void setContext(ProcessStateConfiguration state, ProcessStateWidget configuration, I18NSource i18NSource,
@@ -277,5 +290,10 @@ public abstract class BaseProcessToolWidget implements ProcessToolWidget {
 	@Override
 	public void setGeneratorKey(String generatorKey) {
 		this.generatorKey = generatorKey;
+	}
+	
+	public String getName()
+	{
+		return configuration.getName();
 	}
 }

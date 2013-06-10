@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <property name="hibernate.connection.datasource">jdbc/aperte-workflow-ds</property>
+        <property name="transaction.factory_class">org.hibernate.transaction.JDBCTransactionFactory</property>
+        <property name="current_session_context_class">thread</property>
+        <property name="hibernate.show_sql">false</property>
+        <property name="hibernate.cache.provider_class">org.hibernate.cache.HashtableCacheProvider</property>
+        <property name="hibernate.cache.use_second_level_cache">true</property>
+        <property name="hibernate.cache.use_query_cache">true</property>
+        <property name="hbm2ddl.auto">update</property>
+        
+        <property name="hibernate.connection.autocommit">false</property>
+	    <property name="hibernate.hbm2ddl.auto">update</property>
+	    <property name="hibernate.hbm2ddl">update</property>
+	    <property name="hibernate.jdbc.batch_size">50</property>
+	    <property name="hibernate.use_outer_join">true</property>
+	    <property name="hibernate.cglib.use_reflection_optimizer">true</property>
+	    
+	    <mapping package="org.apertereports.model"/>
+		<mapping class="org.apertereports.model.ReportTemplate"/>
+		<mapping class="org.apertereports.model.ConfigurationEntry"/>
+		<mapping class="org.apertereports.model.CyclicReportOrder"/>
+		<mapping class="org.apertereports.model.ReportOrder"/>
+        
+    </session-factory>
+</hibernate-configuration>

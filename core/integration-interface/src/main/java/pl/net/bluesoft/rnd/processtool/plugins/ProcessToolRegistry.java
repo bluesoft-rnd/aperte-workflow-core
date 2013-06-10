@@ -13,15 +13,21 @@ import org.hibernate.SessionFactory;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
-import pl.net.bluesoft.rnd.processtool.dao.*;
+import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
+import pl.net.bluesoft.rnd.processtool.dao.ProcessDictionaryDAO;
+import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceDAO;
+import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceFilterDAO;
+import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceSimpleAttributeDAO;
+import pl.net.bluesoft.rnd.processtool.dao.ProcessStateActionDAO;
+import pl.net.bluesoft.rnd.processtool.dao.UserDataDAO;
+import pl.net.bluesoft.rnd.processtool.dao.UserProcessQueueDAO;
+import pl.net.bluesoft.rnd.processtool.dao.UserRoleDAO;
+import pl.net.bluesoft.rnd.processtool.dao.UserSubstitutionDAO;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolActionButton;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.taskitem.TaskItemProvider;
-import pl.net.bluesoft.rnd.util.ConfigurationResult;
 import pl.net.bluesoft.rnd.util.func.Func;
 import pl.net.bluesoft.rnd.util.i18n.I18NProvider;
 import pl.net.bluesoft.util.eventbus.EventBusManager;
@@ -61,26 +67,16 @@ public interface ProcessToolRegistry extends ProcessToolBpmConstants {
     void unregisterStep(String name);
 
 	void unregisterStep(Class<? extends ProcessToolProcessStep> cls);
+	
+	UserRoleDAO getUserRoleDao(Session hibernateSession);
 
     Map<String,ProcessToolProcessStep> getAvailableSteps();
 
 	ProcessToolProcessStep getStep(String name);
 
-    void registerProcessDictionaries(InputStream dictionariesStream, ConfigurationResult result);
+    void registerProcessDictionaries(InputStream dictionariesStream, ProcessDefinitionConfig newConfig, ProcessDefinitionConfig oldConfig);
 
     void registerGlobalDictionaries(InputStream dictionariesStream);
-
-    ConfigurationResult deployOrUpdateProcessDefinition(InputStream jpdlStream,
-	                                     ProcessDefinitionConfig cfg,
-	                                     ProcessQueueConfig[] queues,
-	                                     final InputStream imageStream,
-	                                     InputStream logoStream);
-
-    ConfigurationResult deployOrUpdateProcessDefinition(InputStream jpdlStream,
-	                                     InputStream processToolConfigStream,
-	                                     InputStream queueConfigStream,
-	                                     InputStream imageStream,
-	                                     InputStream logoStream);
 
 	<T extends ProcessToolWidget> T makeWidget(String name)
 			throws IllegalAccessException, InstantiationException;

@@ -15,14 +15,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.aperteworkflow.ui.view.ViewEvent;
 import org.aperteworkflow.util.vaadin.VaadinUtility;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.filters.factory.ProcessInstanceFilterFactory;
@@ -31,6 +30,7 @@ import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
 import pl.net.bluesoft.rnd.processtool.model.QueueType;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.ui.utils.QueuesPanelRefresherUtil;
 import pl.net.bluesoft.util.eventbus.EventListener;
 import pl.net.bluesoft.util.lang.DateUtil;
@@ -85,7 +85,7 @@ public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshab
 		setWidth("100%");
 		setCaption(getMessage("activity.queues.title"));
 		addComponent(horizontalLayout(new Label(getMessage("activity.queues.help.short"), Label.CONTENT_XHTML),
-				refreshIcon(activityMainPane.getApplication(),this)));
+				refreshIcon(activityMainPane.getActivityApplication(),this)));
 		taskList = new VerticalLayout();
 		addComponent(taskList);
 
@@ -119,29 +119,7 @@ public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshab
 		});
 	}
 
-	@Override
 	public void refreshData()
-	{	
-		try 
-		{
-			watch = new TaskWatch(ActivityQueuesPane.class.getSimpleName() + " - lista kolejek " + (onEvent ? " refresh ON_EVENT" : ""));
-			watch.watchTask("Total refreshing data", new Callable<Object>() {
-
-				@Override
-				public Object call() throws Exception {
-					internalRefreshData();
-					return null;
-				}
-			});
-			watch.stopAll();
-			logger.log(Level.INFO, watch.printSummary());
-		} catch (Exception e) {
-			logger.log(Level.WARNING, "Refreshing data", e);
-			throw new RuntimeException(e);
-		}
-	}
-
-	public void internalRefreshData() 
 	{
 		taskList.removeAllComponents();
 
@@ -183,15 +161,13 @@ public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshab
 	private void buildMainTasksViews(ProcessToolContext ctx, final ProcessToolBpmSession bpmSession, UserData user)
 	{
 		/* Create filters for specific task list */
-//		ProcessInstanceFilter assignedTasksFromOthers = filterFactory.createOthersTaskAssignedToMeFilter(user);
-//		ProcessInstanceFilter assignedTasksByMyself = filterFactory.createMyTasksAssignedToMeFilter(user);
-		ProcessInstanceFilter tasksAssignedToMe = filterFactory.createTaskAssignedToMeFilter(user);
+		ProcessInstanceFilter assignedTasksFromOthers = filterFactory.createOthersTaskAssignedToMeFilter(user);
+		ProcessInstanceFilter assignedTasksByMyself = filterFactory.createMyTasksAssignedToMeFilter(user);
 		ProcessInstanceFilter myTasksBeingDoneByOthers = filterFactory.createMyTaskDoneByOthersFilter(user);
 		ProcessInstanceFilter myTasksClosed = filterFactory.createMyClosedTasksFilter(user);
 				
-//		taskList.addComponent(createUserTasksButton(bpmSession,ctx,assignedTasksFromOthers,true));
-//		taskList.addComponent(createUserTasksButton(bpmSession,ctx,assignedTasksByMyself,true));
-		taskList.addComponent(createUserTasksButton(bpmSession,ctx,tasksAssignedToMe,true));
+		taskList.addComponent(createUserTasksButton(bpmSession,ctx,assignedTasksFromOthers,true));
+		taskList.addComponent(createUserTasksButton(bpmSession,ctx,assignedTasksByMyself,true));
 		taskList.addComponent(createUserTasksButton(bpmSession,ctx,myTasksBeingDoneByOthers,true));
 		taskList.addComponent(createUserTasksButton(bpmSession,ctx,myTasksClosed,false));
 
@@ -242,9 +218,8 @@ public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshab
 	{
 		Collection<ProcessInstanceFilter> taskFilters = new ArrayList<ProcessInstanceFilter>();
 		
-//		taskFilters.add(filterFactory.createSubstitutedOthersTaskAssignedToMeFilter(substitutedUser));
-//		taskFilters.add(filterFactory.createSubstitutedTasksAssignedToMeFilter(substitutedUser));
-		taskFilters.add(filterFactory.createTasksAssignedToSubstitutedUserFilter(substitutedUser));
+		taskFilters.add(filterFactory.createSubstitutedOthersTaskAssignedToMeFilter(substitutedUser));
+		taskFilters.add(filterFactory.createSubstitutedTasksAssignedToMeFilter(substitutedUser));
 		taskFilters.add(filterFactory.createSubstitutedTaskDoneByOthersFilter(substitutedUser));
 		taskFilters.add(filterFactory.createSubstitutedClosedTasksFilter(substitutedUser));
 		
@@ -493,7 +468,16 @@ public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshab
 					@Override
 					public void run()
 					{
-						activityMainPane.displayFilterPane(processInstanceFilter);
+						ProcessToolRegistry registry = ProcessToolRegistry.ThreadUtil.getThreadRegistry();
+						
+						registry.withProcessToolContext(new ProcessToolContextCallback() {
+							
+							@Override
+							public void withContext(ProcessToolContext ctx) {
+								activityMainPane.displayFilterPane(processInstanceFilter);
+								
+							}
+						});
 					}
 				});
 			}

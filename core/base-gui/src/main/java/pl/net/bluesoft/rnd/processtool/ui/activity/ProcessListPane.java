@@ -55,7 +55,7 @@ public abstract class ProcessListPane extends AbstractListPane {
     private NavigationComponent bottomNavigationComponent;
 
     public ProcessListPane(ActivityMainPane activityMainPane, String title, ProcessInstanceFilter filter) {
-        super(activityMainPane.getApplication(), activityMainPane.getI18NSource(), title);
+        super(activityMainPane.getActivityApplication(), activityMainPane.getI18NSource(), title);
         this.activityMainPane = activityMainPane;
         this.filter = filter;
 		this.addRefreshButton = false;

@@ -23,7 +23,7 @@ import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceSimpleAttribute;
 import pl.net.bluesoft.rnd.processtool.model.ProcessStatus;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
-import pl.net.bluesoft.rnd.processtool.model.config.AbstractPermission;
+import pl.net.bluesoft.rnd.processtool.model.config.IPermission;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionPermission;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
@@ -206,13 +206,14 @@ public abstract class AbstractProcessToolSession
         });
     }
 
-    protected UserData findOrCreateUser(UserData user, ProcessToolContext ctx) {
+    protected UserData findOrCreateUser(UserData user, ProcessToolContext ctx) 
+     {
         return ctx.getUserDataDAO().findOrCreateUser(user);
     }
 
-    protected Set<String> getPermissions(Collection<? extends AbstractPermission> col) {
+    protected Set<String> getPermissions(Collection<? extends IPermission> col) {
         Set<String> res = new HashSet<String>();
-        for (AbstractPermission permission : col) {
+        for (IPermission permission : col) {
             if (hasMatchingRole(permission.getRoleName())) {
                 res.add(permission.getPrivilegeName());
             }

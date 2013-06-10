@@ -26,7 +26,7 @@ import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.ui.activity.ActivityMainPane;
-import pl.net.bluesoft.rnd.processtool.ui.process.ProcessDataPane;
+import pl.net.bluesoft.rnd.processtool.ui.process.ProcessMultiViewDataPane;
 import pl.net.bluesoft.rnd.processtool.ui.process.WindowProcessDataDisplayContext;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import org.aperteworkflow.util.vaadin.VaadinUtility;
@@ -115,7 +115,7 @@ public class NewProcessExtendedPane extends VerticalLayout implements Refreshabl
 
 		processesPopupLayout = new VerticalLayout();
 		processesPopupLayout.setSpacing(true);
-		processesPopupLayout.addComponent(VaadinUtility.horizontalLayout(new Label(getMessage("newProcess.caption-simple"), Label.CONTENT_XHTML), refreshIcon(activityMainPane.getApplication(), this)));
+		processesPopupLayout.addComponent(VaadinUtility.horizontalLayout(new Label(getMessage("newProcess.caption-simple"), Label.CONTENT_XHTML), refreshIcon(activityMainPane.getActivityApplication(), this)));
 		processesPopupLayout.addComponent(processesSelect);
 		processesPopupLayout.addComponent(descriptionPanel);
 		processesPopupPanel.addComponent(processesPopupLayout);
@@ -129,7 +129,7 @@ public class NewProcessExtendedPane extends VerticalLayout implements Refreshabl
 		processesSelect.setItemCaptionMode(Select.ITEM_CAPTION_MODE_PROPERTY);
 		processesSelect.setItemCaptionPropertyId("name");
 
-		defaultLogoResource = VaadinUtility.imageResource(activityMainPane.getApplication(), "aperte-logo.png");
+		defaultLogoResource = VaadinUtility.imageResource(activityMainPane.getActivityApplication(), "aperte-logo.png");
 		defaultLogoEmbedded = new Embedded(null,  defaultLogoResource);
 
 		setSpacing(true);
@@ -164,7 +164,7 @@ public class NewProcessExtendedPane extends VerticalLayout implements Refreshabl
 								public InputStream getStream() {
 									return new ByteArrayInputStream(definition.getProcessLogo());
 								}
-							}, definition.getBpmDefinitionKey() + "_logo.png", activityMainPane.getApplication())
+							}, definition.getBpmDefinitionKey() + "_logo.png", activityMainPane.getActivityApplication())
 							);
 				}
 
@@ -250,7 +250,7 @@ public class NewProcessExtendedPane extends VerticalLayout implements Refreshabl
 				ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
 				ProcessDefinitionConfig cfg = ctx.getProcessDefinitionDAO().getActiveConfigurationByKey(bpmDefinitionId);
 				ProcessInstance instance = session.createProcessInstance(cfg, null, ctx, null, null, "portlet", null);
-				VaadinUtility.informationNotification(activityMainPane.getApplication(), getMessage("newProcess.started"), 1000);
+				VaadinUtility.informationNotification(activityMainPane.getActivityApplication(), getMessage("newProcess.started"), 1000);
 				getWindow().executeJavaScript("Liferay.trigger('processtool.bpm.newProcess', '" + instance.getInternalId() + "');");
 				getWindow().executeJavaScript("vaadin.forceSync();");
 
@@ -262,7 +262,7 @@ public class NewProcessExtendedPane extends VerticalLayout implements Refreshabl
 					}
 					else {
 						Window w = new Window(instance.getInternalId());
-						w.setContent(new ProcessDataPane(getApplication(), session, i18NSource, task, new WindowProcessDataDisplayContext(w)));
+						w.setContent(new ProcessMultiViewDataPane(getApplication(), session, i18NSource, task, new WindowProcessDataDisplayContext(w)));
 						w.center();
 						getWindow().addWindow(w);
 						w.focus();

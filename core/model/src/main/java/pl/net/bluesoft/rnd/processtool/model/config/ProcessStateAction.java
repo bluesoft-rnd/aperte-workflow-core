@@ -35,7 +35,6 @@ public class ProcessStateAction extends AbstractPersistentEntity {
 	@Column(name = "id")
 	protected Long id;
 
-//    @XmlTransient
     @ManyToOne
     @JoinColumn(name = "state_id")
     private ProcessStateConfiguration config;
@@ -64,6 +63,9 @@ public class ProcessStateAction extends AbstractPersistentEntity {
     private Boolean markProcessImportant = false;
 
     private Boolean skipSaving = false;
+    
+    /** Should action be hidden for external access (e-mail shourtcuts)? */
+    private Boolean hideForExternalAccess = false;
 
     private Boolean autohide = false;
 
@@ -114,7 +116,6 @@ public class ProcessStateAction extends AbstractPersistentEntity {
         return config;
     }
 
-//    @XmlTransient
     public void setConfig(ProcessStateConfiguration config) {
         this.config = config;
     }
@@ -136,7 +137,9 @@ public class ProcessStateAction extends AbstractPersistentEntity {
     }
 
     public Set<ProcessStateActionPermission> getPermissions() {
-        if (permissions == null) permissions = new HashSet<ProcessStateActionPermission>();
+        if (permissions == null) 
+        	permissions = new HashSet<ProcessStateActionPermission>();
+        
         return permissions;
     }
 
@@ -232,5 +235,13 @@ public class ProcessStateAction extends AbstractPersistentEntity {
 
 	public void setNotification(String notification) {
 		this.notification = notification;
+	}
+	
+	public Boolean getHideForExternalAccess() {
+		return hideForExternalAccess == null ? false : hideForExternalAccess;
+	}
+
+	public void setHideForExternalAccess(Boolean hideForExternalAccess) {
+		this.hideForExternalAccess = hideForExternalAccess;
 	}
 }

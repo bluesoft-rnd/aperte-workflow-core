@@ -2,41 +2,32 @@ package pl.net.bluesoft.rnd.processtool.model.dict.db;
 
 //import org.hibernate.annotations.OnDelete;
 //import org.hibernate.annotations.OnDeleteAction;
-import org.hibernate.annotations.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
+import org.apache.commons.lang3.time.DateUtils;
+import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
-import pl.net.bluesoft.rnd.processtool.model.AbstractPersistentEntity;
+import org.hibernate.annotations.Type;
+
 import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItemExtension;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItemValue;
 
-import javax.persistence.*;
-import javax.persistence.Entity;
-import javax.persistence.MapKey;
-import javax.persistence.Parameter;
-import javax.persistence.Table;
-
-import org.apache.commons.lang3.time.DateUtils;
-
-import java.util.*;
-
 @Entity
 @Table(name = "pt_dictionary_item_value")
-public class ProcessDBDictionaryItemValue extends AbstractPersistentEntity implements ProcessDictionaryItemValue<String>
+public class ProcessDBDictionaryItemValue extends PersistentEntity implements ProcessDictionaryItemValue<String> 
 {
-    @Id
-    @GeneratedValue(generator = "idGenerator")
-    @GenericGenerator(
-            name = "idGenerator",
-            strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
-            parameters = {
-                    @org.hibernate.annotations.Parameter(name = "initial_value", value = "" + 1),
-                    @org.hibernate.annotations.Parameter(name = "value_column", value = "_DB_ID"),
-                    @org.hibernate.annotations.Parameter(name = "sequence_name", value = "DB_SEQ_ID_DB_DICT_ITEM_VAL")
-            }
-    )
-    @Column(name = "id")
-    protected Long id;
-
     @ManyToOne(fetch = FetchType.LAZY)
     private ProcessDBDictionaryItem item;
 
@@ -47,12 +38,30 @@ public class ProcessDBDictionaryItemValue extends AbstractPersistentEntity imple
     private Date validStartDate;
     private Date validEndDate;
 
-    @OneToMany(mappedBy = "itemValue", fetch = FetchType.EAGER, orphanRemoval = true)
-    @Cascade(value = {CascadeType.ALL})
-    @MapKey(name = "name")
-    private Map<String, ProcessDBDictionaryItemExtension> extensions = new HashMap<String, ProcessDBDictionaryItemExtension>();
 
-    public ProcessDBDictionaryItemValue() {
+    @OneToMany(mappedBy = "itemValue", fetch = FetchType.EAGER, orphanRemoval = true, cascade=javax.persistence.CascadeType.ALL)
+    @Cascade(value = {CascadeType.ALL})
+    private Set<ProcessDBDictionaryItemExtension> extensions = new HashSet<ProcessDBDictionaryItemExtension>();
+
+    public Set<ProcessDBDictionaryItemExtension> getExtensions() {
+		return extensions;
+	}
+    
+    public Set<ProcessDictionaryItemExtension<String>> getItemExtensions() 
+    {
+    	Set<ProcessDictionaryItemExtension<String>> itemExtensions = new HashSet<ProcessDictionaryItemExtension<String>>();
+    	
+    	for(ProcessDBDictionaryItemExtension item: extensions)
+    		itemExtensions.add(item);
+    	
+		return itemExtensions;
+	}
+
+	public void setExtensions(Set<ProcessDBDictionaryItemExtension> extensions) {
+		this.extensions = extensions;
+	}
+
+	public ProcessDBDictionaryItemValue() {
     }
 
     private ProcessDBDictionaryItemValue(ProcessDBDictionaryItemValue itemValue) {
@@ -60,17 +69,10 @@ public class ProcessDBDictionaryItemValue extends AbstractPersistentEntity imple
         this.id = itemValue.getId();
         this.validStartDate = itemValue.getValidStartDate();
         this.validEndDate = itemValue.getValidEndDate();
-        for (ProcessDBDictionaryItemExtension ext : itemValue.getExtensions().values()) {
-            addItemExtension(ext.exactCopy());
+        for (ProcessDBDictionaryItemExtension ext : itemValue.getExtensions())
+        {
+        	addExtension(ext.exactCopy());
         }
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public ProcessDBDictionaryItemValue exactCopy() {
@@ -81,7 +83,7 @@ public class ProcessDBDictionaryItemValue extends AbstractPersistentEntity imple
         ProcessDBDictionaryItemValue val = exactCopy();
         val.setId(null);
         val.setItem(null);
-        for (ProcessDBDictionaryItemExtension ext : val.getExtensions().values()) {
+        for (ProcessDBDictionaryItemExtension ext : val.getExtensions()) {
             ext.setId(null);
         }
         return val;
@@ -103,13 +105,13 @@ public class ProcessDBDictionaryItemValue extends AbstractPersistentEntity imple
         this.value = value;
     }
 
-    public String getStringValue() {
-        return getValue();
-    }
+	public String getStringValue() {
+		return getValue();
+	}
 
-    public void setStringValue(String value) {
-        setValue(value);
-    }
+	public void setStringValue(String value) {
+		setValue(value);
+	}
 
     public Date getValidStartDate() {
         return validStartDate;
@@ -153,52 +155,36 @@ public class ProcessDBDictionaryItemValue extends AbstractPersistentEntity imple
         return true;
     }
 
-    @Override
-    public Collection<ProcessDictionaryItemExtension<String>> getItemExtensions() {
-        Set<ProcessDictionaryItemExtension<String>> itemExtensions = new HashSet<ProcessDictionaryItemExtension<String>>();
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
+	}
 
-        for(ProcessDBDictionaryItemExtension item: extensions.values())
-            itemExtensions.add(item);
-
-        return itemExtensions;
-    }
-
-    public void removeItemExtension(String name) {
-        ProcessDBDictionaryItemExtension ext = extensions.get(name);
-        if (ext != null) {
-            ext.setItemValue(null);
-            extensions.remove(name);
-        }
-    }
-
-    public void addItemExtension(ProcessDBDictionaryItemExtension itemExtension) {
-        itemExtension.setItemValue(this);
-        extensions.put(itemExtension.getName(), itemExtension);
-    }
-
-    public Map<String, ProcessDBDictionaryItemExtension> getExtensions() {
-        return extensions;
-    }
-
-    public Collection<ProcessDictionaryItemExtension> extensions() {
-        Set<ProcessDictionaryItemExtension> set = new HashSet<ProcessDictionaryItemExtension>();
-        for (ProcessDictionaryItemExtension ext : extensions.values()) {
-            set.add(ext);
-        }
-        return set;
-    }
-
-    public Collection<String> getExtensionNames() {
-        return extensions.keySet();
-    }
-
-    public ProcessDBDictionaryItemExtension getExtensionByName(String extensionName) {
-        return extensions.get(extensionName);
-    }
-
-    public void setExtensions(Map<String, ProcessDBDictionaryItemExtension> extensions) {
-        this.extensions = extensions;
-    }
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ProcessDBDictionaryItemValue other = (ProcessDBDictionaryItemValue) obj;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+			else
+				return this == other;
+		} else if (!id.equals(other.id))
+			return false;
+		return true;
+	}
 
 
+	public void addExtension(ProcessDBDictionaryItemExtension extension) {
+		extensions.add(extension);
+		extension.setItemValue(this);
+	}
 }

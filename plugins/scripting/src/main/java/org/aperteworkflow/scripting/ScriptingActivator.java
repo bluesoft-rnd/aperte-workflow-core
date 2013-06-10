@@ -1,12 +1,18 @@
 package org.aperteworkflow.scripting;
 
-import org.osgi.framework.*;
-import pl.net.bluesoft.rnd.util.func.Func;
+import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static pl.net.bluesoft.util.lang.StringUtil.hasText;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleEvent;
+import org.osgi.framework.BundleListener;
+import org.osgi.framework.ServiceRegistration;
+
+import pl.net.bluesoft.rnd.util.func.Func;
 
 /**
  * Created by IntelliJ IDEA.

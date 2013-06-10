@@ -43,7 +43,6 @@ public class ProcessInstanceManagerApplicationPortlet extends ApplicationPortlet
             registry.withProcessToolContext(new ProcessToolContextCallback() {
                 @Override
                 public void withContext(ProcessToolContext ctx) {
-                    ProcessToolContext.Util.setThreadProcessToolContext(ctx);
                     try {
                         try {
                             I18NSource.ThreadUtil.setThreadI18nSource(I18NSourceFactory.createI18NSource(request.getLocale()));
@@ -137,9 +136,7 @@ public class ProcessInstanceManagerApplicationPortlet extends ApplicationPortlet
                         }
                     } catch (Exception e) {
                         throw new RuntimeException(e);
-                    } finally {
-                        ProcessToolContext.Util.removeThreadProcessToolContext();
-                    }
+                    } 
                 }
             });
         } finally {

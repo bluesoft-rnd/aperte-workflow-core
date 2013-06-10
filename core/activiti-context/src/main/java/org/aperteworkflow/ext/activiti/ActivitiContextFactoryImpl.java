@@ -28,7 +28,6 @@ import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
-import pl.net.bluesoft.rnd.util.ConfigurationResult;
 import pl.net.bluesoft.util.io.IOUtils;
 
 import javax.naming.InitialContext;
@@ -209,98 +208,9 @@ public class ActivitiContextFactoryImpl implements ProcessToolContextFactory {
         return registry;
     }
 
-    @Override
-    public ConfigurationResult deployOrUpdateProcessDefinition(final InputStream bpmStream,
-                                                final ProcessDefinitionConfig cfg,
-                                                final ProcessQueueConfig[] queues,
-                                                final InputStream imageStream,
-                                                InputStream logoStream) {
-        return withProcessToolContext(new ReturningProcessToolContextCallback<ConfigurationResult>() {
-            @Override
-            public ConfigurationResult processWithContext(ProcessToolContext processToolContext) {
-
-                ProcessToolContext.Util.setThreadProcessToolContext(processToolContext);
-                try {
-                    boolean skipBpm = false;
-                    InputStream is = bpmStream;
-                    ProcessToolBpmSession session = processToolContext.getProcessToolSessionFactory().createSession(
-                            new UserData("admin", "admin@aperteworkflow.org", "Admin"), Arrays.asList("ADMIN"));
-                    byte[] oldDefinition = session.getProcessLatestDefinition(cfg.getBpmDefinitionKey(), cfg.getProcessName());
-                    if (oldDefinition != null) {
-                        byte[] newDefinition = IOUtils.slurp(is);
-                        is = new ByteArrayInputStream(newDefinition);
-                        if (Arrays.equals(newDefinition, oldDefinition)) {
-                            logger.log(Level.WARNING, "bpm definition for " + cfg.getProcessName() +
-                                    " is the same as in BPM, therefore not updating BPM process definition");
-                            skipBpm = true;
-                        }
-                    }
-
-                    if (!skipBpm) {
-                        String deploymentId = session.deployProcessDefinition(cfg.getProcessName(), is, imageStream);
-                        logger.log(Level.INFO, "deployed new BPM Engine definition with id: " + deploymentId);
-                    }
-
-                    ProcessDefinitionDAO processDefinitionDAO = processToolContext.getProcessDefinitionDAO();
-                    ProcessDefinitionConfig oldCfg = processDefinitionDAO.getActiveConfigurationByKey(cfg.getBpmDefinitionKey());
-                    processDefinitionDAO.updateOrCreateProcessDefinitionConfig(cfg);
-                    logger.log(Level.INFO, "created  definition with id: " + cfg.getId());
-                    if (queues != null && queues.length > 0) {
-                        processDefinitionDAO.updateOrCreateQueueConfigs(Arrays.asList(queues));
-                        logger.log(Level.INFO, "created/updated " + queues.length + " queues");
-                    }
-
-                    ConfigurationResult result = new ConfigurationResult();
-                    result.setNewOne(cfg);
-                    result.setOldOne(oldCfg);
-
-                    return result;
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                } finally {
-                    ProcessToolContext.Util.removeThreadProcessToolContext();
-                }
-            }
-        });
-    }
-
-    @Override
-    public ConfigurationResult deployOrUpdateProcessDefinition(InputStream jpdlStream,
-                                                InputStream processToolConfigStream,
-                                                InputStream queueConfigStream,
-                                                InputStream imageStream,
-                                                InputStream logoStream) {
 
 
-        if (jpdlStream == null || processToolConfigStream == null || queueConfigStream == null) {
-            throw new IllegalArgumentException("at least one of the streams is null");
-        }
-        XStream xstream = new XStream();
-        xstream.aliasPackage("config", ProcessDefinitionConfig.class.getPackage().getName());
-        xstream.useAttributeFor(String.class);
-        xstream.useAttributeFor(Boolean.class);
-        xstream.useAttributeFor(Integer.class);
 
-        ProcessDefinitionConfig config = (ProcessDefinitionConfig) xstream.fromXML(processToolConfigStream);
-
-        if (logoStream != null) {
-            byte[] logoBytes;
-            try {
-                logoBytes = IOUtils.slurp(logoStream);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            if (logoBytes.length > 0) {
-                config.setProcessLogo(logoBytes);
-            }
-        }
-        Collection<ProcessQueueConfig> qConfigs = (Collection<ProcessQueueConfig>) xstream.fromXML(queueConfigStream);
-       return deployOrUpdateProcessDefinition(jpdlStream,
-                config,
-                qConfigs.toArray(new ProcessQueueConfig[qConfigs.size()]),
-                imageStream,
-                logoStream);
-    }
 
     @Override
     public void updateSessionFactory(org.hibernate.SessionFactory sf) {

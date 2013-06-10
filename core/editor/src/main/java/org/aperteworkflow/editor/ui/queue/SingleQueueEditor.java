@@ -1,17 +1,26 @@
 package org.aperteworkflow.editor.ui.queue;
 
-import com.vaadin.data.Property;
-import com.vaadin.ui.*;
-import org.aperteworkflow.editor.domain.Queue;
-import org.aperteworkflow.editor.domain.QueueRolePermission;
-import org.aperteworkflow.editor.vaadin.DataHandler;
-import org.aperteworkflow.util.liferay.LiferayBridge;
-import org.aperteworkflow.util.vaadin.VaadinUtility;
-import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.logging.Logger;
+
+import org.aperteworkflow.editor.domain.Queue;
+import org.aperteworkflow.editor.domain.QueueRolePermission;
+import org.aperteworkflow.editor.vaadin.DataHandler;
+import org.aperteworkflow.util.vaadin.VaadinUtility;
+
+import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
+import pl.net.bluesoft.rnd.processtool.roles.IUserRolesManager;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+
+import com.vaadin.data.Property;
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.CssLayout;
+import com.vaadin.ui.GridLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.TextField;
 
 public class SingleQueueEditor extends GridLayout implements QueueRolePermissionBoxHandler, DataHandler {
 
@@ -126,7 +135,9 @@ public class SingleQueueEditor extends GridLayout implements QueueRolePermission
     public void loadData() {
         roleNameComboBox.removeAllItems();
         roleNameComboBox.addItem(".*");
-		for (String roleName : LiferayBridge.getRegularRoleNames()) {
+        
+        IUserRolesManager rolesManager = ObjectFactory.create(IUserRolesManager.class);
+		for (String roleName : rolesManager.getAllRolesNames()) {
 			roleNameComboBox.addItem(roleName);
 		}
 

@@ -1,40 +1,29 @@
 package pl.net.bluesoft.rnd.pt.ext.jbpm;
 
-import com.thoughtworks.xstream.XStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.naming.InitialContext;
+import javax.transaction.Status;
+import javax.transaction.UserTransaction;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.jbpm.api.Configuration;
 import org.jbpm.api.ProcessEngine;
+
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
-import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionPermission;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
-import pl.net.bluesoft.rnd.util.ConfigurationResult;
-import pl.net.bluesoft.util.lang.Strings;
-
-import javax.naming.InitialContext;
-import javax.transaction.Status;
-import javax.transaction.UserTransaction;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
+ * Process Tool Context factory
+ * 
  * @author tlipski@bluesoft.net.pl
+ * @author mpawlak@bluesoft.net.pl
  */
 public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory, ProcessToolBpmConstants {
 
@@ -48,13 +37,25 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory,
     }
 
     @Override
-    public <T> T withExistingOrNewContext(ReturningProcessToolContextCallback<T> callback) {
-        ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-        return ctx != null && ctx.isActive() ? callback.processWithContext(ctx) : withProcessToolContext(callback);
+    public <T> T withExistingOrNewContext(ReturningProcessToolContextCallback<T> callback) 
+    {
+    	return withProcessToolContext(callback);
     }
 
     @Override
-	public <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback) {
+	public <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback) 
+    {
+    	ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
+    	/* Active context already exists, use it */
+    	if(ctx != null && ctx.isActive())
+    		return callback.processWithContext(ctx);
+    	
+    	/* Context is set but its session is closed, remove it */
+    	if(ctx != null && !ctx.isActive())
+    		ProcessToolContext.Util.removeThreadProcessToolContext();
+    	
+    	ProcessToolRegistry.ThreadUtil.setThreadRegistry(registry);
+    	
         if (registry.isJta()) {
             return withProcessToolContextJta(callback);
         } else {
@@ -62,32 +63,47 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory,
         }
     }
 
-	public <T> T withProcessToolContextNonJta(ReturningProcessToolContextCallback<T> callback) {
+	public <T> T withProcessToolContextNonJta(ReturningProcessToolContextCallback<T> callback) 
+	{
         T result = null;
 
 		Session session = registry.getSessionFactory().openSession();
-		try {
+		try 
+		{
 			ProcessEngine pi = getProcessEngine();
-			try {
+			try 
+			{
 				Transaction tx = session.beginTransaction();
-				try {
-					ProcessToolContextImpl ctx = new ProcessToolContextImpl(session, this, pi);
+				ProcessToolContext ctx = new ProcessToolContextImpl(session, registry, pi);
+				ProcessToolContext.Util.setThreadProcessToolContext(ctx);
+				try 
+				{
 					result = callback.processWithContext(ctx);
-				} catch (RuntimeException e) {
+				} 
+				catch (RuntimeException e) 
+				{
 					logger.log(Level.SEVERE, e.getMessage(), e);
 					try {
 						tx.rollback();
+						ctx.rollback();
 					} catch (Exception e1) {
 						logger.log(Level.WARNING, e1.getMessage(), e1);
 					}
 					throw e;
+				}
+				finally
+				{
+					ctx.close();
+					ProcessToolContext.Util.removeThreadProcessToolContext();
 				}
 				tx.commit();
 			}
 			finally {
 				pi.close();
 			}
-		} finally {
+		} 
+		finally 
+		{
 			session.close();
 		}
         return result;
@@ -115,18 +131,30 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory,
             Session session = registry.getSessionFactory().getCurrentSession();
             try {
                 ProcessEngine pi = getProcessEngine();
-                try {
-                    try {
-                        ProcessToolContextImpl ctx = new ProcessToolContextImpl(session, this, pi);
+                try 
+                {
+                	ProcessToolContext ctx = new ProcessToolContextImpl(session, registry, pi);
+                	ProcessToolContext.Util.setThreadProcessToolContext(ctx);
+                    try 
+                    {
                         result = callback.processWithContext(ctx);
-                    } catch (Exception e) {
+                    } 
+                    catch (Exception e) {
                         logger.log(Level.SEVERE, e.getMessage(), e);
-                        try {
+                        try 
+                        {
                             ut.rollback();
+        					ctx.rollback();
+        					
                         } catch (Exception e1) {
                             logger.log(Level.WARNING, e1.getMessage(), e1);
                         }
                         throw e;
+                    }
+                    finally
+                    {
+                    	ctx.close();
+                    	ProcessToolContext.Util.removeThreadProcessToolContext();
                     }
                 } finally {
                     pi.close();
@@ -147,7 +175,7 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory,
         Thread t = Thread.currentThread();
         ClassLoader previousLoader = t.getContextClassLoader();
         try {
-            ClassLoader newClassLoader = getClass().getClassLoader();
+            ClassLoader newClassLoader = configuration.getClass().getClassLoader();
             t.setContextClassLoader(newClassLoader);
             return configuration.buildProcessEngine();
         } finally {
@@ -158,122 +186,6 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory,
     @Override
     public ProcessToolRegistry getRegistry() {
         return registry;
-    }
-
-
-    @Override
-    public ConfigurationResult deployOrUpdateProcessDefinition(final InputStream bpmStream,
-                                                final ProcessDefinitionConfig cfg,
-                                                final ProcessQueueConfig[] queues,
-                                                final InputStream imageStream,
-                                                final InputStream logoStream) {
-        return withProcessToolContext(new ReturningProcessToolContextCallback<ConfigurationResult>() {
-            @Override
-             public ConfigurationResult processWithContext(ProcessToolContext processToolContext) {
-
-                ProcessToolContext.Util.setThreadProcessToolContext(processToolContext);
-                try {
-                    boolean skipJbpm = false;
-                    InputStream is = bpmStream;
-                    ProcessToolBpmSession session = processToolContext.getProcessToolSessionFactory().createSession(
-                            new UserData("admin", "admin@aperteworkflow.org", "Admin"), Arrays.asList("ADMIN"));
-                    if (cfg.getPermissions() != null) {
-                        for (ProcessDefinitionPermission p : cfg.getPermissions()) {
-                            if (!Strings.hasText(p.getPrivilegeName())) {
-                                p.setPrivilegeName(PRIVILEGE_INCLUDE);
-                            }
-                            if (!Strings.hasText(p.getRoleName())) {
-                                p.setRoleName(PATTERN_MATCH_ALL);
-                            }
-                        }
-                    }
-                    byte[] oldDefinition = session.getProcessLatestDefinition(cfg.getBpmDefinitionKey(), cfg.getProcessName());
-                    if (oldDefinition != null) {
-                        byte[] newDefinition = loadBytesFromStream(is);
-                        is = new ByteArrayInputStream(newDefinition);
-                        if (Arrays.equals(newDefinition, oldDefinition)) {
-                            logger.log(Level.WARNING, "bpm definition for " + cfg.getProcessName() +
-                                    " is the same as in BPM, therefore not updating BPM process definition");
-                            skipJbpm = true;
-                        }
-                    }
-
-                    if (!skipJbpm) {
-                        String deploymentId = session.deployProcessDefinition(cfg.getProcessName(), is, imageStream);
-                        logger.log(Level.INFO, "deployed new BPM Engine definition with id: " + deploymentId);
-                    }
-
-                    ProcessDefinitionDAO processDefinitionDAO = processToolContext.getProcessDefinitionDAO();
-                    
-                    
-                    ProcessDefinitionConfig oldCfg = processDefinitionDAO.getActiveConfigurationByKey(cfg.getBpmDefinitionKey());
-                    
-                    
-                    processDefinitionDAO.updateOrCreateProcessDefinitionConfig(cfg);
-                    logger.log(Level.INFO, "created  definition with id: " + cfg.getId());
-                    if (queues != null && queues.length > 0) {
-                        processDefinitionDAO.updateOrCreateQueueConfigs(Arrays.asList(queues));
-                        logger.log(Level.INFO, "created/updated " + queues.length + " queues");
-                    }
-                    
-                    
-                    ConfigurationResult result = new ConfigurationResult();
-                    result.setNewOne(cfg);
-                    result.setOldOne(oldCfg);
-                    
-                    return result;
-                } finally {
-                    ProcessToolContext.Util.removeThreadProcessToolContext();
-                }
-            }
-
-        });
-    }
-
-    @Override
-    public ConfigurationResult deployOrUpdateProcessDefinition(InputStream jpdlStream,
-                                                InputStream processToolConfigStream,
-                                                InputStream queueConfigStream,
-                                                final InputStream imageStream,
-                                                final InputStream logoStream) {
-        if (jpdlStream == null || processToolConfigStream == null || queueConfigStream == null) {
-            throw new IllegalArgumentException("at least one of the streams is null");
-        }
-        XStream xstream = new XStream();
-        xstream.aliasPackage("config", ProcessDefinitionConfig.class.getPackage().getName());
-        xstream.useAttributeFor(String.class);
-        xstream.useAttributeFor(Boolean.class);
-        xstream.useAttributeFor(Integer.class);
-
-        ProcessDefinitionConfig config = (ProcessDefinitionConfig) xstream.fromXML(processToolConfigStream);
-
-        if (logoStream != null) {
-            byte[] logoBytes = loadBytesFromStream(logoStream);
-            if (logoBytes.length > 0) {
-                config.setProcessLogo(logoBytes);
-            }
-        }
-        Collection<ProcessQueueConfig> qConfigs = (Collection<ProcessQueueConfig>) xstream.fromXML(queueConfigStream);
-        return deployOrUpdateProcessDefinition(jpdlStream,
-                config,
-                qConfigs.toArray(new ProcessQueueConfig[qConfigs.size()]),
-                imageStream,
-                logoStream);
-    }
-
-//    }
-
-    private byte[] loadBytesFromStream(InputStream stream) {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        int c;
-        try {
-            while ((c = stream.read()) >= 0) {
-                bos.write(c);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return bos.toByteArray();
     }
 
     public void updateSessionFactory(SessionFactory sf) {

@@ -58,8 +58,8 @@ public class ProcessEditorPanel extends GridLayout implements DataHandler {
 
         tabSheet = new TabSheet();
         tabSheet.setSizeFull();
-        tabSheet.addTab(permissionTab = new ProcessPermissionTab(), messages.getMessage("process.editor.process.permissions"));
         tabSheet.addTab(processDefinitionTab = new ProcessDefinitionTab(), messages.getMessage("process.editor.process.definition"));
+        tabSheet.addTab(permissionTab = new ProcessPermissionTab(), messages.getMessage("process.editor.process.permissions"));
         tabSheet.addTab(queueTab = new QueueTab(), messages.getMessage("process.editor.queues"));
         tabSheet.addTab(messageTab = new MessageTab(), messages.getMessage("process.editor.messages"));
         tabSheet.addTab(dictionaryTab = new DictionaryTab(), messages.getMessage("process.editor.dictionary"));

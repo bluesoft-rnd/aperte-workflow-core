@@ -10,13 +10,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.logging.Level;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
+import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.addons.INotificationsAddonsManager;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotificationConfig;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
@@ -66,7 +69,17 @@ public class TemplateDataProvider implements ITemplateDataProvider
 		templateData.addEntry(_TASK_LINK, getTaskLink(task, ctx));
 		templateData.addEntry(_ASSIGNEE, task.getAssignee());
 		
+		/* Add additional data */
+		addTaskDataFromAddonManager(templateData, task, ctx);
+		
 		return this;
+	}
+	
+	private void addTaskDataFromAddonManager(TemplateData templateData, BpmTask task, ProcessToolContext ctx)
+	{
+		INotificationsAddonsManager addonsManager = ObjectFactory.create(INotificationsAddonsManager.class);
+		
+		addonsManager.addData(templateData, task, ctx);
 	}
 	
 	public TemplateDataProvider addProcessData(TemplateData templateData, ProcessInstance pi)

@@ -4,7 +4,7 @@
     <parent>
         <artifactId>plugins</artifactId>
         <groupId>org.aperteworkflow</groupId>
-        <version>2.0</version>
+        <version>2.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>email-capture</artifactId>
@@ -13,14 +13,20 @@
 
     <dependencies>
         <dependency>
-            <artifactId>cmis-interface</artifactId>
+            <artifactId>cmis-widget</artifactId>
             <groupId>org.aperteworkflow</groupId>
-            <version>2.0</version>
+            <version>${aperteworkflow.version}</version>
+            <scope>provided</scope>
         </dependency>
+        <dependency>
+		    <groupId>org.apache.chemistry.opencmis</groupId>
+		    <artifactId>chemistry-opencmis-osgi-client</artifactId>
+		    <version>0.9.0-beta-1</version>
+		 </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>integration-interface</artifactId>
-            <version>2.0</version>
+            <version>${aperteworkflow.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -51,7 +57,7 @@
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <extensions>true</extensions>
-                <version>2.1.0</version>
+                <version>${maven.bundle.plugin}</version>
                 <configuration>
                     <instructions>
                         <Export-Package>                            
@@ -61,7 +67,13 @@
                             javax.mail.internet;version=!,
                             javax.mail.search;version=!,
                             *;resolution:=optional,
-                            pl.net.bluesoft.rnd.util.i18n,javassist.util.proxy,org.hibernate.proxy,org.osgi.framework,pl.net.bluesoft.rnd.processtool.plugins,pl.net.bluesoft.rnd.processtool.plugins.osgi,pl.net.bluesoft.rnd.processtool.model,javax.persistence,org.hibernate
+                            pl.net.bluesoft.rnd.util.i18n,
+                            javassist.util.proxy,
+                            org.hibernate.proxy,org.osgi.framework,
+                            pl.net.bluesoft.rnd.processtool.plugins,
+                            pl.net.bluesoft.rnd.processtool.plugins.osgi,
+                            pl.net.bluesoft.rnd.processtool.model,
+                            javax.persistence,org.hibernate
                         </Import-Package>
                         <Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>
                         <Bundle-Activator>pl.net.bluesoft.rnd.pt.ext.emailcapture.Activator</Bundle-Activator>
@@ -77,4 +89,45 @@
             </plugin>
         </plugins>
     </build>
+	    <!-- Profil dev do automatycznego kopiowania jarow do osgi -->
+    <profiles>
+    
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+	            <plugins>
+		            <plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-dependency-plugin</artifactId>
+						<version>${maven.dependency.version}</version>
+						<executions>
+							<execution>
+								<id>copy</id>
+								<phase>package</phase>
+								<goals>
+									<goal>copy</goal>
+								</goals>
+								<configuration>
+									<artifactItems>
+										<artifactItem>
+											<groupId>${project.groupId}</groupId>
+											<artifactId>${project.artifactId}</artifactId>
+											<type>jar</type>
+											<version>${project.version}</version>
+											<overWrite>true</overWrite>
+											<outputDirectory>${osgi.dir}</outputDirectory>
+											<destFileName>${project.artifactId}-${project.version}.jar</destFileName>
+										</artifactItem>
+									</artifactItems>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

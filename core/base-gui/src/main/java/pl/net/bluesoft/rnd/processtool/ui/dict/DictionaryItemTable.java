@@ -366,7 +366,7 @@ public class DictionaryItemTable extends GenericTable<ProcessDBDictionaryItem>
 
             else 
             {
-                for(ProcessDBDictionaryItemExtension ext: item.getExtensions().values())
+                for(ProcessDBDictionaryItemExtension ext: item.getExtensions())
                 {
                     sb.append("<li>")
                     .append("<b>").append(ext.getName()).append("</b>")

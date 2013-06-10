@@ -46,7 +46,7 @@ public class UserProcessQueueDAOImpl extends SimpleHibernateBean<UserProcessQueu
 	@Override
 	public UserProcessQueue getUserProcessAssignedToHim(Long processId, String creatorLogin)
 	{
-		return getUserProcessQueueElement(processId, creatorLogin, QueueType.ASSIGNED_TO_CURRENT_USER);
+		return getUserProcessQueueElement(processId, creatorLogin, QueueType.OWN_ASSIGNED);
 	}
 	
 	@Override

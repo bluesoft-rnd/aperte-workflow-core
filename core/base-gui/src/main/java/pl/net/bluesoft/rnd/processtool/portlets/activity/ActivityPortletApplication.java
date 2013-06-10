@@ -4,14 +4,12 @@ import static pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants.REQUES
 
 import java.util.Map;
 
-import javax.servlet.http.HttpSession;
-
 import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
 
+import pl.net.bluesoft.rnd.processtool.ui.activity.AbstractActivityView;
 import pl.net.bluesoft.rnd.processtool.ui.activity.ActivityMainPane;
 import pl.net.bluesoft.rnd.processtool.ui.utils.QueuesPanelRefresherUtil;
 
-import com.vaadin.terminal.gwt.server.WebApplicationContext;
 import com.vaadin.ui.Window.CloseEvent;
 import com.vaadin.ui.Window.CloseListener;
 
@@ -21,7 +19,9 @@ import com.vaadin.ui.Window.CloseListener;
  */
 public class ActivityPortletApplication extends GenericVaadinPortlet2BpmApplication implements CloseListener
 {
-	ActivityMainPane amp;
+	private static final long serialVersionUID = 5662302208480351069L;
+	
+	private AbstractActivityView amp;
 
 	public ActivityPortletApplication() {
 		loginRequired = true;
@@ -30,7 +30,6 @@ public class ActivityPortletApplication extends GenericVaadinPortlet2BpmApplicat
 	@Override
 	protected void initializePortlet() 
 	{
-
         amp = new ActivityMainPane(ActivityPortletApplication.this, ActivityPortletApplication.this, bpmSession);
         addListener(new RequestParameterListener(REQUEST_PARAMETER_TASK_ID) {
             @Override

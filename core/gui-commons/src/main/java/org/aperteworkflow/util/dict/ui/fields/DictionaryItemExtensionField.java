@@ -1,39 +1,22 @@
 package org.aperteworkflow.util.dict.ui.fields;
 
-import static org.aperteworkflow.util.vaadin.VaadinUtility.addIcon;
-import static org.aperteworkflow.util.vaadin.VaadinUtility.deleteIcon;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import com.vaadin.ui.*;
-import org.vaadin.addon.customfield.CustomField;
-
-import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemExtension;
-import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-
 import com.vaadin.Application;
 import com.vaadin.data.Item;
-import com.vaadin.data.Property;
 import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.util.BeanItem;
+import com.vaadin.ui.*;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import org.aperteworkflow.util.dict.wrappers.DictionaryItemExtensionWrapper;
-
+import org.vaadin.addon.customfield.CustomField;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import java.util.*;
 
 import static org.aperteworkflow.util.dict.wrappers.DictionaryItemExtensionWrapper._NAME;
 import static org.aperteworkflow.util.dict.wrappers.DictionaryItemExtensionWrapper._VALUE;
-
+import static org.aperteworkflow.util.vaadin.VaadinUtility.addIcon;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.deleteIcon;
 
 public abstract class DictionaryItemExtensionField extends CustomField  {
 	private I18NSource source;
@@ -42,8 +25,6 @@ public abstract class DictionaryItemExtensionField extends CustomField  {
 
     private VerticalLayout itemsLayout;
     private Label noExtensionsLabel;
-    
-    private Collection<ItemExtensionForm> forms;
 
     private Map<String, DictionaryItemExtensionWrapper> originalValue = new HashMap<String, DictionaryItemExtensionWrapper>();
     private List<DictionaryItemExtensionWrapper> modifiedValue;
@@ -51,21 +32,19 @@ public abstract class DictionaryItemExtensionField extends CustomField  {
     public DictionaryItemExtensionField(Application application, I18NSource source) {
         this.source = source;
         this.application = application;
-        this.forms = new ArrayList<DictionaryItemExtensionField.ItemExtensionForm>();
         initView();
     }
 
     private void initView() {
         VerticalLayout root = new VerticalLayout();
         root.setStyleName("borderless light");
-        root.setSizeFull();
+        root.setWidth("100%");
         root.setMargin(false);
 
         noExtensionsLabel = new Label("<i>" + getMessage("dict.item.noextensions") + "</i>", Label.CONTENT_XHTML);
-        noExtensionsLabel.setSizeFull();
 
         itemsLayout = new VerticalLayout();
-        itemsLayout.setSizeFull();
+        itemsLayout.setWidth("100%");
 
         addButton = addIcon(application);
         addButton.setDescription(getMessage("dict.add.extension"));
@@ -108,16 +87,15 @@ public abstract class DictionaryItemExtensionField extends CustomField  {
     private void loadData() {
         itemsLayout.removeAllComponents();
         createModifiedListFromOriginal();
-        if (modifiedValue== null || modifiedValue.isEmpty()) {
+        if (modifiedValue.isEmpty()) {
             itemsLayout.addComponent(noExtensionsLabel);
         }
         else {
             for (DictionaryItemExtensionWrapper itemExtension : modifiedValue) {
                 createExtensionRow(itemExtension);
+            }
         }
     }
-    }
-
 
     private void createModifiedListFromOriginal() {
         modifiedValue = new ArrayList<DictionaryItemExtensionWrapper>();
@@ -161,7 +139,15 @@ public abstract class DictionaryItemExtensionField extends CustomField  {
         super.setInternalValue(newValue);
     }
 
-
+    @Override
+    public Object getValue() {
+        validateInternal();
+        Map<String, DictionaryItemExtensionWrapper> value = new HashMap<String, DictionaryItemExtensionWrapper>();
+        for (DictionaryItemExtensionWrapper ext : modifiedValue) {
+            value.put(ext.getName(), ext);
+        }
+        return value;
+    }
 
     @Override
     public void validate() throws InvalidValueException {
@@ -186,20 +172,6 @@ public abstract class DictionaryItemExtensionField extends CustomField  {
     }
 
     @Override
-    public void discard() throws SourceException {
-        super.discard();
-        createModifiedListFromOriginal();
-    }
-    
-    @Override
-    public void setPropertyDataSource(Property newDataSource) 
-    {
-    	loadData();
-    	
-    	super.setPropertyDataSource(newDataSource);
-    }
-
-    @Override
     public Class<?> getType() {
         return Map.class;
     }
@@ -213,6 +185,12 @@ public abstract class DictionaryItemExtensionField extends CustomField  {
         super.setReadOnly(readOnly);
     }
 
+    @Override
+    public void discard() throws SourceException {
+        super.discard();
+        createModifiedListFromOriginal();
+    }
+
     private class ItemExtensionForm extends Form {
         private HorizontalLayout layout;
         private Button deleteButton;
@@ -221,13 +199,11 @@ public abstract class DictionaryItemExtensionField extends CustomField  {
             layout = new HorizontalLayout();
             layout.setSpacing(true);
             layout.setWidth("100%");
-            
-            setWriteThrough(DictionaryItemExtensionField.this.isWriteThrough());
 
             setLayout(layout);
             setValidationVisible(false);
             setValidationVisibleOnCommit(false);
-
+            setWriteThrough(false);
             setImmediate(true);
             setInvalidCommitted(false);
             setFormFieldFactory(new ItemExtensionFormFieldFactory());
@@ -273,18 +249,7 @@ public abstract class DictionaryItemExtensionField extends CustomField  {
                 }
                 field = textField;
             }
-
-            return null;
+            return field;
         }
-    }
-    
-    @SuppressWarnings("unchecked")
-	public Set<ProcessDBDictionaryItemExtension> getExtensions()
-    {
-    	if(getValue() == null)
-    		return new HashSet<ProcessDBDictionaryItemExtension>();
-
-    	Set<ProcessDBDictionaryItemExtension> extensions = (Set<ProcessDBDictionaryItemExtension>)getValue();
-    	return extensions;
     }
 }

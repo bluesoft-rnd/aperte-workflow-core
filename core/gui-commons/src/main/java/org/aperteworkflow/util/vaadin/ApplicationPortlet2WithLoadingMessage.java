@@ -2,20 +2,15 @@ package org.aperteworkflow.util.vaadin;
 
 import com.vaadin.Application;
 import com.vaadin.terminal.gwt.server.ApplicationPortlet2;
-import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.ui.Window;
+
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 
-import javax.portlet.PortletConfig;
-import javax.portlet.PortletException;
-import javax.portlet.PortletRequest;
-import javax.portlet.PortletResponse;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
+import javax.portlet.*;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.util.UUID;
 
 /**
  * User: POlszewski
@@ -44,13 +39,16 @@ public class ApplicationPortlet2WithLoadingMessage extends ApplicationPortlet2
 	protected void handleRequest(PortletRequest request, PortletResponse response) throws PortletException, IOException
 	{
 		super.handleRequest(request,response);
-
-		if (application != null) {
-			for(Window window: application.getWindows()) {
+		
+		if(application != null)
+		{
+			for(Window window: application.getWindows())
+			{
 				window.executeJavaScript("hideLoadingMessage('"+getLoaderTagId(request.getWindowID(), getPortletConfig())+"');");
 			}
 		}
 	}
+		
 
 	protected Application getApplication() {
 		return application;

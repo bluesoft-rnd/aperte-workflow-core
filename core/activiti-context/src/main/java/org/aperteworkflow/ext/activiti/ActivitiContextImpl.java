@@ -7,6 +7,8 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
 
+import pl.net.bluesoft.rnd.processtool.BasicSettings;
+import pl.net.bluesoft.rnd.processtool.IProcessToolSettings;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolSessionFactory;
@@ -226,28 +228,27 @@ public class ActivitiContextImpl implements ProcessToolContext {
        }
 
        @Override
-       public String getSetting(String key) {
+       public String getSetting(IProcessToolSettings key) {
            verifyContextOpen();
            ProcessToolSetting setting = (ProcessToolSetting) hibernateSession.createCriteria(ProcessToolSetting.class)
-                   .add(Restrictions.eq("key", key)).uniqueResult();
+                   .add(Restrictions.eq("key", key.toString())).uniqueResult();
            return setting != null ? setting.getValue() : null;
        }
 
        @Override
-       public void setSetting(String key, String value) {
+       public void setSetting(IProcessToolSettings key, String value) {
            verifyContextOpen();
            List list = hibernateSession.createCriteria(ProcessToolSetting.class).add(Restrictions.eq("key", key)).list();
            ProcessToolSetting setting;
            if (list.isEmpty()) {
                setting = new ProcessToolSetting();
-               setting.setKey(key);
+               setting.setKey(key.toString());
            } else {
                setting = (ProcessToolSetting) list.get(0);
            }
            setting.setValue(value);
            hibernateSession.saveOrUpdate(setting);
        }
-
        @Override
        public String getAutowiredProperty(String key) {
            return autowiringCache.get(key);
@@ -306,8 +307,8 @@ public class ActivitiContextImpl implements ProcessToolContext {
 
        @Override
        public UserData getAutoUser() {
-           return new UserData(Formats.nvl(getSetting(AUTO_USER_LOGIN), "system"), Formats.nvl(getSetting(AUTO_USER_NAME), "System"),
-                   Formats.nvl(getSetting(AUTO_USER_EMAIL), "awf@bluesoft.net.pl"));
+           return new UserData(Formats.nvl(getSetting(BasicSettings.AUTO_USER_LOGIN), "system"), Formats.nvl(getSetting(BasicSettings.AUTO_USER_NAME), "System"),
+                   Formats.nvl(getSetting(BasicSettings.AUTO_USER_EMAIL), "awf@bluesoft.net.pl"));
        }
 
 

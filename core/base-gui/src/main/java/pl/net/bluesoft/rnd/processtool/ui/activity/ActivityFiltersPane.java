@@ -36,7 +36,7 @@ public class ActivityFiltersPane extends Panel implements VaadinUtility.Refresha
 		setWidth("100%");
 		setCaption(getMessage("activity.filters.title"));
 		addComponent(horizontalLayout(new Label(getMessage("activity.filters.help.short"), Label.CONTENT_XHTML),
-				                             refreshIcon(activityMainPane.getApplication(), this)));
+				                             refreshIcon(activityMainPane.getActivityApplication(), this)));
 		filterList = new GridLayout();
 		filterList.setColumns(2);
 		filterList.setMargin(true);
@@ -113,7 +113,7 @@ public class ActivityFiltersPane extends Panel implements VaadinUtility.Refresha
 									activityMainPane.getBpmSession().getEventBusManager().publish(new FilterChangedEvent());
 								}
 							};
-							VaadinUtility.displayConfirmationWindow(activityMainPane.getApplication(),
+							VaadinUtility.displayConfirmationWindow(activityMainPane.getActivityApplication(),
 									                                       activityMainPane.getI18NSource(),
 									                                       getMessage("activity.filters.delete.popup.title"),
 									                                       getMessage("activity.filters.delete.popup.question")

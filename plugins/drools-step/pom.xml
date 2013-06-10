@@ -4,7 +4,7 @@
     <parent>
         <artifactId>plugins</artifactId>
         <groupId>org.aperteworkflow</groupId>
-        <version>2.0</version>
+        <version>2.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>drools-step</artifactId>
@@ -16,7 +16,7 @@
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>integration-interface</artifactId>
-            <version>2.0</version>
+            <version>${aperteworkflow.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -24,6 +24,11 @@
             <artifactId>vaadin</artifactId>
             <version>${vaadin.version}</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.drools</groupId>
+            <artifactId>drools-api</artifactId>
+            <version>5.2.0.M1</version>
         </dependency>
         <dependency>
             <groupId>org.drools</groupId>
@@ -51,11 +56,19 @@
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <extensions>true</extensions>
-                <version>2.1.0</version>
+                <version>${maven.bundle.plugin}</version>
                 <configuration>
                     <instructions>
                         <Import-Package>
-                            *;resolution:=optional
+                            com.bea.xml.stream;resolution:=optional,
+                            org.kxml2.io;resolution:=optional,
+                            com.google.protobuf;resolution:=optional,
+                            com.sun.codemodel;resolution:=optional,
+                            com.sun.tools.xjc.*;resolution:=optional,
+                            org.apache.tools.ant.taskdefs.compilers;resolution:=optional,
+                            org.codehaus.janino.*;resolution:=optional,
+                            org.slf4j.impl;resolution:=optional,
+                            *
                         </Import-Package>
                         <Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>
                         <Bundle-Version>0.1</Bundle-Version>
@@ -68,5 +81,45 @@
 
         </plugins>
     </build>
-
+    <!-- Profil dev do automatycznego kopiowania jarow do osgi -->
+    <profiles>
+    
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+	            <plugins>
+		            <plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-dependency-plugin</artifactId>
+						<version>2.4</version>
+						<executions>
+							<execution>
+								<id>copy</id>
+								<phase>package</phase>
+								<goals>
+									<goal>copy</goal>
+								</goals>
+								<configuration>
+									<artifactItems>
+										<artifactItem>
+											<groupId>${project.groupId}</groupId>
+											<artifactId>${project.artifactId}</artifactId>
+											<type>jar</type>
+											<version>${project.version}</version>
+											<overWrite>true</overWrite>
+											<outputDirectory>${osgi.dir}</outputDirectory>
+											<destFileName>${project.artifactId}-${project.version}.jar</destFileName>
+										</artifactItem>
+									</artifactItems>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

@@ -69,7 +69,7 @@ public interface ProcessToolBpmSession extends ProcessToolBpmConstants {
 
     void assignTaskToUser(ProcessToolContext ctx, String taskId, String userLogin);
 
-    List<BpmTask> getTaskData(String taskExecutionId, String taskName, ProcessToolContext ctx);
+    BpmTask getTaskData(String taskExecutionId, String taskName, ProcessToolContext ctx);
 
     BpmTask getTaskData(String taskId, ProcessToolContext ctx);
 
@@ -158,7 +158,4 @@ public interface ProcessToolBpmSession extends ProcessToolBpmConstants {
 	/** Get all tasks in queue with given queue name 
 	 * @param ctx */
 	List<BpmTask> getQueueTasks(ProcessToolContext ctx, String queueName);
-
-	List<BpmTask> findProcessTasksWithUser(ProcessInstance pi,
-			ProcessToolContext ctx);
 }

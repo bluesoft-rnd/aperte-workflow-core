@@ -1,19 +1,20 @@
 package pl.net.bluesoft.rnd.processtool.model.config;
 
-import org.hibernate.annotations.*;
-import pl.net.bluesoft.rnd.processtool.model.AbstractPersistentEntity;
-import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
+import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
-import javax.persistence.*;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.Parameter;
-import javax.persistence.Table;
-import javax.xml.bind.annotation.XmlTransient;
 import java.util.HashSet;
 import java.util.Set;
 
-import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -21,42 +22,30 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
 @Entity
 @Table(name="pt_process_state_widget")
-public class ProcessStateWidget extends AbstractPersistentEntity {
-	@Id
-	@GeneratedValue(generator = "idGenerator")
-	@GenericGenerator(
-			name = "idGenerator",
-			strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
-			parameters = {
-					@org.hibernate.annotations.Parameter(name = "initial_value", value = "" + 1),
-					@org.hibernate.annotations.Parameter(name = "value_column", value = "_DB_ID"),
-					@org.hibernate.annotations.Parameter(name = "sequence_name", value = "DB_SEQ_ID_PROC_STATE_WIDGET")
-			}
-	)
-	@Column(name = "id")
-	protected Long id;
+public class ProcessStateWidget extends PersistentEntity 
+{
+	private static final long serialVersionUID = 8363229421636212280L;
 
-	//    @XmlTransient
 	@ManyToOne
 	@JoinColumn(name="state_id")
 	private ProcessStateConfiguration config;
 
-//    @XmlTransient
+
 	@ManyToOne
 	@JoinColumn(name="parent_id")
 	private ProcessStateWidget parent;
 
-	@OneToMany(cascade = CascadeType.ALL)
+	@OneToMany(cascade = CascadeType.ALL, fetch=FetchType.EAGER)
 	@JoinColumn(name="parent_id")
-	private Set<ProcessStateWidget> children = new HashSet();
+	private Set<ProcessStateWidget> children = new HashSet<ProcessStateWidget>();
 		
-	@OneToMany(cascade = CascadeType.ALL)
+	@OneToMany(cascade = CascadeType.ALL, fetch=FetchType.EAGER)
 	@JoinColumn(name="widget_id")
-	private Set<ProcessStateWidgetPermission> permissions = new HashSet();
+	private Set<ProcessStateWidgetPermission> permissions = new HashSet<ProcessStateWidgetPermission>();
 
-	@OneToMany(cascade = CascadeType.ALL)
+	@OneToMany(cascade = CascadeType.ALL, fetch=FetchType.EAGER)
 	@JoinColumn(name="widget_id")
-	private Set<ProcessStateWidgetAttribute> attributes = new HashSet();
+	private Set<ProcessStateWidgetAttribute> attributes = new HashSet<ProcessStateWidgetAttribute>();
 
 	private String name;
 	private String className;
@@ -68,12 +57,68 @@ public class ProcessStateWidget extends AbstractPersistentEntity {
 	@Transient
 	private String generatorKey;
 
-	public Long getId() {
-		return id;
+
+	public String getName() {
+		return nvl(name, className);
 	}
 
-	public void setId(Long id) {
-		this.id = id;
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public ProcessStateConfiguration getConfig() {
+		return config;
+	}
+
+	public void setConfig(ProcessStateConfiguration config) {
+		this.config = config;
+	}
+
+	public ProcessStateWidget getParent() {
+		return parent;
+	}
+
+	public void setParent(ProcessStateWidget parent) {
+		this.parent = parent;
+	}
+
+	public Set<ProcessStateWidget> getChildren() 
+	{
+        if (children == null) 
+        	children = new HashSet<ProcessStateWidget>();
+        
+		return children;
+	}
+
+	public void setChildren(Set<ProcessStateWidget> children) 
+	{
+		this.children = children;
+	}
+
+	public Set<ProcessStateWidgetPermission> getPermissions() 
+	{
+        if (permissions == null) 
+        	permissions = new HashSet<ProcessStateWidgetPermission>();
+        
+		return permissions;
+	}
+
+	public void setPermissions(Set<ProcessStateWidgetPermission> permissions) 
+	{
+			this.permissions = permissions;
+	}
+
+	public Set<ProcessStateWidgetAttribute> getAttributes() 
+	{
+        if (attributes == null) 
+        	attributes = new HashSet<ProcessStateWidgetAttribute>();
+        
+		return attributes;
+	}
+
+	public void setAttributes(Set<ProcessStateWidgetAttribute> attributes) 
+	{
+		this.attributes = attributes;
 	}
 
 	public String getClassName() {
@@ -84,84 +129,20 @@ public class ProcessStateWidget extends AbstractPersistentEntity {
 		this.className = className;
 	}
 
-    @XmlTransient
-	public ProcessStateWidget getParent() {
-		return parent;
+	public Boolean getOptional() {
+		return optional;
 	}
 
-//    @XmlTransient
-	public void setParent(ProcessStateWidget parent) {
-		this.parent = parent;
-	}
-
-	public Set<ProcessStateWidget> getChildren() {
-        if (children == null) children = new HashSet<ProcessStateWidget>();
-		return children;
-	}
-
-	public void setChildren(Set<ProcessStateWidget> children) {
-		this.children = children;
-	}
-
-	public Set<ProcessStateWidgetAttribute> getAttributes() {
-        if (attributes == null) attributes = new HashSet<ProcessStateWidgetAttribute>();
-		return attributes;
-	}
-
-	public void setAttributes(Set<ProcessStateWidgetAttribute> attributes) {
-		this.attributes = attributes;
-	}
-
-    @XmlTransient
-	public ProcessStateConfiguration getConfig() {
-		return config;
-	}
-
-//    @XmlTransient
-	public void setConfig(ProcessStateConfiguration config) {
-		this.config = config;
-	}
-
-	public String getName() {
-		return nvl(name, className);
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public Set<ProcessStateWidgetPermission> getPermissions() {
-        if (permissions == null) permissions = new HashSet<ProcessStateWidgetPermission>();
-		return permissions;
-	}
-
-	public void setPermissions(Set<ProcessStateWidgetPermission> permissions) {
-		this.permissions = permissions;
+	public void setOptional(Boolean optional) {
+		this.optional = optional;
 	}
 
 	public Integer getPriority() {
-		if (priority == null) priority = Integer.valueOf(0);
 		return priority;
 	}
 
 	public void setPriority(Integer priority) {
 		this.priority = priority;
-	}
-
-    public Boolean getOptional() {
-        return optional;
-    }
-
-    public void setOptional(Boolean optional) {
-        this.optional = optional;
-    }
-
-    public String getGeneratorKey() {
-		return generatorKey;
-	}
-
-	public void setGeneratorKey(String generatorKey) {
-		this.generatorKey = generatorKey;
 	}
 
 	public String getGenerateFromCollection() {
@@ -170,5 +151,16 @@ public class ProcessStateWidget extends AbstractPersistentEntity {
 
 	public void setGenerateFromCollection(String generateFromCollection) {
 		this.generateFromCollection = generateFromCollection;
-    }
+	}
+
+	public String getGeneratorKey() {
+		return generatorKey;
+	}
+
+	public void setGeneratorKey(String generatorKey) {
+		this.generatorKey = generatorKey;
+	}
+
+	
+
 }

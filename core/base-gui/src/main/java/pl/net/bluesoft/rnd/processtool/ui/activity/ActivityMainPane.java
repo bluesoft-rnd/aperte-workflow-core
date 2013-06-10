@@ -10,12 +10,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.aperteworkflow.ui.view.ViewCallback;
 import org.aperteworkflow.ui.view.IViewRegistry;
 import org.aperteworkflow.ui.view.ViewRenderer;
 import org.aperteworkflow.util.vaadin.EventHandler;
 import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
-import org.aperteworkflow.util.vaadin.ResourceCache;
 import org.aperteworkflow.util.vaadin.UriChangedCallback;
 import org.aperteworkflow.util.vaadin.VaadinUtility;
 
@@ -25,11 +23,12 @@ import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.ui.newprocess.NewProcessExtendedPane;
-import pl.net.bluesoft.rnd.processtool.ui.process.ProcessDataPane;
-import pl.net.bluesoft.rnd.processtool.ui.process.ProcessDataViewComponent;
-import pl.net.bluesoft.rnd.processtool.view.impl.BasicViewController;
+import pl.net.bluesoft.rnd.processtool.ui.process.ProcessMultiViewDataPane;
+import pl.net.bluesoft.rnd.processtool.ui.process.ToolbarProcessDataViewComponent;
 import pl.net.bluesoft.rnd.processtool.view.impl.ComponentPaneRenderer;
+import pl.net.bluesoft.rnd.processtool.view.impl.MultiViewController;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.util.lang.Strings;
 
@@ -40,7 +39,6 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
-import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.UriFragmentUtility;
 import com.vaadin.ui.UriFragmentUtility.FragmentChangedEvent;
@@ -48,40 +46,34 @@ import com.vaadin.ui.UriFragmentUtility.FragmentChangedListener;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.BaseTheme;
 
-public class ActivityMainPane extends VerticalLayout implements ViewCallback
+public class ActivityMainPane extends AbstractActivityView
 {
-	private Application application;
-	private I18NSource i18NSource;
-	private ProcessToolBpmSession bpmSession;
+	public ActivityMainPane(Application application, I18NSource i18nSource,ProcessToolBpmSession bpmSession) 
+	{
+		super(application, i18nSource, bpmSession);
+		
+		setWidth(100, Sizeable.UNITS_PERCENTAGE);
+		initLayout();
+	}
 
 	private UriFragmentUtility uriFragmentUtility = new UriFragmentUtility();
 
 	private List<UriChangedCallback> uriCallbacks = new ArrayList<UriChangedCallback>();
 
-	private BasicViewController viewController;
+	private MultiViewController viewController;
 	private Button showHideButton1;
 	private LeftPanelVisibilityTrigger leftPanelTrigger;
 	private Button showHideButton2;
 	private HorizontalLayout horizontalLayout;
 	private Button showHideButton0;
 
-	private ResourceCache resourceCache;
 	private ActivityQueuesPane activityQueuesPane;
 
-	private ProcessDataViewComponent pdvc;
+	private ToolbarProcessDataViewComponent pdvc;
 
-	public ActivityMainPane(Application application, I18NSource i18NSource, ProcessToolBpmSession bpmSession)
-	{
-		this.application = application;
-		this.i18NSource = i18NSource;
-		this.bpmSession = bpmSession;
-		this.resourceCache = new ResourceCache(application);
 
-		setWidth(100, Sizeable.UNITS_PERCENTAGE);
-		initLayout();
-	}
 
-	private void initLayout()
+	protected void initLayout()
 	{
 		horizontalLayout = new HorizontalLayout();
 		
@@ -110,19 +102,19 @@ public class ActivityMainPane extends VerticalLayout implements ViewCallback
 
 		showHideButton0 = new Button();
 		showHideButton0.setStyleName(BaseTheme.BUTTON_LINK);
-		showHideButton0.setIcon(resourceCache.getImage("/img/guzik_1.png"));
+		showHideButton0.setIcon(getResourceCache().getImage("/img/guzik_1.png"));
 		showHideButton0.setSizeFull();
 		
 		showHideButton1 = new Button(); 
 		showHideButton1.setStyleName(BaseTheme.BUTTON_LINK);
-		showHideButton1.setIcon(resourceCache.getImage("/img/guzik_2.png"));
+		showHideButton1.setIcon(getResourceCache().getImage("/img/guzik_2.png"));
 
 		
 		showHideButton2 = new Button(); 				
 		showHideButton2.setStyleName(BaseTheme.BUTTON_LINK);
-		showHideButton2.setIcon(resourceCache.getImage("/img/guzik_2.png"));
+		showHideButton2.setIcon(getResourceCache().getImage("/img/guzik_2.png"));
 		final VerticalLayout leftPanel =
-				verticalLayout(showHideButton1,new NewProcessExtendedPane(bpmSession, i18NSource, this),activityQueuesPane,new ActivityFiltersPane(this),
+				verticalLayout(showHideButton1,new NewProcessExtendedPane(getBpmSession(), getI18NSource(), this),activityQueuesPane,new ActivityFiltersPane(this),
 						showHideButton2);
 
 		leftPanelTrigger = new LeftPanelVisibilityTrigger(leftPanel, true);
@@ -145,8 +137,8 @@ public class ActivityMainPane extends VerticalLayout implements ViewCallback
 	private void initViewController()
 	{
 		viewController =
-				new BasicViewController(new ComponentPaneRenderer<MyProcessesListPane>(new MyProcessesListPane(this,
-						i18NSource.getMessage("activity.assigned.tasks")))
+				new MultiViewController(new ComponentPaneRenderer<MyProcessesListPane>(new MyProcessesListPane(this,
+						getI18NSource().getMessage("activity.assigned.tasks")))
 				{
 					@Override
 					public Component render(Map<String,?> viewData)
@@ -163,12 +155,12 @@ public class ActivityMainPane extends VerticalLayout implements ViewCallback
 					}
 				});
 
-		viewController.addView(new ComponentPaneRenderer<ProcessDataViewComponent>(new ProcessDataViewComponent(application, i18NSource, viewController))
+		viewController.addView(new ComponentPaneRenderer<ToolbarProcessDataViewComponent>(new ToolbarProcessDataViewComponent(getActivityApplication(), getI18NSource(), viewController))
 		{
 			@Override
 			public String getViewId()
 			{
-				return ProcessDataViewComponent.class.getName();
+				return ToolbarProcessDataViewComponent.class.getName();
 			}
 
 			@Override
@@ -182,7 +174,7 @@ public class ActivityMainPane extends VerticalLayout implements ViewCallback
 			}
 		});
 
-		viewController.addView(new ComponentPaneRenderer<OtherUserProcessesListPane>(new OtherUserProcessesListPane(this, i18NSource
+		viewController.addView(new ComponentPaneRenderer<OtherUserProcessesListPane>(new OtherUserProcessesListPane(this, getI18NSource()
 				.getMessage("activity.user.tasks")))
 		{
 			@Override
@@ -231,7 +223,7 @@ public class ActivityMainPane extends VerticalLayout implements ViewCallback
 			}
 		});
 
-		viewController.addView(new ComponentPaneRenderer<RecentProcessesListPane>(new RecentProcessesListPane(this, i18NSource
+		viewController.addView(new ComponentPaneRenderer<RecentProcessesListPane>(new RecentProcessesListPane(this, getI18NSource()
 				.getMessage("activity.recent.tasks")))
 		{
 			@Override
@@ -246,13 +238,14 @@ public class ActivityMainPane extends VerticalLayout implements ViewCallback
 
 		// to remove "strange" views, depending on external addons. Such
 		// approach also gives us much greater flexibility
-		IViewRegistry registeredService = ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().getRegisteredService(IViewRegistry.class);
+		ProcessToolRegistry registry = ProcessToolRegistry.ThreadUtil.getThreadRegistry();
+		IViewRegistry registeredService = registry.getRegisteredService(IViewRegistry.class);
 		if(registeredService != null)
 		{
 			for(final ViewRenderer viewRenderer: registeredService.getViews())
 			{
 				viewRenderer.setBpmSession(getBpmSession());
-				viewRenderer.setUp(application);
+				viewRenderer.setUp(getActivityApplication());
 				viewRenderer.setViewCallback(this);
 				viewController.addView(viewRenderer);
 				activityQueuesPane.addButton(viewRenderer.getTitle(),new Runnable()
@@ -274,22 +267,6 @@ public class ActivityMainPane extends VerticalLayout implements ViewCallback
 		uriCallbacks.add(callback);
 	}
 
-	@Override
-	public Application getApplication()
-	{
-		return application;
-	}
-
-	public I18NSource getI18NSource()
-	{
-		return i18NSource;
-	}
-
-	public ProcessToolBpmSession getBpmSession()
-	{
-		return bpmSession;
-	}
-
 	public void displayMyTasksPane()
 	{
 		confirmTaskClosing(new EventHandler()
@@ -297,8 +274,8 @@ public class ActivityMainPane extends VerticalLayout implements ViewCallback
 			@Override
 			public void onEvent()
 			{
-				setShowExitWarning(application,false);
-				VaadinUtility.unregisterClosingWarning(application.getMainWindow());
+				setShowExitWarning(getActivityApplication(),false);
+				VaadinUtility.unregisterClosingWarning(getActivityApplication().getMainWindow());
 				viewController.displayView(MyProcessesListPane.class);
 			}
 		});
@@ -311,8 +288,8 @@ public class ActivityMainPane extends VerticalLayout implements ViewCallback
 			@Override
 			public void onEvent()
 			{
-				setShowExitWarning(application,false);
-				VaadinUtility.unregisterClosingWarning(application.getMainWindow());
+				setShowExitWarning(getActivityApplication(),false);
+				VaadinUtility.unregisterClosingWarning(getActivityApplication().getMainWindow());
 				viewController.displayView(MyProcessesListPane.class,Collections.singletonMap("filter",filter));
 			}
 		});
@@ -325,8 +302,8 @@ public class ActivityMainPane extends VerticalLayout implements ViewCallback
 			@Override
 			public void onEvent()
 			{
-				setShowExitWarning(application,false);
-				VaadinUtility.unregisterClosingWarning(application.getMainWindow());
+				setShowExitWarning(getActivityApplication(),false);
+				VaadinUtility.unregisterClosingWarning(getActivityApplication().getMainWindow());
 				viewController.displayView(OtherUserProcessesListPane.class,Collections.singletonMap("filter",filter));
 			}
 		});
@@ -339,8 +316,8 @@ public class ActivityMainPane extends VerticalLayout implements ViewCallback
 			@Override
 			public void onEvent()
 			{
-				setShowExitWarning(application,false);
-				VaadinUtility.unregisterClosingWarning(application.getMainWindow());
+				setShowExitWarning(getActivityApplication(),false);
+				VaadinUtility.unregisterClosingWarning(getActivityApplication().getMainWindow());
 				viewController.displayView(QueueListPane.class,Collections.singletonMap("queue",q));
 			}
 		});
@@ -353,8 +330,8 @@ public class ActivityMainPane extends VerticalLayout implements ViewCallback
 			@Override
 			public void onEvent()
 			{
-				setShowExitWarning(application,false);
-				VaadinUtility.unregisterClosingWarning(application.getMainWindow());
+				setShowExitWarning(getActivityApplication(),false);
+				VaadinUtility.unregisterClosingWarning(getActivityApplication().getMainWindow());
 				viewController.displayView(OtherUserQueueListPane.class,new HashMap<String,Object>()
 				{
 					{
@@ -373,48 +350,27 @@ public class ActivityMainPane extends VerticalLayout implements ViewCallback
 			@Override
 			public void onEvent()
 			{
-				setShowExitWarning(application,false);
-				VaadinUtility.unregisterClosingWarning(application.getMainWindow());
+				setShowExitWarning(getActivityApplication(),false);
+				VaadinUtility.unregisterClosingWarning(getActivityApplication().getMainWindow());
 				viewController.displayView(RecentProcessesListPane.class,Collections.singletonMap("minDate",minDate));
 			}
 		});
-	}
-
-
-	public void displayProcessData(BpmTask task)
-	{
-		displayProcessData(task,null);
-	}
-
-	public void displayProcessData(final BpmTask task, final ProcessToolBpmSession bpmSession)
-	{
-		displayProcessData(task,bpmSession,false);
-	}
-
-	public void displayProcessData(BpmTask task, boolean forward)
-	{
-		displayProcessData(task,null,forward);
-	}
-
-	public void displayProcessData(final BpmTask task, final ProcessToolBpmSession bpmSession, boolean forward)
-	{
-		displayProcessDataInPane(task,bpmSession,forward);
 	}
 
 	private void confirmTaskClosing(final EventHandler eventHandler)
 	{
 		BpmTask task;
 		final ProcessToolContext processToolContextFromThread = ProcessToolContext.Util.getThreadProcessToolContext();
-		if(viewController.getCurrentViewId() != null && viewController.getCurrentViewId().equals(ProcessDataViewComponent.class.getName())
+		if(viewController.getCurrentViewId() != null && viewController.getCurrentViewId().equals(ToolbarProcessDataViewComponent.class.getName())
 				&& (task = (BpmTask)viewController.getCurrentViewData().get("task")) != null
 				&& getBpmSession().isProcessRunning(task.getProcessInstance().getInternalId(),processToolContextFromThread))
 		{
-			final ProcessDataPane pdp = pdvc != null && pdvc.getProcessDataPane() != null ? pdvc.getProcessDataPane() : null;
+			final ProcessMultiViewDataPane pdp = pdvc != null && pdvc.getProcessDataPane() != null ? pdvc.getProcessDataPane() : null;
 
 			VaadinUtility.displayConfirmationWindow(
-					application,getI18NSource(),
-					i18NSource.getMessage("activity.close.process.confirmation.title"),
-					i18NSource.getMessage("activity.close.process.confirmation.question"),
+					getActivityApplication(),getI18NSource(),
+					getI18NSource().getMessage("activity.close.process.confirmation.title"),
+					getI18NSource().getMessage("activity.close.process.confirmation.question"),
 					new String[] {
 							"activity.close.process.confirmation.ok",
 							pdp != null && pdp.canSaveProcessData() ? "activity.close.process.confirmation.save" : null,
@@ -440,12 +396,12 @@ public class ActivityMainPane extends VerticalLayout implements ViewCallback
 		}
 	}
 
-	private void displayProcessDataInPane(final BpmTask task, final ProcessToolBpmSession bpmSession, boolean forward)
+	protected void displayProcessDataInPane(final BpmTask task, final ProcessToolBpmSession bpmSession, boolean forward)
 	{
-		viewController.displayView(ProcessDataViewComponent.class,new HashMap<String,Object>()
+		viewController.displayView(ToolbarProcessDataViewComponent.class,new HashMap<String,Object>()
 		{
 			{
-				put("bpmSession",nvl(bpmSession,ActivityMainPane.this.bpmSession));
+				put("bpmSession",nvl(bpmSession,ActivityMainPane.this.getBpmSession()));
 				put("task",task);
 			}
 		},forward);
@@ -517,18 +473,5 @@ public class ActivityMainPane extends VerticalLayout implements ViewCallback
 	{
 		if(application instanceof GenericVaadinPortlet2BpmApplication)
 			((GenericVaadinPortlet2BpmApplication)application).setShowExitWarning(show);
-	}
-
-	public void displayTaskById(String taskId)
-	{
-		BpmTask task = bpmSession.getTaskData(taskId,ProcessToolContext.Util.getThreadProcessToolContext());
-		if(task != null)
-		{
-			displayProcessData(task);
-		}
-		else
-		{
-			application.getMainWindow().showNotification(i18NSource.getMessage("process.data.task-notfound").replaceFirst("%s",taskId));
-		}
 	}
 }

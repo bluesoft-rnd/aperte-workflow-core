@@ -1,34 +1,53 @@
 package org.aperteworkflow.editor.processeditor.tab.dict;
 
-import com.vaadin.Application;
-import com.vaadin.data.Property;
-import com.vaadin.data.util.BeanItem;
-import com.vaadin.data.util.BeanItemContainer;
-import com.vaadin.data.validator.RegexpValidator;
-import com.vaadin.ui.*;
-import org.aperteworkflow.editor.processeditor.tab.dict.wrappers.*;
-import org.aperteworkflow.editor.vaadin.DataHandler;
-import org.aperteworkflow.util.dict.ui.DictionaryItemForm;
-import org.aperteworkflow.util.dict.ui.DictionaryItemFormFieldFactory;
-import org.aperteworkflow.util.dict.ui.DictionaryItemTableBuilder;
-import org.aperteworkflow.util.dict.ui.fields.DictionaryItemExtensionField;
-import org.aperteworkflow.util.dict.ui.fields.DictionaryItemValuesField;
-import org.aperteworkflow.util.dict.wrappers.DictionaryItemExtensionWrapper;
-import org.aperteworkflow.util.dict.wrappers.DictionaryItemValueWrapper;
-import org.aperteworkflow.util.vaadin.ui.Dialog;
-import pl.net.bluesoft.rnd.processtool.dict.DictionaryLoader;
-import pl.net.bluesoft.rnd.processtool.dict.xml.DictionaryEntry;
-import pl.net.bluesoft.rnd.processtool.dict.xml.ProcessDictionaries;
-import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+import static org.aperteworkflow.editor.processeditor.tab.dict.wrappers.XmlDictionaryWrapper._DESCRIPTION;
+import static org.aperteworkflow.editor.processeditor.tab.dict.wrappers.XmlDictionaryWrapper._DICTIONARY_NAME;
+import static org.aperteworkflow.editor.processeditor.tab.dict.wrappers.XmlDictionaryWrapper._EDIT_PERMISSION;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.addIcon;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.bindProperty;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.validationNotification;
+import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
 
 import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.Set;
 
-import static org.aperteworkflow.editor.processeditor.tab.dict.wrappers.XmlDictionaryWrapper.*;
-import static org.aperteworkflow.util.vaadin.VaadinUtility.*;
-import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
+import org.aperteworkflow.editor.processeditor.tab.dict.wrappers.XmlDictionaryItemExtensionWrapper;
+import org.aperteworkflow.editor.processeditor.tab.dict.wrappers.XmlDictionaryItemValueWrapper;
+import org.aperteworkflow.editor.processeditor.tab.dict.wrappers.XmlDictionaryItemWrapper;
+import org.aperteworkflow.editor.processeditor.tab.dict.wrappers.XmlDictionaryWrapper;
+import org.aperteworkflow.editor.processeditor.tab.dict.wrappers.XmlProcessDictionariesWrapper;
+import org.aperteworkflow.editor.vaadin.DataHandler;
+import org.aperteworkflow.util.dict.wrappers.DictionaryItemExtensionWrapper;
+import org.aperteworkflow.util.dict.wrappers.DictionaryItemValueWrapper;
+import org.aperteworkflow.util.editor.dict.ui.DictionaryItemForm;
+import org.aperteworkflow.util.editor.dict.ui.DictionaryItemFormFieldFactory;
+import org.aperteworkflow.util.editor.dict.ui.DictionaryItemTableBuilder;
+import org.aperteworkflow.util.editor.dict.ui.fields.DictionaryItemExtensionField;
+import org.aperteworkflow.util.editor.dict.ui.fields.DictionaryItemValuesField;
+import org.aperteworkflow.util.vaadin.ui.Dialog;
+
+import pl.net.bluesoft.rnd.processtool.dict.DictionaryLoader;
+import pl.net.bluesoft.rnd.processtool.dict.xml.DictionaryEntry;
+import pl.net.bluesoft.rnd.processtool.dict.xml.ProcessDictionaries;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+
+import com.vaadin.Application;
+import com.vaadin.data.Property;
+import com.vaadin.data.util.BeanItem;
+import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.data.validator.RegexpValidator;
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Panel;
+import com.vaadin.ui.Select;
+import com.vaadin.ui.TabSheet;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
 
 public class DictionaryEditor extends VerticalLayout implements TabSheet.CloseHandler, Button.ClickListener, DataHandler,
 		DictionaryItemTableBuilder.DictionaryItemModificationHandler<XmlDictionaryItemWrapper> {
@@ -59,8 +78,8 @@ public class DictionaryEditor extends VerticalLayout implements TabSheet.CloseHa
 		protected DictionaryItemForm createDictionaryItemForm(Application application, I18NSource source, BeanItem<XmlDictionaryItemWrapper> item) {
 			return new DictionaryItemForm(application, source, item) {
 				@Override
-				protected DictionaryItemFormFieldFactory createItemFormFieldFactory(Application application,DictionaryItemForm dictionaryItemForm, I18NSource source, Set<String> visiblePropertyIds, Set<String> editablePropertyIds, Set<String> requiredPropertyIds) {
-					return new DictionaryItemFormFieldFactory(application ,dictionaryItemForm,  source, visiblePropertyIds, editablePropertyIds, requiredPropertyIds) {
+				protected DictionaryItemFormFieldFactory createItemFormFieldFactory(Application application, I18NSource source, Set<String> visiblePropertyIds, Set<String> editablePropertyIds, Set<String> requiredPropertyIds) {
+					return new DictionaryItemFormFieldFactory(application, source, visiblePropertyIds, editablePropertyIds, requiredPropertyIds) {
 						@Override
 						protected DictionaryItemValuesField createItemValuesField(Application application, I18NSource source, String valueType) {
 							return new DictionaryItemValuesField(application, source, valueType) {

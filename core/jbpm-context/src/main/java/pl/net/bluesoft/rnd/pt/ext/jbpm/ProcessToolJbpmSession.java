@@ -44,7 +44,6 @@ import org.jbpm.api.history.HistoryActivityInstanceQuery;
 import org.jbpm.api.history.HistoryProcessInstance;
 import org.jbpm.api.history.HistoryProcessInstanceQuery;
 import org.jbpm.api.identity.User;
-import org.jbpm.api.model.Activity;
 import org.jbpm.api.model.Transition;
 import org.jbpm.api.task.Participation;
 import org.jbpm.api.task.Task;
@@ -61,13 +60,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import com.sun.org.apache.bcel.internal.generic.ISTORE;
-
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.bpm.exception.ProcessToolSecurityException;
 import pl.net.bluesoft.rnd.processtool.bpm.impl.AbstractProcessToolSession;
+import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
+import pl.net.bluesoft.rnd.processtool.di.annotations.AutoInject;
 import pl.net.bluesoft.rnd.processtool.hibernate.ResultsPageWrapper;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
@@ -81,6 +80,9 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.MutableBpmTask;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
+import pl.net.bluesoft.rnd.processtool.model.token.AccessToken;
+import pl.net.bluesoft.rnd.processtool.token.IAccessTokenFactory;
+import pl.net.bluesoft.rnd.processtool.token.ITokenService;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.query.BpmTaskFilterQuery;
 import pl.net.bluesoft.util.lang.Lang;
 import pl.net.bluesoft.util.lang.Mapcar;
@@ -106,8 +108,20 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
 	private static final Integer DEFAULT_LIMIT_VALUE = 1000;
 	protected Logger loger = Logger.getLogger(ProcessToolJbpmSession.class.getName());
 
+
+	@AutoInject
+	private IAccessTokenFactory accessTokenFactory;
+	
+	@AutoInject
+	private ITokenService tokenService;
+
     public ProcessToolJbpmSession(UserData user, Collection<String> roleNames, ProcessToolContext ctx) {
         super(user, roleNames, ctx.getRegistry());
+        
+        /* Dependency Injection */
+        ObjectFactory.inject(this);
+        
+        
         if (user != null) {
             IdentityService is = getProcessEngine(ctx).getIdentityService();
             User jbpmUser = is.findUserById(user.getLogin());
@@ -812,24 +826,20 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
    	}
 
    	@Override
-   	public List<BpmTask> getTaskData(String taskExecutionId, String taskName, ProcessToolContext ctx) {
-   		
-   	 long start = System.currentTimeMillis();
-   		List<Task> tasks = getProcessEngine(ctx).getTaskService().createTaskQuery() 
+   	public BpmTask getTaskData(String taskExecutionId, String taskName, ProcessToolContext ctx) {
+   		List<Task> tasks = getProcessEngine(ctx).getTaskService().createTaskQuery()
    				.notSuspended()
    				.activityName(taskName)
    				.executionId(taskExecutionId)
+   				.assignee(user.getLogin())
    				.page(0, 1)
    				.list();
    		if (tasks.isEmpty()) {
-   			loger.warning("Task " + taskExecutionId + " not found");
+   			log.warning("Task " + taskExecutionId + " not found");
    			return null;
    		}
    		List<BpmTask> bpmTasks = findProcessInstancesForTasks(tasks, ctx);
-   		
-   	 long duration = System.currentTimeMillis() - start;
-		log.severe("getTaskData: " +  duration);
-   		return bpmTasks;
+   		return bpmTasks.isEmpty() ? null : bpmTasks.get(0);
    	}
 
    	@Override
@@ -908,36 +918,12 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
        }
  
        @Override
-   	public List<BpmTask> findProcessTasksWithUser(ProcessInstance pi, ProcessToolContext ctx) {
-    	   long start = System.currentTimeMillis();
-    	   List<BpmTask> findProcessTasks;   
-    	   if(user!=null){
-   		  findProcessTasks = findProcessTasks(pi, user.getLogin(), ctx);
-   		 }
-    	   else{
-    		   
-    		  findProcessTasks = findProcessTasks(pi, null, ctx);
-    	   }
-   		 long duration = System.currentTimeMillis() - start;
-			log.severe("findProcessTasks: " +  duration);
-   		 
-   		 return findProcessTasks;
+   	public List<BpmTask> findProcessTasks(ProcessInstance pi, ProcessToolContext ctx) {
+   		return findProcessTasks(pi, null, ctx);
    	}
-       
-       public  List<BpmTask> findProcessTasks(ProcessInstance pi, ProcessToolContext ctx) {
-       	   long start = System.currentTimeMillis();
-       	   List<BpmTask> findProcessTasks;
-       		  findProcessTasks = findProcessTasks(pi, null, ctx);
-      		 long duration = System.currentTimeMillis() - start;
-   			log.severe("findProcessTasks: " +  duration);
-      		 
-      		 return findProcessTasks;
-      	}
 
    	@Override
    	public boolean isProcessOwnedByUser(final ProcessInstance processInstance, ProcessToolContext ctx) {
-   		
-   	 long start = System.currentTimeMillis();
    		final Map<String, Execution> executions = getActiveExecutions(processInstance.getInternalId(), ctx);
    		if (executions.isEmpty()) {
    			return false;
@@ -974,9 +960,6 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
    			}
    		};
    		List<Task> tasks = getProcessEngine(ctx).execute(cmd);
-   		
-   		long duration = System.currentTimeMillis() - start;
-		log.severe("isProcessOwnedByUser: " +  duration);
    		return !tasks.isEmpty();
    	}
 
@@ -1107,9 +1090,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
 
 
            Set<String> taskIdsBeforeCompletion = new HashSet<String>();
-
-           pl.net.bluesoft.util.lang.Collections.collect(findProcessTasksWithUser(processInstance, ctx), new Transformer<BpmTask, String>() {
-
+           pl.net.bluesoft.util.lang.Collections.collect(findProcessTasks(processInstance, ctx), new Transformer<BpmTask, String>() {
                @Override
                public String transform(BpmTask obj) {
                    return obj.getInternalTaskId();  
@@ -1123,11 +1104,17 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
           else
               processEngine.getTaskService().completeTask(task.getInternalTaskId(), action.getBpmName(), vars);
           
+          /* Remove all task tokens, if any exists */
+          
+			/* Delete all tokens for this taskId */
+          tokenService.deleteTokensByTaskId(Long.parseLong(task.getInternalTaskId()));
+          
+          
           broadcastEvent(ctx, new BpmEvent(BpmEvent.Type.TASK_FINISHED, task, user));
           
 		   /* Inform queue manager about task finish and process state change */
-		   ctx.getUserProcessQueueManager().onTaskFinished(task);         
-   
+		   ctx.getUserProcessQueueManager().onTaskFinished(task);
+
           String processState = getProcessState(processInstance, ctx);
           
           /* Check if new subProcess is created */
@@ -1218,6 +1205,8 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
 	                   
 	        		   /* Inform queue manager about task assigne */
 	        		   ctx.getUserProcessQueueManager().onTaskAssigne(createdTask);
+	        		           		   
+	        		   assignTokens(ctx, createdTask);
 	               }
 	               if (Lang.equals(user.getId(), createdTask.getOwner().getId())) {
 	                   userTask = createdTask;
@@ -1266,21 +1255,66 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
            
            
        }
+   	
+
+	private void assignTokens(ProcessToolContext ctx, BpmTask userTask)
+	{
+		/* Do not assigne tokens to autoskip steps */
+		if(userTask.isAutoSkip())
+			return;
+		
+		ProcessStateConfiguration stateConfiguration = ctx.getProcessDefinitionDAO()
+		.getProcessStateConfiguration(userTask);
+		   
+		Boolean isAccessibleByToken = stateConfiguration.getEnableExternalAccess(); 
+		   
+		/* Step is accessible by token, generate one */
+		if(isAccessibleByToken != null && isAccessibleByToken)
+			generateAccessToken(ctx, userTask);
+	}
+	
+	
+	private void generateAccessToken(ProcessToolContext ctx, BpmTask userTask)
+	{
+		log.log(Level.INFO, "Generate token [Thread: ]"+Thread.currentThread().getId()+"]");
+		try
+		{
+			/* Generate new token */
+			ProcessStateConfiguration currentState = userTask.getCurrentProcessStateConfiguration();
+			
+			/* No current state, abort */
+			if(currentState == null)
+				return;
+			
+			/* For each action, create token */
+			for(ProcessStateAction action: currentState.getActions())
+			{
+				/* Action is not accessible by external token. Skip it */
+				if(action.getHideForExternalAccess())
+					continue;
+				
+				AccessToken token = accessTokenFactory.create(userTask, action.getBpmName());
+				log.log(Level.INFO, "Token generated: "+token.getToken());
+				
+				/* Save token */
+				ctx.getHibernateSession().saveOrUpdate(token);
+			}
+			ctx.getHibernateSession().flush();
+		}
+		catch(Exception ex)
+		{
+			log.log(Level.SEVERE, "Problem during token generation", ex);
+		}
+		
+	}
 
     @Override
    	public boolean isProcessRunning(String internalId, ProcessToolContext ctx) {
-    	
-    	long start = System.currentTimeMillis();
    		if (internalId == null) {
    			return false;
    		}
    		ExecutionService service = getProcessEngine(ctx).getExecutionService();
    		org.jbpm.api.ProcessInstance processInstance = service.findProcessInstanceById(internalId);
-   		
-   	 long duration = System.currentTimeMillis() - start;
-		log.severe("isProcessRunning: " +  duration);
-		
-		
    		return processInstance != null && !processInstance.isEnded();
    	}
 
@@ -1308,7 +1342,6 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
 
    	@Override
    	public void assignTaskToUser(ProcessToolContext ctx, String taskId, String userLogin) {
-   	 long start = System.currentTimeMillis();
    		ProcessEngine processEngine = getProcessEngine(ctx);
    		processEngine.getTaskService().assignTask(taskId, userLogin);
    		BpmTask taskData = getTaskData(taskId, ctx); 
@@ -1318,8 +1351,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
    		broadcastEvent(ctx, new BpmEvent(BpmEvent.Type.ASSIGN_TASK, taskData, loadOrCreateUser));
    		broadcastEvent(ctx, new BpmEvent(BpmEvent.Type.ASSIGN_TASK, taskData, user));
 		ctx.getUserProcessQueueManager().onTaskAssigne(taskData);
-   	 long duration = System.currentTimeMillis() - start;
-		log.severe("assignTaskToUser: " +  duration);
+
    	}
 
    	protected Map<String, Execution> getActiveExecutions(String internalId, ProcessToolContext ctx) {
@@ -1404,8 +1436,6 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
 
 
 	public List<String> getOutgoingTransitionDestinationNames(String internalId, ProcessToolContext ctx) {
-    	
-    	long start = System.currentTimeMillis();
         ProcessEngine engine = getProcessEngine(ctx);
         org.jbpm.api.ProcessInstance pi = engine.getExecutionService().findProcessInstanceById(internalId);
         final ExecutionImpl execution = (ExecutionImpl) pi.getProcessInstance();
@@ -1419,9 +1449,6 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
             }
         });
 
-        
-        long duration = System.currentTimeMillis() - start;
-		log.severe("getOutgoingTransitionDestinationNames: " +  duration);
         return transitionNames;
     }
 

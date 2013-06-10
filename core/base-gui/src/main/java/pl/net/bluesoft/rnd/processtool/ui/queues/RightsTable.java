@@ -2,14 +2,14 @@ package pl.net.bluesoft.rnd.processtool.ui.queues;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
-import org.aperteworkflow.util.liferay.LiferayBridge;
+import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
 import org.vaadin.addon.customfield.CustomField;
 
+import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueRight;
+import pl.net.bluesoft.rnd.processtool.roles.IUserRolesManager;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
 import pl.net.bluesoft.util.lang.Strings;
 
 import com.vaadin.data.Container;
@@ -17,6 +17,8 @@ import com.vaadin.data.Property;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.DefaultFieldFactory;
@@ -28,8 +30,6 @@ import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 
 public class RightsTable extends CustomField {
 	
@@ -160,8 +160,10 @@ public class RightsTable extends CustomField {
     	VerticalLayout vl = new VerticalLayout();
     	vl.setMargin(true);
     	vl.setSpacing(true);
-
-		List<String> roleNames = LiferayBridge.getRoleNames(application.getUser().getCompanyId());
+    	
+    	IUserRolesManager userRolesManager = ObjectFactory.create(IUserRolesManager.class);
+		Collection<String> roleNames = userRolesManager.getRoleNamesForCompanyId(application.getUser().getCompanyId());
+		
     	BeanItemContainer<String> ds = new BeanItemContainer<String>(String.class);
     	ds.addAll(roleNames);
     	

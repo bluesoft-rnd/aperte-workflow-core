@@ -4,7 +4,7 @@
     <parent>
         <artifactId>core</artifactId>
         <groupId>org.aperteworkflow</groupId>
-        <version>2.0</version>
+        <version>2.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>jbpm-gui</artifactId>
@@ -41,7 +41,7 @@
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>jbpm-context</artifactId>
-            <version>2.0</version>
+            <version>2.1-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>jboss</groupId>
@@ -69,17 +69,17 @@
             <groupId>org.aperteworkflow</groupId>
             <artifactId>base-gui</artifactId>
             <type>war</type>
-            <version>2.0</version>
+            <version>2.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>editor</artifactId>
-            <version>2.0</version>
+            <version>2.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>integration</artifactId>
-            <version>2.0</version>
+            <version>2.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -110,5 +110,112 @@
             <version>1.6.1</version>
         </dependency>
     </dependencies>
+        <!-- Profil dev do automatycznego kopiowania jarow do osgi -->
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+	            <plugins>
+		            <plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-dependency-plugin</artifactId>
+						<version>2.4</version>
+						<executions>
+							<execution>
+								<id>copy</id>
+								<phase>package</phase>
+								<goals>
+									<goal>copy</goal>
+								</goals>
+								<configuration>
+									<artifactItems>
+										<artifactItem>
+											<groupId>${project.groupId}</groupId>
+											<artifactId>${project.artifactId}</artifactId>
+											<type>war</type>
+											<version>${project.version}</version>
+											<overWrite>true</overWrite>
+											<outputDirectory>${liferay.dir}/deploy</outputDirectory>
+											<destFileName>aperteworkflow.war</destFileName>
+										</artifactItem>
+									</artifactItems>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+                </plugins>
+            </build>
+        </profile>
+    
+        <profile>
+            <id>updatewidgetset</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+            <plugins>
 
+			<!-- Compiles your custom GWT components with the GWT compiler -->
+			<!-- A hosted mode browser for client-side widget debugging can be run 
+				with the goal gwt:run after uncommenting the correct line below. A remote 
+				debugger can then be connected to port 8998. Note that e.g. a Jetty server 
+				should be running with the server side parts - use the goal jetty:run . -->
+		 			<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>gwt-maven-plugin</artifactId>
+						<version>${gwt.plugin.version}</version>
+						<configuration>
+							<webappDirectory>${project.build.directory}/${project.build.finalName}/VAADIN/widgetsets</webappDirectory> 
+							<extraJvmArgs>-Xmx512M -Xss2048k</extraJvmArgs>
+							<runTarget>clean</runTarget>
+							<hostedWebapp>${project.build.directory}/${project.build.finalName}</hostedWebapp>
+							<noServer>true</noServer>
+							<port>8080</port>
+							<compileReport>false</compileReport>
+						</configuration>
+						<executions>
+							<execution>
+								<goals>
+									<goal>resources</goal>
+									<goal>compile</goal> 
+								</goals>
+							</execution>
+						</executions>
+						<dependencies>
+							<dependency>
+								<groupId>com.google.gwt</groupId>
+								<artifactId>gwt-dev</artifactId>
+								<version>${gwt.version}</version>
+							</dependency>
+							<dependency>
+								<groupId>com.google.gwt</groupId>
+								<artifactId>gwt-user</artifactId>
+								<version>${gwt.version}</version>
+							</dependency>
+						</dependencies>
+					</plugin>
+					<plugin>
+						<groupId>com.vaadin</groupId>
+						<artifactId>vaadin-maven-plugin</artifactId>
+						<version>1.0.2</version>
+						<executions>
+							<execution>
+								<configuration>
+									<modules>
+										<module>com.vaadin.portal.gwt.PortalDefaultWidgetSet</module>
+									</modules>
+								</configuration>
+								<goals>
+									<goal>update-widgetset</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>  
+				</plugins>
+			</build>
+        </profile>
+    </profiles>
 </project>

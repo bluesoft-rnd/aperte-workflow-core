@@ -279,6 +279,16 @@ public class ProcessInstance extends AbstractPersistentEntity {
 		}
 		return null;
 	}
+	
+    public <T extends ProcessInstanceAttribute> T findAttributeByClassName(String className) {
+        Set<ProcessInstanceAttribute> attrs = getProcessAttributes();
+        for (ProcessInstanceAttribute pia : attrs) {
+            if (className.equals(pia.getClass().getName())) {
+                return (T) pia;
+            }
+        }
+        return null;
+    }
 
     public <T extends ProcessInstanceAttribute> T findAttributeByClass(Class<T> clazz) {
         Set<ProcessInstanceAttribute> attrs = getProcessAttributes();

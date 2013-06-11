@@ -69,6 +69,25 @@ function loadQueue()
 	function loadProcessView(processStateConfigurationId, taskId)
 	{
 		clearProcessView();
+		var widgetJson = $.post('<spring:url value="/task/loadTask"/>', 
+		{
+			"processStateConfigurationId": processStateConfigurationId,
+			"taskId": taskId
+		}, function(data) 
+		{ 
+			console.log( "data: "+data );
+			clearAlerts();
+			$('#vaadin-widgets').empty();
+			console.log( "data: "+data );
+			$("#vaadin-widgets").append(data);
+			
+			showProcessData();
+		});
+	}
+	
+	function loadProcessView2(processStateConfigurationId, taskId)
+	{
+		clearProcessView();
 		
 		var widgetJson = $.getJSON('<spring:url value="/processes/loadProcessWidgets.json"/>', 
 		{

@@ -30,6 +30,7 @@
 	</bean>
 	
 	<bean id="processToolRegistry" class="pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistryImpl" scope="singleton"/>
+	<bean id="templateProvider" class="org.aperteworkflow.webapi.main.ui.TaskHtmlTemplateLoader" scope="singleton"/>
 	
 	<bean id="eventBus" class="com.google.common.eventbus.EventBus" scope="session">
 		<aop:scoped-proxy/>

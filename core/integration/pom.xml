@@ -102,50 +102,42 @@
             <groupId>org.springframework</groupId>
             <artifactId>org.springframework.web</artifactId>
             <version>${spring.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
 		    <groupId>org.springframework</groupId>
 		    <artifactId>org.springframework.web.portlet</artifactId>
 		    <version>${spring.version}</version>
-		    <scope>provided</scope>
 		</dependency>
 		<dependency>
 		    <groupId>org.springframework</groupId>
 		    <artifactId>org.springframework.core</artifactId>
 		    <version>${spring.version}</version>
-		    <scope>provided</scope>
 		</dependency>
 		<dependency>
 		    <groupId>org.springframework</groupId>
 		    <artifactId>spring-webmvc</artifactId>
 		    <version>${spring.version}</version>
-		    <scope>provided</scope>
 		</dependency>
 		<dependency>
 		    <groupId>org.springframework</groupId>
 		    <artifactId>org.springframework.web.servlet</artifactId>
 		    <version>${spring.version}</version>
-		    <scope>provided</scope>
 		</dependency>
 		<!-- SPRING SECURITY -->
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-taglibs</artifactId>
             <version>${spring.version}</version>
-            <scope>provided</scope>
         </dependency>       
         <dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-web</artifactId>
 			<version>${spring.version}</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-config</artifactId>
 			<version>${spring.version}</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
@@ -158,6 +150,12 @@
 			<artifactId>guava</artifactId>
 			<version>14.0.1</version>
 		</dependency>
+		
+		<dependency>
+            <groupId>org.freemarker</groupId>
+            <artifactId>freemarker</artifactId>
+            <version>2.3.19</version>
+        </dependency>
     </dependencies>
     
     <!-- Copy osgi package.export to osgi folder -->

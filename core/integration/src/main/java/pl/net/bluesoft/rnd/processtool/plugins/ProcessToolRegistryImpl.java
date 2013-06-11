@@ -4,8 +4,11 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 import static pl.net.bluesoft.util.lang.Strings.hasText;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -18,6 +21,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
@@ -30,6 +35,7 @@ import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -66,6 +72,8 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessToolAutowire;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionary;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryPermission;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
+import pl.net.bluesoft.rnd.processtool.ui.IWidgetContentProvider;
+import pl.net.bluesoft.rnd.processtool.ui.IWidgetScriptProvider;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolActionButton;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
@@ -79,6 +87,8 @@ import pl.net.bluesoft.util.cache.Caches;
 import pl.net.bluesoft.util.eventbus.EventBusManager;
 import pl.net.bluesoft.util.lang.FormatUtil;
 import pl.net.bluesoft.util.lang.Strings;
+
+import com.google.common.io.CharStreams;
 
 /** 
  * @author tlipski@bluesoft.net.pl
@@ -100,6 +110,11 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
     private final Map<String, I18NProvider> I18N_PROVIDER_REGISTRY = new HashMap<String, I18NProvider>();
     private final Map<String, Func<? extends ProcessToolProcessStep>> STEP_REGISTRY = new HashMap<String, Func<? extends ProcessToolProcessStep>>();
     private final Map<String, Class<? extends TaskItemProvider>> TASK_ITEM_REGISTRY = new HashMap<String, Class<? extends TaskItemProvider>>();
+    
+    //private final Map<String, IWidgetContentProvider> VIEW_REGISTRY = new HashMap<String, IWidgetContentProvider>();
+    private final Map<String, IWidgetScriptProvider> JAVASCRIPT_REGISTRY = new HashMap<String, IWidgetScriptProvider>();
+    
+    private String javaScriptContent = "";
 
     private ExecutorService executorService = Executors.newCachedThreadPool();
 	private EventBusManager eventBusManager = new ProcessToolEventBusManager(this, executorService);
@@ -109,6 +124,9 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
     private Map<String, ClassLoader> classLoaders = new HashMap<String, ClassLoader>();
 
     private Map<String, Map> caches = new HashMap<String, Map>();
+    
+	@Autowired
+	private pl.net.bluesoft.rnd.processtool.ui.IHtmlTemplateProvider templateProvider;
 
     private ProcessToolContextFactory processToolContextFactory;
 	private SessionFactory sessionFactory;
@@ -126,7 +144,7 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
             public InputStream loadProperty(String path) throws IOException {
                 return classloader.getResourceAsStream(path);
             }
-        }, "messages"));
+        }, "messages")); 
     }
 
 	public synchronized void unregisterWidget(String name) {
@@ -911,6 +929,118 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 		{
 
 			return WIDGET_REGISTRY.get(widgetName);
+		}
+
+		@Override
+		public void registerJavaScript(String fileName,IWidgetScriptProvider scriptProvider) 
+		{
+			JAVASCRIPT_REGISTRY.put(fileName, scriptProvider);
+			
+			InputStream javaScript = scriptProvider.getJavaScriptContent();
+			
+			String compressedScript = compress(javaScript);
+			javaScriptContent += compressedScript;
+			
+		}
+
+		@Override
+		public void unregisterJavaScript(String fileName) 
+		{
+			JAVASCRIPT_REGISTRY.remove(fileName);
+		}
+
+		@Override
+		public void registerHtmlView(String widgetName,IWidgetContentProvider contentProvider) 
+		{		
+			try
+			{
+				InputStream htmlFileStream = contentProvider.getHtmlContent();
+				String htmlBody = CharStreams.toString(new InputStreamReader(htmlFileStream, "UTF-8"));
+				
+				templateProvider.addTemplate(widgetName, htmlBody);
+			}
+			catch(Exception ex)
+			{
+				throw new RuntimeException("Problem during adding new html template", ex);
+			}
+			
+		}
+
+		@Override
+		public void unregisterHtmlView(String widgetName) 
+		{
+			templateProvider.removeTemplate(widgetName);
+			
+		}
+		
+		@Override
+		public String getJavaScripts() 
+		{
+			return decompress(javaScriptContent);
+		}
+		
+		private static String compress(InputStream stream) 
+		{
+			try
+			{
+				ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
+				OutputStream output = new GZIPOutputStream(byteOutput);
+		        byte[] buffer = new byte[1024];
+		        int bytesRead = 0;
+		        
+		        while ((bytesRead = stream.read(buffer)) != -1) 
+		        	output.write(buffer, 0, bytesRead);
+		        
+		        output.close();
+		        byteOutput.close();
+		        
+			    return byteOutput.toString();
+			}
+			catch(IOException ex)
+			{
+				throw new RuntimeException("Problem during javascript compressing", ex);
+			}
+		}
+		
+		
+		private static String compress(String string) 
+		{
+			try
+			{
+			    ByteArrayOutputStream os = new ByteArrayOutputStream(string.length());
+			    GZIPOutputStream gos = new GZIPOutputStream(os);
+			    gos.write(string.getBytes());
+			    gos.close();
+			    os.close();
+			    return os.toString();
+			}
+			catch(IOException ex)
+			{
+				throw new RuntimeException("Problem during javascript compressing", ex);
+			}
+		}
+
+		private static String decompress(String stringToCompress) 
+		{
+			try
+			{
+			    final int BUFFER_SIZE = 32;
+			    ByteArrayInputStream is = new ByteArrayInputStream(stringToCompress.getBytes());
+			    GZIPInputStream gis = new GZIPInputStream(is, BUFFER_SIZE);
+			    StringBuilder string = new StringBuilder();
+			    byte[] data = new byte[BUFFER_SIZE];
+			    int bytesRead;
+			    while ((bytesRead = gis.read(data)) != -1) {
+			        string.append(new String(data, 0, bytesRead));
+			    }
+			    gis.close();
+			    is.close();
+			    return string.toString();
+			}
+			catch(IOException ex)
+			{
+				throw new RuntimeException("Problem during javascript decompressing", ex);
+			}
 		}
 
 

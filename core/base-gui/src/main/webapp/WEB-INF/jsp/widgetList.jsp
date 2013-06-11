@@ -48,30 +48,7 @@
 					$("#"+tabId).append(htmlTab);
 					$("#"+divContentId).append(innerHtmlTab);
 					
-					$("#tab_link_"+elementId).on('shown', function (e) 
-					{
-						showVaadinWidget(e.target);
-						
-					  e.target // activated tab
-					  e.relatedTarget // previous tab
-					  console.log("browser: "+$.browser.mozilla);	
-					  if($.browser.mozilla)
-					  {
-						  $("[id^='iframe-vaadin-']").each(function( ) 
-						  {
-							var isVis = $(this).is(":visible");
-							var isWidgetLoaded = $(this).attr('widgetLoaded');
-							
-							
-							
-							if((isVis == true) && (isWidgetLoaded == "false"))
-							{
-								console.log( "LOAD!: ");	
-								$(this).attr('src', $(this).attr('src'));
-							}
-						  });
-						}
-					});
+					$("#tab_link_"+elementId).on('shown', function (e) { onTabChange(e); });
 					
 					appendWidget(this, "#"+elementId, taskId);
 				});
@@ -112,27 +89,7 @@
 					  "name": widget.id
 				
 					  } )
-			    .load(function() 
-				{ 		
-					var isVis = $(this).is(":visible");
-					console.log($(this).attr('id')+" isVis: "+isVis);	
-					if(isVis == false)
-					{
-						console.log($(this).attr('id')+" mark unloaded!" ); 
-						$(this).attr('widgetLoaded', false);
-					
-					}
-					else
-					{
-						$(this).attr('widgetLoaded', true);
-					}			
-					vaadinWidgetsLoadedCount += 1;  
-					console.log( "vaadinWidgetsLoadedCount: "+vaadinWidgetsLoadedCount + ", vaadinWidgetsCount: "+vaadinWidgetsCount ); 
-					if(vaadinWidgetsCount == vaadinWidgetsLoadedCount)
-					{
-						enableButtons();
-					}
-				} )
+			    .load(function() {onLoadIFrame($(this)); })
 				.appendTo( parentId );
 
 				
@@ -142,6 +99,53 @@
 		
 
 	
+	}
+	
+	function onLoadIFrame(iframe)
+	{
+		var isVis = $(iframe).is(":visible");
+		console.log($(iframe).attr('id')+" isVis: "+isVis);	
+		if(isVis == false)
+		{
+			console.log($(iframe).attr('id')+" mark unloaded!" ); 
+			$(iframe).attr('widgetLoaded', false);
+		
+		}
+		else
+		{
+			$(iframe).attr('widgetLoaded', true);
+		}			
+		vaadinWidgetsLoadedCount += 1;  
+		console.log( "vaadinWidgetsLoadedCount: "+vaadinWidgetsLoadedCount + ", vaadinWidgetsCount: "+vaadinWidgetsCount ); 
+		if(vaadinWidgetsCount == vaadinWidgetsLoadedCount)
+		{
+			enableButtons();
+		}
+	}
+	
+	function onTabChange(e)
+	{
+	  showVaadinWidget(e.target);
+			
+	  e.target // activated tab
+	  e.relatedTarget // previous tab
+	  console.log("browser: "+$.browser.mozilla);	
+	  if($.browser.mozilla)
+	  {
+		  $("[id^='iframe-vaadin-']").each(function( ) 
+		  {
+			var isVis = $(this).is(":visible");
+			var isWidgetLoaded = $(this).attr('widgetLoaded');
+			
+			
+			
+			if((isVis == true) && (isWidgetLoaded == "false"))
+			{
+				console.log( "LOAD!: ");	
+				$(this).attr('src', $(this).attr('src'));
+			}
+		  });
+		}
 	}
 	
 	<!-- Need this to resolve vaadin iframe size problem with tabs -->

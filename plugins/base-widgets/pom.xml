@@ -106,6 +106,7 @@
                             com.bea.xml.stream;resolution:=optional,
                             com.ctc.wstx.stax;resolution:=optional,
                             org.kxml2.io;resolution:=optional,
+                            javax.servlet;resolution:=optional;version="2.5.0",
                             *
                         </Import-Package>
                         <Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>
@@ -134,6 +135,12 @@
                             pl.net.bluesoft.rnd.processtool.ui.buttons.YesNoCommentButton
                         </ProcessTool-Button-Enhancement>
                         <ProcessTool-I18N-Property>basewidgets-messages</ProcessTool-I18N-Property>
+                        <ProcessTool-Widget-View>
+                        widgetName:=LatestComments;fileName:=latest-process-comments.html;providerclass:=file
+                        </ProcessTool-Widget-View>
+                      <!--  <ProcessTool-Widget-Script>
+                        requests-scripts.js;provider:=file
+                        </ProcessTool-Widget-Script>-->
                     </instructions>
                 </configuration>
             </plugin>

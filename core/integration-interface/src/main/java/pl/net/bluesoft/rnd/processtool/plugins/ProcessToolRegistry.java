@@ -10,8 +10,6 @@ import java.util.concurrent.ExecutorService;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
-import com.google.common.eventbus.EventBus;
-
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
@@ -27,6 +25,8 @@ import pl.net.bluesoft.rnd.processtool.dao.UserRoleDAO;
 import pl.net.bluesoft.rnd.processtool.dao.UserSubstitutionDAO;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
+import pl.net.bluesoft.rnd.processtool.ui.IWidgetContentProvider;
+import pl.net.bluesoft.rnd.processtool.ui.IWidgetScriptProvider;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolActionButton;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.taskitem.TaskItemProvider;
@@ -36,7 +36,12 @@ import pl.net.bluesoft.util.eventbus.EventBusManager;
 
 
 /**
+ * Registry which stores all configuration parameters from osgi bundles and
+ * hibernate configuration context. All content from registered bundles is
+ * stored here
+ * 
  * @author tlipski@bluesoft.net.pl
+ * @author mpawlak@bluesoft.net.pl
  */
 public interface ProcessToolRegistry extends ProcessToolBpmConstants {
 
@@ -196,4 +201,19 @@ public interface ProcessToolRegistry extends ProcessToolBpmConstants {
 			processToolRegistry.remove();
 		}
 	}
+
+	/** Register new javaScript file for html widgets */
+	void registerJavaScript(String fileName, IWidgetScriptProvider scriptProvider);
+
+	/** Unregister new javaScript file for html widgets */
+	void unregisterJavaScript(String fileName);
+
+	/** Register new html view for widgets */
+	void registerHtmlView(String fileName, IWidgetContentProvider scriptProvider);
+	
+	/** Unregister new html view for widgets */
+	void unregisterHtmlView(String fileName);
+	
+	/** Get Scripts */
+	String getJavaScripts();
 }

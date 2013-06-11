@@ -10,7 +10,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
+import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent;
 import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent.Type;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
@@ -58,8 +63,14 @@ public abstract class AbstractProcessToolSession
 
     protected UserData substitutingUser;
     protected EventBusManager substitutingUserEventBusManager;
+    
+    @Autowired
+    private ProcessToolRegistry processToolRegistry;
 
-    public AbstractProcessToolSession(UserData user, Collection<String> roleNames, ProcessToolRegistry registry) {
+    public AbstractProcessToolSession(UserData user, Collection<String> roleNames, ProcessToolRegistry registry) 
+    {
+    	SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+    	
         this.user = user;
         this.roleNames = new HashSet<String>(roleNames);
         this.eventBusManager = new ProcessToolEventBusManager(registry, registry.getExecutorService());
@@ -194,21 +205,37 @@ public abstract class AbstractProcessToolSession
         return newProcessInstance;
     }
 
-    protected void broadcastEvent(final ProcessToolContext ctx, final IEvent event) {
-        eventBusManager.publish(event);
-        if (substitutingUserEventBusManager != null)
-            substitutingUserEventBusManager.publish(event);
-        ctx.addTransactionCallback(new TransactionFinishedCallback() {
-            @Override 
-            public void onFinished() { 
-                ctx.getEventBusManager().post(event);
-            }
-        });
+    protected void broadcastEvent(final ProcessToolContext ctx, final IEvent event) 
+    {
+    	processToolRegistry.withProcessToolContext(new ProcessToolContextCallback() 
+    	{
+			@Override
+			public void withContext(final ProcessToolContext ctx) 
+			{
+		        eventBusManager.publish(event);
+		        if (substitutingUserEventBusManager != null)
+		            substitutingUserEventBusManager.publish(event);
+		        ctx.addTransactionCallback(new TransactionFinishedCallback() {
+		            @Override 
+		            public void onFinished() { 
+		                ctx.getEventBusManager().post(event);
+		            }
+		        });
+				
+			}
+		});
+
     }
 
-    protected UserData findOrCreateUser(UserData user, ProcessToolContext ctx) 
+    protected UserData findOrCreateUser(final UserData user, ProcessToolContext ctx) 
      {
-        return ctx.getUserDataDAO().findOrCreateUser(user);
+    	return processToolRegistry.withProcessToolContext(new ReturningProcessToolContextCallback<UserData>() {
+
+			@Override
+			public UserData processWithContext(ProcessToolContext ctx) {
+				return ctx.getUserDataDAO().findOrCreateUser(user);
+			}
+		});
     }
 
     protected Set<String> getPermissions(Collection<? extends IPermission> col) {

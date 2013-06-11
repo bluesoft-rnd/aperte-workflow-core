@@ -77,9 +77,9 @@ function loadQueue()
 		{ 
 			console.log( "data: "+data );
 			clearAlerts();
-			$('#vaadin-widgets').empty();
+			$('#process-data-view').empty();
 			console.log( "data: "+data );
-			$("#vaadin-widgets").append(data);
+			$("#process-data-view").append(data);
 			
 			showProcessData();
 		});

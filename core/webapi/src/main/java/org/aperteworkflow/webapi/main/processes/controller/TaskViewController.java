@@ -106,43 +106,14 @@ public class TaskViewController extends AbstractProcessToolServletController
 
 				try
 				{
-					taskViewBuilder.processView(response.getOutputStream());
-					response.getOutputStream().print("test");
+					taskViewBuilder.processView(response.getWriter());
 				}
 				catch(IOException ex)
 				{
 					logger.log(Level.SEVERE, "Problem during task view generation. TaskId="+taskId, ex);
 				}
-				
-//			    try
-//			    {
-//			    	ServletOutputStream op = response.getOutputStream();
-//			    	
-//			    	/* Get content provider for view */
-//			    	IWidgetContentProvider contentProvider = processToolRegistry.getHtmlView(widgetName);
-//			    	
-//			    	widgetContent = contentProvider.getHtmlContent();
-//			    	
-//			        byte[] buffer = new byte[1024];
-//			        int bytesRead = 0;
-//			        
-//			        while ((bytesRead = widgetContent.read(buffer)) != -1) 
-//			        	op.write(buffer, 0, bytesRead);
-//
-//			        op.flush();
-//			    }
-//			    finally
-//			    {
-//			        if(widgetContent != null)
-//			        	widgetContent.close();
-//			    }
-				
+
 			}
 		});
-		
-		
-
-
-
 	}
 }

@@ -1,6 +1,7 @@
 package org.aperteworkflow.webapi.main.ui;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -55,22 +56,47 @@ public class TaskViewBuilder
 		SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
 	}
 	
-	public void processView(ServletOutputStream outputStram) throws IOException
+	public void processView(PrintWriter printWriter) throws IOException
 	{
-		Document document = Jsoup.parse("<div></div>");
+		Document document = Jsoup.parse("");
+		
+		Element alertsNode = document.createElement("div")
+				.attr("id", "alerts-list")
+				.attr("class", "process-alerts");
+		document.appendChild(alertsNode);
+		
+		Element widgetsNode = document.createElement("div")
+				.attr("id", "vaadin-widgets")
+				.attr("class", "vaadin-widgets-view");
+		document.appendChild(widgetsNode);
 		
 		for(ProcessStateWidget widget: widgets)
 		{
-			processWidget(widget, document);
+			processWidget(widget, widgetsNode);
 		}
 		
-		outputStram.print(document.toString());
+		Element actionsNode = document.createElement("div")
+				.attr("id", "actions-list")
+				.attr("class", "actions-view");
+		document.appendChild(actionsNode);
+		
+		addSaveActionButton(actionsNode);
+		addCancelActionButton(actionsNode);
+		
+		for(ProcessStateAction action: actions)
+		{
+			processAction(action, actionsNode);
+		}
+		
+		
+		
+		printWriter.print(document.toString());
 		
 		scriptBuilder.append("vaadinWidgetsCount = ");
 		scriptBuilder.append(vaadinWidgetsCount);
 		scriptBuilder.append(";");
 		scriptBuilder.append("</script>");
-		outputStram.print(scriptBuilder.toString());
+		printWriter.print(scriptBuilder.toString());
 		
 	}
 	
@@ -208,6 +234,55 @@ public class TaskViewBuilder
 				processWidget(child, iFrameNode);
 			}
 		}
+	}
+	
+	private void processAction(ProcessStateAction action, Element parent)
+	{
+		String actionButtonId = "action-button-" + action.getBpmName();
+		
+		Element buttonNode = parent.ownerDocument().createElement("button")
+				.appendText(i18Source.getMessage(action.getLabel()))
+				.attr("class", "btn btn-large aperte-button")
+				.attr("disabled", "true")
+				.attr("type", "button")
+				.attr("id", actionButtonId);
+			parent.appendChild(buttonNode);
+			
+			scriptBuilder.append("$('#" + actionButtonId+"').click(function() { disableButtons(); performAction(this, '"+action.getBpmName()+
+					"', "+action.getSkipSaving()+", '"+task.getInternalTaskId()+"');  });");
+			scriptBuilder.append("$('#" + actionButtonId+"').tooltip({title: '"+i18Source.getMessage(action.getDescription())+"'});");
+	}
+	
+	private void addSaveActionButton(Element parent)
+	{
+		String actionButtonId = "action-button-save";
+		
+		Element buttonNode = parent.ownerDocument().createElement("button")
+				.appendText(i18Source.getMessage("button.save.process.data"))
+				.attr("class", "btn btn-large btn-success aperte-button")
+				.attr("disabled", "true")
+				.attr("type", "button")
+				.attr("id", actionButtonId);
+			parent.appendChild(buttonNode);
+			
+			scriptBuilder.append("$('#" + actionButtonId+"').click(function() { disableButtons(); saveAction(this, '"+task.getInternalTaskId()+"');  });");
+			scriptBuilder.append("$('#" + actionButtonId+"').tooltip({title: '"+i18Source.getMessage("button.save.process.desc")+"'});");
+	}
+	
+	private void addCancelActionButton(Element parent)
+	{
+		String actionButtonId = "action-button-cancel";
+		
+		Element buttonNode = parent.ownerDocument().createElement("button")
+				.appendText(i18Source.getMessage("button.cancel"))
+				.attr("class", "btn btn-large btn-inverse aperte-button")
+				.attr("disabled", "true")
+				.attr("type", "button")
+				.attr("id", actionButtonId);
+			parent.appendChild(buttonNode);
+			
+			scriptBuilder.append("$('#" + actionButtonId+"').click(function() { disableButtons(); showProcessList();  });");
+			scriptBuilder.append("$('#" + actionButtonId+"').tooltip({title: '"+i18Source.getMessage("button.cancel")+"'});");
 	}
 
 	public TaskViewBuilder setWidgets(List<ProcessStateWidget> widgets) 

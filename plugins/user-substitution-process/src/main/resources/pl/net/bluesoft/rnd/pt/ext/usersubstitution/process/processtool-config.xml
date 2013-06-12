@@ -27,6 +27,11 @@
 												<config.ProcessStateWidgetAttribute name="requestMode" value="true" />
 											</attributes>
 										</config.ProcessStateWidget>
+										<config.ProcessStateWidget className="UserSubstitutionComment" priority="2">
+											<permissions>
+												<config.ProcessStateWidgetPermission roleName=".*" privilegeName="EDIT" />
+											</permissions>
+										</config.ProcessStateWidget>
 									</children>
 									<attributes>
 										<config.ProcessStateWidgetAttribute name="caption" value="user_substitution.REQUEST_SUBSTITUTE.text.1" />
@@ -81,6 +86,11 @@
 									<attributes>
 										<config.ProcessStateWidgetAttribute name="requestMode" value="false" />
 									</attributes>
+								</config.ProcessStateWidget>
+								<config.ProcessStateWidget className="UserSubstitutionComment" priority="2">
+									<permissions>
+										<config.ProcessStateWidgetPermission roleName=".*" privilegeName="VIEW" />
+									</permissions>
 								</config.ProcessStateWidget>
 							</children>
 							<attributes>

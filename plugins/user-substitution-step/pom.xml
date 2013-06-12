@@ -126,6 +126,9 @@
                         pl.net.bluesoft.rnd.pt.ext.usersubstitution.step.HandleSubstitutionAcceptance
                         </ProcessTool-Step-Enhancement>
                         <ProcessTool-I18N-Property>messages</ProcessTool-I18N-Property>
+                        <ProcessTool-Widget-View>
+                        widgetName:=UserSubstitutionComment;fileName:=substitution-comments.html;providerclass:=file
+                        </ProcessTool-Widget-View>
                     </instructions>
                 </configuration>
             </plugin>

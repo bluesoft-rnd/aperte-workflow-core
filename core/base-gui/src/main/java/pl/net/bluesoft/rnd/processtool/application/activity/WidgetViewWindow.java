@@ -274,11 +274,48 @@ public class WidgetViewWindow extends Window
 	{
 		removeAllComponents();
 		widgets.clear();
-		
+		isInitlized = false;
 		bpmTaskId = null;
 		
 		logger.warning("destroy...: "+getName());
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((bpmTaskId == null) ? 0 : bpmTaskId.hashCode());
+		result = prime
+				* result
+				+ ((processStateWidgetId == null) ? 0 : processStateWidgetId
+						.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		WidgetViewWindow other = (WidgetViewWindow) obj;
+		if (bpmTaskId == null) {
+			if (other.bpmTaskId != null)
+				return false;
+		} else if (!bpmTaskId.equals(other.bpmTaskId))
+			return false;
+		if (processStateWidgetId == null) {
+			if (other.processStateWidgetId != null)
+				return false;
+		} else if (!processStateWidgetId.equals(other.processStateWidgetId))
+			return false;
+		return true;
+	}
+	
+	
 	
 }
 

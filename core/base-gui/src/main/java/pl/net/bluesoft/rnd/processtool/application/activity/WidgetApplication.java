@@ -95,6 +95,7 @@ public class WidgetApplication extends Application  implements HttpServletReques
 		WebApplicationContext context = (WebApplicationContext)this.getContext();
 		if(context == null)
 		{
+			logger.log(Level.WARNING, "no context...");
 			if(blankWindow == null)
 			{
 				blankWindow = new Window();
@@ -106,10 +107,14 @@ public class WidgetApplication extends Application  implements HttpServletReques
 		
 		RequestParameters requestParameters = analyseWindowName(name);
 		if(requestParameters == null)
+		{
+			logger.log(Level.WARNING, "no parameters...");
 			return null;
+		}
 		
 		if(requestParameters.getClose())
 		{
+			logger.log(Level.WARNING, "close...");
 			for(WidgetViewWindow windowToDestory: widgetWindows.values())
 			{
 				logger.log(Level.WARNING, "remove window: "+windowToDestory.getName());
@@ -118,8 +123,7 @@ public class WidgetApplication extends Application  implements HttpServletReques
 			}
 			widgetWindows.clear();
 			return null;
-		}
-
+		} 
 
 		if(bpmSession == null)
 			bpmSession = (ProcessToolBpmSession)context.getHttpSession().getAttribute(ProcessToolBpmSession.class.getName());
@@ -132,6 +136,8 @@ public class WidgetApplication extends Application  implements HttpServletReques
 			if(!this.getWindows().contains(window))
 				addWindow(window);
 			
+			window.initlizeWidget(requestParameters.getTaskId(), requestParameters.getWidgetId());
+			logger.log(Level.WARNING, "return window! "+window.isVisible());
 			return window;
 		}
 		
@@ -164,32 +170,7 @@ public class WidgetApplication extends Application  implements HttpServletReques
 			init();
 		
 		ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-		
-//		String windowName = request.getParameter("windowName");
-//		String onUnloadBurst = request.getParameter("onunloadburst");
-//
-//		if(windowName != null)
-//		{
-//			//Window window = getWindow(windowName);
-//			if("1".equals(onUnloadBurst))
-//			{
-//				Collection<Window> windowsToClose = this.getWindows();
-//				for(Window windowToClose: windowsToClose)
-//				{
-//					try
-//					{
-//						removeWindow(windowToClose);
-//					}
-//					catch(Throwable ex)
-//					{
-//						
-//					}
-//					//eventBus.unregister(windowToClose);
-//					//removeWindow(windowToClose);
-//				}
-//			}
-//		}
-		
+			
 		if(ctx == null)
 		{
 			UserData user = (UserData)request.getSession().getAttribute(UserData.class.getName());
@@ -203,6 +184,7 @@ public class WidgetApplication extends Application  implements HttpServletReques
 						IAuthorizationService authorizationService = ObjectFactory.create(IAuthorizationService.class);
 						
 						UserData user = authorizationService.getUserByRequest(request);
+						setUser(user);
 						
 						request.getSession().setAttribute(UserData.class.getName(), user);
 						

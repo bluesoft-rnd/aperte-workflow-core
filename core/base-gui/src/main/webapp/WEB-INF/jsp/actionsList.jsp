@@ -59,13 +59,45 @@
 		.appendTo( parentId );
 	}
 	
+
+	
+	
 	function saveAction(button, taskId)
 	{
-		console.log( "saving taskId: "+taskId); 
+		clearAlerts();
+		
+		var errors = [];
+		<!-- Validate html widgets -->
+		$.each(widgets, function() 
+		{
+			var errorMessages = this.validate();
+			$.each(errorMessages, function() {
+				errors.push(this);
+				addAlert(this);
+			});
+	    });
+		
+		if(errors.length > 0)
+		{
+			enableButtons();
+			return;
+		}
+		
+		var widgetData = {};
+		
+		$.each(widgets, function() 
+		{
+			widgetData[this.widgetId] = this.getData();	
+	    });
+		
+		var JsonWidgetData = JSON.stringify(widgetData, null, 2);
+		
+		console.log( "widgetData: "+JsonWidgetData);
 		var state = 'OK';
 		var newBpmTask = $.getJSON('<spring:url value="/processes/saveAction.json"/>', 
 		{
-			"taskId": taskId
+			"taskId": taskId,
+			"widgetData": JsonWidgetData
 		})
 		.done(function(data) 
 		{ 
@@ -113,13 +145,39 @@
 	
 	function performAction(button, actionName, skipSaving, taskId)
 	{
-		console.log( "do:" + actionName); 
+		clearAlerts();
+		
+		var errors = [];
+		<!-- Validate html widgets -->
+		$.each(widgets, function() 
+		{
+			var errorMessages = this.validate();
+			$.each(errorMessages, function() {
+				errors.push(this);
+				addAlert(this);
+			});
+	    });
+		
+		if(errors.length > 0)
+		{
+			enableButtons();
+			return;
+		}
+		
+		var widgetData = [];
+		
+		$.each(widgets, function() 
+		{
+			widgetData[this.widgetId] = this.getData();
+		    console.log( "getData: "+this.getData());	
+	    });
 		
 		var newBpmTask = $.getJSON('<spring:url value="/processes/performAction.json"/>', 
 		{
 			"taskId": taskId,
 			"actionName": actionName,
-			"skipSaving": skipSaving
+			"skipSaving": skipSaving,
+			"widgetData": widgetData
 		})
 		.done(function(data) 
 		{ 

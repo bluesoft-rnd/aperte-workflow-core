@@ -66,6 +66,8 @@ UserLogin: ${aperteUser.login} <br>
 	
 	function clearProcessView()
 	{
+		widgets = [];
+		
 		<!-- required to close vaadin application -->
 		$('.vaadin-widget-view').each(function( ) 
 		{ 

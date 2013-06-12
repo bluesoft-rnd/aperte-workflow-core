@@ -1,10 +1,13 @@
 package org.aperteworkflow.webapi.main.processes.controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,8 +20,16 @@ import org.aperteworkflow.webapi.main.processes.DataPagingBean;
 import org.aperteworkflow.webapi.main.processes.action.domain.ActionBean;
 import org.aperteworkflow.webapi.main.processes.action.domain.PerformActionResultBean;
 import org.aperteworkflow.webapi.main.processes.action.domain.SaveResultBean;
+import org.aperteworkflow.webapi.main.processes.domain.HtmlWidgetData;
 import org.aperteworkflow.webapi.main.processes.domain.NewProcessInstanceBean;
 import org.aperteworkflow.webapi.main.processes.widget.domain.WidgetBean;
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.JsonParser;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.type.TypeFactory;
+import org.codehaus.jackson.type.JavaType;
+import org.codehaus.jackson.type.TypeReference;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -198,6 +209,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 		final String taskId = request.getParameter("taskId");
 		final String actionName = request.getParameter("actionName");
 		final String skipSaving = request.getParameter("skipSaving");
+		final String widgetData = request.getParameter("widgetData");
 		
 		if(taskId == null || taskId.isEmpty())
 		{
@@ -287,12 +299,26 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 		SaveResultBean resultBean = new SaveResultBean();
 		
 		final String taskId = request.getParameter("taskId");
+		final String widgetDataJson = request.getParameter("widgetData");
+		Collection<HtmlWidgetData> widgetData = null;
 		
 		if(taskId == null || taskId.isEmpty())
 		{
 			resultBean.addError(SYSTEM_SOURCE, messageSource.getMessage("request.performaction.error.notaskid"));
 			return resultBean;
 		}
+		
+		try 
+		{
+			ObjectMapper mapper = new ObjectMapper();
+			JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, HtmlWidgetData.class);	  
+			widgetData = mapper.readValue(widgetDataJson, type);
+		}
+		catch (Throwable e) 
+		{
+			resultBean.addError(SYSTEM_SOURCE, messageSource.getMessage("request.handle.error.jsonparseerror"));
+			return resultBean;
+		} 
 		
 		/* Initilize request context */
 		final IProcessToolRequestContext context = this.initilizeContext(request);

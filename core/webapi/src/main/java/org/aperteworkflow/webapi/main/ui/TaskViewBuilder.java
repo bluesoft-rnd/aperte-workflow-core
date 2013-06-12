@@ -193,6 +193,8 @@ public class TaskViewBuilder
 			viewData.put(IHtmlTemplateProvider.TASK_PARAMTER, task);
 			viewData.put(IHtmlTemplateProvider.USER_PARAMTER, user);
 			viewData.put(IHtmlTemplateProvider.MESSAGE_SOURCE_PARAMETER, i18Source);
+			viewData.put(IHtmlTemplateProvider.WIDGET_NAME_PARAMETER, aliasName);
+			viewData.put(IHtmlTemplateProvider.WIDGET_ID_PARAMETER, widget.getId());
 			
 			String processedView = templateProvider.processTemplate(aliasName, viewData);
 			

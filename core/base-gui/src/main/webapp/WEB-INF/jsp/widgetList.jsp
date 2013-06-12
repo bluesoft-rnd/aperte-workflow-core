@@ -16,8 +16,23 @@
 <script type="text/javascript">
 //<![CDATA[	
 	<!-- Create widgets -->
+	var widgets = [];
+	
 	var vaadinWidgetsCount = 0;
 	var vaadinWidgetsLoadedCount = 0;
+	
+	<!-- Widget class  -->
+	function Widget (name, widgetId, taskId)
+	{
+		this.name = name;
+		this.widgetId = widgetId;
+		this.taskId = taskId;
+		this.formId = 'test';
+		this.validate = function() {};
+		this.getData = function() { return null; };
+	}
+	
+	
 	
 	function appendWidget(widget, parentId, taskId)
 	{

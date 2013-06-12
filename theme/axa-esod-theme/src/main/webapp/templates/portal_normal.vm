@@ -20,6 +20,7 @@
 	#js("$javascript_folder/mp-admin-utils.js")	
 	#js("$javascript_folder/jquery.dataTables.js")
 	#js("$javascript_folder/jquery.dateFormat-1.0.js")
+	#js("$javascript_folder/jquery.validate.min.js")
 </head>
 
 <body class="$css_class">

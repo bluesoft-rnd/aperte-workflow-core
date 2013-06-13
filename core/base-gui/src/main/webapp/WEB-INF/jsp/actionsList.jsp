@@ -93,7 +93,6 @@
 		
 		var JsonWidgetData = JSON.stringify(widgetData, null, 2);
 		
-		console.log( "widgetData: "+JsonWidgetData);
 		var state = 'OK';
 		var newBpmTask = $.getJSON('<spring:url value="/processes/saveAction.json"/>', 
 		{
@@ -146,43 +145,52 @@
 	
 	function performAction(button, actionName, skipSaving, taskId)
 	{
-		clearAlerts();
+		var JsonWidgetData = "[{}]";
 		
-		var errors = [];
-		<!-- Validate html widgets -->
-		$.each(widgets, function() 
+		if(skipSaving != true)
 		{
-			var errorMessages = this.validate();
-			$.each(errorMessages, function() {
-				errors.push(this);
-				addAlert(this);
+			clearAlerts();
+			
+			var errors = [];
+			<!-- Validate html widgets -->
+			$.each(widgets, function() 
+			{
+				var errorMessages = this.validate();
+				$.each(errorMessages, function() {
+					errors.push(this);
+					addAlert(this);
+				});
 			});
-	    });
-		
-		if(errors.length > 0)
-		{
-			enableButtons();
-			return;
+			
+			if(errors.length > 0)
+			{
+				enableButtons();
+				return;
+			}
+			
+			var widgetData = [];
+			
+			$.each(widgets, function() 
+			{
+				var widgetDataBean = new WidgetDataBean(this.widgetId, this.name, this.getData());
+				widgetData.push(widgetDataBean);
+			});
+			
+			JsonWidgetData = JSON.stringify(widgetData, null, 2);
 		}
-		
-		var widgetData = [];
-		
-		$.each(widgets, function() 
-		{
-			widgetData[this.widgetId] = this.getData();
-		    console.log( "getData: "+this.getData());	
-	    });
 		
 		var newBpmTask = $.getJSON('<spring:url value="/processes/performAction.json"/>', 
 		{
 			"taskId": taskId,
 			"actionName": actionName,
 			"skipSaving": skipSaving,
-			"widgetData": widgetData
+			"widgetData": JsonWidgetData
 		})
 		.done(function(data) 
 		{ 
 			console.log( "DONE: "+data); 
+			reloadQueues();
+			
 			if(data == null)
 			{
 			    closeProcessView();
@@ -218,6 +226,19 @@
 				enableButtons();
 			}
 		});
+	}
+	
+	function onSaveButton(taskId)
+	{
+		disableButtons();
+		saveAction(taskId);
+	}
+	
+	function onCancelButton()
+	{
+		reloadQueues();
+		disableButtons(); 
+		showProcessList();
 	}
 	
 	function closeProcessView()

@@ -75,58 +75,12 @@ function loadQueue()
 			"taskId": taskId
 		}, function(data) 
 		{ 
-			console.log( "data: "+data );
 			clearAlerts();
 			$('#process-data-view').empty();
-			console.log( "data: "+data );
 			$("#process-data-view").append(data);
 			
 			showProcessData();
 		});
-	}
-	
-	function loadProcessView2(processStateConfigurationId, taskId)
-	{
-		clearProcessView();
-		
-		var widgetJson = $.getJSON('<spring:url value="/processes/loadProcessWidgets.json"/>', 
-		{
-			"processStateConfigurationId": processStateConfigurationId
-		})
-		.done(function(data) 
-		{ 
-			clearAlerts();
-			$('#vaadin-widgets').empty();
-			
-			$.each( data, function( ) 
-			{
-				appendWidget(this, "#vaadin-widgets", taskId);
-			});
-			
-			showProcessData();
-		})
-		.fail(function() { console.log( "error" ); })
-		.always(function() { console.log( "complete" ); });
-		
-		var actionsJson = $.getJSON('<spring:url value="/processes/loadProcessActions.json"/>', 
-		{
-			"processStateConfigurationId": processStateConfigurationId
-		})
-		.done(function(data) 
-		{ 
-			$('#actions-list').empty();
-			
-			$.each( data, function( ) 
-			{
-				appendAction(this, "#actions-list", taskId);
-			});
-			
-			appendSaveAction("#actions-list", taskId);
-			appendCancelAction("#actions-list", taskId);
-		})
-		.fail(function() { console.log( "error" ); })
-		.always(function() { console.log( "complete" ); });
-
 	}
 //]]>
 </script>

@@ -28,6 +28,8 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.userqueues.UserProcessQueuesSizeProvider;
 import pl.net.bluesoft.rnd.processtool.userqueues.UserProcessQueuesSizeProvider.UsersQueuesDTO;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 import pl.net.bluesoft.util.lang.cquery.func.F;
 
 
@@ -37,7 +39,7 @@ import pl.net.bluesoft.util.lang.cquery.func.F;
 public class MainViewController 
 {
 	private static final String PROCESS_START_LIST = "processStartList";
-	private static final String QUEUES_PARAMETER_NAME = "queuesSize";
+	private static final String QUEUES_PARAMETER_NAME = "queues";
 	private static final String USER_PARAMETER_NAME = "aperteUser";
 	
 	@Autowired
@@ -64,6 +66,7 @@ public class MainViewController
 		if(user == null)
 			return;
 		
+
 		modelView.addObject(USER_PARAMETER_NAME, user);
 		
 		processToolRegistry.withProcessToolContext(new ProcessToolContextCallback() {
@@ -77,7 +80,10 @@ public class MainViewController
 					bpmSession = ctx.getProcessToolSessionFactory().createSession(user, user.getRoleNames());
 					request.setAttribute(ProcessToolBpmSession.class.getName(), bpmSession);
 				}
-				addUserQueues(modelView, user, ctx);
+				
+				I18NSource messageSource = I18NSourceFactory.createI18NSource(request.getLocale());
+				
+				addUserQueues(modelView, user, ctx, messageSource);
 				addProcessStartList(modelView, ctx, bpmSession);
 				
 			}
@@ -85,9 +91,9 @@ public class MainViewController
 	}
 	
 	/** Add user queeus to model */
-	private void addUserQueues(ModelAndView modelView, UserData user, ProcessToolContext ctx)
+	private void addUserQueues(ModelAndView modelView, UserData user, ProcessToolContext ctx, I18NSource messageSource)
 	{
-		UserProcessQueuesSizeProvider userQueuesSizeProvider = new UserProcessQueuesSizeProvider(ctx.getRegistry(), user.getLogin());
+		UserProcessQueuesSizeProvider userQueuesSizeProvider = new UserProcessQueuesSizeProvider(ctx.getRegistry(), user.getLogin(), messageSource);
 		Collection<UsersQueuesDTO> queues = userQueuesSizeProvider.getUserProcessQueueSize();
 		
 		modelView.addObject(QUEUES_PARAMETER_NAME, queues);

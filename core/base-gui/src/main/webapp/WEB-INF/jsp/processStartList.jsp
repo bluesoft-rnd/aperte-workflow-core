@@ -29,6 +29,8 @@
 			console.log( "processStateConfigurationId: "+processStateConfigurationId ); 
 			
 			loadProcessView(processStateConfigurationId, taskId);
+			
+			reloadQueues();
 
 		})
 		.fail(function() { console.log( "error" ); })

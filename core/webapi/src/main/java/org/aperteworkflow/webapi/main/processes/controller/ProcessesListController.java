@@ -292,6 +292,12 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 		final String queueType = request.getParameter("queueType");
 		
 		final List<BpmTaskBean> adminAlertBeanList = new ArrayList<BpmTaskBean>();
+		
+		if(queueName == null || queueName.isEmpty() || queueType == null || queueType.isEmpty())
+		{
+			return new DataPagingBean<BpmTaskBean>(adminAlertBeanList, 100, echo);
+		}
+		
 
 		
 		final IProcessToolRequestContext context = this.initilizeContext(request);

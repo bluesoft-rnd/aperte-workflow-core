@@ -265,7 +265,7 @@ public class TaskViewBuilder
 				.attr("id", actionButtonId);
 			parent.appendChild(buttonNode);
 			
-			scriptBuilder.append("$('#" + actionButtonId+"').click(function() { disableButtons(); saveAction(this, '"+task.getInternalTaskId()+"');  });");
+			scriptBuilder.append("$('#" + actionButtonId+"').click(function() { onSaveButton(this, '"+task.getInternalTaskId()+"');  });");
 			scriptBuilder.append("$('#" + actionButtonId+"').tooltip({title: '"+i18Source.getMessage("button.save.process.desc")+"'});");
 	}
 	
@@ -281,7 +281,7 @@ public class TaskViewBuilder
 				.attr("id", actionButtonId);
 			parent.appendChild(buttonNode);
 			
-			scriptBuilder.append("$('#" + actionButtonId+"').click(function() { disableButtons(); showProcessList();  });");
+			scriptBuilder.append("$('#" + actionButtonId+"').click(function() { onCancelButton();  });");
 			scriptBuilder.append("$('#" + actionButtonId+"').tooltip({title: '"+i18Source.getMessage("button.cancel")+"'});");
 	}
 

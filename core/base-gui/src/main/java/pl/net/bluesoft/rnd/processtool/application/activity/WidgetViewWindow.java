@@ -60,6 +60,9 @@ public class WidgetViewWindow extends Window
 	
 	private Boolean isInitlized = false;
 	
+	/** Is widget able to edit data? */
+	private boolean isEditMode = false;
+	
 	private Collection<ProcessToolDataWidget> widgets = new ArrayList<ProcessToolDataWidget>();
 	private Collection<String> errors = new ArrayList<String>();
 	
@@ -78,6 +81,10 @@ public class WidgetViewWindow extends Window
 	
 	public void validateWidgets(ValidateTaskEvent event)
 	{
+		/* if there is no data to edit, nothing changes */
+		if(!isEditMode)
+			return;
+		
     	/* Check for task id, we don't want to validate widget from another process view */
     	final String eventTaskId = event.getBpmTask().getInternalTaskId();
     	if(!eventTaskId.equals(this.bpmTaskId))
@@ -97,6 +104,10 @@ public class WidgetViewWindow extends Window
 	
 	public void saveWidgets(SaveTaskEvent event)
 	{
+		/* if there is no data to edit, nothing changes */
+		if(!isEditMode)
+			return;
+		
     	/* Check for task id, we don't want to save widget from another process view */
     	final String eventTaskId = event.getBpmTask().getInternalTaskId();
     	if(!eventTaskId.equals(this.bpmTaskId))
@@ -160,6 +171,8 @@ public class WidgetViewWindow extends Window
 					Component renderedWidget = vaadinW.render();
 					if(renderedWidget != null)
 					{
+
+						
 						logger.warning("add widget: "+vaadinW.getClass());
 						renderedWidget.setSizeFull();
 						WidgetViewWindow.this.addComponent(vaadinW.render());
@@ -193,6 +206,9 @@ public class WidgetViewWindow extends Window
 				ProcessToolDataWidget dataWidget = (ProcessToolDataWidget)processToolWidget;
 				dataWidget.loadData(task);
 				widgets.add(dataWidget);
+				
+				if(processToolWidget.hasPermission("EDIT"))
+					isEditMode = true;
 			}
 		}
 		catch (final Exception e) 

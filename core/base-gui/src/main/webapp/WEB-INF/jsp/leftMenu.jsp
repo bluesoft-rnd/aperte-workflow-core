@@ -8,7 +8,7 @@
 		<spring:message code="processes.start.new.process" />
 	</div>
 	<div class="queues-list" id="queue-view-block">
-		<c:forEach var="userQueue" items="${queuesSize}">
+		<c:forEach var="userQueue" items="${queues}">
 				<c:if test="${userQueue.userLogin==aperteUser.login}">
 					Tu jest kolejka zalogowanego użytkownika: ${userQueue.userLogin}
 					 
@@ -19,7 +19,7 @@
 				
 				<c:forEach var="queue" items="${userQueue.processesList}">
 					<div class="queue-list-row-process">
-						<div id="${queue.queueId}" class="queue-list-name"><a class="queue-list-link" onclick="reloadQueue('${queue.queueName}', 'process') "><spring:message code="${queue.queueDesc}" /></a></div>
+						<div id="${queue.queueId}" class="queue-list-name"><a class="queue-list-link" onclick="reloadQueue('${queue.queueName}', 'process') ">${queue.queueDesc}</a></div>
 						<div class="queue-list-size">${queue.queueSize}</div>
 						<br style="clear: left;" />
 					</div>
@@ -27,7 +27,7 @@
 
 				<c:forEach var="queue" items="${userQueue.queuesList}">
 					<div class="queue-list-row-queue">
-						<div id="${queue.queueId}" class="queue-list-name"><a class="queue-list-link" onclick="reloadQueue('${queue.queueName}', 'queue') "><spring:message code="${queue.queueDesc}" /></a></div>
+						<div id="${queue.queueId}" class="queue-list-name"><a class="queue-list-link" onclick="reloadQueue('${queue.queueName}', 'queue') ">${queue.queueDesc}</a></div>
 						<div class="queue-list-size">${queue.queueSize}</div>
 						<br style="clear: left;" />
 					</div>
@@ -40,6 +40,7 @@
 	$(document).ready(function()
 	{
 		$('#new-process-view').hide();
+		reloadQueues();
 	});
  
 	$("#process-start-button").click(
@@ -48,5 +49,55 @@
 		showNewProcessPanel();
 	  }
 	);
+	
+	function reloadQueues()
+	{
+		console.log( "reload queues: " );
+		var queuesJson = $.getJSON('<spring:url value="/queues/getUserQueues.json"/>', function(queues) 
+		{ 
+			console.log( "queues: "+queues );
+			$('#queue-view-block').empty();
+	
+			
+			$.each( queues, function( ) 
+			{
+				$.each( this.processesList, function( ) 
+				{
+					addProcessRow(this);
+				});
+				
+				$.each( this.queuesList, function( ) 
+				{
+					addProcessRow(this);
+				});
+			});
+		});
+	}
+	
+	function addProcessRow(processRow)
+	{
+		var layoutId = 'queue-view-' + processRow.queueId;
+		var innerDivId = ''+processRow.queueId;
+
+		$( "<div>", { id : layoutId, "class": "queue-list-row-queue"} )
+		.appendTo( '#queue-view-block' );
+		
+		$( "<div>", { id : innerDivId, "class": "queue-list-name"} )
+		.appendTo( '#'+layoutId );
+		
+		$( "<a>", { id : 'link-'+processRow.queueId, "class": "queue-list-link", text: processRow.queueDesc, "onclick":"reloadQueue('"+processRow.queueName+"', 'process') "} )
+		.appendTo( '#'+innerDivId );
+		
+		$( "<div>", { "class": "queue-list-size", text: processRow.queueSize} )
+		.appendTo( '#'+layoutId );
+		
+		$( "<br>", { style: "clear: left;"} )
+		.appendTo( '#'+layoutId );
+	}
+
+	function addQueueRow(queueRow)
+	{
+		addProcessRow(queueRow);
+	}
  
  </script>

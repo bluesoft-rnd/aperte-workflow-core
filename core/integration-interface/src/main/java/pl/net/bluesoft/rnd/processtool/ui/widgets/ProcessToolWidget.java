@@ -28,6 +28,9 @@ public interface ProcessToolWidget {
 	String getGeneratorKey();
 	ProcessStateWidget getConfiguration();
 	String getAttributeValue(String key);
+	
+	/** Check if widget has specific permissions */
+	boolean hasPermission(String... names);
 
 	Application getApplication();
     boolean hasVisibleData();

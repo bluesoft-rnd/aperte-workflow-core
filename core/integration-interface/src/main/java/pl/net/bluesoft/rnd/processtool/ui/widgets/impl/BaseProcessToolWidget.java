@@ -163,7 +163,7 @@ public abstract class BaseProcessToolWidget implements ProcessToolWidget {
         ctx.getUserDataDAO().saveOrUpdate(bpmUser);
     }
 
-	protected boolean hasPermission(String... names) {
+	public boolean hasPermission(String... names) {
 		boolean canView = !isOwner && Arrays.asList(names).contains("VIEW");
 		for (String name : names) {
 			if (permissions.contains(name) && (isOwner || canView))

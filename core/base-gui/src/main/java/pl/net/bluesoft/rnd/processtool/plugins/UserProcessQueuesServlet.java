@@ -18,6 +18,8 @@ import org.codehaus.jackson.map.SerializationConfig.Feature;
 import pl.net.bluesoft.rnd.processtool.userqueues.UserProcessQueuesSizeProvider;
 import pl.net.bluesoft.rnd.processtool.userqueues.UserProcessQueuesSizeProvider.UserQueueDTO;
 import pl.net.bluesoft.rnd.processtool.userqueues.UserProcessQueuesSizeProvider.UsersQueuesDTO;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -60,7 +62,9 @@ public class UserProcessQueuesServlet extends HttpServlet
 			return;
 		}
 		
-		UserProcessQueuesSizeProvider userQueuesSizeProvider = new UserProcessQueuesSizeProvider(reg, userLogin);
+		I18NSource messageSource = I18NSourceFactory.createI18NSource(req.getLocale());
+		
+		UserProcessQueuesSizeProvider userQueuesSizeProvider = new UserProcessQueuesSizeProvider(reg, userLogin, messageSource);
 		Collection<UsersQueuesDTO> usersQueuesSize = userQueuesSizeProvider.getUserProcessQueueSize();
 		
 		Map<String, Map<String, Integer>> usersQueues = new HashMap<String, Map<String,Integer>>(usersQueuesSize.size());

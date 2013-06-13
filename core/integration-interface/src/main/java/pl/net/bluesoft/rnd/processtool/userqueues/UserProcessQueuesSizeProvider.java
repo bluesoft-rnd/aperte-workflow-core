@@ -16,6 +16,7 @@ import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.util.lang.DateUtil;
 
 /**
@@ -32,12 +33,14 @@ public class UserProcessQueuesSizeProvider
 	private String userLogin;
 	private ProcessToolRegistry reg;
 	private ProcessToolContext ctx;
+	private I18NSource messageSource;
 	
-	public UserProcessQueuesSizeProvider(ProcessToolRegistry reg, String userLogin) 
+	public UserProcessQueuesSizeProvider(ProcessToolRegistry reg, String userLogin, I18NSource messageSource) 
 	{
 		this.usersQueuesSize = new ArrayList<UsersQueuesDTO>();
 		this.reg = reg;
 		this.userLogin = userLogin;
+		this.messageSource = messageSource;
 	}
 	
 	/** Map with queue id as key and its size as value */
@@ -119,7 +122,9 @@ public class UserProcessQueuesSizeProvider
 			//int filteredQueueSize = session.getFilteredTasksCount(queueFilter, ctx);
 			
 			String queueId = QueuesNameUtil.getQueueTaskId(queueFilter.getName());
-			userQueueSize.addProcessListSize(queueFilter.getName(), queueId, filteredQueueSize);
+			String queueDesc = messageSource.getMessage(queueFilter.getName());
+			
+			userQueueSize.addProcessListSize(queueFilter.getName(), queueId, queueDesc, filteredQueueSize);
 		}
 		
 		/* Add queues */
@@ -129,7 +134,9 @@ public class UserProcessQueuesSizeProvider
 			Long processCount = processQueue.getProcessCount();
 			
 			String queueId = QueuesNameUtil.getQueueProcessQueueId(processQueue.getName());
-			userQueueSize.addQueueSize(processQueue.getName(), queueId, processQueue.getDescription(), processCount.intValue());
+			String queueDesc = messageSource.getMessage(processQueue.getDescription());
+			
+			userQueueSize.addQueueSize(processQueue.getName(), queueId, queueDesc, processCount.intValue());
 		}
 		
 		usersQueuesSize.add(userQueueSize);
@@ -156,7 +163,9 @@ public class UserProcessQueuesSizeProvider
 			//int filteredQueueSize = session.getFilteredTasksCount(queueFilter, ctx);
 			
 			String queueId = QueuesNameUtil.getSubstitutedQueueTaskId(queueFilter.getName(), currentUserLogin);
-			userQueueSize.addProcessListSize(queueFilter.getName(), queueId, filteredQueueSize);
+			String queueDesc = messageSource.getMessage(queueFilter.getName());
+			
+			userQueueSize.addProcessListSize(queueFilter.getName(), queueId, queueDesc, filteredQueueSize);
 		}
 		
 		List<ProcessQueue> userAvailableQueues = new ArrayList<ProcessQueue>(bpmSession.getUserAvailableQueues(ctx));
@@ -165,7 +174,9 @@ public class UserProcessQueuesSizeProvider
 			Long processCount = processQueue.getProcessCount();
 			
 			String queueId = QueuesNameUtil.getSubstitutedQueueProcessQueueId(processQueue.getName(), currentUserLogin);
-			userQueueSize.addQueueSize(processQueue.getName(), queueId, processQueue.getDescription(), processCount.intValue());
+			String queueDesc = messageSource.getMessage(processQueue.getDescription());
+			
+			userQueueSize.addQueueSize(processQueue.getName(), queueId,queueDesc, processCount.intValue());
 		}
 		
 		usersQueuesSize.add(userQueueSize);
@@ -192,13 +203,13 @@ public class UserProcessQueuesSizeProvider
 			this.queuesList = new HashSet<UserQueueDTO>();
 		}
 		
-		public void addProcessListSize(String listName, String listId, Integer queueSize)
+		public void addProcessListSize(String listName, String listId, String listDesc, Integer queueSize)
 		{
 			UserQueueDTO userQueue = new UserQueueDTO();
 			userQueue.setQueueName(listName);
 			userQueue.setQueueId(listId);
 			userQueue.setQueueSize(queueSize);
-			userQueue.setQueueDesc(listName);
+			userQueue.setQueueDesc(listDesc);
 			
 			this.processesList.add(userQueue);
 		}

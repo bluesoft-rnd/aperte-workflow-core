@@ -10,11 +10,11 @@
 	<div class="queues-list" id="queue-view-block">
 		<c:forEach var="userQueue" items="${queues}">
 				<c:if test="${userQueue.userLogin==aperteUser.login}">
-					Tu jest kolejka zalogowanego użytkownika: ${userQueue.userLogin}
+					User: ${userQueue.userLogin}
 					 
 				</c:if> 
 				<c:if test="${userQueue.userLogin!=aperteUser.login}">
-					 Tu jest kolejka użytkownika:   ${userQueue.userLogin}
+					 User:   ${userQueue.userLogin}
 				</c:if> 
 				
 				<c:forEach var="queue" items="${userQueue.processesList}">
@@ -61,6 +61,9 @@
 			
 			$.each( queues, function( ) 
 			{
+				$( "<div>", { text: "User: "+this.userLogin} )
+				.appendTo( '#queue-view-block' );
+				
 				$.each( this.processesList, function( ) 
 				{
 					addProcessRow(this);

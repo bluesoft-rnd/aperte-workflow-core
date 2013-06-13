@@ -295,7 +295,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 		
 		if(queueName == null || queueName.isEmpty() || queueType == null || queueType.isEmpty())
 		{
-			return new DataPagingBean<BpmTaskBean>(adminAlertBeanList, 100, echo);
+			return new DataPagingBean<BpmTaskBean>(adminAlertBeanList, 0, echo);
 		}
 		
 
@@ -303,7 +303,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 		final IProcessToolRequestContext context = this.initilizeContext(request);
 		
 		if(!context.isUserAuthorized())
-			return new DataPagingBean<BpmTaskBean>(adminAlertBeanList, 100, echo);
+			return new DataPagingBean<BpmTaskBean>(adminAlertBeanList, 0, echo);
 		
 		context.getRegistry().withProcessToolContext(new ProcessToolContextCallback() {
  
@@ -342,7 +342,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 		
 		
 		DataPagingBean<BpmTaskBean> pagingCollection = new DataPagingBean<BpmTaskBean>(
-				adminAlertBeanList, 100, echo);
+				adminAlertBeanList, adminAlertBeanList.size(), echo);
 		
         return pagingCollection;
 

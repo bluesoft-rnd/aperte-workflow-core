@@ -11,7 +11,6 @@
 
 <h2>Aperte Workflow Maginificient Activities</h2>
 <c:if test="${aperteUser.login!=null}">
-UserLogin: ${aperteUser.login} <br>
 
 <div class="main-view">
 	<%@include file="leftMenu.jsp" %>

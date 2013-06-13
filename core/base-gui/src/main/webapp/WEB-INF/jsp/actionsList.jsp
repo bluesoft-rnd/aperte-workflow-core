@@ -83,11 +83,12 @@
 			return;
 		}
 		
-		var widgetData = {};
+		var widgetData = [];
 		
 		$.each(widgets, function() 
 		{
-			widgetData[this.widgetId] = this.getData();	
+			var widgetDataBean = new WidgetDataBean(this.widgetId, this.name, this.getData());
+			widgetData.push(widgetDataBean);
 	    });
 		
 		var JsonWidgetData = JSON.stringify(widgetData, null, 2);

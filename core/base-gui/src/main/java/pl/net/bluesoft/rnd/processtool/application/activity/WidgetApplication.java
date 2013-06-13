@@ -18,6 +18,7 @@ import pl.net.bluesoft.rnd.processtool.authorization.IAuthorizationService;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
 import pl.net.bluesoft.rnd.processtool.event.SaveTaskEvent;
+import pl.net.bluesoft.rnd.processtool.event.ValidateTaskEvent;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
@@ -66,22 +67,33 @@ public class WidgetApplication extends Application  implements HttpServletReques
     	this.i18NSource = I18NSourceFactory.createI18NSource(Locale.getDefault());
     	this.widgetWindows = new HashMap<String, WidgetViewWindow>();
     }
-
+    
     @Subscribe
-    public void listen(final SaveTaskEvent event)
+    public void listen(final ValidateTaskEvent event)
     {
-    	logger.warning("Perform widget save for taskId: "+event.getTaskId()+" windows: "+widgetWindows.size()+" name: "+this);
-    	
     	processToolRegistry.withProcessToolContext(new ProcessToolContextCallback() 
     	{
 	
 			@Override
 			public void withContext(ProcessToolContext ctx) 
-			{
-				BpmTask task = bpmSession.getTaskData(event.getTaskId(), ctx);
-				
+			{	
 				for(WidgetViewWindow window: widgetWindows.values())
-					window.saveWidgets(event, task);
+					window.validateWidgets(event);
+			}
+		});
+    }
+
+    @Subscribe
+    public void listen(final SaveTaskEvent event)
+    {
+    	processToolRegistry.withProcessToolContext(new ProcessToolContextCallback() 
+    	{
+	
+			@Override
+			public void withContext(ProcessToolContext ctx) 
+			{	
+				for(WidgetViewWindow window: widgetWindows.values())
+					window.saveWidgets(event);
 			}
 		});
     }

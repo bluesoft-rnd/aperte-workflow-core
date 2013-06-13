@@ -32,6 +32,13 @@
 		this.getData = function() { return null; };
 	}
 	
+	function WidgetDataBean(widgetId, widgetName, data)
+	{
+		this.widgetId = widgetId;
+		this.data = data;
+		this.widgetName = widgetName;
+	}
+	
 	
 	
 	function appendWidget(widget, parentId, taskId)

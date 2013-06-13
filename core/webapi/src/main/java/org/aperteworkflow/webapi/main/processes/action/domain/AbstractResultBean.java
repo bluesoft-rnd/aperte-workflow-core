@@ -33,6 +33,11 @@ public class AbstractResultBean implements Serializable
 		addError(errorBean.getSource(), errorBean.getMessage());
 	}
 	
+	public void addError(ErrorResultBean errorBean) 
+	{
+		addError(errorBean.getSource(), errorBean.getMessage());
+	}
+	
 	public void addError(String source, String message)
 	{
 		ErrorResultBean errorBean = new ErrorResultBean();

@@ -12,6 +12,8 @@ import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 
 /** 
  * Factory for web process tool context based on servlet and portlet requests 
@@ -37,6 +39,9 @@ public class WebProcessToolContextFactory
 		final UserData user = authorizationService.getUserByRequest(request);
 		
 		processToolContext.setUser(user);
+		
+		I18NSource messageSource = I18NSourceFactory.createI18NSource(request.getLocale());
+		processToolContext.setMessageSource(messageSource);
 		
 		ProcessToolBpmSession bpmSession = (ProcessToolBpmSession)context.getAttribute(ProcessToolBpmSession.class.getName());
 		if(bpmSession == null && user != null)

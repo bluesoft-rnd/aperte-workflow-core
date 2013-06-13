@@ -5,6 +5,7 @@ import org.aperteworkflow.webapi.context.IProcessToolRequestContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 
 public class WebProcessToolRequestContext implements IProcessToolRequestContext
@@ -12,6 +13,7 @@ public class WebProcessToolRequestContext implements IProcessToolRequestContext
 	private UserData userData;
 	private ProcessToolRegistry registry;
 	private ProcessToolBpmSession bpmSession;
+	private I18NSource messageSource;
 
 	@Override
 	public UserData getUser() {
@@ -48,6 +50,14 @@ public class WebProcessToolRequestContext implements IProcessToolRequestContext
 	@Override
 	public boolean isUserAuthorized() {
 		return userData != null;
+	}
+
+	public I18NSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(I18NSource messageSource) {
+		this.messageSource = messageSource;
 	}
 
 }

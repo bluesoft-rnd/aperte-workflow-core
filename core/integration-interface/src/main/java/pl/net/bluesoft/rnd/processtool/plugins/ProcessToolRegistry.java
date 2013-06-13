@@ -25,8 +25,8 @@ import pl.net.bluesoft.rnd.processtool.dao.UserRoleDAO;
 import pl.net.bluesoft.rnd.processtool.dao.UserSubstitutionDAO;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
-import pl.net.bluesoft.rnd.processtool.ui.IWidgetContentProvider;
 import pl.net.bluesoft.rnd.processtool.ui.IWidgetScriptProvider;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolActionButton;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.taskitem.TaskItemProvider;
@@ -209,10 +209,13 @@ public interface ProcessToolRegistry extends ProcessToolBpmConstants {
 	void unregisterJavaScript(String fileName);
 
 	/** Register new html view for widgets */
-	void registerHtmlView(String fileName, IWidgetContentProvider scriptProvider);
+	void registerHtmlView(String widgetName, ProcessHtmlWidget scriptProvider);
 	
 	/** Unregister new html view for widgets */
-	void unregisterHtmlView(String fileName);
+	void unregisterHtmlView(String widgetName);
+	
+	/** Get Html Widget definition */
+	ProcessHtmlWidget getHtmlWidget(String widgetName);
 	
 	/** Get Scripts */
 	String getJavaScripts();

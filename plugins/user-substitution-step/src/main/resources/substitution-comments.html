@@ -20,6 +20,9 @@
 	{
 		$('#area-comment-warning').hide();
 		
+		console.log( "textarea: ${widgetId}"); 
+		
+		
 		var widget = new Widget('${widgetName}', '${widgetId}', '${task.internalTaskId}');
 		widget.getData = function() {return getRequestCommentData();};
 		widget.validate = function() {return validateRequestComment();};
@@ -45,7 +48,6 @@
 	{
 		var commentText = $('#area-comment').val();
 		var data = {"substitutionRequestComment" : commentText};
-		console.log( "textarea: " + data); 
 		return data;
 	}
 </script>

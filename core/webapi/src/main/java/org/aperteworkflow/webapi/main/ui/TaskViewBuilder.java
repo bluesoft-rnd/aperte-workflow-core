@@ -9,8 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.ServletOutputStream;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -194,7 +192,7 @@ public class TaskViewBuilder
 			viewData.put(IHtmlTemplateProvider.USER_PARAMTER, user);
 			viewData.put(IHtmlTemplateProvider.MESSAGE_SOURCE_PARAMETER, i18Source);
 			viewData.put(IHtmlTemplateProvider.WIDGET_NAME_PARAMETER, aliasName);
-			viewData.put(IHtmlTemplateProvider.WIDGET_ID_PARAMETER, widget.getId());
+			viewData.put(IHtmlTemplateProvider.WIDGET_ID_PARAMETER, widget.getId().toString());
 			
 			String processedView = templateProvider.processTemplate(aliasName, viewData);
 			

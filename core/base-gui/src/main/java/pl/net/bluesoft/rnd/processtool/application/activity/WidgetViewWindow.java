@@ -8,13 +8,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -22,6 +18,7 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.event.SaveTaskEvent;
+import pl.net.bluesoft.rnd.processtool.event.ValidateTaskEvent;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
@@ -35,14 +32,9 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 import pl.net.bluesoft.util.lang.Lang;
 
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
-import com.vaadin.terminal.ParameterHandler;
-import com.vaadin.terminal.gwt.server.HttpServletRequestListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.Window.CloseListener;
 
 /**
  * Widget view window. This window is created per parent widget which is
@@ -84,10 +76,10 @@ public class WidgetViewWindow extends Window
 		widgets.clear();
 	}
 	
-	public void saveWidgets(SaveTaskEvent event, BpmTask task)
+	public void validateWidgets(ValidateTaskEvent event)
 	{
-    	/* Check for task id, we don't want to save widget from another process view */
-    	final String eventTaskId = event.getTaskId();
+    	/* Check for task id, we don't want to validate widget from another process view */
+    	final String eventTaskId = event.getBpmTask().getInternalTaskId();
     	if(!eventTaskId.equals(this.bpmTaskId))
     		return; 
     	
@@ -95,13 +87,22 @@ public class WidgetViewWindow extends Window
 		
 		for(ProcessToolDataWidget widget: widgets)
 		{
-			Collection<String>  errors = widget.validateData(task, true);
+			Collection<String>  errors = widget.validateData(event.getBpmTask(), true);
 			
 			if(errors != null)
 				for(String error: errors)
 					event.addError(processStateWidgetId.toString(), error);
 		}
-		
+	}
+	
+	public void saveWidgets(SaveTaskEvent event)
+	{
+    	/* Check for task id, we don't want to save widget from another process view */
+    	final String eventTaskId = event.getBpmTask().getInternalTaskId();
+    	if(!eventTaskId.equals(this.bpmTaskId))
+    		return; 
+    	
+    	/* Do not save widget if there others have errors */
 		if(event.hasErrors())
 			return;
 		
@@ -110,7 +111,7 @@ public class WidgetViewWindow extends Window
 		{
 			try
 			{
-				widget.saveData(task);
+				widget.saveData(event.getBpmTask());
 			}
 			catch(Throwable e)
 			{

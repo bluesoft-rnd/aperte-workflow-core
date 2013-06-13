@@ -26,6 +26,8 @@ import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.model.User;
 import com.liferay.portal.security.auth.Authenticator;
 import com.liferay.portal.service.UserLocalServiceUtil;
+import com.liferay.portal.service.persistence.UserUtil;
+import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
 
 /**
@@ -57,6 +59,10 @@ public class LiferayAuthorizationService implements IAuthorizationService
 		try 
 		{
 			User liferayUser = PortalUtil.getUser(servletRequest);
+//			ThemeDisplay themeDisplay = (ThemeDisplay) servletRequest.getAttribute(WebKeys.THEME_DISPLAY);
+//			
+//			if(!themeDisplay.isSignedIn()) 
+//				return null;
 
 			/* No user logged in, return null */
 			if(liferayUser == null)

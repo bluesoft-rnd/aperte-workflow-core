@@ -78,7 +78,10 @@
                             pl.net.bluesoft.rnd.processtool.usersource.impl;version=${project.version},
                             pl.net.bluesoft.rnd.processtool.authorization.impl;version=${project.version},
                             org.aperteworkflow.util.ldap,
-                            com.liferay.portal
+                            com.liferay.portal,
+                            com.liferay.portal.theme,
+                            com.liferay.portal.kernel.language,
+                            com.liferay.portal.kernel.log
                         </Export-Package>
                         <Import-Package>
                             javax.mail;version=!,
@@ -103,6 +106,10 @@
                             pl.net.bluesoft.rnd.processtool.usersource.impl;version=${project.version},
                             pl.net.bluesoft.rnd.processtool.authorization.impl;version=${project.version},
                             com.liferay.portal;resolution:=optional,
+                            com.liferay.portal.theme;resolution:=optional,
+                            com.liferay.portal.kernel.language;resolution:=optional,
+                            com.liferay.portal.kernel.log;resolution:=optional,
+                            com.liferay.portal.kernel.io.unsync;resolution:=optional,
                             com.bea.jvm;resolution:=optional,
                             com.caucho.burlap.client;resolution:=optional,
                             com.caucho.burlap.io;resolution:=optional,

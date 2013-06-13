@@ -3,6 +3,7 @@ package org.aperteworkflow.webapi.context;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 /**
  * Process Tool request context 
@@ -23,5 +24,8 @@ public interface IProcessToolRequestContext
 	
 	/** Get process tool bpm session */
 	ProcessToolBpmSession getBpmSession();
+	
+	/** Get message source */
+	I18NSource getMessageSource();
 
 }

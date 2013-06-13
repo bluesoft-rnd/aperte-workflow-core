@@ -1,13 +1,8 @@
 package org.aperteworkflow.webapi.main.processes.controller;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,19 +12,15 @@ import org.aperteworkflow.webapi.context.IProcessToolRequestContext;
 import org.aperteworkflow.webapi.main.AbstractProcessToolServletController;
 import org.aperteworkflow.webapi.main.processes.BpmTaskBean;
 import org.aperteworkflow.webapi.main.processes.DataPagingBean;
-import org.aperteworkflow.webapi.main.processes.action.domain.ActionBean;
+import org.aperteworkflow.webapi.main.processes.action.domain.ErrorResultBean;
 import org.aperteworkflow.webapi.main.processes.action.domain.PerformActionResultBean;
 import org.aperteworkflow.webapi.main.processes.action.domain.SaveResultBean;
-import org.aperteworkflow.webapi.main.processes.domain.HtmlWidgetData;
+import org.aperteworkflow.webapi.main.processes.action.domain.ValidateResultBean;
+import org.aperteworkflow.webapi.main.processes.domain.HtmlWidget;
 import org.aperteworkflow.webapi.main.processes.domain.NewProcessInstanceBean;
-import org.aperteworkflow.webapi.main.processes.widget.domain.WidgetBean;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.map.JsonMappingException;
+import org.aperteworkflow.webapi.main.processes.processor.TaskProcessor;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.type.TypeFactory;
 import org.codehaus.jackson.type.JavaType;
-import org.codehaus.jackson.type.TypeReference;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -38,17 +29,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
-import pl.net.bluesoft.rnd.processtool.event.SaveTaskEvent;
-import pl.net.bluesoft.rnd.processtool.event.beans.ErrorBean;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
 import pl.net.bluesoft.rnd.processtool.model.QueueType;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidgetAttribute;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 
@@ -68,131 +54,6 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 	 * Request parameters:
 	 * - processStateConfigurationId: process state configuration db id
 	 * 
-	 * Load all widgets configuration to display them
-	 * 
-	 * @param request
-	 * @return
-	 */
-	@RequestMapping(method = RequestMethod.GET, value = "/processes/loadProcessWidgets.json")
-	@ResponseBody
-	public Collection<WidgetBean> loadProcessWidgets(final HttpServletRequest request)
-	{
-		/* Get process state configuration db id */
-		final String processStateConfigurationId = request.getParameter("processStateConfigurationId");
-		
-		if(processStateConfigurationId == null)
-			return null;
-		
-		final List<WidgetBean> processStateWidgets = new ArrayList<WidgetBean>();
-		
-		/* Initilize request context */
-		final IProcessToolRequestContext context = this.initilizeContext(request);
-		
-		if(!context.isUserAuthorized())
-			return processStateWidgets;
-		
-		context.getRegistry().withProcessToolContext(new ProcessToolContextCallback() 
-		{
-
-			@Override
-			public void withContext(ProcessToolContext ctx) 
-			{
-				
-				ProcessStateConfiguration config = ctx.getProcessDefinitionDAO().getProcessStateConfiguration(Long.parseLong(processStateConfigurationId));
-
-				List<ProcessStateWidget> widgets = new ArrayList<ProcessStateWidget>(config.getWidgets());
-				Collections.sort(widgets, new Comparator<ProcessStateWidget>() {
-
-					@Override
-					public int compare(ProcessStateWidget widget1, ProcessStateWidget widget2) {
-						// TODO Auto-generated method stub
-						return widget1.getPriority().compareTo(widget2.getPriority());
-					}
-				});
-				
-				I18NSource messageSource = I18NSourceFactory.createI18NSource(request.getLocale());
-
-				for(ProcessStateWidget widget: widgets)
-				{
-					WidgetBean parentWidget = processWidgetConfiguration(widget, messageSource);
-					processStateWidgets.add(parentWidget);
-				}
-				
-			}
-		});
-		
-		return processStateWidgets;
-	}
-	
-	/**
-	 * Request parameters:
-	 * - processStateConfigurationId: process state configuration db id
-	 * 
-	 * Load all action configuration to display buttons
-	 * 
-	 * @param request
-	 * @return
-	 */
-	@RequestMapping(method = RequestMethod.GET, value = "/processes/loadProcessActions.json")
-	@ResponseBody
-	public Collection<ActionBean> loadProcessActions(final HttpServletRequest request)
-	{
-		/* Get process state configuration db id */
-		final String processStateConfigurationId = request.getParameter("processStateConfigurationId");
-		
-		if(processStateConfigurationId == null)
-			return null;
-		
-		final List<ActionBean> processStateWidgets = new ArrayList<ActionBean>();
-		
-		/* Initilize request context */
-		final IProcessToolRequestContext context = this.initilizeContext(request);
-		
-		if(!context.isUserAuthorized())
-			return processStateWidgets;
-		
-		context.getRegistry().withProcessToolContext(new ProcessToolContextCallback() 
-		{
-
-			@Override
-			public void withContext(ProcessToolContext ctx) 
-			{
-				
-				ProcessStateConfiguration config = ctx.getProcessDefinitionDAO().getProcessStateConfiguration(Long.parseLong(processStateConfigurationId));
-
-				List<ProcessStateAction> actions = new ArrayList<ProcessStateAction>(config.getActions());
-				Collections.sort(actions, new Comparator<ProcessStateAction>() {
-
-					@Override
-					public int compare(ProcessStateAction action1, ProcessStateAction action2) {
-						// TODO Auto-generated method stub
-						return action1.getPriority().compareTo(action2.getPriority());
-					}
-				});
-				
-				I18NSource messageSource = I18NSourceFactory.createI18NSource(request.getLocale());
-
-				for(ProcessStateAction action: actions)
-				{
-					ActionBean actionBean = new ActionBean();
-					actionBean.setActionName(action.getBpmName());
-					actionBean.setCaption(messageSource.getMessage(action.getLabel()));
-					actionBean.setTooltip(messageSource.getMessage(action.getDescription()));
-					actionBean.setSkipSaving(action.getSkipSaving().toString());
-					processStateWidgets.add(actionBean);
-				}
-				
-			}
-		});
-		
-		return processStateWidgets;
-	}
-	
-	
-	/**
-	 * Request parameters:
-	 * - processStateConfigurationId: process state configuration db id
-	 * 
 	 * Load all action configuration to display buttons
 	 * 
 	 * @param request
@@ -202,39 +63,39 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 	@ResponseBody
 	public PerformActionResultBean performAction(final HttpServletRequest request)
 	{
-		I18NSource messageSource = I18NSourceFactory.createI18NSource(request.getLocale());
+
 		
 		final PerformActionResultBean resultBean = new PerformActionResultBean();
-		
-		final String taskId = request.getParameter("taskId");
-		final String actionName = request.getParameter("actionName");
-		final String skipSaving = request.getParameter("skipSaving");
-		final String widgetData = request.getParameter("widgetData");
-		
-		if(taskId == null || taskId.isEmpty())
-		{
-			resultBean.addError(SYSTEM_SOURCE, messageSource.getMessage("request.performaction.error.notaskid"));
-			return resultBean;
-		}
-		else if(actionName == null || actionName.isEmpty())
-		{
-			resultBean.addError(SYSTEM_SOURCE, messageSource.getMessage("request.performaction.error.actionName"));
-			return resultBean;
-		}
 		
 		/* Initilize request context */
 		final IProcessToolRequestContext context = this.initilizeContext(request);
 		
 		if(!context.isUserAuthorized())
 		{
-			resultBean.addError(SYSTEM_SOURCE, messageSource.getMessage("request.handle.error.nouser"));
+			resultBean.addError(SYSTEM_SOURCE, context.getMessageSource().getMessage("request.handle.error.nouser"));
 			return resultBean;
 		}
+		
+		final String taskId = request.getParameter("taskId");
+		final String actionName = request.getParameter("actionName");
+		final String skipSaving = request.getParameter("skipSaving");
+		
+		if(taskId == null || taskId.isEmpty())
+		{
+			resultBean.addError(SYSTEM_SOURCE, context.getMessageSource().getMessage("request.performaction.error.notaskid"));
+			return resultBean;
+		}
+		else if(actionName == null || actionName.isEmpty())
+		{
+			resultBean.addError(SYSTEM_SOURCE, context.getMessageSource().getMessage("request.performaction.error.actionName"));
+			return resultBean;
+		}
+		
 		
 		/* Save task before action performing */
 		if(!"true".equals(skipSaving))
 		{
-			SaveResultBean saveResult = saveTask(taskId);
+			SaveResultBean saveResult = saveAction(request);
 			if(saveResult.hasErrors())
 			{
 				resultBean.copyErrors(saveResult);
@@ -293,69 +154,83 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 	@ResponseBody
 	public SaveResultBean saveAction(final HttpServletRequest request)
 	{
-		
-		I18NSource messageSource = I18NSourceFactory.createI18NSource(request.getLocale());
-		
-		SaveResultBean resultBean = new SaveResultBean();
-		
-		final String taskId = request.getParameter("taskId");
-		final String widgetDataJson = request.getParameter("widgetData");
-		Collection<HtmlWidgetData> widgetData = null;
-		
-		if(taskId == null || taskId.isEmpty())
-		{
-			resultBean.addError(SYSTEM_SOURCE, messageSource.getMessage("request.performaction.error.notaskid"));
-			return resultBean;
-		}
-		
-		try 
-		{
-			ObjectMapper mapper = new ObjectMapper();
-			JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, HtmlWidgetData.class);	  
-			widgetData = mapper.readValue(widgetDataJson, type);
-		}
-		catch (Throwable e) 
-		{
-			resultBean.addError(SYSTEM_SOURCE, messageSource.getMessage("request.handle.error.jsonparseerror"));
-			return resultBean;
-		} 
+		final SaveResultBean resultBean = new SaveResultBean();
 		
 		/* Initilize request context */
 		final IProcessToolRequestContext context = this.initilizeContext(request);
 		
 		if(!context.isUserAuthorized())
 		{
-			resultBean.addError(SYSTEM_SOURCE, messageSource.getMessage("request.handle.error.nouser"));
+			resultBean.addError(SYSTEM_SOURCE, context.getMessageSource().getMessage("request.handle.error.nouser"));
 			return resultBean;
 		}
 		
-		resultBean = saveTask(taskId);
+		final String taskId = request.getParameter("taskId");
+		final String widgetDataJson = request.getParameter("widgetData");
+		final Collection<HtmlWidget> widgetData;
+		
+		if(taskId == null || taskId.isEmpty())
+		{
+			resultBean.addError(SYSTEM_SOURCE, context.getMessageSource().getMessage("request.performaction.error.notaskid"));
+			return resultBean;
+		}
+		
+		try 
+		{
+			ObjectMapper mapper = new ObjectMapper();
+			JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, HtmlWidget.class);	  
+			widgetData = mapper.readValue(widgetDataJson, type);
+		}
+		catch (Throwable e) 
+		{
+			resultBean.addError(SYSTEM_SOURCE, context.getMessageSource().getMessage("request.handle.error.jsonparseerror"));
+			return resultBean;
+		} 
+		
+		
+		context.getRegistry().withProcessToolContext(new ProcessToolContextCallback() 
+		{
+
+			@Override
+			public void withContext(ProcessToolContext ctx) 
+			{
+				BpmTask task = context.getBpmSession().getTaskData(taskId, ctx);
+				
+				TaskProcessor taskSaveProcessor = new TaskProcessor(task, ctx, getEventBus(), context.getMessageSource(), widgetData);
+				
+				/* Validate widgets */
+				ValidateResultBean widgetsValidationResult = taskSaveProcessor.validateWidgets();
+				
+				if(widgetsValidationResult.hasErrors())
+				{
+					/* Copy all errors from event */
+					for(ErrorResultBean errorBean: widgetsValidationResult.getErrors())
+						resultBean.addError(errorBean);
+				}
+				/* No validation errors, save widgets */
+				else
+				{
+					SaveResultBean widgetsSaveResult = taskSaveProcessor.saveWidgets();
+					
+					if(widgetsSaveResult.hasErrors())
+					{
+						/* Copy all errors from event */
+						for(ErrorResultBean errorBean: widgetsSaveResult.getErrors())
+							resultBean.addError(errorBean);
+					}
+						
+				}
+
+				
+			}
+		});
 		
 		return resultBean;
 		
 		
 	}
 	
-	/** Send event to all vaadin widgets to perform save task. Widgets are 
-	 * registered for this event and filtration is done by taskId
-	 * 
-	 * @param taskId of task to being saved
-	 * @return
-	 */
-	private SaveResultBean saveTask(String taskId)
-	{
-		SaveTaskEvent saveEvent = new SaveTaskEvent(taskId);
-		
-		getEventBus().post(saveEvent);
-		
-		SaveResultBean saveResult = new SaveResultBean();
-		
-		/* Copy all errors from event */
-		for(ErrorBean errorBean: saveEvent.getErrors())
-			saveResult.addError(errorBean);
-		
-		return saveResult;
-	}
+
 	
 	/**
 	 * Request parameters:
@@ -484,37 +359,5 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 		processBean.setTooltip(messageSource.getMessage(task.getProcessDefinition().getComment()));
 		
 		return processBean;
-	}
-	
-	private WidgetBean processWidgetConfiguration(ProcessStateWidget widgetConfiguration, I18NSource messageSource)
-	{
-		WidgetBean parentWidget = new WidgetBean();
-		parentWidget.setName(widgetConfiguration.getName());
-		parentWidget.setClassName(widgetConfiguration.getClassName());
-		parentWidget.setId(widgetConfiguration.getId().toString());
-		
-		/* Set caption from attributes */
-		ProcessStateWidgetAttribute attribute = widgetConfiguration.getAttributeByName("caption");
-		if(attribute != null)
-			parentWidget.setCaption(messageSource.getMessage(attribute.getValue()));
-		
-		/* Sort widgets by prority */
-		List<ProcessStateWidget> widgets = new ArrayList<ProcessStateWidget>(widgetConfiguration.getChildren());
-		Collections.sort(widgets, new Comparator<ProcessStateWidget>() {
-
-			@Override
-			public int compare(ProcessStateWidget widget1, ProcessStateWidget widget2) {
-				// TODO Auto-generated method stub
-				return widget1.getPriority().compareTo(widget2.getPriority());
-			}
-		});
-		
-		for(ProcessStateWidget childWidget: widgets)
-		{
-			WidgetBean childWidgetBean = processWidgetConfiguration(childWidget, messageSource);
-			parentWidget.getChildren().add(childWidgetBean);
-		}
-		
-		return parentWidget;
 	}
 }

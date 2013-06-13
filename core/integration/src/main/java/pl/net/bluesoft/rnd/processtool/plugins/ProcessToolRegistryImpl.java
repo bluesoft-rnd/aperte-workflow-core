@@ -74,6 +74,7 @@ import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryPermissi
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.IWidgetContentProvider;
 import pl.net.bluesoft.rnd.processtool.ui.IWidgetScriptProvider;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolActionButton;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
@@ -111,7 +112,7 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
     private final Map<String, Func<? extends ProcessToolProcessStep>> STEP_REGISTRY = new HashMap<String, Func<? extends ProcessToolProcessStep>>();
     private final Map<String, Class<? extends TaskItemProvider>> TASK_ITEM_REGISTRY = new HashMap<String, Class<? extends TaskItemProvider>>();
     
-    //private final Map<String, IWidgetContentProvider> VIEW_REGISTRY = new HashMap<String, IWidgetContentProvider>();
+    private final Map<String, ProcessHtmlWidget> VIEW_REGISTRY = new HashMap<String, ProcessHtmlWidget>();
     private final Map<String, IWidgetScriptProvider> JAVASCRIPT_REGISTRY = new HashMap<String, IWidgetScriptProvider>();
     
     private String javaScriptContent = "";
@@ -950,11 +951,13 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 		}
 
 		@Override
-		public void registerHtmlView(String widgetName,IWidgetContentProvider contentProvider) 
+		public void registerHtmlView(String widgetName,ProcessHtmlWidget processHtmlWidget) 
 		{		
+			VIEW_REGISTRY.put(widgetName, processHtmlWidget);
+			
 			try
 			{
-				InputStream htmlFileStream = contentProvider.getHtmlContent();
+				InputStream htmlFileStream = processHtmlWidget.getContentProvider().getHtmlContent();
 				String htmlBody = CharStreams.toString(new InputStreamReader(htmlFileStream, "UTF-8"));
 				
 				templateProvider.addTemplate(widgetName, htmlBody);
@@ -969,6 +972,8 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 		@Override
 		public void unregisterHtmlView(String widgetName) 
 		{
+			VIEW_REGISTRY.remove(widgetName);
+			
 			templateProvider.removeTemplate(widgetName);
 			
 		}
@@ -1041,6 +1046,12 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 			{
 				throw new RuntimeException("Problem during javascript decompressing", ex);
 			}
+		}
+
+
+		@Override
+		public ProcessHtmlWidget getHtmlWidget(String widgetName) {
+			return VIEW_REGISTRY.get(widgetName);
 		}
 
 

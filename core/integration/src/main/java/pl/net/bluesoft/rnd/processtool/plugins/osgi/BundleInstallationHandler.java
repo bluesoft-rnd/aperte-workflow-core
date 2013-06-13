@@ -31,6 +31,11 @@ import pl.net.bluesoft.rnd.processtool.ui.IWidgetContentProvider;
 import pl.net.bluesoft.rnd.processtool.ui.IWidgetScriptProvider;
 import pl.net.bluesoft.rnd.processtool.ui.impl.FileWidgetContentProvider;
 import pl.net.bluesoft.rnd.processtool.ui.impl.FileWidgetJavaScriptProvider;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.IWidgetDataHandler;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.IWidgetValidator;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.MockWidgetValidator;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.SimpleWidgetDataHandler;
 import pl.net.bluesoft.rnd.util.i18n.impl.PropertiesBasedI18NProvider;
 import pl.net.bluesoft.rnd.util.i18n.impl.PropertyLoader;
 
@@ -193,30 +198,61 @@ public class BundleInstallationHandler
 		{
 			try
 			{
-				HtmlFileNameBean scriptFileNameBean = new HtmlFileNameBean(htmlFileName);
-				IWidgetContentProvider scriptProvider = null;
-				
-				if(scriptFileNameBean.getProviderClass().equals(FileWidgetContentProvider.class.getName()))
-				{
-					scriptProvider = 
-							new FileWidgetContentProvider(
-									scriptFileNameBean.getFileName(), 
-									bundle.getResource(scriptFileNameBean.getFileName()));
-				}
-				else
-				{
-					scriptProvider = (IWidgetContentProvider)bundle
-							.loadClass(scriptFileNameBean.getProviderClass())
-							.getConstructor(String.class, URL.class)
-							.newInstance(scriptFileNameBean.getFileName());
-				}
-				
+				HtmlFileNameBean widgetDefinitionBean = new HtmlFileNameBean(htmlFileName);
+
 				if (eventType == Bundle.ACTIVE) 
 				{
-					toolRegistry.registerHtmlView(scriptFileNameBean.getWidgetName(), scriptProvider);
+					IWidgetContentProvider scriptProvider = null;
+					if(widgetDefinitionBean.getProviderClass().equals(FileWidgetContentProvider.class.getName()))
+					{
+						scriptProvider = 
+								new FileWidgetContentProvider(
+										widgetDefinitionBean.getFileName(), 
+										bundle.getResource(widgetDefinitionBean.getFileName()));
+					}
+					else
+					{
+						scriptProvider = (IWidgetContentProvider)bundle
+								.loadClass(widgetDefinitionBean.getProviderClass())
+								.getConstructor(String.class, URL.class)
+								.newInstance(widgetDefinitionBean.getFileName());
+					}
+					
+					IWidgetDataHandler dataHandler = null;
+					if(widgetDefinitionBean.getDataHandlerClass().equals(SimpleWidgetDataHandler.class.getName()))
+					{
+						dataHandler = new SimpleWidgetDataHandler();
+					}
+					else
+					{
+						dataHandler = (IWidgetDataHandler)bundle
+								.loadClass(widgetDefinitionBean.getDataHandlerClass())
+								.newInstance();
+					}
+					
+					IWidgetValidator validator = null;
+					if(widgetDefinitionBean.getValidatorClass().equals(MockWidgetValidator.class.getName()))
+					{
+						validator = new MockWidgetValidator();
+					}
+					else
+					{
+						validator = (IWidgetValidator)bundle
+								.loadClass(widgetDefinitionBean.getValidatorClass())
+								.newInstance();
+					}
+					
+					ProcessHtmlWidget htmlWidget = new ProcessHtmlWidget();
+					htmlWidget.setWidgetName(widgetDefinitionBean.getWidgetName());
+					htmlWidget.setContentProvider(scriptProvider);
+					htmlWidget.setDataHandler(dataHandler);
+					htmlWidget.setValidator(validator);
+					
+					toolRegistry.registerHtmlView(widgetDefinitionBean.getWidgetName(), htmlWidget);
 				}
-				else {
-					toolRegistry.unregisterHtmlView(scriptFileNameBean.getWidgetName());
+				else 
+				{
+					toolRegistry.unregisterHtmlView(widgetDefinitionBean.getWidgetName());
 				}
 			}
 			catch(Throwable e)

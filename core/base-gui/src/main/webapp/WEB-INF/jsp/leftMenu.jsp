@@ -7,6 +7,9 @@
 	<div class="start-process-button" id="process-start-button">
 		<spring:message code="processes.start.new.process" />
 	</div>
+	<div class="search-process-button" id="show-search-view-button">
+		<spring:message code="processes.search.process" />
+	</div>
 	<div class="queues-list" id="queue-view-block">
 		<c:forEach var="userQueue" items="${queues}">
 				<c:if test="${userQueue.userLogin==aperteUser.login}">
@@ -48,6 +51,13 @@
 	  function () 
 	  {
 		showNewProcessPanel();
+	  }
+	);
+	
+	$("#show-search-view-button").click(
+	  function () 
+	  {
+		showSearchProcessPanel();
 	  }
 	);
 	

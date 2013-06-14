@@ -18,6 +18,7 @@
 	<%@include file="widgetList.jsp" %>
 	<%@include file="actionsList.jsp" %>
 	<%@include file="processStartList.jsp" %>
+	<%@include file="searchView.jsp" %>
 </div>
 
 </c:if> 
@@ -32,6 +33,17 @@
 	{
 		clearProcessView();
 	});
+	
+	function showSearchProcessPanel()
+	{
+		clearProcessView();
+		
+		$('#process-data-view').hide();
+		$('#actions-list').hide();
+		$('#process-panel-view').hide();
+		$('#new-process-view').hide();
+		$('#search-view').show();
+	}
  
 	function showNewProcessPanel()
 	{
@@ -41,6 +53,7 @@
 		$('#actions-list').hide();
 		$('#process-panel-view').hide();
 		$('#new-process-view').show();
+		$('#search-view').hide();
     }
 	
 	function showProcessList()
@@ -52,6 +65,7 @@
 		$('#actions-list').hide();
 		$('#process-panel-view').show();
 		$('#new-process-view').hide();
+		$('#search-view').hide();
 
     }
 	
@@ -61,6 +75,7 @@
 		$('#actions-list').show();
 		$('#process-panel-view').hide();
 		$('#new-process-view').hide();
+		$('#search-view').hide();
     }
 	
 	function clearProcessView()

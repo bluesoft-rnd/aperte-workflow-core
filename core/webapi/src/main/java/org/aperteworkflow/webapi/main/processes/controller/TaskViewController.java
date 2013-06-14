@@ -123,6 +123,9 @@ public class TaskViewController extends AbstractProcessToolServletController
 			public void withContext(ProcessToolContext ctx) 
 			{
 				BpmTask task = context.getBpmSession().getTaskData(taskId, ctx);
+				
+				if(task == null)
+					task = context.getBpmSession().getHistoryTask(taskId, ctx);
 
 				ProcessStateConfiguration config = ctx.getProcessDefinitionDAO().getProcessStateConfiguration(Long.parseLong(processStateConfigurationId));
 

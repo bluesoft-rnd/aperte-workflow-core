@@ -21,6 +21,7 @@ import pl.net.bluesoft.rnd.processtool.usersource.exception.UserSourceException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.util.KeyValuePair;
+import com.liferay.portal.kernel.util.SessionParamUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.model.User;
@@ -58,24 +59,21 @@ public class LiferayAuthorizationService implements IAuthorizationService
 	{
 		try 
 		{
-//			Long userId = (Long)servletRequest.getSession().getAttribute(WebKeys.USER_ID);
-//			long test = PortalUtil.getBasicAuthUserId(servletRequest);
-//			HttpServletRequest oldRequest = PortalUtil.getOriginalServletRequest(servletRequest);
-			
+			/* Fix for wrong user in servlet request */
+			User sessionUser = getLiferayUser(servletRequest);
 			User liferayUser = PortalUtil.getUser(servletRequest);
-//			User liferayUser2 = PortalUtil.getUser(oldRequest);
-//			ThemeDisplay themeDisplay = (ThemeDisplay) servletRequest.getAttribute(WebKeys.THEME_DISPLAY);
-//			
-//			if(!themeDisplay.isSignedIn()) 
-//				return null;
-
-			/* No user logged in, return null */
+			
+			/* Why? Becouse you can be logged out and still have cookies in browser */
 			if(liferayUser == null)
-				return null; 
+				return null;
+			
+			/* No cookies, use liferay user */
+			if(sessionUser == null)
+				sessionUser = liferayUser; 
 			
 			
 			
-			return LiferayUserConverter.convertLiferayUser(liferayUser);
+			return LiferayUserConverter.convertLiferayUser(sessionUser);
 		} 
 		catch (PortalException e) 
 		{
@@ -83,6 +81,8 @@ public class LiferayAuthorizationService implements IAuthorizationService
 		} 
 		catch (SystemException e) 
 		{
+			throw new AuthorizationException("Problem with authorization", e);
+		} catch (ServletException e) {
 			throw new AuthorizationException("Problem with authorization", e);
 		} 
 	}

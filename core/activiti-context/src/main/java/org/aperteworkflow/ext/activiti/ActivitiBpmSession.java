@@ -1368,4 +1368,10 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
 		return findProcessInstancesForTasks(tasks, ctx);
 	}
 
+	@Override
+	public BpmTask getHistoryTask(String taskId, ProcessToolContext ctx) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

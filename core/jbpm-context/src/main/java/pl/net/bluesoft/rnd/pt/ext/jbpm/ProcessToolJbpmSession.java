@@ -43,6 +43,7 @@ import org.jbpm.api.history.HistoryActivityInstance;
 import org.jbpm.api.history.HistoryActivityInstanceQuery;
 import org.jbpm.api.history.HistoryProcessInstance;
 import org.jbpm.api.history.HistoryProcessInstanceQuery;
+import org.jbpm.api.history.HistoryTask;
 import org.jbpm.api.identity.User;
 import org.jbpm.api.model.Transition;
 import org.jbpm.api.task.Participation;
@@ -207,7 +208,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
        @Override
        public BpmTask getPastEndTask(ProcessInstanceLog log, ProcessToolContext ctx) {
            final ProcessInstance pi = log.getOwnProcessInstance();
-           String endTaskName = findEndActivityName(pi, ctx);
+           String endTaskName = findEndActivityName(pi.getInternalId(), ctx);
            if (Strings.hasText(endTaskName)) {
                MutableBpmTask t = new MutableBpmTask();
                t.setProcessInstance(pi);
@@ -352,7 +353,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
                return null;
            }
            MutableBpmTask task = collectHistoryActivity(tasks.get(0), pi, user, ctx);
-           String endTaskName = findEndActivityName(pi, ctx);
+           String endTaskName = findEndActivityName(pi.getInternalId(), ctx);
            if (Strings.hasText(endTaskName)) {
                task.setTaskName(endTaskName);
            }
@@ -703,11 +704,11 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
    	
 
    	/** Get the last step name of the process */
-    private String findEndActivityName(ProcessInstance pi, ProcessToolContext ctx) 
+    private String findEndActivityName(String internalId, ProcessToolContext ctx) 
     {
     	/* Get all history activities for given process and order it by the end date */
     	List<HistoryActivityInstance> activities = getProcessEngine(ctx).getHistoryService().createHistoryActivityInstanceQuery()
-    			.processInstanceId(pi.getInternalId())
+    			.processInstanceId(internalId)
     			.orderDesc(HistoryActivityInstanceQuery.PROPERTY_ENDTIME)
     			.list();
     	
@@ -748,15 +749,47 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
    		t.setFinished(false);
    		return t;
    	}
+    
+    private MutableBpmTask collectTask(HistoryTask task, ProcessInstance pi, ProcessToolContext ctx) {
+   		MutableBpmTask t = new MutableBpmTask();
+   		t.setProcessInstance(pi);
+   		t.setAssignee(task.getAssignee());
+   		UserData ud = ctx.getUserDataDAO().loadUserByLogin(task.getAssignee());
+   		if (ud == null) {
+   			ud = new UserData();
+   			ud.setLogin(task.getAssignee());
+   		}
+   		t.setOwner(ud);
+   		t.setTaskName(task.getOutcome());
+   		t.setInternalTaskId(task.getId());
+   		t.setExecutionId(task.getExecutionId());
+   		t.setCreateDate(task.getCreateTime());
+   		t.setFinished(true);
+   		return t;
+   	}
+    
+    public BpmTask getHistoryTask(final String taskId, ProcessToolContext ctx)
+    {
+   		HistoryTask task = getProcessEngine(ctx).getHistoryService().
+   				createHistoryTaskQuery().
+   				taskId(taskId).
+   				uniqueResult();
+   		
+   		if (task == null) {
+   			return null;
+   		}
+   		return findProcessInstanceForTask(task, ctx);
+    }
 
    	@Override
-   	public BpmTask getTaskData(String taskId, ProcessToolContext ctx) {
+   	public BpmTask getTaskData(String taskId, ProcessToolContext ctx) 
+   	{
    		Task task = getProcessEngine(ctx).getTaskService().getTask(taskId);
    		if (task == null) {
    			return null;
    		}
-   		List<BpmTask> tasks = findProcessInstancesForTasks(java.util.Collections.singletonList(task), ctx);
-   		return tasks.isEmpty() ? null : tasks.get(0);
+   		
+   		return findProcessInstanceForTask(task, ctx);
    	}
 
    	@Override
@@ -920,6 +953,20 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
 			log.severe("findUserTasks: " +  duration);
    		 
    		 return processInstancesForTasks;
+   	}
+   	
+   	private BpmTask findProcessInstanceForTask(HistoryTask task, final ProcessToolContext ctx)
+   	{
+   		ProcessInstance processInstance = ctx.getProcessInstanceDAO().getProcessInstanceByInternalId(task.getExecutionId());
+   		
+   		return collectTask(task, processInstance, ctx);
+   	}
+   	
+   	private BpmTask findProcessInstanceForTask(Task task, final ProcessToolContext ctx)
+   	{
+   		ProcessInstance processInstance = ctx.getProcessInstanceDAO().getProcessInstanceByInternalId(task.getExecutionId());
+   		
+   		return collectTask(task, processInstance, ctx);
    	}
 
    	private List<BpmTask> findProcessInstancesForTasks(List<Task> tasks, final ProcessToolContext ctx) {

@@ -160,6 +160,9 @@ public class WidgetViewWindow extends Window
 				ProcessStateWidget processStateWidget = ctx.getProcessDefinitionDAO().getProcessStateWidget(processStateWidgetId);
 				
 				BpmTask task = bpmSession.getTaskData(bpmTaskId, ctx);
+				
+				if(task == null)
+					task = bpmSession.getHistoryTask(bpmTaskId, ctx);
 
 				ProcessToolWidget widget = getWidget(processStateWidget, ctx, "1", task);
 				if (widget instanceof ProcessToolVaadinRenderable && (!nvl(processStateWidget.getOptional(), false) || widget.hasVisibleData())) 

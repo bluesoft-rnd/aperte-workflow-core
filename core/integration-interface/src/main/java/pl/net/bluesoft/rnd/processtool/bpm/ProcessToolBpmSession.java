@@ -72,6 +72,8 @@ public interface ProcessToolBpmSession extends ProcessToolBpmConstants {
     BpmTask getTaskData(String taskExecutionId, String taskName, ProcessToolContext ctx);
 
     BpmTask getTaskData(String taskId, ProcessToolContext ctx);
+    
+    BpmTask getHistoryTask(String taskId, ProcessToolContext ctx);
 
     BpmTask getPastOrActualTask(ProcessInstanceLog log, ProcessToolContext ctx);
 

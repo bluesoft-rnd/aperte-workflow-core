@@ -192,6 +192,7 @@ public class TaskViewBuilder
 			viewData.put(IHtmlTemplateProvider.USER_PARAMTER, user);
 			viewData.put(IHtmlTemplateProvider.MESSAGE_SOURCE_PARAMETER, i18Source);
 			viewData.put(IHtmlTemplateProvider.WIDGET_NAME_PARAMETER, aliasName);
+			viewData.put(IHtmlTemplateProvider.PERMISSIONS_PARAMETER, widget.getPermissions());
 			viewData.put(IHtmlTemplateProvider.WIDGET_ID_PARAMETER, widget.getId().toString());
 			
 			String processedView = templateProvider.processTemplate(aliasName, viewData);
@@ -265,7 +266,7 @@ public class TaskViewBuilder
 				.attr("id", actionButtonId);
 			parent.appendChild(buttonNode);
 			
-			scriptBuilder.append("$('#" + actionButtonId+"').click(function() { onSaveButton(this, '"+task.getInternalTaskId()+"');  });");
+			scriptBuilder.append("$('#" + actionButtonId+"').click(function() { onSaveButton('"+task.getInternalTaskId()+"');  });");
 			scriptBuilder.append("$('#" + actionButtonId+"').tooltip({title: '"+i18Source.getMessage("button.save.process.desc")+"'});");
 	}
 	

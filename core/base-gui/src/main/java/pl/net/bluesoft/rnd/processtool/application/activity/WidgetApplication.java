@@ -53,11 +53,10 @@ public class WidgetApplication extends Application  implements HttpServletReques
     private ProcessToolRegistry processToolRegistry;
     
     @Autowired
-    private EventBus eventBus;
+    private WindowManager windowManager;
+   
     
     private Window blankWindow;
-    
-    private Map<String, WidgetViewWindow> widgetWindows;
     
     private ProcessToolBpmSession bpmSession;
 
@@ -65,38 +64,9 @@ public class WidgetApplication extends Application  implements HttpServletReques
     public WidgetApplication()
     {
     	this.i18NSource = I18NSourceFactory.createI18NSource(Locale.getDefault());
-    	this.widgetWindows = new HashMap<String, WidgetViewWindow>();
     }
     
-    @Subscribe
-    public void listen(final ValidateTaskEvent event)
-    {
-    	processToolRegistry.withProcessToolContext(new ProcessToolContextCallback() 
-    	{
-	
-			@Override
-			public void withContext(ProcessToolContext ctx) 
-			{	
-				for(WidgetViewWindow window: widgetWindows.values())
-					window.validateWidgets(event);
-			}
-		});
-    }
 
-    @Subscribe
-    public void listen(final SaveTaskEvent event)
-    {
-    	processToolRegistry.withProcessToolContext(new ProcessToolContextCallback() 
-    	{
-	
-			@Override
-			public void withContext(ProcessToolContext ctx) 
-			{	
-				for(WidgetViewWindow window: widgetWindows.values())
-					window.saveWidgets(event);
-			}
-		});
-    }
     
    
 	@Override
@@ -123,54 +93,52 @@ public class WidgetApplication extends Application  implements HttpServletReques
 			logger.log(Level.WARNING, "no parameters...");
 			return null;
 		}
-		
-		if(requestParameters.getClose())
-		{
-			logger.log(Level.WARNING, "close...");
-			for(WidgetViewWindow windowToDestory: widgetWindows.values())
-			{
-				logger.log(Level.WARNING, "remove window: "+windowToDestory.getName());
-				windowToDestory.destroy();
-				removeWindow(windowToDestory);
-			}
-			widgetWindows.clear();
-			return null;
-		} 
+		if(i18NSource == null)
+			this.i18NSource = I18NSourceFactory.createI18NSource(Locale.getDefault());
+
 
 		if(bpmSession == null)
 			bpmSession = (ProcessToolBpmSession)context.getHttpSession().getAttribute(ProcessToolBpmSession.class.getName());
 		
-		WidgetViewWindow window = widgetWindows.get(requestParameters.getWindowName());
+		WidgetViewWindow window = windowManager.getWindow(requestParameters.getWindowName());
+		
+		boolean closeWindow = requestParameters.getClose();
 		
 		/* Window for specified tab with given name already exists, return it */
 		if(window != null)
 		{
-			if(!this.getWindows().contains(window))
-				addWindow(window);
-			
+			if(closeWindow)
+			{
+				logger.log(Level.WARNING, "close...");
+				
+				windowManager.removeWindow(requestParameters.getWindowName());
+				this.removeWindow(window);
+				return null;
+			} 
+			else
+			{
+				window.initlizeWidget(requestParameters.getTaskId(), requestParameters.getWidgetId());
+				logger.log(Level.WARNING, "return window! "+window.isVisible());
+				return window;
+			}
+		}
+		else if(!closeWindow)
+		{
+			/* New tab was opened, create new window for it */
+			window = new WidgetViewWindow(processToolRegistry, bpmSession, this, i18NSource);
+			window.setSizeFull();
+			window.setName(requestParameters.getWindowName());
 			window.initlizeWidget(requestParameters.getTaskId(), requestParameters.getWidgetId());
-			logger.log(Level.WARNING, "return window! "+window.isVisible());
+			
+			windowManager.addWindow(window.getName(), window);
+			this.addWindow(window);
+			
+			logger.log(Level.WARNING, "New window created: "+window.getName());
+			
 			return window;
 		}
-		
-		if(i18NSource == null)
-			this.i18NSource = I18NSourceFactory.createI18NSource(Locale.getDefault());
-		
-		
-		/* New tab was opened, create new window for it */
-		WidgetViewWindow newWindow = new WidgetViewWindow(processToolRegistry, bpmSession, this, i18NSource);
-		newWindow.setSizeFull();
-		newWindow.setName(requestParameters.getWindowName());
-		newWindow.initlizeWidget(requestParameters.getTaskId(), requestParameters.getWidgetId());
-		
-		widgetWindows.put(newWindow.getName(), newWindow);
-		
-		logger.log(Level.WARNING, "New window created: "+newWindow.getName());
-		
-		addWindow(newWindow);
-		//newWindow.open(new ExternalResource(newWindow.getURL()));
 
-		return newWindow; 
+		return window; 
 	}
 
 
@@ -239,7 +207,7 @@ public class WidgetApplication extends Application  implements HttpServletReques
 			
 			SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
 			
-			this.eventBus.register(this);
+
 			
 			logger.warning("init app: "+this);
 		}
@@ -247,31 +215,7 @@ public class WidgetApplication extends Application  implements HttpServletReques
 
 		
 	}
-	
-	
-	@Override
-	public void close() 
-	{
-		try
-		{
-			logger.warning("closing... widgets: "+widgetWindows.size()+", app: "+this);
-			for(WidgetViewWindow window: widgetWindows.values())
-			{
-				window.destroy();
-				removeWindow(window);
-			}
-			
-			widgetWindows.clear();
-			
-			/* We have to unregister view form bus */
-			eventBus.unregister(this);
-		}
-		catch(IllegalArgumentException ex)
-		{
-			logger.warning("ups...: ");
-		}
-		super.close();
-	}
+
 	
 	/** Analyse given widnow name by Vaadin framework to get taskId, widgetId
 	 * and information if the window should be closed

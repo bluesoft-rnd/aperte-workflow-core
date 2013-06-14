@@ -61,29 +61,33 @@
 			
 			$.each( queues, function( ) 
 			{
-				$( "<div>", { text: "User: "+this.userLogin} )
+				var accordionID = 'accordion-list-'+this.userLogin;
+				$( "<a>", { text: "User: "+this.userLogin, "data-toggle":"collapse", "data-parent":'#queue-view-block', href:"#"+accordionID} )
+				.appendTo( '#queue-view-block' );
+				
+				$( "<div>", { id : accordionID, "class": "accordion-body collapse"} )
 				.appendTo( '#queue-view-block' );
 				
 				$.each( this.processesList, function( ) 
 				{
-					addProcessRow(this);
+					addProcessRow(this, accordionID);
 				});
 				
 				$.each( this.queuesList, function( ) 
 				{
-					addProcessRow(this);
+					addProcessRow(this, accordionID);
 				});
 			});
 		});
 	}
 	
-	function addProcessRow(processRow)
+	function addProcessRow(processRow, accordionID)
 	{
 		var layoutId = 'queue-view-' + processRow.queueId;
 		var innerDivId = ''+processRow.queueId;
 
 		$( "<div>", { id : layoutId, "class": "queue-list-row-queue"} )
-		.appendTo( '#queue-view-block' );
+		.appendTo( '#'+accordionID );
 		
 		$( "<div>", { id : innerDivId, "class": "queue-list-name"} )
 		.appendTo( '#'+layoutId );

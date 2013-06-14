@@ -154,12 +154,13 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 	@ResponseBody
 	public SaveResultBean saveAction(final HttpServletRequest request)
 	{
+		logger.warning("SAVE!");
 		final SaveResultBean resultBean = new SaveResultBean();
 		
 		/* Initilize request context */
 		final IProcessToolRequestContext context = this.initilizeContext(request);
 		
-		if(!context.isUserAuthorized())
+		if(!context.isUserAuthorized()) 
 		{
 			resultBean.addError(SYSTEM_SOURCE, context.getMessageSource().getMessage("request.handle.error.nouser"));
 			return resultBean;

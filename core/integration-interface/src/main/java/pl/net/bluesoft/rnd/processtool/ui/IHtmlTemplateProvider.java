@@ -19,6 +19,7 @@ public interface IHtmlTemplateProvider extends TemplateLoader
 	static final String MESSAGE_SOURCE_PARAMETER = "messageSource";
 	static final String WIDGET_NAME_PARAMETER = "widgetName";
 	static final String WIDGET_ID_PARAMETER = "widgetId";
+	static final String PERMISSIONS_PARAMETER = "permissions";
 	
 	/** Add template */
 	void addTemplate(String templateName, String template);

@@ -62,8 +62,9 @@
 
 	
 	
-	function saveAction(button, taskId)
+	function saveAction(taskId)
 	{
+		console.log( "taskId: "+taskId); 
 		clearAlerts();
 		
 		var errors = [];
@@ -146,7 +147,7 @@
 	function performAction(button, actionName, skipSaving, taskId)
 	{
 		var JsonWidgetData = "[{}]";
-		
+		console.log( "taskId: "+taskId); 
 		if(skipSaving != true)
 		{
 			clearAlerts();

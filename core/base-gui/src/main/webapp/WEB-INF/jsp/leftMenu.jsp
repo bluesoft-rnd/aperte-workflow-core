@@ -37,6 +37,7 @@
 </div>
  <script type="text/javascript">
  
+	var userLogin = '${aperteUser.login}';
 	$(document).ready(function()
 	{
 		$('#new-process-view').hide();
@@ -61,38 +62,42 @@
 			
 			$.each( queues, function( ) 
 			{
-				var accordionID = 'accordion-list-'+this.userLogin;
-				$( "<a>", { text: "User: "+this.userLogin, "data-toggle":"collapse", "data-parent":'#queue-view-block', href:"#"+accordionID} )
+				var currentUserLogin = this.userLogin;
+				var accordionID = 'accordion-list-'+currentUserLogin;
+				$( "<a>", { text: "User: "+currentUserLogin, "data-toggle":"collapse", "data-parent":'#queue-view-block', href:"#"+accordionID} )
 				.appendTo( '#queue-view-block' );
 				
-				$( "<div>", { id : accordionID, "class": "accordion-body collapse"} )
+				var contentClass = "accordion-body collapse in";
+
+				
+				$( "<div>", { id : accordionID, "class": contentClass} )
 				.appendTo( '#queue-view-block' );
 				
 				$.each( this.processesList, function( ) 
 				{
-					addProcessRow(this, accordionID);
+					addProcessRow(this, accordionID, currentUserLogin);
 				});
 				
 				$.each( this.queuesList, function( ) 
 				{
-					addProcessRow(this, accordionID);
+					addQueueRow(this, accordionID, currentUserLogin);
 				});
 			});
 		});
 	}
 	
-	function addProcessRow(processRow, accordionID)
+	function addProcessRow(processRow, accordionID, userLogin)
 	{
-		var layoutId = 'queue-view-' + processRow.queueId;
-		var innerDivId = ''+processRow.queueId;
+		var layoutId = 'queue-view-' + processRow.queueId+'-'+userLogin;
+		var innerDivId = processRow.queueId+'-'+userLogin;
 
-		$( "<div>", { id : layoutId, "class": "queue-list-row-queue"} )
+		$( "<div>", { id : layoutId, "class": "queue-list-row-process"} )
 		.appendTo( '#'+accordionID );
 		
 		$( "<div>", { id : innerDivId, "class": "queue-list-name"} )
 		.appendTo( '#'+layoutId );
 		
-		$( "<a>", { id : 'link-'+processRow.queueId, "class": "queue-list-link", text: processRow.queueDesc, "onclick":"reloadQueue('"+processRow.queueName+"', 'process') "} )
+		$( "<a>", { id : 'link-'+processRow.queueId, "class": "queue-list-link", text: processRow.queueDesc, "onclick":"reloadQueue('"+processRow.queueName+"', 'process', '"+userLogin+"') "} )
 		.appendTo( '#'+innerDivId );
 		
 		$( "<div>", { "class": "queue-list-size", text: processRow.queueSize} )
@@ -102,9 +107,25 @@
 		.appendTo( '#'+layoutId );
 	}
 
-	function addQueueRow(queueRow)
+	function addQueueRow(queueRow, accordionID, userLogin)
 	{
-		addProcessRow(queueRow);
+		var layoutId = 'queue-view-' + queueRow.queueId+'-'+userLogin;
+		var innerDivId = queueRow.queueId+'-'+userLogin;
+
+		$( "<div>", { id : layoutId, "class": "queue-list-row-queue"} )
+		.appendTo( '#'+accordionID );
+		
+		$( "<div>", { id : innerDivId, "class": "queue-list-name"} )
+		.appendTo( '#'+layoutId );
+		
+		$( "<a>", { id : 'link-'+queueRow.queueId, "class": "queue-list-link", text: queueRow.queueDesc, "onclick":"reloadQueue('"+queueRow.queueName+"', 'queue', '"+userLogin+"') "} )
+		.appendTo( '#'+innerDivId );
+		
+		$( "<div>", { "class": "queue-list-size", text: queueRow.queueSize} )
+		.appendTo( '#'+layoutId );
+		
+		$( "<br>", { style: "clear: left;"} )
+		.appendTo( '#'+layoutId );
 	}
  
  </script>

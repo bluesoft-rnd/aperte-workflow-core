@@ -63,9 +63,9 @@ public interface ProcessToolBpmSession extends ProcessToolBpmConstants {
 
     boolean isProcessOwnedByUser(ProcessInstance processInstance, ProcessToolContext ctx);
 
-    BpmTask assignTaskFromQueue(ProcessQueue q, ProcessToolContext ctx);
+    BpmTask assignTaskFromQueue(String queueName, ProcessToolContext ctx);
 
-    BpmTask assignTaskFromQueue(ProcessQueue q, BpmTask task, ProcessToolContext ctx);
+    BpmTask assignTaskFromQueue(String queueName, BpmTask task, ProcessToolContext ctx);
 
     void assignTaskToUser(ProcessToolContext ctx, String taskId, String userLogin);
 

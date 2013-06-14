@@ -181,7 +181,7 @@ public class QueuesMainPane extends VerticalLayout implements Refreshable {
                              if (event.isDoubleClick()) {
                                  ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
                                  BeanItem<ProcessQueue> beanItem = bic.getItem(event.getItemId());
-                                 BpmTask task = session.assignTaskFromQueue(beanItem.getBean(), ctx);
+                                 BpmTask task = session.assignTaskFromQueue(beanItem.getBean().getName(), ctx);
                                  if (task != null) {
                                      getWindow().executeJavaScript("Liferay.trigger('processtool.bpm.assignProcess', '"
                                              + task.getProcessInstance().getInternalId() + "');");

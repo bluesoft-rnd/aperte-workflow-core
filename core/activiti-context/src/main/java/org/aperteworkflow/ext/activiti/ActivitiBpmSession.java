@@ -132,8 +132,8 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
     }
 
     @Override
-    public BpmTask assignTaskFromQueue(ProcessQueue q, ProcessToolContext processToolContextFromThread) {
-        return assignTaskFromQueue(q, null, processToolContextFromThread);
+    public BpmTask assignTaskFromQueue(String queueName, ProcessToolContext processToolContextFromThread) {
+        return assignTaskFromQueue(queueName, null, processToolContextFromThread);
     }
 
     @Override
@@ -434,24 +434,24 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
     }
 
     @Override
-    public BpmTask assignTaskFromQueue(final ProcessQueue pq, BpmTask pi, ProcessToolContext ctx) {
+    public BpmTask assignTaskFromQueue(final String queueName, BpmTask pi, ProcessToolContext ctx) {
 
         Collection<ProcessQueue> configs = getUserQueuesFromConfig(ctx);
         final List<String> names = keyFilter("name", configs);
         final String taskId = pi != null ? pi.getInternalTaskId() : null;
-        if (!names.contains(pq.getName())) throw new ProcessToolSecurityException("queue.no.rights", pq.getName());
+        if (!names.contains(queueName)) throw new ProcessToolSecurityException("queue.no.rights", queueName);
         TaskService ts = getProcessEngine().getTaskService();
 
         Task task;
         if (taskId == null) {
             task = ts.createTaskQuery()
-                    .taskCandidateGroup(pq.getName())
+                    .taskCandidateGroup(queueName)
                     .taskUnnassigned()
                     .orderByExecutionId()
                     .desc()
                     .singleResult();
         } else {
-            task = ts.createTaskQuery().taskId(taskId).taskCandidateGroup(pq.getName())
+            task = ts.createTaskQuery().taskId(taskId).taskCandidateGroup(queueName)
                                 .taskUnnassigned().singleResult();
         }
         if (task == null) {
@@ -462,13 +462,13 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
         ProcessInstance pi2 = ctx.getProcessInstanceDAO().getProcessInstanceByInternalId(task.getProcessInstanceId());
         if (pi2 == null) {
             if (pi == null)
-                return assignTaskFromQueue(pq, ctx);
+                return assignTaskFromQueue(queueName, ctx);
             else
                 return null;
         }
         if (!user.getLogin().equals(ts.createTaskQuery().taskId(task.getId()).singleResult().getAssignee())) {
             if (pi == null)
-                return assignTaskFromQueue(pq, ctx);
+                return assignTaskFromQueue(queueName, ctx);
             else
                 return null;
         }
@@ -480,9 +480,9 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
         log.setState(ctx.getProcessDefinitionDAO().getProcessStateConfiguration(pi));
         log.setEntryDate(Calendar.getInstance());
         log.setEventI18NKey("process.log.process-assigned");
-        log.setLogValue(pq.getName());
+        log.setLogValue(queueName);
         log.setUser(ctx.getUserDataDAO().findOrCreateUser(user));
-        log.setAdditionalInfo(pq.getDescription());
+        //log.setAdditionalInfo(pq.getDescription());
         pi2.addProcessLog(log);
 
         fillProcessAssignmentData(pi2, ctx);

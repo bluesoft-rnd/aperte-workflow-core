@@ -33,6 +33,7 @@ import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
 import pl.net.bluesoft.rnd.processtool.model.QueueType;
+import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
@@ -121,7 +122,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 						return null;
 					
 					I18NSource messageSource = I18NSourceFactory.createI18NSource(request.getLocale());
-					BpmTaskBean processBean = createFrom(newTask, messageSource);
+					BpmTaskBean processBean = BpmTaskBean.createFrom(newTask, messageSource);
 					
 					return processBean;
 				}
@@ -291,10 +292,11 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 		String echo = request.getParameter("sEcho");
 		final String queueName = request.getParameter("queueName");
 		final String queueType = request.getParameter("queueType");
+		final String ownerLogin = request.getParameter("ownerLogin");
 		
 		final List<BpmTaskBean> adminAlertBeanList = new ArrayList<BpmTaskBean>();
 		
-		if(queueName == null || queueName.isEmpty() || queueType == null || queueType.isEmpty())
+		if(queueName == null || queueName.isEmpty() || queueType == null || queueType.isEmpty() || ownerLogin == null)
 		{
 			return new DataPagingBean<BpmTaskBean>(adminAlertBeanList, 0, echo);
 		}
@@ -313,9 +315,13 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 			{
 				I18NSource messageSource = I18NSourceFactory.createI18NSource(request.getLocale());
 				
+				boolean isQueue = "queue".equals(queueType);
+				
+				UserData owner = ctx.getUserDataDAO().loadUserByLogin(ownerLogin);
+				
 				
 				ProcessInstanceFilter filter = new ProcessInstanceFilter();
-				if("queue".equals(queueType))
+				if(isQueue)
 				{
 					filter.addQueue(queueName);
 					filter.addQueueType(QueueType.OWN_IN_QUEUE);
@@ -323,8 +329,8 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 				else if("process".equals(queueType))
 				{
 			        //processFilter.setName(getMessage("activity.assigned.tasks"));
-			        filter.addOwner(context.getUser());
-			        filter.setFilterOwner(context.getUser());
+			        filter.addOwner(owner);
+			        filter.setFilterOwner(owner);
 			        filter.addQueueType(QueueType.fromQueueId(queueName));
 					filter.setName(queueName);
 				}
@@ -333,7 +339,11 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 				 
 				for(BpmTask task: tasks)
 				{ 
-					BpmTaskBean processBean = createFrom(task, messageSource);
+					BpmTaskBean processBean = BpmTaskBean.createFrom(task, messageSource);
+					
+					if(isQueue)
+						processBean.setQueueName(queueName);
+					
 					adminAlertBeanList.add(processBean);				
 
 				}
@@ -349,22 +359,5 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 
 	}
 	
-	private BpmTaskBean createFrom(BpmTask task, I18NSource messageSource)
-	{
-		
-		BpmTaskBean processBean = new BpmTaskBean();
-		processBean.setProcessName(messageSource.getMessage(task.getProcessDefinition().getDescription()));
-		processBean.setName(task.getTaskName());
-		processBean.setCode(task.getExecutionId());
-		processBean.setCreationDate(task.getCreateDate());
-		processBean.setAssignee(task.getAssignee());
-		processBean.setCreator(task.getCreator());
-		processBean.setTaskId(task.getInternalTaskId());
-		processBean.setInternalProcessId(task.getProcessInstance().getInternalId());
-		processBean.setProcessStateConfigurationId(task.getCurrentProcessStateConfiguration().getId().toString());
-		processBean.setDeadline(task.getDeadlineDate());
-		processBean.setTooltip(messageSource.getMessage(task.getProcessDefinition().getComment()));
-		
-		return processBean;
-	}
+
 }

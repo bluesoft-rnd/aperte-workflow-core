@@ -567,16 +567,16 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
 	
 
    	@Override
-   	public BpmTask assignTaskFromQueue(ProcessQueue queue, ProcessToolContext ctx) {
-   		return assignTaskFromQueue(queue, null, ctx);
+   	public BpmTask assignTaskFromQueue(String queueName, ProcessToolContext ctx) {
+   		return assignTaskFromQueue(queueName, null, ctx);
    	}
 
     @Override
-    public BpmTask assignTaskFromQueue(final ProcessQueue pq, BpmTask bpmTask, ProcessToolContext ctx) {
+    public BpmTask assignTaskFromQueue(final String queueName, BpmTask bpmTask, ProcessToolContext ctx) {
         Collection<ProcessQueue> configs = getUserQueuesFromConfig(ctx);
         final List<String> names = keyFilter("name", configs);
-        if (!names.contains(pq.getName())) {
-            throw new ProcessToolSecurityException("queue.no.rights", pq.getName());
+        if (!names.contains(queueName)) {
+            throw new ProcessToolSecurityException("queue.no.rights", queueName);
         }
 
         ProcessEngine processEngine = getProcessEngine(ctx);
@@ -594,7 +594,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
 
                     @Override
                     protected void applyParameters(Query query) {
-                        query.setParameterList("groupIds", java.util.Collections.singleton(pq.getName()));
+                        query.setParameterList("groupIds", java.util.Collections.singleton(queueName));
                         if (taskId != null) {
                             query.setParameter("taskId", new Long(taskId));
                         }
@@ -625,7 +625,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
         };
         List<Task> taskList = processEngine.execute(cmd);
         if (taskList.isEmpty()) {
-            loger.warning("No tasks found in queue: " + pq.getName());
+            loger.warning("No tasks found in queue: " + queueName);
             return null;
         }
         Task task = taskList.get(0);
@@ -654,9 +654,9 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
         log.setState(ctx.getProcessDefinitionDAO().getProcessStateConfiguration(bpmTask));
         log.setEntryDate(snapshotDate);
         log.setEventI18NKey("process.log.process-assigned");
-        log.setLogValue(pq.getName());
+        log.setLogValue(queueName);
         log.setUser(findOrCreateUser(user, ctx));
-        log.setAdditionalInfo(pq.getDescription());
+        //log.setAdditionalInfo(pq.getDescription());
         log.setExecutionId(task.getExecutionId());
         log.setOwnProcessInstance(pi);
         pi.getRootProcessInstance().addProcessLog(log);

@@ -570,7 +570,7 @@ public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshab
 				else
 				{
 					ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-					BpmTask task = bpmSession.assignTaskFromQueue(q,ctx);
+					BpmTask task = bpmSession.assignTaskFromQueue(q.getName(),ctx);
 					if(task != null)
 					{
 						getWindow().executeJavaScript("Liferay.trigger('processtool.bpm.assignProcess', '" + task.getProcessInstance().getInternalId() + "');");

@@ -5,6 +5,9 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+
 /**
  * Process Instance Bean
  * 
@@ -26,6 +29,26 @@ public class BpmTaskBean implements Serializable
 	private String internalProcessId;
 	private String processStateConfigurationId;
 	private String tooltip;
+	private String queueName;
+	
+	public static BpmTaskBean createFrom(BpmTask task, I18NSource messageSource)
+	{
+		
+		BpmTaskBean processBean = new BpmTaskBean();
+		processBean.setProcessName(messageSource.getMessage(task.getProcessDefinition().getDescription()));
+		processBean.setName(task.getTaskName());
+		processBean.setCode(task.getExecutionId());
+		processBean.setCreationDate(task.getCreateDate());
+		processBean.setAssignee(task.getAssignee());
+		processBean.setCreator(task.getCreator());
+		processBean.setTaskId(task.getInternalTaskId());
+		processBean.setInternalProcessId(task.getProcessInstance().getInternalId());
+		processBean.setProcessStateConfigurationId(task.getCurrentProcessStateConfiguration().getId().toString());
+		processBean.setDeadline(task.getDeadlineDate());
+		processBean.setTooltip(messageSource.getMessage(task.getProcessDefinition().getComment()));
+		
+		return processBean;
+	}
 	
 	public String getName() {
 		return name;
@@ -92,6 +115,12 @@ public class BpmTaskBean implements Serializable
 	}
 	public void setTooltip(String tooltip) {
 		this.tooltip = tooltip;
+	}
+	public String getQueueName() {
+		return queueName;
+	}
+	public void setQueueName(String queueName) {
+		this.queueName = queueName;
 	}
 
 

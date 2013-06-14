@@ -58,7 +58,12 @@ public class LiferayAuthorizationService implements IAuthorizationService
 	{
 		try 
 		{
+//			Long userId = (Long)servletRequest.getSession().getAttribute(WebKeys.USER_ID);
+//			long test = PortalUtil.getBasicAuthUserId(servletRequest);
+//			HttpServletRequest oldRequest = PortalUtil.getOriginalServletRequest(servletRequest);
+			
 			User liferayUser = PortalUtil.getUser(servletRequest);
+//			User liferayUser2 = PortalUtil.getUser(oldRequest);
 //			ThemeDisplay themeDisplay = (ThemeDisplay) servletRequest.getAttribute(WebKeys.THEME_DISPLAY);
 //			
 //			if(!themeDisplay.isSignedIn()) 

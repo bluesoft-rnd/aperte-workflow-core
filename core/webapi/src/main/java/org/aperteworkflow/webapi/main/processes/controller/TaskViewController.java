@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.aperteworkflow.webapi.context.IProcessToolRequestContext;
 import org.aperteworkflow.webapi.main.AbstractProcessToolServletController;
+import org.aperteworkflow.webapi.main.processes.BpmTaskBean;
 import org.aperteworkflow.webapi.main.ui.TaskViewBuilder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
+import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
@@ -33,10 +35,59 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 public class TaskViewController extends AbstractProcessToolServletController
 {
 	private static Logger logger = Logger.getLogger(TaskViewController.class.getName());
+	
+	@RequestMapping(method = RequestMethod.POST, value = "/task/claimTaskFromQueue")
+	@ResponseBody
+	public BpmTaskBean claimTaskFromQueue(final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException
+	{
+		
+		final I18NSource messageSource = I18NSourceFactory.createI18NSource(request.getLocale());
+		
+		final String queueName = request.getParameter("queueName");
+		final String taskId = request.getParameter("taskId");
+		
+		if(taskId == null || taskId.isEmpty())
+		{
+			response.getWriter().print(messageSource.getMessage("request.performaction.error.notaskid"));
+			return null;
+		}
+		else if(queueName == null || queueName.isEmpty())
+		{
+			response.getWriter().print(messageSource.getMessage("request.performaction.error.noqueuename"));
+			return null;
+		}
+		
+		/* Initilize request context */
+		final IProcessToolRequestContext context = this.initilizeContext(request);
+		
+		if(!context.isUserAuthorized())
+		{
+			response.getWriter().print(messageSource.getMessage("request.handle.error.nouser"));
+			return null;
+		}
+		
+		BpmTaskBean taskBean = context.getRegistry().withProcessToolContext(new ReturningProcessToolContextCallback<BpmTaskBean>() 
+		{
+
+			@Override
+			public BpmTaskBean processWithContext(ProcessToolContext ctx) {
+				BpmTask task = context.getBpmSession().getTaskData(taskId, ctx);
+
+				BpmTask newTask = context.getBpmSession().assignTaskFromQueue(queueName, task, ctx);
+				
+				BpmTaskBean taskBean = BpmTaskBean.createFrom(newTask, messageSource);
+				
+				return taskBean;
+			}
+		});
+		
+		return taskBean;
+		
+	}
     
 	@RequestMapping(method = RequestMethod.POST, value = "/task/loadTask")
 	@ResponseBody
-	public void loadOsgiView(final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException
+	public void loadTask(final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException
 	{
 		final I18NSource messageSource = I18NSourceFactory.createI18NSource(request.getLocale());
 		

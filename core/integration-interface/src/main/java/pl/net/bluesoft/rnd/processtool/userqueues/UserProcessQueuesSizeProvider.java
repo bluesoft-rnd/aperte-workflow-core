@@ -93,7 +93,7 @@ public class UserProcessQueuesSizeProvider
 		for(UserData substitutedUser: substitutedUsers)
 		{
 			ProcessToolBpmSession substitutedUserSession = ctx.getProcessToolSessionFactory().createSession(substitutedUser, substitutedUser.getRoleNames());
-			fillSubstitutionUserQueues(substitutedUserSession);
+			fillUserQueues(substitutedUserSession);
 		}
 
 	}
@@ -141,57 +141,18 @@ public class UserProcessQueuesSizeProvider
 		
 		usersQueuesSize.add(userQueueSize);
 	}
-	
-	private void fillSubstitutionUserQueues(ProcessToolBpmSession bpmSession)
-	{
-		String currentUserLogin = bpmSession.getUserLogin();
-		
-		UserData user = reg.getUserDataDAO(ctx.getHibernateSession()).loadUserByLogin(currentUserLogin);
-		
-		ProcessInstanceFilterFactory filterFactory = new ProcessInstanceFilterFactory();
-		Collection<ProcessInstanceFilter> queuesFilters = new ArrayList<ProcessInstanceFilter>();
-		
-		UsersQueuesDTO userQueueSize = new UsersQueuesDTO(currentUserLogin);
-		
-		queuesFilters.add(filterFactory.createSubstitutedTasksAssignedToMeFilter(user));
-		queuesFilters.add(filterFactory.createSubstitutedOthersTaskAssignedToMeFilter(user));
-		
-		
-		for(ProcessInstanceFilter queueFilter: queuesFilters)
-		{
-			int filteredQueueSize = bpmSession.getTasksCount(ctx, queueFilter.getFilterOwner().getLogin(), queueFilter.getQueueTypes());
-			//int filteredQueueSize = session.getFilteredTasksCount(queueFilter, ctx);
-			
-			String queueId = QueuesNameUtil.getSubstitutedQueueTaskId(queueFilter.getName(), currentUserLogin);
-			String queueDesc = messageSource.getMessage(queueFilter.getName());
-			
-			userQueueSize.addProcessListSize(queueFilter.getName(), queueId, queueDesc, filteredQueueSize);
-		}
-		
-		List<ProcessQueue> userAvailableQueues = new ArrayList<ProcessQueue>(bpmSession.getUserAvailableQueues(ctx));
-		for(ProcessQueue processQueue: userAvailableQueues)
-		{
-			Long processCount = processQueue.getProcessCount();
-			
-			String queueId = QueuesNameUtil.getSubstitutedQueueProcessQueueId(processQueue.getName(), currentUserLogin);
-			String queueDesc = messageSource.getMessage(processQueue.getDescription());
-			
-			userQueueSize.addQueueSize(processQueue.getName(), queueId,queueDesc, processCount.intValue());
-		}
-		
-		usersQueuesSize.add(userQueueSize);
-	}
+
 
 	/**
 	 * DTO Class which binds user login with its queues 
 	 * 
 	 * @author mpawlak@bluesoft.net.pl
 	 *
-	 */
+	 */ 
 	public static class UsersQueuesDTO implements Serializable
 	{
 		private static final long serialVersionUID = -6144244162774763817L;
-		
+		 
 		private String userLogin;
 		private Collection<UserQueueDTO> processesList;
 		private Collection<UserQueueDTO> queuesList;

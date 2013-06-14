@@ -64,7 +64,6 @@
 	
 	function saveAction(taskId)
 	{
-		console.log( "taskId: "+taskId); 
 		clearAlerts();
 		
 		var errors = [];
@@ -195,6 +194,7 @@
 			if(data == null)
 			{
 			    closeProcessView();
+				reloadCurrentQueue();
 				showProcessList();
 				
 				return;
@@ -215,6 +215,7 @@
 			else
 			{
 				closeProcessView();
+				reloadCurrentQueue();
 				showProcessList();
 			}
 		})

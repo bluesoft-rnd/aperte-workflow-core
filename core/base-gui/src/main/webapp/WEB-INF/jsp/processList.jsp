@@ -26,15 +26,30 @@ $(document).ready(function()
 	loadQueue('');
 });
 
-function reloadQueue(newQueueName, queueType)
+var currentQueue = 'activity.assigned.tasks';
+var currentQueueType = 'process';
+var currentOwnerLogin = '${aperteUser.login}';
+
+function reloadCurrentQueue()
 {
+	reloadQueue(currentQueue, currentQueueType, currentOwnerLogin);
+}
+
+function reloadQueue(newQueueName, queueType, ownerLogin)
+{
+	currentQueue = newQueueName;
+	currentQueueType = queueType;
+	currentOwnerLogin = ownerLogin;
+	
+	console.log( "newQueueName:" + newQueueName); 
+	
 	if ($('#process-panel-view').css("visibility") == "hidden") 
 	{
 		$('#process-panel-view').show();
 	}
 	else
 	{
-		var requestUrl = '<spring:url value="/processes/loadProcessesList.json?queueName="/>' + newQueueName + '&queueType=' + queueType;
+		var requestUrl = '<spring:url value="/processes/loadProcessesList.json?queueName="/>' + newQueueName + '&queueType=' + queueType + '&ownerLogin='+ownerLogin;
 
 		$('#processesTable').dataTable().fnReloadAjax(requestUrl);
 		
@@ -61,10 +76,34 @@ function loadQueue()
 
 	function generateNameColumn(task)
 	{
+		
 	    var linkBody = '<a class="process-view-link" data-toggle="tooltip" title="'+task.tooltip+'" onclick="loadProcessView('+task.processStateConfigurationId+','+task.taskId+') ">' + task.processName + '</a>';
 
+		if(task.queueName)
+		{
+			linkBody += ' || <a id="link-'+task.queueName+'" class="queue-task-assign-link" data-toggle="tooltip" title="<spring:message code="activity.tasks.task-claim" />" onclick="claimTaskFromQueue(\''+task.queueName+'\','+task.processStateConfigurationId+','+task.taskId+'); "><spring:message code="activity.tasks.task-claim" /></a>'
+		}
         return linkBody;
     }
+	
+	function claimTaskFromQueue(queueName, processStateConfigurationId, taskId)
+	{
+		
+		var bpmJson = $.post('<spring:url value="/task/claimTaskFromQueue"/>', 
+		{
+			"queueName": queueName,
+			"taskId": taskId
+		}, function(newTask) 
+		{ 
+			console.log( "task claimed, new task: "+newTask.taskId); 
+			reloadQueues();
+			loadProcessView(processStateConfigurationId, newTask.taskId);
+		})
+		.fail(function(request, status, error) 
+		{	
+			console.log( "ojoj:  "+error); 
+		});
+	}
 	
 	function loadProcessView(processStateConfigurationId, taskId)
 	{
@@ -80,6 +119,7 @@ function loadQueue()
 			$("#process-data-view").append(data);
 			
 			showProcessData();
+			enableButtons();
 		});
 	}
 //]]>

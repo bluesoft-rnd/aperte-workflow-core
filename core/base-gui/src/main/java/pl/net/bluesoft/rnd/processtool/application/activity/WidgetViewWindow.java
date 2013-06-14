@@ -65,6 +65,7 @@ public class WidgetViewWindow extends Window
 	
 	private Collection<ProcessToolDataWidget> widgets = new ArrayList<ProcessToolDataWidget>();
 	private Collection<String> errors = new ArrayList<String>();
+	private WidgetEventBus widgetEventBus;
 	
 	public WidgetViewWindow(ProcessToolRegistry processToolRegistry, ProcessToolBpmSession bpmSession, WidgetApplication application, I18NSource i18NSource) 
 	{
@@ -72,7 +73,7 @@ public class WidgetViewWindow extends Window
 		this.bpmSession = bpmSession;
 		this.application = application;
 		this.i18NSource = i18NSource;
-		
+		this.widgetEventBus = new WidgetEventBus();
 		
 		this.widgetFactory = new WidgetFactory(bpmSession, application, i18NSource);
 		
@@ -159,13 +160,11 @@ public class WidgetViewWindow extends Window
 				ProcessStateWidget processStateWidget = ctx.getProcessDefinitionDAO().getProcessStateWidget(processStateWidgetId);
 				
 				BpmTask task = bpmSession.getTaskData(bpmTaskId, ctx);
-				
-				WidgetEventBus eventBus = new WidgetEventBus();
 
-				ProcessToolWidget widget = getWidget(processStateWidget, ctx, "1", eventBus, task);
+				ProcessToolWidget widget = getWidget(processStateWidget, ctx, "1", task);
 				if (widget instanceof ProcessToolVaadinRenderable && (!nvl(processStateWidget.getOptional(), false) || widget.hasVisibleData())) 
 				{
-					processWidgetChildren(processStateWidget, widget, ctx, "1", eventBus, task);
+					processWidgetChildren(processStateWidget, widget, ctx, "1", task);
 					ProcessToolVaadinRenderable vaadinW = (ProcessToolVaadinRenderable) widget;
 					
 					Component renderedWidget = vaadinW.render();
@@ -188,7 +187,7 @@ public class WidgetViewWindow extends Window
 	}
 
 	
-	private ProcessToolWidget getWidget(ProcessStateWidget processStateWidget, ProcessToolContext ctx, String generatorKey, WidgetEventBus widgetEventBus, BpmTask task) 
+	private ProcessToolWidget getWidget(ProcessStateWidget processStateWidget, ProcessToolContext ctx, String generatorKey, BpmTask task) 
 	{
 		ProcessToolWidget processToolWidget;
 		try 
@@ -199,7 +198,7 @@ public class WidgetViewWindow extends Window
 			
 			processToolWidget.setGeneratorKey(generatorKey);
 			processToolWidget.setTaskId(bpmTaskId);
-			
+			processToolWidget.setWidgetEventBus(widgetEventBus);
 
 			if (processToolWidget instanceof ProcessToolDataWidget) 
 			{
@@ -223,7 +222,7 @@ public class WidgetViewWindow extends Window
 	}
 	
 	private void processWidgetChildren(ProcessStateWidget parentWidgetConfiguration, ProcessToolWidget parentWidgetInstance,
-			ProcessToolContext ctx, String generatorKey, WidgetEventBus widgetEventBus, BpmTask task) 
+			ProcessToolContext ctx, String generatorKey, BpmTask task) 
 	{
 		Set<ProcessStateWidget> children = parentWidgetConfiguration.getChildren();
 		
@@ -245,18 +244,18 @@ public class WidgetViewWindow extends Window
 		{
 			if(StringUtils.isNotEmpty(subW.getGenerateFromCollection()))
 			{
-				generateChildren(parentWidgetInstance, ctx, subW, widgetEventBus, task);
+				generateChildren(parentWidgetInstance, ctx, subW, task);
 			} 
 			else 
 			{
 				subW.setParent(parentWidgetConfiguration);
-				addWidgetChild(parentWidgetInstance, ctx, subW, generatorKey, widgetEventBus, task);
+				addWidgetChild(parentWidgetInstance, ctx, subW, generatorKey, task);
 			}
 		}
 	}
 	
 	private void generateChildren(ProcessToolWidget parentWidgetInstance, ProcessToolContext ctx,
-			ProcessStateWidget subW, WidgetEventBus widgetEventBus, BpmTask task) 
+			ProcessStateWidget subW, BpmTask task) 
 	{
 		String collection = task.getProcessInstance().getSimpleAttributeValue(subW.getGenerateFromCollection(), null);
 		if(StringUtils.isEmpty(collection))
@@ -264,18 +263,18 @@ public class WidgetViewWindow extends Window
 		String[] items = collection.split("[,; ]");
 
 		for(String item : items){
-			addWidgetChild(parentWidgetInstance, ctx, subW, item, widgetEventBus, task);
+			addWidgetChild(parentWidgetInstance, ctx, subW, item, task);
 		}
 	}
 
 	private void addWidgetChild(ProcessToolWidget parentWidgetInstance, ProcessToolContext ctx,
-			ProcessStateWidget subW, String generatorKey, WidgetEventBus widgetEventBus, BpmTask task) 
+			ProcessStateWidget subW, String generatorKey, BpmTask task) 
 	{
-		ProcessToolWidget widgetInstance = getWidget(subW, ctx, generatorKey, widgetEventBus, task);
+		ProcessToolWidget widgetInstance = getWidget(subW, ctx, generatorKey, task);
 		
 		if (!nvl(subW.getOptional(), false) || widgetInstance.hasVisibleData()) 
 		{
-			processWidgetChildren(subW, widgetInstance, ctx, generatorKey, widgetEventBus, task);
+			processWidgetChildren(subW, widgetInstance, ctx, generatorKey, task);
 			parentWidgetInstance.addChild(widgetInstance);
 		}
 	}

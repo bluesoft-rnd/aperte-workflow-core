@@ -48,7 +48,7 @@ function reloadCurrentQueue()
 }
 
 function reloadQueue(newQueueName, queueType, ownerLogin)
-{
+{	
 	currentQueue = newQueueName;
 	currentQueueType = queueType;
 	currentOwnerLogin = ownerLogin;
@@ -127,10 +127,10 @@ function loadQueue()
 		}, function(data) 
 		{ 
 			clearAlerts();
+			windowManager.showProcessData();
 			$('#process-data-view').empty();
 			$("#process-data-view").append(data);
 			
-			windowManager.showProcessData();
 		});
 	}
 	

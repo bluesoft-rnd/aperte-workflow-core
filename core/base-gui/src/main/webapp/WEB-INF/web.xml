@@ -661,9 +661,11 @@
 	
 	<error-page>
 	    <error-code>404</error-code>
-	    <location>/login.do</location>
+	    <location>/error.jsp</location>
 	</error-page>
-
+	<welcome-file-list>
+		<welcome-file>/index.jsp</welcome-file>
+	</welcome-file-list>
 	<resource-ref>
 		<description>Aperte Workflow Datasource Reference</description>
 		<res-ref-name>jdbc/aperte-workflow-ds</res-ref-name>

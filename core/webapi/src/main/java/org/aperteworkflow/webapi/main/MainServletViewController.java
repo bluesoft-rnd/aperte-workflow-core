@@ -1,23 +1,14 @@
 package org.aperteworkflow.webapi.main;
 
-import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import javax.portlet.PortletContext;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
-import javax.servlet.ServletContext;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.portlet.ModelAndView;
-import org.springframework.web.portlet.bind.annotation.RenderMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
+import org.springframework.web.portlet.bind.annotation.RenderMapping;
+import org.springframework.web.servlet.ModelAndView;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.authorization.IAuthorizationService;
@@ -32,11 +23,20 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 import pl.net.bluesoft.util.lang.cquery.func.F;
 
+import javax.portlet.RenderRequest;
+import javax.portlet.RenderResponse;
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Collection;
+import java.util.List;
+
+import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
 
 
-@Controller(value = "MainViewController")  
-@RequestMapping("VIEW")
-public class MainViewController 
+@Controller(value = "MainServletViewController")
+@RequestMapping(value ="/view")
+public class MainServletViewController
 {
 	private static final String PROCESS_START_LIST = "processStartList";
 	private static final String QUEUES_PARAMETER_NAME = "queues";
@@ -44,19 +44,19 @@ public class MainViewController
 	
 	@Autowired
 	private ProcessToolRegistry processToolRegistry;
-	
-	@RenderMapping ()
-	 public ModelAndView handleRenderRequest(RenderRequest request,RenderResponse response,Model model)
-	{  
-		ModelAndView modelView = new ModelAndView();
-		modelView.setViewName("main");
-		
+
+    @RequestMapping()
+	 public ModelAndView view(HttpServletRequest request, HttpServletResponse response)
+	{
+		ModelAndView modelView = new ModelAndView("index");
+		//modelView.setViewName(view);
+
 		processRequest(modelView, request);
-		
-	    return modelView;  
-	 }  
-	
-	private void processRequest(final ModelAndView modelView, final RenderRequest request)
+
+	    return modelView;
+	 }
+
+    private void processRequest(final ModelAndView modelView, final HttpServletRequest request)
 	{
 		
 		IAuthorizationService authorizationService = ObjectFactory.create(IAuthorizationService.class);

@@ -9,7 +9,7 @@
 <!--<script language='javascript' src='/aperteworkflow/VAADIN/widgetsets/pl.net.bluesoft.rnd.widgetset.PortalDefaultWidgetSet/pl.net.bluesoft.rnd.widgetset.PortalDefaultWidgetSet.nocache.js'></script>-->
 <!--<script src="<%=request.getContextPath()%>/js/mp-admin-utils.js" ></script>-->
 
-<h2>Aperte Workflow Maginificient Activities</h2>
+<!--<h2>Aperte Workflow Maginificient Activities</h2>-->
 <c:if test="${aperteUser.login!=null}">
 
 <div class="main-view">
@@ -21,7 +21,7 @@
 	<%@include file="searchView.jsp" %>
 </div>
 
-</c:if> 
+</c:if>  
  <c:if test="${aperteUser.login==null}">
 	<div class="please-log-in-label">
 		<spring:message code="authorization.please.log.in" />
@@ -40,48 +40,71 @@
   
 	function WindowManager()
 	{
+		this.currentView = 'process-panel-view';
+		this.viewHistory = [];
+		this.allViews = ["process-data-view", "actions-list", "process-panel-view", "new-process-view", "search-view", "outer-queues"];
+		
+		this.previousView = function()
+		{
+			var lastView = this.viewHistory.pop();
+			console.log( "lastView "+lastView);
+			if(lastView)
+			{
+				this.showView(lastView, false);
+			}
+		}
+		
+		this.showQueueList = function()
+		{
+			this.showView('outer-queues', true);
+		}
+		
+		this.hasPreviousView = function()
+		{
+			return this.viewHistory.length > 0;
+		}
+		
 		this.showSearchProcessPanel = function()
+		{
+			this.showView('search-view', true);
+		};
+		
+		this.showView = function(viewName, addToHistory)
 		{
 			windowManager.clearProcessView();
 			
-			$('#process-data-view').hide();
-			$('#actions-list').hide();
-			$('#process-panel-view').hide();
-			$('#new-process-view').hide();
-			$('#search-view').show();
-		};
+			$.each(this.allViews, function( ) 
+			{ 
+				var elementId = this;
+				if(this != viewName)
+				{
+					$(document.getElementById(elementId)).fadeOut(300);
+				}
+			});
+			
+			if(addToHistory == true)
+			{
+				this.viewHistory.push(this.currentView);
+			}
+			
+			this.currentView = viewName;
+			$(document.getElementById(viewName)).fadeIn(300);
+		}
 		
 		this.showNewProcessPanel = function()
 		{
-			windowManager.clearProcessView();
-			
-			$('#process-data-view').hide();
-			$('#actions-list').hide();
-			$('#process-panel-view').hide();
-			$('#new-process-view').show();
-			$('#search-view').hide();
+			this.showView('new-process-view', true);
 		};
 		
 		this.showProcessList = function()
 		{
-			windowManager.clearProcessView();
-		
-			
-			$('#process-data-view').hide();
-			$('#actions-list').hide();
-			$('#process-panel-view').show();
-			$('#new-process-view').hide();
-			$('#search-view').hide();
-
+			this.showView('process-panel-view', true);
 		}
 		
 		this.showProcessData = function()
 		{
-			$('#process-data-view').show();
-			$('#actions-list').show();
-			$('#process-panel-view').hide();
-			$('#new-process-view').hide();
-			$('#search-view').hide();
+			this.showView('process-data-view', true);
+			$('#actions-list').fadeIn(600);
 		}
 		
 		this.clearProcessView = function()

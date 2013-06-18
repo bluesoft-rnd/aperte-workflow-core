@@ -29,82 +29,99 @@
  </c:if> 
  
   <script type="text/javascript">
-	$(window).unload(function() 
+  
+  	$(window).unload(function() 
 	{
-		clearProcessView();
+		windowManager.clearProcessView();
+		
 	});
 	
-	function showSearchProcessPanel()
+	var windowManager = new WindowManager();
+  
+	function WindowManager()
 	{
-		clearProcessView();
+		this.showSearchProcessPanel = function()
+		{
+			windowManager.clearProcessView();
+			
+			$('#process-data-view').hide();
+			$('#actions-list').hide();
+			$('#process-panel-view').hide();
+			$('#new-process-view').hide();
+			$('#search-view').show();
+		};
 		
-		$('#process-data-view').hide();
-		$('#actions-list').hide();
-		$('#process-panel-view').hide();
-		$('#new-process-view').hide();
-		$('#search-view').show();
-	}
- 
-	function showNewProcessPanel()
-	{
-		clearProcessView();
+		this.showNewProcessPanel = function()
+		{
+			windowManager.clearProcessView();
+			
+			$('#process-data-view').hide();
+			$('#actions-list').hide();
+			$('#process-panel-view').hide();
+			$('#new-process-view').show();
+			$('#search-view').hide();
+		};
 		
-		$('#process-data-view').hide();
-		$('#actions-list').hide();
-		$('#process-panel-view').hide();
-		$('#new-process-view').show();
-		$('#search-view').hide();
-    }
-	
-	function showProcessList()
-	{
-		clearProcessView();
-	
+		this.showProcessList = function()
+		{
+			windowManager.clearProcessView();
 		
-		$('#process-data-view').hide();
-		$('#actions-list').hide();
-		$('#process-panel-view').show();
-		$('#new-process-view').hide();
-		$('#search-view').hide();
+			
+			$('#process-data-view').hide();
+			$('#actions-list').hide();
+			$('#process-panel-view').show();
+			$('#new-process-view').hide();
+			$('#search-view').hide();
 
-    }
-	
-	function showProcessData()
-	{
-		$('#process-data-view').show();
-		$('#actions-list').show();
-		$('#process-panel-view').hide();
-		$('#new-process-view').hide();
-		$('#search-view').hide();
-    }
-	
-	function clearProcessView()
-	{
-		widgets = [];
+		}
 		
-		<!-- required to close vaadin application -->
-		$('.vaadin-widget-view').each(function( ) 
-		{ 
-			var widgetId = $(this).attr('widgetId');
-			var taskId = $(this).attr('taskId');
+		this.showProcessData = function()
+		{
+			$('#process-data-view').show();
+			$('#actions-list').show();
+			$('#process-panel-view').hide();
+			$('#new-process-view').hide();
+			$('#search-view').hide();
+		}
+		
+		this.clearProcessView = function()
+		{
+			$('#actions-list').empty();
 			
-			var windowName = taskId+"_"+widgetId;
-			console.log( "close! windowName: "+windowName);
+			widgets = [];
 			
-			var source = "widget/"+windowName+"_close/";
-			var url = '<spring:url value="/'+source+'"/>';
-			
-			console.log( "close! url: "+url);
-			
-			$.getJSON(url)
-			.done(function() {
-			  console.log( "killed!");
+			<!-- required to close vaadin application -->
+			$('.vaadin-widget-view').each(function( ) 
+			{ 
+				var widgetToClose = $(this);
+				var widgetId = $(this).attr('widgetId');
+				var taskId = $(this).attr('taskId');
+				
+				var windowName = taskId+"_"+widgetId;
+				
+				var source = "widget/"+windowName+"_close/";
+				var url = '<spring:url value="/'+source+'"/>';
+				
+				console.log( "close! url: "+url);
+				
+				$.ajax(url)
+				.done(function() 
+				{
+					widgetToClose.remove();
+				  console.log( "killed!");
+				});
+				
 			});
 			
-		});
-		
-		vaadinWidgetsCount = 0;
-		vaadinWidgetsLoadedCount = 0;
+			vaadinWidgetsCount = 0;
+			vaadinWidgetsLoadedCount = 0;
+		}
 	}
+  
+
+	
+
+ 
+	
  
  </script>

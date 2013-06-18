@@ -9,6 +9,7 @@ import javax.persistence.*;
 import javax.persistence.Entity;
 import javax.persistence.Parameter;
 import javax.persistence.Table;
+import javax.swing.*;
 
 import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.annotations.*;
@@ -36,9 +37,12 @@ public class ProcessInstanceFilter extends AbstractPersistentEntity {
 	private Date notUpdatedAfter;
 	private String genericQuery;
 	private String name;
-	
-	/** Type of the queue */
 
+    @Enumerated(EnumType.STRING)
+    private QueueOrder sortOrder;
+
+    @Enumerated(EnumType.STRING)
+    private QueueOrderCondition sortOrderCondition;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "filter_owner_id")
@@ -205,5 +209,20 @@ public class ProcessInstanceFilter extends AbstractPersistentEntity {
 		this.queueTypes.add(queueType);
 		
 	}
-	
+
+    public QueueOrder getSortOrder() {
+        return sortOrder;
+    }
+
+    public void setSortOrder(QueueOrder sortOrder) {
+        this.sortOrder = sortOrder;
+    }
+
+    public QueueOrderCondition getSortOrderCondition() {
+        return sortOrderCondition;
+    }
+
+    public void setSortOrderCondition(QueueOrderCondition sortOrderCondition) {
+        this.sortOrderCondition = sortOrderCondition;
+    }
 }

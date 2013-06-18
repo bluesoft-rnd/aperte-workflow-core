@@ -15,52 +15,6 @@
 	{
 		$('#actions-list').find('button').prop('disabled', false);
 	}
-
-	<!-- Create widgets -->
-	function appendAction(action, parentId, taskId)
-	{
-		console.log( "action name:" + action.actionName); 
-		
-		$( "<button>", { id : 'action-button-' + action.actionName, text : action.caption, type: "button", "class": "btn btn-large aperte-button", "disabled": true } )
-		.click(function () 
-			{
-			  disableButtons();
-			  performAction(this, action.actionName, action.skipSaving, taskId);
-			})
-		.tooltip({title: action.tooltip})
-		.appendTo( parentId );
-
-		
-
-	
-	}
-	
-	function appendSaveAction(parentId, taskId)
-	{
-		$( "<button>", { id : 'action-button-save', text : '<spring:message code="button.save.process.data" />', type: "button", "class": "btn btn-large btn-success aperte-button","disabled": true  } )
-		.click(function () 
-			{
-			  disableButtons();
-			  saveAction(this, taskId);
-			})
-		.tooltip({title: '<spring:message code="button.save.process.desc" />'})
-		.appendTo( parentId );
-	}
-	
-	function appendCancelAction(parentId, taskId)
-	{
-		$( "<button>", { id : 'action-button-save', text : '<spring:message code="button.cancel" />', type: "button", "class": "btn btn-large btn-inverse aperte-button", "disabled": true  } )
-		.click(function () 
-			{
-			  disableButtons();
-			  closeProcessView();
-			})
-		.tooltip({title: '<spring:message code="button.cancel" />'})
-		.appendTo( parentId );
-	}
-	
-
-	
 	
 	function saveAction(taskId)
 	{
@@ -101,7 +55,6 @@
 		})
 		.done(function(data) 
 		{ 
-			console.log( "done, error: "+data.errors.length ); 
 			if(data.errors != null)
 			{
 				addAlerts(data.errors);
@@ -114,17 +67,13 @@
 		.fail(function(data) 
 		{ 
 			addAlerts(data.errors);
-			console.log( "error: "+data.errors ); 
 		});
-		
-		console.log( "state save: "+state ); 
 		
 		return state;
 	}
 	
 	function addAlerts(alertsMessages)
 	{
-		console.log( "alerts: "+alertsMessages );
 		$('#alerts-list').empty();
 		$.each( alertsMessages, function( ) 
 		{
@@ -146,7 +95,6 @@
 	function performAction(button, actionName, skipSaving, taskId)
 	{
 		var JsonWidgetData = "[{}]";
-		console.log( "taskId: "+taskId); 
 		if(skipSaving != true)
 		{
 			clearAlerts();
@@ -195,7 +143,7 @@
 			{
 			    closeProcessView();
 				reloadCurrentQueue();
-				showProcessList();
+				windowManager.showProcessList();
 				
 				return;
 			}
@@ -216,7 +164,7 @@
 			{
 				closeProcessView();
 				reloadCurrentQueue();
-				showProcessList();
+				windowManager.showProcessList();
 			}
 		})
 		.fail(function() { addAlerts(data.errors); })
@@ -224,7 +172,6 @@
 		{ 
 			if(data != null)
 			{
-				console.log( "enable buttons "); 
 				enableButtons();
 			}
 		});
@@ -240,7 +187,7 @@
 	{
 		reloadQueues();
 		disableButtons(); 
-		showProcessList();
+		windowManager.showProcessList();
 	}
 	
 	function closeProcessView()
@@ -248,7 +195,7 @@
 		$('#vaadin-widgets').empty();
 		$('#actions-list').empty();
 		
-		showProcessList();
+		windowManager.showProcessList();
 	}
 
 

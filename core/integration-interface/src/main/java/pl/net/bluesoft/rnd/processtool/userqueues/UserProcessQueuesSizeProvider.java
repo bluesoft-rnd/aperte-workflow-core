@@ -13,6 +13,7 @@ import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.filters.factory.ProcessInstanceFilterFactory;
 import pl.net.bluesoft.rnd.processtool.filters.factory.QueuesNameUtil;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
+import pl.net.bluesoft.rnd.processtool.model.QueueType;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
@@ -125,6 +126,9 @@ public class UserProcessQueuesSizeProvider
 			String queueDesc = messageSource.getMessage(queueFilter.getName());
 			
 			userQueueSize.addProcessListSize(queueFilter.getName(), queueId, queueDesc, filteredQueueSize);
+			
+			if(isAssignedToUserFilter(queueFilter))
+				userQueueSize.setActiveTasks(userQueueSize.getActiveTasks() + filteredQueueSize);
 		}
 		
 		/* Add queues */
@@ -141,6 +145,17 @@ public class UserProcessQueuesSizeProvider
 		
 		usersQueuesSize.add(userQueueSize);
 	}
+	
+	private boolean isAssignedToUserFilter(ProcessInstanceFilter filter)
+	{
+		if(filter.getQueueTypes().contains(QueueType.OWN_IN_PROGRESS))
+			return false;
+		
+		if(filter.getQueueTypes().contains(QueueType.OWN_FINISHED))
+			return false;
+		
+		return true;
+	}
 
 
 	/**
@@ -156,6 +171,7 @@ public class UserProcessQueuesSizeProvider
 		private String userLogin;
 		private Collection<UserQueueDTO> processesList;
 		private Collection<UserQueueDTO> queuesList;
+		private Integer activeTasks = 0;
 		
 		public UsersQueuesDTO(String userLogin) 
 		{
@@ -196,6 +212,14 @@ public class UserProcessQueuesSizeProvider
 
 		public Collection<UserQueueDTO> getQueuesList() {
 			return queuesList;
+		}
+
+		public Integer getActiveTasks() {
+			return activeTasks;
+		}
+
+		public void setActiveTasks(Integer activeTasks) {
+			this.activeTasks = activeTasks;
 		}
 	}
 	

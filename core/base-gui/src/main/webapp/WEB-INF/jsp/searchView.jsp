@@ -3,7 +3,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
-<div class="search-view">
+<div id="search-view">
 	<label><spring:message code="processes.search.label" /></label>
 	<textarea placeholder="<spring:message code='processes.search.textarea.input' />" id="search-expression-text" name="expression-text" minlength="2" required></textarea>
 	

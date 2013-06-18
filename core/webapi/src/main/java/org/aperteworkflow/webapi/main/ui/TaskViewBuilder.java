@@ -243,7 +243,7 @@ public class TaskViewBuilder
 		
 		Element buttonNode = parent.ownerDocument().createElement("button")
 				.appendText(i18Source.getMessage(action.getLabel()))
-				.attr("class", "btn btn-large aperte-button")
+				.attr("class", "btn aperte-button")
 				.attr("disabled", "true")
 				.attr("type", "button")
 				.attr("id", actionButtonId);
@@ -260,7 +260,7 @@ public class TaskViewBuilder
 		
 		Element buttonNode = parent.ownerDocument().createElement("button")
 				.appendText(i18Source.getMessage("button.save.process.data"))
-				.attr("class", "btn btn-large btn-success aperte-button")
+				.attr("class", "btn btn-success aperte-button")
 				.attr("disabled", "true")
 				.attr("type", "button")
 				.attr("id", actionButtonId);
@@ -276,7 +276,7 @@ public class TaskViewBuilder
 		
 		Element buttonNode = parent.ownerDocument().createElement("button")
 				.appendText(i18Source.getMessage("button.cancel"))
-				.attr("class", "btn btn-large btn-inverse aperte-button")
+				.attr("class", "btn btn-inverse aperte-button")
 				.attr("disabled", "true")
 				.attr("type", "button")
 				.attr("id", actionButtonId);

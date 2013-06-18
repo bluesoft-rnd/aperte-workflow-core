@@ -33,7 +33,6 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 import pl.net.bluesoft.util.lang.Lang;
 
 import com.vaadin.ui.Component;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.Window;
 
 /**
@@ -148,9 +147,6 @@ public class WidgetViewWindow extends Window
 		
 		processStateWidgetId = Long.parseLong(widgetId);
 		bpmTaskId = taskId;
-		
-		addComponent(new Label("widgetId: "+widgetId));
-		addComponent(new Label("taskId: "+taskId));
 
 		processToolRegistry.withProcessToolContext(new ProcessToolContextCallback() {
 			

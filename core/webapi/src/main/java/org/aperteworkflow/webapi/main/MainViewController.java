@@ -83,7 +83,7 @@ public class MainViewController
 				
 				I18NSource messageSource = I18NSourceFactory.createI18NSource(request.getLocale());
 				
-				addUserQueues(modelView, user, ctx, messageSource);
+				//addUserQueues(modelView, user, ctx, messageSource);
 				addProcessStartList(modelView, ctx, bpmSession);
 				
 			}

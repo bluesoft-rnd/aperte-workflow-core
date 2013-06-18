@@ -1,8 +1,6 @@
 package org.aperteworkflow.webapi.main.processes.controller;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,11 +27,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
-import pl.net.bluesoft.rnd.processtool.model.BpmTask;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
-import pl.net.bluesoft.rnd.processtool.model.QueueType;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.processtool.model.*;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
@@ -50,7 +44,12 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 {
 	private static Logger logger = Logger.getLogger(ProcessesListController.class.getName());
 	private static final String SYSTEM_SOURCE = "System";
-	
+
+    private static final String PROCESS_NAME_COLUMN = "0";
+    private static final String PROCESS_CODE_COLUMN = "1";
+    private static final String CREATOR_NAME_COLUMN = "2";
+    private static final String ASSIGNEE_NAME_COLUMN = "3";
+    private static final String CREATED_DATE_COLUMN = "4";
 	/**
 	 * Request parameters:
 	 * - processStateConfigurationId: process state configuration db id
@@ -293,6 +292,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 		final String queueName = request.getParameter("queueName");
 		final String queueType = request.getParameter("queueType");
 		final String ownerLogin = request.getParameter("ownerLogin");
+
 		
 		final List<BpmTaskBean> adminAlertBeanList = new ArrayList<BpmTaskBean>();
 		
@@ -308,18 +308,31 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 		if(!context.isUserAuthorized())
 			return new DataPagingBean<BpmTaskBean>(adminAlertBeanList, 0, echo);
 		
+		final String sortCol = request.getParameter("iSortCol_0");
+		final String sortDir = request.getParameter("sSortDir_0");
+		String searchString = request.getParameter("sSearch");
+		
+		String displayStartString = request.getParameter("iDisplayStart");
+		String displayLengthString = request.getParameter("iDisplayLength");
+		
+		final Integer displayStart = Integer.parseInt(displayStartString);
+		final Integer displayLength = Integer.parseInt(displayLengthString);
+		
+		final DataPagingBean<BpmTaskBean> pagingCollection = new DataPagingBean<BpmTaskBean>(
+				adminAlertBeanList, 100, echo);
+
 		context.getRegistry().withProcessToolContext(new ProcessToolContextCallback() {
- 
+
 			@Override
-			public void withContext(ProcessToolContext ctx) 
+			public void withContext(ProcessToolContext ctx)
 			{
 				I18NSource messageSource = I18NSourceFactory.createI18NSource(request.getLocale());
-				
+
 				boolean isQueue = "queue".equals(queueType);
-				
+
 				UserData owner = ctx.getUserDataDAO().loadUserByLogin(ownerLogin);
-				
-				
+
+
 				ProcessInstanceFilter filter = new ProcessInstanceFilter();
 				if(isQueue)
 				{
@@ -334,30 +347,68 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 			        filter.addQueueType(QueueType.fromQueueId(queueName));
 					filter.setName(queueName);
 				}
-				
-				Collection<BpmTask> tasks = context.getBpmSession().findFilteredTasks(filter, ctx);
-				 
+
+                filter.setSortOrderCondition(mapColumnNameToOrderCondition(sortCol));
+                filter.setSortOrder(mapColumnSortToSortOrder(sortDir));
+
+				Collection<BpmTask> tasks = context.getBpmSession().findFilteredTasks(filter, ctx, displayStart, displayLength);
+
 				for(BpmTask task: tasks)
-				{ 
+				{
 					BpmTaskBean processBean = BpmTaskBean.createFrom(task, messageSource);
-					
+
 					if(isQueue)
 						processBean.setQueueName(queueName);
-					
-					adminAlertBeanList.add(processBean);				
 
-				}
-				
+					adminAlertBeanList.add(processBean);
+
+                }
+
+				int totalRecords = context.getBpmSession().getFilteredTasksCount(filter, ctx);
+				pagingCollection.setiTotalRecords(totalRecords);
+				pagingCollection.setiTotalDisplayRecords(totalRecords);
+				pagingCollection.setAaData(adminAlertBeanList);
+
 			}
 		});
-		
-		
-		DataPagingBean<BpmTaskBean> pagingCollection = new DataPagingBean<BpmTaskBean>(
-				adminAlertBeanList, adminAlertBeanList.size(), echo);
-		
+
+
+
+
         return pagingCollection;
 
 	}
+
+    private QueueOrderCondition mapColumnNameToOrderCondition(String columnName)
+    {
+        if(PROCESS_NAME_COLUMN.equals(columnName))
+            return QueueOrderCondition.SORT_BY_PROCESS_NAME_ORDER;
+
+        else if(PROCESS_CODE_COLUMN.equals(columnName))
+            return QueueOrderCondition.SORT_BY_PROCESS_CODE_ORDER;
+
+        else if(CREATOR_NAME_COLUMN.equals(columnName))
+            return QueueOrderCondition.SORT_BY_ASSIGNEE_ORDER;
+
+        else if(ASSIGNEE_NAME_COLUMN.equals(columnName))
+            return QueueOrderCondition.SORT_BY_ASSIGNEE_ORDER;
+
+        else if(CREATED_DATE_COLUMN.equals(columnName))
+            return QueueOrderCondition.SORT_BY_CREATE_DATE_ORDER;
+
+        else
+            return null;
+    }
+
+    private QueueOrder mapColumnSortToSortOrder(String sortOrder)
+    {
+        if("desc".equals(sortOrder))
+            return QueueOrder.DESC;
+        else
+            return QueueOrder.ASC;
+    }
+
+
 	
 
 }

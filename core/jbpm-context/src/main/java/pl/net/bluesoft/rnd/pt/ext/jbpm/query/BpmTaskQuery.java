@@ -1,7 +1,5 @@
 package pl.net.bluesoft.rnd.pt.ext.jbpm.query;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -10,11 +8,7 @@ import org.hibernate.SQLQuery;
 import org.jbpm.pvm.internal.history.model.HistoryTaskInstanceImpl;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.model.BpmTask;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.model.QueueType;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
-import pl.net.bluesoft.rnd.processtool.model.nonpersistent.MutableBpmTask;
+import pl.net.bluesoft.rnd.processtool.model.*;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.BpmTaskFactory;
 
 /**
@@ -26,7 +20,7 @@ import pl.net.bluesoft.rnd.pt.ext.jbpm.BpmTaskFactory;
 public class BpmTaskQuery 
 {
 	/** Normal query select to retrive entities */
-	private static final String LIST_QUERY = "select DISTINCT task.*, process.* ";
+	private static final String LIST_QUERY = "select DISTINCT task.*, process.*, queue.* ";
 	
 	/** Count query select to load only number of result to memory */
 	private static final String COUNT_QUERY = "select count(*) ";
@@ -41,9 +35,27 @@ public class BpmTaskQuery
 	
 	/** Additional condition to main query to add filter for queue type */
 	private static final String QUEUE_TYPE_CONDITION = " and queue.queue_type in (:queueTypes) ";
-	
+
+    /** Resuls sort order */
+    private static final String SORT_ORDER_DESC = "desc";
+
+    /** Resuls sort order */
+    private static final String SORT_ORDER_ASC = " asc";
+
 	/** Resuls sort order */
-	private static final String SORY_BY_DATE_ORDER = " order by task.start_ desc";
+	private static final String SORT_BY_DATE_ORDER = " order by task.start_ ";
+
+    /** Resuls sort order */
+    private static final String SORT_BY_CREATE_DATE_ORDER = " order by process.createdate ";
+
+    /** Resuls sort order */
+    private static final String SORT_BY_PROCESS_CODE_ORDER = " order by process.internalid ";
+
+    /** Resuls sort order */
+    private static final String SORT_BY_PROCESS_NAME_ORDER = " order by process.definitionname ";
+
+    /** Resuls sort order */
+    private static final String SORT_BY_ASSIGNEE_ORDER = " order by queue.user_login ";
 	
 	/** String builder to build query */
 	private StringBuilder queryBuilder;
@@ -58,6 +70,10 @@ public class BpmTaskQuery
 	
 	/** Offset for results rows, used for paged views */
 	private int resultsOffset;
+
+    private QueueOrder sortOrder = QueueOrder.DESC;
+
+    private QueueOrderCondition sortOrderCondition = QueueOrderCondition.SORT_BY_DATE_ORDER;
 	
 	public BpmTaskQuery(ProcessToolContext ctx)
 	{
@@ -100,6 +116,8 @@ public class BpmTaskQuery
 		
 		return resultsCount.intValue();
 	}
+
+
 	
 	/** Get bpm tasks from initialized query */
 	@SuppressWarnings("unchecked")
@@ -162,11 +180,16 @@ public class BpmTaskQuery
 	private SQLQuery getQuery()
 	{
 		/* Add results sort order */
-		queryBuilder.append(SORY_BY_DATE_ORDER);
-		
+        if(sortOrderCondition != null)
+		    queryBuilder.append(sortOrderCondition.getQuery());
+
+        if(sortOrder != null)
+            queryBuilder.append(sortOrder.toString());
+
    		SQLQuery query = ctx.getHibernateSession().createSQLQuery(LIST_QUERY + queryBuilder.toString())
    				.addEntity("task", HistoryTaskInstanceImpl.class)
-   				.addEntity("process", ProcessInstance.class);
+   				.addEntity("process", ProcessInstance.class)
+                .addEntity("queue", UserProcessQueue.class);
    		
    		/* Add all parameters */
    		for(QueryParameter parameter: queryParameters)
@@ -185,9 +208,25 @@ public class BpmTaskQuery
    		
    		return query;
 	}
-	
-	
-   	public int getMaxResultsLimit() {
+
+
+    public QueueOrder getSortOrder() {
+        return sortOrder;
+    }
+
+    public void setSortOrder(QueueOrder sortOrder) {
+        this.sortOrder = sortOrder;
+    }
+
+    public QueueOrderCondition getSortOrderCondition() {
+        return sortOrderCondition;
+    }
+
+    public void setSortOrderCondition(QueueOrderCondition sortOrderCondition) {
+        this.sortOrderCondition = sortOrderCondition;
+    }
+
+    public int getMaxResultsLimit() {
 		return maxResultsLimit;
 	}
 

@@ -430,6 +430,11 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
    		/* Set limit for max results count */
    		taskFilterQuery.setMaxResultsLimit(maxResults);
    		taskFilterQuery.setResultsOffset(offset);
+
+        /* Set sort order */
+        taskFilterQuery.setSortOrderCondition(filter.getSortOrderCondition());
+        taskFilterQuery.setSortOrder(filter.getSortOrder());
+
    		/* Add external conditions for process instance filter */
    		addExternalConditions(taskFilterQuery, filter);
    		

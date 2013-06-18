@@ -11,31 +11,7 @@
 		<spring:message code="processes.search.process" />
 	</div>
 	<div class="queues-list" id="queue-view-block">
-		<c:forEach var="userQueue" items="${queues}">
-				<c:if test="${userQueue.userLogin==aperteUser.login}">
-					User: ${userQueue.userLogin}
-					 
-				</c:if> 
-				<c:if test="${userQueue.userLogin!=aperteUser.login}">
-					 User:   ${userQueue.userLogin}
-				</c:if> 
-				
-				<c:forEach var="queue" items="${userQueue.processesList}">
-					<div class="queue-list-row-process">
-						<div id="${queue.queueId}" class="queue-list-name"><a class="queue-list-link" onclick="reloadQueue('${queue.queueName}', 'process') ">${queue.queueDesc}</a></div>
-						<div class="queue-list-size">${queue.queueSize}</div>
-						<br style="clear: left;" />
-					</div>
-				</c:forEach>
 
-				<c:forEach var="queue" items="${userQueue.queuesList}">
-					<div class="queue-list-row-queue">
-						<div id="${queue.queueId}" class="queue-list-name"><a class="queue-list-link" onclick="reloadQueue('${queue.queueName}', 'queue') ">${queue.queueDesc}</a></div>
-						<div class="queue-list-size">${queue.queueSize}</div>
-						<br style="clear: left;" />
-					</div>
-				</c:forEach>
-		 </c:forEach>
 	</div>
 </div>
  <script type="text/javascript">
@@ -44,20 +20,21 @@
 	$(document).ready(function()
 	{
 		$('#new-process-view').hide();
+		$('#process-data-view').hide();
 		reloadQueues();
 	});
  
 	$("#process-start-button").click(
 	  function () 
 	  {
-		showNewProcessPanel();
+		windowManager.showNewProcessPanel();
 	  }
 	);
 	
 	$("#show-search-view-button").click(
 	  function () 
 	  {
-		showSearchProcessPanel();
+		windowManager.showSearchProcessPanel();
 	  }
 	);
 	
@@ -73,8 +50,20 @@
 			$.each( queues, function( ) 
 			{
 				var currentUserLogin = this.userLogin;
+				var userQueueHeaderId = 'accordion-header-'+currentUserLogin;
+				var userQueuesCount = this.activeTasks;
+				
+				var queueName = '<spring:message code="queues.user.queueName" />';
+				console.log( "currentUserLogin: "+currentUserLogin+", userLogin: "+userLogin+", userQueuesCount: "+userQueuesCount); 
+				if(currentUserLogin != userLogin)
+				{
+					queueName = currentUserLogin;
+				}
+				
+				queueName += " ["+userQueuesCount+"]";
+				
 				var accordionID = 'accordion-list-'+currentUserLogin;
-				$( "<a>", { text: "User: "+currentUserLogin, "data-toggle":"collapse", "data-parent":'#queue-view-block', href:"#"+accordionID} )
+				$( "<a>", { id: userQueueHeaderId, text: queueName, "data-toggle":"collapse", "data-parent":'#queue-view-block', href:"#"+accordionID, "class": "queue-user-accordion"} )
 				.appendTo( '#queue-view-block' );
 				
 				var contentClass = "accordion-body collapse in";

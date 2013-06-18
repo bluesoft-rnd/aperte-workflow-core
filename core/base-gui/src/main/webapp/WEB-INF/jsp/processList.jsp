@@ -1,4 +1,4 @@
-<%@ page import="org.springframework.web.servlet.support.RequestContextUtils"%>
+﻿<%@ page import="org.springframework.web.servlet.support.RequestContextUtils"%>
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
@@ -17,6 +17,9 @@
 		</thead>
 		<tbody></tbody>
 	</table>
+	<div id="search-process-table">
+		<input type="text" id="processInputTextField" class="input-medium" placeholder="<spring:message code='processes.search.label' />">
+	</div>
 </div>
 
 <script type="text/javascript">
@@ -24,6 +27,15 @@
 $(document).ready(function()
 {
 	loadQueue('');
+	
+});
+
+$('#processInputTextField').keyup(function() 
+{
+	
+	delay(function(){
+      $('#processesTable').dataTable().fnFilter( $('#processInputTextField').val() );
+	}, 500 );
 });
 
 var currentQueue = 'activity.assigned.tasks';
@@ -53,7 +65,7 @@ function reloadQueue(newQueueName, queueType, ownerLogin)
 
 		$('#processesTable').dataTable().fnReloadAjax(requestUrl);
 		
-		showProcessList();
+		windowManager.showProcessList();
 	}
 }
 
@@ -62,11 +74,11 @@ function loadQueue()
 {
 	var columnDefs = [
 						 { "sName":"name", "bSortable": true,"mData": function(object){return generateNameColumn(object);}},
-						 { "sName":"code", "bSortable": true,"mData": "code" },
+						 { "sName":"code", "bSortable": true, "mData": "code" },
 						 { "sName":"creator", "bSortable": true,"mData": "creator" },
-						 { "sName":"assignee", "bSortable": true,"mData": "assignee" },
+						 { "sName":"assignee", "bSortable": false,"mData": "assignee" },
 						 { "sName":"creationDate", "bSortable": true,"mData": function(object){return $.format.date(object.creationDate, 'dd-MM-yyyy, HH:mm');}},
-						 { "sName":"deadline", "bSortable": true,"mData": function(object){return object.deadline == null ? "" : $.format.date(object.deadline, 'dd-MM-yyyy, HH:mm');}}
+						 { "sName":"deadline", "bSortable": false,"mData": function(object){return object.deadline == null ? "" : $.format.date(object.deadline, 'dd-MM-yyyy, HH:mm');}}
 					 ];
 
 	var requestUrl = '<spring:url value="/processes/loadProcessesList.json?queueName=activity.assigned.tasks&queueType=process"/>';
@@ -107,7 +119,7 @@ function loadQueue()
 	
 	function loadProcessView(processStateConfigurationId, taskId)
 	{
-		clearProcessView();
+		windowManager.clearProcessView();
 		var widgetJson = $.post('<spring:url value="/task/loadTask"/>', 
 		{
 			"processStateConfigurationId": processStateConfigurationId,
@@ -118,8 +130,52 @@ function loadQueue()
 			$('#process-data-view').empty();
 			$("#process-data-view").append(data);
 			
-			showProcessData();
-			enableButtons();
+			windowManager.showProcessData();
+		});
+	}
+	
+	function createDataTable(tableId,url,columns){
+		createDataTable(tableId,url,columns,null);
+	}
+
+	function createDataTable(tableId,url,columns,dataFormId){
+		$('#'+tableId).dataTable({
+			"bLengthChange": true,
+			"bFilter": true,
+			"bProcessing": true,
+			"bServerSide": true,
+			"bInfo": true,
+			"aaSorting": [[ 2, "asc" ]],
+			"bSort": true,
+			"iDisplayLength": 10,
+			"sDom": 'Rptlr',
+			"sAjaxSource": url,
+			"fnServerData": function ( sSource, aoData, fnCallback ) {
+
+				if(dataFormId != null){
+					var bean = $('#'+dataFormId).serializeObject();
+					for(var key in bean){
+						aoData.push({"name":key,"value":bean[key]});
+					}
+				}
+
+				$.ajax( {
+					"dataType": 'json',
+					"type": "POST",
+					"url": sSource,
+					"data": aoData,
+					"success": fnCallback
+				} );
+			},
+			"aoColumns": columns,
+			"oLanguage": {
+				  //todo: uzeleznic tresci od tlumaczen w messages
+				  "sInfo": "Wyniki od _START_ do _END_ z _TOTAL_",
+				  "sEmptyTable": "Brak wyników",
+				  "sInfoEmpty": "Brak wyników",
+				  "sInfoFiltered": ""
+
+				}
 		});
 	}
 //]]>

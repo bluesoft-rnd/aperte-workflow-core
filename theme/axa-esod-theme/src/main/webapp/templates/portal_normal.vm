@@ -15,12 +15,14 @@
 	#js("$javascript_folder/jqModal.js")
 		#js("$javascript_folder/bootstrap.js")
 	#js("$javascript_folder/bootstrap.min.js")
+		#js("$javascript_folder/additional-methods.min.js")
+	#js("$javascript_folder/jquery.validate.min.js")
 	#js("$javascript_folder/funkcje.js")	
 	#js("$javascript_folder/refresher.js")	
-	#js("$javascript_folder/mp-admin-utils.js")	
 	#js("$javascript_folder/jquery.dataTables.js")
+	#js("$javascript_folder/jquery.dataTables.bootstrap.js")
 	#js("$javascript_folder/jquery.dateFormat-1.0.js")
-	#js("$javascript_folder/jquery.validate.min.js")
+
 </head>
 
 <body class="$css_class">

@@ -39,7 +39,7 @@ public class BpmTaskFilterQuery extends BpmTaskQuery
                                         "(aperteuser.login like '%' || :expression || '%' or aperteuser.firstname like '%' || :expression || '%' or aperteuser.lastname like '%' || :expression || '%') OR  "+
                                         "task.transition_ like '%' || :expression || '%' OR " +
                                         "exists(select * from pt_process_instance_s_attr sattr left join pt_process_instance_attr attr on attr.id = sattr.id " +
-                                        "where sattr.value_ like '%' || :expression || '%' )) ";
+                                        "where attr.process_instance_id = process.id and sattr.value_ like '%' || :expression || '%' )) ";
 
 
     public BpmTaskFilterQuery(ProcessToolContext ctx)

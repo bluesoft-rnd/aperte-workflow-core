@@ -194,14 +194,16 @@
 	}
 	
 	
-	.process-table
+	.process-table,
+	.search-table
 	{
 		border: none;
 		border-collapse:collapse;
 		width: 100% !important;
 	}
 
-	.process-table th
+	.process-table th,
+	.search-table th
 	{
 		font-size: 16px;
 		border:none;
@@ -209,14 +211,16 @@
 		padding-bottom: 4px;
 	}
 
-	.process-table th
+	.process-table th,
+	.search-table th
 	{
 		font-size: 16px;
 		border:none;
 
 	}
 
-	.process-table td
+	.process-table td,
+	.search-table td
 	{
 		font-size: 16px;
 		border-bottom:none;
@@ -427,14 +431,16 @@
 		margin-bottom: 5px;
 	}
 	
-	.process-table
+	.process-table,
+	.search-table
 	{
 		border: none;
 		border-collapse:collapse;
 		width: 100% !important;
 	}
 
-	.process-table th
+	.process-table th,
+	.search-table th
 	{
 		font-size: 16px;
 		border:none;
@@ -442,14 +448,16 @@
 		padding-bottom: 4px;
 	}
 
-	.process-table th
+	.process-table th,
+	.search-table th
 	{
 		font-size: 16px;
 		border:none;
 
 	}
 
-	.process-table td
+	.process-table td,
+	.search-table td
 	{
 		font-size: 16px;
 		border-bottom:none;
@@ -636,7 +644,8 @@ button, button:hover
 
 }
 
-.process-table
+.process-table,
+.search-table
 {
 	width: 100%;
 }

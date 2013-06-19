@@ -283,6 +283,72 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 		return newProcessInstanceBO;
 		
 	}
+
+    @RequestMapping(method = RequestMethod.POST, value = "/processes/searchTasks.json")
+    @ResponseBody
+    public DataPagingBean<BpmTaskBean> searchTasks(final HttpServletRequest request)
+    {
+        String echo = request.getParameter("sEcho");
+
+
+
+        final List<BpmTaskBean> adminAlertBeanList = new ArrayList<BpmTaskBean>();
+
+        final IProcessToolRequestContext context = this.initilizeContext(request);
+
+        if(!context.isUserAuthorized())
+            return new DataPagingBean<BpmTaskBean>(adminAlertBeanList, 0, echo);
+
+        final String sortCol = request.getParameter("iSortCol_0");
+        final String sortDir = request.getParameter("sSortDir_0");
+        final String searchString = request.getParameter("sSearch");
+
+        String displayStartString = request.getParameter("iDisplayStart");
+        String displayLengthString = request.getParameter("iDisplayLength");
+
+        final Integer displayStart = Integer.parseInt(displayStartString);
+        final Integer displayLength = Integer.parseInt(displayLengthString);
+
+        final DataPagingBean<BpmTaskBean> pagingCollection = new DataPagingBean<BpmTaskBean>(
+                adminAlertBeanList, 100, echo);
+
+        context.getRegistry().withProcessToolContext(new ProcessToolContextCallback() {
+
+            @Override
+            public void withContext(ProcessToolContext ctx)
+            {
+                I18NSource messageSource = I18NSourceFactory.createI18NSource(request.getLocale());
+
+                ProcessInstanceFilter filter = new ProcessInstanceFilter();
+
+                filter.setExpression(searchString);
+                filter.setSortOrderCondition(mapColumnNameToOrderCondition(sortCol));
+                filter.setSortOrder(mapColumnSortToSortOrder(sortDir));
+
+                Collection<BpmTask> tasks = context.getBpmSession().findFilteredTasks(filter, ctx, displayStart, displayLength);
+
+                for(BpmTask task: tasks)
+                {
+                    BpmTaskBean processBean = BpmTaskBean.createFrom(task, messageSource);
+
+                    adminAlertBeanList.add(processBean);
+
+                }
+
+                int totalRecords = context.getBpmSession().getFilteredTasksCount(filter, ctx);
+                pagingCollection.setiTotalRecords(totalRecords);
+                pagingCollection.setiTotalDisplayRecords(totalRecords);
+                pagingCollection.setAaData(adminAlertBeanList);
+
+            }
+        });
+
+
+
+
+        return pagingCollection;
+
+    }
 	
 	@RequestMapping(method = RequestMethod.POST, value = "/processes/loadProcessesList.json")
 	@ResponseBody

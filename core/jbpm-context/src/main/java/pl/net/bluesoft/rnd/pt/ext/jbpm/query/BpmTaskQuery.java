@@ -28,7 +28,7 @@ public class BpmTaskQuery
 	/** Main query to get task with correlated processes from user process queue */
 	public static final String GET_BPM_TASKS_QUERY = 
 			"from pt_user_process_queue queue, jbpm4_hist_actinst task, pt_process_instance process, pt_user_data aperteuser " +
-			"where queue.task_id = task.htask_ and process.id = queue.process_id and aperteuser.id = process.creator_id";
+			"where queue.task_id = task.htask_ and process.id = queue.process_id and aperteuser.id = process.creator_id ";
 	
 	/** Additional condition to main query to add filter for user login to who task and process are assigned */
 	private static final String USER_LOGIN_CONDITION = " and queue.user_login = :userLogin ";

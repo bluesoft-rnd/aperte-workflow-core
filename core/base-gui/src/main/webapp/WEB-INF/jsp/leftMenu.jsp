@@ -7,9 +7,9 @@
 	  <div class="navbar-inner left-menu">
 			<div class="container">
 			<ul class="nav left-menu">
-                      <li><a id="priv-view-link" href="#" onclick="windowManager.previousView();"><spring:message code="navigation.previous" /></a></li>
+                      <li><a id="priv-view-link" class="left-menu-link" href="#" onclick="windowManager.previousView();"><spring:message code="navigation.previous" /></a></li>
                     </ul>
-			  <a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+			  <a class="btn btn-navbar left-menu" data-toggle="collapse" data-target=".navbar-responsive-collapse">
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
@@ -23,6 +23,9 @@
 				</div>
 				<div class="show-queues-button" id="show-queues-view-button">
 					<spring:message code="processes.show.queues" />
+				</div>
+				<div class="show-configuration-button" id="show-configuration-view-button">
+					<spring:message code="processes.show.configuration" />
 				</div>
 				<div class="inner-queue-list" id="inner-queues">
 					<div class="queues-list" id="queue-view-block">
@@ -48,25 +51,35 @@
 		$('#new-process-view').hide();
 		$('#process-data-view').hide();
 		$('#outer-queues').hide();
+		$('#configuration').hide();
+		
+		loadQueue('');
 		
 		moveQueueList();
 		reloadQueues();
+		
 	});
 	
 	
 	function moveQueueList()
 	{
-		console.log( "width: "+$(window).width()+" mobileMode: "+mobileMode);
 		if($(window).width() < 980 && mobileMode == false)
 		{
 			mobileMode = true;
 			$('#queue-view-block').appendTo('#outer-queues');
+			toggleColumnButton(1, false);
+			toggleColumnButton(2, false);
+			toggleColumnButton(4, false);
 		}
 		else if($(window).width() >= 980 && mobileMode == true)
 		{
 			mobileMode = false;
 			$('#queue-view-block').appendTo('#inner-queues');
+			toggleColumnButton(1, true);
+			toggleColumnButton(2, true);
+			toggleColumnButton(4, true);
 		}
+		
 	}
 	
 	$(window).resize(function()
@@ -95,6 +108,13 @@
 	  {
 		$("#mobile-collapse").collapse('hide');
 		windowManager.showQueueList();
+	  }
+	);
+	
+	$("#show-configuration-view-button").click(function () 
+	  {
+		$("#mobile-collapse").collapse('hide');
+		windowManager.showConfiguration();
 	  }
 	);
 	
@@ -150,7 +170,7 @@
 		var layoutId = 'queue-view-' + processRow.queueId+'-'+userLogin;
 		var innerDivId = processRow.queueId+'-'+userLogin;
 
-		$( "<div>", { id : layoutId, "class": "queue-list-row-process", "onclick":"reloadQueue('"+processRow.queueName+"', 'process', '"+userLogin+"') "} )
+		$( "<div>", { id : layoutId, "class": "queue-list-row-process", "onclick":"reloadQueue('"+processRow.queueName+"', 'process', '"+userLogin+"', '"+processRow.queueDesc+"') "} )
 		.appendTo( '#'+accordionID );
 		
 		$( "<div>", { id : innerDivId, "class": "queue-list-name"} )
@@ -171,7 +191,7 @@
 		var layoutId = 'queue-view-' + queueRow.queueId+'-'+userLogin;
 		var innerDivId = queueRow.queueId+'-'+userLogin;
 
-		$( "<div>", { id : layoutId, "class": "queue-list-row-queue", "onclick":"reloadQueue('"+queueRow.queueName+"', 'queue', '"+userLogin+"') "} )
+		$( "<div>", { id : layoutId, "class": "queue-list-row-queue", "onclick":"reloadQueue('"+queueRow.queueName+"', 'queue', '"+userLogin+"', '"+processRow.queueDesc+"') "} )
 		.appendTo( '#'+accordionID );
 		
 		$( "<div>", { id : innerDivId, "class": "queue-list-name"} )

@@ -4,6 +4,9 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
 <div class="process-panel" id="process-panel-view">
+	<div class="process-queue-name" id="process-queue-name-id">
+		
+	</div>
 	<table id="processesTable" class="process-table" border="1">
 		<thead>
 			<tr>
@@ -17,74 +20,99 @@
 		</thead>
 		<tbody></tbody>
 	</table>
-	<div id="search-process-table">
+	<!--<div id="search-process-table">
 		<input type="text" id="processInputTextField" class="input-medium" placeholder="<spring:message code='processes.search.label' />">
-	</div>
+	</div> -->
+
 </div>
 
 <script type="text/javascript">
 //<![CDATA[
-$(document).ready(function()
-{
-	loadQueue('');
-	
-});
 
-$('#processInputTextField').keyup(function() 
-{
-	
-	delay(function(){
-      $('#processesTable').dataTable().fnFilter( $('#processInputTextField').val() );
-	}, 500 );
-});
-
-var currentQueue = 'activity.assigned.tasks';
-var currentQueueType = 'process';
-var currentOwnerLogin = '${aperteUser.login}';
-
-function reloadCurrentQueue()
-{
-	reloadQueue(currentQueue, currentQueueType, currentOwnerLogin);
-}
-
-function reloadQueue(newQueueName, queueType, ownerLogin)
-{	
-	currentQueue = newQueueName;
-	currentQueueType = queueType;
-	currentOwnerLogin = ownerLogin;
-	
-	console.log( "newQueueName:" + newQueueName); 
-	
-	if ($('#process-panel-view').css("visibility") == "hidden") 
+	$('#processInputTextField').keyup(function() 
 	{
-		$('#process-panel-view').show();
-	}
-	else
-	{
-		var requestUrl = '<spring:url value="/processes/loadProcessesList.json?queueName="/>' + newQueueName + '&queueType=' + queueType + '&ownerLogin='+ownerLogin;
-
-		$('#processesTable').dataTable().fnReloadAjax(requestUrl);
 		
-		windowManager.showProcessList();
-	}
-}
+		delay(function(){
+		  $('#processesTable').dataTable().fnFilter( $('#processInputTextField').val() );
+		}, 500 );
+	});
 
-
-function loadQueue() 
-{
-	var columnDefs = [
-						 { "sName":"name", "bSortable": true,"mData": function(object){return generateNameColumn(object);}},
-						 { "sName":"code", "bSortable": true, "mData": "code" },
-						 { "sName":"creator", "bSortable": true,"mData": "creator" },
-						 { "sName":"assignee", "bSortable": false,"mData": "assignee" },
-						 { "sName":"creationDate", "bSortable": true,"mData": function(object){return $.format.date(object.creationDate, 'dd-MM-yyyy, HH:mm');}},
-						 { "sName":"deadline", "bSortable": false,"mData": function(object){return object.deadline == null ? "" : $.format.date(object.deadline, 'dd-MM-yyyy, HH:mm');}}
-					 ];
-
-	var requestUrl = '<spring:url value="/processes/loadProcessesList.json?queueName=activity.assigned.tasks&queueType=process"/>';
-	createDataTable('processesTable',requestUrl,columnDefs);
+	var currentQueue = 'activity.assigned.tasks';
+	var currentQueueType = 'process';
+	var currentOwnerLogin = '${aperteUser.login}';
+	var currentQueueDesc = '<spring:message code="activity.assigned.tasks" />';
 	
-}
+	function reloadCurrentQueue()
+	{
+		reloadQueue(currentQueue, currentQueueType, currentOwnerLogin);
+	}
+	
+	function toggleColumnButton(columnNumber, active)
+	{
+		
+		var button = $("#process-table-hide-"+columnNumber);
+		
+		var changeState = !XOR(button.hasClass("active"), active); 
+		console.log( "changeState:" + changeState); 
+		if(changeState == true)
+		{
+			button.trigger('click');
+		}
+
+	}
+	
+	function toggleColumn(columnNumber)
+	{
+		var oTable = $('#processesTable').dataTable();
+		var bVis = oTable.fnSettings().aoColumns[columnNumber].bVisible;
+		oTable.fnSetColumnVis( columnNumber, bVis ? false : true);
+	}
+	
+
+	function reloadQueue(newQueueName, queueType, ownerLogin, queueDesc)
+	{	
+		currentQueue = newQueueName;
+		currentQueueType = queueType;
+		currentOwnerLogin = ownerLogin;
+		currentQueueDesc = queueDesc;
+		
+		console.log( "newQueueName:" + newQueueName); 
+		
+		if ($('#process-panel-view').css("visibility") == "hidden") 
+		{
+			$('#process-panel-view').show();
+		}
+		else
+		{
+			var requestUrl = '<spring:url value="/processes/loadProcessesList.json?queueName="/>' + newQueueName + '&queueType=' + queueType + '&ownerLogin='+ownerLogin;
+
+			$('#processesTable').dataTable().fnReloadAjax(requestUrl);
+			
+			windowManager.showProcessList();
+			
+			$("#process-queue-name-id").text('<spring:message code="processes.currentqueue" />'+" "+queueDesc);
+		}
+		
+		
+	}
+
+
+	function loadQueue() 
+	{
+		var columnDefs = [
+							 { "sName":"name", "bSortable": true,"mData": function(object){return generateNameColumn(object);}},
+							 { "sName":"code", "bSortable": true, "mData": "code" },
+							 { "sName":"creator", "bSortable": true,"mData": "creator" },
+							 { "sName":"assignee", "bSortable": false,"mData": "assignee" },
+							 { "sName":"creationDate", "bSortable": true,"mData": function(object){return $.format.date(object.creationDate, 'dd-MM-yyyy, HH:mm');}},
+							 { "sName":"deadline", "bSortable": false,"mData": function(object){return object.deadline == null ? "" : $.format.date(object.deadline, 'dd-MM-yyyy, HH:mm');}}
+						 ];
+
+		var requestUrl = '<spring:url value="/processes/loadProcessesList.json?queueName=activity.assigned.tasks&queueType=process"/>';
+		createDataTable('processesTable',requestUrl,columnDefs);
+	
+		$("#process-queue-name-id").text('<spring:message code="processes.currentqueue" />'+" "+currentQueueDesc);
+	}
 
 	function generateNameColumn(task)
 	{
@@ -148,7 +176,7 @@ function loadQueue()
 			"aaSorting": [[ 2, "asc" ]],
 			"bSort": true,
 			"iDisplayLength": 10,
-			"sDom": 'Rptlr',
+			"sDom": '<"top"t><"bottom"plr>',
 			"sAjaxSource": url,
 			"fnServerData": function ( sSource, aoData, fnCallback ) {
 

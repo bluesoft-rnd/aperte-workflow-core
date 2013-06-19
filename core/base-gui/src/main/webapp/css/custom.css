@@ -1,9 +1,24 @@
 /* This file allows you to override default styles in one central location for easier upgrade and maintenance. */
 
-@import "../chameleon/styles.css";
+
 
 @media (max-width: 979px) 
 {
+	body
+	{
+		padding-left: 5px !important;
+		padding-right: 5px !important;
+	}
+	.standalone-version-body
+	{
+		padding: 0px;
+	}
+	
+	.main-view
+	{
+		padding-top: 5px;
+	}
+	
 	.navbar.left-menu
 	{
 		margin-right: 20px;
@@ -18,6 +33,13 @@
 			z-index: 100;
 	}
 	
+	.dataTables_paginate.paging_bootstrap.pagination
+	{
+		font-size: 22px;
+		line-height: 30px;
+	}
+
+	
 	.navigation-border
 	{
 		clear: left;
@@ -29,26 +51,27 @@
 	
 	.search-process-button,
 	.start-process-button,
-	.show-queues-button
+	.show-queues-button,
+	.show-configuration-button
 	{
 		cursor:pointer;
 		text-align: -webkit-match-parent;
 		margin: 10px;
 		padding: 4px 12px;
-		line-height: 30px;
+		line-height: 38px;
 		text-decoration: none;
-		
+		border: 1px solid rgb(116, 142, 209);
 		-webkit-border-radius: 4px;
 		-moz-border-radius: 4px;
 		border-radius: 4px;
-		border:1px;
 		background: rgb(97, 158, 248);
 		color: #fff;
 	}
 	
 	.search-process-button:hover,
 	.start-process-button:hover,
-	.show-queues-button:hover
+	.show-queues-button:hover,
+	.show-configuration-button:hover
 	{
 		background: rgb(102, 102, 102);
 	}
@@ -109,10 +132,148 @@
 		font-size: 20px;
 		line-height: 32px;
 	}
+	
+	.nav.left-menu li
+	{
+		background: rgb(97, 158, 248);
+		color: #fff;
+		border: 1px;
+		-webkit-border-radius: 4px;
+		-moz-border-radius: 4px;
+		border-radius: 4px;
+		margin: 2px;
+		line-height: 16px;
+		color: #fff;
+	}
+	
+	.left-menu-link
+	{
+		color: #fff !important;
+		text-decoration: none !important;
+		text-shadow: none !important;
+		border: 1px solid rgb(116, 142, 209);
+		-webkit-border-radius: 4px;
+		-moz-border-radius: 4px;
+		border-radius: 4px;
+		
+	}
+	
+	.btn.btn-navbar.left-menu,
+	.btn.btn-navbar.left-menu:hover
+	{
+		padding-right: 15px;
+		padding-left: 15px;
+		padding-bottom: 12px;
+		padding-top: 12px;
+		background: rgb(97, 158, 248);
+		margin-top: 2px;
+	}
+	
+	
+	.process-table
+	{
+		border: none;
+		border-collapse:collapse;
+		width: 100% !important;
+	}
+
+	.process-table th
+	{
+		font-size: 16px;
+		border:none;
+		text-align: -webkit-match-parent;
+		padding-bottom: 4px;
+	}
+
+	.process-table th
+	{
+		font-size: 16px;
+		border:none;
+
+	}
+
+	.process-table td
+	{
+		font-size: 16px;
+		border-bottom:none;
+		border-left:none;
+		border-right:none;
+		border-top: 1px solid #dddddd;
+		line-height: 28px;
+	}
+	
+	.process-panel
+	{
+		float: none;
+		width: auto;
+		overflow: hidden;
+	}
+	
+	.mobile-button
+	{
+		width: 100%;
+	}
+	
+	.toggle-buttons
+	{
+		margin-bottom: 5px;
+	}
+	
+	.dataTables_paginate.paging_bootstrap.pagination ul
+	{
+		width: 100%;
+	}
+	
+	.dataTables_paginate.paging_bootstrap.pagination ul li a
+	{
+		width: 100%;
+		background: rgb(97, 158, 248);
+		color: #fff;
+		border: 1px;
+		-webkit-border-radius: 4px;
+		-moz-border-radius: 4px;
+		border-radius: 4px;
+		margin-top: 2px;
+		line-height: 24px;
+		color: #fff;
+		padding-right: 0px;
+		padding-left: 0px;
+		text-align: center;
+		border: 1px solid rgb(116, 142, 209);
+		box-sizing:border-box;
+		
+		
+	}
+	
+	.dataTables_paginate.paging_bootstrap.pagination ul li.active a,
+	.dataTables_paginate.paging_bootstrap.pagination ul li.active a:hover,
+	.dataTables_paginate.paging_bootstrap.pagination ul li.disabled a,
+	.dataTables_paginate.paging_bootstrap.pagination ul li.disabled a:hover
+	{
+		display:none;
+	}
+	
+	
+	.dataTables_paginate.paging_bootstrap.pagination ul li a:hover
+	{
+		background: rgb(102, 102, 102);
+	}
+	
+
 
 }
 @media (min-width: 980px) 
 {
+	.standalone-version-body
+	{
+		padding: 10px;
+	}
+	
+	.main-view
+	{
+		width: 100%;
+	}
+	
 	.navbar.left-menu
 	{
 		width:200px;
@@ -126,8 +287,16 @@
 		display: none !important;
 	}
 	
+	.mobile-button
+	{
+		clear: left;
+		float: left;
+		margin-top:5px;
+	}
+	
 	.search-process-button,
-	.start-process-button
+	.start-process-button,
+	.show-configuration-button
 	{
 		cursor:pointer;
 		text-align: -webkit-match-parent;
@@ -153,8 +322,14 @@
 		background-color: rgb(150, 219, 76);
 	}
 	
+	.show-configuration-button
+	{
+		background: rgb(97, 158, 248);
+	}
+	
 	.search-process-button:hover,
-	.start-process-button:hover
+	.start-process-button:hover,
+	.show-configuration-button:hover
 	{
 		background: rgb(102, 102, 102)
 	}
@@ -203,14 +378,68 @@
 		width: 10px;
 		margin-right: 10px;
 	}
+	
+	.toggle-buttons
+	{
+		margin-bottom: 5px;
+	}
+	
+	.process-table
+	{
+		border: none;
+		border-collapse:collapse;
+		width: 100% !important;
+	}
+
+	.process-table th
+	{
+		font-size: 16px;
+		border:none;
+		text-align: -webkit-match-parent;
+		padding-bottom: 4px;
+	}
+
+	.process-table th
+	{
+		font-size: 16px;
+		border:none;
+
+	}
+
+	.process-table td
+	{
+		font-size: 16px;
+		border-bottom:none;
+		border-left:none;
+		border-right:none;
+		border-top: 1px solid #dddddd;
+		line-height: 28px;
+	}
+	
+	.process-panel
+	{
+		float: none;
+		width: auto;
+		overflow: hidden;
+		margin-left: 20px;
+	}
 
 }
 
-
-.main-view
+.btn.mobile-button,
+.btn.mobile-button:hover
 {
-	width: 100%;
+	background: rgb(97, 158, 248);
+	color: #fff;
 }
+
+.btn.active.mobile-button,
+.btn.active.mobile-button:hover
+{
+	background-color: rgb(233, 233, 233);
+	color: rgb(56, 56, 56);
+}
+
 
 .navbar-inner.left-menu
 {
@@ -219,11 +448,6 @@
 	background-color: none;
 	-webkit-box-shadow: none;
 	background-image: none;
-}
-
-.standalone-version-body
-{
-	padding: 10px;
 }
 
 .new-process-block
@@ -273,37 +497,18 @@ button, button:hover
 	background: none;
 }
 
-.process-table
+.process-queue-name
 {
-	border: none;
-	border-collapse:collapse;
+	font-size: 18px;
+	background-color: #f5f5f5;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	border:1px;
+	padding: 5px;
+	box-sizing:border-box;
+	margin-bottom: 10px;
 }
-
-.process-table th
-{
-	font-size: 16px;
-	border:none;
-	text-align: -webkit-match-parent;
-	padding-bottom: 4px;
-}
-
-.process-table th
-{
-	font-size: 16px;
-	border:none;
-
-}
-
-.process-table td
-{
-	font-size: 16px;
-	border-bottom:none;
-	border-left:none;
-	border-right:none;
-	border-top: 1px solid #dddddd;
-	line-height: 28px;
-}
-
 
 .actions-view
 {
@@ -365,18 +570,6 @@ button, button:hover
 {
 	background: rgb(102, 102, 102)
 
-}
-
-
-
-
-
-.process-panel
-{
-	float: none;
-	width: auto;
-	overflow: hidden;
-	margin-left: 20px;
 }
 
 .process-table
@@ -1375,4 +1568,3 @@ div div.see-this {
 {
 	overflow-y:hidden !important;
 }
-

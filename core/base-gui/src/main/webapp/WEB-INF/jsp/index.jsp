@@ -5,6 +5,7 @@
 
 <?xml version="1.0" encoding="UTF-8"?>
 	<head>
+		<meta http-equiv="X-UA-Compatible" content="IE=9; IE=8;" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=yes"/>
 		<link rel="stylesheet" type="text/css" href="<spring:url value='/css/custom.css' />" />
 		<link rel="stylesheet" type="text/css" href="<spring:url value='/css/bootstrap.css' />" />
@@ -15,7 +16,6 @@
 		<script type="text/javascript" src="<spring:url value='js/jquery.tools.min.js' />"></script>
 		<script type="text/javascript" src="<spring:url value='js/jqModal.js' />"></script>
 		<script type="text/javascript" src="<spring:url value='js/bootstrap.min.js' />"></script>
-		<script type="text/javascript" src="<spring:url value='js/additional-methods.min.js' />"></script>
 		<script type="text/javascript" src="<spring:url value='js/jquery.validate.min.js' />"></script>
 		<script type="text/javascript" src="<spring:url value='js/funkcje.js' />"></script>
 		<script type="text/javascript" src="<spring:url value='js/refresher.js' />"></script>

@@ -19,6 +19,7 @@
 	<%@include file="actionsList.jsp" %>
 	<%@include file="processStartList.jsp" %>
 	<%@include file="searchView.jsp" %>
+	<%@include file="configuration.jsp" %>
 </div>
 
 </c:if>  
@@ -36,13 +37,17 @@
 		
 	});
 	
+	function XOR(a,b) {
+	  return ( a || b ) && !( a && b );
+	} 
+	
 	var windowManager = new WindowManager();
   
 	function WindowManager()
 	{
 		this.currentView = 'process-panel-view';
 		this.viewHistory = [];
-		this.allViews = ["process-data-view", "actions-list", "process-panel-view", "new-process-view", "search-view", "outer-queues"];
+		this.allViews = ["process-data-view", "actions-list", "process-panel-view", "new-process-view", "search-view", "outer-queues", "configuration"];
 		
 		this.previousView = function()
 		{
@@ -59,10 +64,17 @@
 			this.showView('outer-queues', true);
 		}
 		
+		this.showConfiguration = function()
+		{
+			this.showView('configuration', true);
+		}
+		
 		this.hasPreviousView = function()
 		{
 			return this.viewHistory.length > 0;
 		}
+		
+		
 		
 		this.showSearchProcessPanel = function()
 		{
@@ -78,7 +90,7 @@
 				var elementId = this;
 				if(this != viewName)
 				{
-					$(document.getElementById(elementId)).fadeOut(300);
+					$(document.getElementById(elementId)).hide();
 				}
 			});
 			
@@ -88,7 +100,7 @@
 			}
 			
 			this.currentView = viewName;
-			$(document.getElementById(viewName)).fadeIn(300);
+			$(document.getElementById(viewName)).fadeIn(500);
 		}
 		
 		this.showNewProcessPanel = function()

@@ -187,7 +187,7 @@
 	{
 		reloadQueues();
 		disableButtons(); 
-		windowManager.showProcessList();
+		windowManager.previousView();
 	}
 	
 	function closeProcessView()

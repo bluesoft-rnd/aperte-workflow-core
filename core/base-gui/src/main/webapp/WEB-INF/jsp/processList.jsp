@@ -20,9 +20,9 @@
 		</thead>
 		<tbody></tbody>
 	</table>
-	<!--<div id="search-process-table">
+	<div id="search-process-table">
 		<input type="text" id="processInputTextField" class="input-medium" placeholder="<spring:message code='processes.search.label' />">
-	</div> -->
+	</div> 
 
 </div>
 
@@ -103,9 +103,9 @@
 							 { "sName":"name", "bSortable": true,"mData": function(object){return generateNameColumn(object);}},
 							 { "sName":"code", "bSortable": true, "mData": "code" },
 							 { "sName":"creator", "bSortable": true,"mData": "creator" },
-							 { "sName":"assignee", "bSortable": false,"mData": "assignee" },
+							 { "sName":"assignee", "bSortable": true,"mData": "assignee" },
 							 { "sName":"creationDate", "bSortable": true,"mData": function(object){return $.format.date(object.creationDate, 'dd-MM-yyyy, HH:mm');}},
-							 { "sName":"deadline", "bSortable": false,"mData": function(object){return object.deadline == null ? "" : $.format.date(object.deadline, 'dd-MM-yyyy, HH:mm');}}
+							 { "sName":"deadline", "bSortable": true,"mData": function(object){return object.deadline == null ? "" : $.format.date(object.deadline, 'dd-MM-yyyy, HH:mm');}}
 						 ];
 
 		var requestUrl = '<spring:url value="/processes/loadProcessesList.json?queueName=activity.assigned.tasks&queueType=process"/>';

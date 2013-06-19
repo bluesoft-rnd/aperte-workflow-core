@@ -310,7 +310,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 		
 		final String sortCol = request.getParameter("iSortCol_0");
 		final String sortDir = request.getParameter("sSortDir_0");
-		String searchString = request.getParameter("sSearch");
+		final String searchString = request.getParameter("sSearch");
 		
 		String displayStartString = request.getParameter("iDisplayStart");
 		String displayLengthString = request.getParameter("iDisplayLength");
@@ -348,6 +348,8 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 					filter.setName(queueName);
 				}
 
+
+                filter.setExpression(searchString);
                 filter.setSortOrderCondition(mapColumnNameToOrderCondition(sortCol));
                 filter.setSortOrder(mapColumnSortToSortOrder(sortDir));
 
@@ -388,7 +390,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
             return QueueOrderCondition.SORT_BY_PROCESS_CODE_ORDER;
 
         else if(CREATOR_NAME_COLUMN.equals(columnName))
-            return QueueOrderCondition.SORT_BY_ASSIGNEE_ORDER;
+            return QueueOrderCondition.SORT_BY_CREATOR_ORDER;
 
         else if(ASSIGNEE_NAME_COLUMN.equals(columnName))
             return QueueOrderCondition.SORT_BY_ASSIGNEE_ORDER;

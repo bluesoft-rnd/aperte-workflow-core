@@ -5,7 +5,9 @@
 
 <div id="configuration">
 	<div class="toggle-buttons">
-	<spring:message code="configuration.process.table.header" />
+	<div class="process-queue-name">
+		<spring:message code="configuration.process.table.header" />
+	</div>
 	<fieldset data-role="controlgroup">
 		<button id="process-table-hide-0" type="button" class="btn mobile-button" data-toggle="button" onClick="toggleColumn(0);" ><spring:message code="processes.button.hide.processname" /></button>
 		<button id="process-table-hide-1" type="button" class="btn mobile-button" data-toggle="button" onClick="toggleColumn(1);" ><spring:message code="processes.button.hide.processcode" /></button>
@@ -13,9 +15,6 @@
 		<button id="process-table-hide-3" type="button" class="btn mobile-button" data-toggle="button" onClick="toggleColumn(3);" ><spring:message code="processes.button.hide.assignee" /></button>
 		<button id="process-table-hide-4" type="button" class="btn mobile-button" data-toggle="button" onClick="toggleColumn(4);" ><spring:message code="processes.button.hide.creationdate" /></button>
 		<button id="process-table-hide-5" type="button" class="btn mobile-button" data-toggle="button" onClick="toggleColumn(4);" ><spring:message code="processes.button.hide.deadline" /></button>
-		<div class="switch">
-    <input type="checkbox" checked />
-</div>
 	</fieldset>
 	</div>
 </div>

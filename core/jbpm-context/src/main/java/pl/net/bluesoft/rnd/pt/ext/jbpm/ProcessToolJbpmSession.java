@@ -431,6 +431,9 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
    		taskFilterQuery.setMaxResultsLimit(maxResults);
    		taskFilterQuery.setResultsOffset(offset);
 
+        if(filter.getExpression() != null && filter.getExpression().length() > 1)
+            taskFilterQuery.setExpression(filter.getExpression());
+
         /* Set sort order */
         taskFilterQuery.setSortOrderCondition(filter.getSortOrderCondition());
         taskFilterQuery.setSortOrder(filter.getSortOrder());

@@ -20,42 +20,21 @@ import pl.net.bluesoft.rnd.pt.ext.jbpm.BpmTaskFactory;
 public class BpmTaskQuery 
 {
 	/** Normal query select to retrive entities */
-	private static final String LIST_QUERY = "select DISTINCT task.*, process.*, queue.* ";
+	private static final String LIST_QUERY = "select DISTINCT task.*, process.*, queue.*, aperteuser.login as creator ";
 	
 	/** Count query select to load only number of result to memory */
 	private static final String COUNT_QUERY = "select count(*) ";
 	
 	/** Main query to get task with correlated processes from user process queue */
 	public static final String GET_BPM_TASKS_QUERY = 
-			"from pt_user_process_queue queue, jbpm4_hist_actinst task, pt_process_instance process " +
-			"where queue.task_id = task.htask_ and process.id = queue.process_id ";
+			"from pt_user_process_queue queue, jbpm4_hist_actinst task, pt_process_instance process, pt_user_data aperteuser " +
+			"where queue.task_id = task.htask_ and process.id = queue.process_id and aperteuser.id = process.creator_id";
 	
 	/** Additional condition to main query to add filter for user login to who task and process are assigned */
 	private static final String USER_LOGIN_CONDITION = " and queue.user_login = :userLogin ";
 	
 	/** Additional condition to main query to add filter for queue type */
 	private static final String QUEUE_TYPE_CONDITION = " and queue.queue_type in (:queueTypes) ";
-
-    /** Resuls sort order */
-    private static final String SORT_ORDER_DESC = "desc";
-
-    /** Resuls sort order */
-    private static final String SORT_ORDER_ASC = " asc";
-
-	/** Resuls sort order */
-	private static final String SORT_BY_DATE_ORDER = " order by task.start_ ";
-
-    /** Resuls sort order */
-    private static final String SORT_BY_CREATE_DATE_ORDER = " order by process.createdate ";
-
-    /** Resuls sort order */
-    private static final String SORT_BY_PROCESS_CODE_ORDER = " order by process.internalid ";
-
-    /** Resuls sort order */
-    private static final String SORT_BY_PROCESS_NAME_ORDER = " order by process.definitionname ";
-
-    /** Resuls sort order */
-    private static final String SORT_BY_ASSIGNEE_ORDER = " order by queue.user_login ";
 	
 	/** String builder to build query */
 	private StringBuilder queryBuilder;

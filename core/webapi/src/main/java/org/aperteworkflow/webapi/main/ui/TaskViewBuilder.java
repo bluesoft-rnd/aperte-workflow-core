@@ -283,7 +283,7 @@ public class TaskViewBuilder
 			parent.appendChild(buttonNode);
 			
 			scriptBuilder.append("$('#" + actionButtonId+"').click(function() { onCancelButton();  });");
-			scriptBuilder.append("$('#" + actionButtonId+"').tooltip({title: '"+i18Source.getMessage("button.cancel")+"'});");
+			scriptBuilder.append("$('#" + actionButtonId+"').tooltip({title: '"+i18Source.getMessage("button.cancel.without.save")+"'});");
 	}
 
 	public TaskViewBuilder setWidgets(List<ProcessStateWidget> widgets) 

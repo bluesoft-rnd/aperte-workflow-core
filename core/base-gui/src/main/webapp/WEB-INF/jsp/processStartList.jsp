@@ -4,9 +4,13 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
 <div id="new-process-view" class="new-process-block">
+	<div class="process-queue-name">
+		<spring:message code="new.process.view.header" />
+	</div>
 	<c:forEach var="processStart" items="${processStartList}">
 		<div class="process-start-list-row">
-			<div id="${processStart.bpmDefinitionKey}" class="process-start-name"><a class="process-start-link" onclick="startProcess('${processStart.bpmDefinitionKey}') "><spring:message code="${processStart.processName}" /></a></div>
+			<div id="${processStart.bpmDefinitionKey}" class="process-start-name" data-toggle="tooltip" title="<spring:message code='${processStart.comment}' /> "><a class="process-start-link" onclick="startProcess('${processStart.bpmDefinitionKey}') "><spring:message code="${processStart.processName}" /></a></div>
+			<div><spring:message code="${processStart.comment}" /> </div>
 		</div>
 	</c:forEach>
 </div>

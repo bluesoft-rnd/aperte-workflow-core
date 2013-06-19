@@ -98,7 +98,7 @@ public class MainServletViewController
 		
 		modelView.addObject(QUEUES_PARAMETER_NAME, queues);
 	}
-	
+
 	/** Add process start definition */
 	private void addProcessStartList(ModelAndView modelView,ProcessToolContext ctx, ProcessToolBpmSession bpmSession)
 	{

@@ -44,6 +44,10 @@ public class ProcessInstanceFilter extends AbstractPersistentEntity {
     @Enumerated(EnumType.STRING)
     private QueueOrderCondition sortOrderCondition;
 
+
+
+    private String expression;
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "filter_owner_id")
 	private UserData filterOwner;
@@ -95,6 +99,14 @@ public class ProcessInstanceFilter extends AbstractPersistentEntity {
 	public void setQueues(Set<String> queues) {
 		this.queues = queues;
 	}
+
+    public String getExpression() {
+        return expression;
+    }
+
+    public void setExpression(String expression) {
+        this.expression = expression;
+    }
 
 	public Date getCreatedAfter() {
 		return createdAfter;

@@ -133,6 +133,30 @@
 		line-height: 32px;
 	}
 	
+	.nav.nav-tabs li
+	{
+		clear: left;
+		width:100%;
+		margin-top:5px;
+	}
+	
+	.nav.nav-tabs li a
+	{
+		background: rgb(97, 158, 248);
+		border: 1px solid rgb(116, 142, 209);
+		-webkit-border-radius: 4px;
+		-moz-border-radius: 4px;
+		border-radius: 4px;
+		color: #fff;
+	}
+	
+	.nav.nav-tabs li a:hover
+	{
+		color: rgb(68, 68, 68);
+		background: #fff;
+		border: 1px solid rgb(68, 68, 68);
+	}
+	
 	.nav.left-menu li
 	{
 		background: rgb(97, 158, 248);
@@ -260,6 +284,25 @@
 	}
 	
 
+
+	.btn.aperte-button,
+	.btn.aperte-button:hover
+	{
+		-webkit-border-radius: 4px;
+		-moz-border-radius: 4px;
+		border-radius: 4px;
+		border: 1px solid rgb(116, 142, 209);
+
+		font-size: 18px;
+		background-color: rgb(64, 125, 247);
+		background: rgb(64, 125, 247);
+		color: #fff;
+		margin-top: 5px;
+		width: 100%;
+		box-sizing:border-box;
+		line-height: 32px;
+		text-shadow: none;
+	}
 
 }
 @media (min-width: 980px) 
@@ -423,6 +466,27 @@
 		overflow: hidden;
 		margin-left: 20px;
 	}
+	
+	.btn.aperte-button:hover
+	{
+		-webkit-transform: scale(1.10);
+	}
+
+	.btn.aperte-button,
+	.btn.aperte-button:hover
+	{
+		-webkit-border-radius: 4px;
+		-moz-border-radius: 4px;
+		border-radius: 4px;
+		border:1px;
+		padding: 16px 25px;
+		font-size: 16px;
+		background-color: rgb(64, 125, 247);
+		background: rgb(64, 125, 247);
+		color: #fff;
+		margin-left: 3px;
+		margin-right:3px;
+	}
 
 }
 
@@ -431,6 +495,7 @@
 {
 	background: rgb(97, 158, 248);
 	color: #fff;
+	text-shadow: none; 
 }
 
 .btn.active.mobile-button,
@@ -438,6 +503,7 @@
 {
 	background-color: rgb(233, 233, 233);
 	color: rgb(56, 56, 56);
+		text-shadow: none; 
 }
 
 
@@ -457,17 +523,33 @@
 	padding: 2px;
 	overflow: hidden;
 		color: #999;
-	background-color: #f5f5f5;
 	-webkit-border-radius: 4px;
 	border-radius: 4px;
 }
 
 .process-start-list-row
 {
-	border-bottom: 1px solid #dddddd;
+		cursor:pointer;
+		text-align: -webkit-match-parent;
+		margin-top: 10px;
+		padding: 4px 12px;
+		line-height: 28px;
+		font-size: 12px;
+		border: 1px solid rgb(116, 142, 209);
+		-webkit-border-radius: 4px;
+		-moz-border-radius: 4px;
+		border-radius: 4px;
+		background: rgb(97, 158, 248);
+		color: #fff;
 }
 
-
+.process-start-list-row div a
+{
+	color: #fff;
+	text-decoration: none;
+	font-size: 18px;
+	
+}
 
 .vaadin-widgets,
 .process-data-view
@@ -517,25 +599,7 @@ button, button:hover
 	
 }
 
-.btn.aperte-button:hover
-{
-	-webkit-transform: scale(1.10);
-}
 
-.btn.aperte-button,
-.btn.aperte-button:hover
-{
-	-webkit-border-radius: 4px;
-	-moz-border-radius: 4px;
-	border-radius: 4px;
-	border:1px;
-	padding: 16px 25px;
-	font-size: 16px;
-	background-color: rgb(64, 125, 247);
-	color: #fff;
-	margin-left: 3px;
-	margin-right:3px;
-}
 
 .btn.btn-inverse.aperte-button,
 .btn.btn-inverse.aperte-button:hover

@@ -505,6 +505,47 @@
 		margin-left: 3px;
 		margin-right:3px;
 	}
+	
+	.btn.login-button
+	{
+		-webkit-border-radius: 4px;
+		-moz-border-radius: 4px;
+		border-radius: 4px;
+		border:1px;
+		padding: 12px 14px;
+		font-size: 16px;
+		background-color: rgb(64, 125, 247);
+		background: rgb(64, 125, 247);
+		color: #fff;
+		clear: left;
+		float: left;
+	}
+	
+	.input-medium.login-element-username,
+	.input-medium.login-element-password
+	{
+		font-size: 18px;
+		height: 28px;
+		width: 250px;
+		float: left;
+		clear: left;
+	}
+	
+	.login-label
+	{
+		font-size: 18px;
+		float: left;
+		clear: left;
+		margin-right: 5px;
+		margin-top: 5px;
+		display:block;
+	}
+	
+	.label-container
+	{
+		float:left;
+		display:block;
+	}
 
 }
 

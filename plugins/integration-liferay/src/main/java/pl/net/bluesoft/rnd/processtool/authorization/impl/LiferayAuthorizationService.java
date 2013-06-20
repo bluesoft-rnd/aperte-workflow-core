@@ -100,6 +100,10 @@ public class LiferayAuthorizationService implements IAuthorizationService
 			String userId = null;
 			String password = null;
 			String companyId = null;
+
+            /* Safari fix */
+            if(req.getCookies() == null)
+                return null;
 			
 			for (Cookie c : req.getCookies()) 
 			{

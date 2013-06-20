@@ -24,9 +24,7 @@
 
 </c:if>  
  <c:if test="${aperteUser.login==null}">
-	<div class="please-log-in-label">
-		<spring:message code="authorization.please.log.in" />
-	</div>
+	<%@include file="login.jsp" %>
  </c:if> 
  
   <script type="text/javascript">

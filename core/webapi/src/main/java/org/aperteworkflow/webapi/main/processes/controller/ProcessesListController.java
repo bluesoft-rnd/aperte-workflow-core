@@ -1,16 +1,9 @@
 package org.aperteworkflow.webapi.main.processes.controller;
 
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.aperteworkflow.webapi.context.IProcessToolRequestContext;
 import org.aperteworkflow.webapi.main.AbstractProcessToolServletController;
 import org.aperteworkflow.webapi.main.processes.BpmTaskBean;
 import org.aperteworkflow.webapi.main.processes.DataPagingBean;
-import org.aperteworkflow.webapi.main.processes.action.domain.ErrorResultBean;
+import pl.net.bluesoft.rnd.processtool.web.domain.ErrorResultBean;
 import org.aperteworkflow.webapi.main.processes.action.domain.PerformActionResultBean;
 import org.aperteworkflow.webapi.main.processes.action.domain.SaveResultBean;
 import org.aperteworkflow.webapi.main.processes.action.domain.ValidateResultBean;
@@ -23,15 +16,22 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.model.*;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
+import pl.net.bluesoft.rnd.processtool.web.domain.IProcessToolRequestContext;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Aperte process main web controller based on Spring MVC
@@ -43,7 +43,6 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 public class ProcessesListController extends AbstractProcessToolServletController
 {
 	private static Logger logger = Logger.getLogger(ProcessesListController.class.getName());
-	private static final String SYSTEM_SOURCE = "System";
 
     private static final String PROCESS_NAME_COLUMN = "0";
     private static final String PROCESS_CODE_COLUMN = "1";

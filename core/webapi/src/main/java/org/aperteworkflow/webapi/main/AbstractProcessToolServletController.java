@@ -2,7 +2,7 @@ package org.aperteworkflow.webapi.main;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.aperteworkflow.webapi.context.IProcessToolRequestContext;
+import pl.net.bluesoft.rnd.processtool.web.domain.IProcessToolRequestContext;
 import org.aperteworkflow.webapi.context.impl.WebProcessToolContextFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
@@ -19,6 +19,8 @@ import com.google.common.eventbus.EventBus;
  */
 public class AbstractProcessToolServletController 
 {
+    public static final String SYSTEM_SOURCE = "System";
+
     @Autowired
     private EventBus eventBus;
     

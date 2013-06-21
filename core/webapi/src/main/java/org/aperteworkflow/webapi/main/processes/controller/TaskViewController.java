@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -13,7 +12,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.aperteworkflow.webapi.context.IProcessToolRequestContext;
+import pl.net.bluesoft.rnd.processtool.web.domain.IProcessToolRequestContext;
 import org.aperteworkflow.webapi.main.AbstractProcessToolServletController;
 import org.aperteworkflow.webapi.main.processes.BpmTaskBean;
 import org.aperteworkflow.webapi.main.ui.TaskViewBuilder;

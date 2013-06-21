@@ -5,7 +5,6 @@ import static pl.net.bluesoft.rnd.processtool.plugins.osgi.OSGiBundleHelper.getB
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -27,10 +26,12 @@ import pl.net.bluesoft.rnd.processtool.plugins.osgi.beans.HtmlFileNameBean;
 import pl.net.bluesoft.rnd.processtool.plugins.osgi.beans.ScriptFileNameBean;
 import pl.net.bluesoft.rnd.processtool.roles.IUserRolesManager;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
-import pl.net.bluesoft.rnd.processtool.ui.IWidgetContentProvider;
-import pl.net.bluesoft.rnd.processtool.ui.IWidgetScriptProvider;
-import pl.net.bluesoft.rnd.processtool.ui.impl.FileWidgetContentProvider;
-import pl.net.bluesoft.rnd.processtool.ui.impl.FileWidgetJavaScriptProvider;
+import pl.net.bluesoft.rnd.processtool.web.controller.IOsgiWebController;
+import pl.net.bluesoft.rnd.processtool.web.controller.OsgiController;
+import pl.net.bluesoft.rnd.processtool.web.domain.IWidgetContentProvider;
+import pl.net.bluesoft.rnd.processtool.web.domain.IWidgetScriptProvider;
+import pl.net.bluesoft.rnd.processtool.web.widgets.impl.FileWidgetContentProvider;
+import pl.net.bluesoft.rnd.processtool.web.widgets.impl.FileWidgetJavaScriptProvider;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.IWidgetDataHandler;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.IWidgetValidator;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
@@ -39,7 +40,6 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.SimpleWidgetDataHandler;
 import pl.net.bluesoft.rnd.util.i18n.impl.PropertiesBasedI18NProvider;
 import pl.net.bluesoft.rnd.util.i18n.impl.PropertyLoader;
 
-import com.google.common.io.CharStreams;
 import com.thoughtworks.xstream.XStream;
 
 /**
@@ -51,6 +51,7 @@ public class BundleInstallationHandler
 {
     public static final String		VIEW	    			= "ProcessTool-Widget-View";
     public static final String		SCRIPT	   				= "ProcessTool-Widget-Script";
+    public static final String		CONTROLLER		        = "ProcessTool-Controller";
 	public static final String		MODEL_ENHANCEMENT	    = "ProcessTool-Model-Enhancement";
 	public static final String		WIDGET_ENHANCEMENT	    = "ProcessTool-Widget-Enhancement";
 	public static final String		BUTTON_ENHANCEMENT  	= "ProcessTool-Button-Enhancement";
@@ -71,7 +72,7 @@ public class BundleInstallationHandler
 
 	public static final String[]	HEADER_NAMES		    = {
 			MODEL_ENHANCEMENT, WIDGET_ENHANCEMENT, BUTTON_ENHANCEMENT, STEP_ENHANCEMENT, I18N_PROPERTY,VIEW,SCRIPT,
-			PROCESS_DEPLOYMENT, GLOBAL_DICTIONARY, ICON_RESOURCES, RESOURCES, HUMAN_NAME, DESCRIPTION_KEY,
+			PROCESS_DEPLOYMENT, GLOBAL_DICTIONARY, ICON_RESOURCES, RESOURCES, HUMAN_NAME, DESCRIPTION_KEY, CONTROLLER,
 			ROLE_FILES, IMPLEMENTATION_BUILD, TASK_ITEM_ENHANCEMENT, DESCRIPTION, HOMEPAGE_URL, DOCUMENTATION_URL
 	};
 
@@ -102,6 +103,10 @@ public class BundleInstallationHandler
 		if (bundleHelper.hasHeaderValues(SCRIPT)) {
 			handleScript(eventType, bundleHelper, registry);
 		}
+
+        if (bundleHelper.hasHeaderValues(CONTROLLER)) {
+            handleController(eventType, bundleHelper, registry);
+        }
 
 		if (bundleHelper.hasHeaderValues(MODEL_ENHANCEMENT)) {
 			handleModelEnhancement(eventType, bundleHelper, registry);
@@ -263,6 +268,39 @@ public class BundleInstallationHandler
 		}
 		
 	}
+
+    private void handleController(int eventType, OSGiBundleHelper bundleHelper,ProcessToolRegistry toolRegistry)
+    {
+        Bundle bundle = bundleHelper.getBundle();
+        String[] classes = bundleHelper.getHeaderValues(CONTROLLER);
+
+        for (String cls : classes)
+        {
+            try
+            {
+                Class<? extends IOsgiWebController> controllerClass =
+                        (Class<? extends IOsgiWebController>)bundleHelper.getBundle().loadClass(cls);
+                OsgiController controllerAnnotation = controllerClass.getAnnotation(OsgiController.class);
+
+                String controllerName = controllerAnnotation.name();
+                if (eventType == Bundle.ACTIVE)
+                {
+                    IOsgiWebController controller = (IOsgiWebController)controllerClass.newInstance();
+                    toolRegistry.registerWebController(controllerName, controller);
+                }
+                else
+                {
+                    toolRegistry.unregisterWebController(controllerName);
+                }
+            }
+            catch (Throwable e)
+            {
+                logger.log(Level.SEVERE, e.getMessage(), e);
+                forwardErrorInfoToMonitor(bundle.getSymbolicName(), e);
+            }
+        }
+
+    }
 
 	private void handleMessageSources(int eventType, OSGiBundleHelper bundleHelper, ProcessToolRegistry toolRegistry) {
 		final Bundle bundle = bundleHelper.getBundle();

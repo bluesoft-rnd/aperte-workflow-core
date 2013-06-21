@@ -1,4 +1,4 @@
-package org.aperteworkflow.webapi.main.processes.action.domain;
+package pl.net.bluesoft.rnd.processtool.web.domain;
 
 /**
  * Representation of error 

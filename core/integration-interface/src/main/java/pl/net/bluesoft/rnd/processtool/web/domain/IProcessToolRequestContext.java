@@ -1,4 +1,4 @@
-package org.aperteworkflow.webapi.context;
+package pl.net.bluesoft.rnd.processtool.web.domain;
 
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.UserData;

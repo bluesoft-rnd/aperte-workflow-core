@@ -26,18 +26,20 @@
 <script type="text/javascript">
 	function userLogin()
 	{
+		$('#login-button-login').prop('disabled', true);
 		$('#login-alerts').empty();
-		var user = $.getJSON('<spring:url value="/user/login.json"/>', 
+		
+		$.post('<spring:url value="/user/login.json"/>', 
 		{
 			"login": $('#login-username').val(),
 			"password": $('#login-password').val()
-		})
-		.done(function(data) 
+		}, function(data) 
 		{
 			if(!data)
 			{
 				console.log( "fail: "+data );
-				$('#login-alerts').append('<div class="alert"><button type="button" class="close" data-dismiss="alert">&times;</button><spring:message code="authorization.login.error" /></div>')
+				$('#login-alerts').append('<div class="alert"><button type="button" class="close" data-dismiss="alert">&times;</button><spring:message code="authorization.login.error" /></div>');
+				$('#login-button-login').prop('disabled', false);
 			}
 			else
 			{

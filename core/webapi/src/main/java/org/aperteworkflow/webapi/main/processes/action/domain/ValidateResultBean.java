@@ -1,6 +1,7 @@
 package org.aperteworkflow.webapi.main.processes.action.domain;
 
 
+import pl.net.bluesoft.rnd.processtool.web.domain.AbstractResultBean;
 
 /**
  * Result of validation action

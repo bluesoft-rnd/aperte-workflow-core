@@ -1,6 +1,6 @@
 package org.aperteworkflow.webapi.context.impl;
 
-import org.aperteworkflow.webapi.context.IProcessToolRequestContext;
+import pl.net.bluesoft.rnd.processtool.web.domain.IProcessToolRequestContext;
 
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.UserData;

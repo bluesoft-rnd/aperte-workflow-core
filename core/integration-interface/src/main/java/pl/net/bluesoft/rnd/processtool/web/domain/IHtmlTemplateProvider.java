@@ -1,4 +1,4 @@
-package pl.net.bluesoft.rnd.processtool.ui;
+package pl.net.bluesoft.rnd.processtool.web.domain;
 
 import java.util.Map;
 

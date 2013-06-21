@@ -25,7 +25,8 @@ import pl.net.bluesoft.rnd.processtool.dao.UserRoleDAO;
 import pl.net.bluesoft.rnd.processtool.dao.UserSubstitutionDAO;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
-import pl.net.bluesoft.rnd.processtool.ui.IWidgetScriptProvider;
+import pl.net.bluesoft.rnd.processtool.web.controller.IOsgiWebController;
+import pl.net.bluesoft.rnd.processtool.web.domain.IWidgetScriptProvider;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolActionButton;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
@@ -182,6 +183,15 @@ public interface ProcessToolRegistry extends ProcessToolBpmConstants {
     TaskItemProvider makeTaskItemProvider(String name) throws IllegalAccessException, InstantiationException;
 
 	Map<String, Class<? extends TaskItemProvider>> getAvailableTaskItemProviders();
+
+    /** Get plugin controller for web invocation */
+    IOsgiWebController getWebController(String controllerName);
+
+    /** register new plugin contorller */
+    void registerWebController(String controllerName, IOsgiWebController controller);
+
+    /** Unregister plugin web controller */
+    void unregisterWebController(String controllerName);
 
     //no way!
 //    public boolean createRoleIfNotExists(String roleName, String description);

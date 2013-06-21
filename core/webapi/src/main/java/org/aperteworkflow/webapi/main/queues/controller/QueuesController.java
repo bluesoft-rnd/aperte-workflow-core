@@ -5,7 +5,7 @@ import java.util.Collection;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.aperteworkflow.webapi.context.IProcessToolRequestContext;
+import pl.net.bluesoft.rnd.processtool.web.domain.IProcessToolRequestContext;
 import org.aperteworkflow.webapi.main.AbstractProcessToolServletController;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;

@@ -21,7 +21,7 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidgetAttribute;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
-import pl.net.bluesoft.rnd.processtool.ui.IHtmlTemplateProvider;
+import pl.net.bluesoft.rnd.processtool.web.domain.IHtmlTemplateProvider;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 /**

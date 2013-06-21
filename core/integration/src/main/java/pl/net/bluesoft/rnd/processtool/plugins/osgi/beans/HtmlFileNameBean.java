@@ -1,6 +1,6 @@
 package pl.net.bluesoft.rnd.processtool.plugins.osgi.beans;
 
-import pl.net.bluesoft.rnd.processtool.ui.impl.FileWidgetContentProvider;
+import pl.net.bluesoft.rnd.processtool.web.widgets.impl.FileWidgetContentProvider;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.MockWidgetValidator;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.SimpleWidgetDataHandler;
 

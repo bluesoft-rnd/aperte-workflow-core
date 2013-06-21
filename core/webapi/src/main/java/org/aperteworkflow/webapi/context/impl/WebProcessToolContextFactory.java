@@ -3,7 +3,7 @@ package org.aperteworkflow.webapi.context.impl;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
-import org.aperteworkflow.webapi.context.IProcessToolRequestContext;
+import pl.net.bluesoft.rnd.processtool.web.domain.IProcessToolRequestContext;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;

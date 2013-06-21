@@ -1,6 +1,6 @@
 package pl.net.bluesoft.rnd.processtool.ui.widgets;
 
-import pl.net.bluesoft.rnd.processtool.ui.IWidgetContentProvider;
+import pl.net.bluesoft.rnd.processtool.web.domain.IWidgetContentProvider;
 
 /**
  * Widget in-memory model

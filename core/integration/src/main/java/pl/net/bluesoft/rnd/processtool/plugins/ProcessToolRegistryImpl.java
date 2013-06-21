@@ -1,33 +1,6 @@
 package pl.net.bluesoft.rnd.processtool.plugins;
 
-import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
-import static pl.net.bluesoft.util.lang.Strings.hasText;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
-
-import javax.naming.InitialContext;
-import javax.sql.DataSource;
-import javax.transaction.UserTransaction;
-
+import com.google.common.io.CharStreams;
 import org.aperteworkflow.search.SearchProvider;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -38,30 +11,11 @@ import org.osgi.framework.ServiceReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessDictionaryDAO;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceDAO;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceFilterDAO;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceSimpleAttributeDAO;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessStateActionDAO;
-import pl.net.bluesoft.rnd.processtool.dao.UserDataDAO;
-import pl.net.bluesoft.rnd.processtool.dao.UserProcessQueueDAO;
-import pl.net.bluesoft.rnd.processtool.dao.UserRoleDAO;
-import pl.net.bluesoft.rnd.processtool.dao.UserSubstitutionDAO;
-import pl.net.bluesoft.rnd.processtool.dao.impl.ProcessDefinitionDAOImpl;
-import pl.net.bluesoft.rnd.processtool.dao.impl.ProcessDictionaryDAOImpl;
-import pl.net.bluesoft.rnd.processtool.dao.impl.ProcessInstanceDAOImpl;
-import pl.net.bluesoft.rnd.processtool.dao.impl.ProcessInstanceFilterDAOImpl;
-import pl.net.bluesoft.rnd.processtool.dao.impl.ProcessInstanceSimpleAttributeDAOImpl;
-import pl.net.bluesoft.rnd.processtool.dao.impl.ProcessStateActionDAOImpl;
-import pl.net.bluesoft.rnd.processtool.dao.impl.UserDataDAOImpl;
-import pl.net.bluesoft.rnd.processtool.dao.impl.UserProcessQueueDAOImpl;
-import pl.net.bluesoft.rnd.processtool.dao.impl.UserRoleDAOImpl;
-import pl.net.bluesoft.rnd.processtool.dao.impl.UserSubstitutionDAOImpl;
+import pl.net.bluesoft.rnd.processtool.dao.*;
+import pl.net.bluesoft.rnd.processtool.dao.impl.*;
 import pl.net.bluesoft.rnd.processtool.dict.DictionaryLoader;
 import pl.net.bluesoft.rnd.processtool.dict.exception.DictionaryLoadingException;
 import pl.net.bluesoft.rnd.processtool.dict.xml.ProcessDictionaries;
@@ -72,12 +26,14 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessToolAutowire;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionary;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryPermission;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
-import pl.net.bluesoft.rnd.processtool.ui.IWidgetScriptProvider;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolActionButton;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.taskitem.TaskItemProvider;
+import pl.net.bluesoft.rnd.processtool.web.controller.IOsgiWebController;
+import pl.net.bluesoft.rnd.processtool.web.domain.IHtmlTemplateProvider;
+import pl.net.bluesoft.rnd.processtool.web.domain.IWidgetScriptProvider;
 import pl.net.bluesoft.rnd.util.func.Func;
 import pl.net.bluesoft.rnd.util.i18n.I18NProvider;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
@@ -88,7 +44,20 @@ import pl.net.bluesoft.util.eventbus.EventBusManager;
 import pl.net.bluesoft.util.lang.FormatUtil;
 import pl.net.bluesoft.util.lang.Strings;
 
-import com.google.common.io.CharStreams;
+import javax.naming.InitialContext;
+import javax.sql.DataSource;
+import javax.transaction.UserTransaction;
+import java.io.*;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
+
+import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
+import static pl.net.bluesoft.util.lang.Strings.hasText;
 
 /** 
  * @author tlipski@bluesoft.net.pl
@@ -113,7 +82,8 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
     
     private final Map<String, ProcessHtmlWidget> VIEW_REGISTRY = new HashMap<String, ProcessHtmlWidget>();
     private final Map<String, IWidgetScriptProvider> JAVASCRIPT_REGISTRY = new HashMap<String, IWidgetScriptProvider>();
-    
+    private final Map<String, IOsgiWebController> CONTROLLER_REGISTRY = new HashMap<String, IOsgiWebController>();
+
     private String javaScriptContent = "";
 
     private ExecutorService executorService = Executors.newCachedThreadPool();
@@ -126,7 +96,7 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
     private Map<String, Map> caches = new HashMap<String, Map>();
     
 	@Autowired
-	private pl.net.bluesoft.rnd.processtool.ui.IHtmlTemplateProvider templateProvider;
+	private IHtmlTemplateProvider templateProvider;
 
     private ProcessToolContextFactory processToolContextFactory;
 	private SessionFactory sessionFactory;
@@ -693,7 +663,22 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 		return Collections.unmodifiableMap(TASK_ITEM_REGISTRY);
 	}
 
-	@Override
+    @Override
+    public IOsgiWebController getWebController(String controllerName) {
+        return CONTROLLER_REGISTRY.get(controllerName);
+    }
+
+    @Override
+    public void registerWebController(String controllerName, IOsgiWebController controller) {
+        CONTROLLER_REGISTRY.put(controllerName, controller);
+    }
+
+    @Override
+    public void unregisterWebController(String controllerName) {
+        CONTROLLER_REGISTRY.remove(controllerName);
+    }
+
+    @Override
        public void registerGlobalDictionaries(InputStream is) {
            if (is != null) {
                ProcessDictionaries dictionaries = (ProcessDictionaries) DictionaryLoader.getInstance().unmarshall(is);

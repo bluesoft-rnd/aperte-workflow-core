@@ -15,6 +15,7 @@ public class OSGiBundleHelper
 {
     public static final String		VIEW	    = "ProcessTool-Widget-View";
     public static final String		SCRIPT	    = "ProcessTool-Widget-Script";
+    public static final String		CONTROLLER		        = "ProcessTool-Controller";
     public static final String		MODEL_ENHANCEMENT	    = "ProcessTool-Model-Enhancement";
     public static final String		WIDGET_ENHANCEMENT	    = "ProcessTool-Widget-Enhancement";
     public static final String		BUTTON_ENHANCEMENT  	= "ProcessTool-Button-Enhancement";
@@ -36,7 +37,7 @@ public class OSGiBundleHelper
 
     public static final String[]	HEADER_NAMES		    = {
             MODEL_ENHANCEMENT, WIDGET_ENHANCEMENT, BUTTON_ENHANCEMENT, VIEW, SCRIPT, STEP_ENHANCEMENT, I18N_PROPERTY,
-            PROCESS_DEPLOYMENT, GLOBAL_DICTIONARY, ICON_RESOURCES, RESOURCES, HUMAN_NAME, DESCRIPTION_KEY,
+            PROCESS_DEPLOYMENT, GLOBAL_DICTIONARY, ICON_RESOURCES, RESOURCES, HUMAN_NAME, DESCRIPTION_KEY, CONTROLLER,
             ROLE_FILES, IMPLEMENTATION_BUILD, TASK_ITEM_ENHANCEMENT, DESCRIPTION, HOMEPAGE_URL, DOCUMENTATION_URL
     };
 

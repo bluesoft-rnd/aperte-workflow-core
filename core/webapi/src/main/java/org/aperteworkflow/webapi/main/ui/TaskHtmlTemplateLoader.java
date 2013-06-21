@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import pl.net.bluesoft.rnd.processtool.template.ProcessToolTemplateErrorException;
-import pl.net.bluesoft.rnd.processtool.ui.IHtmlTemplateProvider;
+import pl.net.bluesoft.rnd.processtool.web.domain.IHtmlTemplateProvider;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 

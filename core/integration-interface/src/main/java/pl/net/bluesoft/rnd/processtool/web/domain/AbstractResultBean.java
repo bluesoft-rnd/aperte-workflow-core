@@ -1,10 +1,10 @@
-package org.aperteworkflow.webapi.main.processes.action.domain;
+package pl.net.bluesoft.rnd.processtool.web.domain;
+
+import pl.net.bluesoft.rnd.processtool.event.beans.ErrorBean;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
-import pl.net.bluesoft.rnd.processtool.event.beans.ErrorBean;
 
 /**
  * Abstract result bean 

@@ -29,7 +29,7 @@ public class UserController extends AbstractProcessToolServletController
      * @param request
      * @return
      */
-    @RequestMapping(method = RequestMethod.GET, value = "/user/login.json")
+    @RequestMapping(method = RequestMethod.POST, value = "/user/login.json")
     @ResponseBody
     public String performAction(final HttpServletRequest request, HttpServletResponse response)
     {

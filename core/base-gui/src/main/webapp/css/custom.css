@@ -615,6 +615,13 @@
 
 }
 
+#login-alerts
+{
+	display: block;
+	float: left;
+	clear: left;
+}
+
 .btn.mobile-button,
 .btn.mobile-button:hover
 {

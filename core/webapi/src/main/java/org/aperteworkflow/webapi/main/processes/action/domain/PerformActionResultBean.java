@@ -1,5 +1,6 @@
 package org.aperteworkflow.webapi.main.processes.action.domain;
 
+import pl.net.bluesoft.rnd.processtool.web.domain.AbstractResultBean;
 import org.aperteworkflow.webapi.main.processes.BpmTaskBean;
 
 /**

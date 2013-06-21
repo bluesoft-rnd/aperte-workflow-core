@@ -8,8 +8,13 @@ import javax.portlet.PortletRequest;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.liferay.portal.kernel.util.*;
+import com.liferay.portal.model.Company;
+import com.liferay.portal.model.CompanyConstants;
+import com.liferay.portal.service.PasswordPolicyLocalServiceUtil;
 import org.aperteworkflow.integration.liferay.utils.LiferayUserConverter;
 
 import pl.net.bluesoft.rnd.processtool.authorization.IAuthorizationService;
@@ -20,10 +25,6 @@ import pl.net.bluesoft.rnd.processtool.usersource.exception.UserSourceException;
 
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.kernel.util.KeyValuePair;
-import com.liferay.portal.kernel.util.SessionParamUtil;
-import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.model.User;
 import com.liferay.portal.security.auth.Authenticator;
 import com.liferay.portal.service.UserLocalServiceUtil;
@@ -59,10 +60,13 @@ public class LiferayAuthorizationService implements IAuthorizationService
 	{
 		try 
 		{
+           HttpSession session = servletRequest.getSession(false);
 			/* Fix for wrong user in servlet request */
 			User sessionUser = getLiferayUser(servletRequest);
 			User liferayUser = PortalUtil.getUser(servletRequest);
-			
+
+           //Object test = servletRequest.getAttribute("USER");
+
 			/* Why? Becouse you can be logged out and still have cookies in browser */
 			if(liferayUser == null)
 				return null;
@@ -169,7 +173,7 @@ public class LiferayAuthorizationService implements IAuthorizationService
 	}
 
 	@Override
-	public UserData authenticateByLogin(String login, String password, HttpServletRequest servletRequest) {
+	public UserData authenticateByLogin(String login, String password, HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
 		HttpSession session = servletRequest.getSession();
 		
 		User loggedUser = authenticateLiferayUser(login, password, servletRequest);
@@ -177,25 +181,49 @@ public class LiferayAuthorizationService implements IAuthorizationService
 		/* Invalidate old session and create new one */
 		session.invalidate();
 		session = servletRequest.getSession(true);
-		
+
 		session.setAttribute("j_username", String.valueOf(loggedUser.getUserId()));
 		session.setAttribute("j_password", loggedUser.getPassword());
 		session.setAttribute("j_remoteuser", String.valueOf(loggedUser.getUserId()));
 		session.setAttribute(WebKeys.USER_PASSWORD, password);
+        session.setAttribute(WebKeys.USER, loggedUser);
+        session.setAttribute(WebKeys.USER_ID, loggedUser.getUserId());
+
+        servletRequest.setAttribute(WebKeys.USER_ID, loggedUser.getUserId());
+        servletRequest.setAttribute(WebKeys.USER, loggedUser);
+        servletRequest.setAttribute(WebKeys.USER_PASSWORD, password);
 
 		Cookie companyIdCookie = new Cookie("COMPANY_ID", String.valueOf(loggedUser.getCompanyId()));
 		companyIdCookie.setDomain(servletRequest.getServerName());
-		companyIdCookie.setPath(StringPool.SLASH); 
-		
-		try 
+		companyIdCookie.setPath(StringPool.SLASH);
+
+
+
+
+        try
 		{
+
+            Cookie userIdCookie = new Cookie("ID", UserLocalServiceUtil.encryptUserId(((Long)loggedUser.getUserId()).toString()));
+            userIdCookie.setDomain(servletRequest.getServerName());
+            userIdCookie.setPath(StringPool.SLASH);
+
+            Cookie userPasswordCookie = new Cookie("PASSWORD", loggedUser.getPassword());
+            userPasswordCookie.setDomain(servletRequest.getServerName());
+            userPasswordCookie.setPath(StringPool.SLASH);
+
+            //MethodKey key = new MethodKey("com.liferay.portlet.login.util.LoginUtil", "login", HttpServletRequest.class, HttpServletResponse.class, String.class, String.class, boolean.class, String.class);
+            //PortalClassInvoker.invoke(false, key, new Object[] { servletRequest, servletResponse, loggedUser.getEmailAddress(), password, false, CompanyConstants.AUTH_TYPE_EA});
+
 			return LiferayUserConverter.convertLiferayUser(loggedUser);
 		} 
 		catch (SystemException e) 
 		{
 			throw new UserSourceException(e);
-		}
-	}
+		} catch (Exception e)
+        {
+            throw new UserSourceException(e);
+        }
+    }
 	
 	private User authenticateLiferayUser(String login, String password,HttpServletRequest request)
 	{
@@ -221,9 +249,9 @@ public class LiferayAuthorizationService implements IAuthorizationService
 				throw new InvalidCredentialsUserSourceException("Invalid credentials");
 			
 			long userId = UserLocalServiceUtil.getUserIdByScreenName(defaultCompanyId, login);
-			
+
 			User liferayUser = UserLocalServiceUtil.getUser(userId);
-			
+
 			return liferayUser;
 		} 
 		catch (PortalException e) 

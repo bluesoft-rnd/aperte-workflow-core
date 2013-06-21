@@ -9,8 +9,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import pl.net.bluesoft.rnd.processtool.authorization.IAuthorizationService;
 import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.processtool.usersource.exception.InvalidCredentialsUserSourceException;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  *
@@ -29,15 +31,22 @@ public class UserController extends AbstractProcessToolServletController
      */
     @RequestMapping(method = RequestMethod.GET, value = "/user/login.json")
     @ResponseBody
-    public UserData performAction(final HttpServletRequest request)
+    public String performAction(final HttpServletRequest request, HttpServletResponse response)
     {
-        String login = request.getParameter("login");
-        String password = request.getParameter("password");
+        try {
+            String login = request.getParameter("login");
+            String password = request.getParameter("password");
 
-        IAuthorizationService authorizationService = ObjectFactory.create(IAuthorizationService.class);
+            IAuthorizationService authorizationService = ObjectFactory.create(IAuthorizationService.class);
 
-        UserData user = authorizationService.authenticateByLogin(login,password);
+            UserData user = authorizationService.authenticateByLogin(login,password, request, response);
 
-        return user;
+            return user.getLogin();
+        }
+        catch(Throwable ex)
+        {
+             return null;
+        }
+
     }
 }

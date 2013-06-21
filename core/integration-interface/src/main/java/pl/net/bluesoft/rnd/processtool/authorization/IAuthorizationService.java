@@ -2,6 +2,7 @@ package pl.net.bluesoft.rnd.processtool.authorization;
 
 import javax.portlet.PortletRequest;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import pl.net.bluesoft.rnd.processtool.authorization.exception.AuthorizationException;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
@@ -44,7 +45,7 @@ public interface IAuthorizationService
 	 * @param password
 	 * @return
 	 */
-	UserData authenticateByLogin(String login, String password, HttpServletRequest servletRequest) throws AuthorizationException;
+	UserData authenticateByLogin(String login, String password, HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws AuthorizationException;
 	
 	
 }

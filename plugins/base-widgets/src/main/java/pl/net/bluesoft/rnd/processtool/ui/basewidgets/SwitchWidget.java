@@ -73,8 +73,7 @@ public class SwitchWidget extends BaseProcessToolVaadinWidget implements Process
 			key = task.getProcessInstance().getRootProcessInstance().getSimpleAttributeValue(selectorKey);
 		}
 		if(key == null){
-	    	Map<String, Object> variables = ProcessToolContext.Util.getThreadProcessToolContext().getBpmVariables(task.getProcessInstance());
-	    	key = (String) variables.get(selectorKey);
+			key = task.getProcessInstance().getSimpleAttributeValue(selectorKey);
 		}
 		
 		if(key == null)

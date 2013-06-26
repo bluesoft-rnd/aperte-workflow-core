@@ -108,7 +108,7 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
                 {"instance_description", processInstance.getDescription()},
                 {"instance_internal_id", processInstance.getInternalId()},
                 {"instance_keyword", processInstance.getKeyword()},
-                {"instance_state", processInstance.getState()},//TODO remember about multiple states (when BpmTask is merged)
+//                {"instance_state", processInstance.getState()},//TODO remember about multiple states (when BpmTask is merged)
                 {"instance_create_date", formatShortDate(processInstance.getCreateDate())},
         });
         ProcessDefinitionConfig def = processInstance.getDefinition();
@@ -171,7 +171,7 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
             searchData.addSearchAttribute("__AWF__queue", queue, true);
             logger.info("__AWF__queue: "+ queue);
         }
-        searchData.addSearchAttribute("__AWF__running", String.valueOf(processInstance.getRunning()), true);
+        searchData.addSearchAttribute("__AWF__running", String.valueOf(processInstance.isProcessRunning()), true);
 
         logger.finest("Prepare data for Lucene index update for" + processInstance + " took "
                 + (System.currentTimeMillis()-time) + " ms");
@@ -203,16 +203,10 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
 
     @Override
     public ProcessInstance getProcessInstanceByInternalId(String internalIds) {
-    	 long start = System.currentTimeMillis();
-    	
     	ProcessInstance pi = (ProcessInstance) getSession().createCriteria(ProcessInstance.class)
                 .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
                 .add(eq("internalId", internalIds))
                 .uniqueResult();
-    	 long duration = System.currentTimeMillis() - start;
-			logger.severe("getProcessInstanceByInternalId: " +  duration);
-    	
-         
          return pi;
     }
 

@@ -62,7 +62,7 @@ public class ActivityFiltersPane extends Panel implements VaadinUtility.Refresha
 		ProcessToolContext processToolContextFromThread = ProcessToolContext.Util.getThreadProcessToolContext();
 
 		final ProcessToolBpmSession bpmSession = activityMainPane.getBpmSession();
-		final UserData user = bpmSession.getUser(processToolContextFromThread);
+		final UserData user = bpmSession.getUser();
 
 		final ProcessInstanceFilterDAO processInstanceFilterDAO = processToolContextFromThread.getProcessInstanceFilterDAO();
 		List<ProcessInstanceFilter> filters = processInstanceFilterDAO.findAllByUserData(user);
@@ -70,11 +70,12 @@ public class ActivityFiltersPane extends Panel implements VaadinUtility.Refresha
 		for (final ProcessInstanceFilter filter : filters) 
 		{
 			Button taskName = new Button(filter.getName());			
-			List<BpmTask> tasks = bpmSession.findFilteredTasks(filter, processToolContextFromThread);
-			taskName.setCaption(taskName.getCaption() + " (" + tasks.size() + ")");
+			int taskCount = bpmSession.getFilteredTasksCount(filter);
+			taskName.setCaption(taskName.getCaption() + " (" + taskCount + ")");
 			
-			if(tasks.isEmpty())
+			if (taskCount == 0) {
 				taskName.addStyleName("v-disabled");
+			}
 			
 			taskName.addStyleName(BaseTheme.BUTTON_LINK);
 			taskName.addListener(new Button.ClickListener() {

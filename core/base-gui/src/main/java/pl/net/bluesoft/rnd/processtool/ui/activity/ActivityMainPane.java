@@ -360,10 +360,9 @@ public class ActivityMainPane extends AbstractActivityView
 	private void confirmTaskClosing(final EventHandler eventHandler)
 	{
 		BpmTask task;
-		final ProcessToolContext processToolContextFromThread = ProcessToolContext.Util.getThreadProcessToolContext();
 		if(viewController.getCurrentViewId() != null && viewController.getCurrentViewId().equals(ToolbarProcessDataViewComponent.class.getName())
 				&& (task = (BpmTask)viewController.getCurrentViewData().get("task")) != null
-				&& getBpmSession().isProcessRunning(task.getProcessInstance().getInternalId(),processToolContextFromThread))
+				&& getBpmSession().isProcessRunning(task.getProcessInstance().getInternalId()))
 		{
 			final ProcessMultiViewDataPane pdp = pdvc != null && pdvc.getProcessDataPane() != null ? pdvc.getProcessDataPane() : null;
 

@@ -79,8 +79,7 @@ public class TasksFilterFieldFactory extends DefaultFieldFactory {
 
 	private Collection<ProcessQueue> getQueues() {
 		if (queues == null) {
-			ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-			queues = parent.getSession().getUserAvailableQueues(ctx);
+			queues = parent.getSession().getUserAvailableQueues();
 		}
 		return queues;
 	}

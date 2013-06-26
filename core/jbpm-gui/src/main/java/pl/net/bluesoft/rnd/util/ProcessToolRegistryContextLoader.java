@@ -16,17 +16,16 @@ import pl.net.bluesoft.rnd.pt.ext.jbpm.ProcessToolContextFactoryImpl;
 public class ProcessToolRegistryContextLoader implements ServletContextListener {
 	@Override
 	public void contextInitialized(ServletContextEvent sce) {
-
 		try {
 			ProcessToolRegistryImpl toolRegistry = new ProcessToolRegistryImpl();
 			toolRegistry.commitModelExtensions();
-            toolRegistry.setBpmDefinitionLanguage("jpdl");
+            toolRegistry.setBpmDefinitionLanguage("bpmn");
 			toolRegistry.setProcessToolContextFactory(new ProcessToolContextFactoryImpl(toolRegistry));
-			sce.getServletContext().setAttribute(ProcessToolRegistry.class.getName(),
-			                                     toolRegistry);
+			sce.getServletContext().setAttribute(ProcessToolRegistry.class.getName(), toolRegistry);
 			
 			ProcessToolRegistry.ThreadUtil.setThreadRegistry(toolRegistry);
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			Logger.getLogger(ProcessToolRegistryContextLoader.class.getName()).log(Level.SEVERE, e.getMessage(), e);
 		}
 	}

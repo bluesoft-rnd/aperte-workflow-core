@@ -98,7 +98,7 @@ public class SendMailStep implements ProcessToolProcessStep {
 		recipient = recipient.trim();
 		if(recipient.matches("#\\{.*\\}")){
         	String loginKey = recipient.replaceAll("#\\{(.*)\\}", "$1");
-        	recipient = (String) ctx.getBpmVariable(pi, loginKey);
+        	recipient = pi.getSimpleAttributeValue(loginKey);
     		if (recipient == null) {
     			return null;
     		}

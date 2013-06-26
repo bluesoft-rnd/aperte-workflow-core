@@ -80,11 +80,9 @@ public interface ProcessToolContext  extends ProcessToolBpmConstants
 
     void addTransactionCallback(HibernateTransactionCallback callback);
 
-    public boolean isActive();
-    public Map<String, Object> getBpmVariables(ProcessInstance pi);
-    public Object getBpmVariable(ProcessInstance pi, String variableName);
+    boolean isActive();
 
-	public static class Util 
+	class Util
 	{
 		/** We use {@link InheritableThreadLocal} because we want context to be provided for child worker threads */
         private static InheritableThreadLocal<ProcessToolContext> current = new InheritableThreadLocal<ProcessToolContext>();
@@ -102,6 +100,16 @@ public interface ProcessToolContext  extends ProcessToolBpmConstants
 		public static void removeThreadProcessToolContext() 
 		{
 			current.remove();
+		}
+
+		public static <T> T withContext(ProcessToolContext ctx, ReturningProcessToolContextCallback<T> callback) {
+			ProcessToolContext previousCtx = getThreadProcessToolContext();
+			try {
+				return callback.processWithContext(ctx);
+			}
+			finally {
+				setThreadProcessToolContext(previousCtx);
+			}
 		}
 
         /**

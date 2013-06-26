@@ -3,6 +3,7 @@ package pl.net.bluesoft.rnd.processtool.ui.widgets.impl;
 import com.vaadin.Application;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
+import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSessionHelper;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateActionAttribute;
@@ -66,8 +67,8 @@ public abstract class BaseProcessToolActionButton implements ProcessToolActionBu
 		this.bpmSession = bpmSession;
 		this.definition = processStateAction;
 		ProcessToolContext ctx = getCurrentContext();
-        this.substitutingUser = bpmSession.getSubstitutingUser(ctx);
-        this.loggedUser = bpmSession.getUser(ctx);
+        this.substitutingUser = ProcessToolBpmSessionHelper.getSubstitutingUser(bpmSession, ctx);
+        this.loggedUser = ProcessToolBpmSessionHelper.getUser(bpmSession, ctx);
 		PropertyAutoWiring.autowire(this, getAutowiredProperties());
 	}
 

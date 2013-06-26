@@ -21,10 +21,6 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 @Entity
 @Table(name = "pt_process_instance_log")
 public class ProcessInstanceLog extends AbstractPersistentEntity {
-    public enum LogType {
-        START, CLAIM, ACTION, INFO
-    }
-
 	public static final String LOG_TYPE_START_PROCESS = "START_PROCESS";
 	public static final String LOG_TYPE_CLAIM_PROCESS = "CLAIM_PROCESS";
 	public static final String LOG_TYPE_PERFORM_ACTION = "PERFORM_ACTION";
@@ -81,10 +77,6 @@ public class ProcessInstanceLog extends AbstractPersistentEntity {
     @ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name="user_substitute_id")
 	private UserData userSubstitute;
-    
-
-	public ProcessInstanceLog() {
-	}
 
 	public Long getId() {
 		return id;

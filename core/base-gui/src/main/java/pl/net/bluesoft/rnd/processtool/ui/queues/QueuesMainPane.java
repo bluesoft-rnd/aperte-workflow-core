@@ -93,7 +93,7 @@ public class QueuesMainPane extends VerticalLayout implements Refreshable {
 					return;
 				
 				ProcessQueue pq = (ProcessQueue)table.getValue();
-				if (pq.getUserAdded() == null || pq.getUserAdded() == false) {
+				if (!pq.getUserAdded()) {
 					getWindow().showNotification(getMessage("queues.remove.forbidden"));
 					return;
 				}
@@ -135,7 +135,7 @@ public class QueuesMainPane extends VerticalLayout implements Refreshable {
 		table.setEditable(!isReadOnly());
 
 		bic = new BeanItemContainer<ProcessQueue>(ProcessQueue.class);
-		for (ProcessQueue pq : session.getUserAvailableQueues(ctx)) {
+		for (ProcessQueue pq : session.getUserAvailableQueues()) {
 			bic.addBean(pq);
 		}
 		table.setContainerDataSource(bic);
@@ -179,9 +179,8 @@ public class QueuesMainPane extends VerticalLayout implements Refreshable {
                     withErrorHandling(getApplication(), new Runnable() {
                         public void run() {
                              if (event.isDoubleClick()) {
-                                 ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
                                  BeanItem<ProcessQueue> beanItem = bic.getItem(event.getItemId());
-                                 BpmTask task = session.assignTaskFromQueue(beanItem.getBean(), ctx);
+                                 BpmTask task = session.assignTaskFromQueue(beanItem.getBean());
                                  if (task != null) {
                                      getWindow().executeJavaScript("Liferay.trigger('processtool.bpm.assignProcess', '"
                                              + task.getProcessInstance().getInternalId() + "');");
@@ -208,8 +207,7 @@ public class QueuesMainPane extends VerticalLayout implements Refreshable {
 
 	public void refreshData() {
 		bic.removeAllItems();
-		ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-		for (ProcessQueue pq : session.getUserAvailableQueues(ctx)) {
+		for (ProcessQueue pq : session.getUserAvailableQueues()) {
 			bic.addBean(pq);
 		}
 	}

@@ -125,14 +125,14 @@ public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshab
 
 		ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
 		final ProcessToolBpmSession bpmSession = activityMainPane.getBpmSession();
-		UserData user = bpmSession.getUser(ctx);
+		UserData user = bpmSession.getUser();
 
 		buildMainTasksViews(ctx,bpmSession,user);
 
-		final List<ProcessQueue> userAvailableQueues = buildUserQueues(ctx,bpmSession);
+		final List<ProcessQueue> userAvailableQueues = buildUserQueues(bpmSession);
 
 		List<UserData> substitutedUsers =
-				ProcessToolContext.Util.getThreadProcessToolContext().getUserSubstitutionDAO().getSubstitutedUsers(user,DateUtil.truncHours(new Date()));
+				ctx.getUserSubstitutionDAO().getSubstitutedUsers(user,DateUtil.truncHours(new Date()));
 		
 		if(!substitutedUsers.isEmpty())
 		{
@@ -141,7 +141,7 @@ public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshab
 				@Override
 				public ProcessToolBpmSession invoke(UserData substitutedUser)
 				{
-					return bpmSession.createSession(substitutedUser,substitutedUser.getRoleNames(),ProcessToolContext.Util.getThreadProcessToolContext());
+					return bpmSession.createSession(substitutedUser,substitutedUser.getRoleNames());
 				}
 			});
 
@@ -166,10 +166,10 @@ public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshab
 		ProcessInstanceFilter myTasksBeingDoneByOthers = filterFactory.createMyTaskDoneByOthersFilter(user);
 		ProcessInstanceFilter myTasksClosed = filterFactory.createMyClosedTasksFilter(user);
 				
-		taskList.addComponent(createUserTasksButton(bpmSession,ctx,assignedTasksFromOthers,true));
-		taskList.addComponent(createUserTasksButton(bpmSession,ctx,assignedTasksByMyself,true));
-		taskList.addComponent(createUserTasksButton(bpmSession,ctx,myTasksBeingDoneByOthers,true));
-		taskList.addComponent(createUserTasksButton(bpmSession,ctx,myTasksClosed,false));
+		taskList.addComponent(createUserTasksButton(bpmSession,assignedTasksFromOthers,true));
+		taskList.addComponent(createUserTasksButton(bpmSession,assignedTasksByMyself,true));
+		taskList.addComponent(createUserTasksButton(bpmSession,myTasksBeingDoneByOthers,true));
+		taskList.addComponent(createUserTasksButton(bpmSession,myTasksClosed,false));
 
 		for(Button taskButton: taskButtons)
 		{
@@ -193,9 +193,9 @@ public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshab
 		taskList.addComponent(b);
 	}
 
-	private List<ProcessQueue> buildUserQueues(ProcessToolContext ctx, final ProcessToolBpmSession bpmSession)
+	private List<ProcessQueue> buildUserQueues(ProcessToolBpmSession bpmSession)
 	{
-		final List<ProcessQueue> userAvailableQueues = new ArrayList<ProcessQueue>(bpmSession.getUserAvailableQueues(ctx));
+		final List<ProcessQueue> userAvailableQueues = new ArrayList<ProcessQueue>(bpmSession.getUserAvailableQueues());
 
 		Collections.sort(userAvailableQueues,new Comparator<ProcessQueue>()
 		{
@@ -213,8 +213,8 @@ public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshab
 		return userAvailableQueues;
 	}
 
-	private int buildSubstitutedTasks(final ProcessToolContext ctx, final ProcessToolBpmSession bpmSessionForSubstituted, UserData substitutedUser,
-			HierarchicalContainer container, final ProcessInstanceFilter parent)
+	private int buildSubstitutedTasks(ProcessToolBpmSession bpmSessionForSubstituted, UserData substitutedUser,
+			HierarchicalContainer container, ProcessInstanceFilter parent)
 	{
 		Collection<ProcessInstanceFilter> taskFilters = new ArrayList<ProcessInstanceFilter>();
 		
@@ -230,7 +230,7 @@ public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshab
 			container.addItem(filter);
 			if(filter.getOwners().contains(substitutedUser) && !filter.getQueueTypes().contains(QueueType.OWN_FINISHED))
 			{
-				int totalTasks = activityMainPane.getBpmSession().getTasksCount(ctx, filter.getFilterOwner().getLogin(), filter.getQueueTypes());
+				int totalTasks = activityMainPane.getBpmSession().getTasksCount(filter.getFilterOwner().getLogin(), filter.getQueueTypes());
 				
 				total += totalTasks;
 				
@@ -275,8 +275,8 @@ public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshab
 
 			container.addItem(substAssignedTasks);
 
-			int total = buildSubstitutedTasks(ctx,bpmSessionForSubstituted,liferaySubstitutedUser,container,substAssignedTasks);
-			int totalQueues = buildSubstitutedQueues(ctx,userAvailableQueues,bpmSessionForSubstituted,substitutedUser,container,substAssignedTasks);
+			int total = buildSubstitutedTasks(bpmSessionForSubstituted,liferaySubstitutedUser,container,substAssignedTasks);
+			int totalQueues = buildSubstitutedQueues(userAvailableQueues,bpmSessionForSubstituted,substitutedUser,container,substAssignedTasks);
 
 			container.getItem(substAssignedTasks).getItemProperty("name").setValue(getMessage(substAssignedTasks.getName(), liferaySubstitutedUser.getRealName()) + " (" + total + ";" + totalQueues + ")");
 			container.getItem(substAssignedTasks).getItemProperty("description")
@@ -297,11 +297,11 @@ public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshab
 		substitutionsPanel.setContent(vl);
 	}
 
-	private int buildSubstitutedQueues(ProcessToolContext ctx, final List<ProcessQueue> userAvailableQueues, ProcessToolBpmSession bpmSessionForSubstituted,
+	private int buildSubstitutedQueues(List<ProcessQueue> userAvailableQueues, ProcessToolBpmSession bpmSessionForSubstituted,
 			UserData user, HierarchicalContainer container, ProcessInstanceFilter parent)
 	{
 		Map<String,List<QueueUserSession>> map = new HashMap<String,List<QueueUserSession>>();
-		for(ProcessQueue q: bpmSessionForSubstituted.getUserAvailableQueues(ctx))
+		for(ProcessQueue q: bpmSessionForSubstituted.getUserAvailableQueues())
 		{
 			if(!map.containsKey(q.getName()))
 			{
@@ -330,7 +330,7 @@ public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshab
 			QueueUserSession qus = map.get(queueName).get(0);
 			container.addItem(qus);
 
-			long count = qus.queue.getProcessCount();
+			int count = qus.queue.getProcessCount();
 			
 			/* button id for the refresher */
 			String buttonId = QueuesPanelRefresherUtil.getSubstitutedQueueProcessQueueId(qus.queue.getName(), user.getLogin());
@@ -428,16 +428,15 @@ public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshab
 		UserData user;
 	}
 
-	private Button createUserTasksButton(final ProcessToolBpmSession bpmSession, final ProcessToolContext ctx,
+	private Button createUserTasksButton(final ProcessToolBpmSession bpmSession,
 			final ProcessInstanceFilter processInstanceFilter, final boolean showCounter)
 	{
-		return internalCreateUserTasksButton(bpmSession, ctx, processInstanceFilter, showCounter);
+		return internalCreateUserTasksButton(bpmSession, processInstanceFilter, showCounter);
 
 	}
 
 	public Button internalCreateUserTasksButton(
 			final ProcessToolBpmSession bpmSession,
-			final ProcessToolContext ctx,
 			final ProcessInstanceFilter processInstanceFilter,
 			final boolean showCounter) {
 		final Button b = new Button(getMessage(processInstanceFilter.getName()));
@@ -451,7 +450,7 @@ public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshab
 		
 		if(showCounter)
 		{
-			int taskCount = bpmSession.getTasksCount(ctx, processInstanceFilter.getFilterOwner().getUser().getLogin(), processInstanceFilter.getQueueTypes());
+			int taskCount = bpmSession.getTasksCount(processInstanceFilter.getFilterOwner().getUser().getLogin(), processInstanceFilter.getQueueTypes());
 			b.setCaption(b.getCaption() + " (" + taskCount + ")");
 			
 			String styleName = taskCount > 0 ? "v-enabled" : "v-disabled";
@@ -489,7 +488,7 @@ public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshab
 
 	private Button createQueueButton(final ProcessQueue q, final ProcessToolBpmSession bpmSession, final UserData user)
 	{
-		long processCount = q.getProcessCount();
+		int processCount = q.getProcessCount();
 		String desc = getQueueDescr(q);
 
 		/* button id for the refresher */
@@ -569,8 +568,7 @@ public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshab
 				}
 				else
 				{
-					ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-					BpmTask task = bpmSession.assignTaskFromQueue(q,ctx);
+					BpmTask task = bpmSession.assignTaskFromQueue(q);
 					if(task != null)
 					{
 						getWindow().executeJavaScript("Liferay.trigger('processtool.bpm.assignProcess', '" + task.getProcessInstance().getInternalId() + "');");

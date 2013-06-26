@@ -28,6 +28,7 @@ public class ProcessDefinitionConfig extends PersistentEntity implements Seriali
 	private String processName;
 	private String description;
 	private String bpmDefinitionKey;
+	private String deploymentId;
 	
 	/** Process version info */
 	@Column(name="process_version")
@@ -100,6 +101,14 @@ public class ProcessDefinitionConfig extends PersistentEntity implements Seriali
 
 	public void setBpmDefinitionKey(String bpmDefinitionKey) {
 		this.bpmDefinitionKey = bpmDefinitionKey;
+	}
+
+	public String getDeploymentId() {
+		return deploymentId;
+	}
+
+	public void setDeploymentId(String deploymentId) {
+		this.deploymentId = deploymentId;
 	}
 
 	public Boolean getLatest() {
@@ -197,7 +206,7 @@ public class ProcessDefinitionConfig extends PersistentEntity implements Seriali
     {
 		this.permissions = permissions;
     }
-    
+
     @Override
     public String toString() {
     	return processName;

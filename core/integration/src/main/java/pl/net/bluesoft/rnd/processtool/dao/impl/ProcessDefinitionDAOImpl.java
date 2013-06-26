@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
@@ -54,9 +55,11 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 	public Collection<ProcessDefinitionConfig> getActiveConfigurations() {		
 		 long start = System.currentTimeMillis(); 
 		
-		List<ProcessDefinitionConfig> list = getSession().createCriteria(ProcessDefinitionConfig.class).addOrder(Order.desc("processName"))
-						.add(Restrictions.eq("latest", Boolean.TRUE))
-						.add(Restrictions.or(Restrictions.eq("enabled", Boolean.TRUE), Restrictions.isNull("enabled")))
+		List<ProcessDefinitionConfig> list = getSession().createCriteria(ProcessDefinitionConfig.class)
+				.addOrder(Order.desc("processName"))
+				.add(Restrictions.eq("latest", Boolean.TRUE))
+				.add(Restrictions.or(Restrictions.eq("enabled", Boolean.TRUE), Restrictions.isNull("enabled")))
+				.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
                 .list();
 		 
 		 

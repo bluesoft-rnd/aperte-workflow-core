@@ -68,8 +68,7 @@ public class ProcessDeployer
 
 		ProcessToolBpmSession session = processToolContext
 				.getProcessToolSessionFactory().createSession(
-						new UserData("admin", "admin@aperteworkflow.org",
-								"Admin"), Arrays.asList("ADMIN"));
+						new UserData("admin", "admin@aperteworkflow.org", "Admin"), Arrays.asList("ADMIN"));
 		if (cfg.getPermissions() != null) {
 			for (ProcessDefinitionPermission p : cfg.getPermissions()) {
 				if (!Strings.hasText(p.getPrivilegeName())) {
@@ -80,27 +79,25 @@ public class ProcessDeployer
 				}
 			}
 		}
-		byte[] oldDefinition = session.getProcessLatestDefinition(
-				cfg.getBpmDefinitionKey(), cfg.getProcessName());
+		byte[] oldDefinition = session.getProcessLatestDefinition(cfg.getBpmDefinitionKey(), cfg.getProcessName());
+
 		if (oldDefinition != null) {
 			byte[] newDefinition = loadBytesFromStream(is);
 			is = new ByteArrayInputStream(newDefinition);
 			if (Arrays.equals(newDefinition, oldDefinition)) {
-				logger.log(
-						Level.WARNING,
-						"bpm definition for "
-								+ cfg.getProcessName()
-								+ " is the same as in BPM, therefore not updating BPM process definition");
+				logger.log(Level.WARNING, "bpm definition for " + cfg.getProcessName() +
+						" is the same as in BPM, therefore not updating BPM process definition");
 				skipJbpm = true;
 			}
 		}
 
 		if (!skipJbpm) {
 			String deploymentId = session.deployProcessDefinition(
-					cfg.getProcessName(), is, imageStream);
-			logger.log(Level.INFO,
-					"deployed new BPM Engine definition with id: "
-							+ deploymentId);
+					cfg.getProcessName(),
+					cfg.getBpmDefinitionKey(),
+					is, imageStream);
+			cfg.setDeploymentId(deploymentId);
+			logger.log(Level.INFO, "deployed new BPM Engine definition with id: " + deploymentId);
 		}
 
 		ProcessDefinitionDAO processDefinitionDAO = processToolContext
@@ -122,10 +119,7 @@ public class ProcessDeployer
 			InputStream imageStream, 
 			InputStream logoStream) 
 	{
-
-
-		if (jpdlStream == null || processToolConfigStream == null
-				|| queueConfigStream == null) {
+		if (jpdlStream == null || processToolConfigStream == null || queueConfigStream == null) {
 			throw new IllegalArgumentException(
 					"at least one of the streams is null");
 		}
@@ -164,5 +158,4 @@ public class ProcessDeployer
 		}
 		return bos.toByteArray();
 	}
-
 }

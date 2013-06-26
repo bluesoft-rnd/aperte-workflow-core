@@ -66,7 +66,7 @@ public class ProcessInstanceFilter extends AbstractPersistentEntity {
 	@CollectionTable(name = "pt_pi_filters_tasks", joinColumns = @JoinColumn(name = "filter_id"))
 	private Set<String> taskNames = new HashSet<String>();
 
-	public static final String[] LAZY_RELATIONS = new String[]{"owners", "creators", "queues", "states", "notOwners", "notCreators"};
+	public static final String[] LAZY_RELATIONS = { "owners", "creators", "queues" };
 
 	public Long getId() {
 		return id;

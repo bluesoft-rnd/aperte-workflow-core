@@ -188,14 +188,12 @@ public class GenerateDocument implements ProcessToolProcessStep
 		
 		if(reportName.matches("#\\{.*\\}"))
 		{
-			ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-			
         	String reportNameKey = reportName.replaceAll("#\\{(.*)\\}", "$1");
-        	String newReportName = (String) ctx.getBpmVariable(processInstance, reportNameKey);
+        	String newReportName = processInstance.getSimpleAttributeValue(reportNameKey);
         	
         	/* Try to evaluate variable from parent process */
         	if (newReportName == null && processInstance.getParent() != null) 
-        		newReportName = (String) ctx.getBpmVariable(processInstance.getParent(), reportNameKey);
+        		newReportName = processInstance.getParent().getSimpleAttributeValue(reportNameKey);
         	
     		if (newReportName != null) 
     			reportName = newReportName;

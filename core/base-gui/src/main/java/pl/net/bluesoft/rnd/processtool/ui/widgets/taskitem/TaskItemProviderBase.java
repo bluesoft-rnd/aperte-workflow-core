@@ -15,6 +15,7 @@ import java.util.Date;
 import org.aperteworkflow.util.taskitem.ProcessInfoBuilder;
 import org.aperteworkflow.util.vaadin.VaadinUtility;
 
+import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSessionHelper;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
@@ -151,7 +152,7 @@ public class TaskItemProviderBase {
 	}
 
 	protected String getTaskPaneStyleName(TaskItemProviderParams params) {
-		boolean running = params.getBpmSession().isProcessRunning(params.getProcessInstance().getInternalId(), params.getCtx());
+		boolean running = ProcessToolBpmSessionHelper.isProcessRunning(params.getBpmSession(), params.getCtx(), params.getProcessInstance().getInternalId());
 		boolean outdated = running && isOutdated(new Date(), getDeadlineDate(params.getTask()));
 
 		return "link tti-head" + (outdated ? "-outdated" : !running ? "-ended" : "");
@@ -264,13 +265,13 @@ public class TaskItemProviderBase {
 	protected Component createDeadlineDateLabel(TaskItemProviderParams params) {
 		Date deadlineDate = getDeadlineDate(params.getTask());
 
-		boolean running = params.getBpmSession().isProcessRunning(params.getProcessInstance().getInternalId(), params.getCtx());
+		boolean running = ProcessToolBpmSessionHelper.isProcessRunning(params.getBpmSession(), params.getCtx(), params.getProcessInstance().getInternalId());
 		boolean outdated = running && isOutdated(new Date(), deadlineDate);
 
 		return labelWithIcon(params.getImage("/img/date_deadline.png"),
-							 deadlineDate != null ? formatDate(deadlineDate) : params.getMessage("activity.nodeadline"),
-							 outdated ? "tti-date outdated" : "tti-date",
-							 params.getMessage("activity.deadlineDate"));
+				deadlineDate != null ? formatDate(deadlineDate) : params.getMessage("activity.nodeadline"),
+				outdated ? "tti-date outdated" : "tti-date",
+				params.getMessage("activity.deadlineDate"));
 	}
 
 	protected String formatDate(Date date) {

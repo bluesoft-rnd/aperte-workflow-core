@@ -1,24 +1,18 @@
 package pl.net.bluesoft.rnd.processtool.bpm;
 
-import java.io.InputStream;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-
 import org.aperteworkflow.bpm.graph.GraphElement;
-
-import pl.net.bluesoft.rnd.processtool.model.BpmTask;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog;
-import pl.net.bluesoft.rnd.processtool.model.QueueType;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.processtool.model.*;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
 import pl.net.bluesoft.util.eventbus.EventBusManager;
+
+import java.io.InputStream;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 /**
  * The process tool interface, providing basic operations.
@@ -79,9 +73,9 @@ public interface ProcessToolBpmSession extends ProcessToolBpmConstants {
 	/** Find tasks from user process queue with given queue type and login in filter instance with given max results limit */
 	List<BpmTask> findFilteredTasks(ProcessInstanceFilter filter, int resultOffset, int maxResults);
 
-	List<BpmTask> findRecentTasks(Calendar minDate, Integer offset, Integer limit);
+	List<BpmTask> findRecentTasks(Date minDate, Integer offset, Integer limit);
 
-	int getRecentTasksCount(Calendar minDate);
+	int getRecentTasksCount(Date minDate);
 
 	Collection<ProcessDefinitionConfig> getAvailableConfigurations();
     List<ProcessQueue> getUserAvailableQueues();

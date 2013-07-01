@@ -9,8 +9,8 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
 
-import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -251,7 +251,7 @@ public class ProcessToolBpmSessionHelper {
 		});
 	}
 
-	public static List<BpmTask> findRecentTasks(final ProcessToolBpmSession session, ProcessToolContext ctx, final Calendar minDate, 
+	public static List<BpmTask> findRecentTasks(final ProcessToolBpmSession session, ProcessToolContext ctx, final Date minDate,
 										 final Integer offset, final Integer limit) {
 		return withContext(ctx, new ReturningProcessToolContextCallback<List<BpmTask>>() {
 			@Override
@@ -261,7 +261,7 @@ public class ProcessToolBpmSessionHelper {
 		});
 	}
 
-	public static int getRecentTasksCount(final ProcessToolBpmSession session, ProcessToolContext ctx, final Calendar minDate) {
+	public static int getRecentTasksCount(final ProcessToolBpmSession session, ProcessToolContext ctx, final Date minDate) {
 		return withContext(ctx, new ReturningProcessToolContextCallback<Integer>() {
 			@Override
 			public Integer processWithContext(ProcessToolContext ctx) {

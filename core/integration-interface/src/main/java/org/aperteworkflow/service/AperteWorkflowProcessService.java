@@ -8,15 +8,8 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
 
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
-import javax.jws.WebMethod;
-
-import org.aperteworkflow.bpm.graph.GraphElement;
 import org.aperteworkflow.service.fault.AperteWsIllegalArgumentException;
 import org.aperteworkflow.service.fault.AperteWsWrongArgumentException;
 
@@ -160,7 +153,7 @@ public interface AperteWorkflowProcessService {
 	 * @param user User Data
 	 * @return Number do recent Tasks
 	 *</pre>*/
-	Integer getRecentTasksCount(Calendar minDate, UserData user);
+	Integer getRecentTasksCount(Date minDate, UserData user);
 
 	/**<pre>
 	 * 

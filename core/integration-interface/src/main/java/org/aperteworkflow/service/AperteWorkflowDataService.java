@@ -7,7 +7,6 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -143,8 +142,7 @@ public interface AperteWorkflowDataService {
 	 * @param minDate The oldest allowed date.
 	 * @return List of processInstances,
 	 *</pre>*/
-	Collection<ProcessInstance> getUserProcessesAfterDate(UserData userData,
-			Calendar minDate);
+	Collection<ProcessInstance> getUserProcessesAfterDate(UserData userData, Date minDate);
 
 	/**<pre>
 	 * Returns process witch, assigned user is userData, and entry date is no older than minDate. Results are limited with "limit", and "offset".
@@ -158,7 +156,7 @@ public interface AperteWorkflowDataService {
 	 * @return List of processInstances.
 	 *</pre>*/
 	ResultsPageWrapper<ProcessInstance> getRecentProcesses(UserData userData,
-			Calendar minDate, Integer offset, Integer limit);
+														   Date minDate, Integer offset, Integer limit);
 
 	/**<pre>
 	 * Service returns a list of  all, process definitions. From the table: "pt_process_definition_config".
@@ -294,7 +292,7 @@ public interface AperteWorkflowDataService {
 	 * @throws AperteWsWrongArgumentException If user login is wrong and user does not exists (including param null or empty values). 
 	 *</pre>*/
 	Collection<ProcessInstance> getUserProcessesBetweenDatesByUserLogin(
-			String userLogin, Calendar minDate, Calendar maxDate)
+			String userLogin, Date minDate, Date maxDate)
 			throws AperteWsWrongArgumentException;
 
 	/**<pre>

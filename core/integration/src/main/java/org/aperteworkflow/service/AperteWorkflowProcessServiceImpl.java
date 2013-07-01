@@ -4,11 +4,7 @@ import static org.aperteworkflow.util.ContextUtil.withContext;
 import static org.aperteworkflow.util.HibernateBeanUtil.fetchHibernateData;
 
 import java.io.ByteArrayInputStream;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
@@ -323,7 +319,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 
 	@Override
 	@WebMethod (exclude=true)
-    public Integer getRecentTasksCount(@WebParam(name="minDate")final Calendar minDate, @WebParam(name="user")final UserData user) {
+    public Integer getRecentTasksCount(@WebParam(name="minDate")final Date minDate, @WebParam(name="user")final UserData user) {
         return withContext(new ReturningProcessToolContextCallback<Integer>() {
             @Override
             public Integer processWithContext(ProcessToolContext ctx) {

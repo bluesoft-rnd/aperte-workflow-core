@@ -174,6 +174,16 @@ public class BpmTaskBean implements BpmTask, Serializable {
 
 	@Override
 	public String toString() {
-		return "BpmTask [taskName=" + taskName + "]";
+		return "BpmTaskBean{" +
+				"assignee='" + assignee + '\'' +
+				", groupId='" + groupId + '\'' +
+				", owner=" + owner +
+				", taskName='" + taskName + '\'' +
+				", internalTaskId='" + internalTaskId + '\'' +
+				", executionId='" + executionId + '\'' +
+				", createDate=" + createDate +
+				", finishDate=" + finishDate +
+				", isFinished=" + isFinished +
+				'}';
 	}
 }

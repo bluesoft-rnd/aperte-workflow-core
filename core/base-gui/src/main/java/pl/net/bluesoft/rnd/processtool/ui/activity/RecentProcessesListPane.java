@@ -25,7 +25,7 @@ public class RecentProcessesListPane extends MyProcessesListPane {
 
     @Override
 	public List<BpmTask> getBpmTasks() {
-        return getBpmSession().findRecentTasks(minDate, offset, limit);
+        return getBpmSession().findRecentTasks(minDate.getTime(), offset, limit);
 	}
 
 	@Override

@@ -34,8 +34,7 @@ import static org.aperteworkflow.util.HibernateBeanUtil.fetchHibernateData;
  * @author kkolodziej@bluesoft.net.pl
  */
 @WebService
-public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService { 
-
+public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService {
 	@Override
     @WebMethod  (exclude=true)
     public long saveProcessInstance(@WebParam(name="processInstance")final ProcessInstance processInstance) {
@@ -275,8 +274,8 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
 	@Override
     @WebMethod
     public Collection<ProcessInstance> getUserProcessesBetweenDatesByUserLogin(@WebParam(name="userLogin")final String userLogin,
-                                                                 @WebParam(name="minDate")final Calendar minDate,
-                                                                 @WebParam(name="maxDate")final Calendar maxDate) throws AperteWsWrongArgumentException {
+                                                                 @WebParam(name="minDate")final Date minDate,
+                                                                 @WebParam(name="maxDate")final Date maxDate) throws AperteWsWrongArgumentException {
 		
 		final UserData user = findUser(userLogin);
         return withContext(new ReturningProcessToolContextCallback<Collection<ProcessInstance>>() {
@@ -292,7 +291,7 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
 	@Override
 	@WebMethod (exclude=true)
     public Collection<ProcessInstance> getUserProcessesAfterDate(@WebParam(name="user")final UserData user,
-                                                                 @WebParam(name="minDate")final Calendar minDate) {
+                                                                 @WebParam(name="minDate")final Date minDate) {
         return withContext(new ReturningProcessToolContextCallback<Collection<ProcessInstance>>() {
             @Override
             public Collection<ProcessInstance> processWithContext(ProcessToolContext ctx) {
@@ -304,7 +303,7 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
 	@Override
 	@WebMethod (exclude=true)
     public ResultsPageWrapper<ProcessInstance> getRecentProcesses(@WebParam(name="user")final UserData user,
-                                                                  @WebParam(name="minDate")final Calendar minDate,
+                                                                  @WebParam(name="minDate")final Date minDate,
                                                                   @WebParam(name="offset")final Integer offset,
                                                                   @WebParam(name="limit")final Integer limit) {
         return withContext(new ReturningProcessToolContextCallback<ResultsPageWrapper<ProcessInstance>>() {

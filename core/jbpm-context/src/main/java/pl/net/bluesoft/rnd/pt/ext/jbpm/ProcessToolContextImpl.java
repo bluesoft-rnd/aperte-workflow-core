@@ -1,7 +1,5 @@
 package pl.net.bluesoft.rnd.pt.ext.jbpm;
 
-import static pl.net.bluesoft.util.lang.StringUtil.hasText;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,8 +7,6 @@ import java.util.Map;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
-import org.jbpm.api.ExecutionService;
-import org.jbpm.api.ProcessEngine;
 
 import pl.net.bluesoft.rnd.processtool.BasicSettings;
 import pl.net.bluesoft.rnd.processtool.IProcessToolSettings;
@@ -31,9 +27,7 @@ import pl.net.bluesoft.rnd.processtool.dict.ProcessDictionaryProvider;
 import pl.net.bluesoft.rnd.processtool.dict.ProcessDictionaryRegistry;
 import pl.net.bluesoft.rnd.processtool.hibernate.HibernateBean;
 import pl.net.bluesoft.rnd.processtool.hibernate.HibernateTransactionCallback;
-import pl.net.bluesoft.rnd.processtool.model.BpmVariable;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessToolAutowire;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessToolSequence;
@@ -53,7 +47,7 @@ public class ProcessToolContextImpl implements ProcessToolContext {
     private Transaction transaction;
     private ProcessToolJbpmSessionFactory processToolJbpmSessionFactory;
     private ProcessDictionaryRegistry processDictionaryRegistry;
-    private ProcessEngine processEngine;
+//    private ProcessEngine processEngine;
     private ProcessToolRegistry registry;
     private IUserProcessQueueManager userProcessQueueManager;
 
@@ -63,14 +57,13 @@ public class ProcessToolContextImpl implements ProcessToolContext {
     private Boolean closed = false;
 
     public ProcessToolContextImpl(Session hibernateSession,
-    								ProcessToolRegistry registry,
-                                  ProcessEngine processEngine) {
+    								ProcessToolRegistry registry) {
         this.hibernateSession = hibernateSession;
         this.registry = registry;
-        this.processEngine = processEngine;
-        this.autowiringCache = getRegistry().getCache(ProcessToolAutowire.class.getName());
+//        this.processEngine = processEngine;
+        this.autowiringCache = registry.getCache(ProcessToolAutowire.class.getName());
         this.userProcessQueueManager = new UserProcessQueueManager(hibernateSession, getUserProcessQueueDAO());
-        processEngine.setHibernateSession(hibernateSession);
+//        processEngine.setHibernateSession(hibernateSession);
 
         transaction = hibernateSession.beginTransaction();
     }
@@ -94,7 +87,8 @@ public class ProcessToolContextImpl implements ProcessToolContext {
 
     }
 
-    public boolean isActive() 
+    @Override
+	public boolean isActive()
     {
     	/* Check hibernate session */
     	if(!hibernateSession.isOpen())
@@ -230,7 +224,7 @@ public class ProcessToolContextImpl implements ProcessToolContext {
     @Override
     public void setSetting(IProcessToolSettings key, String value) {
         verifyContextOpen();
-        List list = hibernateSession.createCriteria(ProcessToolSetting.class).add(Restrictions.eq("key", key)).list();
+        List list = hibernateSession.createCriteria(ProcessToolSetting.class).add(Restrictions.eq("key", key.toString())).list();
         ProcessToolSetting setting;
         if (list.isEmpty()) {
             setting = new ProcessToolSetting();
@@ -304,31 +298,8 @@ public class ProcessToolContextImpl implements ProcessToolContext {
                 Formats.nvl(getSetting(BasicSettings.AUTO_USER_EMAIL), "awf@bluesoft.net.pl"));
     }
 
-    public ProcessEngine getProcessEngine() {
-        return processEngine;
-    }
-
     @Override
     public void updateContext(ProcessInstance processInstance) {
-        ExecutionService es = getProcessEngine().getExecutionService();
-        for (ProcessInstanceAttribute pia : processInstance.getProcessAttributes()) {
-            if (pia instanceof BpmVariable) {
-                BpmVariable bpmVar = (BpmVariable) pia;
-                if (hasText(bpmVar.getBpmVariableName())) {
-                    es.setVariable(processInstance.getInternalId(), bpmVar.getBpmVariableName(), bpmVar.getBpmVariableValue());
-                }
-            }
-        }
-    }
-    
-    public Map<String, Object> getBpmVariables(ProcessInstance pi) {
-        ExecutionService es = getProcessEngine().getExecutionService();
-        return es.getVariables(pi.getInternalId(), es.getVariableNames(pi.getInternalId()));
-    }
-    
-    public Object getBpmVariable(ProcessInstance pi, String variableName) {
-        ExecutionService es = getProcessEngine().getExecutionService();
-        return es.getVariable(pi.getInternalId(), variableName);
     }
 
 	@Override

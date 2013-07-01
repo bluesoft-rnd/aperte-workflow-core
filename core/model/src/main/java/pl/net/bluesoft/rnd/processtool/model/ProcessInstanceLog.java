@@ -2,12 +2,11 @@ package pl.net.bluesoft.rnd.processtool.model;
 
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
-import java.util.Calendar;
 import java.util.Comparator;
+import java.util.Date;
 
 import javax.persistence.*;
 import javax.persistence.Entity;
-import javax.persistence.Parameter;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -42,7 +41,7 @@ public class ProcessInstanceLog extends AbstractPersistentEntity {
 
 //	@Field
 //	@CalendarBridge(resolution = Resolution.MINUTE)
-	private Calendar entryDate;
+	private Date entryDate;
 
 	private String eventI18NKey;
 
@@ -86,11 +85,11 @@ public class ProcessInstanceLog extends AbstractPersistentEntity {
 		this.id = id;
 	}
 
-	public Calendar getEntryDate() {
+	public Date getEntryDate() {
 		return entryDate;
 	}
 
-	public void setEntryDate(Calendar entryDate) {
+	public void setEntryDate(Date entryDate) {
 		this.entryDate = entryDate;
 	}
 
@@ -162,7 +161,8 @@ public class ProcessInstanceLog extends AbstractPersistentEntity {
 	public static final Comparator<ProcessInstanceLog> DEFAULT_COMPARATOR = new Comparator<ProcessInstanceLog>() {
 		@Override
 		public int compare(ProcessInstanceLog o1, ProcessInstanceLog o2) {
-			return nvl(o2.getEntryDate(), Calendar.getInstance()).compareTo(nvl(o1.getEntryDate(), Calendar.getInstance()));
+			Date now = new Date();
+			return nvl(o2.getEntryDate(), now).compareTo(nvl(o1.getEntryDate(), now));
 		}
 	};
 

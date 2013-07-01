@@ -187,8 +187,11 @@ public abstract class AbstractProcessToolSession
     }
 
     protected List<ProcessQueue> getUserQueuesFromConfig() {
-		Collection<ProcessQueueConfig> queueConfigs = getContext().getProcessDefinitionDAO().getQueueConfigs();
+		return getQueuesFromConfig(roleNames);
+    }
 
+	public static List<ProcessQueue> getQueuesFromConfig(final Collection<String> roleNames) {
+		Collection<ProcessQueueConfig> queueConfigs = getContext().getProcessDefinitionDAO().getQueueConfigs();
 		return new Mapcar<ProcessQueueConfig, ProcessQueue>(queueConfigs) {
             @Override
             public ProcessQueue lambda(ProcessQueueConfig x) {
@@ -203,7 +206,7 @@ public abstract class AbstractProcessToolSession
                         continue;
                     }
 
-                    if (hasMatchingRole(rn)) {
+                    if (hasMatchingRole(rn, roleNames)) {
                         found = true;
                         browsable = browsable || r.isBrowseAllowed();
                     }
@@ -218,9 +221,9 @@ public abstract class AbstractProcessToolSession
 				return createProcessQueue(x, browsable);
             }
         }.go();
-    }
+	}
 
-	private ProcessQueue createProcessQueue(ProcessQueueConfig x, boolean browsable) {
+	private static ProcessQueue createProcessQueue(ProcessQueueConfig x, boolean browsable) {
 		ProcessQueueBean pq = new ProcessQueueBean();
 		pq.setBrowsable(browsable);
 		pq.setName(x.getName());
@@ -231,15 +234,19 @@ public abstract class AbstractProcessToolSession
 	}
 
 	private boolean hasMatchingRole(String roleName) {
-        for (String role : roleNames) {
+		return hasMatchingRole(roleName, roleNames);
+    }
+
+	private static boolean hasMatchingRole(String roleName, Collection<String> roleNames) {
+		for (String role : roleNames) {
             if (role != null && role.matches(roleName)) {
                 return true;
             }
         }
-        return false;
-    }
+		return false;
+	}
 
-    @Override
+	@Override
     public Collection<String> getRoleNames() {
         return java.util.Collections.unmodifiableCollection(roleNames);
     }

@@ -41,7 +41,7 @@ public abstract class QueryBase<T> {
 
 	public List<T> list() {
 		String hql = toString();
-		System.out.println(getClass().getSimpleName()+" = " + hql);
+
 		return (List<T>)taskService.query(hql, limit, offset);
 	}
 

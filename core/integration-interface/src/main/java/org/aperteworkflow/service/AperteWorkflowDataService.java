@@ -15,7 +15,8 @@ import java.util.List;
 
 import org.aperteworkflow.service.fault.AperteWsIllegalArgumentException;
 import org.aperteworkflow.service.fault.AperteWsWrongArgumentException;
- 
+import pl.net.bluesoft.rnd.processtool.model.nonpersistent.BpmTaskBean;
+
 /**
  * @author tlipski@bluesoft.net.pl
  * @author kkolodziej@bluesoft.net.pl
@@ -203,7 +204,7 @@ public interface AperteWorkflowDataService {
 	 * @param task BpmTask only "taskName", and "processInstance/definition/id" is mandatory
 	 * @return process State configuration.
 	 *</pre>*/
-	ProcessStateConfiguration getProcessStateConfiguration(BpmTask task);
+	ProcessStateConfiguration getProcessStateConfiguration(BpmTaskBean task);
 
 	/**<pre>
 	 * Creates a new process or alter the configuration of the old one. 

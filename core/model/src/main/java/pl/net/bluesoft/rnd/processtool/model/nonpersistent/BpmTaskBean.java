@@ -7,7 +7,9 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * User: POlszewski
@@ -185,5 +187,14 @@ public class BpmTaskBean implements BpmTask, Serializable {
 				", finishDate=" + finishDate +
 				", isFinished=" + isFinished +
 				'}';
+	}
+
+	public static List<BpmTaskBean> asBeans(List<? extends BpmTask> list) {
+		List<BpmTaskBean> result = new ArrayList<BpmTaskBean>();
+
+		for (BpmTask task : list) {
+			result.add(new BpmTaskBean(task));
+		}
+		return result;
 	}
 }

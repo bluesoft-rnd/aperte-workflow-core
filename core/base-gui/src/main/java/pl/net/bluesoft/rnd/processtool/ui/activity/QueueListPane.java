@@ -65,7 +65,7 @@ public class QueueListPane extends ProcessListPane {
         if (queue != null) {
             tfi.addQueue(queue.getName());
         }
-        tfi.addQueueType(QueueType.OWN_IN_QUEUE);
+//        tfi.addQueueType(QueueType.OWN_IN_QUEUE);
         return tfi;
     }
 }

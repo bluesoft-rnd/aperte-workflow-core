@@ -58,7 +58,6 @@ public class AwfUserCallback implements UserGroupCallback {
 		if (result.isEmpty()) {
 			result.add(DUMMY_USER_GROUP);
 		}
-		System.out.println("***********>>> " + result);
 		return result;
 	}
 

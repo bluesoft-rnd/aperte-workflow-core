@@ -178,7 +178,7 @@ public class BpmTaskQuery {
 		}
 
 		query.setFirstResult(offset);
-		System.out.println(queryString);System.out.println(queryParameters);
+
 		return query;
 	}
 
@@ -216,11 +216,11 @@ public class BpmTaskQuery {
 		sb.append(" WHERE 1=1");
 
 		if (owners != null) {
-			sb.append(" AND EXISTS(SELECT * FROM pt_process_instance_owners powner WHERE powner.process_id = process.id AND owners IN (:owners)");
+			sb.append(" AND EXISTS(SELECT * FROM pt_process_instance_owners powner WHERE powner.process_id = process.id AND owners IN (:owners))");
 			queryParameters.add(new QueryParameter("owners", owners));
 		}
 
-		if (virtualQueues != null) {
+		if (virtualQueues != null && user != null) {
 			sb.append(from(virtualQueues).select(GET_VIRTUAL_QUEUES).toString(" OR ", " AND (", ")"));
 			queryParameters.add(new QueryParameter("user", user));
 		}
@@ -274,5 +274,21 @@ public class BpmTaskQuery {
 			default:
 				throw new RuntimeException("Unhandled type: " + virtualQueue);
 		}
+	}
+
+	@Override
+	public String toString() {
+		return "BpmTaskQuery{" +
+				"user='" + user + '\'' +
+				", owners=" + owners +
+				", virtualQueues=" + virtualQueues +
+				", queues=" + queues +
+				", taskNames=" + taskNames +
+				", createdBefore=" + createdBefore +
+				", createdAfter=" + createdAfter +
+				", orderByCreateDateDesc=" + orderByCreateDateDesc +
+				", offset=" + offset +
+				", limit=" + limit +
+				'}';
 	}
 }

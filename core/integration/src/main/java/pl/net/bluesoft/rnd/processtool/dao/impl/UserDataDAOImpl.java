@@ -35,7 +35,7 @@ public class UserDataDAOImpl extends SimpleHibernateBean<UserData> implements Us
     @Override
     public UserData findOrCreateUser(UserData ud) {
     	
-    	 long start = System.currentTimeMillis();
+//    	 long start = System.currentTimeMillis();
         UserData user = loadUserByLogin(ud.getLogin());
         if (user == null) {
         	Session session = getSession();
@@ -43,8 +43,8 @@ public class UserDataDAOImpl extends SimpleHibernateBean<UserData> implements Us
             user = ud;
         }
         
-        long duration = System.currentTimeMillis() - start;
-		logger.severe("findOrCreateUser: " +  duration);
+//        long duration = System.currentTimeMillis() - start;
+//		logger.severe("findOrCreateUser: " +  duration);
         
         
         return user;
@@ -78,11 +78,11 @@ public class UserDataDAOImpl extends SimpleHibernateBean<UserData> implements Us
       @Override
       public UserData loadUserByLogin(String login) {
     	  
-    	  long start = System.currentTimeMillis();
+//    	  long start = System.currentTimeMillis();
           DetachedCriteria criteria = getDetachedCriteria().setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
            UserData findUnique = findUnique(criteria, eq("login", login));
-           long duration = System.currentTimeMillis() - start;
-			logger.severe("loadUserByLogin: " +  duration);
+//           long duration = System.currentTimeMillis() - start;
+//			logger.severe("loadUserByLogin: " +  duration);
 			
 			return findUnique;
       }

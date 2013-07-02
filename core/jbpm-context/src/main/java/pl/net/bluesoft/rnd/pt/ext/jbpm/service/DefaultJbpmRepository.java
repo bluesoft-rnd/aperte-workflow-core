@@ -17,7 +17,7 @@ public class DefaultJbpmRepository implements JbpmRepository {
 	}
 
 	@Override
-	public byte[][] getAllResources(String type) { //TODO przepisac to na iterator i strumienie
+	public byte[][] getAllResources(String type) {
 		try {
 			File base = new File(basePath);
 			Collection<File> files = FileUtils.listFiles(base, new String[] { type }, true);

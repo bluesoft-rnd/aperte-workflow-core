@@ -41,8 +41,8 @@ public class MyProcessesListPane extends ProcessListPane {
     protected ProcessInstanceFilter getDefaultFilter() {
         ProcessInstanceFilter processFilter = new ProcessInstanceFilter();
         processFilter.setName(getMessage("activity.assigned.tasks"));
-        processFilter.addOwner(getBpmSession().getUser());
-        processFilter.setFilterOwner(getBpmSession().getUser());
+		processFilter.setFilterOwner(getBpmSession().getUser());
+		processFilter.addOwner(processFilter.getFilterOwner());
         processFilter.addQueueType(QueueType.ASSIGNED_TO_CURRENT_USER);
         return processFilter;
     }
@@ -118,7 +118,7 @@ public class MyProcessesListPane extends ProcessListPane {
     }
 
     protected void displayProcessData(BpmTask task) {
-        activityMainPane.displayProcessData(task);
+        activityMainPane.displayProcessData(getBpmSession().getTaskData(task.getInternalTaskId()));
     }
 
     /** Metoda wylicza date wygasniecia procesu. W przypadku podprocesow, siega

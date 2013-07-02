@@ -54,12 +54,13 @@ public abstract class AbstractProcessToolSession
         eventBusManager.publish(event);
         if (substitutingUserEventBusManager != null)
             substitutingUserEventBusManager.publish(event);
-        getContext().addTransactionCallback(new TransactionFinishedCallback() {
-            @Override 
-            public void onFinished() { 
-                getContext().getEventBusManager().post(event);
-            }
-        });
+		final ProcessToolContext ctx = getContext(); // inside callback context is no longer present
+        ctx.addTransactionCallback(new TransactionFinishedCallback() {
+			@Override
+			public void onFinished() {
+				ctx.getEventBusManager().post(event);
+			}
+		});
     }
 
 	protected UserData findOrCreateUser(UserData user)

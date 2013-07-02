@@ -12,6 +12,7 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.*;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
+import pl.net.bluesoft.rnd.processtool.model.nonpersistent.BpmTaskBean;
 import pl.net.bluesoft.rnd.pt.utils.lang.Lang2;
 
 /**
@@ -52,7 +53,7 @@ public class ProcessInstance extends AbstractPersistentEntity {
     @Transient
     private String[] taskQueues;
     @Transient
-    private BpmTask[] activeTasks;
+    private BpmTaskBean[] activeTasks;
 
 	private Date createDate;
 
@@ -374,11 +375,11 @@ public class ProcessInstance extends AbstractPersistentEntity {
         this.status = status;
     }
 
-    public BpmTask[] getActiveTasks() {
+    public BpmTaskBean[] getActiveTasks() {
         return activeTasks;
     }
 
-    public void setActiveTasks(BpmTask[] activeTasks) {
+    public void setActiveTasks(BpmTaskBean[] activeTasks) {
         this.activeTasks = Lang2.noCopy(activeTasks);
     }
 

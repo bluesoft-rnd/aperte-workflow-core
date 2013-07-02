@@ -1,6 +1,8 @@
 package pl.net.bluesoft.rnd.processtool.model.nonpersistent;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * User: POlszewski
@@ -24,6 +26,14 @@ public class ProcessQueueBean implements ProcessQueue, Serializable {
 		this.name = name;
 		this.description = description;
 		this.browsable = browsable;
+	}
+
+	public ProcessQueueBean(ProcessQueue queue) {
+		this.name = queue.getName();
+		this.description = queue.getDescription();
+		this.browsable = queue.isBrowsable();
+		this.processCount = queue.getProcessCount();
+		this.userAdded = queue.getUserAdded();
 	}
 
 	@Override
@@ -69,5 +79,14 @@ public class ProcessQueueBean implements ProcessQueue, Serializable {
 	@Override
 	public boolean getUserAdded() {
 		return userAdded;
+	}
+
+	public static List<ProcessQueueBean> asBeans(List<? extends ProcessQueue> list) {
+		List<ProcessQueueBean> result = new ArrayList<ProcessQueueBean>();
+
+		for (ProcessQueue processQueue : list) {
+			result.add(new ProcessQueueBean(processQueue));
+		}
+		return result;
 	}
 }

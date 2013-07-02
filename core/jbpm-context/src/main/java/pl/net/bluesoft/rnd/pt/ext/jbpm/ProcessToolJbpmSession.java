@@ -468,11 +468,11 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 			taskFilterQuery.virtualQueues(filter.getQueueTypes());
 		}
 
-		/* Prepare data for owner lists and not owner list */
-		Collection<String> ownerNames = new HashSet<String>();
-		for (UserData userData : filter.getOwners()) {
-			ownerNames.add(userData.getLogin());
-		}
+//		/* Prepare data for owner lists and not owner list */
+//		Collection<String> ownerNames = new HashSet<String>();
+//		for (UserData userData : filter.getOwners()) {
+//			ownerNames.add(userData.getLogin());
+//		}
 
    		/* Add condition for task names if any exists */
 		if (!filter.getTaskNames().isEmpty()) {
@@ -493,10 +493,10 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 			taskFilterQuery.queues(filter.getQueues());
 		}
 
-   		/* Add condition for owner */
-		if (!ownerNames.isEmpty()) {
-			taskFilterQuery.owners(ownerNames);
-		}
+//   		/* Add condition for owner */
+//		if (!ownerNames.isEmpty()) {
+//			taskFilterQuery.owners(ownerNames);
+//		}
 		return taskFilterQuery;
 	}
 
@@ -608,7 +608,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	private void fillProcessAssignmentData(ProcessInstance pi) {
 		Set<String> assignees = new HashSet<String>();
 		Set<String> queues = new HashSet<String>();
-		List<BpmTask> processTasks = findProcessTasks(pi);
+		List<BpmTaskBean> processTasks = BpmTaskBean.asBeans(findProcessTasks(pi));
 
 		for (BpmTask t : processTasks) {
 			if (t.getAssignee() != null) {
@@ -618,7 +618,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 				queues.add(t.getGroupId());
 			}
 		}
-		pi.setActiveTasks(processTasks.toArray(new BpmTask[processTasks.size()]));
+		pi.setActiveTasks(processTasks.toArray(new BpmTaskBean[processTasks.size()]));
 		pi.setAssignees(assignees.toArray(new String[assignees.size()]));
 		pi.setTaskQueues(queues.toArray(new String[queues.size()]));
 	}
@@ -756,8 +756,6 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 	@Override
 	public void taskCreated(TaskUserEvent event) {
-//		System.out.println("----->>> taskCreated " + event.getTaskId() + ", userId=" + event.getUserId());
-
 		BpmTask task = getBpmTask(getTaskService().getTask(event.getTaskId()));
 
 		getContext().getUserProcessQueueManager().onQueueAssigne(task);
@@ -767,8 +765,6 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 	@Override
 	public void taskClaimed(TaskUserEvent event) {
-//		System.out.println("----->>> taskClaimed " + event.getTaskId() + ", userId=" + event.getUserId());
-
 		BpmTask task = getBpmTask(getTaskService().getTask(event.getTaskId()));
 
 		if (completeTaskParams != null && user.getLogin().equals(event.getUserId())) {

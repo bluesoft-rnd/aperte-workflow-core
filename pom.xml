@@ -37,11 +37,23 @@
         <url>https://github.com/bluesoft-rnd/aperte-workflow-core.git</url>
     </scm>
 
+	<repositories>
+		<repository>
+			<id>jboss-repo</id>
+			<url>http://repository.jboss.org/nexus/content/groups/public/</url>
+		</repository>
+		<repository>
+			<url>http://repo1.maven.org/maven2/</url>
+			<id>central</id>
+			<layout>default</layout>
+		</repository>
+	</repositories>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.build.compiler.source>1.7</project.build.compiler.source>
-        <project.build.compiler.target>1.7</project.build.compiler.target>
-        <jbpm.version>4.4</jbpm.version>
+        <project.build.compiler.source>1.6</project.build.compiler.source>
+        <project.build.compiler.target>1.6</project.build.compiler.target>
+        <jbpm.version>5.4.0.Final</jbpm.version>
         <spring.version>3.0.5.RELEASE</spring.version>
         <vaadin.version>6.8.10</vaadin.version>
         <hibernate.version>3.6.10.Final</hibernate.version>
@@ -86,6 +98,17 @@
             <version>${postgres.version}</version>
             <scope>test</scope>
         </dependency>
+
+		<dependency>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+			<version>3.2.1</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.4</version>
+		</dependency>
     </dependencies>
 
     <build>

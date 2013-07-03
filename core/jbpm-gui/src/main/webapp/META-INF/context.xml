@@ -1,0 +1,6 @@
+<Context>
+ 
+    <Resource name="jdbc/aperte-workflow-ds" auth="Container" type="javax.sql.DataSource"
+        factory="bitronix.tm.resource.ResourceObjectFactory" uniqueName="jdbc/aperte-workflow-ds" />
+
+</Context>

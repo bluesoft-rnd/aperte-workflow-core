@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
+import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.web.controller.IOsgiWebController;
 import pl.net.bluesoft.rnd.processtool.web.controller.OsgiWebRequest;
 import pl.net.bluesoft.rnd.processtool.web.controller.ControllerMethod;
@@ -26,9 +27,9 @@ import java.lang.reflect.Method;
 @Controller
 public class MainDispatcher extends AbstractProcessToolServletController
 {
-    @RequestMapping(method = RequestMethod.GET, value = "/dispatcher/{controllerName}/{actionName}")
+    @RequestMapping(value = "/dispatcher/{controllerName}/{actionName}")
     @ResponseBody
-    public GenericResultBean invoke(@PathVariable String controllerName, @PathVariable String actionName, final HttpServletRequest request, final HttpServletResponse respone)
+    public Object invoke(@PathVariable String controllerName, @PathVariable String actionName, final HttpServletRequest request, final HttpServletResponse respone)
     {
         final GenericResultBean resultBean = new GenericResultBean();
         final IProcessToolRequestContext context = this.initilizeContext(request);
@@ -57,35 +58,31 @@ public class MainDispatcher extends AbstractProcessToolServletController
             return resultBean;
         }
 
-        context.getRegistry().withProcessToolContext(new ProcessToolContextCallback()
-        {
-
+        return context.getRegistry().withProcessToolContext(new ReturningProcessToolContextCallback<Object>() {
             @Override
-            public void withContext(ProcessToolContext ctx)
+            public Object processWithContext(ProcessToolContext ctx)
             {
-
                 OsgiWebRequest controllerInvocation = new OsgiWebRequest();
-                controllerInvocation.setDataBean(resultBean);
                 controllerInvocation.setProcessToolRequestContext(context);
                 controllerInvocation.setRequest(request);
 
                 try {
-                    controllerMethod.invoke(servletController, controllerInvocation);
+                    Object result = controllerMethod.invoke(servletController, controllerInvocation);
+                    return result;
+
                 }
                 catch (IllegalAccessException e)
                 {
                     resultBean.addError(SYSTEM_SOURCE, e.getMessage());
+                    return resultBean;
                 }
                 catch (InvocationTargetException e)
                 {
                     resultBean.addError(SYSTEM_SOURCE, e.getMessage());
+                    return resultBean;
                 }
-
-
             }
         });
-
-        return resultBean;
     }
 
     /** Find controller method by ControllerMethod annotation */

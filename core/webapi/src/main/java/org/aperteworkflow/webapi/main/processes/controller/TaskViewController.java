@@ -145,8 +145,12 @@ public class TaskViewController extends AbstractProcessToolServletController
 				Collections.sort(actions, new Comparator<ProcessStateAction>() {
 
 					@Override
-					public int compare(ProcessStateAction action1, ProcessStateAction action2) {
-						// TODO Auto-generated method stub
+					public int compare(ProcessStateAction action1, ProcessStateAction action2)
+                    {
+                        if(action1.getPriority() == null)
+                            return -1;
+                        if(action2.getPriority() == null)
+                            return 1;
 						return action1.getPriority().compareTo(action2.getPriority());
 					}
 				});
@@ -156,6 +160,7 @@ public class TaskViewController extends AbstractProcessToolServletController
 					.setActions(actions)
 					.setI18Source(messageSource)
 					.setUser(context.getUser())
+                    .setCtx(ctx)
 					.setTask(task);
 
 				try

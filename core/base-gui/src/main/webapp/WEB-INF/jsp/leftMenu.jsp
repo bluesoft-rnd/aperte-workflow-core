@@ -15,17 +15,20 @@
 				<span class="icon-bar"></span>
 			  </a>
 			  <div id="mobile-collapse" class="nav-collapse collapse navbar-responsive-collapse">
-				<div class="start-process-button" id="process-start-button">
-					<spring:message code="processes.start.new.process" />
+				<div class="start-process-button" id="process-start-button" onClick="windowManager.showNewProcessPanel();">
+					<i class="icon-briefcase icon-white" ></i><spring:message code="processes.start.new.process" />
 				</div>
-				<div class="search-process-button" id="show-search-view-button">
-					<spring:message code="processes.search.process" />
+				<div class="search-process-button" id="show-search-view-button" onClick="windowManager.showSearchProcessPanel();">
+					<i class="icon-search icon-white" ></i><spring:message code="processes.search.process" />
 				</div>
-				<div class="show-queues-button" id="show-queues-view-button">
-					<spring:message code="processes.show.queues" />
+				<div class="show-queues-button" id="show-queues-view-button" onClick="windowManager.showQueueList();">
+					<i class="icon-tasks icon-white" ></i><spring:message code="processes.show.queues" />
 				</div>
-				<div class="show-configuration-button" id="show-configuration-view-button">
-					<spring:message code="processes.show.configuration" />
+				<div class="show-configuration-button" id="show-configuration-view-button" onClick="windowManager.showConfiguration();">
+					<i class="icon-wrench icon-white" ></i><spring:message code="processes.show.configuration" />
+				</div>
+				<div class="show-configuration-button" id="show-network-requests" onClick="windowManager.showNetworkRequests();">
+					<i class="icon-exclamation-sign icon-white" ></i>Zgłoszenia awarii
 				</div>
 				<div class="inner-queue-list" id="inner-queues">
 					<div class="queues-list" id="queue-view-block">
@@ -44,40 +47,49 @@
 
  <script type="text/javascript">
  
-	var mobileMode = false;
 	var userLogin = '${aperteUser.login}';
 	$(document).ready(function()
 	{
-		$('#new-process-view').hide();
-		$('#process-data-view').hide();
-		$('#outer-queues').hide();
-		$('#configuration').hide();
 		
 		loadQueue('');
 		
 		moveQueueList();
 		reloadQueues();
 		
+
+		
 	});
 	
 	
 	function moveQueueList()
 	{
-		if($(window).width() < 980 && mobileMode == false)
+		if($(window).width() < 479 && windowManager.mobileMode == false)
 		{
-			mobileMode = true;
+			windowManager.mobileMode = true;
 			$('#queue-view-block').appendTo('#outer-queues');
-			toggleColumnButton(1, false);
 			toggleColumnButton(2, false);
-			toggleColumnButton(4, false);
+			toggleColumnButton(3, false);
 		}
-		else if($(window).width() >= 980 && mobileMode == true)
+		if($(window).width() < 767 && windowManager.tabletMode == false)
 		{
-			mobileMode = false;
+			windowManager.tabletMode = true;
+			toggleColumnButton(4, false);
+			toggleColumnButton(5, false);
+		}
+		
+		if($(window).width() >= 480 && windowManager.mobileMode == true)
+		{
+			windowManager.mobileMode = false;
 			$('#queue-view-block').appendTo('#inner-queues');
-			toggleColumnButton(1, true);
 			toggleColumnButton(2, true);
+			toggleColumnButton(3, true);
+		}
+		if($(window).width() >= 767 && windowManager.tabletMode == true)
+		{
+			windowManager.tabletMode = false;
 			toggleColumnButton(4, true);
+			toggleColumnButton(5, true);
+
 		}
 		
 	}
@@ -87,43 +99,13 @@
 		moveQueueList();
 		
 	});
-	
- 
- 
-	$("#process-start-button").click(function () 
-	  {
-		$("#mobile-collapse").collapse('hide');
-		windowManager.showNewProcessPanel();
-	  }
-	);
-	
-	$("#show-search-view-button").click(function () 
-	  {
-		$("#mobile-collapse").collapse('hide');
-		windowManager.showSearchProcessPanel();
-	  }
-	);
-	
-	$("#show-queues-view-button").click(function () 
-	  {
-		$("#mobile-collapse").collapse('hide');
-		windowManager.showQueueList();
-	  }
-	);
-	
-	$("#show-configuration-view-button").click(function () 
-	  {
-		$("#mobile-collapse").collapse('hide');
-		windowManager.showConfiguration();
-	  }
-	);
-	
+
+	var oldProcessCount = -1;
 	function reloadQueues()
 	{
 		console.log( "reload queues: " );
 		var queuesJson = $.getJSON('<spring:url value="/queues/getUserQueues.json"/>', function(queues) 
 		{ 
-			console.log( "queues: "+queues );
 			$('#queue-view-block').empty();
 	
 			
@@ -132,6 +114,11 @@
 				var currentUserLogin = this.userLogin;
 				var userQueueHeaderId = 'accordion-header-'+currentUserLogin;
 				var userQueuesCount = this.activeTasks;
+				
+				if(oldProcessCount == userQueuesCount && currentQueue)
+				{
+					
+				}
 				
 				var queueName = '<spring:message code="queues.user.queueName" />';
 				console.log( "currentUserLogin: "+currentUserLogin+", userLogin: "+userLogin+", userQueuesCount: "+userQueuesCount); 
@@ -155,12 +142,26 @@
 				$.each( this.processesList, function( ) 
 				{
 					addProcessRow(this, accordionID, currentUserLogin);
+					if(currentQueue == this.queueName)
+					{
+
+						if(oldProcessCount != this.queueSize)
+						{
+							console.log( "auto reload queue");
+							reloadCurrentQueue();
+							oldProcessCount = this.queueSize;
+						}
+					}
 				});
 				
 				$.each( this.queuesList, function( ) 
 				{
 					addQueueRow(this, accordionID, currentUserLogin);
 				});
+				
+
+				var tid = setTimeout(reloadQueues, 4000);
+
 			});
 		});
 	}
@@ -191,7 +192,7 @@
 		var layoutId = 'queue-view-' + queueRow.queueId+'-'+userLogin;
 		var innerDivId = queueRow.queueId+'-'+userLogin;
 
-		$( "<div>", { id : layoutId, "class": "queue-list-row-queue", "onclick":"reloadQueue('"+queueRow.queueName+"', 'queue', '"+userLogin+"', '"+processRow.queueDesc+"') "} )
+		$( "<div>", { id : layoutId, "class": "queue-list-row-queue", "onclick":"reloadQueue('"+queueRow.queueName+"', 'queue', '"+userLogin+"', '"+queueRow.queueDesc+"') "} )
 		.appendTo( '#'+accordionID );
 		
 		$( "<div>", { id : innerDivId, "class": "queue-list-name"} )

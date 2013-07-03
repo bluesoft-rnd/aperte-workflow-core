@@ -3,14 +3,22 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
-<div id="search-view">
+<div id="search-view" hidden="true">
 	<div class="process-queue-name">
 		<spring:message code="searching.view.header" />
 	</div>
 	<div id="search-process-table">
 		<input type="text" id="search-expression-text" class="input-medium" placeholder="<spring:message code='processes.search.textarea.input' />">
+		<select id="search-process-type" class="search-process-type">
+			<c:forEach var="processStart" items="${processStartList}">
+				<option value="${processStart.bpmDefinitionKey}"><spring:message code="${processStart.processName}" /></option>
+			</c:forEach>
+        </select>
 	</div> 
-	<table id="searchTable" class="search-table" border="1">
+	<div class="search-button" id="search-process-button" onClick="searchProcess();">
+		<spring:message code="processes.search.button.label" />
+	</div>
+	<table id="searchTable" class="search-table table table-striped" border="1">
 		<thead>
 			<tr>
 				<th style="width:30%;"><spring:message code="processes.list.table.process.name" /></th>
@@ -25,10 +33,6 @@
  <script type="text/javascript">
 
 	var isTableLoaded = false;
-	$(document).ready(function()
-	{
-		$('#search-view').hide();
-	});
 	
 	var delay = (function(){
 	  var timer = 0;
@@ -38,26 +42,25 @@
 	  };
 	})();
 	
-	$('#search-expression-text').keyup(function() 
+	function searchProcess()
 	{
-		delay(function()
-		{
-		  if(isTableLoaded == false)
+		   if(isTableLoaded == false)
 		  {
 				isTableLoaded = true;
 				loadSearchTable();
 		  }
 		  else
 		  {
-				var requestUrl = '<spring:url value="/processes/searchTasks.json?sSearch="/>'+$('#search-expression-text').val() ;
+				var requestUrl = '<spring:url value="/processes/searchTasks.json?sSearch="/>'+$('#search-expression-text').val()+
+				'processKey='+$('#search-process-type').val();
 
 				$('#searchTable').dataTable().fnReloadAjax(requestUrl);
 		  }
-		}, 1000 );
-	});
+	}
 	
 	function loadSearchTable() 
 	{
+		 
 		var columnDefs = [
 							 { "sName":"name", "bSortable": true,"mData": function(object){return generateNameColumn(object);}},
 							 { "sName":"code", "bSortable": true, "mData": "code" },
@@ -66,7 +69,7 @@
 						 ];
 
 		var requestUrl = '<spring:url value="/processes/searchTasks.json?sSearch="/>'+$('#search-expression-text').val();
-		createDataTable('searchTable',requestUrl,columnDefs);
+		createDataTable('searchTable',requestUrl,columnDefs,[[ 0, "asc" ]]);
 	}
  
 

@@ -136,8 +136,12 @@
                         </ProcessTool-Button-Enhancement>
                         <ProcessTool-I18N-Property>basewidgets-messages</ProcessTool-I18N-Property>
                         <ProcessTool-Widget-View>
-                        widgetName:=LatestComments;fileName:=latest-process-comments.html;providerclass:=file
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.LatestComments
                         </ProcessTool-Widget-View>
+                        <ProcessTool-Step-Enhancement>
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.ChooseUserWithRoleStep,
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.FinishTasksStep
+                        </ProcessTool-Step-Enhancement>
                       <!--  <ProcessTool-Widget-Script>
                         requests-scripts.js;provider:=file
                         </ProcessTool-Widget-Script>-->

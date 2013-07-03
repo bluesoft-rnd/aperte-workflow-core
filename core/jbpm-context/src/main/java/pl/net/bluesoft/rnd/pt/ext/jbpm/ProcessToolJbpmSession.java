@@ -1212,7 +1212,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession
 	        		           		   
 	        		   assignTokens(ctx, createdTask);
 	               }
-	               if (Lang.equals(user.getId(), createdTask.getOwner().getId())) {
+	               if (Lang.equals(user.getLogin(), createdTask.getOwner().getLogin())) {
 	                   userTask = createdTask;
 	               }
 	               if(createdTask.getTaskName().toLowerCase().startsWith(AUTO_SKIP_TASK_NAME_PREFIX.toLowerCase())) {

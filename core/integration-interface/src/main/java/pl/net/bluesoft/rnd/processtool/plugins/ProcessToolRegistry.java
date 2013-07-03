@@ -226,6 +226,8 @@ public interface ProcessToolRegistry extends ProcessToolBpmConstants {
 	
 	/** Get Html Widget definition */
 	ProcessHtmlWidget getHtmlWidget(String widgetName);
+
+    Collection<ProcessHtmlWidget> getHtmlWidgets();
 	
 	/** Get Scripts */
 	String getJavaScripts();

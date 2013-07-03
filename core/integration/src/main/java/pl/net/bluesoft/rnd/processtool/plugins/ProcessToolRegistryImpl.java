@@ -1038,6 +1038,10 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 			return VIEW_REGISTRY.get(widgetName);
 		}
 
+    @Override
+    public Collection<ProcessHtmlWidget> getHtmlWidgets() {
+        return VIEW_REGISTRY.values();
+    }
 
 
 }

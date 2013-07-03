@@ -20,6 +20,7 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
 import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
+import pl.net.bluesoft.rnd.processtool.plugins.IBundleResourceProvider;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.plugins.deployment.ProcessDeployer;
 import pl.net.bluesoft.rnd.processtool.plugins.osgi.beans.HtmlFileNameBean;
@@ -196,68 +197,25 @@ public class BundleInstallationHandler
 	private void handleView(int eventType, OSGiBundleHelper bundleHelper,ProcessToolRegistry toolRegistry) 
 	{
 		Bundle bundle = bundleHelper.getBundle();
-		String[] htmlViewFiles = bundleHelper.getHeaderValues(VIEW);
+		String[] widgetClasses = bundleHelper.getHeaderValues(VIEW);
 
 		
-		for (String htmlFileName : htmlViewFiles) 
+		for (String widgetClass : widgetClasses)
 		{
 			try
 			{
-				HtmlFileNameBean widgetDefinitionBean = new HtmlFileNameBean(htmlFileName);
+                ProcessHtmlWidget htmlWidget = (ProcessHtmlWidget)bundle
+                        .loadClass(widgetClass)
+                        .getConstructor(IBundleResourceProvider.class)
+                        .newInstance(bundleHelper);
 
 				if (eventType == Bundle.ACTIVE) 
 				{
-					IWidgetContentProvider scriptProvider = null;
-					if(widgetDefinitionBean.getProviderClass().equals(FileWidgetContentProvider.class.getName()))
-					{
-						scriptProvider = 
-								new FileWidgetContentProvider(
-										widgetDefinitionBean.getFileName(), 
-										bundle.getResource(widgetDefinitionBean.getFileName()));
-					}
-					else
-					{
-						scriptProvider = (IWidgetContentProvider)bundle
-								.loadClass(widgetDefinitionBean.getProviderClass())
-								.getConstructor(String.class, URL.class)
-								.newInstance(widgetDefinitionBean.getFileName());
-					}
-					
-					IWidgetDataHandler dataHandler = null;
-					if(widgetDefinitionBean.getDataHandlerClass().equals(SimpleWidgetDataHandler.class.getName()))
-					{
-						dataHandler = new SimpleWidgetDataHandler();
-					}
-					else
-					{
-						dataHandler = (IWidgetDataHandler)bundle
-								.loadClass(widgetDefinitionBean.getDataHandlerClass())
-								.newInstance();
-					}
-					
-					IWidgetValidator validator = null;
-					if(widgetDefinitionBean.getValidatorClass().equals(MockWidgetValidator.class.getName()))
-					{
-						validator = new MockWidgetValidator();
-					}
-					else
-					{
-						validator = (IWidgetValidator)bundle
-								.loadClass(widgetDefinitionBean.getValidatorClass())
-								.newInstance();
-					}
-					
-					ProcessHtmlWidget htmlWidget = new ProcessHtmlWidget();
-					htmlWidget.setWidgetName(widgetDefinitionBean.getWidgetName());
-					htmlWidget.setContentProvider(scriptProvider);
-					htmlWidget.setDataHandler(dataHandler);
-					htmlWidget.setValidator(validator);
-					
-					toolRegistry.registerHtmlView(widgetDefinitionBean.getWidgetName(), htmlWidget);
+					toolRegistry.registerHtmlView(htmlWidget.getWidgetName(), htmlWidget);
 				}
 				else 
 				{
-					toolRegistry.unregisterHtmlView(widgetDefinitionBean.getWidgetName());
+					toolRegistry.unregisterHtmlView(htmlWidget.getWidgetName());
 				}
 			}
 			catch(Throwable e)

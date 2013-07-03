@@ -6,7 +6,7 @@
 
 <head>
 	<title>$the_title - $company_name</title>
-
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=yes"/>
 	$theme.include($top_head_include)
 	
 	#js("$javascript_folder/jquery-1.9.1.min.js")

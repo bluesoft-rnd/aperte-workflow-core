@@ -30,14 +30,16 @@ public class BpmTaskBean implements Serializable
 	private String processStateConfigurationId;
 	private String tooltip;
 	private String queueName;
+    private String step;
 	
 	public static BpmTaskBean createFrom(BpmTask task, I18NSource messageSource)
 	{
-		
-		BpmTaskBean processBean = new BpmTaskBean();
+        String processExteralKey = task.getProcessInstance().getExternalKey();
+
+        BpmTaskBean processBean = new BpmTaskBean();
 		processBean.setProcessName(messageSource.getMessage(task.getProcessDefinition().getDescription()));
 		processBean.setName(task.getTaskName());
-		processBean.setCode(task.getExecutionId());
+		processBean.setCode(processExteralKey == null ? task.getExecutionId() : processExteralKey);
 		processBean.setCreationDate(task.getCreateDate());
 		processBean.setAssignee(task.getAssignee());
 		processBean.setCreator(task.getCreator());
@@ -46,7 +48,7 @@ public class BpmTaskBean implements Serializable
 		processBean.setProcessStateConfigurationId(task.getCurrentProcessStateConfiguration().getId().toString());
 		processBean.setDeadline(task.getDeadlineDate());
 		processBean.setTooltip(messageSource.getMessage(task.getProcessDefinition().getComment()));
-		
+        processBean.setStep(messageSource.getMessage(task.getProcessInstance().getState()));
 		return processBean;
 	}
 	
@@ -124,5 +126,11 @@ public class BpmTaskBean implements Serializable
 	}
 
 
-	
+    public String getStep() {
+        return step;
+    }
+
+    public void setStep(String step) {
+        this.step = step;
+    }
 }

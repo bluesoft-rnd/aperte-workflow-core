@@ -3,20 +3,20 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
-<div id="search-view">
+<div id="network-requests" class="process-panel" hidden="true">
 	<div class="process-queue-name">
-		<spring:message code="searching.view.header" />
+		<spring:message code="accidents.table.header" />
 	</div>
-	<div id="search-process-table">
-		<input type="text" id="search-expression-text" class="input-medium" placeholder="<spring:message code='processes.search.textarea.input' />">
-	</div> 
-	<table id="searchTable" class="search-table" border="1">
+	<table id="request-table" class="search-table table table-striped" border="1">
 		<thead>
 			<tr>
-				<th style="width:30%;"><spring:message code="processes.list.table.process.name" /></th>
-				<th style="width:20%;"><spring:message code="processes.list.table.process.code" /></th>
-				<th style="width:10%;"><spring:message code="processes.list.table.process.assignee" /></th>
-				<th style="width:15%;"><spring:message code="processes.list.table.process.creationdate" /></th>
+				<th style="width:10%;"><spring:message code="accidents.table.number" /></th>
+				<th style="width:10%;"><spring:message code="accidents.table.priority" /></th>
+				<th style="width:10%;"><spring:message code="accidents.table.status" /></th>
+				<th style="width:15%;"><spring:message code="accidents.table.address" /></th>
+				<th style="width:30%;"><spring:message code="accidents.table.description" /></th>
+				<th style="width:15%;"><spring:message code="accidents.table.date" /></th>
+				<th style="width:10%;"><spring:message code="accidents.table.actions" /></th>
 			</tr>
 		</thead>
 		<tbody></tbody>
@@ -25,10 +25,6 @@
  <script type="text/javascript">
 
 	var isTableLoaded = false;
-	$(document).ready(function()
-	{
-		$('#search-view').hide();
-	});
 	
 	var delay = (function(){
 	  var timer = 0;
@@ -38,37 +34,92 @@
 	  };
 	})();
 	
-	$('#search-expression-text').keyup(function() 
+	
+	function reloadAccidents()
 	{
-		delay(function()
-		{
-		  if(isTableLoaded == false)
+			if(isTableLoaded == false)
 		  {
 				isTableLoaded = true;
-				loadSearchTable();
+				loadAccidentsTable();
 		  }
 		  else
 		  {
-				var requestUrl = '<spring:url value="/processes/searchTasks.json?sSearch="/>'+$('#search-expression-text').val() ;
+				var requestUrl = '<spring:url value="/dispatcher/mpwikcontroler/getAwaitingTasks"/>';
 
-				$('#searchTable').dataTable().fnReloadAjax(requestUrl);
+				$('#request-table').dataTable().fnReloadAjax(requestUrl);
 		  }
-		}, 1000 );
-	});
+	}
 	
-	function loadSearchTable() 
+	function loadAccidentsTable() 
 	{
 		var columnDefs = [
-							 { "sName":"name", "bSortable": true,"mData": function(object){return generateNameColumn(object);}},
-							 { "sName":"code", "bSortable": true, "mData": "code" },
-							 { "sName":"assignee", "bSortable": true,"mData": "assignee" },
-							 { "sName":"creationDate", "bSortable": true,"mData": function(object){return $.format.date(object.creationDate, 'dd-MM-yyyy, HH:mm');}}
+							 { "sName":"number", "bSortable": true,"mData": "number"},
+							 { "sName":"priority", "bSortable": true, "mData": function(object){return translateAccidentPriority(object.priority)} },
+							 { "sName":"status", "bSortable": true, "mData": function(object){return translateAccidentStatus(object.status)} },
+							 { "sName":"address", "bSortable": true, "mData": "address" },
+							 { "sName":"description", "bSortable": true,"mData": "description" },
+							 { "sName":"date", "bSortable": true,"mData": function(object){return $.format.date(object.date, 'dd-mm-yyyy, HH:mm');}},
+							 { "sName":"actions", "bSortable": false,"mData": function(object)
+								{
+									return claimAccidentButton(object.number, object.priority, 
+											object.description, object.type, object.address, $.format.date(object.date, 'dd-mm-yyyy, HH:mm')); 
+									
+								}},
 						 ];
 
-		var requestUrl = '<spring:url value="/processes/searchTasks.json?sSearch="/>'+$('#search-expression-text').val();
-		createDataTable('searchTable',requestUrl,columnDefs);
+		var requestUrl = '<spring:url value="/dispatcher/mpwikcontroler/getAwaitingTasks"/>';
+		createDataTable('request-table',requestUrl,columnDefs, [[ 0, "desc" ]]);
+	}
+	
+	function claimAccidentButton(accidentNumber, accidentPriority, accidentBody, accidentType, accidentAddress, accidentStartDate)
+	{
+		
+		var address = accidentAddress.replace(/\r/,"").replace(/\n/,""); 
+		return '<button id="claim-accident-button-login" type="button" class="btn login-button" onClick="claimAccident(\''+accidentNumber+
+		'\', \''+accidentPriority+'\', \'ZAR\', \''+accidentBody+'\',  \''+accidentType+'\', \''+address+'\',\''+accidentStartDate+'\')" ><spring:message code="accidents.claim.accident" /></button>';
+	}
+	
+	function translateAccidentStatus(accidentStatus)
+	{
+		switch(accidentStatus)
+		{
+			case "REGISTERED": return '<spring:message code="accidents.status.registered" />';
+			case "RECOGNITION": return '<spring:message code="accidents.status.recognition" />';
+			case "DIAGNOSTICS": return '<spring:message code="accidents.status.diagnostistcs" />';
+			case "TOTHENETWORK": return '<spring:message code="accidents.status.tothenetwork" />';
+			case "ASSIGNED": return '<spring:message code="accidents.status.assigned" />';
+			case "CLOSED": return '<spring:message code="accidents.status.closed" />';
+			case "STARTED": return '<spring:message code="accidents.status.started" />';
+			case "RECONSTRUCTION": return '<spring:message code="accidents.status.reconstruction" />';
+			case "FINSHED": return '<spring:message code="accidents.status.finished" />';
+			case "PLANNED": return '<spring:message code="accidents.status.planned" />';
+		}
 	}
  
-
+	function translateAccidentPriority(accidentPriority)
+	{
+		switch(accidentPriority)
+		{
+			case "HIGH": return '<spring:message code="accidents.priority.high" />';
+			case "MEDIUM": return '<spring:message code="accidents.priority.medium" />';
+			case "LOW": return '<spring:message code="accidents.priority.low" />';
+		}
+	}
+	
+	function claimAccident(accidentNumber, accidentPriority, accidentStatus, accidentBody, accidentType, accidentAddress, accidentStartDate)
+	{
+		var simpleProperties = 
+		{
+			"accidentNumber": accidentNumber,
+			"accidentPriority": accidentPriority,
+			"accidentStatus": accidentStatus,
+			"accidentBody": accidentBody,
+			"accidentType": accidentType,
+			"accidentAddress": accidentAddress,
+			"accidentStartDate": accidentStartDate,
+			"externalKey": accidentNumber
+		};
+		startProcess('accident_handling', simpleProperties);
+	}
  
  </script>

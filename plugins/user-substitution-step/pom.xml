@@ -127,11 +127,7 @@
                         </ProcessTool-Step-Enhancement>
                         <ProcessTool-I18N-Property>messages</ProcessTool-I18N-Property>
                         <ProcessTool-Widget-View>
-                        widgetName:=UserSubstitutionComment;
-                        	fileName:=substitution-comments.html;
-                        	providerClass:=file;
-                        	validatorClass:=pl.net.bluesoft.rnd.pt.ext.usersubstitution.widget.validator.SubstitutionCommentValidator;
-                        	dataHandlerClass:=pl.net.bluesoft.rnd.processtool.ui.widgets.impl.SimpleWidgetDataHandler;
+                            pl.net.bluesoft.rnd.pt.ext.usersubstitution.widget.UserSubstitutionComment
                         </ProcessTool-Widget-View>
                     </instructions>
                 </configuration>

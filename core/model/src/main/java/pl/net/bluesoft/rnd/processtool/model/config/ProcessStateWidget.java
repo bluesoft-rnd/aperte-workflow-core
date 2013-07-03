@@ -2,6 +2,8 @@ package pl.net.bluesoft.rnd.processtool.model.config;
 
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 

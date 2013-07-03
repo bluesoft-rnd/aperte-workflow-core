@@ -37,6 +37,7 @@ public class ProcessInstanceFilter extends AbstractPersistentEntity {
 	private Date notUpdatedAfter;
 	private String genericQuery;
 	private String name;
+    private String processBpmKey;
 
     @Enumerated(EnumType.STRING)
     private QueueOrder sortOrder;
@@ -236,5 +237,13 @@ public class ProcessInstanceFilter extends AbstractPersistentEntity {
 
     public void setSortOrderCondition(QueueOrderCondition sortOrderCondition) {
         this.sortOrderCondition = sortOrderCondition;
+    }
+
+    public String getProcessBpmKey() {
+        return processBpmKey;
+    }
+
+    public void setProcessBpmKey(String processBpmKey) {
+        this.processBpmKey = processBpmKey;
     }
 }

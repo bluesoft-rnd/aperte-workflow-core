@@ -2,6 +2,7 @@ package pl.net.bluesoft.rnd.processtool.plugins.osgi;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
+import pl.net.bluesoft.rnd.processtool.plugins.IBundleResourceProvider;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,7 +12,7 @@ import java.util.Map;
 
 import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 
-public class OSGiBundleHelper
+public class OSGiBundleHelper implements IBundleResourceProvider
 {
     public static final String		VIEW	    = "ProcessTool-Widget-View";
     public static final String		SCRIPT	    = "ProcessTool-Widget-Script";

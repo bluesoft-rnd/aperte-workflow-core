@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
+import pl.net.bluesoft.rnd.processtool.plugins.IBundleResourceProvider;
 import pl.net.bluesoft.rnd.processtool.web.domain.IWidgetContentProvider;
 
 /**
@@ -15,12 +16,12 @@ import pl.net.bluesoft.rnd.processtool.web.domain.IWidgetContentProvider;
 public class FileWidgetContentProvider implements IWidgetContentProvider {
 
 	private String fileName;
-	private URL resource;
+	private IBundleResourceProvider bundleResourceProvider;
 	
-	public FileWidgetContentProvider(String fileName, URL resource)
+	public FileWidgetContentProvider(String fileName, IBundleResourceProvider bundleResourceProvider)
 	{
 		this.fileName = fileName;
-		this.resource = resource;
+		this.bundleResourceProvider = bundleResourceProvider;
 	}
 
 	@Override
@@ -28,8 +29,7 @@ public class FileWidgetContentProvider implements IWidgetContentProvider {
 	{
 		try
 		{
-			return resource.openStream();
-			//String htmlFileContent = CharStreams.toString(new InputStreamReader(htmlFileStream, "UTF-8"));
+			return bundleResourceProvider.getBundleResourceStream(fileName);
 			
 		}
 		catch(IOException ex)

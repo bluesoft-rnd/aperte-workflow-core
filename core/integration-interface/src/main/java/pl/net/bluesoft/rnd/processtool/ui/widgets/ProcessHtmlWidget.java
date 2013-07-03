@@ -1,6 +1,20 @@
 package pl.net.bluesoft.rnd.processtool.ui.widgets;
 
+import com.vaadin.ui.RichTextArea;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredPropertyConfigurator;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.MockWidgetValidator;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.SimpleWidgetDataHandler;
 import pl.net.bluesoft.rnd.processtool.web.domain.IWidgetContentProvider;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Widget in-memory model
@@ -8,12 +22,49 @@ import pl.net.bluesoft.rnd.processtool.web.domain.IWidgetContentProvider;
  * @author mpawlak@bluesoft.net.pl
  *
  */
-public class ProcessHtmlWidget 
+public class ProcessHtmlWidget extends BaseProcessToolWidget
 {
 	private String widgetName;
-	private IWidgetDataHandler dataHandler;
-	private IWidgetValidator validator;
+	private IWidgetDataHandler dataHandler = new SimpleWidgetDataHandler();
+	private IWidgetValidator validator = new MockWidgetValidator();
 	private IWidgetContentProvider contentProvider;
+
+    /**
+     * Widget caption text
+     */
+    @AutoWiredProperty
+    @AperteDoc(
+            humanNameKey = "widget.attribute.caption.humanName",
+            descriptionKey = "widget.attribute.caption.description"
+    )
+    protected String caption;
+
+    /**
+     * Widget comment text
+     */
+    @AutoWiredProperty
+    @AutoWiredPropertyConfigurator(fieldClass = RichTextArea.class)
+    @AperteDoc(
+            humanNameKey = "widget.attribute.comment.humanName",
+            descriptionKey = "widget.attribute.comment.description"
+    )
+    protected String comment;
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public String getCaption() {
+        return caption;
+    }
+
+    public void setCaption(String caption) {
+        this.caption = caption;
+    }
 	
 	public String getWidgetName() {
 		return widgetName;
@@ -64,9 +115,11 @@ public class ProcessHtmlWidget
 			return false;
 		return true;
 	}
-	
-	
-	
-	
+
+
+    @Override
+    public void addChild(ProcessToolWidget child) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
 
 }

@@ -7,6 +7,7 @@ import pl.net.bluesoft.rnd.processtool.hibernate.HibernateBean;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionary;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItem;
+import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemValue;
 
 public interface ProcessDictionaryDAO extends HibernateBean<ProcessDBDictionary> {
     ProcessDBDictionary fetchProcessDictionary(ProcessDefinitionConfig definition, String dictionaryId, String languageCode);

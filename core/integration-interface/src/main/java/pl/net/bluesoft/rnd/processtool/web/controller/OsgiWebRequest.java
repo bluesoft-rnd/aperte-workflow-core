@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 public class OsgiWebRequest
 {
     private HttpServletRequest request;
-    private GenericResultBean dataBean;
     private IProcessToolRequestContext processToolRequestContext;
 
     public HttpServletRequest getRequest() {
@@ -21,14 +20,6 @@ public class OsgiWebRequest
 
     public void setRequest(HttpServletRequest request) {
         this.request = request;
-    }
-
-    public GenericResultBean getDataBean() {
-        return dataBean;
-    }
-
-    public void setDataBean(GenericResultBean dataBean) {
-        this.dataBean = dataBean;
     }
 
     public IProcessToolRequestContext getProcessToolRequestContext() {

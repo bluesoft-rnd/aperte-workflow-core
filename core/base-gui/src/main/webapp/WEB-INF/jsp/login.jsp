@@ -7,20 +7,20 @@
 	<div class="process-queue-name">
 		<spring:message code="authorization.please.log.in" />
 	</div>
-	
-	<div class="login-form">
+	 <c:if test="${isStandAlone==true}">
+		<div class="login-form">
 
-			<label class="login-label"><spring:message code='authorization.login.username' /></label>
-			<input type="text" id="login-username" class="input-medium login-element-username" >
-			<label class="login-label"><spring:message code='authorization.login.password' /></label>
-			<input type="password" id="login-password" class="input-medium login-element-password">
-		<div id="login-alerts">
-		
+				<label class="login-label"><spring:message code='authorization.login.username' /></label>
+				<input type="text" id="login-username" class="input-medium login-element-username" >
+				<label class="login-label"><spring:message code='authorization.login.password' /></label>
+				<input type="password" id="login-password" class="input-medium login-element-password">
+			<div id="login-alerts">
+			
+			</div>
+
+			<button id="login-button-login" type="button" class="btn login-button" onClick="userLogin();" ><spring:message code="authorization.login.button" /></button>
 		</div>
-
-		<button id="login-button-login" type="button" class="btn login-button" onClick="userLogin();" ><spring:message code="authorization.login.button" /></button>
-	</div>
-	
+	 </c:if> 
 </div>
 
 <script type="text/javascript">

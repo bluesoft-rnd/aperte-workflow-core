@@ -109,12 +109,10 @@
             <groupId>org.slf4j</groupId>
             <version>1.6.1</version>
         </dependency>
-		
-				<dependency>
+		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin</artifactId>
 			<version>${vaadin.version}</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.google.gwt</groupId>

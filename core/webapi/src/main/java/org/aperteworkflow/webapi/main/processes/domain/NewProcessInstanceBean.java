@@ -1,12 +1,14 @@
 package org.aperteworkflow.webapi.main.processes.domain;
 
+import pl.net.bluesoft.rnd.processtool.web.domain.AbstractResultBean;
+
 /**
  * Bean representing new process insance 
  * 
  * @author mpawlak@bluesoft.net.pl
  *
  */
-public class NewProcessInstanceBean 
+public class NewProcessInstanceBean  extends AbstractResultBean
 {
 	private String taskId;
 	private String processStateConfigurationId;

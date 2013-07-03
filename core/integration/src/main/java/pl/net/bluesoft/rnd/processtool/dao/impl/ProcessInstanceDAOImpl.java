@@ -204,10 +204,18 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
     @Override
     public ProcessInstance getProcessInstanceByInternalId(String internalIds) {
     	 long start = System.currentTimeMillis();
+
+        /* Workaround for pararell tasks */
+        String[] splitedInternalIds = internalIds.split("\\.");
+
+        if(splitedInternalIds.length < 2)
+           throw new IllegalArgumentException("Invalid internalId");
+
+        String internalId = splitedInternalIds[0] + "." + splitedInternalIds[1];
     	
     	ProcessInstance pi = (ProcessInstance) getSession().createCriteria(ProcessInstance.class)
                 .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-                .add(eq("internalId", internalIds))
+                .add(eq("internalId", internalId))
                 .uniqueResult();
     	 long duration = System.currentTimeMillis() - start;
 			logger.severe("getProcessInstanceByInternalId: " +  duration);

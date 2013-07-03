@@ -2,12 +2,7 @@ package org.aperteworkflow.webapi.main.ui;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -15,12 +10,12 @@ import org.jsoup.nodes.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidgetAttribute;
+import pl.net.bluesoft.rnd.processtool.model.config.*;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
 import pl.net.bluesoft.rnd.processtool.web.domain.IHtmlTemplateProvider;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
@@ -37,6 +32,7 @@ public class TaskViewBuilder
 	private List<ProcessStateAction> actions;
 	private I18NSource i18Source;
 	private UserData user;
+    private ProcessToolContext ctx;
 	
 	@Autowired
 	private ProcessToolRegistry processToolRegistry;
@@ -57,7 +53,7 @@ public class TaskViewBuilder
 	public void processView(PrintWriter printWriter) throws IOException
 	{
 		Document document = Jsoup.parse("");
-		
+
 		Element alertsNode = document.createElement("div")
 				.attr("id", "alerts-list")
 				.attr("class", "process-alerts");
@@ -72,21 +68,10 @@ public class TaskViewBuilder
 		{
 			processWidget(widget, widgetsNode);
 		}
-		
-		Element actionsNode = document.createElement("div")
-				.attr("id", "actions-list")
-				.attr("class", "actions-view");
-		document.appendChild(actionsNode);
-		
-		addSaveActionButton(actionsNode);
-		addCancelActionButton(actionsNode);
-		
-		for(ProcessStateAction action: actions)
-		{
-			processAction(action, actionsNode);
-		}
-		
-		
+
+        addActionButtons(document);
+
+
 		
 		printWriter.print(document.toString());
 		
@@ -97,6 +82,37 @@ public class TaskViewBuilder
 		printWriter.print(scriptBuilder.toString());
 		
 	}
+
+    /** Add actions buttons compared to user privileges and process state */
+    private void addActionButtons(Document document)
+    {
+        Element actionsNode = document.createElement("div")
+                .attr("id", "actions-list")
+                .attr("class", "actions-view");
+        document.appendChild(actionsNode);
+
+        /* Check if task is finished */
+        Boolean isTaskFinished = task.isFinished();
+        if(isTaskFinished)
+        {
+            addCancelActionButton(actionsNode);
+            return;
+        }
+
+        /* Check if user, who is checking the task, is the assigned person */
+        Boolean isUserAssignedToTask = task.getAssignee().equals(user.getLogin());
+        if(isUserAssignedToTask)
+        {
+            addSaveActionButton(actionsNode);
+
+            for(ProcessStateAction action: actions)
+            {
+                processAction(action, actionsNode);
+            }
+        }
+
+        addCancelActionButton(actionsNode);
+    }
 	
 	private void processWidget(ProcessStateWidget widget, Element parent)
 	{
@@ -186,15 +202,20 @@ public class TaskViewBuilder
 		}
 		else if(widgetTemplateBody != null)
 		{
-			Map<String, Object> viewData = new HashMap<String, Object>();
+            ProcessHtmlWidget htmlWidget = processToolRegistry.getHtmlWidget(aliasName);
+            Map<String, Object> viewData = new HashMap<String, Object>();
 			viewData.put(IHtmlTemplateProvider.PROCESS_PARAMTER, task.getProcessInstance());
 			viewData.put(IHtmlTemplateProvider.TASK_PARAMTER, task);
 			viewData.put(IHtmlTemplateProvider.USER_PARAMTER, user);
 			viewData.put(IHtmlTemplateProvider.MESSAGE_SOURCE_PARAMETER, i18Source);
 			viewData.put(IHtmlTemplateProvider.WIDGET_NAME_PARAMETER, aliasName);
-			viewData.put(IHtmlTemplateProvider.PERMISSIONS_PARAMETER, widget.getPermissions());
+			viewData.put(IHtmlTemplateProvider.PRIVILEGES_PARAMETER, getPrivileges(widget));
 			viewData.put(IHtmlTemplateProvider.WIDGET_ID_PARAMETER, widget.getId().toString());
-			
+            viewData.put(IHtmlTemplateProvider.DICTIONARIES_DAO_PARAMETER, ctx.getProcessDictionaryDAO());
+
+            for(ProcessStateWidgetAttribute attribute: widget.getAttributes())
+                viewData.put(attribute.getName(), attribute.getValue());
+
 			String processedView = templateProvider.processTemplate(aliasName, viewData);
 			
 			Element divContentNode = parent.ownerDocument().createElement("div")
@@ -227,7 +248,7 @@ public class TaskViewBuilder
 					.attr("name", widget.getId().toString());
 			parent.appendChild(iFrameNode);
 			
-			scriptBuilder.append("$('#iframe-vaadin-"+widget.getId()+"').load(function() {onLoadIFrame($(this)); });");
+			scriptBuilder.append("$('#iframe-vaadin-" + widget.getId() + "').load(function() {onLoadIFrame($(this)); });");
 
 			
 			for(ProcessStateWidget child: children)
@@ -236,13 +257,36 @@ public class TaskViewBuilder
 			}
 		}
 	}
+
+    private Collection<String> getPrivileges(ProcessStateWidget widget)
+    {
+        Collection<String> privileges = new ArrayList<String>();
+        for(ProcessStateWidgetPermission permission: widget.getPermissions())
+        {
+
+            if (permission.getRoleName().contains("*") || user.hasRole(permission.getRoleName()))
+                privileges.add(permission.getPrivilegeName());
+        }
+
+        return privileges;
+    }
+
+
 	
 	private void processAction(ProcessStateAction action, Element parent)
 	{
+
 		String actionButtonId = "action-button-" + action.getBpmName();
+
+        String actionLabel = action.getLabel();
+        if(actionLabel == null)
+            actionLabel = "label";
+        //TODO make autohide
+        else if(actionLabel.equals("hide"))
+            return;
 		
 		Element buttonNode = parent.ownerDocument().createElement("button")
-				.appendText(i18Source.getMessage(action.getLabel()))
+				.appendText(i18Source.getMessage(actionLabel))
 				.attr("class", "btn aperte-button")
 				.attr("disabled", "true")
 				.attr("type", "button")
@@ -275,7 +319,7 @@ public class TaskViewBuilder
 		String actionButtonId = "action-button-cancel";
 		
 		Element buttonNode = parent.ownerDocument().createElement("button")
-				.appendText(i18Source.getMessage("button.cancel"))
+				.appendText(i18Source.getMessage("button.exit"))
 				.attr("class", "btn btn-inverse aperte-button")
 				.attr("disabled", "true")
 				.attr("type", "button")
@@ -283,7 +327,7 @@ public class TaskViewBuilder
 			parent.appendChild(buttonNode);
 			
 			scriptBuilder.append("$('#" + actionButtonId+"').click(function() { onCancelButton();  });");
-			scriptBuilder.append("$('#" + actionButtonId+"').tooltip({title: '"+i18Source.getMessage("button.cancel.without.save")+"'});");
+			scriptBuilder.append("$('#" + actionButtonId+"').tooltip({title: '"+i18Source.getMessage("button.exit")+"'});");
 	}
 
 	public TaskViewBuilder setWidgets(List<ProcessStateWidget> widgets) 
@@ -319,4 +363,9 @@ public class TaskViewBuilder
 		return this;
 	}
 
+    public TaskViewBuilder setCtx(ProcessToolContext ctx) {
+        this.ctx = ctx;
+
+        return this;
+    }
 }

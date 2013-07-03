@@ -3,14 +3,15 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
-<div class="process-panel" id="process-panel-view">
+<div class="process-panel" id="process-panel-view" hidden="true">
 	<div class="process-queue-name" id="process-queue-name-id">
-		
+		 
 	</div>
-	<table id="processesTable" class="process-table" border="1">
+	<table id="processesTable" class="process-table table table-striped" border="1">
 		<thead>
 			<tr>
-				<th style="width:30%;"><spring:message code="processes.list.table.process.name" /></th>
+				<th style="width:15%;"><spring:message code="processes.list.table.process.name" /></th>
+				<th style="width:15%;"><spring:message code="processes.list.table.process.step" /></th>
 				<th style="width:20%;"><spring:message code="processes.list.table.process.code" /></th>
 				<th style="width:10%;"><spring:message code="processes.list.table.process.creator" /></th>
 				<th style="width:10%;"><spring:message code="processes.list.table.process.assignee" /></th>
@@ -44,7 +45,7 @@
 	
 	function reloadCurrentQueue()
 	{
-		reloadQueue(currentQueue, currentQueueType, currentOwnerLogin);
+		reloadQueue(currentQueue, currentQueueType, currentOwnerLogin, currentQueueDesc);
 	}
 	
 	function toggleColumnButton(columnNumber, active)
@@ -53,7 +54,6 @@
 		var button = $("#process-table-hide-"+columnNumber);
 		
 		var changeState = !XOR(button.hasClass("active"), active); 
-		console.log( "changeState:" + changeState); 
 		if(changeState == true)
 		{
 			button.trigger('click');
@@ -76,8 +76,6 @@
 		currentOwnerLogin = ownerLogin;
 		currentQueueDesc = queueDesc;
 		
-		console.log( "newQueueName:" + newQueueName); 
-		
 		if ($('#process-panel-view').css("visibility") == "hidden") 
 		{
 			$('#process-panel-view').show();
@@ -90,7 +88,7 @@
 			
 			windowManager.showProcessList();
 			
-			$("#process-queue-name-id").text('<spring:message code="processes.currentqueue" />'+" "+queueDesc);
+			$("#process-queue-name-id").text('<spring:message code="processes.currentqueue" />'+" "+currentQueueDesc);
 		}
 		
 		
@@ -101,6 +99,7 @@
 	{
 		var columnDefs = [
 							 { "sName":"name", "bSortable": true,"mData": function(object){return generateNameColumn(object);}},
+							 { "sName":"step", "bSortable": true, "mData": "step" },
 							 { "sName":"code", "bSortable": true, "mData": "code" },
 							 { "sName":"creator", "bSortable": true,"mData": "creator" },
 							 { "sName":"assignee", "bSortable": true,"mData": "assignee" },
@@ -109,7 +108,7 @@
 						 ];
 
 		var requestUrl = '<spring:url value="/processes/loadProcessesList.json?queueName=activity.assigned.tasks&queueType=process"/>';
-		createDataTable('processesTable',requestUrl,columnDefs);
+		createDataTable('processesTable',requestUrl,columnDefs, [[ 5, "desc" ]]);
 	
 		$("#process-queue-name-id").text('<spring:message code="processes.currentqueue" />'+" "+currentQueueDesc);
 	}
@@ -148,44 +147,37 @@
 	function loadProcessView(processStateConfigurationId, taskId)
 	{
 		windowManager.clearProcessView();
+		windowManager.showLoadingScreen();
 		var widgetJson = $.post('<spring:url value="/task/loadTask"/>', 
 		{
 			"processStateConfigurationId": processStateConfigurationId,
 			"taskId": taskId
 		}, function(data) 
 		{ 
+			
 			clearAlerts();
 			windowManager.showProcessData();
 			$('#process-data-view').empty();
 			$("#process-data-view").append(data);
+			checkIfViewIsLoaded();
 			
 		});
 	}
 	
-	function createDataTable(tableId,url,columns){
-		createDataTable(tableId,url,columns,null);
-	}
 
-	function createDataTable(tableId,url,columns,dataFormId){
+	function createDataTable(tableId,url,columns,sortingOrder){
 		$('#'+tableId).dataTable({
 			"bLengthChange": true,
 			"bFilter": true,
 			"bProcessing": true,
 			"bServerSide": true,
 			"bInfo": true,
-			"aaSorting": [[ 2, "asc" ]],
+			"aaSorting": sortingOrder,
 			"bSort": true,
 			"iDisplayLength": 10,
 			"sDom": '<"top"t><"bottom"plr>',
 			"sAjaxSource": url,
 			"fnServerData": function ( sSource, aoData, fnCallback ) {
-
-				if(dataFormId != null){
-					var bean = $('#'+dataFormId).serializeObject();
-					for(var key in bean){
-						aoData.push({"name":key,"value":bean[key]});
-					}
-				}
 
 				$.ajax( {
 					"dataType": 'json',
@@ -199,9 +191,16 @@
 			"oLanguage": {
 				  //todo: uzeleznic tresci od tlumaczen w messages
 				  "sInfo": "Wyniki od _START_ do _END_ z _TOTAL_",
-				  "sEmptyTable": "Brak wyników",
-				  "sInfoEmpty": "Brak wyników",
-				  "sInfoFiltered": ""
+				  "sEmptyTable": "<spring:message code='datatable.empty' />",
+				  "sInfoEmpty": "<spring:message code='datatable.empty' />",
+				  "sProcessing": "<spring:message code='datatable.processing' />",
+			      "sLengthMenu": "<spring:message code='datatable.records' />",			  
+				  "sInfoFiltered": "",
+				  "oPaginate": {
+					"sFirst": "<spring:message code='datatable.paginate.firstpage' />",
+					"sNext": "<spring:message code='datatable.paginate.next' />",
+					"sPrevious": "<spring:message code='datatable.paginate.previous' />"
+				  }
 
 				}
 		});

@@ -137,9 +137,21 @@
 		.done(function(data) 
 		{ 
 			console.log( "DONE: "+data); 
+			
+			<!-- Errors handling -->
+			windowManager.clearErrors();
+			
+			var errors = [];
+			$.each(data.errors, function() {
+				errors.push(this);
+				windowManager.addError(this.message);
+			});
+			
+			if(errors.length > 0) { return; }
+			
 			reloadQueues();
 			
-			if(data == null)
+			if(!data)
 			{
 			    closeProcessView();
 				reloadCurrentQueue();
@@ -152,11 +164,19 @@
 				addAlerts(data.errors);
 				return;
 			}
+			else if(!data.nextTask)
+			{
+				closeProcessView();
+				reloadCurrentQueue();
+				windowManager.showProcessList();
+				
+				return;
+			}
 
-			var taskId = data.taskId;
-			var processStateConfigurationId = data.processStateConfigurationId;
-			
-			if(taskId != null)
+			var taskId = data.nextTask.taskId;
+			var processStateConfigurationId = data.nextTask.processStateConfigurationId;
+			console.log( "taskId: " + taskId);
+			if(taskId)
 			{
 				loadProcessView(processStateConfigurationId, taskId);
 			}

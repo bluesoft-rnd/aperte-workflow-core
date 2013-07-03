@@ -3,7 +3,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
-<div id="process-data-view" class="process-data-view">
+<div id="process-data-view" class="process-data-view" hidden="true">
 	<div id="alerts-list" class="process-alerts">
 	</div>
 	<div id="vaadin-widgets" class="vaadin-widgets-view">
@@ -30,6 +30,7 @@
 		this.formId = 'test';
 		this.validate = function() {};
 		this.getData = function() { return null; };
+		this.isEnabled = true;
 	}
 	
 	function WidgetDataBean(widgetId, widgetName, data)
@@ -38,6 +39,7 @@
 		this.data = data;
 		this.widgetName = widgetName;
 	}
+	
 	
 	function onLoadIFrame(iframe)
 	{
@@ -54,6 +56,11 @@
 		}			
 		vaadinWidgetsLoadedCount += 1;  
 		console.log( "vaadinWidgetsLoadedCount: "+vaadinWidgetsLoadedCount + ", vaadinWidgetsCount: "+vaadinWidgetsCount ); 
+		checkIfViewIsLoaded();
+	}
+	
+	function checkIfViewIsLoaded()
+	{
 		if(vaadinWidgetsCount == vaadinWidgetsLoadedCount)
 		{
 			enableButtons();
@@ -88,6 +95,72 @@
 		$('.vaadin-widget-view').each(function( ) 
 		{
 			$(this).width("100%") ;
+		});
+	}
+	
+	function initGoogleMap(divId, address)
+	{
+		geocoder = new google.maps.Geocoder();
+
+		geocoder.geocode( { 'address': address}, function(results, status) {
+			if (status == google.maps.GeocoderStatus.OK) {
+
+				var myOptions = {
+					zoom: 15,
+					center: results[0].geometry.location,
+					mapTypeId: google.maps.MapTypeId.ROADMAP
+				};
+				var map = new google.maps.Map(document.getElementById(divId),myOptions);
+
+				var marker = new google.maps.Marker({
+					map: map, 
+					position: results[0].geometry.location
+				});
+			} else {
+				alert("Google was not able to locate the address for this reason: " + status);
+			}
+		});
+	}
+	
+	function initRouteGoogleMap(divId, address, destinationAddress)
+	{
+		geocoder = new google.maps.Geocoder();
+		
+		
+		geocoder.geocode( { 'address': address}, function(results, status) {
+			if (status == google.maps.GeocoderStatus.OK) 
+			{
+
+				var myOptions = {
+					zoom: 15,
+					center: results[0].geometry.location,
+					mapTypeId: google.maps.MapTypeId.ROADMAP
+				};
+				var map = new google.maps.Map(document.getElementById(divId),myOptions);
+
+				var marker = new google.maps.Marker({
+					map: map, 
+					position: results[0].geometry.location
+				});
+								var directionsService = new google.maps.DirectionsService();
+				var directionsDisplay = new google.maps.DirectionsRenderer();
+				directionsDisplay.setMap(map);
+				
+				var request = {
+					origin:address,
+					destination:destinationAddress,
+					travelMode: google.maps.TravelMode.DRIVING
+				  };
+				directionsService.route(request, function(result, status) 
+				{
+					if (status == google.maps.DirectionsStatus.OK) {
+					  directionsDisplay.setDirections(result);
+					  $('#'+divId).find('.loader').css('display', 'none');
+					}
+				  });
+			} else {
+				alert("Google was not able to locate the address for this reason: " + status);
+			}
 		});
 	}
 

@@ -3,7 +3,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
-<div id="new-process-view" class="new-process-block">
+<div id="new-process-view" class="new-process-block" hidden="true">
 	<div class="process-queue-name">
 		<spring:message code="new.process.view.header" />
 	</div>
@@ -17,16 +17,48 @@
 
  <script type="text/javascript">
  
-	function startProcess(bpmDefinitionKey)
+	function KeyValueBean(key, value)
 	{
-		console.log( "processStart key:" + bpmDefinitionKey); 
+		this.key = key;
+		this.value = value;
+	}
+ 
+	function startProcess(bpmDefinitionKey, processSimpleAttributes)
+	{
+		windowManager.showLoadingScreen();
+		
+		var jsonAttributes = "[{}]";
+		
+		if(processSimpleAttributes)
+		{
+			var processData = [];
+			
+			$.each(processSimpleAttributes, function( key, value )
+			{
+				var keyValueBean = new KeyValueBean(key, value);
+				processData.push(keyValueBean);
+			});
+			jsonAttributes = JSON.stringify(processData, null, 2);
+		}
 		
 		var widgetJson = $.getJSON('<spring:url value="/processes/startNewProcess.json"/>', 
 		{
-			"bpmDefinitionId": bpmDefinitionKey
+			"bpmDefinitionId": bpmDefinitionKey,
+			"processSimpleAttributes": jsonAttributes
 		})
 		.done(function(data) 
 		{ 
+			<!-- Errors handling -->
+			windowManager.clearErrors();
+			
+			var errors = [];
+			$.each(data.errors, function() {
+				errors.push(this);
+				windowManager.addError(this.message);
+			});
+			
+			if(errors.length > 0) { return; }
+			
 			var taskId = data.taskId;
 			var processStateConfigurationId = data.processStateConfigurationId;
 			
@@ -36,9 +68,7 @@
 			
 			reloadQueues();
 
-		})
-		.fail(function() { console.log( "error" ); })
-		.always(function() { console.log( "complete" ); });
+		});
     }
  
  </script>

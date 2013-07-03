@@ -25,7 +25,10 @@ import pl.net.bluesoft.rnd.pt.utils.lang.Lang2;
 
 @Entity
 @Table(name="pt_process_instance")
-public class ProcessInstance extends AbstractPersistentEntity {
+public class ProcessInstance extends AbstractPersistentEntity
+{
+    public static final String EXTERNAL_KEY_PROPERTY = "externalKey";
+
 	@Id
 	@GeneratedValue(generator = "idGenerator")
 	@GenericGenerator(

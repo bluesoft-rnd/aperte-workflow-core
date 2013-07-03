@@ -20,7 +20,10 @@
 	<%@include file="processStartList.jsp" %>
 	<%@include file="searchView.jsp" %>
 	<%@include file="configuration.jsp" %>
-</div>
+	<%@include file="taskRequests.jsp" %>
+	<div id="error-screen" class="errors-view" hidden="true"></div>
+	<div id="loading-screen" class="loader-2"></div>
+</div> 
 
 </c:if>  
  <c:if test="${aperteUser.login==null}">
@@ -45,21 +48,33 @@
 	{
 		this.currentView = 'process-panel-view';
 		this.viewHistory = [];
-		this.allViews = ["process-data-view", "actions-list", "process-panel-view", "new-process-view", "search-view", "outer-queues", "configuration"];
+		this.mobileMode = false;
+		this.tabletMode = false;
+		this.allViews = ["error-screen", "loading-screen", "process-data-view", "actions-list", "process-panel-view", "new-process-view", "search-view", "outer-queues", "configuration", "network-requests"];
 		
 		this.previousView = function()
 		{
 			var lastView = this.viewHistory.pop();
-			console.log( "lastView "+lastView);
 			if(lastView)
 			{
 				this.showView(lastView, false);
 			}
 		}
 		
+		this.showLoadingScreen = function()
+		{
+			this.showView('loading-screen', false);
+		}
+		
 		this.showQueueList = function()
 		{
 			this.showView('outer-queues', true);
+		}
+		
+		this.showNetworkRequests = function()
+		{
+			this.showView('network-requests', true);
+			reloadAccidents();
 		}
 		
 		this.showConfiguration = function()
@@ -72,6 +87,22 @@
 			return this.viewHistory.length > 0;
 		}
 		
+		this.addError = function(errorMessage)
+		{
+			if($("#error-screen").is(":visible") == false)
+			{
+				$("#error-screen").fadeIn(500);
+				$("#loading-screen").hide();
+			}
+			
+			$('#error-screen').append('<div class="alert alert-error"><button type="button" class="close" data-dismiss="alert">&times;</button>'+errorMessage+'</div>')
+		}
+		
+		this.clearErrors = function()
+		{
+			$('#error-screen').empty();
+		}
+		
 		
 		
 		this.showSearchProcessPanel = function()
@@ -81,6 +112,11 @@
 		
 		this.showView = function(viewName, addToHistory)
 		{
+			if(this.mobileMode == true && $("#mobile-collapse").hasClass('in') == true)
+			{
+				console.log( "toggle hide ");
+				$("#mobile-collapse").collapse('hide');
+			}
 			windowManager.clearProcessView();
 			
 			$.each(this.allViews, function( ) 
@@ -92,7 +128,7 @@
 				}
 			});
 			
-			if(addToHistory == true)
+			if("loading-screen" != this.currentView)
 			{
 				this.viewHistory.push(this.currentView);
 			}
@@ -135,13 +171,11 @@
 				var source = "widget/"+windowName+"_close/";
 				var url = '<spring:url value="/'+source+'"/>';
 				
-				console.log( "close! url: "+url);
 				
 				$.ajax(url)
 				.done(function() 
 				{
 					widgetToClose.remove();
-				  console.log( "killed!");
 				});
 				
 			});

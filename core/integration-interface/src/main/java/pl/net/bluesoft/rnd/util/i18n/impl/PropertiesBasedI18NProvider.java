@@ -4,6 +4,8 @@ import pl.net.bluesoft.rnd.util.i18n.I18NProvider;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -39,8 +41,17 @@ public class PropertiesBasedI18NProvider implements I18NProvider {
 			try {
 				if (stream == null) {
 					logger.log(Level.FINEST, "FAILED to load i18n resource: " + resourcePath + " using " + propertyLoader);
-				} else {
-					p.load(stream);
+				}
+                else
+                {
+                    /* Fix for properties encoding */
+                    Reader reader = new InputStreamReader(stream, "UTF-8");
+                    try {
+                        p.load(reader);
+                    } finally {
+                        reader.close();
+                    }
+					//p.load(stream);
 					logger.log(Level.FINEST, "Successful load of i18n resource: " + resourcePath + " using " + propertyLoader);
 				}
 			}

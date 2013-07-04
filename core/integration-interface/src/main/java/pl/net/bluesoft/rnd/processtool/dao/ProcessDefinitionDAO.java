@@ -18,10 +18,12 @@ public interface ProcessDefinitionDAO extends HibernateBean<ProcessDefinitionCon
 	Collection<ProcessDefinitionConfig> getActiveConfigurations();
 
 	ProcessDefinitionConfig getActiveConfigurationByKey(String key);
+	ProcessDefinitionConfig getConfigurationByProcessId(String processId);
 
 	Collection<ProcessQueueConfig> getQueueConfigs();
 	ProcessStateConfiguration getProcessStateConfiguration(BpmTask task);
 
+	boolean differsFromTheLatest(ProcessDefinitionConfig cfg);
 	void updateOrCreateProcessDefinitionConfig(ProcessDefinitionConfig cfg);
 //	void updateOrCreateQueueConfigs(ProcessQueueConfig[] cfgs);
 
@@ -31,4 +33,6 @@ public interface ProcessDefinitionDAO extends HibernateBean<ProcessDefinitionCon
 
     void updateOrCreateQueueConfigs(Collection<ProcessQueueConfig> cfgs);
     void removeQueueConfigs(Collection<ProcessQueueConfig> cfgs);
+
+	int getNextProcessVersion(String bpmDefinitionKey);
 }

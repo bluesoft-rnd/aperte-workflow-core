@@ -2,6 +2,7 @@ package pl.net.bluesoft.rnd.pt.ext.jbpm;
 
 import org.aperteworkflow.bpm.graph.GraphElement;
 import org.aperteworkflow.ui.view.ViewEvent;
+import org.aperteworkflow.util.SimpleXmlTransformer;
 import org.drools.event.process.*;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.process.NodeInstance;
@@ -36,6 +37,7 @@ import pl.net.bluesoft.util.lang.Mapcar;
 import pl.net.bluesoft.util.lang.Strings;
 import pl.net.bluesoft.util.lang.Transformer;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.*;
 import java.util.logging.Level;
@@ -78,12 +80,16 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 	@Override
 	public ProcessInstance startProcess(String processDefinitionId, String externalKey, String description, String keyword, String source) {
-		ProcessDefinitionConfig config = getEnabledConfig(processDefinitionId);
+		ProcessDefinitionConfig config = getContext().getProcessDefinitionDAO().getActiveConfigurationByKey(processDefinitionId);
+
+		if (!config.getEnabled()) {
+			throw new IllegalArgumentException("Process definition has been disabled!");
+		}
 
 		startProcessParams = new StartProcessParams(config, externalKey, description, keyword, source, loadOrCreateUser(user));
 
 		try {
-			getKSession().startProcess(config.getBpmDefinitionKey(), getInitialParams());
+			getKSession().startProcess(config.getBpmProcessId(), getInitialParams());
 			return startProcessParams.newProcessInstance;
 		}
 		finally {
@@ -648,7 +654,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	}
 
 	@Override
-	public byte[] getProcessLatestDefinition(String definitionKey, String processName) {
+	public byte[] getProcessLatestDefinition(String definitionKey) {
 		ProcessDefinitionConfig config = getContext().getProcessDefinitionDAO().getActiveConfigurationByKey(definitionKey);
 		if (config == null) {
 			return null;
@@ -671,9 +677,92 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		return jbpmService.getRepository().getResource(deploymentId, resourceName);
 	}
 
+	private InputStream prepareForDeployment(final String processId, InputStream definitionStream) {
+		SimpleXmlTransformer xmlTransformer = new SimpleXmlTransformer(definitionStream);
+
+		xmlTransformer.transformAttributes(PROCESS_ID_XPATH, new SimpleXmlTransformer.AttributeTransformer() {
+			@Override
+			public String transform(String processIdWithoutVersion) {
+				return processId;
+			}
+		});
+
+		xmlTransformer.transformAttributes(SUBPROCESS_ID_XPATH, SUBSTITUTE_SUBPROCESS_IDS);
+
+		return new ByteArrayInputStream(xmlTransformer.toString().getBytes());
+	}
+
+	private static final String PROCESS_ID_XPATH = "/definitions/process/@id";
+	private static final String SUBPROCESS_ID_XPATH = "//callActivity/@calledElement";
+
+	private static final SimpleXmlTransformer.AttributeTransformer SUBSTITUTE_SUBPROCESS_IDS = new SimpleXmlTransformer.AttributeTransformer() {
+		@Override
+		public String transform(String subprocessId) {
+			if (subprocessId.contains(ProcessDefinitionConfig.VERSION_SEPARATOR)) {
+				checkForExistingProcess(subprocessId);
+				return subprocessId;
+			}
+			else {
+				return getLatestProcessId(subprocessId);
+			}
+		}
+	};
+
+	private static void checkForExistingProcess(String processId) {
+		ProcessDefinitionConfig config = getContext().getProcessDefinitionDAO()
+				.getConfigurationByProcessId(processId);
+
+		if (config == null) {
+			throw new RuntimeException("No process defined with processId " + processId);
+		}
+	}
+
+	private static String getLatestProcessId(String bpmDefinitionKey) {
+		ProcessDefinitionConfig config = getContext().getProcessDefinitionDAO()
+				.getActiveConfigurationByKey(bpmDefinitionKey);
+
+		// it is necessary that subprocess bundles are deployed before processes bundles
+
+		if (config == null) {
+			throw new RuntimeException("No process defined with key " + bpmDefinitionKey);
+		}
+
+		return config.getBpmProcessId();
+	}
+
 	@Override
-	public String deployProcessDefinition(String processName, String bpmDefinitionKey, InputStream definitionStream, InputStream processMapImageStream) {
-		String deploymentId = jbpmService.addProcessDefinition(definitionStream);
+	public boolean differsFromTheLatest(String bpmDefinitionKey, byte[] newDefinition) {
+		byte[] latestDefinition = getProcessLatestDefinition(bpmDefinitionKey);
+
+		if (latestDefinition == null) {
+			return true;
+		}
+
+		String latestDefinitionStr = prepareForComparison(latestDefinition, false);
+		String newDefinitionStr = prepareForComparison(newDefinition, true);
+
+		return !latestDefinitionStr.equals(newDefinitionStr);
+	}
+
+	private String prepareForComparison(byte[] definition, boolean substituteNewestSubprocessIds) {
+		SimpleXmlTransformer xmlTransformer = new SimpleXmlTransformer(new ByteArrayInputStream(definition));
+
+		xmlTransformer.transformAttributes(PROCESS_ID_XPATH, new SimpleXmlTransformer.AttributeTransformer() {
+			@Override
+			public String transform(String processIdWithoutVersion) {
+				return "";
+			}
+		});
+
+		if (substituteNewestSubprocessIds) {
+			xmlTransformer.transformAttributes(SUBPROCESS_ID_XPATH, SUBSTITUTE_SUBPROCESS_IDS);
+		}
+		return xmlTransformer.toString();
+	}
+
+	@Override
+	public String deployProcessDefinition(String processId, InputStream definitionStream, InputStream processMapImageStream) {
+		String deploymentId = jbpmService.addProcessDefinition(prepareForDeployment(processId, definitionStream));
 
 		if (processMapImageStream != null) {
 			jbpmService.getRepository().addResource(deploymentId, ProcessResourceNames.MAP_IMAGE, processMapImageStream);
@@ -948,7 +1037,8 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		if (subprocessParams != null) {
 			try {
 				ProcessInstance parentProcessInstance = getByInternalId(toAwfPIId(subprocessParams.parentProcessInstance));
-				ProcessDefinitionConfig config = getEnabledConfig(subprocessParams.processId);
+				ProcessDefinitionConfig config = getContext().getProcessDefinitionDAO()
+						.getConfigurationByProcessId(subprocessParams.processId);
 
 				StartProcessParams params = new StartProcessParams(
 						config, null, null, null, "parent_process", parentProcessInstance.getCreator()
@@ -1208,15 +1298,6 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 	private static String toAwfTaskId(BpmTask task) {
 		return task.getInternalTaskId();
-	}
-
-	private static ProcessDefinitionConfig getEnabledConfig(String processDefinitionId) {
-		ProcessDefinitionConfig config = getContext().getProcessDefinitionDAO().getActiveConfigurationByKey(processDefinitionId);
-
-		if (!config.getEnabled()) {
-			throw new IllegalArgumentException("Process definition has been disabled!");
-		}
-		return config;
 	}
 
 	private static ProcessInstance getByInternalId(String internalId) {

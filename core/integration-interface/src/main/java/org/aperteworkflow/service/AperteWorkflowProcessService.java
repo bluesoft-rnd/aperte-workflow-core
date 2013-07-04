@@ -219,7 +219,7 @@ public interface AperteWorkflowProcessService {
 	 *</pre>*/
 	void deployProcessDefinitionBytes(ProcessDefinitionConfig cfg,
 			ProcessQueueConfig[] queues, byte[] processMapDefinition,
-			byte[] processMapImageStream, byte[] logo);
+			byte[] processMapImageStream);
 
 	/**<pre>
 	 * 

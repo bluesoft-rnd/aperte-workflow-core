@@ -5,7 +5,6 @@ import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.pt.utils.lang.Lang2;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
@@ -21,13 +20,15 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
 @Entity
 @Table(name="pt_process_definition_config")
-public class ProcessDefinitionConfig extends PersistentEntity implements Serializable 
-{
+public class ProcessDefinitionConfig extends PersistentEntity {
 	private static final long serialVersionUID = 3568533142091163609L;
-	
+
+	public static final String VERSION_SEPARATOR = "_";
+
 	private String processName;
 	private String description;
 	private String bpmDefinitionKey;
+	private int bpmDefinitionVersion;
 	private String deploymentId;
 	
 	/** Process version info */
@@ -101,6 +102,18 @@ public class ProcessDefinitionConfig extends PersistentEntity implements Seriali
 
 	public void setBpmDefinitionKey(String bpmDefinitionKey) {
 		this.bpmDefinitionKey = bpmDefinitionKey;
+	}
+
+	public int getBpmDefinitionVersion() {
+		return bpmDefinitionVersion;
+	}
+
+	public void setBpmDefinitionVersion(int bpmDefinitionVersion) {
+		this.bpmDefinitionVersion = bpmDefinitionVersion;
+	}
+
+	public String getBpmProcessId() {
+		return bpmDefinitionKey + VERSION_SEPARATOR + bpmDefinitionVersion;
 	}
 
 	public String getDeploymentId() {

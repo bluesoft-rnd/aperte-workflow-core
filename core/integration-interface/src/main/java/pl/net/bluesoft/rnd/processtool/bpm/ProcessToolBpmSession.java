@@ -99,9 +99,11 @@ public interface ProcessToolBpmSession extends ProcessToolBpmConstants {
 
     List<GraphElement> getProcessHistory(ProcessInstance pi);
 
-    byte[] getProcessLatestDefinition(String bpmDefinitionKey, String processName);
+    byte[] getProcessLatestDefinition(String bpmDefinitionKey);
     byte[] getProcessDefinition(ProcessInstance pi);
     byte[] getProcessMapImage(ProcessInstance pi);
 
-    String deployProcessDefinition(String processName, String bpmDefinitionKey, InputStream definitionStream, InputStream processMapImageStream);
+	boolean differsFromTheLatest(String bpmDefinitionKey, byte[] newDefinition);
+
+    String deployProcessDefinition(String processId, InputStream definitionStream, InputStream processMapImageStream);
 }

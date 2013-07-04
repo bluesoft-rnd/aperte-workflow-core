@@ -483,7 +483,7 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
             @Override
             public byte[] processWithContext(ProcessToolContext ctx) {
                 return getSession(ctx)
-                        .getProcessLatestDefinition(bpmDefinitionKey, processName);
+                        .getProcessLatestDefinition(bpmDefinitionKey);
             }
         });
     }

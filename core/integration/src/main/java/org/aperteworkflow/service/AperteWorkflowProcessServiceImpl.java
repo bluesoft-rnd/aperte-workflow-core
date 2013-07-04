@@ -563,8 +563,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
     public void deployProcessDefinitionBytes(@WebParam(name="cfg")final ProcessDefinitionConfig cfg,
                                              @WebParam(name="queues")final ProcessQueueConfig[] queues,
                                              @WebParam(name="processMapDefinition")final byte[] processMapDefinition,
-                                             @WebParam(name="processMapImageStream")final byte[] processMapImageStream,
-                                             @WebParam(name="logo")final byte[] logo) {
+                                             @WebParam(name="processMapImageStream")final byte[] processMapImageStream) {
         withContext(new ReturningProcessToolContextCallback() {
             @Override
             public Object processWithContext(ProcessToolContext ctx) 
@@ -573,8 +572,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
             	processDeployer.deployOrUpdateProcessDefinition(
                         new ByteArrayInputStream(processMapDefinition),
                         cfg, queues,
-                        new ByteArrayInputStream(processMapImageStream),
-                        new ByteArrayInputStream(logo));
+                        new ByteArrayInputStream(processMapImageStream));
                 return null;
             }
         });

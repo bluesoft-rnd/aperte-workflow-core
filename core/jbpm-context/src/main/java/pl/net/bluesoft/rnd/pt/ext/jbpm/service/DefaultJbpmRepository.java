@@ -4,7 +4,9 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public class DefaultJbpmRepository implements JbpmRepository {
 	private static final String DEFAULT_BASE_PATH = File.separator + "jbpm" + File.separator + "repository";
@@ -17,15 +19,14 @@ public class DefaultJbpmRepository implements JbpmRepository {
 	}
 
 	@Override
-	public byte[][] getAllResources(String type) {
+	public List<byte[]> getAllResources(String type) {
 		try {
 			File base = new File(basePath);
 			Collection<File> files = FileUtils.listFiles(base, new String[] { type }, true);
-			byte[][] result = new byte[files.size()][];
-			
-			int i = 0;
+			List<byte[]> result = new ArrayList<byte[]>(files.size());
+
 			for (File file : files) {
-				result[i++] = FileUtils.readFileToByteArray(file);
+				result.add(FileUtils.readFileToByteArray(file));
 			}
 			return result;
 		}

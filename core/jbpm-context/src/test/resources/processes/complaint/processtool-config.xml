@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config.ProcessDefinitionConfig processName="Complaint" description="Complaint.definition.desc" bpmDefinitionKey="Complaint" comment="Complaint.definition.comment">
+	<states>
+		<config.ProcessStateConfiguration name="Complain" description="Complaint.Complain.desc" commentary="Complaint.Complain.comment">
+			<widgets>
+				<config.ProcessStateWidget className="TabSheet" priority="10">
+					<children>
+					</children>
+				</config.ProcessStateWidget>
+			</widgets>
+			<actions>
+				<config.ProcessStateAction bpmName="fork" label="Complaint.Complain.fork.label" description="Complaint.Complain.fork.desc" buttonName="Default" skipSaving="false" autohide="true" markProcessImportant="false" priority="10" />
+			</actions>
+		</config.ProcessStateConfiguration>
+		<config.ProcessStateConfiguration name="Recomendation_1" description="Complaint.Recomendation_1.desc" commentary="Complaint.Recomendation_1.comment">
+			<widgets>
+				<config.ProcessStateWidget className="TabSheet" priority="10">
+					<children>
+					</children>
+				</config.ProcessStateWidget>
+			</widgets>
+			<actions>
+				<config.ProcessStateAction bpmName="join" label="Complaint.Recomendation_1.join.label" description="Complaint.Recomendation_1.join.desc" buttonName="Default" skipSaving="false" autohide="true" markProcessImportant="false" priority="10" />
+			</actions>
+		</config.ProcessStateConfiguration>
+		<config.ProcessStateConfiguration name="Recomendation_2" description="Complaint.Recomendation_2.desc" commentary="Complaint.Recomendation_2.comment">
+			<widgets>
+				<config.ProcessStateWidget className="TabSheet" priority="10">
+					<children>
+					</children>
+				</config.ProcessStateWidget>
+			</widgets>
+			<actions>
+				<config.ProcessStateAction bpmName="join" label="Complaint.Recomendation_2.join.label" description="Complaint.Recomendation_2.join.desc" buttonName="Default" skipSaving="false" autohide="true" markProcessImportant="false" priority="10" />
+			</actions>
+		</config.ProcessStateConfiguration>
+		<config.ProcessStateConfiguration name="Make_Decision" description="Complaint.Make_Decision.desc" commentary="Complaint.Make_Decision.comment">
+			<widgets>
+				<config.ProcessStateWidget className="TabSheet" priority="10">
+					<children>
+					</children>
+				</config.ProcessStateWidget>
+			</widgets>
+			<actions>
+				<config.ProcessStateAction bpmName="Accept2" label="Complaint.Make_Decision.Accept2.label" description="Complaint.Make_Decision.Accept2.desc" buttonName="Default" skipSaving="false" autohide="true" markProcessImportant="false" priority="10" />
+				<config.ProcessStateAction bpmName="Reject2" label="Complaint.Make_Decision.Reject2.label" description="Complaint.Make_Decision.Reject2.desc" buttonName="Default" skipSaving="false" autohide="true" markProcessImportant="false" priority="20" />
+			</actions>
+		</config.ProcessStateConfiguration>
+		<config.ProcessStateConfiguration name="Accept" description="Complaint.Accept.desc" commentary="Complaint.Accept.comment">
+			<widgets>
+				<config.ProcessStateWidget className="TabSheet" priority="10">
+					<children>
+					</children>
+				</config.ProcessStateWidget>
+			</widgets>
+			<actions>
+				<config.ProcessStateAction bpmName="end" label="Complaint.Accept.end.label" description="Complaint.Accept.end.desc" buttonName="Default" skipSaving="false" autohide="true" markProcessImportant="false" priority="10" />
+			</actions>
+		</config.ProcessStateConfiguration>
+		<config.ProcessStateConfiguration name="Reject" description="Complaint.Reject.desc" commentary="Complaint.Reject.comment">
+			<widgets>
+				<config.ProcessStateWidget className="TabSheet" priority="10">
+					<children>
+					</children>
+				</config.ProcessStateWidget>
+			</widgets>
+			<actions>
+				<config.ProcessStateAction bpmName="end" label="Complaint.Reject.end.label" description="Complaint.Reject.end.desc" buttonName="Default" skipSaving="false" autohide="true" markProcessImportant="false" priority="10" />
+			</actions>
+		</config.ProcessStateConfiguration>
+	</states>
+</config.ProcessDefinitionConfig>

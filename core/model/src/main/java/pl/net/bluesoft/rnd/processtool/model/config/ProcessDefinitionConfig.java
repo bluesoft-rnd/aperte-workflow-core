@@ -9,6 +9,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
@@ -224,4 +225,20 @@ public class ProcessDefinitionConfig extends PersistentEntity {
     public String toString() {
     	return processName;
     }
+
+	public static boolean hasVersion(String processId) {
+		return processId.matches("^.*" + Pattern.quote(VERSION_SEPARATOR) + "\\d+$");
+	}
+
+	public static String extractBpmDefinitionKey(String processId) {
+		int separatorPos = processId.lastIndexOf(VERSION_SEPARATOR);
+
+		return separatorPos >= 0 ? processId.substring(0, separatorPos) : processId;
+	}
+
+	public static Integer extractBpmDefinitionVersion(String processId) {
+		int separatorPos = processId.lastIndexOf(VERSION_SEPARATOR);
+
+		return separatorPos >= 0 ? Integer.valueOf(processId.substring(separatorPos + VERSION_SEPARATOR.length())) : null;
+	}
 }

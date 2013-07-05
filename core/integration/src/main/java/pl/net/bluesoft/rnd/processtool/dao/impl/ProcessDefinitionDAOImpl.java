@@ -1,5 +1,6 @@
 package pl.net.bluesoft.rnd.processtool.dao.impl;
 
+import static pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig.*;
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
 import java.util.Arrays;
@@ -79,11 +80,9 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 
 	@Override
 	public ProcessDefinitionConfig getConfigurationByProcessId(String processId) {
-		String[] split = processId.split(ProcessDefinitionConfig.VERSION_SEPARATOR);
-
 		return (ProcessDefinitionConfig)getSession().createCriteria(ProcessDefinitionConfig.class)
-				.add(Restrictions.eq("bpmDefinitionKey", split[0]))
-				.add(Restrictions.eq("bpmDefinitionVersion", Integer.parseInt(split[1])))
+				.add(Restrictions.eq("bpmDefinitionKey", extractBpmDefinitionKey(processId)))
+				.add(Restrictions.eq("bpmDefinitionVersion", extractBpmDefinitionVersion(processId)))
 				.uniqueResult();
 	}
 

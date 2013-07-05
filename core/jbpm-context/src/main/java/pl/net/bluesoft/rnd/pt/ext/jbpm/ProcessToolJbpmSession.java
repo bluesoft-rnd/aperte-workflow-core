@@ -698,7 +698,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	private static final SimpleXmlTransformer.AttributeTransformer SUBSTITUTE_SUBPROCESS_IDS = new SimpleXmlTransformer.AttributeTransformer() {
 		@Override
 		public String transform(String subprocessId) {
-			if (subprocessId.contains(ProcessDefinitionConfig.VERSION_SEPARATOR)) {
+			if (ProcessDefinitionConfig.hasVersion(subprocessId)) {
 				checkForExistingProcess(subprocessId);
 				return subprocessId;
 			}
@@ -788,6 +788,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 	@Override
 	public void beforeProcessStarted(ProcessStartedEvent event) {
+		System.out.println("================== beforeProcessStarted");
 	}
 
 	@Override

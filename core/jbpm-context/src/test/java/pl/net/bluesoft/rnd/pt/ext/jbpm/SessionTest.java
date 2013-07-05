@@ -5,7 +5,6 @@ import bitronix.tm.resource.jdbc.PoolingDataSource;
 import junit.framework.TestCase;
 import org.aperteworkflow.search.ProcessInstanceSearchData;
 import org.aperteworkflow.search.SearchProvider;
-import org.hibernate.Session;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
@@ -24,7 +23,6 @@ import pl.net.bluesoft.rnd.processtool.plugins.deployment.ProcessDeployer;
 import pl.net.bluesoft.rnd.processtool.token.IAccessTokenFactory;
 import pl.net.bluesoft.rnd.processtool.token.ITokenService;
 import pl.net.bluesoft.rnd.processtool.token.TokenWrapper;
-import pl.net.bluesoft.util.lang.DateUtil;
 import pl.net.bluesoft.util.lang.Lang;
 import pl.net.bluesoft.util.lang.cquery.func.F;
 import pl.net.bluesoft.util.lang.cquery.func.P;
@@ -46,19 +44,114 @@ public class SessionTest extends TestCase {
 	private static boolean isSetUp;
 	private ProcessToolContext ctx;
 
+	private void performSubprocessTests() {
+		checkTasksInVQs(new Object[][]{
+				{ "peter", new VQElem[][]{ { }, { }, { }, { }, { } } },
+		});
+
+		ProcessInstance processInstance = startProcess("peter", "subprocess_assignee");
+
+		checkASFlow(processInstance, "peter");
+
+		ProcessInstance processInstance2 = startProcess("peter", "subprocess_queue");
+
+		checkQSFlow(processInstance2, "peter", onUser("peter", "AS_Task1"));
+	}
+
+	private void checkQSFlow(ProcessInstance processInstance, String user, VQElem... alreadyCompletedTasks) {
+		checkTasksByProcess(processInstance, new String[][]{
+				{ "QS_Task1", null, "QUEUE_NO1" }
+		});
+//		checkTasksInVQs(new Object[][]{
+//				{ user, new VQElem[][]{ { }, { }, { onGroup("QUEUE_NO1", "QS_Task1") }, { }, alreadyCompletedTasks } },
+//		});
+
+		assignFromQueue(processInstance, user, "QS_Task1", "QUEUE_NO1");
+
+		checkTasksByProcess(processInstance, new String[][]{
+				{ "QS_Task1", user, null }
+		});
+//		checkTasksInVQs(new Object[][]{
+//				{ user, new VQElem[][]{ { onUser(user, "QS_Task1") }, { }, { }, { }, alreadyCompletedTasks } },
+//		});
+
+		performAction(processInstance, user, "QS_Task1", "end");
+
+//		checkTasksInVQs(new Object[][]{
+//				{ user, new VQElem[][]{ { }, { }, { }, { }, join(alreadyCompletedTasks, onUser(user, "QS_Task1"))  } },
+//		});
+
+		checkFinished(processInstance);
+	}
+
+	private void checkASFlow(ProcessInstance processInstance, String user, VQElem... alreadyCompletedTasks) {
+		checkTasksByProcess(processInstance, new String[][]{
+				{ "AS_Task1", user, null }
+		});
+//		checkTasksInVQs(new Object[][]{
+//				{ user, new VQElem[][]{ { onUser(user, "AS_Task1") }, { }, { }, { }, alreadyCompletedTasks } },
+//		});
+
+		performAction(processInstance, user, "AS_Task1", "end");
+
+		checkTasksByProcess(processInstance, new String[][]{});
+//		checkTasksInVQs(new Object[][]{
+//				{ user, new VQElem[][]{ { }, { }, { }, { }, join(alreadyCompletedTasks, onUser(user, "AS_Task1")) } },
+//		});
+
+		checkFinished(processInstance);
+	}
+
+	private VQElem[] join(VQElem[] elems, VQElem elem) {
+		ArrayList<VQElem> list = new ArrayList<VQElem>(Arrays.asList(elems));
+		list.add(elem);
+		return list.toArray(new VQElem[list.size()]);
+	}
+
+	private void performSubprocessUsageTest() {
+		checkTasksInVQs(new Object[][]{
+				{ "jack", new VQElem[][]{ { }, { }, { }, { }, { } } },
+		});
+
+		ProcessInstance parentProcessInstance = startProcess("jack", "subprocess_usage");
+
+		checkNotFinished(parentProcessInstance);
+
+		ProcessInstance subProcessInstance = checkIsInSubprocess(parentProcessInstance, "subprocess_queue");
+		checkQSFlow(subProcessInstance, "jack");
+
+		checkNotFinished(parentProcessInstance);
+
+		ProcessInstance subProcessInstance2 = checkIsInSubprocess(parentProcessInstance, "subprocess_assignee");
+		checkASFlow(subProcessInstance2, "jack", onUser("jack", "QS_Task1"));
+
+		checkFinished(parentProcessInstance);
+	}
+
+	private ProcessInstance checkIsInSubprocess(ProcessInstance processInstance, final String bpmDefinitionKey) {
+		assertNotNull(processInstance.getChildren());
+
+		ProcessInstance subprocess = from(processInstance.getChildren()).first(new P<ProcessInstance>() {
+			@Override
+			public boolean invoke(ProcessInstance x) {
+				return x.isProcessRunning() && x.getDefinition().getBpmDefinitionKey().equals(bpmDefinitionKey);
+			}
+		});
+
+		return subprocess;
+	}
+
+
 	//TODO weryfikacja czy wszystkie oczekiwane zdarzenia zostaly wywolane
 	private void performTest1() {
-		Date processStartTime = DateUtil.addSeconds(new Date(), -1);
-
-		createUser("john", "john_ROLE");
-		createUser("mary");
+//		Date processStartTime = DateUtil.addSeconds(new Date(), -1);
 
 		checkTasksInVQs(new Object[][]{
 				{ "john", new VQElem[][]{ { }, { }, { }, { }, { } } },
 				{ "mary", new VQElem[][]{ { }, { }, { }, { }, { } } }
 		});
 
-		ProcessInstance processInstance = startProcess("john");
+		ProcessInstance processInstance = startProcess("john", "Complaint");
 
 		checkAnyTaskExists();
 		checkUserHasAccessToQueues("john", "QUEUE_NO1");
@@ -228,9 +321,19 @@ public class SessionTest extends TestCase {
 				} }
 		});
 
+		checkFinished(processInstance);
+	}
+
+	private void checkFinished(ProcessInstance processInstance) {
 		processInstance = createSession("").refreshProcessData(processInstance);
 		assertFalse(processInstance.isProcessRunning());
 		assertFalse(createSession("").isProcessRunning(processInstance.getInternalId()));
+	}
+
+	private void checkNotFinished(ProcessInstance processInstance) {
+		processInstance = createSession("").refreshProcessData(processInstance);
+		assertTrue(processInstance.isProcessRunning());
+		assertTrue(createSession("").isProcessRunning(processInstance.getInternalId()));
 	}
 
 	private void createUser(String login, String... roles) {
@@ -372,10 +475,13 @@ public class SessionTest extends TestCase {
 		ProcessQueue queue = byQName(queues).get(queueName);
 
 		assertNotNull(queue);
-
 		assertTrue(queue.getProcessCount() > 0);
 
-		session.assignTaskFromQueue(queue, task);
+		task = session.assignTaskFromQueue(queue, task);
+
+		assertNotNull(task);
+		assertEquals(user, task.getAssignee());
+		assertNull(task.getGroupId());
 	}
 
 	private void performAction(ProcessInstance processInstance, String user, String state, String actionName) {
@@ -458,9 +564,9 @@ public class SessionTest extends TestCase {
 			String name = arg[0];
 			String assignee = arg[1];
 			String groupId = arg[2];
-
+			System.out.println(byName(list).get(name).getAssignee());
 			if (assignee != null) {
-				assertTrue(session.getAvailableLogins(null).contains(assignee));
+				assertTrue("Assignee in available logins: " + assignee, session.getAvailableLogins(null).contains(assignee));
 			}
 
 			BpmTask task = byName(list).get(name);
@@ -504,18 +610,18 @@ public class SessionTest extends TestCase {
 		assertEquals(task.isFinished(), task2.isFinished());
 	}
 
-	private ProcessInstance startProcess(String user) {
+	private ProcessInstance startProcess(String user, String bpmDefinitionKey) {
 		ProcessToolBpmSession session = createSession(user);
 
 		String externalKey = "NR" + System.currentTimeMillis();
 
 		String descr = "descr";
 		String keyword = "kw";
-		ProcessInstance processInstance = session.startProcess("Complaint", externalKey, descr, keyword, "test");
+		ProcessInstance processInstance = session.startProcess(bpmDefinitionKey, externalKey, descr, keyword, "test");
 
 		assertNotNull(processInstance);
 		assertNotNull(processInstance.getDefinition());
-		assertEquals("Complaint", processInstance.getDefinitionName());
+		assertEquals(bpmDefinitionKey, processInstance.getDefinitionName());
 		assertNotNull(processInstance.getInternalId());
 		assertEquals(externalKey, processInstance.getExternalKey());
 		assertNotNull(processInstance.getCreateDate());
@@ -524,7 +630,7 @@ public class SessionTest extends TestCase {
 		assertEquals(keyword, processInstance.getKeyword());
 		assertFalse(processInstance.isSubprocess());
 		assertNull(processInstance.getParent());
-		assertTrue(processInstance.getChildren() == null || processInstance.getChildren().isEmpty());
+//		assertTrue(processInstance.getChildren() == null || processInstance.getChildren().isEmpty());
 
 		assertTrue(session.isProcessRunning(processInstance.getInternalId()));
 		assertTrue(processInstance.isProcessRunning());
@@ -534,8 +640,6 @@ public class SessionTest extends TestCase {
 
 	private void deploy(ProcessToolContext ctx, String basePath) {
 		try {
-			disableAlreadyExistingDefinitions(ctx);
-
 			ProcessDeployer processDeployer = new ProcessDeployer(ctx);
 
 			String path = basePath + "/processtool-config.xml";
@@ -571,7 +675,7 @@ public class SessionTest extends TestCase {
 		}
 	}
 
-	private void disableAlreadyExistingDefinitions(ProcessToolContext ctx) {
+	private void disableAlreadyExistingDefinitions() {
 		Collection<ProcessDefinitionConfig> activeConfigurations = ctx.getProcessDefinitionDAO().getActiveConfigurations();
 		for (ProcessDefinitionConfig config : activeConfigurations) {
 			config.setLatest(false);
@@ -633,7 +737,7 @@ public class SessionTest extends TestCase {
 		ic.bind("UserTransaction", TransactionManagerServices.getTransactionManager());
 		ic.bind("java:comp/UserTransaction", TransactionManagerServices.getTransactionManager());
 		ic.bind("java:/comp/UserTransaction", TransactionManagerServices.getTransactionManager());
-//
+
         System.setProperty("org.aperteworkflow.datasource", "aperte-workflow-ds");
 
         new InitialContext().lookup("aperte-workflow-ds");
@@ -657,7 +761,6 @@ public class SessionTest extends TestCase {
 	}
 
 	public static class TokenServiceMock implements ITokenService {
-
 		@Override
 		public AccessToken getTokenByTokenId(String tokenId) {
 			return null;
@@ -709,7 +812,20 @@ public class SessionTest extends TestCase {
 
 				wipeDb();
 
-				deploy(ctx, "/complaint");
+				createUser("john", "john_ROLE");
+				createUser("mary", "mary_ROLE");
+				createUser("peter", "peter_ROLE");
+				createUser("jack", "jack_ROLE");
+
+				disableAlreadyExistingDefinitions();
+
+				deploy(ctx, "/processes/subprocess_assignee");
+				deploy(ctx, "/processes/subprocess_queue");
+				deploy(ctx, "/processes/subprocess_usage");
+				deploy(ctx, "/processes/complaint");
+
+				performSubprocessTests();
+				performSubprocessUsageTest();
 
 				performTest1();
 			}
@@ -731,22 +847,6 @@ public class SessionTest extends TestCase {
 
 	private void exec(String sql) {
 		ctx.getHibernateSession().createSQLQuery(sql).executeUpdate();
-	}
-
-	private static class VQCount {
-		public final int ownAssigned;
-		public final int ownInProgress;
-		public final int ownInQueue;
-		public final int assignedToCurUser;
-		public final int ownFinished;
-
-		public VQCount(int ownAssigned, int ownInProgress, int ownInQueue, int assignedToCurUser, int ownFinished) {
-			this.ownAssigned = ownAssigned;
-			this.ownInProgress = ownInProgress;
-			this.ownInQueue = ownInQueue;
-			this.assignedToCurUser = assignedToCurUser;
-			this.ownFinished = ownFinished;
-		}
 	}
 
 	private static class VQElem {

@@ -39,6 +39,7 @@ import pl.net.bluesoft.util.lang.Transformer;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.*;
 import java.util.logging.Level;
 
@@ -565,7 +566,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 			return Collections.emptyList();
 		}
 
-		ProcessQueueSizeEvaluator sizeEvaluator = new ProcessQueueSizeEvaluator(configs, jbpmService);
+		ProcessQueueSizeEvaluator sizeEvaluator = new ProcessQueueSizeEvaluator(configs);
 
 		List<ProcessQueue> result = new ArrayList<ProcessQueue>();
 
@@ -788,7 +789,6 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 	@Override
 	public void beforeProcessStarted(ProcessStartedEvent event) {
-		System.out.println("================== beforeProcessStarted");
 	}
 
 	@Override
@@ -849,6 +849,8 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		BpmTask task = getBpmTask(getTaskService().getTask(event.getTaskId()));
 
 		getContext().getUserProcessQueueManager().onQueueAssigne(task);
+
+		broadcastEvent(new ViewEvent(ViewEvent.Type.ACTION_COMPLETE));
 	}
 
 	// Handles tasks assigned during creation or picked from a queue
@@ -1102,7 +1104,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		}
 	}
 
-	private static class JbpmTask implements BpmTask {
+	private static class JbpmTask implements BpmTask, Serializable {
 		private ProcessInstance processInstance;
 		private final Task task;
 
@@ -1230,7 +1232,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		}
 	}
 
-	private static class LazyProcessQueue implements ProcessQueue {
+	private static class LazyProcessQueue implements ProcessQueue, Serializable {
 		private final ProcessQueue queue;
 		private final ProcessQueueSizeEvaluator sizeEvaluator;
 
@@ -1309,14 +1311,12 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		getContext().getProcessInstanceDAO().saveProcessInstance(processInstance);
 	}
 
-	private static class ProcessQueueSizeEvaluator {
+	private static class ProcessQueueSizeEvaluator implements Serializable {
 		private List<ProcessQueue> configs;
-		private JbpmService jbpmService;
 		private Map<String, Integer> counts;
 
-		public ProcessQueueSizeEvaluator(List<ProcessQueue> configs, JbpmService jbpmService) {
+		public ProcessQueueSizeEvaluator(List<ProcessQueue> configs) {
 			this.configs = configs;
-			this.jbpmService = jbpmService;
 		}
 
 		public int getSize(String queueName) {
@@ -1328,7 +1328,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 			if (counts == null) {
 				List<String> names = keyFilter("name", configs);
 
-				List<Object[]> rows = (List<Object[]>)(List)jbpmService.createTaskQuery()
+				List<Object[]> rows = (List<Object[]>)(List)JbpmService.getInstance().createTaskQuery()
 						.selectGroupId()
 						.selectCount()
 						.assigneeIsNull()
@@ -1342,7 +1342,6 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 				}
 
 				configs = null;
-				jbpmService = null;
 			}
 			return counts;
 		}

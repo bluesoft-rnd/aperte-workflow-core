@@ -14,7 +14,6 @@ import org.drools.persistence.jpa.JPAKnowledgeService;
 import org.drools.runtime.Environment;
 import org.drools.runtime.EnvironmentName;
 import org.drools.runtime.StatefulKnowledgeSession;
-import org.drools.runtime.process.WorkItemHandler;
 import org.jbpm.process.audit.JPAWorkingMemoryDbLogger;
 import org.jbpm.process.workitem.wsht.LocalHTWorkItemHandler;
 import org.jbpm.task.Task;
@@ -31,6 +30,7 @@ import pl.net.bluesoft.rnd.pt.ext.jbpm.service.query.UserQuery;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.persistence.Query;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,7 +54,6 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
 
 	private EntityManagerFactory emf;
 	private Environment env;
-	private org.jbpm.task.service.TaskService taskService;
 	private org.jbpm.task.TaskService client;
 	private StatefulKnowledgeSession ksession;
 
@@ -75,6 +74,12 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
 		initClient();
 	}
 
+	public void destroy() {
+		if (ksession != null) {
+			ksession.dispose();
+		}
+	}
+
 	private void initEntityManager() {
 		emf = Persistence.createEntityManagerFactory("org.jbpm.persistence.jpa");
 	}
@@ -86,7 +91,7 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
 	}
 
 	private void initClient() {
-		taskService = new org.jbpm.task.service.TaskService(emf, SystemEventListenerFactory.getSystemEventListener());
+		org.jbpm.task.service.TaskService taskService = new org.jbpm.task.service.TaskService(emf, SystemEventListenerFactory.getSystemEventListener());
 		UserGroupCallbackManager.getInstance().setCallback(new AwfUserCallback());
 
 		LocalTaskService localTaskService = new LocalTaskService(taskService);
@@ -145,10 +150,11 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
 		}
 		else {
 			ksession = JPAKnowledgeService.loadStatefulKnowledgeSession(sessionId, kbase, null, env);
-			//ksession.signalEvent("Trigger", null); // may be necessary for pushing processes after server restart
+			ksession.signalEvent("Trigger", null); // may be necessary for pushing processes after server restart
 		}
 
-		WorkItemHandler handler = new LocalHTWorkItemHandler(client, ksession, OnErrorAction.LOG);
+		LocalHTWorkItemHandler handler = new LocalHTWorkItemHandler(client, ksession, OnErrorAction.LOG);
+		handler.connect();
 		ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
 		new JPAWorkingMemoryDbLogger(ksession);
 
@@ -170,6 +176,7 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
 	}
 
 	public org.jbpm.task.TaskService getTaskService() {
+		getSession(); // ensure session is created before task service
 		return client;
 	}
 
@@ -179,6 +186,10 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
 
 	public UserQuery<User> createUserQuery() {
 		return new UserQuery<User>(client);
+	}
+
+	public Query createNativeQuery(String sql) {
+		return emf.createEntityManager().createNativeQuery(sql);
 	}
 
 	@Override

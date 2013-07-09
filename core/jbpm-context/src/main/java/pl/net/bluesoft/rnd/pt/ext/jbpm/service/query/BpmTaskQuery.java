@@ -8,8 +8,10 @@ import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.QueueType;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.BpmTaskBean;
+import pl.net.bluesoft.rnd.pt.ext.jbpm.service.JbpmService;
 import pl.net.bluesoft.util.lang.cquery.func.F;
 
+import javax.persistence.Query;
 import java.util.*;
 
 import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
@@ -107,8 +109,8 @@ public class BpmTaskQuery {
 	}
 
 	public int count() {
-		SQLQuery query = getQuery(QueryType.COUNT);
-		Number result = (Number)query.uniqueResult();
+		Query query = getCountQuery(QueryType.COUNT);
+		Number result = (Number)query.getSingleResult();
 		return result.intValue();
 	}
 
@@ -182,6 +184,18 @@ public class BpmTaskQuery {
 		return query;
 	}
 
+	private Query getCountQuery(QueryType queryType) {
+		List<QueryParameter> queryParameters = new ArrayList<QueryParameter>();
+		String queryString = getQueryString(queryType, queryParameters);
+		Query query = JbpmService.getInstance().createNativeQuery(queryString);
+
+		for (QueryParameter parameter : queryParameters) {
+			query.setParameter(parameter.getKey(), parameter.getValue());
+		}
+
+		return query;
+	}
+
 	private String getQueryString(QueryType queryType, List<QueryParameter> queryParameters) {
 		StringBuilder sb = new StringBuilder("SELECT ");
 
@@ -241,7 +255,7 @@ public class BpmTaskQuery {
 		}
 
 		if (createdAfter != null) {
-			sb.append(" AND task_.createdAfter >= :createdAfter");
+			sb.append(" AND task_.createdOn >= :createdAfter");
 			queryParameters.add(new QueryParameter("createdAfter", createdAfter));
 		}
 

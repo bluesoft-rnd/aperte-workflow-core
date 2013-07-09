@@ -31,7 +31,8 @@ public class RecentProcessesListPane extends MyProcessesListPane {
 	@Override
 	protected ProcessInstanceFilter getDefaultFilter() {
 		ProcessInstanceFilter tfi = new ProcessInstanceFilter();
-		tfi.addOwner(getBpmSession().getUser());
+		tfi.setFilterOwner(getBpmSession().getUser());
+//		tfi.addOwner(getBpmSession().getUser());
 		tfi.setUpdatedAfter(minDate.getTime());
 		tfi.addQueueType(QueueType.OWN_ASSIGNED);
 		return tfi;

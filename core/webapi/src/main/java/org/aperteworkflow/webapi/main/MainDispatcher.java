@@ -18,6 +18,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Main Dispatcher for osgi plugins
@@ -27,9 +29,11 @@ import java.lang.reflect.Method;
 @Controller
 public class MainDispatcher extends AbstractProcessToolServletController
 {
+    private static Logger logger = Logger.getLogger(MainDispatcher.class.getName());
+
     @RequestMapping(value = "/dispatcher/{controllerName}/{actionName}")
     @ResponseBody
-    public Object invoke(@PathVariable String controllerName, @PathVariable String actionName, final HttpServletRequest request, final HttpServletResponse respone)
+    public Object invoke(final @PathVariable String controllerName, @PathVariable String actionName, final HttpServletRequest request, final HttpServletResponse respone)
     {
         final GenericResultBean resultBean = new GenericResultBean();
         final IProcessToolRequestContext context = this.initilizeContext(request);
@@ -74,11 +78,13 @@ public class MainDispatcher extends AbstractProcessToolServletController
                 catch (IllegalAccessException e)
                 {
                     resultBean.addError(SYSTEM_SOURCE, e.getMessage());
+                    logger.log(Level.SEVERE, "Problem during plugin request processing in dispatcher ["+controllerName+"]", e);
                     return resultBean;
                 }
                 catch (InvocationTargetException e)
                 {
                     resultBean.addError(SYSTEM_SOURCE, e.getMessage());
+                    logger.log(Level.SEVERE, "Problem during plugin request processing in dispatcher ["+controllerName+"]", e);
                     return resultBean;
                 }
             }

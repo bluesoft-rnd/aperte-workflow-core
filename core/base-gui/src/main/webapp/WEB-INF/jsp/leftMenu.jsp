@@ -27,9 +27,6 @@
 				<div class="show-configuration-button" id="show-configuration-view-button" onClick="windowManager.showConfiguration();">
 					<i class="icon-wrench icon-white" ></i><spring:message code="processes.show.configuration" />
 				</div>
-				<div class="show-configuration-button" id="show-network-requests" onClick="windowManager.showNetworkRequests();">
-					<i class="icon-exclamation-sign icon-white" ></i>Zgłoszenia awarii
-				</div>
 				<div class="inner-queue-list" id="inner-queues">
 					<div class="queues-list" id="queue-view-block">
 
@@ -66,13 +63,14 @@
 		if($(window).width() < 479 && windowManager.mobileMode == false)
 		{
 			windowManager.mobileMode = true;
-			$('#queue-view-block').appendTo('#outer-queues');
+			
 			toggleColumnButton(2, false);
 			toggleColumnButton(3, false);
 		}
-		if($(window).width() < 767 && windowManager.tabletMode == false)
+		if($(window).width() < 962 && windowManager.tabletMode == false)
 		{
 			windowManager.tabletMode = true;
+			$('#queue-view-block').appendTo('#outer-queues');
 			toggleColumnButton(4, false);
 			toggleColumnButton(5, false);
 		}
@@ -80,13 +78,14 @@
 		if($(window).width() >= 480 && windowManager.mobileMode == true)
 		{
 			windowManager.mobileMode = false;
-			$('#queue-view-block').appendTo('#inner-queues');
+			
 			toggleColumnButton(2, true);
 			toggleColumnButton(3, true);
 		}
-		if($(window).width() >= 767 && windowManager.tabletMode == true)
+		if($(window).width() >= 962 && windowManager.tabletMode == true)
 		{
 			windowManager.tabletMode = false;
+			$('#queue-view-block').appendTo('#inner-queues');
 			toggleColumnButton(4, true);
 			toggleColumnButton(5, true);
 
@@ -139,10 +138,13 @@
 				$( "<div>", { id : accordionID, "class": contentClass} )
 				.appendTo( '#queue-view-block' );
 				
+				
 				$.each( this.processesList, function( ) 
 				{
 					addProcessRow(this, accordionID, currentUserLogin);
-					if(currentQueue == this.queueName)
+					
+					<!-- Test current queue for reload only if changed queue is shown and user is viewing process list -->
+					if(currentQueue == this.queueName && windowManager.currentView == 'process-panel-view')
 					{
 
 						if(oldProcessCount != this.queueSize)

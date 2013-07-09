@@ -33,12 +33,16 @@
 	float: right;
 }
 
+.portlet-topper
+{
+	z-index: 100;
+}
+
 .dockbar
 {
 	background: none !important;
 	position: relative !important;
 	float: right !important;
-	z-index: 0 !important;
 }
 
 .portlet-content, .portlet-minimized .portlet-content-container
@@ -78,7 +82,7 @@ textarea[readonly]:focus
 
 }
 
-@media (max-width: 767px) 
+@media (max-width: 961px) 
 {
 	.dockbar
 	{
@@ -91,7 +95,7 @@ textarea[readonly]:focus
 	}
 }
 
-@media (min-width: 768px) 
+@media (min-width: 962px) 
 {
 	body
 	{

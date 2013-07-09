@@ -1,5 +1,5 @@
 
-@media (max-width: 767px) 
+@media (max-width: 961px) 
 {
 	body
 	{
@@ -365,7 +365,7 @@
 	}
 
 }
-@media (min-width: 768px) 
+@media (min-width: 962px) 
 {
 	.standalone-version-body
 	{

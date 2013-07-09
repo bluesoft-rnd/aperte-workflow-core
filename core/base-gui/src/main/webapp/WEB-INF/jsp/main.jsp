@@ -20,7 +20,6 @@
 	<%@include file="processStartList.jsp" %>
 	<%@include file="searchView.jsp" %>
 	<%@include file="configuration.jsp" %>
-	<%@include file="taskRequests.jsp" %>
 	<div id="error-screen" class="errors-view" hidden="true"></div>
 	<div id="loading-screen" class="loader-2"></div>
 </div> 
@@ -50,7 +49,7 @@
 		this.viewHistory = [];
 		this.mobileMode = false;
 		this.tabletMode = false;
-		this.allViews = ["error-screen", "loading-screen", "process-data-view", "actions-list", "process-panel-view", "new-process-view", "search-view", "outer-queues", "configuration", "network-requests"];
+		this.allViews = ["error-screen", "loading-screen", "process-data-view", "actions-list", "process-panel-view", "new-process-view", "search-view", "outer-queues", "configuration"];
 		
 		this.previousView = function()
 		{
@@ -71,11 +70,6 @@
 			this.showView('outer-queues', true);
 		}
 		
-		this.showNetworkRequests = function()
-		{
-			this.showView('network-requests', true);
-			reloadAccidents();
-		}
 		
 		this.showConfiguration = function()
 		{
@@ -112,7 +106,7 @@
 		
 		this.showView = function(viewName, addToHistory)
 		{
-			if(this.mobileMode == true && $("#mobile-collapse").hasClass('in') == true)
+			if(this.tabletMode == true && $("#mobile-collapse").hasClass('in') == true)
 			{
 				console.log( "toggle hide ");
 				$("#mobile-collapse").collapse('hide');

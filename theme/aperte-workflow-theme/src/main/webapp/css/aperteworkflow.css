@@ -1,5 +1,5 @@
 
-@media (max-width: 767px) 
+@media (max-width: 961px) 
 {
 	body
 	{
@@ -365,7 +365,7 @@
 	}
 
 }
-@media (min-width: 768px) 
+@media (min-width: 962px) 
 {
 	.standalone-version-body
 	{
@@ -651,7 +651,7 @@
 .vaadin-widget-view
 {
 	background-repeat: no-repeat;
-	background-image: url(../img/loading_animation_2.gif);
+	background-image: url(../images/progress_bar/loading_animation_2.gif);
 	background-position:center; 
 }
 
@@ -661,7 +661,7 @@
 	height: 100%;
 	background-repeat: no-repeat;
     position:absolute;
-	background-image: url(../img/loading_animation_2.gif);
+	background-image: url(../images/progress_bar/loading_animation_2.gif);
 	background-position:center; 
 	z-index:-10;
 }
@@ -672,7 +672,7 @@
 	height: 100%;
 	background-repeat: no-repeat;
     position:absolute;
-	background-image: url(../img/loading_animation_1.gif);
+	background-image: url(../images/progress_bar/loading_animation_1.gif);
 	background-position:center; 
 	z-index:-10;
 }

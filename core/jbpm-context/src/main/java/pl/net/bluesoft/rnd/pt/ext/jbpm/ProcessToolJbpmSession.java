@@ -307,7 +307,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 	@Override
 	public BpmTask refreshTaskData(BpmTask task) {
-		Task refreshedTask = jbpmService.getTaskService().getTask(toJbpmTaskId(task));
+		Task refreshedTask = getTaskService().getTask(toJbpmTaskId(task));
 
 		if (refreshedTask == null || refreshedTask.getTaskData().getStatus() == Status.Suspended ||
 				!user.getLogin().equals(getAssignee(refreshedTask))) {
@@ -870,7 +870,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 	private void refreshDataForNativeQuery() {
 		// this call forces JBPM to flush awaiting task data
-		JbpmService.getInstance().getTaskService().query("SELECT task.id FROM Task task ORDER BY task.id DESC", 1, 0);
+		jbpmService.getTaskService().query("SELECT task.id FROM Task task ORDER BY task.id DESC", 1, 0);
 	}
 
 	private void assignTokens(BpmTask userTask) {

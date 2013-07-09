@@ -846,9 +846,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 	@Override
 	public void taskCreated(TaskUserEvent event) {
-		BpmTask task = getBpmTask(getTaskService().getTask(event.getTaskId()));
-
-		getContext().getUserProcessQueueManager().onQueueAssigne(task);
+		refreshDataForNativeQuery();
 
 		broadcastEvent(new ViewEvent(ViewEvent.Type.ACTION_COMPLETE));
 	}
@@ -864,9 +862,15 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		}
 
 		assignTokens(task);
-		getContext().getUserProcessQueueManager().onTaskAssigne(task);
+		refreshDataForNativeQuery();
+
 		broadcastEvent(new BpmEvent(BpmEvent.Type.ASSIGN_TASK, task, user));
 		broadcastEvent(new ViewEvent(ViewEvent.Type.ACTION_COMPLETE));
+	}
+
+	private void refreshDataForNativeQuery() {
+		// this call forces JBPM to flush awaiting task data
+		JbpmService.getInstance().getTaskService().query("SELECT task.id FROM Task task ORDER BY task.id DESC", 1, 0);
 	}
 
 	private void assignTokens(BpmTask userTask) {
@@ -932,9 +936,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 		fillProcessAssignmentData(completeTaskParams.task.getProcessInstance());
 
-		/* Inform queue manager about task finish and process state change */
-
-		getContext().getUserProcessQueueManager().onTaskFinished(completeTaskParams.task);
+		refreshDataForNativeQuery();
 
 		broadcastEvent(new BpmEvent(BpmEvent.Type.TASK_FINISHED, completeTaskParams.task, user));
 		broadcastEvent(new BpmEvent(BpmEvent.Type.SIGNAL_PROCESS, completeTaskParams.task, nvl(substitutingUser, user)));
@@ -1079,11 +1081,6 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		save(processInstance);
 
 		broadcastEvent(new BpmEvent(BpmEvent.Type.END_PROCESS, processInstance, user));
-
-        /* Inform queue manager about process ending. Only main process is stored */
-		if (!processInstance.isSubprocess()) {
-			getContext().getUserProcessQueueManager().onProcessFinished(processInstance, getLatestTask(processInstance));
-		}
 	}
 
 	private void copyAttributesFromJbpm(org.drools.runtime.process.ProcessInstance jbpmProcessInstance, NodeInstance nodeInstance) {

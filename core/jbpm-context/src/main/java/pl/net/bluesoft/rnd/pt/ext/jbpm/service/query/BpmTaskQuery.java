@@ -109,8 +109,8 @@ public class BpmTaskQuery {
 	}
 
 	public int count() {
-		Query query = getCountQuery(QueryType.COUNT);
-		Number result = (Number)query.getSingleResult();
+		SQLQuery query = getQuery(QueryType.COUNT);
+		Number result = (Number)query.uniqueResult();
 		return result.intValue();
 	}
 
@@ -180,18 +180,6 @@ public class BpmTaskQuery {
 		}
 
 		query.setFirstResult(offset);
-
-		return query;
-	}
-
-	private Query getCountQuery(QueryType queryType) {
-		List<QueryParameter> queryParameters = new ArrayList<QueryParameter>();
-		String queryString = getQueryString(queryType, queryParameters);
-		Query query = JbpmService.getInstance().createNativeQuery(queryString);
-
-		for (QueryParameter parameter : queryParameters) {
-			query.setParameter(parameter.getKey(), parameter.getValue());
-		}
 
 		return query;
 	}

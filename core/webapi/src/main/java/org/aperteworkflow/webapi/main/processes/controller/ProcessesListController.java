@@ -51,6 +51,8 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
     private static final String CREATOR_NAME_COLUMN = "creator";
     private static final String ASSIGNEE_NAME_COLUMN = "assignee";
     private static final String CREATED_DATE_COLUMN = "creationDate";
+
+    private static final String EMPTY_JSON = "[{}]";
 	/**
 	 * Request parameters:
 	 * - processStateConfigurationId: process state configuration db id
@@ -280,7 +282,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                 return newProcessInstanceBO;
             }
 
-            if(processSimpleAttributes != null)
+            if(processSimpleAttributes != null && !EMPTY_JSON.equals(processSimpleAttributes))
             {
                 ObjectMapper mapper = new ObjectMapper();
                 JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, KeyValueBean.class);

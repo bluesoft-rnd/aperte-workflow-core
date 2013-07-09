@@ -13,7 +13,7 @@
     <artifactId>theme</artifactId>
 
     <modules>
-        <module>axa-esod-theme</module>
+        <module>aperteworkflow-theme</module>
     </modules>
 
 </project>

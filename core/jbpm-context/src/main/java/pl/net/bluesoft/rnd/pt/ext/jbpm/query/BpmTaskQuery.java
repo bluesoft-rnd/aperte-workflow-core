@@ -20,15 +20,17 @@ import pl.net.bluesoft.rnd.pt.ext.jbpm.BpmTaskFactory;
 public class BpmTaskQuery 
 {
 	/** Normal query select to retrive entities */
-	private static final String LIST_QUERY = "select DISTINCT task.*, process.*, queue.*, aperteuser.login as creator ";
+	private static final String LIST_QUERY = "select DISTINCT task.*, process.*, queue.*, htask.assignee_  as assignee, aperteuser.login as creator ";
 	
 	/** Count query select to load only number of result to memory */
 	private static final String COUNT_QUERY = "select count(*) ";
 	
 	/** Main query to get task with correlated processes from user process queue */
 	public static final String GET_BPM_TASKS_QUERY = 
-			"from pt_user_process_queue queue, jbpm4_hist_actinst task, pt_process_instance process, pt_user_data aperteuser " +
-			"where queue.task_id = task.htask_ and process.id = queue.process_id and aperteuser.id = process.creator_id ";
+			"from pt_user_process_queue queue join jbpm4_hist_actinst task on queue.task_id = task.htask_ AND task.class_ = 'task' " +
+            "join pt_process_instance process on process.id = queue.process_id " +
+            "join pt_user_data aperteuser on aperteuser.id = process.creator_id " +
+            "join jbpm4_hist_task htask on htask.dbid_ = task.htask_ ";
 	
 	/** Additional condition to main query to add filter for user login to who task and process are assigned */
 	private static final String USER_LOGIN_CONDITION = " and queue.user_login = :userLogin ";

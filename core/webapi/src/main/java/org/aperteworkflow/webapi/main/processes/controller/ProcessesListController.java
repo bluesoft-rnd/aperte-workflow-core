@@ -48,6 +48,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 
     private static final String PROCESS_NAME_COLUMN = "name";
     private static final String PROCESS_CODE_COLUMN = "code";
+    private static final String PROCESS_STEP_COLUMN = "step";
     private static final String CREATOR_NAME_COLUMN = "creator";
     private static final String ASSIGNEE_NAME_COLUMN = "assignee";
     private static final String CREATED_DATE_COLUMN = "creationDate";
@@ -510,6 +511,9 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
     {
         if(PROCESS_NAME_COLUMN.equals(columnName))
             return QueueOrderCondition.SORT_BY_PROCESS_NAME_ORDER;
+
+        else if(PROCESS_STEP_COLUMN.equals(columnName))
+            return QueueOrderCondition.SORT_BY_PROCESS_STEP_ORDER;
 
         else if(PROCESS_CODE_COLUMN.equals(columnName))
             return QueueOrderCondition.SORT_BY_PROCESS_CODE_ORDER;

@@ -102,7 +102,6 @@
 	var oldProcessCount = -1;
 	function reloadQueues()
 	{
-		console.log( "reload queues: " );
 		var queuesJson = $.getJSON('<spring:url value="/queues/getUserQueues.json"/>', function(queues) 
 		{ 
 			$('#queue-view-block').empty();
@@ -120,7 +119,6 @@
 				}
 				
 				var queueName = '<spring:message code="queues.user.queueName" />';
-				console.log( "currentUserLogin: "+currentUserLogin+", userLogin: "+userLogin+", userQueuesCount: "+userQueuesCount); 
 				if(currentUserLogin != userLogin)
 				{
 					queueName = currentUserLogin;

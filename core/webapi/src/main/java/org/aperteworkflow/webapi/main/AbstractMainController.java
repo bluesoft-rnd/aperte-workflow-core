@@ -2,6 +2,7 @@ package org.aperteworkflow.webapi.main;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
+import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSessionHelper;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.userqueues.UserProcessQueuesSizeProvider;
@@ -39,7 +40,7 @@ public class AbstractMainController
     /** Add process start definition */
     protected List<ProcessDefinitionConfig> addProcessStartList(ProcessToolContext ctx, ProcessToolBpmSession bpmSession)
     {
-        List<ProcessDefinitionConfig> orderedByProcessDescr = from(bpmSession.getAvailableConfigurations(ctx))
+        List<ProcessDefinitionConfig> orderedByProcessDescr = from(ProcessToolBpmSessionHelper.getAvailableConfigurations(bpmSession, ctx))
                 .orderBy(new F<ProcessDefinitionConfig, String>() {
                     @Override
                     public String invoke(ProcessDefinitionConfig pdc) {

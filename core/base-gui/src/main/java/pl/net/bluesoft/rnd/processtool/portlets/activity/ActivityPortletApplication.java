@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
 
-import pl.net.bluesoft.rnd.processtool.filters.factory.QueuesNameUtil;
 import pl.net.bluesoft.rnd.processtool.ui.activity.AbstractActivityView;
 import pl.net.bluesoft.rnd.processtool.ui.activity.ActivityMainPane;
 import pl.net.bluesoft.rnd.processtool.ui.utils.VaadinQueuesRefresherUtil;

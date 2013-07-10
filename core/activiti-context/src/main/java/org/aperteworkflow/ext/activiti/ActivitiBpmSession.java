@@ -126,8 +126,8 @@ public class ActivitiBpmSession extends AbstractProcessToolSession {
     }
 
     @Override
-    public BpmTask assignTaskFromQueue(String queueName, ProcessToolContext processToolContextFromThread) {
-        return assignTaskFromQueue(queueName, null, processToolContextFromThread);
+    public BpmTask assignTaskFromQueue(String queueName) {
+        return assignTaskFromQueue(queueName, null);
     }
 
     @Override

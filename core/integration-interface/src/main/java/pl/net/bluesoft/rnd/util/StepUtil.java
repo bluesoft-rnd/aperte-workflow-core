@@ -21,14 +21,14 @@ public class StepUtil
         if(variableCode.matches("#\\{.*\\}"))
         {
             String variableName = variableCode.replaceAll("#\\{(.*)\\}", "$1");
-            variableName = (String) ctx.getBpmVariable(pi, variableName);
+            variableName = pi.getSimpleAttributeValue(variableName);
 
             return variableName;
         }
         /* Otherwise variableCode == key */
         else
         {
-            return   (String) ctx.getBpmVariable(pi, variableCode);
+            return pi.getSimpleAttributeValue(variableCode);
         }
     }
 }

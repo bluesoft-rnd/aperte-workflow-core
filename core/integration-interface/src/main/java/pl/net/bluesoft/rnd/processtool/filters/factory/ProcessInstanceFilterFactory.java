@@ -36,12 +36,6 @@ public class ProcessInstanceFilterFactory
 		return getProcessInstanceFilter(user, "activity.created.assigned.tasks", OWN_ASSIGNED);
 	}
 
-	/** Methods creates new filter which returns tasks assigned to given user */
-	public ProcessInstanceFilter createTaskAssignedToMeFilter(UserData user)
-	{
-		return getProcessInstanceFilter(user, "activity.assigned.tasks", OWN_ASSIGNED, ASSIGNED_TO_CURRENT_USER);
-	}
-	
 	/** Methods creates new filter which returns user closed tasks */
 	public ProcessInstanceFilter createMyClosedTasksFilter(UserData user)
 	{
@@ -73,12 +67,6 @@ public class ProcessInstanceFilterFactory
 		return getProcessInstanceFilter(substitutedUser, "activity.subst.created.assigned.tasks", OWN_ASSIGNED);
 	}
 
-	/** Methods creates new filter which returns tasks assigned to given user */
-	public ProcessInstanceFilter createTasksAssignedToSubstitutedUserFilter(UserData substitutedUser)
-	{
-		return getProcessInstanceFilter(substitutedUser, "activity.subst.assigned.tasks", OWN_ASSIGNED, ASSIGNED_TO_CURRENT_USER);
-	}
-	
 	/** Methods creates new filter which returns user closed tasks */
 	public ProcessInstanceFilter createSubstitutedClosedTasksFilter(UserData substitutedUser)
 	{

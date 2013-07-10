@@ -50,20 +50,20 @@ public class ProcessToolBpmSessionHelper {
 		});
 	}
 
-	public static BpmTask assignTaskFromQueue(final ProcessToolBpmSession session, ProcessToolContext ctx, final ProcessQueue q) {
+	public static BpmTask assignTaskFromQueue(final ProcessToolBpmSession session, ProcessToolContext ctx, final String queueName) {
 		return withContext(ctx, new ReturningProcessToolContextCallback<BpmTask>() {
 			@Override
 			public BpmTask processWithContext(ProcessToolContext ctx) {
-				return session.assignTaskFromQueue(q);
+				return session.assignTaskFromQueue(queueName);
 			}
 		});
 	}
 
-	public static BpmTask assignTaskFromQueue(final ProcessToolBpmSession session, ProcessToolContext ctx, final ProcessQueue q, final BpmTask task) {
+	public static BpmTask assignTaskFromQueue(final ProcessToolBpmSession session, ProcessToolContext ctx, final String queueName, final BpmTask task) {
 		return withContext(ctx, new ReturningProcessToolContextCallback<BpmTask>() {
 			@Override
 			public BpmTask processWithContext(ProcessToolContext ctx) {
-				return session.assignTaskFromQueue(q, task);
+				return session.assignTaskFromQueue(queueName, task);
 			}
 		});
 	}

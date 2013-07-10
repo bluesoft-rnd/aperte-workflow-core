@@ -197,7 +197,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
         return withContext(new ReturningProcessToolContextCallback<BpmTaskBean>() {
             @Override
             public BpmTaskBean processWithContext(ProcessToolContext ctx) {
-                return new BpmTaskBean(fetchHibernateData(getSession(ctx, user).assignTaskFromQueue(q, task)));
+                return new BpmTaskBean(fetchHibernateData(getSession(ctx, user).assignTaskFromQueue(q.getName(), task)));
             }
         });
     }

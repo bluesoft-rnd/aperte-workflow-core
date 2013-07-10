@@ -119,7 +119,7 @@ public class UserProcessQueuesSizeProvider
 		
 		for(ProcessInstanceFilter queueFilter: queuesFilters)
 		{
-			int filteredQueueSize = bpmSession.getTasksCount(ctx, queueFilter.getFilterOwner().getLogin(), queueFilter.getQueueTypes());
+			int filteredQueueSize = bpmSession.getTasksCount(queueFilter.getFilterOwner().getLogin(), queueFilter.getQueueTypes());
 			//int filteredQueueSize = session.getFilteredTasksCount(queueFilter, ctx);
 			
 			String queueId = QueuesNameUtil.getQueueTaskId(queueFilter.getName());
@@ -132,15 +132,15 @@ public class UserProcessQueuesSizeProvider
 		}
 		
 		/* Add queues */
-		List<ProcessQueue> userAvailableQueues = new ArrayList<ProcessQueue>(bpmSession.getUserAvailableQueues(ctx));
+		List<ProcessQueue> userAvailableQueues = new ArrayList<ProcessQueue>(bpmSession.getUserAvailableQueues());
 		for(ProcessQueue processQueue: userAvailableQueues)
 		{
-			Long processCount = processQueue.getProcessCount();
+			int processCount = processQueue.getProcessCount();
 			
 			String queueId = QueuesNameUtil.getQueueProcessQueueId(processQueue.getName());
 			String queueDesc = messageSource.getMessage(processQueue.getDescription());
 			
-			userQueueSize.addQueueSize(processQueue.getName(), queueId, queueDesc, processCount.intValue());
+			userQueueSize.addQueueSize(processQueue.getName(), queueId, queueDesc, processCount);
 		}
 		
 		usersQueuesSize.add(userQueueSize);

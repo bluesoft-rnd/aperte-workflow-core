@@ -14,7 +14,6 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import org.hibernate.Criteria;
-import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;

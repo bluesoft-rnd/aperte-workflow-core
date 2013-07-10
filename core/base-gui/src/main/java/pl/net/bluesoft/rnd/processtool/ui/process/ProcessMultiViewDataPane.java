@@ -619,12 +619,10 @@ public class ProcessMultiViewDataPane extends VerticalLayout implements WidgetCo
 	private ProcessToolWidget getWidget(ProcessStateWidget w, ProcessStateConfiguration stateConfiguration, ProcessToolContext ctx,
 										String generatorKey, WidgetEventBus widgetEventBus) {
 		ProcessToolWidget processToolWidget;
-		try {			
+		try {
 			String widgetClassName = w.getClassName() == null ? w.getName() : w.getClassName();
 			
 			processToolWidget = widgetFactory.makeWidget(widgetClassName, w, ProcessToolBpmSessionHelper.getPermissionsForWidget(bpmSession, ctx, w), isOwner);
-			
-
 			processToolWidget.setGeneratorKey(generatorKey);
 			processToolWidget.setWidgetEventBus(widgetEventBus);
 			if (processToolWidget instanceof ProcessToolDataWidget) {

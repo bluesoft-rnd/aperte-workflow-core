@@ -71,9 +71,9 @@ public class TaskViewController extends AbstractProcessToolServletController
 
 			@Override
 			public BpmTaskBean processWithContext(ProcessToolContext ctx) {
-				BpmTask task = context.getBpmSession().getTaskData(taskId, ctx);
+				BpmTask task = context.getBpmSession().getTaskData(taskId);
 
-				BpmTask newTask = context.getBpmSession().assignTaskFromQueue(queueName, task, ctx);
+				BpmTask newTask = context.getBpmSession().assignTaskFromQueue(queueName, task);
 				
 				BpmTaskBean taskBean = BpmTaskBean.createFrom(newTask, messageSource);
 				
@@ -122,10 +122,10 @@ public class TaskViewController extends AbstractProcessToolServletController
 			@Override
 			public void withContext(ProcessToolContext ctx) 
 			{
-				BpmTask task = context.getBpmSession().getTaskData(taskId, ctx);
+				BpmTask task = context.getBpmSession().getTaskData(taskId);
 				
 				if(task == null)
-					task = context.getBpmSession().getHistoryTask(taskId, ctx);
+					task = context.getBpmSession().getHistoryTask(taskId);
 
 				ProcessStateConfiguration config = ctx.getProcessDefinitionDAO().getProcessStateConfiguration(Long.parseLong(processStateConfigurationId));
 

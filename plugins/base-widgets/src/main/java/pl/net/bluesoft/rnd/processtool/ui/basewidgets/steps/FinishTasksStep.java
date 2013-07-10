@@ -63,7 +63,7 @@ public class FinishTasksStep implements ProcessToolProcessStep {
                 Collections.<String> emptyList());
         Set<String> allowedTaskNames = from(taskNames.split(",")).toSet();
 
-        List<BpmTask> tasks = bpmSession.findProcessTasks(processInstance, ctx);
+        List<BpmTask> tasks = bpmSession.findProcessTasks(processInstance);
         for (BpmTask task : tasks)
         {
             if (allowedTaskNames.contains(task.getTaskName())) {
@@ -71,7 +71,7 @@ public class FinishTasksStep implements ProcessToolProcessStep {
                         .getActions();
 
                 ProcessStateAction action = from(actions).first(eq("bpmName", actionToPerform));
-                bpmSession.performAction(action, task, ctx);
+                bpmSession.performAction(action, task);
                 logger.info("Finished user "+user.getLogin()+" task ["+task.getTaskName()+"]");
             }
         }

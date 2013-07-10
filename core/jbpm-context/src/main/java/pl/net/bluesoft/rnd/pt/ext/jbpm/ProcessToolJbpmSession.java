@@ -28,6 +28,7 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.BpmTaskBean;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
+import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessDeadline;
 import pl.net.bluesoft.rnd.processtool.model.token.AccessToken;
 import pl.net.bluesoft.rnd.processtool.token.IAccessTokenFactory;
 import pl.net.bluesoft.rnd.processtool.token.ITokenService;
@@ -179,28 +180,28 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	}
 
 	@Override
-	public BpmTask assignTaskFromQueue(ProcessQueue queue) {
-		return assignTaskFromQueue(queue, null);
+	public BpmTask assignTaskFromQueue(String queueName) {
+		return assignTaskFromQueue(queueName, null);
 	}
 
 	@Override
-	public BpmTask assignTaskFromQueue(ProcessQueue pq, BpmTask bpmTask) {
+	public BpmTask assignTaskFromQueue(String queueName, BpmTask bpmTask) {
 		List<ProcessQueue> configs = getUserQueuesFromConfig();
 		List<String> names = keyFilter("name", configs);
-		if (!names.contains(pq.getName())) {
-			throw new ProcessToolSecurityException("queue.no.rights", pq.getName());
+		if (!names.contains(queueName)) {
+			throw new ProcessToolSecurityException("queue.no.rights", queueName);
 		}
 
 		long taskId = bpmTask != null ? toJbpmTaskId(bpmTask) : 0;
 
 		Task task = jbpmService.createTaskQuery()
-				.groupId(pq.getName())
+				.groupId(queueName)
 				.taskId(taskId)
 				.assigneeIsNull()
 				.first();
 
 		if (task == null) {
-			log.warning("No tasks found in queue: " + pq.getName());
+			log.warning("No tasks found in queue: " + queueName);
 			return null;
 		}
 
@@ -228,9 +229,8 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		log.setState(getContext().getProcessDefinitionDAO().getProcessStateConfiguration(bpmTask));
 		log.setEntryDate(new Date());
 		log.setEventI18NKey("process.log.process-assigned");
-		log.setLogValue(pq.getName());
+		log.setLogValue(queueName);
 		log.setUser(findOrCreateUser(user));
-		log.setAdditionalInfo(pq.getDescription());
 		log.setExecutionId(toAwfPIId(task));
 		log.setOwnProcessInstance(pi);
 
@@ -344,6 +344,11 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	@Override
 	public int getFilteredTasksCount(ProcessInstanceFilter filter) {
 		return getFilterQuery(filter).count();
+	}
+
+	@Override
+	public BpmTask getHistoryTask(String taskId) {
+		return getBpmTask(getTaskService().getTask(toJbpmTaskId(taskId)));
 	}
 
 	@Override
@@ -1219,6 +1224,16 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 		public Task getTask() {
 			return task;
+		}
+
+		@Override
+		public Date getDeadlineDate() {
+			for(ProcessInstanceAttribute attribute: processInstance.getProcessAttributes()) {
+				if (attribute instanceof ProcessDeadline) {
+					return ((ProcessDeadline)attribute).getDueDate();
+				}
+			}
+			return null;
 		}
 
 		@Override

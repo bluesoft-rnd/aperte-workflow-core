@@ -59,15 +59,13 @@ public abstract class AbstractProcessToolSession
 
     protected UserData substitutingUser;
     protected EventBusManager substitutingUserEventBusManager;
-    
+
     @Autowired
     private ProcessToolRegistry processToolRegistry;
 
-    public AbstractProcessToolSession(UserData user, Collection<String> roleNames, ProcessToolRegistry registry) 
-    {
-    	SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
-    	
     protected AbstractProcessToolSession(UserData user, Collection<String> roleNames, ProcessToolRegistry registry) {
+    	SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+
         this.user = user;
         this.roleNames = new HashSet<String>(roleNames);
         this.eventBusManager = new ProcessToolEventBusManager(registry, registry.getExecutorService());
@@ -100,7 +98,7 @@ public abstract class AbstractProcessToolSession
 				return ctx.getUserDataDAO().findOrCreateUser(user);
 			}
 		});
-    }
+	}
 
     protected Set<String> getPermissions(Collection<? extends IPermission> col) {
         Set<String> res = new HashSet<String>();

@@ -2,9 +2,11 @@ package pl.net.bluesoft.rnd.processtool.model.nonpersistent;
 
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
+import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessDeadline;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -172,6 +174,16 @@ public class BpmTaskBean implements BpmTask, Serializable {
 	@Override
 	public String getExternalProcessId() {
 		return processInstance != null ? processInstance.getExternalKey() : null;
+	}
+
+	@Override
+	public Date getDeadlineDate() {
+		for(ProcessInstanceAttribute attribute: processInstance.getProcessAttributes()) {
+			if (attribute instanceof ProcessDeadline) {
+				return ((ProcessDeadline)attribute).getDueDate();
+			}
+		}
+		return null;
 	}
 
 	@Override

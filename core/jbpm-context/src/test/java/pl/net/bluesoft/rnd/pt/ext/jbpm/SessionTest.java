@@ -481,7 +481,7 @@ public class SessionTest extends TestCase {
 		assertNotNull(queue);
 		assertTrue(queue.getProcessCount() > 0);
 
-		task = session.assignTaskFromQueue(queue, task);
+		task = session.assignTaskFromQueue(queue.getName(), task);
 
 		assertNotNull(task);
 		assertEquals(user, task.getAssignee());

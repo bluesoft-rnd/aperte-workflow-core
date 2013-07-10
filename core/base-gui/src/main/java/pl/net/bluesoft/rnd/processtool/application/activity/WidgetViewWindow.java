@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
+import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSessionHelper;
 import pl.net.bluesoft.rnd.processtool.event.SaveTaskEvent;
 import pl.net.bluesoft.rnd.processtool.event.ValidateTaskEvent;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
@@ -155,10 +156,10 @@ public class WidgetViewWindow extends Window
 			{
 				ProcessStateWidget processStateWidget = ctx.getProcessDefinitionDAO().getProcessStateWidget(processStateWidgetId);
 				
-				BpmTask task = bpmSession.getTaskData(bpmTaskId, ctx);
+				BpmTask task = bpmSession.getTaskData(bpmTaskId);
 				
 				if(task == null)
-					task = bpmSession.getHistoryTask(bpmTaskId, ctx);
+					task = bpmSession.getHistoryTask(bpmTaskId);
 
 				ProcessToolWidget widget = getWidget(processStateWidget, ctx, "1", task);
 				if (widget instanceof ProcessToolVaadinRenderable && (!nvl(processStateWidget.getOptional(), false) || widget.hasVisibleData())) 
@@ -193,7 +194,7 @@ public class WidgetViewWindow extends Window
 		{
 			String widgetClassName = processStateWidget.getClassName() == null ? processStateWidget.getName() : processStateWidget.getClassName();
 			
-			processToolWidget = widgetFactory.makeWidget(widgetClassName, processStateWidget, bpmSession.getPermissionsForWidget(processStateWidget, ctx), true);
+			processToolWidget = widgetFactory.makeWidget(widgetClassName, processStateWidget, bpmSession.getPermissionsForWidget(processStateWidget), true);
 			
 			processToolWidget.setGeneratorKey(generatorKey);
 			processToolWidget.setTaskId(bpmTaskId);
@@ -213,7 +214,7 @@ public class WidgetViewWindow extends Window
 		{
 			FailedProcessToolWidget failedProcessToolVaadinWidget = new FailedProcessToolWidget(e);
 			failedProcessToolVaadinWidget.setContext(processStateWidget.getConfig(), processStateWidget, i18NSource, bpmSession, application,
-			                         bpmSession.getPermissionsForWidget(processStateWidget, ctx),
+					ProcessToolBpmSessionHelper.getPermissionsForWidget(bpmSession, ctx, processStateWidget),
 			                         true);
 			processToolWidget = failedProcessToolVaadinWidget;
 		}

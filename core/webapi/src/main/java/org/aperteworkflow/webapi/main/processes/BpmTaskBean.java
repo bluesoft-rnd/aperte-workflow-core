@@ -48,7 +48,7 @@ public class BpmTaskBean implements Serializable
 		processBean.setProcessStateConfigurationId(task.getCurrentProcessStateConfiguration().getId().toString());
 		processBean.setDeadline(task.getDeadlineDate());
 		processBean.setTooltip(messageSource.getMessage(task.getProcessDefinition().getComment()));
-        processBean.setStep(messageSource.getMessage(task.getProcessInstance().getState()));
+        processBean.setStep(messageSource.getMessage(task.getTaskName()));
 		return processBean;
 	}
 	

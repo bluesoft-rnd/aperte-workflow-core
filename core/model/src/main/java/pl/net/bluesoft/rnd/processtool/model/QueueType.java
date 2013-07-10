@@ -27,10 +27,6 @@ public enum QueueType {
     	this.queueId = queueId;
     }
 
-    public static QueueType fromString(String name) {
-        return Strings.hasText(name) ? valueOf(name.toUpperCase()) : null;
-    }
-    
     public static QueueType fromQueueId(String queueId) 
     {
         for (QueueType ps : values()) 
@@ -38,21 +34,6 @@ public enum QueueType {
                 return ps;
     
     	return null;
-    }
-    
-
-    public static QueueType fromChar(char c) {
-        String prefix = ("" + c).toUpperCase();
-        QueueType value = null;
-        if (Strings.hasText(prefix)) {
-            for (QueueType ps : values()) {
-                if (ps.name().startsWith(prefix)) {
-                    value = ps;
-                    break;
-                }
-            }
-        }
-        return value;
     }
     
     public String getQueueId()

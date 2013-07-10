@@ -5,11 +5,9 @@ import com.vaadin.Application;
 import com.vaadin.terminal.ClassResource;
 import com.vaadin.terminal.Resource;
 import com.vaadin.ui.*;
-
 import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
 import org.vaadin.jonatan.contexthelp.ContextHelp;
 import org.vaadin.jonatan.contexthelp.Placement;
-
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.dict.ProcessDictionaryRegistry;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;

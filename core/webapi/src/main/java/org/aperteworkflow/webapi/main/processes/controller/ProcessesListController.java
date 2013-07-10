@@ -115,10 +115,10 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                 {
                     try
                     {
-                        BpmTask currentTask = context.getBpmSession().getTaskData(taskId, ctx);
+                        BpmTask currentTask = context.getBpmSession().getTaskData(taskId);
                         ProcessStateAction actionToPerform = currentTask.getCurrentProcessStateConfiguration().getProcessStateActionByName(actionName);
 
-                        BpmTask newTask = context.getBpmSession().performAction(actionToPerform, currentTask, ctx);
+                        BpmTask newTask = context.getBpmSession().performAction(actionToPerform, currentTask);
 
                         /* Process fished, return null task */
                         if(newTask.isFinished())
@@ -206,7 +206,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 			@Override
 			public void withContext(ProcessToolContext ctx) 
 			{
-				BpmTask task = context.getBpmSession().getTaskData(taskId, ctx);
+				BpmTask task = context.getBpmSession().getTaskData(taskId);
 				
 				TaskProcessor taskSaveProcessor = new TaskProcessor(task, ctx, getEventBus(), context.getMessageSource(), widgetData);
 				
@@ -302,7 +302,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                     ProcessDefinitionConfig cfg = ctx.getProcessDefinitionDAO().getActiveConfigurationByKey(bpmDefinitionId);
 
 
-                    ProcessInstance instance = context.getBpmSession().createProcessInstance(cfg, null, ctx, null, null, "portlet", null);
+                    ProcessInstance instance = context.getBpmSession().startProcess(cfg.getBpmDefinitionKey(), null, null, null, "portlet");
 
                     for(String key: simpleAttributes.keySet())
                     {
@@ -314,7 +314,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 
 
 
-                    List<BpmTask> tasks = context.getBpmSession().findUserTasks(instance, ctx);
+                    List<BpmTask> tasks = context.getBpmSession().findUserTasks(instance);
                     if (!tasks.isEmpty())
                     {
                         BpmTask task = tasks.get(0);
@@ -387,7 +387,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                 filter.setSortOrderCondition(mapColumnNameToOrderCondition(sortingColumn.getPropertyName()));
                 filter.setSortOrder(sortingColumn.getSortedAsc() ?  QueueOrder.ASC :  QueueOrder.DESC);
 
-                Collection<BpmTask> tasks = context.getBpmSession().findFilteredTasks(filter, ctx, displayStart, displayLength);
+                Collection<BpmTask> tasks = context.getBpmSession().findFilteredTasks(filter, displayStart, displayLength);
 
                 for(BpmTask task: tasks)
                 {
@@ -397,7 +397,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 
                 }
 
-                int totalRecords = context.getBpmSession().getFilteredTasksCount(filter, ctx);
+                int totalRecords = context.getBpmSession().getFilteredTasksCount(filter);
                 pagingCollection.setiTotalRecords(totalRecords);
                 pagingCollection.setiTotalDisplayRecords(totalRecords);
                 pagingCollection.setAaData(adminAlertBeanList);
@@ -478,7 +478,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                 filter.setSortOrderCondition(mapColumnNameToOrderCondition(sortingColumn.getPropertyName()));
                 filter.setSortOrder(sortingColumn.getSortedAsc() ?  QueueOrder.ASC :  QueueOrder.DESC);
 
-				Collection<BpmTask> tasks = context.getBpmSession().findFilteredTasks(filter, ctx, dataTable.getPageOffset(), dataTable.getPageLength());
+				Collection<BpmTask> tasks = context.getBpmSession().findFilteredTasks(filter, dataTable.getPageOffset(), dataTable.getPageLength());
 
 				for(BpmTask task: tasks)
 				{
@@ -491,7 +491,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 
                 }
 
-				int totalRecords = context.getBpmSession().getFilteredTasksCount(filter, ctx);
+				int totalRecords = context.getBpmSession().getFilteredTasksCount(filter);
 				pagingCollection.setiTotalRecords(totalRecords);
 				pagingCollection.setiTotalDisplayRecords(totalRecords);
 				pagingCollection.setAaData(adminAlertBeanList);

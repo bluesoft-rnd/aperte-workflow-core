@@ -3,7 +3,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
-<div id="search-view" hidden="true">
+<div id="search-view" hidden="true" class="search-view">
 	<div class="process-queue-name">
 		<spring:message code="searching.view.header" />
 	</div>

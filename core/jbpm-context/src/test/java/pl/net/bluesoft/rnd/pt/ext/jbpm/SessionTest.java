@@ -55,49 +55,52 @@ public class SessionTest extends TestCase {
 
 		ProcessInstance processInstance2 = startProcess("peter", "subprocess_queue");
 
-		checkQSFlow(processInstance2, "peter", onUser("peter", "AS_Task1"));
+		checkQSFlow(processInstance2, "peter", new VQElem[]{}, onUser("peter", "AS_Task1"));
 	}
 
-	private void checkQSFlow(ProcessInstance processInstance, String user, VQElem... alreadyCompletedTasks) {
+	private void checkQSFlow(ProcessInstance processInstance, String user, VQElem[] postFinishTasks, VQElem... alreadyCompletedTasks) {
+		checkTasksInVQs(new Object[][]{
+				{ user, new VQElem[][]{ { }, { }, { onGroup("QUEUE_NO1", "QS_Task1") }, { }, alreadyCompletedTasks } },
+		});
 		checkTasksByProcess(processInstance, new String[][]{
 				{ "QS_Task1", null, "QUEUE_NO1" }
 		});
-//		checkTasksInVQs(new Object[][]{
-//				{ user, new VQElem[][]{ { }, { }, { onGroup("QUEUE_NO1", "QS_Task1") }, { }, alreadyCompletedTasks } },
-//		});
 
 		assignFromQueue(processInstance, user, "QS_Task1", "QUEUE_NO1");
 
+
+		checkTasksInVQs(new Object[][]{
+				{ user, new VQElem[][]{ { onUser(user, "QS_Task1") }, { }, { }, { }, alreadyCompletedTasks } },
+		});
 		checkTasksByProcess(processInstance, new String[][]{
 				{ "QS_Task1", user, null }
 		});
-//		checkTasksInVQs(new Object[][]{
-//				{ user, new VQElem[][]{ { onUser(user, "QS_Task1") }, { }, { }, { }, alreadyCompletedTasks } },
-//		});
 
 		performAction(processInstance, user, "QS_Task1", "end");
 
-//		checkTasksInVQs(new Object[][]{
-//				{ user, new VQElem[][]{ { }, { }, { }, { }, join(alreadyCompletedTasks, onUser(user, "QS_Task1"))  } },
-//		});
+
+		checkTasksInVQs(new Object[][]{
+				{ user, new VQElem[][]{ postFinishTasks, { }, { }, { }, join(alreadyCompletedTasks, onUser(user, "QS_Task1"))  } },
+		});
+		checkTasksByProcess(processInstance, new String[][]{});
 
 		checkFinished(processInstance);
 	}
 
 	private void checkASFlow(ProcessInstance processInstance, String user, VQElem... alreadyCompletedTasks) {
+		checkTasksInVQs(new Object[][]{
+				{ user, new VQElem[][]{ { onUser(user, "AS_Task1") }, { }, { }, { }, alreadyCompletedTasks } },
+		});
 		checkTasksByProcess(processInstance, new String[][]{
 				{ "AS_Task1", user, null }
 		});
-//		checkTasksInVQs(new Object[][]{
-//				{ user, new VQElem[][]{ { onUser(user, "AS_Task1") }, { }, { }, { }, alreadyCompletedTasks } },
-//		});
 
 		performAction(processInstance, user, "AS_Task1", "end");
 
+		checkTasksInVQs(new Object[][]{
+				{ user, new VQElem[][]{ { }, { }, { }, { }, join(alreadyCompletedTasks, onUser(user, "AS_Task1")) } },
+		});
 		checkTasksByProcess(processInstance, new String[][]{});
-//		checkTasksInVQs(new Object[][]{
-//				{ user, new VQElem[][]{ { }, { }, { }, { }, join(alreadyCompletedTasks, onUser(user, "AS_Task1")) } },
-//		});
 
 		checkFinished(processInstance);
 	}
@@ -118,7 +121,7 @@ public class SessionTest extends TestCase {
 		checkNotFinished(parentProcessInstance);
 
 		ProcessInstance subProcessInstance = checkIsInSubprocess(parentProcessInstance, "subprocess_queue");
-		checkQSFlow(subProcessInstance, "jack");
+		checkQSFlow(subProcessInstance, "jack", new VQElem[]{ onUser("jack", "AS_Task1") });
 
 		checkNotFinished(parentProcessInstance);
 
@@ -156,19 +159,35 @@ public class SessionTest extends TestCase {
 		checkAnyTaskExists();
 		checkUserHasAccessToQueues("john", "QUEUE_NO1");
 
+		checkTasksInVQs(new Object[][]{
+				{ "john", new VQElem[][]{ { onUser("john", "Complain") }, { }, { }, { }, { } } },
+				{ "mary", new VQElem[][]{ { }, { }, { }, { }, { } } }
+		});
 		checkTasksByProcess(processInstance, new String[][]{
 				{ "Complain", "john", null }
 		});
 		checkTasksByProcessByUser(processInstance, new Object[][]{
 				{ "john", 1 }, { "mary", 0 }
 		});
-		checkTasksInVQs(new Object[][]{
-				{ "john", new VQElem[][]{ { onUser("john", "Complain") }, { }, { }, { }, { } } },
-				{ "mary", new VQElem[][]{ { }, { }, { }, { }, { } } }
-		});
 
 		performAction(processInstance, "john", "Complain", "fork");
 
+		checkTasksInVQs(new Object[][]{
+				{ "john", new VQElem[][]{
+						{ },
+						{ onUser("mary", "Recomendation_1") },
+						{ onGroup("QUEUE_NO1", "Recomendation_2") },
+						{ },
+						{ onUser("john", "Complain") }
+				} },
+				{ "mary", new VQElem[][]{
+						{ },
+						{ },
+						{ },
+						{ onUser("mary", "Recomendation_1") },
+						{ }
+				} }
+		});
 		checkTasksByProcess(processInstance, new String[][]{
 				{ "Recomendation_1", "mary", null },
 				{ "Recomendation_2", null, "QUEUE_NO1" }
@@ -176,10 +195,15 @@ public class SessionTest extends TestCase {
 		checkTasksByProcessByUser(processInstance, new Object[][]{
 				{ "john", 0 }, { "mary", 1 }
 		});
+
+
+		performAction(processInstance, "mary", "Recomendation_1", "join");
+
+
 		checkTasksInVQs(new Object[][]{
 				{ "john", new VQElem[][]{
 						{ },
-						{ onUser("mary", "Recomendation_1") },
+						{ },
 						{ onGroup("QUEUE_NO1", "Recomendation_2") },
 						{ },
 						{ onUser("john", "Complain") }
@@ -188,46 +212,20 @@ public class SessionTest extends TestCase {
 						{ },
 						{ },
 						{ },
-						{ onUser("mary", "Recomendation_1") },
+						{ },
 						{ }
 				} }
 		});
-
-
-		performAction(processInstance, "mary", "Recomendation_1", "join");
-
-
 		checkTasksByProcess(processInstance, new String[][]{
 				{ "Recomendation_2", null, "QUEUE_NO1" }
 		});
 		checkTasksByProcessByUser(processInstance, new Object[][]{
 				{ "john", 0 }, { "mary", 0 }
 		});
-		checkTasksInVQs(new Object[][]{
-				{ "john", new VQElem[][]{
-						{ },
-						{ },
-						{ onGroup("QUEUE_NO1", "Recomendation_2") },
-						{ },
-						{ onUser("john", "Complain") }
-				} },
-				{ "mary", new VQElem[][]{
-						{ },
-						{ },
-						{ },
-						{ },
-						{ }
-				} }
-		});
 
 		assignFromQueue(processInstance, "john", "Recomendation_2", "QUEUE_NO1");
 
-		checkTasksByProcess(processInstance, new String[][]{
-				{ "Recomendation_2", "john", null }
-		});
-		checkTasksByProcessByUser(processInstance, new Object[][]{
-				{ "john", 1 }, { "mary", 0 }
-		});
+
 		checkTasksInVQs(new Object[][]{
 				{ "john", new VQElem[][]{
 						{ onUser("john", "Recomendation_2") },
@@ -244,16 +242,16 @@ public class SessionTest extends TestCase {
 						{ }
 				} }
 		});
-
-		performAction(processInstance, "john", "Recomendation_2", "join");
-
-
 		checkTasksByProcess(processInstance, new String[][]{
-				{ "Make_Decision", "john", null }
+				{ "Recomendation_2", "john", null }
 		});
 		checkTasksByProcessByUser(processInstance, new Object[][]{
 				{ "john", 1 }, { "mary", 0 }
 		});
+
+		performAction(processInstance, "john", "Recomendation_2", "join");
+
+
 		checkTasksInVQs(new Object[][]{
 				{ "john", new VQElem[][]{
 						{ onUser("john", "Make_Decision") },
@@ -270,40 +268,42 @@ public class SessionTest extends TestCase {
 						{ }
 				} }
 		});
+		checkTasksByProcess(processInstance, new String[][]{
+				{ "Make_Decision", "john", null }
+		});
+		checkTasksByProcessByUser(processInstance, new Object[][]{
+				{ "john", 1 }, { "mary", 0 }
+		});
 
 		performAction(processInstance, "john", "Make_Decision", "Accept2");
 
 
+		checkTasksInVQs(new Object[][]{
+				{ "john", new VQElem[][]{
+						{ },
+						{ onUser("mary", "Accept") },
+						{ },
+						{ },
+						{ onUser("john", "Complain"), onUser("john", "Recomendation_2"), onUser("john", "Make_Decision") }
+				} },
+				{ "mary", new VQElem[][]{
+						{ },
+						{ },
+						{ },
+						{ onUser("mary", "Accept") },
+						{ }
+				} }
+		});
 		checkTasksByProcess(processInstance, new String[][]{
 				{ "Accept", "mary", null }
 		});
 		checkTasksByProcessByUser(processInstance, new Object[][]{
 				{ "john", 0 }, { "mary", 1 }
 		});
-		checkTasksInVQs(new Object[][]{
-				{ "john", new VQElem[][]{
-						{ },
-						{ onUser("mary", "Accept") },
-						{ },
-						{ },
-						{ onUser("john", "Complain"), onUser("john", "Recomendation_2"), onUser("john", "Make_Decision") }
-				} },
-				{ "mary", new VQElem[][]{
-						{ },
-						{ },
-						{ },
-						{ onUser("mary", "Accept") },
-						{ }
-				} }
-		});
 
 		performAction(processInstance, "mary", "Accept", "end");
 
 
-		checkTasksByProcess(processInstance, new String[][]{ });
-		checkTasksByProcessByUser(processInstance, new Object[][]{
-				{ "john", 0 }, { "mary", 0 }
-		});
 		checkTasksInVQs(new Object[][]{
 				{ "john", new VQElem[][]{
 						{ },
@@ -319,6 +319,10 @@ public class SessionTest extends TestCase {
 						{ },
 						{ }
 				} }
+		});
+		checkTasksByProcess(processInstance, new String[][]{ });
+		checkTasksByProcessByUser(processInstance, new Object[][]{
+				{ "john", 0 }, { "mary", 0 }
 		});
 
 		checkFinished(processInstance);
@@ -727,6 +731,7 @@ public class SessionTest extends TestCase {
 		ds1.setUniqueName("aperte-workflow-ds");
 		ds1.setMaxPoolSize(5);
 		ds1.setAllowLocalTransactions(true);
+		ds1.setApplyTransactionTimeout(false);
 		ds1.getDriverProperties().setProperty("driverClassName", "org.postgresql.Driver");
 		ds1.getDriverProperties().setProperty("url", "jdbc:postgresql://localhost:6432/jbpm7");
 		ds1.getDriverProperties().setProperty("user", "postgres");

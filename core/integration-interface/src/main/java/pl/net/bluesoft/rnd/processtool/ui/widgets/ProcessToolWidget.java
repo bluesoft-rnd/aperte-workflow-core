@@ -28,10 +28,15 @@ public interface ProcessToolWidget {
 	String getGeneratorKey();
 	ProcessStateWidget getConfiguration();
 	String getAttributeValue(String key);
+	
+	/** Check if widget has specific permissions */
+	boolean hasPermission(String... names);
 
 	Application getApplication();
     boolean hasVisibleData();
 
 	void setWidgetEventBus(WidgetEventBus widgetEventBus);
 	void handleWidgetEvent(WidgetEvent event);
+	
+	void setTaskId(String taskId);
 }

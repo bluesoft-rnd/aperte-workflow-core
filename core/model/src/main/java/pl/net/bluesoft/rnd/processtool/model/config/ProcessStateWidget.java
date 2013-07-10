@@ -2,6 +2,8 @@ package pl.net.bluesoft.rnd.processtool.model.config;
 
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -119,6 +121,15 @@ public class ProcessStateWidget extends PersistentEntity
 	public void setAttributes(Set<ProcessStateWidgetAttribute> attributes) 
 	{
 		this.attributes = attributes;
+	}
+	
+	public ProcessStateWidgetAttribute getAttributeByName(String attributeName)
+	{
+		for(ProcessStateWidgetAttribute attribute: this.attributes)
+			if(attribute.getName().equals(attributeName))
+				return attribute;
+		
+		return null;
 	}
 
 	public String getClassName() {

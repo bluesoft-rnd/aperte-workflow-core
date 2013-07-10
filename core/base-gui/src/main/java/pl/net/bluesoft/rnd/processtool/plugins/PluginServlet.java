@@ -1,6 +1,9 @@
 package pl.net.bluesoft.rnd.processtool.plugins;
 
 import org.osgi.framework.BundleException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.di.DependencyInjectionInitializer;
 import pl.net.bluesoft.rnd.processtool.plugins.osgi.PluginHelper;
@@ -18,7 +21,10 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 /**
  * @author tlipski@bluesoft.net.pl
  */
-public class PluginServlet extends HttpServlet {
+public class PluginServlet extends HttpServlet 
+{
+	@Autowired
+	private ProcessToolRegistry processToolRegistry;
 
     static PluginHelper pluginHelper;
 
@@ -36,6 +42,8 @@ public class PluginServlet extends HttpServlet {
         
         /* Initialize dependencies */
         DependencyInjectionInitializer.injectDefaultDependecies();
+        
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
 
         initPluginHelper();
         LOGGER.info("initout");
@@ -46,8 +54,8 @@ public class PluginServlet extends HttpServlet {
             if (pluginHelper == null) {
                 pluginHelper = new PluginHelper();
 
-                ProcessToolRegistry processToolRegistry = (ProcessToolRegistry) getServletContext()
-                        .getAttribute(ProcessToolRegistry.class.getName());
+//                ProcessToolRegistry processToolRegistry = (ProcessToolRegistry) getServletContext()
+//                        .getAttribute(ProcessToolRegistry.class.getName());
 
                 pluginHelper.initialize(
 						firstExistingDirectory(getServletConfig().getInitParameter("osgi-plugins-directory"),

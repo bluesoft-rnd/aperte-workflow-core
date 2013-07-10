@@ -356,6 +356,14 @@ public class UserData extends UserAttributesSupport {
 	public void setSuperior(String superior) {
 		this.superior = superior;
 	}
-	
-	
+
+
+    public boolean hasRole(String roleName)
+    {
+        for(UserRole role: roles)
+            if(role.getName().equals(roleName))
+                return true;
+
+        return false;
+    }
 }

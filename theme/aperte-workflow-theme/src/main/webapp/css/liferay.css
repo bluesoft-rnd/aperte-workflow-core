@@ -1,0 +1,104 @@
+.aperte-navigation a
+{
+	font-size: 18px;
+	color: #ffffff;
+	background-color: rgb(97, 158, 248);
+		-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	border:1px;
+	margin-right: 8px;
+}
+
+.aperte-navigation a span 
+{
+	padding: 5px;
+}
+
+.aperte-navigation-signin
+{
+	font-size: 18px;
+	color: #ffffff;
+	background-color: rgb(51, 206, 76);
+		-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	border:1px;
+	margin-left: 8px;
+	padding-left: 10px;
+	padding-right: 10px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	margin-top: 2px;
+	float: right;
+}
+
+.portlet-topper
+{
+	z-index: 100;
+}
+
+.dockbar
+{
+	background: none !important;
+	position: relative !important;
+	float: right !important;
+}
+
+.portlet-content, .portlet-minimized .portlet-content-container
+{
+	padding: 0px !important;
+}
+
+input[type="text"], input[type="password"], input[type="file"], input[type="submit"], input[type="button"], input[type="reset"], select, select[multiple], select[size], textarea, .textarea
+{
+	background: white !important;
+	background-color: white !important;
+	padding-left: 5px !important;
+	font-size: 16px !important;
+}
+
+input[disabled], 
+select[disabled], 
+textarea[disabled], 
+input[readonly], 
+select[readonly], 
+textarea[readonly],
+input[disabled]:focus, 
+select[disabled]:focus, 
+textarea[disabled]:focus, 
+input[readonly]:focus, 
+select[readonly]:focus, 
+textarea[readonly]:focus
+{
+    background-color: rgb(224, 224, 224) !important;
+	color: rgb(48, 47, 47);
+	  -webkit-box-shadow: none;
+     -moz-box-shadow: none;
+          box-shadow: none;
+	border-color: none;
+	font-size: 16px;
+	
+
+}
+
+@media (max-width: 961px) 
+{
+	.dockbar
+	{
+		display: none;
+	}
+	
+	#heading
+	{
+		display: none;
+	}
+}
+
+@media (min-width: 962px) 
+{
+	body
+	{
+		margin: 4px !important;
+	}
+}

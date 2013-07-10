@@ -24,7 +24,10 @@ import pl.net.bluesoft.rnd.pt.utils.lang.Lang2;
 
 @Entity
 @Table(name="pt_process_instance")
-public class ProcessInstance extends AbstractPersistentEntity {
+public class ProcessInstance extends AbstractPersistentEntity
+{
+    public static final String EXTERNAL_KEY_PROPERTY = "externalKey";
+
 	@Id
 	@GeneratedValue(generator = "idGenerator")
 	@GenericGenerator(
@@ -257,6 +260,16 @@ public class ProcessInstance extends AbstractPersistentEntity {
 		}
 		return null;
 	}
+	
+    public <T extends ProcessInstanceAttribute> T findAttributeByClassName(String className) {
+        Set<ProcessInstanceAttribute> attrs = getProcessAttributes();
+        for (ProcessInstanceAttribute pia : attrs) {
+            if (className.equals(pia.getClass().getName())) {
+                return (T) pia;
+            }
+        }
+        return null;
+    }
 
     public <T extends ProcessInstanceAttribute> T findAttributeByClass(Class<T> clazz) {
         Set<ProcessInstanceAttribute> attrs = getProcessAttributes();

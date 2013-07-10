@@ -8,7 +8,7 @@ package pl.net.bluesoft.rnd.processtool.plugins.osgi;
 public class ErrorMonitor {
 	private final StringBuffer monitorInfo = new StringBuffer();
 
-	public void forwardErrorInfoToMonitor(String path, Exception e) {
+	public void forwardErrorInfoToMonitor(String path, Throwable e) {
 		monitorInfo.append("\nSEVERE EXCEPTION: ")
 				.append(path)
 				.append("\n")

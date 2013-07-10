@@ -4,6 +4,14 @@
     <portlet>
         <!-- Matches definition in portlet.xml. -->
         <!-- Note: Must not be the same as servlet name. -->
+        <portlet-name>aperte-acitivities-2</portlet-name>
+        <instanceable>false</instanceable>
+        <ajaxable>true</ajaxable>
+    </portlet>
+
+    <portlet>
+        <!-- Matches definition in portlet.xml. -->
+        <!-- Note: Must not be the same as servlet name. -->
         <portlet-name>ProcessTool Tasks</portlet-name>
         <instanceable>false</instanceable>
         <ajaxable>false</ajaxable>

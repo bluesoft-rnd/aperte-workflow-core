@@ -184,7 +184,7 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory,
 	public void updateSessionFactory(SessionFactory sf) {
     }
 
-    public void initJbpmConfiguration() {
+	public void initJbpmConfiguration() {
 		JbpmService.getInstance().init();
-    }
+	}
 }

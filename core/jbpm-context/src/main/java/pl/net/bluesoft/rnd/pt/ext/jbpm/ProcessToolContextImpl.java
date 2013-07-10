@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
@@ -258,27 +259,52 @@ public class ProcessToolContextImpl implements ProcessToolContext {
         }
     }
 
+    
     @Override
-    public long getNextValue(String processDefinitionName, String sequenceName) {
-        verifyContextOpen();
-        List<ProcessToolSequence> seqList = hibernateSession.createCriteria(ProcessToolSequence.class)
-                .add(Restrictions.eq("processDefinitionName", processDefinitionName))
-                .add(Restrictions.eq("name", sequenceName))
-                .list();
+    public long getNextValue(String processDefinitionName, String sequenceName) 
+    {
+    	/* Create new session to handle atomic operations with for update lock. There is no 
+    	 * possibility to create new transaction inside another in the same session 
+    	 * 
+    	 * If one creates for update query in current hibernateSession there is 
+    	 * possibility to make deadlock
+    	 */
+    	Session newValueSession = hibernateSession.getSessionFactory().openSession();
+    	Transaction tx = newValueSession.beginTransaction();
 
-        ProcessToolSequence seq;
-
-        if (seqList.isEmpty()) {
+    	verifyContextOpen();
+    	
+    	String queryString = 
+    			"select seq.* from pt_sequence seq where seq.name = :sequenceName " +
+    			(processDefinitionName != null ? "and seq.processdefinitionname = :processDefinitionName " : "")+
+    			"for update";
+    	
+    	SQLQuery query = 
+    			newValueSession.createSQLQuery(queryString);
+    	
+    	query.setParameter("sequenceName", (String)sequenceName);
+    	
+    	if(processDefinitionName != null)
+    		query.setParameter("processDefinitionName", (String)processDefinitionName);
+    	
+    	query.addEntity("seq", ProcessToolSequence.class);
+    	
+    	ProcessToolSequence seq = (ProcessToolSequence)query.uniqueResult();
+    	
+    	if(seq == null)
+    	{
             seq = new ProcessToolSequence();
             seq.setProcessDefinitionName(processDefinitionName);
             seq.setName(sequenceName);
-            seq.setValue(1);
-        } else {
-            seq = seqList.get(0);
-            seq.setValue(seq.getValue() + 1);
-        }
-        hibernateSession.saveOrUpdate(seq);
-        hibernateSession.flush();
+            seq.setValue(0);
+    	}
+    	seq.setValue(seq.getValue() + 1);
+    	
+    	
+    	newValueSession.saveOrUpdate(seq);
+    	newValueSession.flush();
+    	tx.commit();
+    	newValueSession.close();
         return seq.getValue();
     }
 

@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import org.hibernate.Criteria;
+import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
@@ -387,4 +388,20 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
         cfg.setEnabled(enabled);
         session.save(cfg);
     }
+
+	@Override
+	public ProcessStateWidget getProcessStateWidget(Long widgetStateId) 
+	{
+		return (ProcessStateWidget) getSession().createCriteria(ProcessStateWidget.class)
+				.add(Restrictions.eq("id", widgetStateId))
+				.uniqueResult();
+	}
+
+	@Override
+	public ProcessStateConfiguration getProcessStateConfiguration(
+			Long processStateConfigurationId) {
+		return (ProcessStateConfiguration) getSession().createCriteria(ProcessStateConfiguration.class)
+				.add(Restrictions.eq("id", processStateConfigurationId))
+				.uniqueResult();
+	}
 }

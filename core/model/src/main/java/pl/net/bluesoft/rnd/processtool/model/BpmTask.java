@@ -4,6 +4,7 @@ import java.util.Date;
 
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
+import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessDeadline;
 
 public interface BpmTask {
     boolean isFinished();
@@ -27,4 +28,14 @@ public interface BpmTask {
 
 	/** Method returns current state configuration */
     ProcessStateConfiguration getCurrentProcessStateConfiguration();
+
+	/** Get deadline */
+	public Date getDeadlineDate()
+	{
+		for(ProcessInstanceAttribute attribute: processInstance.getProcessAttributes())
+			if(attribute instanceof ProcessDeadline)
+				return ((ProcessDeadline)attribute).getDueDate();
+
+		return null;
+	}
 }

@@ -1,6 +1,23 @@
 package pl.net.bluesoft.rnd.processtool.bpm.impl;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Logger;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
+import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
+import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent;
+import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent.Type;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.event.IEvent;
 import pl.net.bluesoft.rnd.processtool.event.ProcessToolEventBusManager;
@@ -42,7 +59,14 @@ public abstract class AbstractProcessToolSession
 
     protected UserData substitutingUser;
     protected EventBusManager substitutingUserEventBusManager;
+    
+    @Autowired
+    private ProcessToolRegistry processToolRegistry;
 
+    public AbstractProcessToolSession(UserData user, Collection<String> roleNames, ProcessToolRegistry registry) 
+    {
+    	SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+    	
     protected AbstractProcessToolSession(UserData user, Collection<String> roleNames, ProcessToolRegistry registry) {
         this.user = user;
         this.roleNames = new HashSet<String>(roleNames);
@@ -67,6 +91,16 @@ public abstract class AbstractProcessToolSession
 	{
 		return getContext().getUserDataDAO().findOrCreateUser(user);
 	}
+    protected UserData findOrCreateUser(final UserData user, ProcessToolContext ctx) 
+     {
+    	return processToolRegistry.withProcessToolContext(new ReturningProcessToolContextCallback<UserData>() {
+
+			@Override
+			public UserData processWithContext(ProcessToolContext ctx) {
+				return ctx.getUserDataDAO().findOrCreateUser(user);
+			}
+		});
+    }
 
     protected Set<String> getPermissions(Collection<? extends IPermission> col) {
         Set<String> res = new HashSet<String>();

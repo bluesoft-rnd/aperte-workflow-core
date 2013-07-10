@@ -6,6 +6,7 @@
 		<portlet id="ProcessTool Dictionaries"/>
 		<portlet id="ProcessTool Queues"/>
 		<portlet id="ProcessTool Activities"/>
+		<portlet id="aperte-acitivities-2"/>
         <portlet id="Aperte Workflow User Portlet"/>
 	</category>
     <category name="category.hidden">

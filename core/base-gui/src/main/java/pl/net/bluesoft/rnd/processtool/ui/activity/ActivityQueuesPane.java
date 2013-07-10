@@ -25,13 +25,13 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.filters.factory.ProcessInstanceFilterFactory;
+import pl.net.bluesoft.rnd.processtool.filters.factory.QueuesNameUtil;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
 import pl.net.bluesoft.rnd.processtool.model.QueueType;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
-import pl.net.bluesoft.rnd.processtool.ui.utils.QueuesPanelRefresherUtil;
 import pl.net.bluesoft.util.eventbus.EventListener;
 import pl.net.bluesoft.util.lang.DateUtil;
 import pl.net.bluesoft.util.lang.TaskWatch;
@@ -235,7 +235,7 @@ public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshab
 				total += totalTasks;
 				
 				/* button id for the refresher */
-				String buttonId = QueuesPanelRefresherUtil.getSubstitutedQueueTaskId(filter.getName(), substitutedUser.getLogin());
+				String buttonId = QueuesNameUtil.getSubstitutedQueueTaskId(filter.getName(), substitutedUser.getLogin());
 				
 				//String taskName =  MessageFormat.format(getMessage("activity.other.users.tasks"), user.getRealName());
 
@@ -283,7 +283,7 @@ public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshab
 					.setValue(getMessage("activity.substitutions.description",liferaySubstitutedUser.getRealName(),total,totalQueues));
 			
 			/* button id for the refresher */
-			String buttonId = QueuesPanelRefresherUtil.getSubstitutedRootNodeId(substitutedUser.getLogin());
+			String buttonId = QueuesNameUtil.getSubstitutedRootNodeId(substitutedUser.getLogin());
 			
 			container.getItem(substAssignedTasks).getItemProperty("debugId").setValue(buttonId);
 		}
@@ -333,7 +333,7 @@ public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshab
 			int count = qus.queue.getProcessCount();
 			
 			/* button id for the refresher */
-			String buttonId = QueuesPanelRefresherUtil.getSubstitutedQueueProcessQueueId(qus.queue.getName(), user.getLogin());
+			String buttonId = QueuesNameUtil.getSubstitutedQueueProcessQueueId(qus.queue.getName(), user.getLogin());
 			
 			String desc = getQueueDescr(qus.queue);
 
@@ -442,7 +442,7 @@ public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshab
 		final Button b = new Button(getMessage(processInstanceFilter.getName()));
 		
 		/* button id for the refresher */
-		String buttonId = QueuesPanelRefresherUtil.getQueueTaskId(processInstanceFilter.getName());
+		String buttonId = QueuesNameUtil.getQueueTaskId(processInstanceFilter.getName());
 		
 		b.setStyleName(BaseTheme.BUTTON_LINK);
 		b.setDebugId(buttonId);
@@ -492,7 +492,7 @@ public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshab
 		String desc = getQueueDescr(q);
 
 		/* button id for the refresher */
-		String buttonId = QueuesPanelRefresherUtil.getQueueProcessQueueId(q.getName());
+		String buttonId = QueuesNameUtil.getQueueProcessQueueId(q.getName());
 		
 		Button qb = new Button(desc + " (" + processCount + ")");
 		qb.setDescription(desc);
@@ -568,7 +568,7 @@ public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshab
 				}
 				else
 				{
-					BpmTask task = bpmSession.assignTaskFromQueue(q);
+					BpmTask task = bpmSession.assignTaskFromQueue(q.getName());
 					if(task != null)
 					{
 						getWindow().executeJavaScript("Liferay.trigger('processtool.bpm.assignProcess', '" + task.getProcessInstance().getInternalId() + "');");

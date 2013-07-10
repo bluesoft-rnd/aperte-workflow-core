@@ -1,0 +1,9 @@
+<h4>${messageSource.getMessage("widget.latest_process_comments.name")}</h4>
+<#assign null = "null">
+
+<#assign processComments = process.findAttributeByClassName("pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComments")!null>
+<#if processComments != null> 
+	<#list processComments.getComments() as processComment>
+	 	${processComment.author.getRealName()} [${processComment.createTime}] : ${processComment.body}
+	</#list>
+</#if>

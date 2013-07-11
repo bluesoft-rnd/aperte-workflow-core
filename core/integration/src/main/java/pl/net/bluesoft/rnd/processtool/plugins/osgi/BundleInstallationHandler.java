@@ -35,6 +35,8 @@ import com.thoughtworks.xstream.XStream;
  * Time: 16:17
  */
 public class BundleInstallationHandler {
+
+
 	public static final String		MODEL_ENHANCEMENT	    = "ProcessTool-Model-Enhancement";
 	public static final String		WIDGET_ENHANCEMENT	    = "ProcessTool-Widget-Enhancement";
 	public static final String		BUTTON_ENHANCEMENT  	= "ProcessTool-Button-Enhancement";
@@ -224,13 +226,13 @@ public class BundleInstallationHandler {
 								
 								ProcessDefinitionConfig newConfig = 
 										processDeployer.unmarshallProcessDefinition(bundleHelper.getBundleResourceStream(basePath + "processtool-config.xml"));
-								
+
 								ProcessDefinitionDAO dao = ctx.getProcessDefinitionDAO();
 								ProcessDefinitionConfig oldConfig = dao.getActiveConfigurationByKey(newConfig.getBpmDefinitionKey());
-								
-								processDeployer.deployOrUpdateProcessDefinition(
+
+                                processDeployer.deployOrUpdateProcessDefinition(
 										bundleHelper.getBundleResourceStream(basePath + "processdefinition." +
-												toolRegistry.getBpmDefinitionLanguage() + ".xml"),
+												toolRegistry.getBpmDefinitionLanguage()),
 												bundleHelper.getBundleResourceStream(basePath + "processtool-config.xml"),
 										bundleHelper.getBundleResourceStream(basePath + "queues-config.xml"),
 										bundleHelper.getBundleResourceStream(basePath + "processdefinition.png"),
@@ -263,6 +265,8 @@ public class BundleInstallationHandler {
 			}
 		}
 	}
+
+
 
 	private void handleProcessRoles(int eventType, OSGiBundleHelper bundleHelper, ProcessToolRegistry registry) {
 		if (eventType != Bundle.ACTIVE) {

@@ -20,7 +20,7 @@ public class ProcessToolRegistryContextLoader implements ServletContextListener 
 		try {
 			ProcessToolRegistryImpl toolRegistry = new ProcessToolRegistryImpl();
 			toolRegistry.commitModelExtensions();
-            toolRegistry.setBpmDefinitionLanguage("jpdl");
+            toolRegistry.setBpmDefinitionLanguage("bpmn20");
 			toolRegistry.setProcessToolContextFactory(new ProcessToolContextFactoryImpl(toolRegistry));
 			sce.getServletContext().setAttribute(ProcessToolRegistry.class.getName(),
 			                                     toolRegistry);

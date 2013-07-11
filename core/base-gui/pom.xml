@@ -12,7 +12,7 @@
     <packaging>war</packaging>
 
     <properties>
-        <cxf.version>2.2.3</cxf.version>
+        <cxf.version>2.4.4</cxf.version>
     </properties>
 
     <dependencies>

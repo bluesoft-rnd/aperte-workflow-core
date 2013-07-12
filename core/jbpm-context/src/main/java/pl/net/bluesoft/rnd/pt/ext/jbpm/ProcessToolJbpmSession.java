@@ -465,7 +465,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 	@Override
 	public List<BpmTask> findFilteredTasks(ProcessInstanceFilter filter, int offset, int maxResults) {
-		return getFilterQuery(filter).orderByCreateDateDesc().page(offset, maxResults).list();
+		return getFilterQuery(filter).page(offset, maxResults).list();
 	}
 
 	private BpmTaskQuery getFilterQuery(ProcessInstanceFilter filter) {
@@ -504,6 +504,8 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		if (!filter.getQueues().isEmpty()) {
 			taskFilterQuery.queues(filter.getQueues());
 		}
+
+		taskFilterQuery.orderBy(filter.getSortOrderCondition(), filter.getSortOrder());
 
 //   		/* Add condition for owner */
 //		if (!ownerNames.isEmpty()) {

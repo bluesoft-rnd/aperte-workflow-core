@@ -3,10 +3,7 @@ package pl.net.bluesoft.rnd.pt.ext.jbpm.service.query;
 import org.hibernate.SQLQuery;
 import org.hibernate.type.StandardBasicTypes;
 import org.jbpm.task.Status;
-import pl.net.bluesoft.rnd.processtool.model.BpmTask;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.model.QueueType;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.processtool.model.*;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.BpmTaskBean;
 import pl.net.bluesoft.util.lang.cquery.func.F;
 
@@ -55,7 +52,8 @@ public class BpmTaskQuery {
 	private Collection<String> taskNames;
 	private Date createdBefore;
 	private Date createdAfter;
-	private boolean orderByCreateDateDesc;
+	private QueueOrderCondition sortField;
+	private QueueOrder sortOrder;
 
 	private int offset;
 	private int limit = -1;
@@ -95,10 +93,12 @@ public class BpmTaskQuery {
 		return this;
 	}
 
-	public BpmTaskQuery orderByCreateDateDesc() {
-		this.orderByCreateDateDesc = true;
+	public BpmTaskQuery orderBy(QueueOrderCondition sortField, QueueOrder sortOrder) {
+		this.sortField = sortField;
+		this.sortOrder = sortOrder;
 		return this;
 	}
+
 
 	public BpmTaskQuery page(int offset, int limit) {
 		this.offset = offset;
@@ -245,11 +245,43 @@ public class BpmTaskQuery {
 			queryParameters.add(new QueryParameter("createdAfter", createdAfter));
 		}
 
-		if (queryType == QueryType.LIST && orderByCreateDateDesc) {
-			sb.append(" ORDER BY task_.createdOn DESC");
+		if (queryType == QueryType.LIST) {
+			sb.append(" ORDER BY ").append(getOrder());
 		}
 
 		return sb.toString();
+	}
+
+	private String getOrder() {
+		if (sortField != null) {
+			return getOrderField() + ' ' + getOrderDirection();
+		}
+		return "task_.createdOn DESC";
+	}
+
+	private String getOrderField() {
+		switch (sortField) {
+			case SORT_BY_DATE_ORDER:
+				return "task_.createdOn";
+			case SORT_BY_CREATE_DATE_ORDER:
+				return "process.createdate";
+			case SORT_BY_PROCESS_CODE_ORDER:
+				return "process.internalid";
+			case SORT_BY_PROCESS_STEP_ORDER:
+				return "i18ntext_.shortText";
+			case SORT_BY_PROCESS_NAME_ORDER:
+				return "process.definitionname";
+			case SORT_BY_ASSIGNEE_ORDER:
+				return "task_.actualowner_id";
+			case SORT_BY_CREATOR_ORDER:
+				return "creator.login";
+			default:
+				throw new RuntimeException("Unhandled order by field " + sortField);
+		}
+	}
+
+	private String getOrderDirection() {
+		return sortOrder == QueueOrder.DESC ? " DESC" : " ASC";
 	}
 
 	private static final F<QueueType,Object> GET_VIRTUAL_QUEUES = new F<QueueType, Object>() {
@@ -286,7 +318,6 @@ public class BpmTaskQuery {
 				", taskNames=" + taskNames +
 				", createdBefore=" + createdBefore +
 				", createdAfter=" + createdAfter +
-				", orderByCreateDateDesc=" + orderByCreateDateDesc +
 				", offset=" + offset +
 				", limit=" + limit +
 				'}';

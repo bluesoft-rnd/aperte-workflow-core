@@ -193,6 +193,10 @@ public class ProcessDefinitionConfig extends PersistentEntity {
 		this.processVersion = version;
 	}
 
+	public String getProcessName() {
+		return description;
+	}
+
 	public static final Comparator<ProcessDefinitionConfig> DEFAULT_COMPARATOR = new Comparator<ProcessDefinitionConfig>() {
 		@Override
 		public int compare(ProcessDefinitionConfig o1, ProcessDefinitionConfig o2) {

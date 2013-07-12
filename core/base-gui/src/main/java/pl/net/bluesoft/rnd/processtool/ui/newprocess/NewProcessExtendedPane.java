@@ -126,14 +126,12 @@ public class NewProcessExtendedPane extends VerticalLayout implements Refreshabl
 		processesPopupPanel.addComponent(processesPopupLayout);
 
 		processesContainer = new BeanItemContainer<ProcessDefinitionConfig>(ProcessDefinitionConfig.class);
-//		processesContainer.addContainerProperty("processName", String.class, "");
 //		processesContainer.addContainerProperty("logo", Resource.class, defaultLogoResource);
 		processesSelect.setContainerDataSource(processesContainer);
 //		processesSelect.setItemIcon(itemId, icon);
 //		processesSelect.setItemIconPropertyId("processLogo");
 
-		processesSelect.setItemCaptionMode(Select.ITEM_CAPTION_MODE_PROPERTY);
-		processesSelect.setItemCaptionPropertyId("processName");
+		processesSelect.setItemCaptionMode(Select.ITEM_CAPTION_MODE_EXPLICIT);
 
 		defaultLogoResource = VaadinUtility.imageResource(activityMainPane.getActivityApplication(), "aperte-logo.png");
 		defaultLogoEmbedded = new Embedded(null,  defaultLogoResource);
@@ -172,13 +170,10 @@ public class NewProcessExtendedPane extends VerticalLayout implements Refreshabl
 							}, definition.getBpmDefinitionKey() + "_logo.png", activityMainPane.getActivityApplication())
 							);
 				}
-				
-				String processDescription = getMessage(definition.getDescription());
 
-				Item item = processesContainer.addItem(definition);
-				Property processNameProperty = item.getItemProperty("processName");
-				processNameProperty.setValue(processDescription);
-				
+				processesContainer.addItem(definition);
+				processesSelect.setItemCaption(definition, getMessage(definition.getDescription()));
+
 				//FIXME 
 				//item.getItemProperty("processLogo").setValue(logoResourceCache.get(definition));
 

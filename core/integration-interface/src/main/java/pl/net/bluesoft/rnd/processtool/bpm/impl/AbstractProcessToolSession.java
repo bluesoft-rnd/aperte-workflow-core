@@ -4,7 +4,6 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.event.IEvent;
 import pl.net.bluesoft.rnd.processtool.event.ProcessToolEventBusManager;
-import pl.net.bluesoft.rnd.processtool.hibernate.TransactionFinishedCallback;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.*;
@@ -50,17 +49,11 @@ public abstract class AbstractProcessToolSession
         log.finest("Created session for user: " + user);
     }
 
-    protected void broadcastEvent(final IEvent event) {
+    protected void broadcastEvent(IEvent event) {
         eventBusManager.publish(event);
-        if (substitutingUserEventBusManager != null)
-            substitutingUserEventBusManager.publish(event);
-		final ProcessToolContext ctx = getContext(); // inside callback context is no longer present
-        ctx.addTransactionCallback(new TransactionFinishedCallback() {
-			@Override
-			public void onFinished() {
-				ctx.getEventBusManager().post(event);
-			}
-		});
+        if (substitutingUserEventBusManager != null) {
+			substitutingUserEventBusManager.publish(event);
+		}
     }
 
 	protected UserData findOrCreateUser(UserData user)

@@ -1,33 +1,17 @@
 package pl.net.bluesoft.rnd.pt.ext.jbpm;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.hibernate.SQLQuery;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
-
 import pl.net.bluesoft.rnd.processtool.BasicSettings;
 import pl.net.bluesoft.rnd.processtool.IProcessToolSettings;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolSessionFactory;
 import pl.net.bluesoft.rnd.processtool.bpm.exception.ProcessToolException;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessDictionaryDAO;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceDAO;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceFilterDAO;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceSimpleAttributeDAO;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessStateActionDAO;
-import pl.net.bluesoft.rnd.processtool.dao.UserDataDAO;
-import pl.net.bluesoft.rnd.processtool.dao.UserProcessQueueDAO;
-import pl.net.bluesoft.rnd.processtool.dao.UserSubstitutionDAO;
+import pl.net.bluesoft.rnd.processtool.dao.*;
 import pl.net.bluesoft.rnd.processtool.dict.GlobalDictionaryProvider;
 import pl.net.bluesoft.rnd.processtool.dict.ProcessDictionaryProvider;
 import pl.net.bluesoft.rnd.processtool.dict.ProcessDictionaryRegistry;
 import pl.net.bluesoft.rnd.processtool.hibernate.HibernateBean;
-import pl.net.bluesoft.rnd.processtool.hibernate.HibernateTransactionCallback;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessToolAutowire;
@@ -38,6 +22,10 @@ import pl.net.bluesoft.rnd.processtool.userqueues.IUserProcessQueueManager;
 import pl.net.bluesoft.util.eventbus.EventBusManager;
 import pl.net.bluesoft.util.lang.Formats;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * Context replacement for Spring library
  *
@@ -45,10 +33,8 @@ import pl.net.bluesoft.util.lang.Formats;
  */
 public class ProcessToolContextImpl implements ProcessToolContext { 
     private Session hibernateSession;
-    private Transaction transaction;
     private ProcessToolJbpmSessionFactory processToolJbpmSessionFactory;
     private ProcessDictionaryRegistry processDictionaryRegistry;
-//    private ProcessEngine processEngine;
     private ProcessToolRegistry registry;
     private IUserProcessQueueManager userProcessQueueManager;
 
@@ -61,21 +47,8 @@ public class ProcessToolContextImpl implements ProcessToolContext {
     								ProcessToolRegistry registry) {
         this.hibernateSession = hibernateSession;
         this.registry = registry;
-//        this.processEngine = processEngine;
         this.autowiringCache = registry.getCache(ProcessToolAutowire.class.getName());
         this.userProcessQueueManager = new UserProcessQueueManager(hibernateSession, getUserProcessQueueDAO());
-//        processEngine.setHibernateSession(hibernateSession);
-
-        transaction = hibernateSession.beginTransaction();
-    }
-
-    public void rollback() {
-        transaction.rollback();
-    }
-
-    public void commit() {
-        transaction.commit();
-
     }
 
     private synchronized void verifyContextOpen() {
@@ -85,7 +58,6 @@ public class ProcessToolContextImpl implements ProcessToolContext {
     }
 
     public void init() {
-
     }
 
     @Override
@@ -97,12 +69,6 @@ public class ProcessToolContextImpl implements ProcessToolContext {
     	
         return !closed;
     }
-
-    @Override
-    public void addTransactionCallback(HibernateTransactionCallback callback) {
-        transaction.registerSynchronization(callback);
-    }
-
 
     @Override
     public ProcessDictionaryRegistry getProcessDictionaryRegistry() {
@@ -259,7 +225,6 @@ public class ProcessToolContextImpl implements ProcessToolContext {
         }
     }
 
-    
     @Override
     public long getNextValue(String processDefinitionName, String sequenceName) 
     {

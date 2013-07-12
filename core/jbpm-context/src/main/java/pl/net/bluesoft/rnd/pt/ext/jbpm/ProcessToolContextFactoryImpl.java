@@ -1,17 +1,8 @@
 package pl.net.bluesoft.rnd.pt.ext.jbpm;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.transaction.Status;
-import javax.transaction.UserTransaction;
-
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
@@ -19,8 +10,16 @@ import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.service.JbpmService;
 
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.transaction.Status;
+import javax.transaction.UserTransaction;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
-import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.ThreadUtil.*;
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.ThreadUtil.removeThreadRegistry;
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.ThreadUtil.setThreadRegistry;
 
 /**
  * Process Tool Context factory
@@ -91,8 +90,8 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory,
 				logger.log(Level.SEVERE, e.getMessage(), e);
 				try {
 					tx.rollback();
-					ctx.rollback();
-				} catch (Exception e1) {
+				}
+				catch (Exception e1) {
 					logger.log(Level.WARNING, e1.getMessage(), e1);
 				}
 				throw e;
@@ -140,9 +139,8 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory,
 					try
 					{
 						ut.rollback();
-						ctx.rollback();
-
-					} catch (Exception e1) {
+					}
+					catch (Exception e1) {
 						logger.log(Level.WARNING, e1.getMessage(), e1);
 					}
 					throw e;

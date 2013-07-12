@@ -24,9 +24,23 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 public class ProcessDefinitionConfig extends PersistentEntity {
 	private static final long serialVersionUID = 3568533142091163609L;
 
+	public static final String _DESCRIPTION = "description";
+	public static final String _BPM_DEFINITION_KEY = "bpmDefinitionKey";
+	public static final String _BPM_DEFINITION_VERSION = "bpmDefinitionVersion";
+	public static final String _DEPLOYMENT_ID = "deploymentId";
+	public static final String _PROCESS_VERSION = "processVersion";
+	public static final String _COMMENT = "comment";
+	public static final String _CREATOR_ID = "creator_id";
+	public static final String _CREATE_DATE = "createDate";
+	public static final String _STATE = "states";
+	public static final String _PERMISSIONS = "permissions";
+	public static final String _PROCESS_LOGO = "processLogo";
+	public static final String _ENABLED = "enabled";
+	public static final String _TASK_ITEM_CLASS = "taskItemClass";
+	public static final String _LATEST = "latest";
+
 	public static final String VERSION_SEPARATOR = "_";
 
-	private String processName;
 	private String description;
 	private String bpmDefinitionKey;
 	private int bpmDefinitionVersion;
@@ -80,14 +94,6 @@ public class ProcessDefinitionConfig extends PersistentEntity {
     public void setTaskItemClass(String taskItemClass) {
         this.taskItemClass = taskItemClass;
     }
-
-    public String getProcessName() {
-		return processName;
-	}
-
-	public void setProcessName(String processName) {
-		this.processName = processName;
-	}
 
 	public String getDescription() {
 		return description;
@@ -219,11 +225,6 @@ public class ProcessDefinitionConfig extends PersistentEntity {
     public void setPermissions(Set<ProcessDefinitionPermission> permissions) 
     {
 		this.permissions = permissions;
-    }
-
-    @Override
-    public String toString() {
-    	return processName;
     }
 
 	public static boolean hasVersion(String processId) {

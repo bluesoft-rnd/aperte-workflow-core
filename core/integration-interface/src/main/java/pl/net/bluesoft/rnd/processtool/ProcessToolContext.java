@@ -1,29 +1,17 @@
 package pl.net.bluesoft.rnd.processtool;
 
-import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
-
-import java.util.Map;
-
 import org.hibernate.Session;
-
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolSessionFactory;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessDictionaryDAO;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceDAO;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceFilterDAO;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceSimpleAttributeDAO;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessStateActionDAO;
-import pl.net.bluesoft.rnd.processtool.dao.UserDataDAO;
-import pl.net.bluesoft.rnd.processtool.dao.UserProcessQueueDAO;
-import pl.net.bluesoft.rnd.processtool.dao.UserSubstitutionDAO;
+import pl.net.bluesoft.rnd.processtool.dao.*;
 import pl.net.bluesoft.rnd.processtool.dict.ProcessDictionaryRegistry;
-import pl.net.bluesoft.rnd.processtool.hibernate.HibernateTransactionCallback;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.userqueues.IUserProcessQueueManager;
 import pl.net.bluesoft.util.eventbus.EventBusManager;
+
+import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
 /**
  *  Main application context
@@ -72,13 +60,8 @@ public interface ProcessToolContext  extends ProcessToolBpmConstants
 
     /** Close hibernate session and process engine */
 	void close();
-	
-	/** Call when outer transaction had a rollback */
-	void rollback();
 
     void updateContext(ProcessInstance processInstance);
-
-    void addTransactionCallback(HibernateTransactionCallback callback);
 
     boolean isActive();
 

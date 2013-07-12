@@ -1,6 +1,8 @@
 package pl.net.bluesoft.rnd.pt.ext.jbpm;
 
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
 import pl.net.bluesoft.rnd.processtool.BasicSettings;
 import pl.net.bluesoft.rnd.processtool.IProcessToolSettings;
@@ -244,7 +246,7 @@ public class ProcessToolContextImpl implements ProcessToolContext {
     			(processDefinitionName != null ? "and seq.processdefinitionname = :processDefinitionName " : "")+
     			"for update";
     	
-    	SQLQuery query = 
+    	SQLQuery query =
     			newValueSession.createSQLQuery(queryString);
     	
     	query.setParameter("sequenceName", (String)sequenceName);

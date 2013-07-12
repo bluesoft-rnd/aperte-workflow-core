@@ -634,6 +634,11 @@
 
 }
 
+.search-view
+{
+	overflow: hidden;
+}
+
 .select2-container .select2-choice span
 {
 	font-size: 16px;
@@ -651,7 +656,7 @@
 .vaadin-widget-view
 {
 	background-repeat: no-repeat;
-	background-image: url(../img/loading_animation_2.gif);
+	background-image: url(../images/progress_bar/loading_animation_2.gif);
 	background-position:center; 
 }
 
@@ -661,7 +666,7 @@
 	height: 100%;
 	background-repeat: no-repeat;
     position:absolute;
-	background-image: url(../img/loading_animation_2.gif);
+	background-image: url(../images/progress_bar/loading_animation_2.gif);
 	background-position:center; 
 	z-index:-10;
 }
@@ -672,7 +677,7 @@
 	height: 100%;
 	background-repeat: no-repeat;
     position:absolute;
-	background-image: url(../img/loading_animation_1.gif);
+	background-image: url(../images/progress_bar/loading_animation_1.gif);
 	background-position:center; 
 	z-index:-10;
 }

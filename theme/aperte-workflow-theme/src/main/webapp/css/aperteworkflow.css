@@ -634,6 +634,11 @@
 
 }
 
+.search-view
+{
+	overflow: hidden;
+}
+
 .select2-container .select2-choice span
 {
 	font-size: 16px;

@@ -144,7 +144,8 @@
 			var errors = [];
 			$.each(data.errors, function() {
 				errors.push(this);
-				windowManager.addError(this.message);
+				console.log( "error: "+this.message); 
+				addAlert(this.message);
 			});
 			
 			if(errors.length > 0) { return; }

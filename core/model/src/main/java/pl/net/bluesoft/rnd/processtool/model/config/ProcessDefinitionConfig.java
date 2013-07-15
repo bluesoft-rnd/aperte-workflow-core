@@ -71,13 +71,13 @@ public class ProcessDefinitionConfig extends PersistentEntity {
     @Lob
     private byte[] processLogo;
 	
-    private Boolean enabled;
+    private boolean enabled;
 
     private String taskItemClass;
 	/**
 	 * latest definition of process with processName ensures uniqueness and versioning of definitions
 	 */
-	private Boolean latest;
+	private boolean latest;
 
     public byte[] getProcessLogo() {
         return processLogo;
@@ -131,11 +131,11 @@ public class ProcessDefinitionConfig extends PersistentEntity {
 		this.deploymentId = deploymentId;
 	}
 
-	public Boolean getLatest() {
+	public boolean isLatest() {
 		return latest;
 	}
 
-	public void setLatest(Boolean latest) {
+	public void setLatest(boolean latest) {
 		this.latest = latest;
 	}
 
@@ -176,16 +176,15 @@ public class ProcessDefinitionConfig extends PersistentEntity {
 		this.comment = comment;
 	}
 
+	public boolean isEnabled() {
+		return enabled;
+	}
 
-    public Boolean getEnabled() {
-        return nvl(enabled, true);
-    }
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
 
-    public void setEnabled(Boolean enabled) {
-        this.enabled = enabled;
-    }
-    
-    public String getProcessVersion() {
+	public String getProcessVersion() {
 		return nvl(processVersion, "");
 	}
 

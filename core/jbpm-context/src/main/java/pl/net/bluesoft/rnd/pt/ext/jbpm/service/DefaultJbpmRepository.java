@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.List;
 
 public class DefaultJbpmRepository implements JbpmRepository {
-	private static final String DEFAULT_BASE_PATH = File.separator + "jbpm" + File.separator + "repository";
+	private static final String DEFAULT_BASE_PATH = ".." + File.separator + ".." + File.separator + "jbpm" + File.separator + "repository";
 
 	private final String basePath;
 

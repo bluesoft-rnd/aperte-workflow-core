@@ -245,7 +245,7 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
         return withContext(new ReturningProcessToolContextCallback<UserData>() {
             @Override
             public UserData processWithContext(ProcessToolContext ctx) {
-                return fetchHibernateData(ctx.getUserDataDAO().findOrCreateUser(user)); 
+                return fetchHibernateData(ctx.getUserDataDAO().loadOrCreateUserByLogin(user));
             }
         });
     }

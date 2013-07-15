@@ -80,17 +80,7 @@ public abstract class AbstractProcessToolSession
 
 	protected UserData findOrCreateUser(UserData user)
 	{
-		return getContext().getUserDataDAO().findOrCreateUser(user);
-	}
-    protected UserData findOrCreateUser(final UserData user, ProcessToolContext ctx) 
-     {
-    	return processToolRegistry.withProcessToolContext(new ReturningProcessToolContextCallback<UserData>() {
-
-			@Override
-			public UserData processWithContext(ProcessToolContext ctx) {
-				return ctx.getUserDataDAO().findOrCreateUser(user);
-			}
-		});
+		return getContext().getUserDataDAO().loadOrCreateUserByLogin(user);
 	}
 
     protected Set<String> getPermissions(Collection<? extends IPermission> col) {

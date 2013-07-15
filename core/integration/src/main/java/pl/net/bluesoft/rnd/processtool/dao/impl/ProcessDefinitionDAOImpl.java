@@ -36,20 +36,13 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public Collection<ProcessDefinitionConfig> getActiveConfigurations() {		
-		 long start = System.currentTimeMillis(); 
-		
-		List<ProcessDefinitionConfig> list = getSession().createCriteria(ProcessDefinitionConfig.class)
+	public Collection<ProcessDefinitionConfig> getActiveConfigurations() {
+		return getSession().createCriteria(ProcessDefinitionConfig.class)
 				.addOrder(Order.desc(_DESCRIPTION))
 				.add(Restrictions.eq(_LATEST, Boolean.TRUE))
-				.add(Restrictions.or(Restrictions.eq(_ENABLED, Boolean.TRUE), Restrictions.isNull(_ENABLED)))
+				.add(Restrictions.eq(_ENABLED, Boolean.TRUE))
 				.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
                 .list();
-		 
-		 
-		 long duration = System.currentTimeMillis() - start;
-			logger.severe("getActiveConfigurations: " +  duration);
-		 return list;
 	}
 
 	@Override
@@ -89,6 +82,7 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 	public void updateOrCreateProcessDefinitionConfig(ProcessDefinitionConfig cfg) {
 		cfg.setCreateDate(new Date());
 		cfg.setLatest(true);
+		cfg.setEnabled(true);
 
 		adjustStatesAndPermissions(cfg);
 

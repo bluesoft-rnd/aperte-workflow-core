@@ -84,7 +84,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	public ProcessInstance startProcess(String processDefinitionId, String externalKey, String description, String keyword, String source) {
 		ProcessDefinitionConfig config = getContext().getProcessDefinitionDAO().getActiveConfigurationByKey(processDefinitionId);
 
-		if (!config.getEnabled()) {
+		if (!config.isEnabled()) {
 			throw new IllegalArgumentException("Process definition has been disabled!");
 		}
 

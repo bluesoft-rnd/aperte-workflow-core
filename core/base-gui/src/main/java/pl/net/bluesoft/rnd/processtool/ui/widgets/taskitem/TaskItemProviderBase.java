@@ -125,7 +125,7 @@ public class TaskItemProviderBase {
 
 	protected Component createTaskIcon(TaskItemProviderParams params) {
 		BpmTask task = params.getTask();
-		final ProcessDefinitionConfig cfg = task.getProcessInstance().getDefinition();
+		final ProcessDefinitionConfig cfg = task.getProcessDefinition();
 		String path = cfg.getProcessLogo() != null ? cfg.getBpmDefinitionKey() + "_" + cfg.getId() + "_logo.png" : "/img/aperte-logo.png";
 		Resource res = params.getResource(path);
 		if (res == null) {

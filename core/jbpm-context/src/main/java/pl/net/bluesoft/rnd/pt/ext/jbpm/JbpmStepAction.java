@@ -6,7 +6,6 @@ import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceDAO;
 import pl.net.bluesoft.rnd.processtool.model.BpmStep;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.BpmStepBean;
-import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.PropertyAutoWiring;
 
@@ -14,9 +13,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+
 public class JbpmStepAction {
 	public String invoke(final String processInstanceId, final String stepName, final Map<String, String> params) throws Exception {
-        return ProcessToolRegistry.Util.getInstance().withProcessToolContext(new ReturningProcessToolContextCallback<String>() {
+        return getRegistry().withProcessToolContext(new ReturningProcessToolContextCallback<String>() {
             @Override
             public String processWithContext(ProcessToolContext ctx) {
                 return doInvoke(processInstanceId, stepName, params, ctx);

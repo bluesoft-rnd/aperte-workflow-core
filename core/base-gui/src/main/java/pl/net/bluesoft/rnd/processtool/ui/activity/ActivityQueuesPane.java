@@ -3,6 +3,7 @@ package pl.net.bluesoft.rnd.processtool.ui.activity;
 import static org.aperteworkflow.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
 import static org.aperteworkflow.util.vaadin.VaadinUtility.horizontalLayout;
 import static org.aperteworkflow.util.vaadin.VaadinUtility.refreshIcon;
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 import static pl.net.bluesoft.util.lang.Strings.hasText;
 import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
 
@@ -30,7 +31,6 @@ import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
 import pl.net.bluesoft.rnd.processtool.model.QueueType;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
-import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.util.eventbus.EventListener;
 import pl.net.bluesoft.util.lang.DateUtil;
 import pl.net.bluesoft.util.lang.cquery.func.F;
@@ -465,14 +465,10 @@ public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshab
 					@Override
 					public void run()
 					{
-						ProcessToolRegistry registry = ProcessToolRegistry.Util.getInstance();
-						
-						registry.withProcessToolContext(new ProcessToolContextCallback() {
-							
+						getRegistry().withProcessToolContext(new ProcessToolContextCallback() {
 							@Override
 							public void withContext(ProcessToolContext ctx) {
 								activityMainPane.displayFilterPane(processInstanceFilter);
-								
 							}
 						});
 					}

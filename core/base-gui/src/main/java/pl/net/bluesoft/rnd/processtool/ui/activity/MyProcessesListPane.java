@@ -1,6 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.ui.activity;
 
 import static org.aperteworkflow.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
@@ -8,7 +9,6 @@ import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
 import pl.net.bluesoft.rnd.processtool.model.QueueType;
-import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.ui.tasks.TaskTableItem;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.taskitem.TaskItemProviderBase;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.taskitem.TaskItemProviderParams;
@@ -49,16 +49,11 @@ public class MyProcessesListPane extends ProcessListPane {
             @Override
 			public void run() 
             {
-            	ProcessToolRegistry registry = ProcessToolRegistry.Util.getInstance();
-            	
-            	registry.withProcessToolContext(new ProcessToolContextCallback() {
-					
+				getRegistry().withProcessToolContext(new ProcessToolContextCallback() {
 					@Override
-					public void withContext(ProcessToolContext ctx) 
-					{
+					public void withContext(ProcessToolContext ctx) {
 						I18NSource.ThreadUtil.setThreadI18nSource(messageSource);
 						displayProcessData(params.getTask());
-						
 					}
 				});
             }

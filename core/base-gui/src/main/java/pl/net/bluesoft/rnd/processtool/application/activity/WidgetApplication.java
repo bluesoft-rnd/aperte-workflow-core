@@ -1,8 +1,6 @@
 package pl.net.bluesoft.rnd.processtool.application.activity;
 
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,20 +15,17 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.authorization.IAuthorizationService;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
-import pl.net.bluesoft.rnd.processtool.event.SaveTaskEvent;
-import pl.net.bluesoft.rnd.processtool.event.ValidateTaskEvent;
-import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
 import com.vaadin.Application;
 import com.vaadin.terminal.gwt.server.HttpServletRequestListener;
 import com.vaadin.terminal.gwt.server.WebApplicationContext;
 import com.vaadin.ui.Window;
+
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 
 /**
  * Activity application standalone version to use outside portal portlet and
@@ -171,28 +166,21 @@ public class WidgetApplication extends Application  implements HttpServletReques
 						ProcessToolBpmSession bpmSession =  (ProcessToolBpmSession) request.getSession().getAttribute(ProcessToolBpmSession.class.getName()); 
 						if(bpmSession == null)
 						{
-							bpmSession = ctx.getProcessToolSessionFactory().createSession(user, user.getRoleNames());
+							bpmSession = getRegistry().getProcessToolSessionFactory().createSession(user, user.getRoleNames());
 							request.getSession().setAttribute(ProcessToolBpmSession.class.getName(), bpmSession);
 						}
 						
 						WidgetApplication.this.i18NSource = I18NSourceFactory.createI18NSource(request.getLocale());
-						
 					}
 				});
 			}
-			
-
 		}
 	}
 	
 	@Override
 	public void onRequestEnd(HttpServletRequest request,
 			HttpServletResponse response) {
-		// TODO Auto-generated method stub
-		
 	}
-
-
 
 	public void init() 
 	{
@@ -206,14 +194,9 @@ public class WidgetApplication extends Application  implements HttpServletReques
 			setMainWindow(getWindow(null));
 			
 			SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
-			
 
-			
 			logger.warning("init app: "+this);
 		}
-		
-
-		
 	}
 
 	
@@ -282,7 +265,5 @@ public class WidgetApplication extends Application  implements HttpServletReques
 		public void setClose(Boolean close) {
 			this.close = close;
 		}
-		
-		
 	}
 }

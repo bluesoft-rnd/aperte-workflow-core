@@ -2,9 +2,7 @@ package pl.net.bluesoft.rnd.processtool.bpm.impl;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -14,10 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
-import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
-import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent;
-import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent.Type;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.event.IEvent;
 import pl.net.bluesoft.rnd.processtool.event.ProcessToolEventBusManager;
@@ -33,18 +27,13 @@ import pl.net.bluesoft.util.lang.Mapcar;
 import pl.net.bluesoft.util.lang.Pair;
 import pl.net.bluesoft.util.lang.Predicate;
 
-import java.io.Serializable;
-import java.util.*;
-import java.util.logging.Logger;
-
 import static pl.net.bluesoft.util.lang.Formats.nvl;
 
 /**
  * @author tlipski@bluesoft.net.pl
  * @author mpawlak@bluesoft.net.pl
  */
-public abstract class AbstractProcessToolSession
-        implements ProcessToolBpmSession, Serializable {
+public abstract class AbstractProcessToolSession implements ProcessToolBpmSession, Serializable {
 
     protected Logger log = Logger.getLogger(ProcessToolBpmSession.class.getName());
 
@@ -62,12 +51,12 @@ public abstract class AbstractProcessToolSession
     @Autowired
     private ProcessToolRegistry processToolRegistry;
 
-    protected AbstractProcessToolSession(UserData user, Collection<String> roleNames, ProcessToolRegistry registry) {
+    protected AbstractProcessToolSession(UserData user, Collection<String> roleNames) {
     	SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
 
         this.user = user;
         this.roleNames = new HashSet<String>(roleNames);
-        this.eventBusManager = new ProcessToolEventBusManager(registry, registry.getExecutorService());
+        this.eventBusManager = new ProcessToolEventBusManager(processToolRegistry, processToolRegistry.getExecutorService());
         log.finest("Created session for user: " + user);
     }
 

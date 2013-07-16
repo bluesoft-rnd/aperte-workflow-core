@@ -13,6 +13,7 @@ import org.hibernate.SessionFactory;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
+import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolSessionFactory;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessDictionaryDAO;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceDAO;
@@ -132,6 +133,8 @@ public interface ProcessToolRegistry extends ProcessToolBpmConstants {
 
 	SessionFactory getSessionFactory();
 
+	ProcessToolSessionFactory getProcessToolSessionFactory();
+
 	void addHibernateResource(String name, byte[] resource);
 
 	void removeHibernateResource(String name);
@@ -197,7 +200,7 @@ public interface ProcessToolRegistry extends ProcessToolBpmConstants {
 		private static ProcessToolRegistry instance;
 		private static ClassLoader awfClassLoader;
 
-		public static ProcessToolRegistry getInstance() {
+		public static ProcessToolRegistry getRegistry() {
 			return instance;
 		}
 

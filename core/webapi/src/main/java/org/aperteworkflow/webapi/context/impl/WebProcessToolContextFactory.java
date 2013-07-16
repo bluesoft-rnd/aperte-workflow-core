@@ -5,8 +5,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import pl.net.bluesoft.rnd.processtool.web.domain.IProcessToolRequestContext;
 
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.authorization.IAuthorizationService;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
@@ -14,6 +12,8 @@ import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
+
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 
 /** 
  * Factory for web process tool context based on servlet and portlet requests 
@@ -28,10 +28,9 @@ public class WebProcessToolContextFactory
 		final WebProcessToolRequestContext processToolContext = new WebProcessToolRequestContext();
 		
 		ServletContext context = request.getSession().getServletContext();
-		
-		ProcessToolRegistry reg = ProcessToolRegistry.Util.getInstance();
-		if(reg == null)
-			reg = (ProcessToolRegistry)context.getAttribute(ProcessToolRegistry.class.getName());
+
+		// is it really necessary?
+		final ProcessToolRegistry reg = getRegistry() != null ? getRegistry() : (ProcessToolRegistry)context.getAttribute(ProcessToolRegistry.class.getName());
 		
 		processToolContext.setRegistry(reg);
 		
@@ -44,23 +43,15 @@ public class WebProcessToolContextFactory
 		processToolContext.setMessageSource(messageSource);
 		
 		ProcessToolBpmSession bpmSession = (ProcessToolBpmSession)context.getAttribute(ProcessToolBpmSession.class.getName());
+
 		if(bpmSession == null && user != null)
 		{
-			reg.withProcessToolContext(new ProcessToolContextCallback() {
-				
-				@Override
-				public void withContext(ProcessToolContext ctx) 
-				{
-					final ProcessToolBpmSession processToolBpmSession = ctx.getProcessToolSessionFactory().
-							createSession(processToolContext.getUser(), processToolContext.getUser().getRoleNames());
-					
-					request.getSession().setAttribute(ProcessToolBpmSession.class.getName(), processToolBpmSession);
-					processToolContext.setBpmSession(processToolBpmSession);
-					
-				}
-			});
+			ProcessToolBpmSession processToolBpmSession = reg.getProcessToolSessionFactory().
+					createSession(processToolContext.getUser(), processToolContext.getUser().getRoleNames());
+
+			request.getSession().setAttribute(ProcessToolBpmSession.class.getName(), processToolBpmSession);
+			processToolContext.setBpmSession(processToolBpmSession);
 		}
-		
 		return processToolContext;
 	}
 }

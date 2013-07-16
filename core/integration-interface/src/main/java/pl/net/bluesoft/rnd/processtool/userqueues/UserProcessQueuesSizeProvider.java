@@ -20,6 +20,9 @@ import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.util.lang.DateUtil;
 
+import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+
 /**
  * User Process Queues size provider. For given user login it
  * returns map witch queue_id as key and size of those queues
@@ -47,7 +50,7 @@ public class UserProcessQueuesSizeProvider
 	/** Map with queue id as key and its size as value */
 	public Collection<UsersQueuesDTO> getUserProcessQueueSize()
 	{
-		ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
+		ProcessToolContext ctx = getThreadProcessToolContext();
 		
 		if(ctx == null)
 		{
@@ -83,23 +86,21 @@ public class UserProcessQueuesSizeProvider
 		UserProcessQueuesSizeProvider.this.ctx = ctx;
 
 		/* Fill queues for main user */
-		ProcessToolBpmSession mainUserSession = ctx.getProcessToolSessionFactory().createSession(userData, userData.getRoleNames());
+		ProcessToolBpmSession mainUserSession = getRegistry().getProcessToolSessionFactory().createSession(userData, userData.getRoleNames());
 		
 		fillUserQueues(mainUserSession);
 		
 		/* Fill queues for substitutedUsers */
-		List<UserData> substitutedUsers =
-				ProcessToolContext.Util.getThreadProcessToolContext().getUserSubstitutionDAO().getSubstitutedUsers(userData,DateUtil.truncHours(new Date()));
+		List<UserData> substitutedUsers = getThreadProcessToolContext().getUserSubstitutionDAO()
+				.getSubstitutedUsers(userData,DateUtil.truncHours(new Date()));
 		
 		for(UserData substitutedUser: substitutedUsers)
 		{
-			ProcessToolBpmSession substitutedUserSession = ctx.getProcessToolSessionFactory().createSession(substitutedUser, substitutedUser.getRoleNames());
+			ProcessToolBpmSession substitutedUserSession = getRegistry().getProcessToolSessionFactory().createSession(substitutedUser, substitutedUser.getRoleNames());
 			fillUserQueues(substitutedUserSession);
 		}
-
 	}
-	
-	
+
 	private void fillUserQueues(ProcessToolBpmSession bpmSession)
 	{
 		String currentUserLogin = bpmSession.getUserLogin();

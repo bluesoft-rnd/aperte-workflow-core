@@ -12,18 +12,20 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 import pl.net.bluesoft.rnd.util.StepUtil;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
 import static pl.net.bluesoft.util.lang.cquery.Predicates.eq;
 
 /**
- * User: POlszewski Date: 2012-03-05 Time: 11:00
+ * User: POlszewski
+ * Date: 2012-03-05
+ * Time: 11:00
  */
 @AliasName(name = "FinishTasksStep")
 public class FinishTasksStep implements ProcessToolProcessStep {
@@ -59,8 +61,7 @@ public class FinishTasksStep implements ProcessToolProcessStep {
 
         UserData user = ctx.getUserDataDAO().loadUserByLogin(attributeKey);
 
-        ProcessToolBpmSession bpmSession = ctx.getProcessToolSessionFactory().createSession(user,
-                Collections.<String> emptyList());
+        ProcessToolBpmSession bpmSession = getRegistry().getProcessToolSessionFactory().createSession(user);
         Set<String> allowedTaskNames = from(taskNames.split(",")).toSet();
 
         List<BpmTask> tasks = bpmSession.findProcessTasks(processInstance);

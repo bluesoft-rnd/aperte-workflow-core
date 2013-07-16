@@ -25,15 +25,14 @@ public class RecentProcessesListPane extends MyProcessesListPane {
 
     @Override
 	public List<BpmTask> getBpmTasks() {
-		ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-        return getBpmSession().findRecentTasks(minDate, offset, limit, ctx);
+        return getBpmSession().findRecentTasks(minDate.getTime(), offset, limit);
 	}
 
 	@Override
 	protected ProcessInstanceFilter getDefaultFilter() {
 		ProcessInstanceFilter tfi = new ProcessInstanceFilter();
-		ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-		tfi.addOwner(getBpmSession().getUser(ctx));
+		tfi.setFilterOwner(getBpmSession().getUser());
+//		tfi.addOwner(getBpmSession().getUser());
 		tfi.setUpdatedAfter(minDate.getTime());
 		tfi.addQueueType(QueueType.OWN_ASSIGNED);
 		return tfi;

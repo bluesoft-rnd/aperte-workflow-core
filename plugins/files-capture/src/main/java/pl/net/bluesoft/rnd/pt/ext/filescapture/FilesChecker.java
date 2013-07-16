@@ -21,6 +21,7 @@ import org.aperteworkflow.cmis.widget.CmisAtomSessionFacade;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
+import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSessionHelper;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
@@ -102,13 +103,13 @@ public class FilesChecker {
                 }
             }
             if (existingPi != null && hasText(rule.getRunningProcessActionName())) {
-                Collection<BpmTask> taskList = toolBpmSession.findProcessTasks(existingPi, context);
+                Collection<BpmTask> taskList = ProcessToolBpmSessionHelper.findProcessTasks(toolBpmSession, context, existingPi);
                 for (BpmTask t : taskList) {
                     if (!hasText(rule.getProcessTaskName()) || rule.getProcessTaskName().equalsIgnoreCase(t.getTaskName())) {
                         Set<ProcessStateAction> actions = context.getProcessDefinitionDAO().getProcessStateConfiguration(t).getActions();
                         for (ProcessStateAction a : actions) {
                             if (rule.getRunningProcessActionName().equals(a.getBpmName())) {
-                                toolBpmSession.performAction(a, t, context);
+								ProcessToolBpmSessionHelper.performAction(toolBpmSession, context, a, t);
                                 logger.info("Performed action " + rule.getId() + " on matched process id: " + existingPi.getInternalId());
                                 break;
                             }

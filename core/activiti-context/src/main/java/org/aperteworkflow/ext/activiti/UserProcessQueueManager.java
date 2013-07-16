@@ -6,7 +6,6 @@ import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.QueueType;
 import pl.net.bluesoft.rnd.processtool.model.UserProcessQueue;
-import pl.net.bluesoft.rnd.processtool.model.nonpersistent.MutableBpmTask;
 import pl.net.bluesoft.rnd.processtool.userqueues.IUserProcessQueueManager;
 
 import java.util.Collection;
@@ -35,7 +34,7 @@ public class UserProcessQueueManager implements IUserProcessQueueManager
 	}
 	
 	@Override
-	public void onQueueAssigne(MutableBpmTask bpmTask) 
+	public void onQueueAssigne(BpmTask bpmTask) 
 	{
 		Long processId = bpmTask.getProcessInstance().getId();
 		String taskIdString = bpmTask.getInternalTaskId();

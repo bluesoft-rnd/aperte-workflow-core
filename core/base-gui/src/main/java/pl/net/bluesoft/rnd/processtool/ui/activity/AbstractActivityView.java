@@ -77,7 +77,7 @@ public abstract class AbstractActivityView extends VerticalLayout implements Vie
 	 */
 	public void displayTaskById(String taskId)
 	{
-		BpmTask task = getBpmSession().getTaskData(taskId,ProcessToolContext.Util.getThreadProcessToolContext());
+		BpmTask task = getBpmSession().getTaskData(taskId);
 		if(task != null)
 		{
 			displayProcessData(task);

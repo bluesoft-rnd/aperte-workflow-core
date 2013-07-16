@@ -10,6 +10,7 @@ import java.util.Map;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
+import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSessionHelper;
 import pl.net.bluesoft.rnd.processtool.filters.factory.ProcessInstanceFilterFactory;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
@@ -107,7 +108,7 @@ public class UserProcessQueuesSizeProvider
 		
 		for(ProcessInstanceFilter queueFilter: queuesFilters)
 		{
-			int filteredQueueSize = bpmSession.getTasksCount(ctx, queueFilter.getFilterOwner().getLogin(), queueFilter.getQueueTypes());
+			int filteredQueueSize = ProcessToolBpmSessionHelper.getFilteredTasksCount(bpmSession, ctx, queueFilter);
 			//int filteredQueueSize = session.getFilteredTasksCount(queueFilter, ctx);
 			
 			String queueId = QueuesPanelRefresherUtil.getQueueTaskId(queueFilter.getName());
@@ -115,13 +116,13 @@ public class UserProcessQueuesSizeProvider
 		}
 		
 		/* Add queues */
-		List<ProcessQueue> userAvailableQueues = new ArrayList<ProcessQueue>(bpmSession.getUserAvailableQueues(ctx));
+		List<ProcessQueue> userAvailableQueues = new ArrayList<ProcessQueue>(ProcessToolBpmSessionHelper.getUserAvailableQueues(bpmSession, ctx));
 		for(ProcessQueue processQueue: userAvailableQueues)
 		{
-			Long processCount = processQueue.getProcessCount();
+			int processCount = processQueue.getProcessCount();
 			
 			String queueId = QueuesPanelRefresherUtil.getQueueProcessQueueId(processQueue.getName());
-			userQueueSize.addProcessQueueSize(queueId, processCount.intValue());
+			userQueueSize.addProcessQueueSize(queueId, processCount);
 		}
 		
 		usersQueuesSize.add(userQueueSize);
@@ -144,20 +145,20 @@ public class UserProcessQueuesSizeProvider
 		
 		for(ProcessInstanceFilter queueFilter: queuesFilters)
 		{
-			int filteredQueueSize = bpmSession.getTasksCount(ctx, queueFilter.getFilterOwner().getLogin(), queueFilter.getQueueTypes());
+			int filteredQueueSize = ProcessToolBpmSessionHelper.getFilteredTasksCount(bpmSession, ctx, queueFilter);
 			//int filteredQueueSize = session.getFilteredTasksCount(queueFilter, ctx);
 			
 			String queueId = QueuesPanelRefresherUtil.getSubstitutedQueueTaskId(queueFilter.getName(), currentUserLogin);
 			userQueueSize.addProcessQueueSize(queueId, filteredQueueSize);
 		}
 		
-		List<ProcessQueue> userAvailableQueues = new ArrayList<ProcessQueue>(bpmSession.getUserAvailableQueues(ctx));
+		List<ProcessQueue> userAvailableQueues = new ArrayList<ProcessQueue>(ProcessToolBpmSessionHelper.getUserAvailableQueues(bpmSession, ctx));
 		for(ProcessQueue processQueue: userAvailableQueues)
 		{
-			Long processCount = processQueue.getProcessCount();
+			int processCount = processQueue.getProcessCount();
 			
 			String queueId = QueuesPanelRefresherUtil.getSubstitutedQueueProcessQueueId(processQueue.getName(), currentUserLogin);
-			userQueueSize.addProcessQueueSize(queueId, processCount.intValue());
+			userQueueSize.addProcessQueueSize(queueId, processCount);
 		}
 		
 		usersQueuesSize.add(userQueueSize);

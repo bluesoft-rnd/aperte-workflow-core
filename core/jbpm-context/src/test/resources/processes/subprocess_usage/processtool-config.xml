@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config.ProcessDefinitionConfig processName="subprocess_usage" description="Complaint.definition.desc" bpmDefinitionKey="subprocess_usage" comment="Complaint.definition.comment">
+	<states>		
+	</states>
+</config.ProcessDefinitionConfig>

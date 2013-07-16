@@ -144,9 +144,8 @@ public class NewProcessExtendedPane extends VerticalLayout implements Refreshabl
 		processesSelect.setVisible(true);
 		processesSelect.setValue(null);
 		logoEmbeddedCache.clear();
-		//		title.setValue(getMessage("newProcess.caption-simple"));
-		ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-		List<ProcessDefinitionConfig> orderedByProcessDescr = from(session.getAvailableConfigurations(ctx))
+
+		List<ProcessDefinitionConfig> orderedByProcessDescr = from(session.getAvailableConfigurations())
 				.orderBy(new F<ProcessDefinitionConfig, String>() {
 					@Override
 					public String invoke(ProcessDefinitionConfig pdc) {
@@ -247,14 +246,12 @@ public class NewProcessExtendedPane extends VerticalLayout implements Refreshabl
 		withErrorHandling(getApplication(), new Runnable() {
 			@Override
 			public void run() {
-				ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-				ProcessDefinitionConfig cfg = ctx.getProcessDefinitionDAO().getActiveConfigurationByKey(bpmDefinitionId);
-				ProcessInstance instance = session.createProcessInstance(cfg, null, ctx, null, null, "portlet", null);
+				ProcessInstance instance = session.startProcess(bpmDefinitionId, null, null, null, "portlet");
 				VaadinUtility.informationNotification(activityMainPane.getActivityApplication(), getMessage("newProcess.started"), 1000);
 				getWindow().executeJavaScript("Liferay.trigger('processtool.bpm.newProcess', '" + instance.getInternalId() + "');");
 				getWindow().executeJavaScript("vaadin.forceSync();");
 
-				List<BpmTask> tasks = session.findUserTasks(instance, ctx);
+				List<BpmTask> tasks = session.findUserTasks(instance);
 				if (!tasks.isEmpty()) {
 					BpmTask task = tasks.get(0);
 					if (activityMainPane != null) {

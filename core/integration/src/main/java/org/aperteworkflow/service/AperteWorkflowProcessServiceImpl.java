@@ -4,11 +4,7 @@ import static org.aperteworkflow.util.ContextUtil.withContext;
 import static org.aperteworkflow.util.HibernateBeanUtil.fetchHibernateData;
 
 import java.io.ByteArrayInputStream;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
@@ -30,7 +26,8 @@ import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
-import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
+import pl.net.bluesoft.rnd.processtool.model.nonpersistent.BpmTaskBean;
+import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueueBean;
 import pl.net.bluesoft.rnd.processtool.plugins.deployment.ProcessDeployer;
 
 /**
@@ -60,7 +57,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
             @Override
             public ProcessInstance processWithContext(ProcessToolContext ctx) {
                 return fetchHibernateData(getSession(ctx, user)           
-                        .createProcessInstance(config, externalKey, ctx, description, keyword, source, internalId));
+                        .startProcess(config.getBpmDefinitionKey(), externalKey, description, keyword, source));
             }
         });
     }
@@ -81,10 +78,9 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 		
         return withContext(new ReturningProcessToolContextCallback<ProcessInstance>() {
             @Override
-            public ProcessInstance processWithContext(ProcessToolContext ctx) {
-            	ProcessDefinitionConfig activeConfigurationByKey = ctx.getProcessDefinitionDAO().getActiveConfigurationByKey(bpmnkey);            	
+            public ProcessInstance processWithContext(ProcessToolContext ctx) {            	
                 return fetchHibernateData(getSession(ctx, user)
-                        .createProcessInstance(activeConfigurationByKey, null, ctx, null, null, PROCESS_INSTANCE_SOURCE, null));
+                        .startProcess(bpmnkey, null, null, null, PROCESS_INSTANCE_SOURCE));
             }
         });
     }
@@ -112,7 +108,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
         ProcessInstance processInstance = withContext(new ReturningProcessToolContextCallback<ProcessInstance>() {
             @Override
             public ProcessInstance processWithContext(ProcessToolContext ctx) {
-                return fetchHibernateData(getSession(ctx).getProcessData(internalId, ctx));
+                return fetchHibernateData(getSession(ctx).getProcessData(internalId));
             }
         });
         if(processInstance==null){
@@ -131,7 +127,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
         return withContext(new ReturningProcessToolContextCallback<Boolean>() {
             @Override
             public Boolean processWithContext(ProcessToolContext ctx) {
-                return getSession(ctx).isProcessRunning(processData.getInternalId(), ctx);
+                return getSession(ctx).isProcessRunning(processData.getInternalId());
             }
         });
     }
@@ -142,7 +138,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
         withContext(new ReturningProcessToolContextCallback<ProcessInstance>() {
             @Override
             public ProcessInstance processWithContext(ProcessToolContext ctx) {
-                getSession(ctx).saveProcessInstance(processInstance, ctx);
+                getSession(ctx).saveProcessInstance(processInstance);
                 return null;
             }
         });
@@ -150,13 +146,13 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 
 	@Override
     @WebMethod (exclude=true)
-    public Collection<ProcessQueue> getUserAvailableQueues(@WebParam(name="userLogin")final String userLogin) throws  AperteWsWrongArgumentException {
+    public Collection<ProcessQueueBean> getUserAvailableQueues(@WebParam(name="userLogin") String userLogin) throws  AperteWsWrongArgumentException {
 		final UserData findUser = findUser(userLogin);
-        return withContext(new ReturningProcessToolContextCallback<Collection<ProcessQueue>>() {
+        return withContext(new ReturningProcessToolContextCallback<Collection<ProcessQueueBean>>() {
             @Override
-            public Collection<ProcessQueue> processWithContext(ProcessToolContext ctx) {
+            public Collection<ProcessQueueBean> processWithContext(ProcessToolContext ctx) {
             	
-                return fetchHibernateData(getSession(ctx, findUser).getUserAvailableQueues(ctx));
+                return ProcessQueueBean.asBeans(getSession(ctx, findUser).getUserAvailableQueues());
             }
         });
     }
@@ -166,15 +162,17 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 	@Override
     @WebMethod
     public boolean isProcessOwnedByUser(@WebParam(name="internalId")final String internalId,@WebParam(name="userLogin") final String userLogin) throws AperteWsWrongArgumentException {
-		final ProcessInstance processData = getProcessData(internalId);
-    	final UserData findUser = findUser(userLogin);
-        return withContext(new ReturningProcessToolContextCallback<Boolean>() {
-            @Override
-            public Boolean processWithContext(ProcessToolContext ctx) {
-            	
-                return getSession(ctx, findUser).isProcessOwnedByUser(processData, ctx);
-            }
-        });
+		throw new RuntimeException("TODO: is it really necessary?");
+
+//		final ProcessInstance processData = getProcessData(internalId);
+//    	final UserData findUser = findUser(userLogin);
+//        return withContext(new ReturningProcessToolContextCallback<Boolean>() {
+//            @Override
+//            public Boolean processWithContext(ProcessToolContext ctx) {
+//
+//                return getSession(ctx, findUser).isProcessOwnedByUser(processData);
+//            }
+//        });
     }
 	
 
@@ -182,24 +180,24 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 
 	@Override
 	@WebMethod (exclude=true)
-    public BpmTask assignTaskFromQueue(@WebParam(name="q")final ProcessQueue q, @WebParam(name="user")final UserData user) {
-        return withContext(new ReturningProcessToolContextCallback<BpmTask>() {
+    public BpmTaskBean assignTaskFromQueue(@WebParam(name="q")final ProcessQueueBean q, @WebParam(name="user")final UserData user) {
+        return withContext(new ReturningProcessToolContextCallback<BpmTaskBean>() {
             @Override
-            public BpmTask processWithContext(ProcessToolContext ctx) {
-                return fetchHibernateData(getSession(ctx, user).assignTaskFromQueue(q, ctx));
+            public BpmTaskBean processWithContext(ProcessToolContext ctx) {
+                return new BpmTaskBean(fetchHibernateData(getSession(ctx, user).assignTaskFromQueue(q)));
             }
         });
     }
 
 	@Override
 	@WebMethod (exclude=true)
-    public BpmTask assignSpecificTaskFromQueue(@WebParam(name="q")final ProcessQueue q,
-                                               @WebParam(name="task")final BpmTask task,
+    public BpmTaskBean assignSpecificTaskFromQueue(@WebParam(name="q")final ProcessQueueBean q,
+                                               @WebParam(name="task")final BpmTaskBean task,
                                                @WebParam(name="user")final UserData user) {
-        return withContext(new ReturningProcessToolContextCallback<BpmTask>() {
+        return withContext(new ReturningProcessToolContextCallback<BpmTaskBean>() {
             @Override
-            public BpmTask processWithContext(ProcessToolContext ctx) {
-                return fetchHibernateData(getSession(ctx, user).assignTaskFromQueue(q, task, ctx));
+            public BpmTaskBean processWithContext(ProcessToolContext ctx) {
+                return new BpmTaskBean(fetchHibernateData(getSession(ctx, user).assignTaskFromQueue(q, task)));
             }
         });
     }
@@ -207,12 +205,12 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 	@Override
     @WebMethod 
     public void assignTaskToUser(@WebParam(name="taskId")final String taskId, @WebParam(name="userLogin")final String userLogin) throws AperteWsWrongArgumentException {
-		final BpmTask taskData = getTaskData(taskId);
+		final BpmTaskBean taskData = getTaskData(taskId);
 		final UserData user = findUser(userLogin);		
         withContext(new ReturningProcessToolContextCallback<ProcessInstance>() {
             @Override
             public ProcessInstance processWithContext(ProcessToolContext ctx) {          	
-                getSession(ctx, user).assignTaskToUser(ctx, taskData.getInternalTaskId(), userLogin);
+                getSession(ctx, user).assignTaskToUser(taskData.getInternalTaskId(), userLogin);
                 return null;
             }
         });
@@ -220,39 +218,39 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 
 	@Override
 	@WebMethod 
-    public BpmTask getTaskData(@WebParam(name="internalId")final String internalId,
+    public BpmTaskBean getTaskData(@WebParam(name="internalId")final String internalId,
                                                  @WebParam(name="taskName")final String taskName) throws AperteWsWrongArgumentException, AperteWsIllegalArgumentException {
 		
 		final ProcessInstance processData = getProcessData(internalId);
 		 
 		AperteErrorCheckUtil.checkCorrectnessOfArgument(taskName, AperteIllegalArgumentCodes.TASK);
 		
-		BpmTask bpmTasks = withContext(new ReturningProcessToolContextCallback<BpmTask>() {
+		BpmTaskBean BpmTaskBeans = withContext(new ReturningProcessToolContextCallback<BpmTaskBean>() {
             @Override
-            public BpmTask processWithContext(ProcessToolContext ctx) {
-                return fetchHibernateData(getSession(ctx).getTaskData(processData.getInternalId(), taskName, ctx));
+            public BpmTaskBean processWithContext(ProcessToolContext ctx) {
+                return new BpmTaskBean(fetchHibernateData(getSession(ctx).getTaskData(processData.getInternalId())));
             }
         });
 		
-		if(bpmTasks== null){
+		if(BpmTaskBeans== null){
 			
 			AperteWrongArgumentCodes.BPMTASK.throwAperteWebServiceException();
 		}
          
-         return bpmTasks;
+         return BpmTaskBeans;
     }
 	
 
 	@Override
 	@WebMethod (exclude=true)
-    public BpmTask getTaskData(@WebParam(name="taskId")final String taskId) throws AperteWsWrongArgumentException, AperteWsIllegalArgumentException {
+    public BpmTaskBean getTaskData(@WebParam(name="taskId")final String taskId) throws AperteWsWrongArgumentException, AperteWsIllegalArgumentException {
 		
 		AperteErrorCheckUtil.checkCorrectnessOfArgument(taskId, AperteIllegalArgumentCodes.TASK_ID);
 		
-		BpmTask taskData =  withContext(new ReturningProcessToolContextCallback<BpmTask>() {
+		BpmTaskBean taskData =  withContext(new ReturningProcessToolContextCallback<BpmTaskBean>() {
             @Override
-            public BpmTask processWithContext(ProcessToolContext ctx) {
-                return fetchHibernateData(getSession(ctx).getTaskData(taskId, ctx));
+            public BpmTaskBean processWithContext(ProcessToolContext ctx) {
+                return new BpmTaskBean(fetchHibernateData(getSession(ctx).getTaskData(taskId)));
             }
         });
          if(taskData==null){
@@ -264,80 +262,80 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 
 	@Override
 	@WebMethod (exclude=true)
-    public List<BpmTask> findUserTasks(@WebParam(name="processInstanceInternalId")final String internalId,
-    		@WebParam(name="userLogin")final String userLogin) throws AperteWsWrongArgumentException {
+    public List<BpmTaskBean> findUserTasks(@WebParam(name="processInstanceInternalId") String internalId,
+    		@WebParam(name="userLogin") String userLogin) throws AperteWsWrongArgumentException {
 		final ProcessInstance processInstance = getProcessData(internalId);
 		final UserData user = findUser(userLogin);
-        return withContext(new ReturningProcessToolContextCallback<List<BpmTask>>() {
+        return withContext(new ReturningProcessToolContextCallback<List<BpmTaskBean>>() {
             @Override
-            public List<BpmTask> processWithContext(ProcessToolContext ctx) {
-                return fetchHibernateData(getSession(ctx, user).findUserTasks(processInstance, ctx));
+            public List<BpmTaskBean> processWithContext(ProcessToolContext ctx) {
+                return BpmTaskBean.asBeans(fetchHibernateData(getSession(ctx, user).findUserTasks(processInstance)));
             }
         }); 
     }
 
 	@Override
 	@WebMethod
-    public List<BpmTask> findUserTasksPaging(@WebParam(name="offset")final Integer offset,
+    public List<BpmTaskBean> findUserTasksPaging(@WebParam(name="offset")final Integer offset,
                                              @WebParam(name="limit")final Integer limit,
                                              @WebParam(name="userLogin")final String userLogin) throws AperteWsWrongArgumentException {
 		final UserData user = findUser(userLogin);
 		
-        return withContext(new ReturningProcessToolContextCallback<List<BpmTask>>() {
+        return withContext(new ReturningProcessToolContextCallback<List<BpmTaskBean>>() {
             @Override
-            public List<BpmTask> processWithContext(ProcessToolContext ctx) {
-                return fetchHibernateData(getSession(ctx, user).findUserTasks(offset, limit, ctx));
+            public List<BpmTaskBean> processWithContext(ProcessToolContext ctx) {
+                return BpmTaskBean.asBeans(fetchHibernateData(getSession(ctx, user).findUserTasks(offset, limit)));
             }
         });
     }
 
 	@Override
 	@WebMethod
-    public List<BpmTask> findProcessTasks(@WebParam(name="internalId")final String internalId,
+    public List<BpmTaskBean> findProcessTasks(@WebParam(name="internalId")final String internalId,
                                           @WebParam(name="userLogin")final String userLogin) throws AperteWsWrongArgumentException {
 		
 		final UserData user = findUser(userLogin);
 		final ProcessInstance processInstance = getProcessData(internalId);
 		
-        return withContext(new ReturningProcessToolContextCallback<List<BpmTask>>() {
+        return withContext(new ReturningProcessToolContextCallback<List<BpmTaskBean>>() {
             @Override
-            public List<BpmTask> processWithContext(ProcessToolContext ctx) {
-                return fetchHibernateData(getSession(ctx, user).findProcessTasks(processInstance, ctx));
+            public List<BpmTaskBean> processWithContext(ProcessToolContext ctx) {
+                return BpmTaskBean.asBeans(fetchHibernateData(getSession(ctx, user).findProcessTasks(processInstance)));
             }
         });
     }
 
 	@Override
 	@WebMethod (exclude=true)
-    public List<BpmTask> findProcessTasksByNames(@WebParam(name="processInstance")final ProcessInstance processInstance,
+    public List<BpmTaskBean> findProcessTasksByNames(@WebParam(name="processInstance")final ProcessInstance processInstance,
                                                  @WebParam(name="user")final UserData user,
                                                  @WebParam(name="taskNames")final Set<String> taskNames) {
-        return withContext(new ReturningProcessToolContextCallback<List<BpmTask>>() {
+        return withContext(new ReturningProcessToolContextCallback<List<BpmTaskBean>>() {
             @Override
-            public List<BpmTask> processWithContext(ProcessToolContext ctx) {
-                return fetchHibernateData(getSession(ctx, user).findProcessTasks(processInstance, user.getLogin(), taskNames, ctx));
+            public List<BpmTaskBean> processWithContext(ProcessToolContext ctx) {
+                return BpmTaskBean.asBeans(fetchHibernateData(getSession(ctx, user).findProcessTasks(processInstance, user.getLogin(), taskNames)));
             }
         });
     }
 
 	@Override
 	@WebMethod (exclude=true)
-    public Integer getRecentTasksCount(@WebParam(name="minDate")final Calendar minDate, @WebParam(name="user")final UserData user) {
+    public Integer getRecentTasksCount(@WebParam(name="minDate")final Date minDate, @WebParam(name="user")final UserData user) {
         return withContext(new ReturningProcessToolContextCallback<Integer>() {
             @Override
             public Integer processWithContext(ProcessToolContext ctx) {
-                return getSession(ctx, user).getRecentTasksCount(minDate, ctx);
+                return getSession(ctx, user).getRecentTasksCount(minDate);
             }
         });
     }
 
 	@Override
 	@WebMethod (exclude=true)
-    public Collection<BpmTask> getAllTasks(@WebParam(name="user")final UserData user) {
-        return withContext(new ReturningProcessToolContextCallback<Collection<BpmTask>>() {
+    public List<BpmTaskBean> getAllTasks(@WebParam(name="user")final UserData user) {
+        return withContext(new ReturningProcessToolContextCallback<List<BpmTaskBean>>() {
             @Override
-            public Collection<BpmTask> processWithContext(ProcessToolContext ctx) {
-                return fetchHibernateData(getSession(ctx, user).getAllTasks(ctx));
+            public List<BpmTaskBean> processWithContext(ProcessToolContext ctx) {
+                return BpmTaskBean.asBeans(fetchHibernateData(getSession(ctx, user).getAllTasks()));
             }
         });
     }
@@ -352,24 +350,23 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
     @WebMethod 
     public void performAction(@WebParam(name="procesInstanceInternalId")final String internalId,
     								@WebParam(name="actionName")final String actionName,
-                                 @WebParam(name="bpmTaskName")final String bpmTaskName,
+                                 @WebParam(name="BpmTaskBeanName")final String BpmTaskBeanName,
                                  @WebParam(name="userLogin")final String userLogin) throws  AperteWsWrongArgumentException {
 		
-		final BpmTask bpmTask = findProcessTask(internalId, userLogin, bpmTaskName);
+		final BpmTaskBean task = findProcessTask(internalId, userLogin, BpmTaskBeanName);
 		final UserData user = findUser(userLogin); 	
 		final ProcessInstance processData = getProcessData(internalId);
 		final ProcessStateAction action= getActionIfExists(processData, actionName);
 		
 		if(userLogin==null){
-			adminCompleteTask(processData, action, bpmTask);
+			adminCompleteTask(processData, action, task);
 		}
-		BpmTask[] bpmnTable = {bpmTask}; 
+		BpmTaskBean[] bpmnTable = {task};
 		processData.setActiveTasks(bpmnTable);
-		  BpmTask withContextBpmnTask = withContext(new ReturningProcessToolContextCallback<BpmTask>() {
+		  BpmTaskBean withContextBpmnTask = withContext(new ReturningProcessToolContextCallback<BpmTaskBean>() {
 	            @Override
-	            public BpmTask processWithContext(ProcessToolContext ctx) {
-	            	            	
-	                getSession(ctx, user).performAction(action, bpmTask, ctx);
+	            public BpmTaskBean processWithContext(ProcessToolContext ctx) {
+	                getSession(ctx, user).performAction(action, task);
 	                return null;
 	            }
 	        });
@@ -379,20 +376,20 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
     }
 	
 	
-	private BpmTask findProcessTask(String internalId,String userLogin,String bpmTaskName ) throws AperteWsWrongArgumentException{
-		List<BpmTask> findProcessTasks = findProcessTasks(internalId, userLogin);
+	private BpmTaskBean findProcessTask(String internalId,String userLogin,String BpmTaskBeanName ) throws AperteWsWrongArgumentException{
+		List<BpmTaskBean> findProcessTasks = findProcessTasks(internalId, userLogin);
 		if(findProcessTasks.isEmpty()){
 			
 			AperteWrongArgumentCodes.NOTASK.throwAperteWebServiceException();
 		}
-		if(bpmTaskName == null || bpmTaskName.isEmpty()){
+		if(BpmTaskBeanName == null || BpmTaskBeanName.isEmpty()){
 			return findProcessTasks.get(0);
 		}
 		
-		for (BpmTask bpmTaskTemp : findProcessTasks) {
-			if(bpmTaskTemp.getTaskName().equals(bpmTaskName)){
+		for (BpmTaskBean BpmTaskBeanTemp : findProcessTasks) {
+			if(BpmTaskBeanTemp.getTaskName().equals(BpmTaskBeanName)){
 				
-				return bpmTaskTemp;
+				return BpmTaskBeanTemp;
 				
 			}
 			AperteWrongArgumentCodes.BPMTASK.throwAperteWebServiceException();
@@ -409,10 +406,10 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
             @Override
             public List<ProcessStateAction> processWithContext(ProcessToolContext ctx) {
             	final ProcessDefinitionConfig definition = processData.getDefinition();
-        		String state = processData.getState();
+        		String state = null;//TODO processData.getState();
         		if(state==null || state.isEmpty()){//TODO its for compatibility with 1.X aperte data. In future its should be removed
         			if(processData.getStatus().equals(ProcessStatus.NEW)){
-        				List<BpmTask> bpmTasks = getSession(ctx).findProcessTasks(processData, ctx);
+        				List<BpmTask> bpmTasks = getSession(ctx).findProcessTasks(processData);
         				state=bpmTasks.get(0).getTaskName();
         			}
         		}
@@ -446,20 +443,21 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 	@Override
     @WebMethod
     public List<String> getOutgoingTransitionNamesByTaskId(@WebParam(name="taskId")final String taskId) throws AperteWsWrongArgumentException {
-		AperteErrorCheckUtil.checkCorrectnessOfArgument(taskId, AperteIllegalArgumentCodes.TASK);
-
-		 List<String> outgoingTransmisionsList = withContext(new ReturningProcessToolContextCallback<List<String>>() {
-            @Override
-            public List<String> processWithContext(ProcessToolContext ctx) {
-                return getSession(ctx).getOutgoingTransitionNames(taskId, ctx);
-            }
-        });
-		 
-		 if( outgoingTransmisionsList.isEmpty() ){
-			  AperteWrongArgumentCodes.BPMTASK.throwAperteWebServiceException();
-		 }
-
-		 return outgoingTransmisionsList;
+		throw new RuntimeException("TODO: is it really necessary?");
+//		AperteErrorCheckUtil.checkCorrectnessOfArgument(taskId, AperteIllegalArgumentCodes.TASK);
+//
+//		 List<String> outgoingTransmisionsList = withContext(new ReturningProcessToolContextCallback<List<String>>() {
+//            @Override
+//            public List<String> processWithContext(ProcessToolContext ctx) {
+//                return getSession(ctx).getOutgoingTransitionNames(taskId);
+//            }
+//        });
+//
+//		 if( outgoingTransmisionsList.isEmpty() ){
+//			  AperteWrongArgumentCodes.BpmTaskBean.throwAperteWebServiceException();
+//		 }
+//
+//		 return outgoingTransmisionsList;
 		 
     }
 	 
@@ -470,7 +468,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
         return withContext(new ReturningProcessToolContextCallback<UserData>() {
             @Override
             public UserData processWithContext(ProcessToolContext ctx) {
-                return fetchHibernateData(getSession(ctx, user).getSubstitutingUser(ctx));
+                return fetchHibernateData(getSession(ctx, user).getSubstitutingUser());
             }
         });
     }
@@ -478,14 +476,14 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 	@Override
     @WebMethod
     public List<String> getOutgoingTransitionDestinationNames(@WebParam(name="executionId")final String executionId) throws AperteWsWrongArgumentException {
-		
-		final ProcessInstance processData = getProcessData(executionId);
-        return withContext(new ReturningProcessToolContextCallback<List<String>>() {
-            @Override
-            public List<String> processWithContext(ProcessToolContext ctx) {
-                return getSession(ctx).getOutgoingTransitionDestinationNames(processData.getInternalId(), ctx);
-            }
-        });
+		throw new RuntimeException("TODO: is it really necessary?");
+//		final ProcessInstance processData = getProcessData(executionId);
+//        return withContext(new ReturningProcessToolContextCallback<List<String>>() {
+//            @Override
+//            public List<String> processWithContext(ProcessToolContext ctx) {
+//                return getSession(ctx).getOutgoingTransitionDestinationNames(processData.getInternalId());
+//            }
+//        });
     }
 
 	@Override
@@ -505,13 +503,13 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 	@Override
 	@WebMethod (exclude=true)
     public void adminReassignProcessTask(@WebParam(name="processInstance")final ProcessInstance processInstance,
-                                         @WebParam(name="bpmTask")final BpmTask bpmTask,
+                                         @WebParam(name="BpmTaskBean")final BpmTaskBean BpmTaskBean,
                                          @WebParam(name="user")final UserData user) {
         withContext(new ReturningProcessToolContextCallback<ProcessInstance>() {
             @Override
             public ProcessInstance processWithContext(ProcessToolContext ctx) {
                 ctx.getProcessToolSessionFactory().createAutoSession()
-						.adminReassignProcessTask(processInstance, bpmTask, user.getLogin());
+						.adminReassignProcessTask(processInstance, BpmTaskBean, user.getLogin());
                 return null;
             }
         });
@@ -521,14 +519,14 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 	@WebMethod (exclude=true)
     public void adminCompleteTask(@WebParam(name="procesInstanceInternalId")final ProcessInstance processData,
 	@WebParam(name="action")final ProcessStateAction action,
-    @WebParam(name="bpmTask")final BpmTask bpmTask) {
+    @WebParam(name="BpmTaskBean")final BpmTaskBean BpmTaskBean) {
 	
         withContext(new ReturningProcessToolContextCallback<ProcessInstance>() {
             @Override
             public ProcessInstance processWithContext(ProcessToolContext ctx) {
             	
                 ctx.getProcessToolSessionFactory().createAutoSession()
-                        .adminCompleteTask(processData, bpmTask, action);
+                        .adminCompleteTask(processData, BpmTaskBean, action);
                 return null;
             }
         });
@@ -565,8 +563,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
     public void deployProcessDefinitionBytes(@WebParam(name="cfg")final ProcessDefinitionConfig cfg,
                                              @WebParam(name="queues")final ProcessQueueConfig[] queues,
                                              @WebParam(name="processMapDefinition")final byte[] processMapDefinition,
-                                             @WebParam(name="processMapImageStream")final byte[] processMapImageStream,
-                                             @WebParam(name="logo")final byte[] logo) {
+                                             @WebParam(name="processMapImageStream")final byte[] processMapImageStream) {
         withContext(new ReturningProcessToolContextCallback() {
             @Override
             public Object processWithContext(ProcessToolContext ctx) 
@@ -575,8 +572,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
             	processDeployer.deployOrUpdateProcessDefinition(
                         new ByteArrayInputStream(processMapDefinition),
                         cfg, queues,
-                        new ByteArrayInputStream(processMapImageStream),
-                        new ByteArrayInputStream(logo));
+                        new ByteArrayInputStream(processMapImageStream));
                 return null;
             }
         });
@@ -624,16 +620,15 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 
 		 final ProcessInstance instance = getProcessData(internalId);
 		 final ProcessDefinitionConfig definition = instance.getDefinition();
-		List<BpmTask> findProcessTasks = findProcessTasks(internalId, null);
 		 
 		return withContext(new ReturningProcessToolContextCallback<List<ProcessStateAction>>() {
 			
 			@Override
 			public List<ProcessStateAction> processWithContext(ProcessToolContext ctx) {
-				String state = instance.getState();
+				String state = null;
 				if(state==null || state.isEmpty()){//TODO its for compatibility with 1.X aperte data. In future its should be removed
 					if(instance.getStatus().equals(ProcessStatus.NEW)){
-						List<BpmTask> bpmTasks = getSession(ctx).findProcessTasks(instance, ctx);
+						List<BpmTask> bpmTasks = getSession(ctx).findProcessTasks(instance);
 						state=bpmTasks.get(0).getTaskName();
 					}
 					

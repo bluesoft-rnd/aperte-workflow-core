@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -51,25 +52,45 @@ public class ProcessDeployer
 		xstream.useAttributeFor(Boolean.class);
 		xstream.useAttributeFor(Integer.class);
 
-		ProcessDefinitionConfig newProcessDefinition = (ProcessDefinitionConfig) xstream
-				.fromXML(processToolConfigStream);
-		
-		return newProcessDefinition;
+		return (ProcessDefinitionConfig) xstream.fromXML(processToolConfigStream);
 	}
 
-	public void deployOrUpdateProcessDefinition(final InputStream jpdlStream,
-			final ProcessDefinitionConfig cfg,
-			final ProcessQueueConfig[] queues, final InputStream imageStream,
-			InputStream logoStream) 
-	{
+	public void deployOrUpdateProcessDefinition(InputStream jpdlStream, ProcessDefinitionConfig cfg,
+												ProcessQueueConfig[] queues, InputStream imageStream) {
+		ProcessToolBpmSession session = createAdminSession();
+		ProcessDefinitionDAO processDefinitionDAO = processToolContext.getProcessDefinitionDAO();
 
-		boolean skipJbpm = false;
-		InputStream is = jpdlStream;
+		adjustPriviledges(cfg);
 
-		ProcessToolBpmSession session = processToolContext
-				.getProcessToolSessionFactory().createSession(
-						new UserData("admin", "admin@aperteworkflow.org",
-								"Admin"), Arrays.asList("ADMIN"));
+		cfg.setBpmDefinitionVersion(processDefinitionDAO.getNextProcessVersion(cfg.getBpmDefinitionKey()));
+
+		byte[] newDefinition = loadBytesFromStream(jpdlStream);
+
+		if (session.differsFromTheLatest(cfg.getBpmDefinitionKey(), newDefinition) ||
+			processDefinitionDAO.differsFromTheLatest(cfg)) {
+			String deploymentId = session.deployProcessDefinition(cfg.getBpmProcessId(),
+					new ByteArrayInputStream(newDefinition), imageStream);
+
+			logger.log(Level.INFO, "deployed new BPM Engine definition with id: " + deploymentId);
+
+			cfg.setDeploymentId(deploymentId);
+
+			processDefinitionDAO.updateOrCreateProcessDefinitionConfig(cfg);
+
+			logger.log(Level.INFO, "created definition with id: " + cfg.getId() + ", processId: " + cfg.getBpmProcessId());
+		}
+		else {
+			logger.warning("New process " + cfg.getBpmDefinitionKey() +
+					" definition is the same as existing one. Therefore skipping DB update");
+		}
+
+		if (queues != null && queues.length > 0) {
+			processDefinitionDAO.updateOrCreateQueueConfigs(Arrays.asList(queues));
+			logger.log(Level.INFO, "created/updated " + queues.length + " queues");
+		}
+	}
+
+	private void adjustPriviledges(ProcessDefinitionConfig cfg) {
 		if (cfg.getPermissions() != null) {
 			for (ProcessDefinitionPermission p : cfg.getPermissions()) {
 				if (!Strings.hasText(p.getPrivilegeName())) {
@@ -80,39 +101,11 @@ public class ProcessDeployer
 				}
 			}
 		}
-		byte[] oldDefinition = session.getProcessLatestDefinition(
-				cfg.getBpmDefinitionKey(), cfg.getProcessName());
-		if (oldDefinition != null) {
-			byte[] newDefinition = loadBytesFromStream(is);
-			is = new ByteArrayInputStream(newDefinition);
-			if (Arrays.equals(newDefinition, oldDefinition)) {
-				logger.log(
-						Level.WARNING,
-						"bpm definition for "
-								+ cfg.getProcessName()
-								+ " is the same as in BPM, therefore not updating BPM process definition");
-				skipJbpm = true;
-			}
-		}
+	}
 
-		if (!skipJbpm) {
-			String deploymentId = session.deployProcessDefinition(
-					cfg.getProcessName(), is, imageStream);
-			logger.log(Level.INFO,
-					"deployed new BPM Engine definition with id: "
-							+ deploymentId);
-		}
-
-		ProcessDefinitionDAO processDefinitionDAO = processToolContext
-				.getProcessDefinitionDAO();
-		processDefinitionDAO.updateOrCreateProcessDefinitionConfig(cfg);
-		logger.log(Level.INFO, "created  definition with id: " + cfg.getId());
-		if (queues != null && queues.length > 0) {
-			processDefinitionDAO.updateOrCreateQueueConfigs(Arrays
-					.asList(queues));
-			logger.log(Level.INFO, "created/updated " + queues.length
-					+ " queues");
-		}
+	private ProcessToolBpmSession createAdminSession() {
+		return processToolContext.getProcessToolSessionFactory().createSession(
+				new UserData("admin", "admin@aperteworkflow.org", "Admin"), Collections.singletonList("ADMIN"));
 	}
 
 	public void deployOrUpdateProcessDefinition(
@@ -122,10 +115,7 @@ public class ProcessDeployer
 			InputStream imageStream, 
 			InputStream logoStream) 
 	{
-
-
-		if (jpdlStream == null || processToolConfigStream == null
-				|| queueConfigStream == null) {
+		if (jpdlStream == null || processToolConfigStream == null || queueConfigStream == null) {
 			throw new IllegalArgumentException(
 					"at least one of the streams is null");
 		}
@@ -149,7 +139,7 @@ public class ProcessDeployer
 				.fromXML(queueConfigStream);
 		deployOrUpdateProcessDefinition(jpdlStream, config,
 				qConfigs.toArray(new ProcessQueueConfig[qConfigs.size()]),
-				imageStream, logoStream);
+				imageStream);
 	}
 
 	private byte[] loadBytesFromStream(InputStream stream) {
@@ -164,5 +154,4 @@ public class ProcessDeployer
 		}
 		return bos.toByteArray();
 	}
-
 }

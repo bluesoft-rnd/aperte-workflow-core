@@ -1,16 +1,13 @@
 package pl.net.bluesoft.rnd.processtool.model;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.*;
 import javax.persistence.Entity;
-import javax.persistence.Parameter;
 import javax.persistence.Table;
 
-import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.annotations.*;
 
 @Entity
@@ -66,7 +63,7 @@ public class ProcessInstanceFilter extends AbstractPersistentEntity {
 	@CollectionTable(name = "pt_pi_filters_tasks", joinColumns = @JoinColumn(name = "filter_id"))
 	private Set<String> taskNames = new HashSet<String>();
 
-	public static final String[] LAZY_RELATIONS = new String[]{"owners", "creators", "queues", "states", "notOwners", "notCreators"};
+	public static final String[] LAZY_RELATIONS = { "owners", "creators", "queues" };
 
 	public Long getId() {
 		return id;
@@ -112,20 +109,12 @@ public class ProcessInstanceFilter extends AbstractPersistentEntity {
 		return updatedAfter;
 	}
 
-	public Calendar getUpdatedAfterCalendar() {
-		return DateUtils.toCalendar(updatedAfter);
-	}
-
 	public void setUpdatedAfter(Date updatedAfter) {
 		this.updatedAfter = updatedAfter;
 	}
 
 	public Date getNotUpdatedAfter() {
 		return notUpdatedAfter;
-	}
-
-	public Calendar getNotUpdatedAfterCalendar() {
-		return DateUtils.toCalendar(notUpdatedAfter);
 	}
 
 	public void setNotUpdatedAfter(Date notUpdatedAfter) {

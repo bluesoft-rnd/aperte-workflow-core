@@ -152,13 +152,11 @@ public abstract class ProcessListPane extends AbstractListPane {
 		
 		if(filter == null)
 			new ResultsPageWrapper<BpmTask>();
-		
-		ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-		
-		totalResults = getBpmSession().getFilteredTasksCount(filter, ctx);
+
+		totalResults = getBpmSession().getFilteredTasksCount(filter);
 
 		/* Get tasks filtered by given filter */
-		bpmTasks = Collections.synchronizedList(getBpmSession().findFilteredTasks(filter, ctx, offset, limit));
+		bpmTasks = Collections.synchronizedList(getBpmSession().findFilteredTasks(filter, offset, limit));
     	
     }
     

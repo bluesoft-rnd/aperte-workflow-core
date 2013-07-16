@@ -12,7 +12,7 @@ import java.util.HashSet;
  * @author tlipski@bluesoft.net.pl
  */
 public class ProcessToolJbpmSessionFactory implements ProcessToolSessionFactory {
-    private UserData autoUser;
+	private UserData autoUser;
 
 	private ProcessToolContext ctx;
 
@@ -20,19 +20,21 @@ public class ProcessToolJbpmSessionFactory implements ProcessToolSessionFactory 
 		this.ctx = ctx;
 	}
 
+	@Override
 	public ProcessToolBpmSession createSession(UserData user, Collection<String> roles) {
-		ProcessToolJbpmSession processToolJbpmSession = new ProcessToolJbpmSession(user, roles, ctx);
-		return processToolJbpmSession;
+		return new ProcessToolJbpmSession(user, roles, ctx);
 	}
 
-    public ProcessToolBpmSession createAutoSession() {
-           return createAutoSession(new HashSet<String>());
-       }
+	@Override
+	public ProcessToolBpmSession createAutoSession() {
+		return createAutoSession(new HashSet<String>());
+	}
 
-   	public ProcessToolBpmSession createAutoSession(Collection<String> roles) {
-   		if (autoUser == null) {
-   			autoUser = ctx.getAutoUser();
-   		}
-   		return new ProcessToolJbpmSession(autoUser, roles, ctx);
-   	}
+	@Override
+	public ProcessToolBpmSession createAutoSession(Collection<String> roles) {
+		if (autoUser == null) {
+			autoUser = ctx.getAutoUser();
+		}
+		return new ProcessToolJbpmSession(autoUser, roles, ctx);
+	}
 }

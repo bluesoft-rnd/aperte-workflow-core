@@ -228,8 +228,7 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements R
         vl.addComponent(history);
 
         List<BpmTask> taskList =
-                new ArrayList<BpmTask>(bpmSession.findProcessTasks(pi,
-                        ProcessToolContext.Util.getThreadProcessToolContext()));
+                new ArrayList<BpmTask>(bpmSession.findProcessTasks(pi));
         for (final BpmTask task : taskList) {
             vl.addComponent(getTaskStateComponent(pi, task));
             ProcessStateConfiguration cfg = ProcessToolContext.Util.getThreadProcessToolContext()
@@ -390,7 +389,7 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements R
                                 getApplication().getMainWindow().showNotification(n);
                             }
                         }));
-        button.setEnabled(pi.getRunning());
+        button.setEnabled(pi.isProcessRunning());
         return button;
     }
 

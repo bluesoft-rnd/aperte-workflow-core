@@ -153,9 +153,8 @@ public class ProcessCommentsWidget extends BaseProcessToolVaadinWidget implement
 			@Override
 			public void buttonClick(Button.ClickEvent event) {
 				ProcessComment pc = new ProcessComment();
-                ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-				pc.setAuthor(bpmSession.getUser(ctx));
-                pc.setAuthorSubstitute(bpmSession.getSubstitutingUser(ctx));
+				pc.setAuthor(bpmSession.getUser());
+                pc.setAuthorSubstitute(bpmSession.getSubstitutingUser());
 				pc.setCreateTime(new Date());
 				pc.setProcessState(processState);
 
@@ -211,12 +210,10 @@ public class ProcessCommentsWidget extends BaseProcessToolVaadinWidget implement
 
 	private void displayCommentDetails(Component component, final BeanItem<ProcessComment> bi) {
 		final Form f = getCommentDetailsForm(bi,
-		                                     isOwner &&
-											 (hasPermission("EDIT") && Lang.equals(
+		                                     isOwner && hasPermission("EDIT") && Lang.equals(
 													 bi.getBean().getAuthor().getId(),
-													 bpmSession.getUser(ProcessToolContext.Util.getThreadProcessToolContext()).getId()))
-											 || bi.getBean().getId() == null
-											 || hasPermission("EDIT_ALL"));
+													 bpmSession.getUser().getId())
+											|| bi.getBean().getId() == null || hasPermission("EDIT_ALL"));
 
 		final Window newCommentWindow = new Window(getMessage("processdata.comments.comment.edit.title"));
 		newCommentWindow.setModal(true);

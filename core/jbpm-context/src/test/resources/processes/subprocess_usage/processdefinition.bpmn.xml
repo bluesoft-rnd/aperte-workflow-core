@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<definitions id="Definition"
+             targetNamespace="http://www.jboss.org/drools"
+             typeLanguage="http://www.java.com/javaTypes"
+             expressionLanguage="http://www.mvel.org/2.0"
+             xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd"
+             xmlns:g="http://www.jboss.org/drools/flow/gpd"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             xmlns:tns="http://www.jboss.org/drools">
+
+  <itemDefinition id="_initiatorItem" structureRef="String" />
+
+  <process processType="Private" isExecutable="true" id="subprocess_usage" name="subprocess_usage" >
+
+    <!-- process variables -->
+    <property id="initiator" itemSubjectRef="_initiatorItem"/>
+
+    <!-- nodes -->
+    <startEvent id="_1" name="Start" />
+    <endEvent id="_3" name="End" >
+        <terminateEventDefinition />
+    </endEvent>
+    <callActivity id="_6" name="Sub-Process1" calledElement="subprocess_queue" >
+      <ioSpecification>
+        <dataInput id="_6_initiatorInput" name="initiator" />
+        <inputSet>
+          <dataInputRefs>_6_initiatorInput</dataInputRefs>
+        </inputSet>
+        <outputSet>
+        </outputSet>
+      </ioSpecification>
+      <dataInputAssociation>
+        <sourceRef>initiator</sourceRef>
+        <targetRef>_6_initiatorInput</targetRef>
+      </dataInputAssociation>
+    </callActivity>
+    <callActivity id="_7" name="Sub-Process2" calledElement="subprocess_assignee" >
+      <ioSpecification>
+        <dataInput id="_7_initiatorInput" name="initiator" />
+        <inputSet>
+          <dataInputRefs>_7_initiatorInput</dataInputRefs>
+        </inputSet>
+        <outputSet>
+        </outputSet>
+      </ioSpecification>
+      <dataInputAssociation>
+        <sourceRef>initiator</sourceRef>
+        <targetRef>_7_initiatorInput</targetRef>
+      </dataInputAssociation>
+    </callActivity>
+
+    <!-- connections -->
+    <sequenceFlow id="_7-_3" sourceRef="_7" targetRef="_3" />
+    <sequenceFlow id="_1-_6" sourceRef="_1" targetRef="_6" />
+    <sequenceFlow id="_6-_7" sourceRef="_6" targetRef="_7" />
+
+  </process>
+
+  <bpmndi:BPMNDiagram>
+    <bpmndi:BPMNPlane bpmnElement="subprocess_usage" >
+      <bpmndi:BPMNShape bpmnElement="_1" >
+        <dc:Bounds x="12" y="53" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_3" >
+        <dc:Bounds x="480" y="53" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_6" >
+        <dc:Bounds x="122" y="49" width="110" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_7" >
+        <dc:Bounds x="300" y="50" width="110" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="_7-_3" >
+        <di:waypoint x="355" y="74" />
+        <di:waypoint x="504" y="77" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_1-_6" >
+        <di:waypoint x="36" y="77" />
+        <di:waypoint x="177" y="73" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_6-_7" >
+        <di:waypoint x="177" y="73" />
+        <di:waypoint x="355" y="74" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+
+</definitions>

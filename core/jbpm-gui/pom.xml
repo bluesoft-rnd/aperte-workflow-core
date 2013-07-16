@@ -63,6 +63,10 @@
                     <artifactId>slf4j-jdk14</artifactId>
                     <groupId>org.slf4j</groupId>
                 </exclusion>
+				<exclusion>
+					<groupId>javax.transaction</groupId>
+					<artifactId>jta</artifactId>
+				</exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -99,16 +103,16 @@
             <version>${liferay.version}</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <artifactId>slf4j-api</artifactId>
-            <groupId>org.slf4j</groupId>
-            <version>1.6.1</version>
-        </dependency>
-        <dependency>
-            <artifactId>slf4j-jdk14</artifactId>
-            <groupId>org.slf4j</groupId>
-            <version>1.6.1</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<artifactId>slf4j-api</artifactId>-->
+            <!--<groupId>org.slf4j</groupId>-->
+            <!--<version>1.6.1</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<artifactId>slf4j-jdk14</artifactId>-->
+            <!--<groupId>org.slf4j</groupId>-->
+            <!--<version>1.6.1</version>-->
+        <!--</dependency>-->
     </dependencies>
         <!-- Profil dev do automatycznego kopiowania jarow do osgi -->
     <profiles>

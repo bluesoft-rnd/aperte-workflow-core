@@ -5,11 +5,11 @@ import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.pt.utils.lang.Lang2;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
@@ -21,13 +21,16 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
 @Entity
 @Table(name="pt_process_definition_config")
-public class ProcessDefinitionConfig extends PersistentEntity implements Serializable 
-{
+public class ProcessDefinitionConfig extends PersistentEntity {
 	private static final long serialVersionUID = 3568533142091163609L;
-	
+
+	public static final String VERSION_SEPARATOR = "_";
+
 	private String processName;
 	private String description;
 	private String bpmDefinitionKey;
+	private int bpmDefinitionVersion;
+	private String deploymentId;
 	
 	/** Process version info */
 	@Column(name="process_version")
@@ -100,6 +103,26 @@ public class ProcessDefinitionConfig extends PersistentEntity implements Seriali
 
 	public void setBpmDefinitionKey(String bpmDefinitionKey) {
 		this.bpmDefinitionKey = bpmDefinitionKey;
+	}
+
+	public int getBpmDefinitionVersion() {
+		return bpmDefinitionVersion;
+	}
+
+	public void setBpmDefinitionVersion(int bpmDefinitionVersion) {
+		this.bpmDefinitionVersion = bpmDefinitionVersion;
+	}
+
+	public String getBpmProcessId() {
+		return bpmDefinitionKey + VERSION_SEPARATOR + bpmDefinitionVersion;
+	}
+
+	public String getDeploymentId() {
+		return deploymentId;
+	}
+
+	public void setDeploymentId(String deploymentId) {
+		this.deploymentId = deploymentId;
 	}
 
 	public Boolean getLatest() {
@@ -197,9 +220,25 @@ public class ProcessDefinitionConfig extends PersistentEntity implements Seriali
     {
 		this.permissions = permissions;
     }
-    
+
     @Override
     public String toString() {
     	return processName;
     }
+
+	public static boolean hasVersion(String processId) {
+		return processId.matches("^.*" + Pattern.quote(VERSION_SEPARATOR) + "\\d+$");
+	}
+
+	public static String extractBpmDefinitionKey(String processId) {
+		int separatorPos = processId.lastIndexOf(VERSION_SEPARATOR);
+
+		return separatorPos >= 0 ? processId.substring(0, separatorPos) : processId;
+	}
+
+	public static Integer extractBpmDefinitionVersion(String processId) {
+		int separatorPos = processId.lastIndexOf(VERSION_SEPARATOR);
+
+		return separatorPos >= 0 ? Integer.valueOf(processId.substring(separatorPos + VERSION_SEPARATOR.length())) : null;
+	}
 }

@@ -40,10 +40,9 @@ public class MyProcessesListPane extends ProcessListPane {
     @Override
     protected ProcessInstanceFilter getDefaultFilter() {
         ProcessInstanceFilter processFilter = new ProcessInstanceFilter();
-        ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
         processFilter.setName(getMessage("activity.assigned.tasks"));
-        processFilter.addOwner(getBpmSession().getUser(ctx));
-        processFilter.setFilterOwner(getBpmSession().getUser(ctx));
+		processFilter.setFilterOwner(getBpmSession().getUser());
+//		processFilter.addOwner(processFilter.getFilterOwner());
         processFilter.addQueueType(QueueType.ASSIGNED_TO_CURRENT_USER);
         return processFilter;
     }
@@ -90,7 +89,7 @@ public class MyProcessesListPane extends ProcessListPane {
         List<TaskTableItem> finishedItems = new ArrayList<TaskTableItem>();
         for (TaskTableItem tti : taskItems) {
             BpmTask task = tti.getTask();
-            if (getBpmSession().isProcessRunning(task.getProcessInstance().getInternalId(), ctx)) {
+            if (getBpmSession().isProcessRunning(task.getProcessInstance().getInternalId())) {
                 if (isOutdated(now, getDeadlineDate(task))) {
                     outdatedItems.add(tti);
                 }
@@ -119,7 +118,7 @@ public class MyProcessesListPane extends ProcessListPane {
     }
 
     protected void displayProcessData(BpmTask task) {
-        activityMainPane.displayProcessData(task);
+        activityMainPane.displayProcessData(getBpmSession().getTaskData(task.getInternalTaskId()));
     }
 
     /** Metoda wylicza date wygasniecia procesu. W przypadku podprocesow, siega

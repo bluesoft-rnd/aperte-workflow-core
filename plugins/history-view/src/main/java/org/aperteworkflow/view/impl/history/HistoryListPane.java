@@ -403,7 +403,7 @@ public class HistoryListPane extends AbstractListPane implements DateRangeListen
         table.setValue(null);
         if (bpmSession != null) {
             ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-            UserData user = isHistorySuperuser ? null : bpmSession.getUser(ctx);
+            UserData user = isHistorySuperuser ? null : bpmSession.getUser();
             Collection<ProcessInstanceLog> logs = ctx.getProcessInstanceDAO().getUserHistory(user,
                     dateRangeField.getStartDate(), dateRangeField.getEndDate());
             DateFormat dateFormat = VaadinUtility.fullDateFormat();
@@ -570,7 +570,7 @@ public class HistoryListPane extends AbstractListPane implements DateRangeListen
         else 
         	ownPi = ctx.getProcessInstanceDAO().getProcessInstanceByInternalId(log.getExecutionId());
         log.setOwnProcessInstance(ownPi);
-        BpmTask task = finalTask ? bpmSession.getPastEndTask(log, ctx) : bpmSession.getPastOrActualTask(log, ctx);
+        BpmTask task = finalTask ? bpmSession.getPastEndTask(log) : bpmSession.getPastOrActualTask(log);
         if (task != null) {
             viewCallback.displayProcessData(task, true);
         }
@@ -606,7 +606,7 @@ public class HistoryListPane extends AbstractListPane implements DateRangeListen
 
     private Component getProcessCurrentTasksView(ProcessInstance pi) {
         ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-        List<BpmTask> tasks = bpmSession.findProcessTasks(pi, ctx);
+        List<BpmTask> tasks = bpmSession.findProcessTasks(pi);
         taskCount = tasks.size();
         if (tasks.isEmpty()) {
             return VaadinUtility.boldLabel(getMessagePrefixed("pi.currentTasks.empty"));

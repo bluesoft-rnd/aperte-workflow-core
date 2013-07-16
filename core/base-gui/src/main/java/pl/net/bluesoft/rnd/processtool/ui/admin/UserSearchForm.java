@@ -98,9 +98,7 @@ public class UserSearchForm extends VerticalLayout {
                     return;
                 }
 
-                ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-
-                bpmSession.assignTaskToUser(ctx, taskTableItem.getId(), ud.getLogin());
+                bpmSession.assignTaskToUser(taskTableItem.getId(), ud.getLogin());
                 application.getMainWindow().showNotification(getMessage("admin.assign.performed"));
                 adminMainPane.closeModalWindow();
             }

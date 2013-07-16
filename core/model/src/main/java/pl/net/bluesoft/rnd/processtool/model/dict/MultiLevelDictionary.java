@@ -1,6 +1,5 @@
 package pl.net.bluesoft.rnd.processtool.model.dict;
 
-import org.apache.commons.collections.CollectionUtils;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.pt.utils.lang.Lang2;
 

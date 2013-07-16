@@ -1,24 +1,17 @@
 package org.aperteworkflow.service;
 
-import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
-import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
+import pl.net.bluesoft.rnd.processtool.model.nonpersistent.BpmTaskBean;
 
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
-import javax.jws.WebMethod;
-
-import org.aperteworkflow.bpm.graph.GraphElement;
 import org.aperteworkflow.service.fault.AperteWsIllegalArgumentException;
 import org.aperteworkflow.service.fault.AperteWsWrongArgumentException;
+import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueueBean;
 
 /**<pre>
  * @author tlipski@bluesoft.net.pl
@@ -87,9 +80,9 @@ public interface AperteWorkflowProcessService {
 	 * 
 	 * @param q Queue 
 	 * @param user User Data
-	 * @return BpmTask with new assigned user
+	 * @return BpmTaskBean with new assigned user
 	 *</pre>*/
-	BpmTask assignTaskFromQueue(ProcessQueue q, UserData user);
+	BpmTaskBean assignTaskFromQueue(ProcessQueueBean q, UserData user);
 
 	/**<pre>
 	 * 
@@ -101,11 +94,11 @@ public interface AperteWorkflowProcessService {
 	 * "getUserQueuesFromConfig" that does not return the correct results. 
 	 * 
 	 * @param q queue 
-	 * @param task BpmTask to assign.
+	 * @param task BpmTaskBean to assign.
 	 * @param user User Data
 	 * @return Bpm Task with new assigned User.
 	 *</pre>*/
-	BpmTask assignSpecificTaskFromQueue(ProcessQueue q, BpmTask task,
+	BpmTaskBean assignSpecificTaskFromQueue(ProcessQueueBean q, BpmTaskBean task,
 			UserData user);
 
 	/**<pre>
@@ -117,29 +110,29 @@ public interface AperteWorkflowProcessService {
 	 * @param taskExecutionId  The name of the task from table  "jbpm4_task" in eg. "Accept" or "Complaint"
 	 * @param taskName "execution_id_" from the table "jbpm4_task", the value is the same as internalId the table "pt_process_instance" eg. "Complaint.730231"
 	 * @return Bpm task for Process Instance 
-	 * @throws AperteWsWrongArgumentException If taskExecutionId is wrong and  BpmTask, does not exists (including param null or empty values).
+	 * @throws AperteWsWrongArgumentException If taskExecutionId is wrong and  BpmTaskBean, does not exists (including param null or empty values).
 	 * @throws AperteWsIllegalArgumentException If taskName is null or empty.
 	 *</pre>*/
 	
-	BpmTask getTaskData(String taskExecutionId,
+	BpmTaskBean getTaskData(String taskExecutionId,
 			String taskName) throws AperteWsWrongArgumentException, AperteWsIllegalArgumentException; 
 
 	/**<pre>
 	 * 
-	 * Returns BpmTask data based on id.
+	 * Returns BpmTaskBean data based on id.
 	 * 
 	 * <b>Warning! Method is exclude from WSDL!</b>
 	 * 
 	 * @param taskId the id of task.
 	 * @return Bpm Task based on Id
-	 * @throws AperteWsWrongArgumentException If taskId is wrong and  BpmTask, does not exists.
+	 * @throws AperteWsWrongArgumentException If taskId is wrong and  BpmTaskBean, does not exists.
 	 * @throws AperteWsIllegalArgumentException If taskId is null or empty.
 	 *</pre>*/
-	BpmTask getTaskData(String taskId) throws AperteWsWrongArgumentException,AperteWsIllegalArgumentException;
+	BpmTaskBean getTaskData(String taskId) throws AperteWsWrongArgumentException,AperteWsIllegalArgumentException;
 
 	/**<pre>
 	 * 
-	 * Returns All listed BpmTask data from ProcessInstance if exists, and given User has privileges.
+	 * Returns All listed BpmTaskBean data from ProcessInstance if exists, and given User has privileges.
 	 * 
 	 * <b>Warning! Method is exclude from WSDL!</b>
 	 * 
@@ -148,7 +141,7 @@ public interface AperteWorkflowProcessService {
 	 * @param taskNames List of task names
 	 * @return List of Bpm Tasks
 	 *</pre>*/
-	List<BpmTask> findProcessTasksByNames(ProcessInstance pi, UserData user,
+	List<BpmTaskBean> findProcessTasksByNames(ProcessInstance pi, UserData user,
 			Set<String> taskNames);
 
 	/**<pre>
@@ -160,7 +153,7 @@ public interface AperteWorkflowProcessService {
 	 * @param user User Data
 	 * @return Number do recent Tasks
 	 *</pre>*/
-	Integer getRecentTasksCount(Calendar minDate, UserData user);
+	Integer getRecentTasksCount(Date minDate, UserData user);
 
 	/**<pre>
 	 * 
@@ -169,9 +162,9 @@ public interface AperteWorkflowProcessService {
 	 *  <b>Warning! Method is exclude from WSDL!</b>
 	 *  
 	 * @param user User Data
-	 * @return List of BpmTask
+	 * @return List of BpmTaskBean
 	 *</pre>*/
-	Collection<BpmTask> getAllTasks(UserData user); 
+	List<BpmTaskBean> getAllTasks(UserData user);
 
 	/**<pre>
 	 * Service returns the name of the current output of a task, is dependent of the process state.
@@ -203,10 +196,10 @@ public interface AperteWorkflowProcessService {
 	 * <b>Warning! Method is exclude from WSDL!</b>
 	 * 
 	 * @param pi Process Instance
-	 * @param bpmTask name of Task
+	 * @param BpmTaskBean name of Task
 	 * @param user new user to be assigned 
 	 *</pre>*/
-	void adminReassignProcessTask(ProcessInstance pi, BpmTask bpmTask,
+	void adminReassignProcessTask(ProcessInstance pi, BpmTaskBean BpmTaskBean,
 			UserData user);
 
 	/**<pre>
@@ -226,7 +219,7 @@ public interface AperteWorkflowProcessService {
 	 *</pre>*/
 	void deployProcessDefinitionBytes(ProcessDefinitionConfig cfg,
 			ProcessQueueConfig[] queues, byte[] processMapDefinition,
-			byte[] processMapImageStream, byte[] logo);
+			byte[] processMapImageStream);
 
 	/**<pre>
 	 * 
@@ -258,7 +251,7 @@ public interface AperteWorkflowProcessService {
 	 * @return List od Queues
 	 * @throws AperteWsWrongArgumentException  If userLogin is wrong and  User, does not exists (including param null or empty values).
 	 *</pre>*/
-	Collection<ProcessQueue> getUserAvailableQueues(String userLogin)
+	Collection<ProcessQueueBean> getUserAvailableQueues(String userLogin)
 			throws AperteWsWrongArgumentException;
 
 	/**<pre>
@@ -315,10 +308,10 @@ public interface AperteWorkflowProcessService {
 	 * 
 	 * @param internalId InternalID from t_process_instance table
 	 * @param userLogin user login
-	 * @return List of BpmTask
+	 * @return List of BpmTaskBean
 	 * @throws AperteWsWrongArgumentException If userLogin,internalId is wrong and  User or process instance does not exists (including param null or empty values).
 	 *</pre>*/
-	List<BpmTask> findProcessTasks(String internalId, String userLogin)
+	List<BpmTaskBean> findProcessTasks(String internalId, String userLogin)
 			throws AperteWsWrongArgumentException;
 
 	/**<pre>
@@ -333,22 +326,22 @@ public interface AperteWorkflowProcessService {
 
 	/**<pre>
 	 * 
-	 * The method of "pushing" the process further, the fields:  "actionName" and "bpmTaskName" 
+	 * The method of "pushing" the process further, the fields:  "actionName" and "BpmTaskBeanName" 
 	 * are not required they can be null or empty. In this case, 
 	 * if there is more than one action ore task, its taken randomly one of resulted list. 
 	 * Action is a transition, so when XOR appears there are 2 possible actions.
 	 * 
 	 * If userLogin is null adminCompleteTask(ProcessInstance processData,
-	 * ProcessStateAction action, BpmTask bpmTask) is called. 
+	 * ProcessStateAction action, BpmTaskBean BpmTaskBean) is called. 
 	 * 
 	 * @param internalId InternalID from t_process_instance table
 	 * @param actionName the name of the action to execute (field is not required)
-	 * @param bpmTaskName Taska name. (field is not required)
+	 * @param BpmTaskBeanName Taska name. (field is not required)
 	 * @param userLogin user login (field is not required)
 	 * @throws AperteWsWrongArgumentException If userLogin,internalId is wrong and  User or process instance does not exists (including param null or empty values).
 	 *</pre>*/
 	void performAction(String internalId, String actionName,
-			String bpmTaskName, String userLogin) throws AperteWsWrongArgumentException;
+			String BpmTaskBeanName, String userLogin) throws AperteWsWrongArgumentException;
 
 	/**<pre>
 	 * 
@@ -360,7 +353,7 @@ public interface AperteWorkflowProcessService {
 	 * @return List of Bpm Tasks
 	 * @throws AperteWsWrongArgumentException If userLogin is wrong and  User does not exists (including param null or empty values).
 	 *</pre>*/
-	List<BpmTask> findUserTasksPaging(Integer offset, Integer limit,
+	List<BpmTaskBean> findUserTasksPaging(Integer offset, Integer limit,
 			String userLogin) throws AperteWsWrongArgumentException;
 
 	/**<pre>
@@ -374,7 +367,7 @@ public interface AperteWorkflowProcessService {
 	 * @return List of Bpm Tasks
 	 * @throws AperteWsWrongArgumentException
 	 *</pre>*/
-	List<BpmTask> findUserTasks(String internalId, String userLogin)
+	List<BpmTaskBean> findUserTasks(String internalId, String userLogin)
 			throws AperteWsWrongArgumentException;
 
 	/**<pre>
@@ -387,10 +380,10 @@ public interface AperteWorkflowProcessService {
 	 * @see #performAction(String, String, String, String)
 	 * @param processData Process Instance to work on.
 	 * @param action One of many possible actions to perform.
-	 * @param bpmTask BpmTask to be "pushed".
+	 * @param BpmTaskBean BpmTaskBean to be "pushed".
 	 *</pre>*/
 	void adminCompleteTask(ProcessInstance processData,
-			ProcessStateAction action, BpmTask bpmTask);  
+			ProcessStateAction action, BpmTaskBean BpmTaskBean);  
 
 	/**<pre>
 	 * This method returns a list of actions that can be performed in the current process state. 

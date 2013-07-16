@@ -34,6 +34,7 @@ import org.aperteworkflow.cmis.widget.CmisAtomSessionFacade;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
+import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSessionHelper;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
@@ -156,7 +157,7 @@ public class EmailChecker {
                 List<ProcessInstance> instancesByExternalKey =
                         context.getProcessInstanceDAO().findProcessInstancesByKeyword(preparedSubject, rule.getProcessCode());
                 for (ProcessInstance pi : instancesByExternalKey) {
-                    boolean running = toolBpmSession.isProcessRunning(pi.getInternalId(), context);
+                    boolean running = ProcessToolBpmSessionHelper.isProcessRunning(toolBpmSession, context, pi.getInternalId());
                     logger.fine("Found existing process for " + preparedSubject + ", ID: " + pi.getInternalId());
                     if (running && pi.getDefinition().getBpmDefinitionKey().equals(rule.getProcessCode())) {
                         logger.info("Found existing and RUNNING process for " + preparedSubject + ", ID: " + pi.getInternalId());
@@ -196,10 +197,11 @@ public class EmailChecker {
             if (existingPi == null && rule.getStartNewProcesses()) {
                 logger.fine("Starting new process for rule " + rule.getId() + " on matched message " + description +
                         ", process code: " + rule.getProcessCode());
-                existingPi = toolBpmSession.createProcessInstance(context.getProcessDefinitionDAO().getActiveConfigurationByKey(rule.getProcessCode()),
-                        null, context,
+                existingPi = ProcessToolBpmSessionHelper.startProcess(toolBpmSession, context,
+						rule.getProcessCode(),
+                        null,
                         subject,
-                        preparedSubject, "email", null);
+                        preparedSubject, "email");
                 //save initial email data
                 existingPi.addAttribute(new ProcessInstanceSimpleAttribute("email_from", sender));
                 existingPi.addAttribute(new ProcessInstanceSimpleAttribute("email_subject", msg.getSubject()));
@@ -223,13 +225,13 @@ public class EmailChecker {
             }
 
             if (existingPi != null && hasText(rule.getRunningProcessActionName())) {
-                Collection<BpmTask> taskList = toolBpmSession.findProcessTasks(existingPi, context);
+                Collection<BpmTask> taskList = ProcessToolBpmSessionHelper.findProcessTasks(toolBpmSession, context, existingPi);
                 for (BpmTask t : taskList) {
                     if (!hasText(rule.getProcessTaskName()) || rule.getProcessTaskName().equalsIgnoreCase(t.getTaskName())) {
                         Set<ProcessStateAction> actions = context.getProcessDefinitionDAO().getProcessStateConfiguration(t).getActions();
                         for (ProcessStateAction a : actions) {
                             if (rule.getRunningProcessActionName().equals(a.getBpmName())) {
-                                toolBpmSession.performAction(a, t, context);
+								ProcessToolBpmSessionHelper.performAction(toolBpmSession, context, a, t);
                                 logger.info("Performed action " + rule.getId() + " on matched message " + description +
                                         ", process code: " + rule.getProcessCode() + " process id: " + existingPi.getInternalId());
                                 break;

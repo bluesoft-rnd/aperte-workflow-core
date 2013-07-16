@@ -135,8 +135,7 @@ public class TasksMainPane extends VerticalLayout implements Refreshable {
     }
 
     private void fillTaskList(BeanItemContainer<TaskTableItem> bic) {
-        ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-        List<BpmTask> tasks = session.findUserTasks(0, 1000, ctx);
+        List<BpmTask> tasks = session.findUserTasks(0, 1000);
         for (BpmTask task : tasks) {
             TaskTableItem tti = new TaskTableItem(task);
             if (!hasText(filterExpression) || tti.matchSearchCriteria(filterExpression)) {

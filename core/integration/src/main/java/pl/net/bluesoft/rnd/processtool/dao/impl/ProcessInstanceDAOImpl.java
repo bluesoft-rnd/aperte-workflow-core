@@ -3,13 +3,11 @@ package pl.net.bluesoft.rnd.processtool.dao.impl;
 import static org.hibernate.criterion.Restrictions.eq;
 import static org.hibernate.criterion.Restrictions.in;
 import static pl.net.bluesoft.util.lang.DateUtil.addDays;
-import static pl.net.bluesoft.util.lang.DateUtil.asCalendar;
 import static pl.net.bluesoft.util.lang.DateUtil.truncHours;
 import static pl.net.bluesoft.util.lang.FormatUtil.formatShortDate;
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
@@ -108,7 +106,7 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
                 {"instance_description", processInstance.getDescription()},
                 {"instance_internal_id", processInstance.getInternalId()},
                 {"instance_keyword", processInstance.getKeyword()},
-                {"instance_state", processInstance.getState()},//TODO remember about multiple states (when BpmTask is merged)
+//                {"instance_state", processInstance.getState()},//TODO remember about multiple states (when BpmTask is merged)
                 {"instance_create_date", formatShortDate(processInstance.getCreateDate())},
         });
         ProcessDefinitionConfig def = processInstance.getDefinition();
@@ -171,7 +169,7 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
             searchData.addSearchAttribute("__AWF__queue", queue, true);
             logger.info("__AWF__queue: "+ queue);
         }
-        searchData.addSearchAttribute("__AWF__running", String.valueOf(processInstance.getRunning()), true);
+        searchData.addSearchAttribute("__AWF__running", String.valueOf(processInstance.isProcessRunning()), true);
 
         logger.finest("Prepare data for Lucene index update for" + processInstance + " took "
                 + (System.currentTimeMillis()-time) + " ms");
@@ -203,16 +201,10 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
 
     @Override
     public ProcessInstance getProcessInstanceByInternalId(String internalIds) {
-    	 long start = System.currentTimeMillis();
-    	
     	ProcessInstance pi = (ProcessInstance) getSession().createCriteria(ProcessInstance.class)
                 .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
                 .add(eq("internalId", internalIds))
                 .uniqueResult();
-    	 long duration = System.currentTimeMillis() - start;
-			logger.severe("getProcessInstanceByInternalId: " +  duration);
-    	
-         
          return pi;
     }
 
@@ -285,10 +277,10 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
         }
 
         if (startDate != null) {
-            criteria.add(Restrictions.ge("entryDate", asCalendar(truncHours(startDate))));
+            criteria.add(Restrictions.ge("entryDate", truncHours(startDate)));
         }
         if (endDate != null) {
-            criteria.add(Restrictions.le("entryDate", asCalendar(truncHours(addDays(endDate, 1)))));
+            criteria.add(Restrictions.le("entryDate", truncHours(addDays(endDate, 1))));
         }
 
         criteria.createAlias("state", "s", CriteriaSpecification.LEFT_JOIN);
@@ -339,13 +331,13 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
     
         
     @Override
-    public Collection<ProcessInstance> getUserProcessesAfterDate(UserData userData, Calendar minDate) {
+    public Collection<ProcessInstance> getUserProcessesAfterDate(UserData userData, Date minDate) {
     	return getUserProcessesBetweenDates(userData,minDate,null);
     }
     
    
     @Override
-    public Collection<ProcessInstance> getUserProcessesBetweenDates(UserData userData, Calendar minDate, Calendar maxDate) {
+    public Collection<ProcessInstance> getUserProcessesBetweenDates(UserData userData, Date minDate, Date maxDate) {
            
     	 long start = System.currentTimeMillis();
     	Session session = getSession(); 
@@ -389,7 +381,7 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
     
 
         @Override
-        public ResultsPageWrapper<ProcessInstance> getRecentProcesses(UserData userData, Calendar minDate, Integer offset, Integer limit) {
+        public ResultsPageWrapper<ProcessInstance> getRecentProcesses(UserData userData, Date minDate, Integer offset, Integer limit) {
             Session session = getSession();
             List<ProcessInstance> instances = null;
             if (offset != null && limit != null) {
@@ -497,11 +489,11 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
             if (filter.getUpdatedAfter() != null) {
                 criteria = criteria
                         .createCriteria("processLogs")
-                        .add(Restrictions.gt("entryDate", filter.getUpdatedAfterCalendar()));
+                        .add(Restrictions.gt("entryDate", filter.getUpdatedAfter()));
             }
 
             if (filter.getNotUpdatedAfter() != null) {
-                DetachedCriteria entryDateCriteria = DetachedCriteria.forClass(ProcessInstanceLog.class).add(Restrictions.gt("entryDate", filter.getNotUpdatedAfterCalendar()));
+                DetachedCriteria entryDateCriteria = DetachedCriteria.forClass(ProcessInstanceLog.class).add(Restrictions.gt("entryDate", filter.getNotUpdatedAfter()));
                 criteria = criteria
                         .createCriteria("processLogs")
                         .add(Restrictions.not(Subqueries.exists(entryDateCriteria)));

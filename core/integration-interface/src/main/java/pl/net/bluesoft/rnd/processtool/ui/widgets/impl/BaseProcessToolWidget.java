@@ -94,13 +94,11 @@ public abstract class BaseProcessToolWidget implements ProcessToolWidget {
     }
 
     public UserData getBpmUser() {
-        ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-        return bpmSession.getUser(ctx);
+        return bpmSession.getUser();
     }
 
     public UserData getBpmUser(UserData userData) {
-        ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-        return bpmSession.loadOrCreateUser(ctx, userData);
+        return bpmSession.loadOrCreateUser(userData);
     }
 
     public Map<String, UserAttribute> getUserAttributes() {

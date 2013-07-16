@@ -17,6 +17,7 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
+import pl.net.bluesoft.rnd.processtool.model.nonpersistent.BpmTaskBean;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
@@ -34,8 +35,7 @@ import static org.aperteworkflow.util.HibernateBeanUtil.fetchHibernateData;
  * @author kkolodziej@bluesoft.net.pl
  */
 @WebService
-public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService { 
-
+public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService {
 	@Override
     @WebMethod  (exclude=true)
     public long saveProcessInstance(@WebParam(name="processInstance")final ProcessInstance processInstance) {
@@ -275,8 +275,8 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
 	@Override
     @WebMethod
     public Collection<ProcessInstance> getUserProcessesBetweenDatesByUserLogin(@WebParam(name="userLogin")final String userLogin,
-                                                                 @WebParam(name="minDate")final Calendar minDate,
-                                                                 @WebParam(name="maxDate")final Calendar maxDate) throws AperteWsWrongArgumentException {
+                                                                 @WebParam(name="minDate")final Date minDate,
+                                                                 @WebParam(name="maxDate")final Date maxDate) throws AperteWsWrongArgumentException {
 		
 		final UserData user = findUser(userLogin);
         return withContext(new ReturningProcessToolContextCallback<Collection<ProcessInstance>>() {
@@ -292,7 +292,7 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
 	@Override
 	@WebMethod (exclude=true)
     public Collection<ProcessInstance> getUserProcessesAfterDate(@WebParam(name="user")final UserData user,
-                                                                 @WebParam(name="minDate")final Calendar minDate) {
+                                                                 @WebParam(name="minDate")final Date minDate) {
         return withContext(new ReturningProcessToolContextCallback<Collection<ProcessInstance>>() {
             @Override
             public Collection<ProcessInstance> processWithContext(ProcessToolContext ctx) {
@@ -304,7 +304,7 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
 	@Override
 	@WebMethod (exclude=true)
     public ResultsPageWrapper<ProcessInstance> getRecentProcesses(@WebParam(name="user")final UserData user,
-                                                                  @WebParam(name="minDate")final Calendar minDate,
+                                                                  @WebParam(name="minDate")final Date minDate,
                                                                   @WebParam(name="offset")final Integer offset,
                                                                   @WebParam(name="limit")final Integer limit) {
         return withContext(new ReturningProcessToolContextCallback<ResultsPageWrapper<ProcessInstance>>() {
@@ -381,7 +381,7 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
 
 	@Override
 	@WebMethod (exclude=true)
-    public ProcessStateConfiguration getProcessStateConfiguration(@WebParam(name="task")final BpmTask task) {
+    public ProcessStateConfiguration getProcessStateConfiguration(@WebParam(name="task")final BpmTaskBean task) {
         return withContext(new ReturningProcessToolContextCallback<ProcessStateConfiguration>() {
             @Override
             public ProcessStateConfiguration processWithContext(ProcessToolContext ctx) {
@@ -483,7 +483,7 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
             @Override
             public byte[] processWithContext(ProcessToolContext ctx) {
                 return getSession(ctx)
-                        .getProcessLatestDefinition(bpmDefinitionKey, processName);
+                        .getProcessLatestDefinition(bpmDefinitionKey);
             }
         });
     }

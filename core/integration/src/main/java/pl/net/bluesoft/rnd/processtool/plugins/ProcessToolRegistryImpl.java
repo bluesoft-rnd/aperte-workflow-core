@@ -254,16 +254,17 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
         return needUpdate;
     }
 
+	@Override
 	public synchronized void addHibernateResource(String name, byte[] resource) {
 	  	hibernateResources.put(name, resource);
 	}
 
+	@Override
 	public synchronized void removeHibernateResource(String name) {
 	  	hibernateResources.remove(name);
 	}
 
 	public void buildSessionFactory() {
-
         jta = false;
         boolean startJtaTransaction = true;
         String dataSourceName = checkForDataSource();
@@ -366,27 +367,43 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
         <!--<property name="hibernate.connection.datasource">java:comp/env/jdbc/aperte-workflow-ds</property>-->
      */
     private String checkForDataSource() {
-        String dsName = nvl(System.getProperty("org.aperteworkflow.datasource"), "java:comp/env/jdbc/aperte-workflow-ds");
-        try {
-            DataSource lookup = (DataSource) new InitialContext().lookup(dsName);
-            lookup.getConnection().close();
-            return dsName;
-        } catch (Exception e) {
-            dsName = nvl(System.getProperty("org.aperteworkflow.datasource"), "jdbc/aperte-workflow-ds");
-            try {
-                DataSource lookup = (DataSource) new InitialContext().lookup(dsName);
-                lookup.getConnection().close();
-                return dsName;
-            } catch (Exception e1) {
-                logger.log(Level.SEVERE, "Aperte Workflow datasource bound to name " + dsName +
-                        " not found or is badly configured, falling back to preconfigured HSQLDB." +
-                        " DO NOT USE THAT IN PRODUCTION ENVIRONMENT!", e);
-            }
-        }
+		for (String dsName : getPotentialDatasourceNames()) {
+			if (dsName != null) {
+				if (isValidDatasource(dsName)) {
+					return dsName;
+				}
+				else {
+					logger.info("Aperte Workflow datasource bound to name " + dsName +
+							" not found or is badly configured. Looking for another one");
+				}
+			}
+		}
+		logger.log(Level.SEVERE,
+				"Aperte Workflow datasource not found or is badly configured, falling back to preconfigured HSQLDB. " +
+				" DO NOT USE THAT IN PRODUCTION ENVIRONMENT!");
         return null;
     }
 
-    private UserTransaction findUserTransaction() {
+	private String[] getPotentialDatasourceNames() {
+		return new String[] {
+				System.getProperty("org.aperteworkflow.datasource"),
+				"java:comp/env/jdbc/aperte-workflow-ds",
+				"jdbc/aperte-workflow-ds",
+		};
+	}
+
+	private boolean isValidDatasource(String dsName) {
+		try {
+			DataSource lookup = (DataSource) new InitialContext().lookup(dsName);
+			lookup.getConnection().close();
+			return true;
+		}
+		catch (Exception e) {
+			return false;
+		}
+	}
+
+	private UserTransaction findUserTransaction() {
         UserTransaction ut=null;
         if (!"true".equalsIgnoreCase(System.getProperty("org.aperteworkflow.nojta"))) {
             try {
@@ -445,7 +462,7 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
            }
            return processToolContextFactory.withExistingOrNewContext(callback);
        }
- 
+
     @Override
     public ProcessDictionaryDAO getProcessDictionaryDAO(Session hibernateSession) {
         return new ProcessDictionaryDAOImpl(hibernateSession);  
@@ -546,7 +563,7 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	public void registerWidget(Class<?> cls) {
 		registerWidget(cls.getName(), (Class<? extends ProcessToolWidget>) cls);
         logger.info("Registered widget extension: " + cls.getName());
-        AliasName annotation = (AliasName) cls.getAnnotation(AliasName.class);
+        AliasName annotation = cls.getAnnotation(AliasName.class);
 		if (annotation != null) {
 			registerWidget(annotation.name(), (Class<? extends ProcessToolWidget>) cls);
             logger.info("Registered widget alias: " + annotation.name() + " -> " + cls.getName());
@@ -588,7 +605,7 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
         return new HashMap<String, Class<? extends ProcessToolActionButton>>(BUTTON_REGISTRY);
     }
 
-    private class StepClassFunc implements Func<ProcessToolProcessStep> {
+    private static class StepClassFunc implements Func<ProcessToolProcessStep> {
 
         private Class<? extends ProcessToolProcessStep> cls;
 
@@ -606,12 +623,14 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
         }
     }
 
-    public void registerStep(String name, Func<? extends ProcessToolProcessStep> f) {
+    @Override
+	public void registerStep(String name, Func<? extends ProcessToolProcessStep> f) {
         STEP_REGISTRY.put(name, f);
         logger.info("Registered step extension: " + name);
     }
 
 
+	@Override
 	public void registerStep(Class<? extends ProcessToolProcessStep> cls) {
         registerStep(cls.getName(), new StepClassFunc(cls));
         AliasName annotation = cls.getAnnotation(AliasName.class);
@@ -620,11 +639,13 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
         }
 	}
 
+	@Override
 	public void unregisterStep(String name) {
         STEP_REGISTRY.remove(name);
         logger.info("Unregistered step extension: " + name);
     }
 
+	@Override
 	public void unregisterStep(Class<? extends ProcessToolProcessStep> cls) {
         unregisterStep(cls.getName());
         AliasName annotation = cls.getAnnotation(AliasName.class);
@@ -633,7 +654,8 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
         }
 	}
 
-    public Map<String,ProcessToolProcessStep> getAvailableSteps() {
+    @Override
+	public Map<String,ProcessToolProcessStep> getAvailableSteps() {
         Map<String,ProcessToolProcessStep> steps = new HashMap<String,ProcessToolProcessStep>();
         for (Map.Entry<String, Func<? extends ProcessToolProcessStep>> e : STEP_REGISTRY.entrySet()) {
             steps.put(e.getKey(), e.getValue().invoke());
@@ -641,6 +663,7 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
         return steps;
     }
 
+	@Override
 	public ProcessToolProcessStep getStep(String name) {
         Func<? extends ProcessToolProcessStep> func = STEP_REGISTRY.get(name);
         if (func != null) return func.invoke();
@@ -684,80 +707,80 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	}
 
 	@Override
-       public void registerGlobalDictionaries(InputStream is) {
-           if (is != null) {
-               ProcessDictionaries dictionaries = (ProcessDictionaries) DictionaryLoader.getInstance().unmarshall(is);
-               String processBpmKey = dictionaries.getProcessBpmDefinitionKey();
-               if (Strings.hasText(processBpmKey)) {
-                   logger.warning("Global process dictionary should not be defined for a specific process: "
-                           + dictionaries.getProcessBpmDefinitionKey());
-               }
-               Session session = sessionFactory.openSession();
-               try {
-                   Transaction tx = session.beginTransaction();
-                   
-                   Collection<ProcessDBDictionary> processDBDictionaries = saveDictionaryInternal(dictionaries);
-                   
-                   ProcessDictionaryDAO dao = getProcessDictionaryDAO(session);
-                   dao.processGlobalDictionaries(processDBDictionaries, dictionaries.getOverwrite() != null && dictionaries.getOverwrite());
-                   
-                   tx.commit();
-                   logger.warning("Registered global dictionaries");
-               }
-               finally {
-                   session.close();
-               }
-           }
-       }
+	public void registerGlobalDictionaries(InputStream is) {
+		if (is != null) {
+			ProcessDictionaries dictionaries = (ProcessDictionaries) DictionaryLoader.getInstance().unmarshall(is);
+			String processBpmKey = dictionaries.getProcessBpmDefinitionKey();
+			if (Strings.hasText(processBpmKey)) {
+				logger.warning("Global process dictionary should not be defined for a specific process: "
+						+ dictionaries.getProcessBpmDefinitionKey());
+			}
+			Session session = sessionFactory.openSession();
+			try {
+				Transaction tx = session.beginTransaction();
 
-       @Override
-       public void registerProcessDictionaries(InputStream is, ProcessDefinitionConfig newConfig, ProcessDefinitionConfig oldConfig) {
-           if (is != null) {
-               ProcessDictionaries dictionaries = (ProcessDictionaries) DictionaryLoader.getInstance().unmarshall(is);
-               String processBpmKey = dictionaries.getProcessBpmDefinitionKey();
-               if (!Strings.hasText(processBpmKey)) {
-                   throw new DictionaryLoadingException("No process name specified in the dictionaries XML");
-               }
-               Session session = sessionFactory.openSession();
-               try {
-                   Transaction tx = session.beginTransaction();
+				Collection<ProcessDBDictionary> processDBDictionaries = saveDictionaryInternal(dictionaries);
 
-                   if (newConfig == null) {
-                       throw new DictionaryLoadingException("No active definition config with BPM key: " + processBpmKey);
-                   }
-                   
-                   Collection<ProcessDBDictionary> processDBDictionaries = saveDictionaryInternal(dictionaries);
-                   
-                   ProcessDictionaryDAO dao = getProcessDictionaryDAO(session);
-                   dao.processProcessDictionaries(processDBDictionaries,newConfig, oldConfig,
-                           dictionaries.getOverwrite() != null && dictionaries.getOverwrite());
-                   
-                   tx.commit();
-                   logger.warning("Registered dictionaries for process: " + processBpmKey);
-               }
-               finally {
-                   session.close();
-               }
-           }
-       }
+				ProcessDictionaryDAO dao = getProcessDictionaryDAO(session);
+				dao.processGlobalDictionaries(processDBDictionaries, dictionaries.getOverwrite() != null && dictionaries.getOverwrite());
 
-       private Collection<ProcessDBDictionary> saveDictionaryInternal(ProcessDictionaries dictionaries) {
-          
-           List<ProcessDBDictionary> processDBDictionaries = DictionaryLoader.getDictionariesFromXML(dictionaries);
-           for (ProcessDBDictionary dict : processDBDictionaries) {
-               for (ProcessDBDictionaryPermission perm : dict.getPermissions()) {
-                   if (!Strings.hasText(perm.getRoleName())) {
-                       perm.setRoleName(PATTERN_MATCH_ALL);
-                   }
-                   if (!Strings.hasText(perm.getPrivilegeName())) {
-                       perm.setPrivilegeName(PRIVILEGE_EDIT);
-                   }
-               }
-           }
-           DictionaryLoader.validateDictionaries(processDBDictionaries);
-           
-           return processDBDictionaries;
-       }
+				tx.commit();
+				logger.warning("Registered global dictionaries");
+			}
+			finally {
+				session.close();
+			}
+		}
+	}
+
+	@Override
+	public void registerProcessDictionaries(InputStream is, ProcessDefinitionConfig newConfig, ProcessDefinitionConfig oldConfig) {
+		if (is != null) {
+			ProcessDictionaries dictionaries = (ProcessDictionaries) DictionaryLoader.getInstance().unmarshall(is);
+			String processBpmKey = dictionaries.getProcessBpmDefinitionKey();
+			if (!Strings.hasText(processBpmKey)) {
+				throw new DictionaryLoadingException("No process name specified in the dictionaries XML");
+			}
+			Session session = sessionFactory.openSession();
+			try {
+				Transaction tx = session.beginTransaction();
+
+				if (newConfig == null) {
+					throw new DictionaryLoadingException("No active definition config with BPM key: " + processBpmKey);
+				}
+
+				Collection<ProcessDBDictionary> processDBDictionaries = saveDictionaryInternal(dictionaries);
+
+				ProcessDictionaryDAO dao = getProcessDictionaryDAO(session);
+				dao.processProcessDictionaries(processDBDictionaries,newConfig, oldConfig,
+						dictionaries.getOverwrite() != null && dictionaries.getOverwrite());
+
+				tx.commit();
+				logger.warning("Registered dictionaries for process: " + processBpmKey);
+			}
+			finally {
+				session.close();
+			}
+		}
+	}
+
+	private Collection<ProcessDBDictionary> saveDictionaryInternal(ProcessDictionaries dictionaries) {
+
+		List<ProcessDBDictionary> processDBDictionaries = DictionaryLoader.getDictionariesFromXML(dictionaries);
+		for (ProcessDBDictionary dict : processDBDictionaries) {
+			for (ProcessDBDictionaryPermission perm : dict.getPermissions()) {
+				if (!Strings.hasText(perm.getRoleName())) {
+					perm.setRoleName(PATTERN_MATCH_ALL);
+				}
+				if (!Strings.hasText(perm.getPrivilegeName())) {
+					perm.setPrivilegeName(PRIVILEGE_EDIT);
+				}
+			}
+		}
+		DictionaryLoader.validateDictionaries(processDBDictionaries);
+
+		return processDBDictionaries;
+	}
 	
 
     @Override
@@ -879,40 +902,39 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
     }
 
     @Override
-        public InputStream loadResource(String path) {
-            return loadResource(null, path);
-        }
+	public InputStream loadResource(String path) {
+		return loadResource(null, path);
+	}
 
-        private void updateCaches() {
-            Class<? extends Cacheable<String, String>>[] cachedEntities = new Class[] {ProcessToolAutowire.class};
+	private void updateCaches() {
+		Class<? extends Cacheable<String, String>>[] cachedEntities = new Class[] {ProcessToolAutowire.class};
 
-            Session session = sessionFactory.openSession();
-            try {
-                Transaction tx = session.beginTransaction();
-                for (Class<? extends Cacheable<String, String>> entityClass : cachedEntities) {
-                    Map<String, String> cache = Caches.synchronizedCache(100);
-                    List<Cacheable<String, String>> list = session.createCriteria(entityClass).list();
-                    for (Cacheable<String, String> obj : list) {
-                        cache.put(obj.getKey(), obj.getValue());
-                    }
-                    registerCache(entityClass.getName(), cache);
-                }
-                tx.commit();
-            }
-            finally {
-                session.close();
-            }
-        }
+		Session session = sessionFactory.openSession();
+		try {
+			Transaction tx = session.beginTransaction();
+			for (Class<? extends Cacheable<String, String>> entityClass : cachedEntities) {
+				Map<String, String> cache = Caches.synchronizedCache(100);
+				List<Cacheable<String, String>> list = session.createCriteria(entityClass).list();
+				for (Cacheable<String, String> obj : list) {
+					cache.put(obj.getKey(), obj.getValue());
+				}
+				registerCache(entityClass.getName(), cache);
+			}
+			tx.commit();
+		}
+		finally {
+			session.close();
+		}
+	}
 
-        @Override
-        public <K, V> Map<K, V> getCache(String cacheName) {
-            return caches.get(cacheName);
-        }
+	@Override
+	public <K, V> Map<K, V> getCache(String cacheName) {
+		return caches.get(cacheName);
+	}
 
-        public <K, V> void registerCache(String cacheName, Map<K, V> cache) {
-            caches.put(cacheName, cache);
-            logger.warning("Registered cache named: " + cacheName);
-        }
-
-
+	@Override
+	public <K, V> void registerCache(String cacheName, Map<K, V> cache) {
+		caches.put(cacheName, cache);
+		logger.warning("Registered cache named: " + cacheName);
+	}
 }

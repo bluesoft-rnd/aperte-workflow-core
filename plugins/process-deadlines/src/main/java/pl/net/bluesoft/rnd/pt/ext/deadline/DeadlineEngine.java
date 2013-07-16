@@ -77,9 +77,9 @@ public class DeadlineEngine {
                         Session session = ctx.getHibernateSession();
                         List<ProcessInstance> instances = loadProcessesWithDeadlines(session);
                         for (ProcessInstance pi : instances) {
-                            if (bpmSession.isProcessRunning(pi.getInternalId(), ctx)) {
+                            if (bpmSession.isProcessRunning(pi.getInternalId())) {
                                 Set<ProcessDeadline> deadlines = pi.findAttributesByClass(ProcessDeadline.class);
-                                Collection<BpmTask> tasks = bpmSession.findProcessTasks(pi, ctx);
+                                Collection<BpmTask> tasks = bpmSession.findProcessTasks(pi);
                                 for (ProcessDeadline pd : deadlines) {
                                     for (BpmTask task : tasks) {
                                         if (task.getTaskName().equals(pd.getTaskName()) && task.getAssignee() != null) {
@@ -160,7 +160,7 @@ public class DeadlineEngine {
         if (!deadlines.isEmpty()) {
             logger.info("Found deadline configurations for process: " + pi.getInternalId());
             ProcessToolBpmSession bpmSession = ctx.getProcessToolSessionFactory().createAutoSession();
-            List<BpmTask> tasks = processInitiated || task == null ? bpmSession.findProcessTasks(pi, ctx) : new ArrayList<BpmTask>() {{
+            List<BpmTask> tasks = processInitiated || task == null ? bpmSession.findProcessTasks(pi) : new ArrayList<BpmTask>() {{
                 add(task);
             }};
             if (!tasks.isEmpty()) {
@@ -205,7 +205,7 @@ public class DeadlineEngine {
     private void signalDeadline(ProcessToolContext ctx, String processInstanceId, ProcessDeadline processDeadline) throws Exception {
         ProcessInstance pi = ctx.getProcessInstanceDAO().getProcessInstanceByInternalId(processInstanceId);
         ProcessToolBpmSession bpmSession = ctx.getProcessToolSessionFactory().createAutoSession();
-        List<BpmTask> tasks = bpmSession.findProcessTasks(pi, ctx);
+        List<BpmTask> tasks = bpmSession.findProcessTasks(pi);
         
     	ITemplateDataProvider templateDataProvider = new TemplateDataProvider();
         

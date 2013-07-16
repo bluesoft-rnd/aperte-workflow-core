@@ -258,7 +258,7 @@ public class NotificationPanel extends ItemEditorLayout<BpmNotificationConfig> {
 		for (ProcessDefinitionConfig processDefinition : processDefinitions) {
 			items.add(new Pair<String, String>(
 					getMessage(processDefinition.getDescription()),
-					processDefinition.getProcessName()
+					processDefinition.getDescription()
 			));
 		}
 		items = orderByFirst(items);
@@ -266,7 +266,7 @@ public class NotificationPanel extends ItemEditorLayout<BpmNotificationConfig> {
 		dialog.setItems(from(getCurrentlySelectedProcesses()).select(new F<ProcessDefinitionConfig, String>() {
 			@Override
 			public String invoke(ProcessDefinitionConfig x) {
-				return x.getProcessName();
+				return x.getDescription();
 			}
 		}).toSet());
 		dialog.show(getApplication());
@@ -276,7 +276,7 @@ public class NotificationPanel extends ItemEditorLayout<BpmNotificationConfig> {
 		List<ProcessDefinitionConfig> selectedDefinitions = new ArrayList<ProcessDefinitionConfig>();
 
 		for (ProcessDefinitionConfig processDefinition : processDefinitions) {
-			if (hasMatchingProcessName(getString(processTypeRegex), processDefinition.getProcessName())) {
+			if (hasMatchingProcessName(getString(processTypeRegex), processDefinition.getDescription())) {
 				selectedDefinitions.add(processDefinition);
 			}
 		}
@@ -317,7 +317,7 @@ public class NotificationPanel extends ItemEditorLayout<BpmNotificationConfig> {
 				}
 				items.add(new Pair<String, Tuple>(
 						descr,
-						new Tuple(processDefinition.getProcessName(), state.getName())
+						new Tuple(processDefinition.getDescription(), state.getName())
 				));
 			}
 		}
@@ -326,7 +326,7 @@ public class NotificationPanel extends ItemEditorLayout<BpmNotificationConfig> {
 		dialog.setItems(from(getCurrentlySelectedStates()).select(new F<ProcessStateConfiguration, Tuple>() {
 			@Override
 			public Tuple invoke(ProcessStateConfiguration x) {
-				return new Tuple(x.getDefinition().getProcessName(), x.getName());
+				return new Tuple(x.getDefinition().getDescription(), x.getName());
 			}
 		}).toSet());
 		dialog.show(getApplication());
@@ -379,7 +379,7 @@ public class NotificationPanel extends ItemEditorLayout<BpmNotificationConfig> {
 
 				items.add(new Pair<String, Tuple>(
 						descr,
-						new Tuple(state.getDefinition().getProcessName(), state.getName(), action.getBpmName())
+						new Tuple(state.getDefinition().getDescription(), state.getName(), action.getBpmName())
 				));
 			}
 		}
@@ -388,7 +388,7 @@ public class NotificationPanel extends ItemEditorLayout<BpmNotificationConfig> {
 		dialog.setItems(from(getCurrentlySelectedActions()).select(new F<ProcessStateAction, Tuple>() {
 			@Override
 			public Tuple invoke(ProcessStateAction x) {
-				return new Tuple(x.getConfig().getDefinition().getProcessName(), x.getConfig().getName(), x.getBpmName());
+				return new Tuple(x.getConfig().getDefinition().getDescription(), x.getConfig().getName(), x.getBpmName());
 			}
 		}).toSet());
 		dialog.show(getApplication());

@@ -1,11 +1,7 @@
 package pl.net.bluesoft.awf.ext.droolsstep;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import pl.net.bluesoft.awf.ext.droolsstep.settings.DroolsStepSettingsProvider;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
@@ -62,7 +58,7 @@ public class DroolsStep implements ProcessToolProcessStep {
 		String logEntryVal = (String) resultMap.get("logEntry");
 		if (logEntryVal != null) {
 			ProcessInstanceLog logEntry = new ProcessInstanceLog();
-			logEntry.setEntryDate(Calendar.getInstance());
+			logEntry.setEntryDate(new Date());
             logEntry.setLogType(ProcessInstanceLog.LOG_TYPE_INFO);
 			//logEntry.setLogType(LogType.INFO);
             //TODO - process can be in a various states in that moment

@@ -1,21 +1,27 @@
 package pl.net.bluesoft.rnd.processtool.plugins;
 
-import com.thoughtworks.xstream.XStream;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.SerializationConfig.Feature;
-import pl.net.bluesoft.rnd.processtool.plugins.util.UserProcessQueuesSizeProvider;
-import pl.net.bluesoft.rnd.processtool.plugins.util.UserProcessQueuesSizeProvider.UsersQueuesSize;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.SerializationConfig.Feature;
+
+import pl.net.bluesoft.rnd.processtool.userqueues.UserProcessQueuesSizeProvider;
+import pl.net.bluesoft.rnd.processtool.userqueues.UserProcessQueuesSizeProvider.UserQueueDTO;
+import pl.net.bluesoft.rnd.processtool.userqueues.UserProcessQueuesSizeProvider.UsersQueuesDTO;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
+
+import com.thoughtworks.xstream.XStream;
 
 /**
  * Servlet which provides logic to get all avaiable user process queues
@@ -56,12 +62,23 @@ public class UserProcessQueuesServlet extends HttpServlet
 			return;
 		}
 		
-		UserProcessQueuesSizeProvider userQueuesSizeProvider = new UserProcessQueuesSizeProvider(reg, userLogin);
-		Collection<UsersQueuesSize> usersQueuesSize = userQueuesSizeProvider.getUserProcessQueueSize();
+		I18NSource messageSource = I18NSourceFactory.createI18NSource(req.getLocale());
+		
+		UserProcessQueuesSizeProvider userQueuesSizeProvider = new UserProcessQueuesSizeProvider(reg, userLogin, messageSource);
+		Collection<UsersQueuesDTO> usersQueuesSize = userQueuesSizeProvider.getUserProcessQueueSize();
 		
 		Map<String, Map<String, Integer>> usersQueues = new HashMap<String, Map<String,Integer>>(usersQueuesSize.size());
-		for(UsersQueuesSize userQuueueSize: usersQueuesSize)
-			usersQueues.put(userQuueueSize.getUserLogin(), userQuueueSize.getUserProcessQueueSize());
+		for(UsersQueuesDTO userQuueueSize: usersQueuesSize)
+		{
+			Map<String, Integer> userQueueMap = new HashMap<String, Integer>();
+			for(UserQueueDTO userQueue: userQuueueSize.getProcessesList())
+				userQueueMap.put(userQueue.getQueueId(), userQueue.getQueueSize());
+			
+			for(UserQueueDTO userQueue: userQuueueSize.getQueuesList())
+				userQueueMap.put(userQueue.getQueueId(), userQueue.getQueueSize());
+
+			usersQueues.put(userQuueueSize.getUserLogin(), userQueueMap);
+		}
 
 
 		switch (format) {

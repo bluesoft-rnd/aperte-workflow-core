@@ -1,39 +1,20 @@
 package pl.net.bluesoft.rnd.pt.ext.jbpm;
 
-import static pl.net.bluesoft.util.lang.StringUtil.hasText;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
-import org.jbpm.api.ExecutionService;
-import org.jbpm.api.ProcessEngine;
-
 import pl.net.bluesoft.rnd.processtool.BasicSettings;
 import pl.net.bluesoft.rnd.processtool.IProcessToolSettings;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolSessionFactory;
 import pl.net.bluesoft.rnd.processtool.bpm.exception.ProcessToolException;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessDictionaryDAO;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceDAO;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceFilterDAO;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceSimpleAttributeDAO;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessStateActionDAO;
-import pl.net.bluesoft.rnd.processtool.dao.UserDataDAO;
-import pl.net.bluesoft.rnd.processtool.dao.UserProcessQueueDAO;
-import pl.net.bluesoft.rnd.processtool.dao.UserSubstitutionDAO;
+import pl.net.bluesoft.rnd.processtool.dao.*;
 import pl.net.bluesoft.rnd.processtool.dict.GlobalDictionaryProvider;
 import pl.net.bluesoft.rnd.processtool.dict.ProcessDictionaryProvider;
 import pl.net.bluesoft.rnd.processtool.dict.ProcessDictionaryRegistry;
 import pl.net.bluesoft.rnd.processtool.hibernate.HibernateBean;
-import pl.net.bluesoft.rnd.processtool.hibernate.HibernateTransactionCallback;
-import pl.net.bluesoft.rnd.processtool.model.BpmVariable;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessToolAutowire;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessToolSequence;
@@ -43,6 +24,10 @@ import pl.net.bluesoft.rnd.processtool.userqueues.IUserProcessQueueManager;
 import pl.net.bluesoft.util.eventbus.EventBusManager;
 import pl.net.bluesoft.util.lang.Formats;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * Context replacement for Spring library
  *
@@ -50,10 +35,8 @@ import pl.net.bluesoft.util.lang.Formats;
  */
 public class ProcessToolContextImpl implements ProcessToolContext { 
     private Session hibernateSession;
-    private Transaction transaction;
     private ProcessToolJbpmSessionFactory processToolJbpmSessionFactory;
     private ProcessDictionaryRegistry processDictionaryRegistry;
-    private ProcessEngine processEngine;
     private ProcessToolRegistry registry;
     private IUserProcessQueueManager userProcessQueueManager;
 
@@ -63,25 +46,11 @@ public class ProcessToolContextImpl implements ProcessToolContext {
     private Boolean closed = false;
 
     public ProcessToolContextImpl(Session hibernateSession,
-    								ProcessToolRegistry registry,
-                                  ProcessEngine processEngine) {
+    								ProcessToolRegistry registry) {
         this.hibernateSession = hibernateSession;
         this.registry = registry;
-        this.processEngine = processEngine;
-        this.autowiringCache = getRegistry().getCache(ProcessToolAutowire.class.getName());
+        this.autowiringCache = registry.getCache(ProcessToolAutowire.class.getName());
         this.userProcessQueueManager = new UserProcessQueueManager(hibernateSession, getUserProcessQueueDAO());
-        processEngine.setHibernateSession(hibernateSession);
-
-        transaction = hibernateSession.beginTransaction();
-    }
-
-    public void rollback() {
-        transaction.rollback();
-    }
-
-    public void commit() {
-        transaction.commit();
-
     }
 
     private synchronized void verifyContextOpen() {
@@ -91,10 +60,10 @@ public class ProcessToolContextImpl implements ProcessToolContext {
     }
 
     public void init() {
-
     }
 
-    public boolean isActive() 
+    @Override
+	public boolean isActive()
     {
     	/* Check hibernate session */
     	if(!hibernateSession.isOpen())
@@ -102,12 +71,6 @@ public class ProcessToolContextImpl implements ProcessToolContext {
     	
         return !closed;
     }
-
-    @Override
-    public void addTransactionCallback(HibernateTransactionCallback callback) {
-        transaction.registerSynchronization(callback);
-    }
-
 
     @Override
     public ProcessDictionaryRegistry getProcessDictionaryRegistry() {
@@ -230,7 +193,7 @@ public class ProcessToolContextImpl implements ProcessToolContext {
     @Override
     public void setSetting(IProcessToolSettings key, String value) {
         verifyContextOpen();
-        List list = hibernateSession.createCriteria(ProcessToolSetting.class).add(Restrictions.eq("key", key)).list();
+        List list = hibernateSession.createCriteria(ProcessToolSetting.class).add(Restrictions.eq("key", key.toString())).list();
         ProcessToolSetting setting;
         if (list.isEmpty()) {
             setting = new ProcessToolSetting();
@@ -265,26 +228,50 @@ public class ProcessToolContextImpl implements ProcessToolContext {
     }
 
     @Override
-    public long getNextValue(String processDefinitionName, String sequenceName) {
-        verifyContextOpen();
-        List<ProcessToolSequence> seqList = hibernateSession.createCriteria(ProcessToolSequence.class)
-                .add(Restrictions.eq("processDefinitionName", processDefinitionName))
-                .add(Restrictions.eq("name", sequenceName))
-                .list();
+    public long getNextValue(String processDefinitionName, String sequenceName) 
+    {
+    	/* Create new session to handle atomic operations with for update lock. There is no 
+    	 * possibility to create new transaction inside another in the same session 
+    	 * 
+    	 * If one creates for update query in current hibernateSession there is 
+    	 * possibility to make deadlock
+    	 */
+    	Session newValueSession = hibernateSession.getSessionFactory().openSession();
+    	Transaction tx = newValueSession.beginTransaction();
 
-        ProcessToolSequence seq;
-
-        if (seqList.isEmpty()) {
+    	verifyContextOpen();
+    	
+    	String queryString = 
+    			"select seq.* from pt_sequence seq where seq.name = :sequenceName " +
+    			(processDefinitionName != null ? "and seq.processdefinitionname = :processDefinitionName " : "")+
+    			"for update";
+    	
+    	SQLQuery query =
+    			newValueSession.createSQLQuery(queryString);
+    	
+    	query.setParameter("sequenceName", (String)sequenceName);
+    	
+    	if(processDefinitionName != null)
+    		query.setParameter("processDefinitionName", (String)processDefinitionName);
+    	
+    	query.addEntity("seq", ProcessToolSequence.class);
+    	
+    	ProcessToolSequence seq = (ProcessToolSequence)query.uniqueResult();
+    	
+    	if(seq == null)
+    	{
             seq = new ProcessToolSequence();
             seq.setProcessDefinitionName(processDefinitionName);
             seq.setName(sequenceName);
-            seq.setValue(1);
-        } else {
-            seq = seqList.get(0);
-            seq.setValue(seq.getValue() + 1);
-        }
-        hibernateSession.saveOrUpdate(seq);
-        hibernateSession.flush();
+            seq.setValue(0);
+    	}
+    	seq.setValue(seq.getValue() + 1);
+    	
+    	
+    	newValueSession.saveOrUpdate(seq);
+    	newValueSession.flush();
+    	tx.commit();
+    	newValueSession.close();
         return seq.getValue();
     }
 
@@ -304,31 +291,8 @@ public class ProcessToolContextImpl implements ProcessToolContext {
                 Formats.nvl(getSetting(BasicSettings.AUTO_USER_EMAIL), "awf@bluesoft.net.pl"));
     }
 
-    public ProcessEngine getProcessEngine() {
-        return processEngine;
-    }
-
     @Override
     public void updateContext(ProcessInstance processInstance) {
-        ExecutionService es = getProcessEngine().getExecutionService();
-        for (ProcessInstanceAttribute pia : processInstance.getProcessAttributes()) {
-            if (pia instanceof BpmVariable) {
-                BpmVariable bpmVar = (BpmVariable) pia;
-                if (hasText(bpmVar.getBpmVariableName())) {
-                    es.setVariable(processInstance.getInternalId(), bpmVar.getBpmVariableName(), bpmVar.getBpmVariableValue());
-                }
-            }
-        }
-    }
-    
-    public Map<String, Object> getBpmVariables(ProcessInstance pi) {
-        ExecutionService es = getProcessEngine().getExecutionService();
-        return es.getVariables(pi.getInternalId(), es.getVariableNames(pi.getInternalId()));
-    }
-    
-    public Object getBpmVariable(ProcessInstance pi, String variableName) {
-        ExecutionService es = getProcessEngine().getExecutionService();
-        return es.getVariable(pi.getInternalId(), variableName);
     }
 
 	@Override

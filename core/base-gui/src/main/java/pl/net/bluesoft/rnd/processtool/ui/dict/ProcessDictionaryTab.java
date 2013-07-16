@@ -1,20 +1,18 @@
 package pl.net.bluesoft.rnd.processtool.ui.dict;
 
-import org.aperteworkflow.util.vaadin.VaadinUtility;
-
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
-import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionary;
-import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItem;
-import pl.net.bluesoft.rnd.processtool.ui.dict.modelview.ProcessDictionaryModelView;
-import pl.net.bluesoft.rnd.processtool.ui.dict.request.AddNewDictionaryItemActionRequest;
-
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Select;
+import org.aperteworkflow.util.vaadin.VaadinUtility;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
+import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionary;
+import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItem;
+import pl.net.bluesoft.rnd.processtool.ui.dict.modelview.ProcessDictionaryModelView;
+import pl.net.bluesoft.rnd.processtool.ui.dict.request.AddNewDictionaryItemActionRequest;
 
 public class ProcessDictionaryTab extends DictionaryTab implements ValueChangeListener
 {
@@ -35,7 +33,7 @@ public class ProcessDictionaryTab extends DictionaryTab implements ValueChangeLi
     	getProcessModelView().reloadData();
 
         for(ProcessDefinitionConfig conif: getProcessModelView().getBeanItemContainerConfigs().getItemIds())
-        	selectProcess.setItemCaption(conif, getMessage(conif.getProcessName()));
+			selectProcess.setItemCaption(conif, getMessage(conif.getDescription()));
         
     }
     

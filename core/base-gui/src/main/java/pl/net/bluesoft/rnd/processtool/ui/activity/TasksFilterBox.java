@@ -134,7 +134,7 @@ public class TasksFilterBox extends VerticalLayout {
 		ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
 		filter.setGenericQuery(filterExpression);
 		filter.setName((String) filterNameField.getValue());
-		filter.setFilterOwner(session.getUser(ctx));
+		filter.setFilterOwner(session.getUser());
 		filter.setId(null);
 		ctx.getProcessInstanceFilterDAO().saveProcessInstanceFilter(filter);
 		parent.getActivityMainPane().getBpmSession().getEventBusManager().publish(new FilterChangedEvent());

@@ -1,14 +1,9 @@
 package pl.net.bluesoft.rnd.processtool.model;
 
-import java.io.Serializable;
 import java.util.List;
 
-public interface BpmStep extends Serializable {
-    String getExecutionId();
+public interface BpmStep {
+	ProcessInstance getProcessInstance();
 
-    ProcessInstance getProcessInstance();
-
-    String getStateName();
-
-    List<String> getOutgoingTransitions();
+	List<String> getOutgoingTransitions();
 }

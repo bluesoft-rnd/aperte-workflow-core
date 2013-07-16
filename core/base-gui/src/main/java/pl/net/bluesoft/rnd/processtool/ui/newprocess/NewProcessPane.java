@@ -31,9 +31,8 @@ public class NewProcessPane extends VerticalLayout {
 
         BeanItemContainer<ProcessDefinitionConfig> bic = new BeanItemContainer<ProcessDefinitionConfig>(ProcessDefinitionConfig.class);
         final ComboBox l = new ComboBox(getMessage("tasks.processType"), bic);
-        ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
 
-        for (ProcessDefinitionConfig cfg : session.getAvailableConfigurations(ctx)) {
+        for (ProcessDefinitionConfig cfg : session.getAvailableConfigurations()) {
             bic.addItem(cfg);
             l.setItemCaption(cfg, getMessage(cfg.getDescription()));
         }
@@ -57,13 +56,12 @@ public class NewProcessPane extends VerticalLayout {
                     public void run() {
                         ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
                         ProcessDefinitionConfig cfg = (ProcessDefinitionConfig) l.getValue();
-                        cfg = ctx.getProcessDefinitionDAO().getActiveConfigurationByKey(cfg.getBpmDefinitionKey());
-                        ProcessInstance instance = session.createProcessInstance(cfg, null, ctx, null, null, "portlet", null);
+                        ProcessInstance instance = session.startProcess(cfg.getBpmDefinitionKey(), null, null, null, "portlet");
                         getWindow().showNotification(getMessage("newProcess.started"), 2000);
                         getWindow().executeJavaScript("Liferay.trigger('processtool.bpm.newProcess', '" + instance.getInternalId() + "');");
                         getWindow().executeJavaScript("vaadin.forceSync();");
 
-                        List<BpmTask> tasks = session.findUserTasks(instance, ctx);
+                        List<BpmTask> tasks = session.findUserTasks(instance);
                         if (!tasks.isEmpty()) {
                             BpmTask task = tasks.get(0);
                             if (activityMainPane != null) {

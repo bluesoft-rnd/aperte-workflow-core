@@ -33,8 +33,7 @@ public class OtherUserQueueListPane extends QueueListPane {
     @Override
     protected ProcessToolBpmSession getBpmSession() {
         if (bpmSession == null) {
-            ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-            bpmSession = activityMainPane.getBpmSession().createSession(userData, userData.getRoleNames(), ctx);
+            bpmSession = activityMainPane.getBpmSession().createSession(userData, userData.getRoleNames());
         }
         return bpmSession;
     }

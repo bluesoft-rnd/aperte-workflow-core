@@ -1,8 +1,11 @@
 package pl.net.bluesoft.rnd.processtool.authorization.impl;
 
+import javax.portlet.PortletRequest;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import pl.net.bluesoft.rnd.processtool.authorization.IAuthorizationService;
+import pl.net.bluesoft.rnd.processtool.authorization.exception.AuthorizationException;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 
 /**
@@ -31,9 +34,14 @@ public class MockAuthorizationService implements IAuthorizationService
 		return null;
 	}
 
+    @Override
+    public UserData authenticateByLogin(String login, String password, HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws AuthorizationException {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
 	@Override
-	public UserData authenticateByLogin(String login, String password,
-			HttpServletRequest servletRequest) {
+	public UserData getUserByRequest(PortletRequest renderRequest)
+			throws AuthorizationException {
 		// TODO Auto-generated method stub
 		return null;
 	}

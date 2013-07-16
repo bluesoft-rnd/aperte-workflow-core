@@ -28,7 +28,6 @@ import com.vaadin.terminal.ParameterHandler;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.Label;
@@ -163,7 +162,7 @@ public class StandaloneWindowTab extends Window implements ParameterHandler, Cli
 		application.setUser(user); 
 		
 		
-		ProcessToolRegistry registry = ProcessToolRegistry.ThreadUtil.getThreadRegistry();
+		ProcessToolRegistry registry = ProcessToolRegistry.Util.getInstance();
 		registry.withProcessToolContext(new ProcessToolContextCallback() {
 			
 			@Override
@@ -180,7 +179,7 @@ public class StandaloneWindowTab extends Window implements ParameterHandler, Cli
 	
 	private void renderView()
 	{
-		ProcessToolRegistry registry = ProcessToolRegistry.ThreadUtil.getThreadRegistry();
+		ProcessToolRegistry registry = ProcessToolRegistry.Util.getInstance();
 		registry.withProcessToolContext(new ProcessToolContextCallback() {
 			
 			@Override

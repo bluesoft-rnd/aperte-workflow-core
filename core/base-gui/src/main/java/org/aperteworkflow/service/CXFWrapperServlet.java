@@ -13,7 +13,7 @@ import javax.xml.ws.Endpoint;
  */
 public class CXFWrapperServlet extends CXFNonSpringServlet {
     @Override
-    public void loadBus(ServletConfig servletConfig) throws ServletException {
+    public void loadBus(ServletConfig servletConfig) {
         super.loadBus(servletConfig);
 
         // You could add the endpoint publish codes here

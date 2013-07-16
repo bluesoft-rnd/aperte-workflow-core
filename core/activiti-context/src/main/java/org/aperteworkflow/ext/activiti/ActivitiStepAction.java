@@ -112,8 +112,6 @@ public class ActivitiStepAction implements JavaDelegate {
     private BpmStep prepareStep(ProcessInstance pi, DelegateExecution exec) {
         MutableBpmStep step = new MutableBpmStep();
         step.setProcessInstance(pi);
-        step.setExecutionId(exec.getId());
-        step.setStateName((String) this.stepName.getValue(exec));
 
         return step;
     }

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config.ProcessDefinitionConfig processName="subprocess_assignee" description="Complaint.definition.desc" bpmDefinitionKey="subprocess_assignee" comment="Complaint.definition.comment">
+	<states>		
+		<config.ProcessStateConfiguration name="AS_Task1" description="Complaint.AS_Task1.desc" commentary="Complaint.AS_Task1.comment">
+			<widgets>
+				<config.ProcessStateWidget className="TabSheet" priority="10">
+					<children>
+					</children>
+				</config.ProcessStateWidget>
+			</widgets>
+			<actions>
+				<config.ProcessStateAction bpmName="end" label="Complaint.AS_Task1.end.label" description="Complaint.AS_Task1.end.desc" buttonName="Default" skipSaving="false" autohide="true" markProcessImportant="false" priority="10" />
+			</actions>
+		</config.ProcessStateConfiguration>
+	</states>
+</config.ProcessDefinitionConfig>

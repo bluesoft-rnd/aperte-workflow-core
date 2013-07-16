@@ -5,11 +5,11 @@ import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.pt.utils.lang.Lang2;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
@@ -21,13 +21,30 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
 @Entity
 @Table(name="pt_process_definition_config")
-public class ProcessDefinitionConfig extends PersistentEntity implements Serializable 
-{
+public class ProcessDefinitionConfig extends PersistentEntity {
 	private static final long serialVersionUID = 3568533142091163609L;
-	
-	private String processName;
+
+	public static final String _DESCRIPTION = "description";
+	public static final String _BPM_DEFINITION_KEY = "bpmDefinitionKey";
+	public static final String _BPM_DEFINITION_VERSION = "bpmDefinitionVersion";
+	public static final String _DEPLOYMENT_ID = "deploymentId";
+	public static final String _PROCESS_VERSION = "processVersion";
+	public static final String _COMMENT = "comment";
+	public static final String _CREATOR_ID = "creator_id";
+	public static final String _CREATE_DATE = "createDate";
+	public static final String _STATES = "states";
+	public static final String _PERMISSIONS = "permissions";
+	public static final String _PROCESS_LOGO = "processLogo";
+	public static final String _ENABLED = "enabled";
+	public static final String _TASK_ITEM_CLASS = "taskItemClass";
+	public static final String _LATEST = "latest";
+
+	public static final String VERSION_SEPARATOR = "_";
+
 	private String description;
 	private String bpmDefinitionKey;
+	private int bpmDefinitionVersion;
+	private String deploymentId;
 	
 	/** Process version info */
 	@Column(name="process_version")
@@ -43,24 +60,24 @@ public class ProcessDefinitionConfig extends PersistentEntity implements Seriali
 
 	private Date createDate;
 
-	@OneToMany(cascade = {CascadeType.ALL}, fetch=FetchType.EAGER)
+	@OneToMany(cascade = {CascadeType.ALL}, fetch=FetchType.LAZY)
 	@JoinColumn(name="definition_id")
 	private Set<ProcessStateConfiguration> states = new HashSet<ProcessStateConfiguration>();
 
-	@OneToMany(cascade = {CascadeType.ALL}, fetch=FetchType.EAGER)
+	@OneToMany(cascade = {CascadeType.ALL}, fetch=FetchType.LAZY)
 	@JoinColumn(name="definition_id")
 	private Set<ProcessDefinitionPermission> permissions = new HashSet<ProcessDefinitionPermission>();
 
     @Lob
     private byte[] processLogo;
 	
-    private Boolean enabled;
+    private boolean enabled;
 
     private String taskItemClass;
 	/**
 	 * latest definition of process with processName ensures uniqueness and versioning of definitions
 	 */
-	private Boolean latest;
+	private boolean latest;
 
     public byte[] getProcessLogo() {
         return processLogo;
@@ -78,14 +95,6 @@ public class ProcessDefinitionConfig extends PersistentEntity implements Seriali
         this.taskItemClass = taskItemClass;
     }
 
-    public String getProcessName() {
-		return processName;
-	}
-
-	public void setProcessName(String processName) {
-		this.processName = processName;
-	}
-
 	public String getDescription() {
 		return description;
 	}
@@ -102,11 +111,31 @@ public class ProcessDefinitionConfig extends PersistentEntity implements Seriali
 		this.bpmDefinitionKey = bpmDefinitionKey;
 	}
 
-	public Boolean getLatest() {
+	public int getBpmDefinitionVersion() {
+		return bpmDefinitionVersion;
+	}
+
+	public void setBpmDefinitionVersion(int bpmDefinitionVersion) {
+		this.bpmDefinitionVersion = bpmDefinitionVersion;
+	}
+
+	public String getBpmProcessId() {
+		return bpmDefinitionKey + VERSION_SEPARATOR + bpmDefinitionVersion;
+	}
+
+	public String getDeploymentId() {
+		return deploymentId;
+	}
+
+	public void setDeploymentId(String deploymentId) {
+		this.deploymentId = deploymentId;
+	}
+
+	public boolean isLatest() {
 		return latest;
 	}
 
-	public void setLatest(Boolean latest) {
+	public void setLatest(boolean latest) {
 		this.latest = latest;
 	}
 
@@ -147,21 +176,24 @@ public class ProcessDefinitionConfig extends PersistentEntity implements Seriali
 		this.comment = comment;
 	}
 
+	public boolean isEnabled() {
+		return enabled;
+	}
 
-    public Boolean getEnabled() {
-        return nvl(enabled, true);
-    }
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
 
-    public void setEnabled(Boolean enabled) {
-        this.enabled = enabled;
-    }
-    
-    public String getProcessVersion() {
+	public String getProcessVersion() {
 		return nvl(processVersion, "");
 	}
 
 	public void setProcessVersion(String version) {
 		this.processVersion = version;
+	}
+
+	public String getProcessName() {
+		return description;
 	}
 
 	public static final Comparator<ProcessDefinitionConfig> DEFAULT_COMPARATOR = new Comparator<ProcessDefinitionConfig>() {
@@ -197,9 +229,47 @@ public class ProcessDefinitionConfig extends PersistentEntity implements Seriali
     {
 		this.permissions = permissions;
     }
+
+	public static boolean hasVersion(String processId) {
+		return processId.matches("^.*" + Pattern.quote(VERSION_SEPARATOR) + "\\d+$");
+	}
+
+	public static String extractBpmDefinitionKey(String processId) {
+		int separatorPos = processId.lastIndexOf(VERSION_SEPARATOR);
+
+		return separatorPos >= 0 ? processId.substring(0, separatorPos) : processId;
+	}
+
+	public static Integer extractBpmDefinitionVersion(String processId) {
+		int separatorPos = processId.lastIndexOf(VERSION_SEPARATOR);
+
+		return separatorPos >= 0 ? Integer.valueOf(processId.substring(separatorPos + VERSION_SEPARATOR.length())) : null;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ProcessDefinitionConfig other = (ProcessDefinitionConfig) obj;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		return true;
+	}
     
-    @Override
-    public String toString() {
-    	return processName;
-    }
+    
 }

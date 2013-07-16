@@ -12,7 +12,6 @@ import java.util.Set;
 import javax.persistence.*;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.Parameter;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.*;
@@ -47,7 +46,6 @@ public class UserData extends UserAttributesSupport {
 	private String lastName;
 	private String email;
 	private String jobTitle;
-	private String company;
 	private String department;
 	private String superior;
 	private Long companyId;
@@ -59,7 +57,7 @@ public class UserData extends UserAttributesSupport {
     @Transient
     private Set<UserAttribute> orphans;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<UserRole> roles;
 
 	public UserData() {
@@ -269,10 +267,6 @@ public class UserData extends UserAttributesSupport {
 		this.email = email;
 	}
 
-	public void setCompany(String company) {
-		this.company = company;
-	}
-
 	public String getJobTitle() {
 		return jobTitle;
 	}
@@ -356,6 +350,14 @@ public class UserData extends UserAttributesSupport {
 	public void setSuperior(String superior) {
 		this.superior = superior;
 	}
-	
-	
+
+
+    public boolean hasRole(String roleName)
+    {
+        for(UserRole role: roles)
+            if(role.getName().equals(roleName))
+                return true;
+
+        return false;
+    }
 }

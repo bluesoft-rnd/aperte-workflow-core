@@ -17,7 +17,6 @@ import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
 import org.aperteworkflow.util.vaadin.UriChangedCallback;
 import org.aperteworkflow.util.vaadin.VaadinUtility;
 
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
@@ -238,7 +237,7 @@ public class ActivityMainPane extends AbstractActivityView
 
 		// to remove "strange" views, depending on external addons. Such
 		// approach also gives us much greater flexibility
-		ProcessToolRegistry registry = ProcessToolRegistry.ThreadUtil.getThreadRegistry();
+		ProcessToolRegistry registry = ProcessToolRegistry.Util.getInstance();
 		IViewRegistry registeredService = registry.getRegisteredService(IViewRegistry.class);
 		if(registeredService != null)
 		{
@@ -360,10 +359,9 @@ public class ActivityMainPane extends AbstractActivityView
 	private void confirmTaskClosing(final EventHandler eventHandler)
 	{
 		BpmTask task;
-		final ProcessToolContext processToolContextFromThread = ProcessToolContext.Util.getThreadProcessToolContext();
 		if(viewController.getCurrentViewId() != null && viewController.getCurrentViewId().equals(ToolbarProcessDataViewComponent.class.getName())
 				&& (task = (BpmTask)viewController.getCurrentViewData().get("task")) != null
-				&& getBpmSession().isProcessRunning(task.getProcessInstance().getInternalId(),processToolContextFromThread))
+				&& getBpmSession().isProcessRunning(task.getProcessInstance().getInternalId()))
 		{
 			final ProcessMultiViewDataPane pdp = pdvc != null && pdvc.getProcessDataPane() != null ? pdvc.getProcessDataPane() : null;
 

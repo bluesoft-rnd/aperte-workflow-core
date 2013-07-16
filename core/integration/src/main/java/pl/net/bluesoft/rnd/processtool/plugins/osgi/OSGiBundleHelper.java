@@ -2,6 +2,7 @@ package pl.net.bluesoft.rnd.processtool.plugins.osgi;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
+import pl.net.bluesoft.rnd.processtool.plugins.IBundleResourceProvider;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,7 +12,11 @@ import java.util.Map;
 
 import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 
-public class OSGiBundleHelper {
+public class OSGiBundleHelper implements IBundleResourceProvider
+{
+    public static final String		VIEW	    = "ProcessTool-Widget-View";
+    public static final String		SCRIPT	    = "ProcessTool-Widget-Script";
+    public static final String		CONTROLLER		        = "ProcessTool-Controller";
     public static final String		MODEL_ENHANCEMENT	    = "ProcessTool-Model-Enhancement";
     public static final String		WIDGET_ENHANCEMENT	    = "ProcessTool-Widget-Enhancement";
     public static final String		BUTTON_ENHANCEMENT  	= "ProcessTool-Button-Enhancement";
@@ -26,13 +31,14 @@ public class OSGiBundleHelper {
     public static final String		ROLE_FILES			    = "ProcessTool-Role-Files";
     public static final String 		IMPLEMENTATION_BUILD    = "Implementation-Build";
     public static final String      TASK_ITEM_ENHANCEMENT   = "ProcessTool-TaskItem-Enhancement";
+    
     public static final String      DESCRIPTION             = Constants.BUNDLE_DESCRIPTION;
     public static final String      HOMEPAGE_URL            = Constants.BUNDLE_UPDATELOCATION;
     public static final String      DOCUMENTATION_URL       = Constants.BUNDLE_DOCURL;
 
     public static final String[]	HEADER_NAMES		    = {
-            MODEL_ENHANCEMENT, WIDGET_ENHANCEMENT, BUTTON_ENHANCEMENT, STEP_ENHANCEMENT, I18N_PROPERTY,
-            PROCESS_DEPLOYMENT, GLOBAL_DICTIONARY, ICON_RESOURCES, RESOURCES, HUMAN_NAME, DESCRIPTION_KEY,
+            MODEL_ENHANCEMENT, WIDGET_ENHANCEMENT, BUTTON_ENHANCEMENT, VIEW, SCRIPT, STEP_ENHANCEMENT, I18N_PROPERTY,
+            PROCESS_DEPLOYMENT, GLOBAL_DICTIONARY, ICON_RESOURCES, RESOURCES, HUMAN_NAME, DESCRIPTION_KEY, CONTROLLER,
             ROLE_FILES, IMPLEMENTATION_BUILD, TASK_ITEM_ENHANCEMENT, DESCRIPTION, HOMEPAGE_URL, DOCUMENTATION_URL
     };
 

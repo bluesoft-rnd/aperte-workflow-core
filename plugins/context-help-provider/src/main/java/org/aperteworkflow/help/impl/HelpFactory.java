@@ -14,6 +14,7 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.dict.MultiLevelDictionary;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionary;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -36,9 +37,13 @@ public class HelpFactory {
 
 	public HelpFactory(List<ProcessDefinitionConfig> definitions, Application application, I18NSource i18NSource, String dictionary, ContextHelp contextHelp) {
 		this.application = application;
-		this.i18NSource = i18NSource;
 		this.contextHelp = contextHelp;
 		this.dictionaryName = dictionary;
+		
+		if(i18NSource == null)
+			i18NSource = I18NSourceFactory.createI18NSource(application.getLocale());
+		
+		this.i18NSource = i18NSource;
 
 		if (application instanceof GenericVaadinPortlet2BpmApplication) {
 			GenericVaadinPortlet2BpmApplication o = (GenericVaadinPortlet2BpmApplication) application;

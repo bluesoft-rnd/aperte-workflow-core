@@ -5,11 +5,16 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
+import pl.net.bluesoft.rnd.processtool.event.SaveTaskEvent;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistryImpl;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinRenderable;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
@@ -21,6 +26,7 @@ import pl.net.bluesoft.util.lang.Formats;
 import pl.net.bluesoft.util.lang.Maps;
 import pl.net.bluesoft.util.lang.Strings;
 
+import com.google.common.eventbus.Subscribe;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.data.util.MethodProperty;
@@ -37,7 +43,10 @@ import com.vaadin.ui.PopupDateField;
  * Time: 14:07:11
  */
 @AliasName(name = "UserSubstitutionRequest")
-public class UserSubstitutionRequestWidget extends BaseProcessToolWidget implements ProcessToolVaadinRenderable, ProcessToolDataWidget {
+public class UserSubstitutionRequestWidget extends BaseProcessToolWidget implements ProcessToolVaadinRenderable, ProcessToolDataWidget 
+{
+	private static final Logger logger = Logger.getLogger(UserSubstitutionRequestWidget.class.getName());
+	
     private static final String USER_SUBSTITUTE_LOGIN = "userSubstitute";
     private static final String DATE_FROM = "dateFrom";
     private static final String DATE_TO = "dateTo";
@@ -85,7 +94,9 @@ public class UserSubstitutionRequestWidget extends BaseProcessToolWidget impleme
     }
 
     @Override
-    public Collection<String> validateData(BpmTask task, boolean skipRequired) {
+    public Collection<String> validateData(BpmTask task, boolean skipRequired) 
+    {
+    	logger.warning("validate!!");
         List<String> errors = new ArrayList<String>();
         if (userSubstitute == null) {
             errors.add(getMessage("usersubstitution.user.required"));
@@ -136,7 +147,7 @@ public class UserSubstitutionRequestWidget extends BaseProcessToolWidget impleme
         dateField.setDateFormat("yyyy-MM-dd");
         dateField.setResolution(PopupDateField.RESOLUTION_DAY);
         dateField.setRequired(true);
-//        dateField.setImmediate(true);
+        dateField.setImmediate(true);
         dateField.setPropertyDataSource(new MethodProperty<Date>(this, boundProperty));
         dateField.setReadOnly(readonly);
         return dateField;

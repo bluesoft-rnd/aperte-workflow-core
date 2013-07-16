@@ -111,8 +111,7 @@ public class AdminMainPane extends VerticalLayout implements Refreshable {
     
     
     private void fillTableContainer() {
-    	ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-        Collection<BpmTask> taskList = bpmSession.getAllTasks(ctx);
+        Collection<BpmTask> taskList = bpmSession.getAllTasks();
         
         for (BpmTask bpmTask : taskList) {
 			String assignee = bpmTask.getOwner() == null ? "" : defaultString(bpmTask.getOwner().getLogin());

@@ -7,6 +7,7 @@ import com.vaadin.ui.Component;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
+import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSessionHelper;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 
@@ -41,7 +42,7 @@ public abstract class BaseProcessToolVaadinActionButton extends BaseProcessToolA
 				                	  @Override
 				                	  public void run() 
 				                	  {
-				                		  ProcessToolRegistry registry = ProcessToolRegistry.ThreadUtil.getThreadRegistry();
+				                		  ProcessToolRegistry registry = ProcessToolRegistry.Util.getInstance();
 				                		  
 				                		  registry.withProcessToolContext(new ProcessToolContextCallback() {
 											
@@ -71,7 +72,7 @@ public abstract class BaseProcessToolVaadinActionButton extends BaseProcessToolA
 
 	protected void invokeBpmTransition() {
 		ProcessToolContext ctx = getCurrentContext();
-		task = bpmSession.performAction(definition, task, ctx);
+		task = ProcessToolBpmSessionHelper.performAction(bpmSession, ctx, definition, task);
 		if (task == null || task.isFinished()) {
 			showTransitionNotification();
 		}

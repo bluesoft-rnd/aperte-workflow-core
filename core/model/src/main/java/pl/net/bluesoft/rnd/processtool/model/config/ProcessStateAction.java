@@ -164,7 +164,7 @@ public class ProcessStateAction extends AbstractPersistentEntity {
     }
 
     public Boolean getAutohide() {
-        return nvl(autohide, true);
+        return nvl(autohide, false);
     }
 
     public void setAutohide(Boolean autohide) {

@@ -3,6 +3,7 @@ package org.aperteworkflow.editor.stepeditor.user;
 import com.vaadin.Application;
 import org.aperteworkflow.editor.vaadin.GenericEditorApplication;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.Permission;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.PermissionsUsed;
@@ -66,6 +67,9 @@ public class WidgetInfoLoader {
         for (Class<? extends ProcessToolWidget> widgetClass : registeredWidgets.values()) {
             viewableWidgets.put(widgetClass.getName(), widgetClass);
         }
+
+        for(ProcessHtmlWidget htmlWidget: reg.getHtmlWidgets())
+            viewableWidgets.put(htmlWidget.getClass().getName(), htmlWidget.getClass());
 
         // Create sorted structure of widgets by processing their annotations
         Map<String, List<Class<? extends ProcessToolWidget>>> sortedWidgets = new HashMap<String, List<Class<? extends ProcessToolWidget>>>();

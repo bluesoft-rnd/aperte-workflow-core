@@ -35,8 +35,8 @@
 		<module>integration-liferay</module>
 		<module>external-plugins</module>
 		<!-- Plugins for Aperte Reports, uncomment if you are using it. -->
-		 <module>report-step</module> 
-		 <module>aperte-reports-integration</module>
+		<!-- <module>report-step</module> -->
+		<!--<module>aperte-reports-integration</module>-->
 		
 	</modules>
 

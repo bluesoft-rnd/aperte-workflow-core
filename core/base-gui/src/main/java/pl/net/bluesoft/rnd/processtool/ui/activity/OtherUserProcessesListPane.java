@@ -40,12 +40,10 @@ public class OtherUserProcessesListPane extends MyProcessesListPane {
     {
         if (bpmSession == null) 
         {
-            ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-            
             IUserSource userSoruce = ObjectFactory.create(IUserSource.class);
             
             userData = userSoruce.getUserByLogin(userData.getLogin(), userData.getCompanyId());
-            bpmSession = activityMainPane.getBpmSession().createSession(userData, userData.getRoleNames(), ctx);
+            bpmSession = activityMainPane.getBpmSession().createSession(userData, userData.getRoleNames());
         }
         return bpmSession;
     }

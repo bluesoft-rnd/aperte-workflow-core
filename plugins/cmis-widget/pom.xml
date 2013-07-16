@@ -40,7 +40,7 @@
     <build>
         <plugins>
         	<!-- Git version properties file generator -->
-            <plugin>
+<!--             <plugin>
                 <groupId>pl.project13.maven</groupId>
                 <artifactId>git-commit-id-plugin</artifactId>
                 <version>2.1.4</version>
@@ -57,7 +57,7 @@
 				    <generateGitPropertiesFilename>src/main/resources/git.properties</generateGitPropertiesFilename>
 				    <skipPoms>false</skipPoms>
 				</configuration>
-            </plugin>
+            </plugin> -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>

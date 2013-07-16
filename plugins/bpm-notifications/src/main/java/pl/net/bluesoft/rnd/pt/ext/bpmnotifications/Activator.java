@@ -27,7 +27,6 @@ import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.TemplateDataProvider;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.sessions.DatabaseMailSessionProvider;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.sessions.IMailSessionProvider;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.sessions.JndiMailSessionProvider;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.settings.NotificationsSettings;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.settings.NotificationsSettingsProvider;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.templates.IMailTemplateLoader;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.templates.MailTemplateProvider;
@@ -49,9 +48,8 @@ public class Activator implements BundleActivator, EventListener<BpmEvent>
 	public void start(BundleContext context) throws Exception 
 	{
 		final ProcessToolRegistry registry = getRegistry(context);
-		ProcessToolRegistry.ThreadUtil.setThreadRegistry(registry);
-		
-        registry.withProcessToolContext(new ProcessToolContextCallback() 
+
+		registry.withProcessToolContext(new ProcessToolContextCallback()
         {
 			@Override
 			public void withContext(ProcessToolContext ctx)
@@ -83,8 +81,6 @@ public class Activator implements BundleActivator, EventListener<BpmEvent>
 	private void injectImplementation()
 	{
 		logger.info("Injecting Liferay dependencies...");
-		
-		
 
     	String providerName = NotificationsSettingsProvider.getProviderType();
     	if(providerName == null)         {
@@ -113,8 +109,6 @@ public class Activator implements BundleActivator, EventListener<BpmEvent>
 		ClassDependencyManager.getInstance().injectImplementation(INotificationsAddonsManager.class, NotificationAddonsMockManager.class);
 		
 	}
-	
-	
 
 	@Override
 	public void stop(BundleContext context) throws Exception {

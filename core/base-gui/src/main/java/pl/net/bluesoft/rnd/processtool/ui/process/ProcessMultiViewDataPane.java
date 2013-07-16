@@ -26,6 +26,7 @@ import org.aperteworkflow.util.vaadin.VaadinUtility;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
+import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSessionHelper;
 import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
@@ -44,6 +45,7 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolChildrenFilteringWi
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinRenderable;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.WidgetFactory;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.event.WidgetEventBus;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.util.lang.Lang;
@@ -89,6 +91,8 @@ public class ProcessMultiViewDataPane extends VerticalLayout implements WidgetCo
 
 	private ProcessToolActionCallback actionCallback;
 	private GuiAction guiAction = null;
+	
+	private WidgetFactory widgetFactory;
 
 	private static enum GuiAction {
 		ACTION_PERFORMED, SAVE_PERFORMED, ACTION_FAILED;
@@ -101,6 +105,9 @@ public class ProcessMultiViewDataPane extends VerticalLayout implements WidgetCo
 		this.i18NSource = i18NSource;
 		displayProcessContext = hideProcessHandler;
 		task = bpmTask;
+		
+		this.widgetFactory = new WidgetFactory(bpmSession, application, i18NSource);
+		
 
 		refreshTask();
 		prepare();
@@ -126,7 +133,7 @@ public class ProcessMultiViewDataPane extends VerticalLayout implements WidgetCo
 		setWidth(100, Sizeable.UNITS_PERCENTAGE);
 		dataWidgets.clear();
 
-		boolean processRunning = bpmSession.isProcessRunning(task.getInternalProcessId(), ctx);
+		boolean processRunning = ProcessToolBpmSessionHelper.isProcessRunning(bpmSession, ctx, task.getInternalProcessId());
 		isOwner = processRunning && !task.isFinished();
 		if (!isOwner) 
 		{
@@ -314,13 +321,13 @@ public class ProcessMultiViewDataPane extends VerticalLayout implements WidgetCo
 	private boolean changeProcess(ProcessInstance newProcess)
 	{
 		/* Get active task for current process */
-		List<BpmTask> activeTasks = bpmSession.findProcessTasks(newProcess,  getCurrentContext());
+		List<BpmTask> activeTasks = ProcessToolBpmSessionHelper.findProcessTasks(bpmSession, getCurrentContext(), newProcess);
 		
 		/* Check if the current process has active task. It should has at least one */
 		if(activeTasks.isEmpty())
 			return false;
 		
-		UserData user = bpmSession.getUser(getCurrentContext());
+		UserData user = ProcessToolBpmSessionHelper.getUser(bpmSession, getCurrentContext());
 		String userLogin = user.getLogin();
 		
 		for(BpmTask task: activeTasks)
@@ -338,8 +345,6 @@ public class ProcessMultiViewDataPane extends VerticalLayout implements WidgetCo
 		
 		/* There are no active task or the assigne is diffrent */
 		return false;
-		
-
 	}
 
 	private AbstractLayout getButtonsPanel(ProcessStateConfiguration stateConfiguration) {
@@ -466,7 +471,7 @@ public class ProcessMultiViewDataPane extends VerticalLayout implements WidgetCo
 		for (ProcessToolActionButton action : actions) {
 			action.saveData(task);
 		}
-		bpmSession.saveProcessInstance(task.getProcessInstance(), getCurrentContext());
+		ProcessToolBpmSessionHelper.saveProcessInstance(bpmSession, getCurrentContext(), task.getProcessInstance());
 	}
 
     @Override
@@ -482,9 +487,9 @@ public class ProcessMultiViewDataPane extends VerticalLayout implements WidgetCo
 	}
 
 	@Override
-	public BpmTask refreshTask(ProcessToolBpmSession bpmSession, BpmTask bpmTask) 
+	public BpmTask refreshTask(ProcessToolBpmSession bpmSession, BpmTask bpmTask)
 	{
-		return bpmSession.refreshTaskData(bpmTask, getCurrentContext());
+		return ProcessToolBpmSessionHelper.refreshTaskData(bpmSession, getCurrentContext(), bpmTask);
 	}
 
 	public String getMessage(String key) {
@@ -615,11 +620,9 @@ public class ProcessMultiViewDataPane extends VerticalLayout implements WidgetCo
 										String generatorKey, WidgetEventBus widgetEventBus) {
 		ProcessToolWidget processToolWidget;
 		try {
-			ProcessToolRegistry toolRegistry = ProcessToolRegistry.ThreadUtil.getThreadRegistry();
+			String widgetClassName = w.getClassName() == null ? w.getName() : w.getClassName();
 			
-			processToolWidget = w.getClassName() == null ? toolRegistry.makeWidget(w.getName()) : toolRegistry.makeWidget(w.getClassName());
-			processToolWidget.setContext(stateConfiguration, w, i18NSource, bpmSession, application,
-			                             bpmSession.getPermissionsForWidget(w, ctx), isOwner);
+			processToolWidget = widgetFactory.makeWidget(widgetClassName, w, ProcessToolBpmSessionHelper.getPermissionsForWidget(bpmSession, ctx, w), isOwner);
 			processToolWidget.setGeneratorKey(generatorKey);
 			processToolWidget.setWidgetEventBus(widgetEventBus);
 			if (processToolWidget instanceof ProcessToolDataWidget) {
@@ -631,7 +634,7 @@ public class ProcessMultiViewDataPane extends VerticalLayout implements WidgetCo
 			logger.log(Level.SEVERE, e.getMessage(), e);
 			FailedProcessToolWidget failedProcessToolVaadinWidget = new FailedProcessToolWidget(e);
 			failedProcessToolVaadinWidget.setContext(stateConfiguration, w, i18NSource, bpmSession, application,
-			                                         bpmSession.getPermissionsForWidget(w, ctx),
+					ProcessToolBpmSessionHelper.getPermissionsForWidget(bpmSession, ctx, w),
 			                                         isOwner);
 			dataWidgets.add(failedProcessToolVaadinWidget);
 			processToolWidget = failedProcessToolVaadinWidget;

@@ -2,15 +2,13 @@ package pl.net.bluesoft.rnd.processtool.model;
 
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import javax.persistence.*;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.Parameter;
 import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.annotations.*;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
@@ -25,7 +23,10 @@ import pl.net.bluesoft.rnd.pt.utils.lang.Lang2;
 
 @Entity
 @Table(name="pt_process_instance")
-public class ProcessInstance extends AbstractPersistentEntity {
+public class ProcessInstance extends AbstractPersistentEntity
+{
+    public static final String EXTERNAL_KEY_PROPERTY = "externalKey";
+
 	@Id
 	@GeneratedValue(generator = "idGenerator")
 	@GenericGenerator(
@@ -43,24 +44,18 @@ public class ProcessInstance extends AbstractPersistentEntity {
 	private String externalKey;
 	private String internalId;
 	private String definitionName;
-	private String state;
 	private String description;
 	private String keyword;
 
     @Enumerated(EnumType.STRING)
     private ProcessStatus status;
 
-	@Transient
-	private String taskId;
     @Transient
     private String[] assignees;
     @Transient
     private String[] taskQueues;
-
     @Transient
     private BpmTask[] activeTasks;
-
-    private Boolean running;
 
 	private Date createDate;
 
@@ -96,17 +91,19 @@ public class ProcessInstance extends AbstractPersistentEntity {
 	@Transient
 	private Set<ProcessInstanceAttribute> toDelete;
 
+	@Override
 	public Long getId() {
 		return id;
 	}
 
+	@Override
 	public void setId(Long id) {
 		this.id = id;
 	}
 
 	public ProcessInstance getRootProcessInstance() {
     	ProcessInstance parentProcess = this;
-    	while(parentProcess.getParent() != null){
+    	while (parentProcess.getParent() != null){
     		parentProcess = parentProcess.getParent();
     	}
     	return parentProcess;
@@ -136,17 +133,12 @@ public class ProcessInstance extends AbstractPersistentEntity {
 	}
 
 	public ProcessInstance() {
-		// TODO Auto-generated constructor stub
 	}
 
 	public String getExternalKey() {
-		if(externalKey == null && parent != null){
+		if (externalKey == null && parent != null){
 			return parent.getExternalKey();
 		}
-		return externalKey;
-	}
-	
-	public String getOwnExternalKey() {
 		return externalKey;
 	}
 
@@ -186,14 +178,6 @@ public class ProcessInstance extends AbstractPersistentEntity {
 		this.definitionName = definitionName;
 	}
 
-	public String getState() {
-		return state;
-	}
-
-	public void setState(String state) {
-		this.state = state;
-	}
-	
 	public Set<String> getOwners() {
 		return owners;
 	}
@@ -201,19 +185,23 @@ public class ProcessInstance extends AbstractPersistentEntity {
 	public void setOwners(Set<String> ownersLogins) {
 		this.owners = ownersLogins;
 	}
-	
-	public void addOwner(String ownerLogin)
-	{
+
+	public void addOwner(String ownerLogin) {
 		this.owners.add(ownerLogin);
 	}
-	
-	public void removeOwner(String ownerLogin)
-	{
+
+	public void addOwners(Collection<String> ownerLogins) {
+		this.owners.addAll(ownerLogins);
+	}
+
+	public void removeOwner(String ownerLogin) {
 		this.owners.remove(ownerLogin);
 	}
 
 	public Set<ProcessInstanceAttribute> getProcessAttributes() {
-		if (processAttributes == null) processAttributes = new HashSet<ProcessInstanceAttribute>();
+		if (processAttributes == null) {
+			processAttributes = new HashSet<ProcessInstanceAttribute>();
+		}
 		return processAttributes;
 	}
 
@@ -249,14 +237,6 @@ public class ProcessInstance extends AbstractPersistentEntity {
 		processAttributes.add(attr);
 	}
 
-	public String getTaskId() {
-		return taskId;
-	}
-
-	public void setTaskId(String taskId) {
-		this.taskId = taskId;
-	}
-
 	public Set<ProcessInstanceLog> getProcessLogs() {
 		return processLogs;
 	}
@@ -279,6 +259,16 @@ public class ProcessInstance extends AbstractPersistentEntity {
 		}
 		return null;
 	}
+	
+    public <T extends ProcessInstanceAttribute> T findAttributeByClassName(String className) {
+        Set<ProcessInstanceAttribute> attrs = getProcessAttributes();
+        for (ProcessInstanceAttribute pia : attrs) {
+            if (className.equals(pia.getClass().getName())) {
+                return (T) pia;
+            }
+        }
+        return null;
+    }
 
     public <T extends ProcessInstanceAttribute> T findAttributeByClass(Class<T> clazz) {
         Set<ProcessInstanceAttribute> attrs = getProcessAttributes();
@@ -326,6 +316,20 @@ public class ProcessInstance extends AbstractPersistentEntity {
         return attr != null ? ((ProcessInstanceSimpleAttribute)attr).getValue() : default_;
     }
 
+	public Map<String, String> getSimpleAttributeValues() {
+		Map<String, String> result = new HashMap<String, String>();
+
+		for (ProcessInstanceAttribute attribute : getProcessAttributes()) {
+			if (attribute instanceof ProcessInstanceSimpleAttribute) {
+				ProcessInstanceSimpleAttribute simpleAttribute = (ProcessInstanceSimpleAttribute)attribute;
+
+				result.put(simpleAttribute.getKey(), simpleAttribute.getValue());
+			}
+		}
+		return result;
+	}
+
+
 	public String getInheritedSimpleAttributeValue(String key) {
 		return getInheritedSimpleAttributeValue(key, null);
 	}
@@ -359,7 +363,7 @@ public class ProcessInstance extends AbstractPersistentEntity {
 
     }
 
-
+	@XmlTransient
     public String[] getAssignees() {
         return nvl(assignees, new String[] { });
     }
@@ -368,20 +372,13 @@ public class ProcessInstance extends AbstractPersistentEntity {
         this.assignees = assignees;
     }
 
+	@XmlTransient
     public String[] getTaskQueues() {
         return nvl(taskQueues, new String[] { });
     }
 
     public void setTaskQueues(String... taskQueues) {
         this.taskQueues = taskQueues;
-    }
-
-    public Boolean getRunning() {
-        return nvl(running,true);
-    }
-
-    public void setRunning(Boolean running) {
-        this.running = running;
     }
 
     public ProcessStatus getStatus() {
@@ -392,6 +389,7 @@ public class ProcessInstance extends AbstractPersistentEntity {
         this.status = status;
     }
 
+	@XmlTransient
     public BpmTask[] getActiveTasks() {
         return activeTasks;
     }
@@ -404,16 +402,13 @@ public class ProcessInstance extends AbstractPersistentEntity {
 		return children;
 	}
 
-
 	public void setChildren(Set<ProcessInstance> children) {
 		this.children = children;
 	}
 
-
 	public ProcessInstance getParent() {
 		return parent;
 	}
-
 
 	public void setParent(ProcessInstance parent) {
 		this.parent = parent;
@@ -422,27 +417,7 @@ public class ProcessInstance extends AbstractPersistentEntity {
 	/** Method checks if the process is in running or new state */
 	public boolean isProcessRunning()
 	{
-		if(getStatus() == null)
-			return false;
-		
-		if(getRunning() != null && !getRunning())
-			return false;
-		
-		return getStatus().equals(ProcessStatus.NEW) || 
-				getStatus().equals(ProcessStatus.RUNNING);
-	}
-	
-	/** Method check, if the given user login is in assigness list */
-	public boolean isAssignee(String assigneeLogin)
-	{
-		if(assignees == null)
-			return false;
-		
-		for(String login: assignees)
-			if(login.equals(assigneeLogin))
-				return true;
-		
-		return false;
+		return status == ProcessStatus.NEW || status == ProcessStatus.RUNNING;
 	}
 
 	@Override

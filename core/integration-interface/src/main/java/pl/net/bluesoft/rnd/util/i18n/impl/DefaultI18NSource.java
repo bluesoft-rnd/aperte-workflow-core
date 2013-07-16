@@ -4,6 +4,9 @@ import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Locale;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.util.i18n.I18NProvider;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
@@ -11,11 +14,16 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 /**
  * @author tlipski@bluesoft.net.pl
  */
-public class DefaultI18NSource implements I18NSource {
+public class DefaultI18NSource implements I18NSource 
+{
+	@Autowired
+	private ProcessToolRegistry processToolRegistry;
 
 	private Locale locale;
 
-    public DefaultI18NSource() {
+    public DefaultI18NSource() 
+    {
+    	
     }
 
     public DefaultI18NSource(Locale locale) {
@@ -38,9 +46,10 @@ public class DefaultI18NSource implements I18NSource {
 	@Override
 	public String getMessage(String key, String defaultValue) 
 	{
-        ProcessToolRegistry reg =  ProcessToolRegistry.ThreadUtil.getThreadRegistry();
+		if(processToolRegistry == null)
+			SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
         
-		Collection<I18NProvider> i18NProviders = reg.getI18NProviders();
+		Collection<I18NProvider> i18NProviders = processToolRegistry.getI18NProviders();
 		//1st run - full localization e.g. _pl_PL
 		for (I18NProvider i18NProvider : i18NProviders) {
 			if (!i18NProvider.hasFullyLocalizedMessage(key, locale)) continue;

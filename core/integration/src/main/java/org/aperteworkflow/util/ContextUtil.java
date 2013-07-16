@@ -10,7 +10,7 @@ import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 public class ContextUtil {
     public static <T> T withContext(final ReturningProcessToolContextCallback<T> callback) 
     {
-    	ProcessToolRegistry registry = ProcessToolRegistry.ThreadUtil.getThreadRegistry();
+    	ProcessToolRegistry registry = ProcessToolRegistry.Util.getInstance();
             return registry.withProcessToolContext(new ReturningProcessToolContextCallback<T>() {
                 @Override
                 public T processWithContext(ProcessToolContext ctx) 

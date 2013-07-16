@@ -1,9 +1,9 @@
 package pl.net.bluesoft.rnd.processtool.portlets.caches;
 
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+
 import com.vaadin.ui.Button;
 import com.vaadin.ui.VerticalLayout;
-import org.aperteworkflow.util.liferay.LiferayBridge;
-import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 /**
  * User: POlszewski
@@ -29,7 +29,7 @@ public class CachesPanel extends VerticalLayout implements Button.ClickListener 
 	@Override
 	public void buttonClick(Button.ClickEvent event) {
 		if (event.getButton() == invalidateCachesBtn) {
-			LiferayBridge.invalidateCaches();
+			//LiferayBridge.invalidateCaches();
 		}
 	}
 }

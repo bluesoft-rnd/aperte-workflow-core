@@ -35,11 +35,11 @@
             <version>${aperteworkflow.version}</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
+		<dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-test</artifactId>
-            <version>3.0.5.RELEASE</version>
-            <scope>test</scope>
+            <artifactId>spring-beans</artifactId>
+            <version>${spring.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.vaadin</groupId>
@@ -54,7 +54,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.2</version>
+                <version>2.4</version>
                 <configuration>
                     <useDefaultManifestFile>true</useDefaultManifestFile>
                 </configuration>
@@ -78,6 +78,10 @@
                             com.vaadin.event.dd.acceptcriteria,
                             com.vaadin.event.dd,
                             com.vaadin.event,
+                            org.springframework.beans.factory;version="3.0",
+                            org.springframework.beans.factory.access;version="3.0",
+                            org.springframework.beans.factory.annotation;version="3.0",
+                            org.springframework.beans.factory.config;version="3.0",
                             pl.net.bluesoft.rnd.pt.utils.lang,
                             com.vaadin.terminal.gwt.client.ui.dd,
                             com.vaadin.terminal,
@@ -102,6 +106,7 @@
                             com.bea.xml.stream;resolution:=optional,
                             com.ctc.wstx.stax;resolution:=optional,
                             org.kxml2.io;resolution:=optional,
+                            javax.servlet;resolution:=optional;version="2.5.0",
                             *
                         </Import-Package>
                         <Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>
@@ -130,6 +135,16 @@
                             pl.net.bluesoft.rnd.processtool.ui.buttons.YesNoCommentButton
                         </ProcessTool-Button-Enhancement>
                         <ProcessTool-I18N-Property>basewidgets-messages</ProcessTool-I18N-Property>
+                        <ProcessTool-Widget-View>
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.LatestComments
+                        </ProcessTool-Widget-View>
+                        <ProcessTool-Step-Enhancement>
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.ChooseUserWithRoleStep,
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.FinishTasksStep
+                        </ProcessTool-Step-Enhancement>
+                      <!--  <ProcessTool-Widget-Script>
+                        requests-scripts.js;provider:=file
+                        </ProcessTool-Widget-Script>-->
                     </instructions>
                 </configuration>
             </plugin>

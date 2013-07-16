@@ -27,11 +27,13 @@
 	    <groupId>org.aperteworkflow</groupId>
 	    <artifactId>model</artifactId>
 	    <version>${aperteworkflow.version}</version>
+	    <scope>provided</scope>
 	</dependency>
 	<dependency>
 	    <groupId>org.aperteworkflow</groupId>
 	    <artifactId>integration-interface</artifactId>
 	    <version>${aperteworkflow.version}</version>
+	    <scope>provided</scope>
 	</dependency>
 	<dependency>
 	    <groupId>com.liferay.portal</groupId>
@@ -76,10 +78,15 @@
                             pl.net.bluesoft.rnd.processtool.usersource.impl;version=${project.version},
                             pl.net.bluesoft.rnd.processtool.authorization.impl;version=${project.version},
                             org.aperteworkflow.util.ldap,
-                            com.liferay.portal
+                            com.liferay.portal,
+                            com.liferay.portal.theme,
+                            com.liferay.portal.kernel.language,
+                            com.liferay.portal.kernel.log
                         </Export-Package>
                         <Import-Package>
                             javax.mail;version=!,
+                            javax.servlet.http;resolution:=optional,
+                            javax.servlet;resolution:=optional,
                             pl.net.bluesoft.rnd.util.i18n.impl,
                             pl.net.bluesoft.rnd.processtool.roles,
                             pl.net.bluesoft.rnd.processtool.usersource,
@@ -99,6 +106,32 @@
                             pl.net.bluesoft.rnd.processtool.usersource.impl;version=${project.version},
                             pl.net.bluesoft.rnd.processtool.authorization.impl;version=${project.version},
                             com.liferay.portal;resolution:=optional,
+                            com.liferay.portal.theme;resolution:=optional,
+                            com.liferay.portal.kernel.language;resolution:=optional,
+                            com.liferay.portal.kernel.log;resolution:=optional,
+                            com.liferay.portal.kernel.io.unsync;resolution:=optional,
+                            com.bea.jvm;resolution:=optional,
+                            com.caucho.burlap.client;resolution:=optional,
+                            com.caucho.burlap.io;resolution:=optional,
+                            com.caucho.burlap.server;resolution:=optional,
+                            com.caucho.hessian;resolution:=optional,
+                            com.caucho.hessian.client;resolution:=optional,
+                            com.caucho.hessian.io;resolution:=optional,
+                            com.caucho.hessian.server;resolution:=optional,
+                            com.ibm.wsspi.uow;resolution:=optional,
+                            com.lowagie.text;resolution:=optional,
+                            com.lowagie.text.pdf;resolution:=optional,
+                            com.mchange.v2.c3p0;resolution:=optional,
+                            com.sun.rowset;resolution:=optional,
+                            com.sun.syndication.feed;resolution:=optional,
+                            com.sun.syndication.feed.atom;resolution:=optional,
+                            com.sun.syndication.feed.rss;resolution:=optional,
+                            com.sun.syndication;resolution:=optional,
+                            com.sun.syndication.io;resolution:=optional,
+                            commonj.timers;resolution:=optional,
+                            commonj.work;resolution:=optional,
+                            freemarker.cache;resolution:=optional,
+                            freemarker.template;resolution:=optional,
                             *
                         </Import-Package>
                         <Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>

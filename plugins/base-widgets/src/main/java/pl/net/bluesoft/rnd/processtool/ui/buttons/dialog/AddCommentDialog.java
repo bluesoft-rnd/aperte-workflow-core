@@ -13,7 +13,6 @@ import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 
 import com.vaadin.data.Item;
 import com.vaadin.data.util.BeanItem;
-import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.AbstractLayout;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -174,7 +173,7 @@ public class AddCommentDialog extends DialogWindow implements ClickListener
 	{
 		if(event.getButton().equals(addButton))
 		{
-    		  ProcessToolRegistry registry = ProcessToolRegistry.ThreadUtil.getThreadRegistry();
+    		  ProcessToolRegistry registry = ProcessToolRegistry.Util.getInstance();
     		  
     		  registry.withProcessToolContext(new ProcessToolContextCallback() {
 					

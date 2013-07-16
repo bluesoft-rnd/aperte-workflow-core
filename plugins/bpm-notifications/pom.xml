@@ -107,14 +107,14 @@
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.addons,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.facade
                         </Import-Package>
-                        <!--Private-Package>
+                        <Private-Package>
                         	pl.net.bluesoft.rnd.pt.ext.bpmnotifications,
                         	pl.net.bluesoft.rnd.pt.ext.bpmnotifications.step,
                         	pl.net.bluesoft.rnd.pt.ext.bpmnotifications.event,
                         	pl.net.bluesoft.rnd.pt.ext.bpmnotifications.portlet,
                         	pl.net.bluesoft.rnd.pt.ext.bpmnotifications.addons.mock.impl,
                         	pl.net.bluesoft.rnd.pt.ext.bpmnotifications.settings
-                        </Private-Package--> 
+                        </Private-Package>
                         <Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>
                         <Bundle-Activator>pl.net.bluesoft.rnd.pt.ext.bpmnotifications.Activator</Bundle-Activator>
                         <Bundle-SymbolicName>pl.net.bluesoft.rnd.pt.ext.bpmnotifications</Bundle-SymbolicName>

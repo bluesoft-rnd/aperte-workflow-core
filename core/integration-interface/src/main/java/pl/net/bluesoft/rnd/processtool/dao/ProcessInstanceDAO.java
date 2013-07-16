@@ -43,17 +43,12 @@ public interface ProcessInstanceDAO extends HibernateBean<ProcessInstance> {
 
     Collection<ProcessInstance> searchProcesses(String filter, int offset, int limit, boolean onlyRunning, String[] userRoles, String assignee, String... queues);
 
-    Collection<ProcessInstance> getUserProcessesAfterDate(UserData userData, Calendar minDate);
+    Collection<ProcessInstance> getUserProcessesAfterDate(UserData userData, Date minDate);
 
-    ResultsPageWrapper<ProcessInstance> getRecentProcesses(UserData userData, Calendar minDate, Integer offset, Integer limit);
+    ResultsPageWrapper<ProcessInstance> getRecentProcesses(UserData userData, Date minDate, Integer offset, Integer limit);
 
     ResultsPageWrapper<ProcessInstance> getProcessInstanceByInternalIdMapWithFilter(Collection<String> internalIds, ProcessInstanceFilter filter,
                                                                                     Integer offset, Integer limit);
 
-	Collection<ProcessInstance> getUserProcessesBetweenDates(UserData userData,
-			Calendar minDate, Calendar maxDate);
-
-
-
-
+	Collection<ProcessInstance> getUserProcessesBetweenDates(UserData userData, Date minDate, Date maxDate);
 }

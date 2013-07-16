@@ -28,7 +28,7 @@ public abstract class ProcessToolContextThread implements Runnable
 		/* There is no context in parent thread, create new one */
 		else
 		{
-			ProcessToolRegistry registry = ProcessToolRegistry.ThreadUtil.getThreadRegistry();
+			ProcessToolRegistry registry = ProcessToolRegistry.Util.getInstance();
 	    	registry.withProcessToolContext(new ProcessToolContextCallback() {
 				
 				@Override

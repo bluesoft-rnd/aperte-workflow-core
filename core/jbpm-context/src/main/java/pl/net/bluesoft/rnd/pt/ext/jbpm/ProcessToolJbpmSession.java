@@ -26,9 +26,10 @@ import pl.net.bluesoft.rnd.processtool.model.*;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
+import pl.net.bluesoft.rnd.processtool.model.nonpersistent.AbstractBpmTask;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.BpmTaskBean;
+import pl.net.bluesoft.rnd.processtool.model.nonpersistent.BpmTaskDerivedBean;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
-import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessDeadline;
 import pl.net.bluesoft.rnd.processtool.model.token.AccessToken;
 import pl.net.bluesoft.rnd.processtool.token.IAccessTokenFactory;
 import pl.net.bluesoft.rnd.processtool.token.ITokenService;
@@ -53,6 +54,8 @@ import static pl.net.bluesoft.util.lang.Lang.keyFilter;
 public class ProcessToolJbpmSession extends AbstractProcessToolSession implements ProcessEventListener, TaskEventListener {
 	private static final Integer DEFAULT_OFFSET_VALUE = 0;
 	private static final Integer DEFAULT_LIMIT_VALUE = 1000;
+
+	private static final ViewEvent REFRESH_VIEW = new ViewEvent(ViewEvent.Type.ACTION_COMPLETE);
 
 	@AutoInject
 	private IAccessTokenFactory accessTokenFactory;
@@ -141,7 +144,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
         /* Task assigned to queue */
 
-		BpmTaskBean completedTask = new BpmTaskBean(task);
+		BpmTaskDerivedBean completedTask = new BpmTaskDerivedBean(task);
 
 		completedTask.setFinished(true);
 		completedTask.setProcessInstance(processInstance);
@@ -311,7 +314,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 		if (refreshedTask == null || refreshedTask.getTaskData().getStatus() == Status.Suspended ||
 				!user.getLogin().equals(getAssignee(refreshedTask))) {
-			BpmTaskBean bpmTask = new BpmTaskBean(task);
+			BpmTaskDerivedBean bpmTask = new BpmTaskDerivedBean(task);
 			bpmTask.setFinished(true);
 			log.warning("Task " + task.getExecutionId() + " not found");
 			return bpmTask;
@@ -622,7 +625,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	private void fillProcessAssignmentData(ProcessInstance pi) {
 		Set<String> assignees = new HashSet<String>();
 		Set<String> queues = new HashSet<String>();
-		List<BpmTaskBean> processTasks = BpmTaskBean.asBeans(findProcessTasks(pi));
+		List<BpmTask> processTasks = findProcessTasks(pi);
 
 		for (BpmTask t : processTasks) {
 			if (t.getAssignee() != null) {
@@ -632,7 +635,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 				queues.add(t.getGroupId());
 			}
 		}
-		pi.setActiveTasks(processTasks.toArray(new BpmTaskBean[processTasks.size()]));
+		pi.setActiveTasks(processTasks.toArray(new BpmTask[processTasks.size()]));
 		pi.setAssignees(assignees.toArray(new String[assignees.size()]));
 		pi.setTaskQueues(queues.toArray(new String[queues.size()]));
 	}
@@ -855,7 +858,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	public void taskCreated(TaskUserEvent event) {
 		refreshDataForNativeQuery();
 
-		broadcastEvent(new ViewEvent(ViewEvent.Type.ACTION_COMPLETE));
+		broadcastEvent(REFRESH_VIEW);
 	}
 
 	// Handles tasks assigned during creation or picked from a queue
@@ -872,7 +875,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		refreshDataForNativeQuery();
 
 		broadcastEvent(new BpmEvent(BpmEvent.Type.ASSIGN_TASK, task, user));
-		broadcastEvent(new ViewEvent(ViewEvent.Type.ACTION_COMPLETE));
+		broadcastEvent(REFRESH_VIEW);
 	}
 
 	private void refreshDataForNativeQuery() {
@@ -947,7 +950,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 		broadcastEvent(new BpmEvent(BpmEvent.Type.TASK_FINISHED, completeTaskParams.task, user));
 		broadcastEvent(new BpmEvent(BpmEvent.Type.SIGNAL_PROCESS, completeTaskParams.task, nvl(substitutingUser, user)));
-		broadcastEvent(new ViewEvent(ViewEvent.Type.ACTION_COMPLETE));
+		broadcastEvent(REFRESH_VIEW);
 	}
 
 	@Override
@@ -1108,7 +1111,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		}
 	}
 
-	private static class JbpmTask implements BpmTask, Serializable {
+	private static class JbpmTask extends AbstractBpmTask implements Serializable {
 		private ProcessInstance processInstance;
 		private final Task task;
 
@@ -1143,11 +1146,6 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 				processInstance = getByInternalId(toAwfPIId(task));
 			}
 			return processInstance;
-		}
-
-		@Override
-		public ProcessInstance getRootProcessInstance() {
-			return getProcessInstance().getRootProcessInstance();
 		}
 
 		@Override
@@ -1198,51 +1196,8 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 			return null;
 		}
 
-		@Override
-		public ProcessDefinitionConfig getProcessDefinition() {
-			return getProcessInstance() != null ? getProcessInstance().getDefinition() : null;
-		}
-
-		@Override
-		public ProcessStateConfiguration getCurrentProcessStateConfiguration() {
-			/* Find current state by action name */
-			ProcessDefinitionConfig processDefinitionConfig = getProcessDefinition();
-
-			if (processDefinitionConfig == null) {
-				return null;
-			}
-			return processDefinitionConfig.getProcessStateConfigurationByName(getTaskName());
-		}
-
-		@Override
-		public String getInternalProcessId() {
-			return getProcessInstance() != null ? getProcessInstance().getInternalId() : null;
-		}
-
-		@Override
-		public String getExternalProcessId() {
-			return getProcessInstance() != null ? getProcessInstance().getExternalKey() : null;
-		}
-
 		public Task getTask() {
 			return task;
-		}
-
-		@Override
-		public Date getDeadlineDate() {
-			for(ProcessInstanceAttribute attribute: processInstance.getProcessAttributes()) {
-				if (attribute instanceof ProcessDeadline) {
-					return ((ProcessDeadline)attribute).getDueDate();
-				}
-			}
-			return null;
-		}
-
-		@Override
-		public String toString() {
-			return "Task[id=" + task.getId() + ", name=" + getTaskName() + ", assignee=" + getAssignee() +
-					", group=" + getGroupId() +
-					", status=" + task.getTaskData().getStatus() + ']';
 		}
 	}
 

@@ -1,6 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.dao.impl;
 
 import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
@@ -9,9 +10,9 @@ import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
 import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.config.*;
+import pl.net.bluesoft.util.lang.ExpiringCache;
 
 import java.util.*;
-import java.util.logging.Logger;
 
 import static pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig.*;
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
@@ -22,7 +23,11 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinitionConfig>
         implements ProcessDefinitionDAO {
 
-	private Logger logger = Logger.getLogger(ProcessDefinitionDAOImpl.class.getName());
+	private static final ExpiringCache<Long, ProcessDefinitionConfig> DEFINITION_BY_ID =
+			new ExpiringCache<Long, ProcessDefinitionConfig>(Long.MAX_VALUE);
+
+	private static final ExpiringCache<Object, List<ProcessQueueConfig>> QUEUE_CONFIGS =
+			new ExpiringCache<Object, List<ProcessQueueConfig>>(Long.MAX_VALUE);
 
 	public ProcessDefinitionDAOImpl(Session session) {
 		super(session);
@@ -60,10 +65,30 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 				.uniqueResult();
 	}
 
+	@Override
+	public ProcessDefinitionConfig getCachedDefinitionById(Long id) {
+		return DEFINITION_BY_ID.get(id, new ExpiringCache.NewValueCallback<Long, ProcessDefinitionConfig>() {
+			@Override
+			public ProcessDefinitionConfig getNewValue(Long id) {
+				return (ProcessDefinitionConfig)getSession().createCriteria(ProcessDefinitionConfig.class)
+						.add(Restrictions.eq(_ID, id))
+						.setFetchMode(_STATES, FetchMode.EAGER)
+						.setFetchMode(_PERMISSIONS, FetchMode.LAZY)
+						.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+						.uniqueResult();
+			}
+		});
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public Collection<ProcessQueueConfig> getQueueConfigs() {
-		return getSession().createCriteria(ProcessQueueConfig.class).list();
+		return QUEUE_CONFIGS.get(null, new ExpiringCache.NewValueCallback<Object, List<ProcessQueueConfig>>() {
+			@Override
+			public List<ProcessQueueConfig> getNewValue(Object key) {
+				return getSession().createCriteria(ProcessQueueConfig.class).list();
+			}
+		});
 	}
 
 	@Override
@@ -313,31 +338,33 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 		for (ProcessQueueConfig q : cfgs) {
 			List<ProcessQueueConfig> queues = session.createCriteria(ProcessQueueConfig.class)
 					.add(Restrictions.eq("name", q.getName())).list();
-			
 
-			for (Object o :queues) 
-				session.delete(o);
+			for (ProcessQueueConfig queue : queues) {
+				session.delete(queue);
+			}
 			
-			for (ProcessQueueRight r : q.getRights()) 
+			for (ProcessQueueRight r : q.getRights()) {
 				r.setQueue(q);
-			
+			}
 
 			session.save(q);
 		}
+		QUEUE_CONFIGS.clear();
 	}
 
     @SuppressWarnings("unchecked")
 	@Override
-   public void removeQueueConfigs(Collection<ProcessQueueConfig> cfgs) {
-       Session session = getSession();
-       for (ProcessQueueConfig q : cfgs) {
-           List<ProcessQueueConfig> queues = session.createCriteria(ProcessQueueConfig.class)
-                   .add(Restrictions.eq("name", q.getName())).list();
-           for (Object o : queues) {
-               session.delete(o);
-           }
-       }
-   }
+	public void removeQueueConfigs(Collection<ProcessQueueConfig> cfgs) {
+		Session session = getSession();
+		for (ProcessQueueConfig q : cfgs) {
+			List<ProcessQueueConfig> queues = session.createCriteria(ProcessQueueConfig.class)
+					.add(Restrictions.eq("name", q.getName())).list();
+			for (Object o : queues) {
+				session.delete(o);
+			}
+		}
+		QUEUE_CONFIGS.clear();
+	}
 
 	@Override
 	public int getNextProcessVersion(String bpmDefinitionKey) {
@@ -357,7 +384,6 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 
     @Override
     public void setConfigurationEnabled(ProcessDefinitionConfig cfg, boolean enabled) {
-
         cfg = (ProcessDefinitionConfig) session.get(ProcessDefinitionConfig.class, cfg.getId());
         cfg.setEnabled(enabled);
         session.save(cfg);

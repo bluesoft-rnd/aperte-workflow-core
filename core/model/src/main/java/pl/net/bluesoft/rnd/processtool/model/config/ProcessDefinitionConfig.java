@@ -32,7 +32,7 @@ public class ProcessDefinitionConfig extends PersistentEntity {
 	public static final String _COMMENT = "comment";
 	public static final String _CREATOR_ID = "creator_id";
 	public static final String _CREATE_DATE = "createDate";
-	public static final String _STATE = "states";
+	public static final String _STATES = "states";
 	public static final String _PERMISSIONS = "permissions";
 	public static final String _PROCESS_LOGO = "processLogo";
 	public static final String _ENABLED = "enabled";
@@ -60,11 +60,11 @@ public class ProcessDefinitionConfig extends PersistentEntity {
 
 	private Date createDate;
 
-	@OneToMany(cascade = {CascadeType.ALL}, fetch=FetchType.EAGER)
+	@OneToMany(cascade = {CascadeType.ALL}, fetch=FetchType.LAZY)
 	@JoinColumn(name="definition_id")
 	private Set<ProcessStateConfiguration> states = new HashSet<ProcessStateConfiguration>();
 
-	@OneToMany(cascade = {CascadeType.ALL}, fetch=FetchType.EAGER)
+	@OneToMany(cascade = {CascadeType.ALL}, fetch=FetchType.LAZY)
 	@JoinColumn(name="definition_id")
 	private Set<ProcessDefinitionPermission> permissions = new HashSet<ProcessDefinitionPermission>();
 

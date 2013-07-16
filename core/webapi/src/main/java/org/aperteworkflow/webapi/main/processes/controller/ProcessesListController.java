@@ -22,7 +22,6 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.model.*;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.web.domain.DataPagingBean;
 import pl.net.bluesoft.rnd.processtool.web.domain.ErrorResultBean;
@@ -67,8 +66,6 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 	@ResponseBody
 	public PerformActionResultBean performAction(final HttpServletRequest request)
 	{
-
-		
 		final PerformActionResultBean resultBean = new PerformActionResultBean();
         try
         {
@@ -96,7 +93,6 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                 return resultBean;
             }
 
-
             /* Save task before action performing */
             if(!"true".equals(skipSaving))
             {
@@ -107,7 +103,6 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                     return resultBean;
                 }
             }
-
 
             BpmTaskBean bpmTaskBean = context.getRegistry().withProcessToolContext(new ReturningProcessToolContextCallback<BpmTaskBean>() {
 
@@ -149,7 +144,6 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
             return resultBean;
         }
 
-	
 		return resultBean;
 	}
 	
@@ -199,8 +193,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 			resultBean.addError(SYSTEM_SOURCE, context.getMessageSource().getMessage("request.handle.error.jsonparseerror"));
 			return resultBean;
 		} 
-		
-		
+
 		context.getRegistry().withProcessToolContext(new ProcessToolContextCallback() 
 		{
 
@@ -233,17 +226,11 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 					}
 						
 				}
-
-				
 			}
 		});
 		
 		return resultBean;
-		
-		
 	}
-	
-
 	
 	/**
 	 * Request parameters:
@@ -259,8 +246,6 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 	public NewProcessInstanceBean startNewProcess(final HttpServletRequest request)
 	{
         final NewProcessInstanceBean newProcessInstanceBO = new NewProcessInstanceBean();
-
-
 
         try
         {
@@ -292,18 +277,13 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                     simpleAttributes.put(keyValueBean.getKey(), keyValueBean.getValue());
             }
 
-
-
             context.getRegistry().withProcessToolContext(new ProcessToolContextCallback()
             {
 
                 @Override
                 public void withContext(ProcessToolContext ctx)
                 {
-                    ProcessDefinitionConfig cfg = ctx.getProcessDefinitionDAO().getActiveConfigurationByKey(bpmDefinitionId);
-
-
-                    ProcessInstance instance = context.getBpmSession().startProcess(cfg.getBpmDefinitionKey(), null, null, null, "portlet");
+                    ProcessInstance instance = context.getBpmSession().startProcess(bpmDefinitionId, null, null, null, "portlet");
 
                     for(String key: simpleAttributes.keySet())
                     {
@@ -312,8 +292,6 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                         else
                             instance.setSimpleAttribute(key, simpleAttributes.get(key));
                     }
-
-
 
                     List<BpmTask> tasks = context.getBpmSession().findUserTasks(instance);
                     if (!tasks.isEmpty())
@@ -336,11 +314,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
             newProcessInstanceBO.addError(SYSTEM_SOURCE, e.getMessage());
             return newProcessInstanceBO;
         }
-
-		
 	}
-
-
 
     @RequestMapping(method = RequestMethod.POST, value = "/processes/searchTasks.json")
     @ResponseBody
@@ -402,15 +376,10 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                 pagingCollection.setiTotalRecords(totalRecords);
                 pagingCollection.setiTotalDisplayRecords(totalRecords);
                 pagingCollection.setAaData(adminAlertBeanList);
-
             }
         });
 
-
-
-
         return pagingCollection;
-
     }
 	
 	@RequestMapping(method = RequestMethod.POST, value = "/processes/loadProcessesList.json")
@@ -423,16 +392,13 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 		final String queueType = request.getParameter("queueType");
 		final String ownerLogin = request.getParameter("ownerLogin");
 
-		
 		final List<BpmTaskBean> adminAlertBeanList = new ArrayList<BpmTaskBean>();
 		
 		if(queueName == null || queueName.isEmpty() || queueType == null || queueType.isEmpty() || ownerLogin == null)
 		{
 			return new DataPagingBean<BpmTaskBean>(adminAlertBeanList, 0, dataTable.getEcho());
 		}
-		
 
-		
 		final IProcessToolRequestContext context = this.initilizeContext(request);
 		
 		if(!context.isUserAuthorized())
@@ -453,8 +419,8 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 
 				boolean isQueue = "queue".equals(queueType);
 
-				UserData owner = ctx.getUserDataDAO().loadUserByLogin(ownerLogin);
-
+				UserData owner = new UserData();
+				owner.setLogin(ownerLogin);
 
 				ProcessInstanceFilter filter = new ProcessInstanceFilter();
 				if(isQueue)
@@ -470,7 +436,6 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 			        filter.addQueueType(QueueType.fromQueueId(queueName));
 					filter.setName(queueName);
 				}
-
 
                 filter.setExpression(searchString);
 
@@ -489,22 +454,15 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 						processBean.setQueueName(queueName);
 
 					adminAlertBeanList.add(processBean);
-
                 }
 
 				int totalRecords = context.getBpmSession().getFilteredTasksCount(filter);
 				pagingCollection.setiTotalRecords(totalRecords);
 				pagingCollection.setiTotalDisplayRecords(totalRecords);
 				pagingCollection.setAaData(adminAlertBeanList);
-
 			}
 		});
-
-
-
-
         return pagingCollection;
-
 	}
 
     private QueueOrderCondition mapColumnNameToOrderCondition(String columnName)
@@ -530,9 +488,4 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
         else
             return null;
     }
-
-
-
-	
-
 }

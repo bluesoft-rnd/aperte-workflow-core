@@ -48,8 +48,7 @@ import com.thoughtworks.xstream.XStream;
  * Date: 2012-11-27
  * Time: 16:17
  */
-public class BundleInstallationHandler 
-{
+public class BundleInstallationHandler {
     public static final String		VIEW	    			= "ProcessTool-Widget-View";
     public static final String		SCRIPT	   				= "ProcessTool-Widget-Script";
     public static final String		CONTROLLER		        = "ProcessTool-Controller";
@@ -367,13 +366,13 @@ public class BundleInstallationHandler
 								
 								ProcessDefinitionConfig newConfig = 
 										processDeployer.unmarshallProcessDefinition(bundleHelper.getBundleResourceStream(basePath + "processtool-config.xml"));
-								
+
 								ProcessDefinitionDAO dao = ctx.getProcessDefinitionDAO();
 								ProcessDefinitionConfig oldConfig = dao.getActiveConfigurationByKey(newConfig.getBpmDefinitionKey());
-								
-								processDeployer.deployOrUpdateProcessDefinition(
+
+                                processDeployer.deployOrUpdateProcessDefinition(
 										bundleHelper.getBundleResourceStream(basePath + "processdefinition." +
-												toolRegistry.getBpmDefinitionLanguage() + ".xml"),
+												toolRegistry.getBpmDefinitionLanguage()),
 												bundleHelper.getBundleResourceStream(basePath + "processtool-config.xml"),
 										bundleHelper.getBundleResourceStream(basePath + "queues-config.xml"),
 										bundleHelper.getBundleResourceStream(basePath + "processdefinition.png"),

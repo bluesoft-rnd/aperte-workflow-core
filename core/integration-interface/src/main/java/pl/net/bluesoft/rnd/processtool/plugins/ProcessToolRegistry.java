@@ -197,18 +197,18 @@ public interface ProcessToolRegistry extends ProcessToolBpmConstants {
 //    public boolean createRoleIfNotExists(String roleName, String description);
 
 	public class ThreadUtil {
-		private static final ThreadLocal<ProcessToolRegistry> processToolRegistry = new ThreadLocal<ProcessToolRegistry>();
+		private static ProcessToolRegistry processToolRegistry;
 
 		public static void setThreadRegistry(ProcessToolRegistry registry) {
-			processToolRegistry.set(registry);
+			processToolRegistry = (registry);
 		}
 
 		public static ProcessToolRegistry getThreadRegistry() {
-			return processToolRegistry.get();
+			return processToolRegistry;
 		}
 
 		public static void removeThreadRegistry() {
-			processToolRegistry.remove();
+			///processToolRegistry.remove();
 		}
 	}
 

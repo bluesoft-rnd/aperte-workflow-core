@@ -733,9 +733,9 @@ public class SessionTest extends TestCase {
 		ds1.setAllowLocalTransactions(true);
 		ds1.setApplyTransactionTimeout(false);
 		ds1.getDriverProperties().setProperty("driverClassName", "org.postgresql.Driver");
-		ds1.getDriverProperties().setProperty("url", "jdbc:postgresql://localhost:6432/jbpm7");
+		ds1.getDriverProperties().setProperty("url", "jdbc:postgresql://localhost:5433/bpmn21");
 		ds1.getDriverProperties().setProperty("user", "postgres");
-		ds1.getDriverProperties().setProperty("password", "128256");
+		ds1.getDriverProperties().setProperty("password", "postgres");
 		ds1.init();
 		ic.bind("aperte-workflow-ds", ds1);
 

@@ -653,7 +653,7 @@ public class SessionTest extends TestCase {
 			dao.getActiveConfigurationByKey(newConfig.getBpmDefinitionKey());
 
 			processDeployer.deployOrUpdateProcessDefinition(
-					getStream(basePath + "/processdefinition." + registry.getBpmDefinitionLanguage() + ".xml"),
+					getStream(basePath + "/processdefinition." + registry.getBpmDefinitionLanguage()),
 					getStream(basePath + "/processtool-config.xml"),
 					getStream(basePath + "/queues-config.xml"),
 					getStream(basePath + "/processdefinition.png"),
@@ -733,9 +733,9 @@ public class SessionTest extends TestCase {
 		ds1.setAllowLocalTransactions(true);
 		ds1.setApplyTransactionTimeout(false);
 		ds1.getDriverProperties().setProperty("driverClassName", "org.postgresql.Driver");
-		ds1.getDriverProperties().setProperty("url", "jdbc:postgresql://localhost:5433/bpmn21");
+		ds1.getDriverProperties().setProperty("url", "jdbc:postgresql://localhost:6432/jbpm7");
 		ds1.getDriverProperties().setProperty("user", "postgres");
-		ds1.getDriverProperties().setProperty("password", "postgres");
+		ds1.getDriverProperties().setProperty("password", "128256");
 		ds1.init();
 		ic.bind("aperte-workflow-ds", ds1);
 
@@ -748,7 +748,7 @@ public class SessionTest extends TestCase {
         new InitialContext().lookup("aperte-workflow-ds");
 
     	registry = new ProcessToolRegistryImpl();
-		registry.setBpmDefinitionLanguage("bpmn");
+		registry.setBpmDefinitionLanguage("bpmn20");
 		registry.setSearchProvider(new SearchProvider() {
 			@Override
 			public void updateIndex(ProcessInstanceSearchData processInstanceSearchData) {
@@ -814,6 +814,8 @@ public class SessionTest extends TestCase {
 			@Override
 			public void withContext(ProcessToolContext ctx) {
 				SessionTest.this.ctx = ctx;
+
+				ctx.getHibernateSession().beginTransaction();
 
 				wipeDb();
 

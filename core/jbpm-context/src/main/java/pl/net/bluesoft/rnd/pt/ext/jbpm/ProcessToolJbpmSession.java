@@ -1199,6 +1199,12 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		public Task getTask() {
 			return task;
 		}
+
+		@Override
+		public ProcessDefinitionConfig getProcessDefinition() {
+			Long definitionId = (Long)getContext().getHibernateSession().getIdentifier(getProcessInstance().getDefinition());
+			return getContext().getProcessDefinitionDAO().getCachedDefinitionById(definitionId);
+		}
 	}
 
 	private static class LazyProcessQueue implements ProcessQueue, Serializable {

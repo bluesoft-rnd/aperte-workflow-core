@@ -11,16 +11,12 @@ import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.PropertyAutoWiring;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 public class JbpmStepAction {
 	public String invoke(final String processInstanceId, final String stepName, final Map<String, String> params) throws Exception {
-
-
-        return ProcessToolRegistry.ThreadUtil.getThreadRegistry().withProcessToolContext(new ReturningProcessToolContextCallback<String>() {
+        return ProcessToolRegistry.Util.getInstance().withProcessToolContext(new ReturningProcessToolContextCallback<String>() {
             @Override
             public String processWithContext(ProcessToolContext ctx) {
                 return doInvoke(processInstanceId, stepName, params, ctx);

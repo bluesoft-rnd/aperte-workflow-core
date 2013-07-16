@@ -42,7 +42,7 @@ public abstract class BaseProcessToolVaadinActionButton extends BaseProcessToolA
 				                	  @Override
 				                	  public void run() 
 				                	  {
-				                		  ProcessToolRegistry registry = ProcessToolRegistry.ThreadUtil.getThreadRegistry();
+				                		  ProcessToolRegistry registry = ProcessToolRegistry.Util.getInstance();
 				                		  
 				                		  registry.withProcessToolContext(new ProcessToolContextCallback() {
 											

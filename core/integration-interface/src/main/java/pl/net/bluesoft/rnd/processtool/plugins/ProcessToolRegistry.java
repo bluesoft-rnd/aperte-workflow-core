@@ -193,22 +193,24 @@ public interface ProcessToolRegistry extends ProcessToolBpmConstants {
     /** Unregister plugin web controller */
     void unregisterWebController(String controllerName);
 
-    //no way!
-//    public boolean createRoleIfNotExists(String roleName, String description);
+	class Util {
+		private static ProcessToolRegistry instance;
+		private static ClassLoader awfClassLoader;
 
-	public class ThreadUtil {
-		private static ProcessToolRegistry processToolRegistry;
-
-		public static void setThreadRegistry(ProcessToolRegistry registry) {
-			processToolRegistry = (registry);
+		public static ProcessToolRegistry getInstance() {
+			return instance;
 		}
 
-		public static ProcessToolRegistry getThreadRegistry() {
-			return processToolRegistry;
+		public static void setInstance(ProcessToolRegistry instance) {
+			Util.instance = instance;
 		}
 
-		public static void removeThreadRegistry() {
-			///processToolRegistry.remove();
+		public static ClassLoader getAwfClassLoader() {
+			return awfClassLoader;
+		}
+
+		public static void setAwfClassLoader(ClassLoader awfClassLoader) {
+			Util.awfClassLoader = awfClassLoader;
 		}
 	}
 

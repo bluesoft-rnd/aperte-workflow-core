@@ -16,9 +16,8 @@ public class Activator implements BundleActivator
 	@Override
 	public void start(BundleContext context) throws Exception 
 	{
-		final ProcessToolRegistry registry = getRegistry(context);
-		ProcessToolRegistry.ThreadUtil.setThreadRegistry(registry);
-		
+		ProcessToolRegistry registry = getRegistry(context);
+
 		for(Bundle bundle: context.getBundles())
 		{
 			if(bundle.getSymbolicName().equals("org.aperteworkflow.cmis"))

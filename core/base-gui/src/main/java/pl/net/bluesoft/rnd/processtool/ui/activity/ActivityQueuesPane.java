@@ -15,7 +15,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import org.aperteworkflow.ui.view.ViewEvent;
 import org.aperteworkflow.util.vaadin.VaadinUtility;
@@ -34,7 +33,6 @@ import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.util.eventbus.EventListener;
 import pl.net.bluesoft.util.lang.DateUtil;
-import pl.net.bluesoft.util.lang.TaskWatch;
 import pl.net.bluesoft.util.lang.cquery.func.F;
 
 import com.vaadin.data.util.HierarchicalContainer;
@@ -467,7 +465,7 @@ public class ActivityQueuesPane extends Panel implements VaadinUtility.Refreshab
 					@Override
 					public void run()
 					{
-						ProcessToolRegistry registry = ProcessToolRegistry.ThreadUtil.getThreadRegistry();
+						ProcessToolRegistry registry = ProcessToolRegistry.Util.getInstance();
 						
 						registry.withProcessToolContext(new ProcessToolContextCallback() {
 							

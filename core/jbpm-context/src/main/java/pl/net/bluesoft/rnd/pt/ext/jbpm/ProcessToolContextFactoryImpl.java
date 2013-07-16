@@ -18,8 +18,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
-import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.ThreadUtil.removeThreadRegistry;
-import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.ThreadUtil.setThreadRegistry;
 
 /**
  * Process Tool Context factory
@@ -45,20 +43,22 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory,
     @Override
 	public <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback) 
     {
-    	ProcessToolContext ctx = getThreadProcessToolContext();
-    	/* Active context already exists, use it */
-    	if(ctx != null && ctx.isActive()) {
-			return callback.processWithContext(ctx);
-		}
-    	
-    	/* Context is set but its session is closed, remove it */
-    	if(ctx != null && !ctx.isActive()) {
-			ProcessToolContext.Util.removeThreadProcessToolContext();
-		}
-    	
-    	setThreadRegistry(registry);
+		ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+		Thread.currentThread().setContextClassLoader(ProcessToolRegistry.Util.getAwfClassLoader());
 
 		try {
+			ProcessToolContext ctx = getThreadProcessToolContext();
+
+			/* Active context already exists, use it */
+			if (ctx != null && ctx.isActive()) {
+				return callback.processWithContext(ctx);
+			}
+    	
+    		/* Context is set but its session is closed, remove it */
+			if (ctx != null && !ctx.isActive()) {
+				ProcessToolContext.Util.removeThreadProcessToolContext();
+			}
+
 			if (registry.isJta()) {
 				return withProcessToolContextJta(callback);
 			}
@@ -67,7 +67,7 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory,
 			}
 		}
 		finally {
-			removeThreadRegistry();
+			Thread.currentThread().setContextClassLoader(contextClassLoader);
 		}
 	}
 

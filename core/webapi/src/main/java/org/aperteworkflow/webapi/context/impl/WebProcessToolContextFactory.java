@@ -29,7 +29,7 @@ public class WebProcessToolContextFactory
 		
 		ServletContext context = request.getSession().getServletContext();
 		
-		ProcessToolRegistry reg = ProcessToolRegistry.ThreadUtil.getThreadRegistry();
+		ProcessToolRegistry reg = ProcessToolRegistry.Util.getInstance();
 		if(reg == null)
 			reg = (ProcessToolRegistry)context.getAttribute(ProcessToolRegistry.class.getName());
 		

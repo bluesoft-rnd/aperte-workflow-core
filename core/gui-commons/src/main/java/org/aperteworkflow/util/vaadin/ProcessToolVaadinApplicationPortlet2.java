@@ -44,9 +44,8 @@ public class ProcessToolVaadinApplicationPortlet2 extends ApplicationPortlet2Wit
         try {
             ProcessToolRegistry registry = (ProcessToolRegistry) getPortletConfig().getPortletContext()
                     .getAttribute(ProcessToolRegistry.class.getName());
-            ProcessToolRegistry.ThreadUtil.setThreadRegistry(registry);
-            
-            if (registry == null) {
+
+			if (registry == null) {
 				if (getApplication() != null) {
 					getApplication().getMainWindow().addComponent(new Label(
 							"Aperte Workflow is being installed. Please refresh your page."

@@ -69,10 +69,8 @@ public class ActivityStandAloneApplication extends Application  implements HttpS
 			ServletContext context = request.getSession().getServletContext();	
 			processToolRegistry = (ProcessToolRegistry)context.getAttribute(ProcessToolRegistry.class.getName());
 		}
-		
-		ProcessToolRegistry.ThreadUtil.setThreadRegistry(processToolRegistry);
-		
-		if(!initialized) 
+
+		if(!initialized)
 		{
 			mainTabWindow = new StandaloneWindowTab(this);
 			mainTabWindow.init(request);

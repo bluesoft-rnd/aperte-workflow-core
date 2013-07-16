@@ -49,7 +49,7 @@ public class MyProcessesListPane extends ProcessListPane {
             @Override
 			public void run() 
             {
-            	ProcessToolRegistry registry = ProcessToolRegistry.ThreadUtil.getThreadRegistry();
+            	ProcessToolRegistry registry = ProcessToolRegistry.Util.getInstance();
             	
             	registry.withProcessToolContext(new ProcessToolContextCallback() {
 					

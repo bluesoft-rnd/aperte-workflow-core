@@ -20,7 +20,7 @@ public abstract class AbstractFacade
 		ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
 		if(ctx == null || !ctx.isActive())
 		{
-			ProcessToolRegistry reg = ProcessToolRegistry.ThreadUtil.getThreadRegistry();
+			ProcessToolRegistry reg = ProcessToolRegistry.Util.getInstance();
 			
 			return reg.withProcessToolContext(callback);
 		}

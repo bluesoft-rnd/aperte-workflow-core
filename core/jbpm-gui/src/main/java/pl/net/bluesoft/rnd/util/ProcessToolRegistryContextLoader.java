@@ -33,8 +33,9 @@ public class ProcessToolRegistryContextLoader implements ServletContextListener
             toolRegistry.setBpmDefinitionLanguage("bpmn20");
 			toolRegistry.setProcessToolContextFactory(new ProcessToolContextFactoryImpl(toolRegistry));
 			sce.getServletContext().setAttribute(ProcessToolRegistry.class.getName(), toolRegistry);
-			
-			ProcessToolRegistry.ThreadUtil.setThreadRegistry(toolRegistry);
+
+			ProcessToolRegistry.Util.setInstance(toolRegistry);
+			ProcessToolRegistry.Util.setAwfClassLoader(Thread.currentThread().getContextClassLoader());
 		}
 		catch (Exception e) {
 			Logger.getLogger(ProcessToolRegistryContextLoader.class.getName()).log(Level.SEVERE, e.getMessage(), e);

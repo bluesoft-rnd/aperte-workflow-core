@@ -61,7 +61,7 @@ public class PropertiesPanel extends Panel {
 	
 	public void refreshForm(final boolean setCaption, final List<Property<?>> properties) 
 	{
-    	ProcessToolRegistry reg = ProcessToolRegistry.ThreadUtil.getThreadRegistry();
+    	ProcessToolRegistry reg = ProcessToolRegistry.Util.getInstance();
     	reg.withProcessToolContext(new ProcessToolContextCallback() 
     			{
 

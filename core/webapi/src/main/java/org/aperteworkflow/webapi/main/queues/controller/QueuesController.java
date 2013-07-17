@@ -2,6 +2,8 @@ package org.aperteworkflow.webapi.main.queues.controller;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -20,10 +22,14 @@ import pl.net.bluesoft.rnd.processtool.userqueues.UserProcessQueuesSizeProvider.
 @Controller
 public class QueuesController extends AbstractProcessToolServletController
 {
+	private static Logger logger = Logger.getLogger(QueuesController.class.getName());
+	
 	@RequestMapping(method = RequestMethod.GET, value = "/queues/getUserQueues.json")
 	@ResponseBody
 	public Collection<UsersQueuesDTO> getUserQueues(final HttpServletRequest request)
 	{
+		long t0 = System.currentTimeMillis();
+		
 		final IProcessToolRequestContext context = this.initilizeContext(request);
 		final Collection<UsersQueuesDTO> userQueues = new ArrayList<UsersQueuesDTO>();
 		
@@ -31,6 +37,8 @@ public class QueuesController extends AbstractProcessToolServletController
 		{
 			return userQueues;
 		}
+
+		long t1 = System.currentTimeMillis();
 		
 		context.getRegistry().withProcessToolContext(new ProcessToolContextCallback() 
 		{
@@ -38,14 +46,28 @@ public class QueuesController extends AbstractProcessToolServletController
 			@Override
 			public void withContext(ProcessToolContext ctx) 
 			{
+				long t0 = System.currentTimeMillis();
 				UserProcessQueuesSizeProvider userQueuesSizeProvider = new UserProcessQueuesSizeProvider(ctx.getRegistry(), context.getUser().getLogin(), context.getMessageSource());
+				long t1 = System.currentTimeMillis();
 				Collection<UsersQueuesDTO> queues = userQueuesSizeProvider.getUserProcessQueueSize();
 				
 				userQueues.addAll(queues);
+				long t2 = System.currentTimeMillis();
 
+				logger.log(Level.INFO, "getUserQueues.withContext total: " + (t2-t0) + "ms, " +
+						"[1]: " + (t1-t0) + "ms, " +
+						"[2]: " + (t2-t1) + "ms " 
+						);
 				
 			}
 		});
+
+		long t2 = System.currentTimeMillis();
+		
+		logger.log(Level.INFO, "getUserQueues total: " + (t2-t0) + "ms, " +
+				"[1]: " + (t1-t0) + "ms, " +
+				"[2]: " + (t2-t1) + "ms " 
+				);
 		
 		return userQueues;
 	}

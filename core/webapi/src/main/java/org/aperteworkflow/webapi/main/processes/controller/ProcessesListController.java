@@ -66,9 +66,13 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 	@ResponseBody
 	public PerformActionResultBean performAction(final HttpServletRequest request)
 	{
+		logger.info("performAction ...");
+		
 		final PerformActionResultBean resultBean = new PerformActionResultBean();
         try
         {
+			long t0 = System.currentTimeMillis();
+			
             /* Initilize request context */
             final IProcessToolRequestContext context = this.initilizeContext(request);
 
@@ -104,6 +108,8 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                 }
             }
 
+			long t1 = System.currentTimeMillis();
+
             BpmTaskBean bpmTaskBean = context.getRegistry().withProcessToolContext(new ReturningProcessToolContextCallback<BpmTaskBean>() {
 
                 @Override
@@ -111,18 +117,39 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                 {
                     try
                     {
+            			logger.log(Level.INFO, "performAction.withContext ... " );
+            					
+            			long t0 = System.currentTimeMillis();
                         BpmTask currentTask = context.getBpmSession().getTaskData(taskId);
-                        ProcessStateAction actionToPerform = currentTask.getCurrentProcessStateConfiguration().getProcessStateActionByName(actionName);
+            			
+                        long t1 = System.currentTimeMillis();
+
+            			ProcessStateAction actionToPerform = currentTask.getCurrentProcessStateConfiguration().getProcessStateActionByName(actionName);
+            			
+            			long t2 = System.currentTimeMillis();
 
                         BpmTask newTask = context.getBpmSession().performAction(actionToPerform, currentTask);
 
+            			long t3 = System.currentTimeMillis();
+                        
                         /* Process fished, return null task */
-                        if(newTask.isFinished())
+                        if(newTask.isFinished()) {
+                			logger.log(Level.INFO, "performAction.withContext newTask.isFinished(): " + newTask.isFinished() );
                             return null;
+                        }
 
                         I18NSource messageSource = I18NSourceFactory.createI18NSource(request.getLocale());
                         BpmTaskBean processBean = BpmTaskBean.createFrom(newTask, messageSource);
 
+            			long t4 = System.currentTimeMillis();
+
+            			logger.log(Level.INFO, "performAction.withContext total: " + (t4-t0) + "ms, " +
+            					"[1]: " + (t1-t0) + "ms, " +
+            					"[2]: " + (t2-t1) + "ms, " +
+            					"[3]: " + (t3-t2) + "ms, " +
+            					"[4]: " + (t4-t3) + "ms " 
+            					);
+            			
                         return processBean;
                     }
                     catch(Throwable ex)
@@ -135,6 +162,14 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
             });
 		
 		    resultBean.setNextTask(bpmTaskBean);
+
+		    long t2 = System.currentTimeMillis();
+		    
+			logger.log(Level.INFO, "performAction total: " + (t2-t0) + "ms, " +
+					"[1]: " + (t1-t0) + "ms, " +
+					"[2]: " + (t2-t1) + "ms " 
+					);
+            
         }
         catch (Throwable e)
         {
@@ -160,6 +195,9 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 	@ResponseBody
 	public SaveResultBean saveAction(final HttpServletRequest request)
 	{
+		logger.info("saveAction ...");
+		long t0 = System.currentTimeMillis();
+
 		logger.warning("SAVE!");
 		final SaveResultBean resultBean = new SaveResultBean();
 		
@@ -193,19 +231,29 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 			resultBean.addError(SYSTEM_SOURCE, context.getMessageSource().getMessage("request.handle.error.jsonparseerror"));
 			return resultBean;
 		} 
-
+		
+		long t1 = System.currentTimeMillis();
+		
 		context.getRegistry().withProcessToolContext(new ProcessToolContextCallback() 
 		{
 
 			@Override
 			public void withContext(ProcessToolContext ctx) 
 			{
+				long t0 = System.currentTimeMillis();
+
 				BpmTask task = context.getBpmSession().getTaskData(taskId);
+
+				long t1 = System.currentTimeMillis();
 				
 				TaskProcessor taskSaveProcessor = new TaskProcessor(task, ctx, getEventBus(), context.getMessageSource(), widgetData);
+
+				long t2 = System.currentTimeMillis();
 				
 				/* Validate widgets */
 				ValidateResultBean widgetsValidationResult = taskSaveProcessor.validateWidgets();
+
+				long t3 = System.currentTimeMillis();
 				
 				if(widgetsValidationResult.hasErrors())
 				{
@@ -226,8 +274,25 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 					}
 						
 				}
+
+				long t4 = System.currentTimeMillis();
+				
+				logger.log(Level.INFO, "saveAction.withContext total: " + (t4-t0) + "ms, " +
+						"[1]: " + (t1-t0) + "ms, " +
+						"[2]: " + (t2-t1) + "ms, " + 
+						"[3]: " + (t3-t2) + "ms, " +
+						"[4]: " + (t4-t3) + "ms " 
+						);
+				
 			}
 		});
+		
+		long t2 = System.currentTimeMillis();
+
+		logger.log(Level.INFO, "saveAction total: " + (t2-t0) + "ms, " +
+				"[1]: " + (t1-t0) + "ms, " +
+				"[2]: " + (t2-t1) + "ms " 
+				);
 		
 		return resultBean;
 	}
@@ -245,10 +310,13 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 	@ResponseBody
 	public NewProcessInstanceBean startNewProcess(final HttpServletRequest request)
 	{
-        final NewProcessInstanceBean newProcessInstanceBO = new NewProcessInstanceBean();
+		logger.info("startNewProcess ...");
+		final NewProcessInstanceBean newProcessInstanceBO = new NewProcessInstanceBean();
 
         try
         {
+    		long t0 = System.currentTimeMillis();
+    		
             final IProcessToolRequestContext context = this.initilizeContext(request);
 
             if(!context.isUserAuthorized())
@@ -277,13 +345,18 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                     simpleAttributes.put(keyValueBean.getKey(), keyValueBean.getValue());
             }
 
+    		long t1 = System.currentTimeMillis();
+
             context.getRegistry().withProcessToolContext(new ProcessToolContextCallback()
             {
                 @Override
                 public void withContext(ProcessToolContext ctx)
                 {
+                	long t0 = System.currentTimeMillis();
+
                     ProcessInstance instance = context.getBpmSession().startProcess(bpmDefinitionId, null, null, null, "portlet");
 
+                    long t1 = System.currentTimeMillis();
                     for(String key: simpleAttributes.keySet())
                     {
                         if(key.equals(ProcessInstance.EXTERNAL_KEY_PROPERTY))
@@ -292,6 +365,8 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                             instance.setSimpleAttribute(key, simpleAttributes.get(key));
                     }
 
+
+                    long t2 = System.currentTimeMillis();
                     List<BpmTask> tasks = context.getBpmSession().findUserTasks(instance);
                     if (!tasks.isEmpty())
                     {
@@ -301,9 +376,25 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                         newProcessInstanceBO.setProcessStateConfigurationId(task.getCurrentProcessStateConfiguration().getId().toString());
 
                     }
+                    
+            		long t3 = System.currentTimeMillis();
+
+            		logger.log(Level.INFO, "startNewProcess.withContext total: " + (t3-t0) + "ms, " +
+            				"[1]: " + (t1-t0) + "ms, " +
+            				"[2]: " + (t2-t1) + "ms, " + 
+            				"[3]: " + (t3-t2) + "ms, " 
+            				);
+            		
                 }
             });
+            
+    		long t2 = System.currentTimeMillis();
 
+    		logger.log(Level.INFO, "startNewProcess total: " + (t2-t0) + "ms, " +
+    				"[1]: " + (t1-t0) + "ms, " +
+    				"[2]: " + (t2-t1) + "ms " 
+    				);
+    		
             return newProcessInstanceBO;
         }
         catch (Throwable e)
@@ -319,7 +410,10 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
     @ResponseBody
     public DataPagingBean<BpmTaskBean> searchTasks(final HttpServletRequest request)
     {
-        final JQueryDataTable dataTable = JQueryDataTableUtil.analyzeRequest(request.getParameterMap());
+		logger.info("searchTasks ...");
+		long t0 = System.currentTimeMillis();
+
+    	final JQueryDataTable dataTable = JQueryDataTableUtil.analyzeRequest(request.getParameterMap());
 
         final List<BpmTaskBean> adminAlertBeanList = new ArrayList<BpmTaskBean>();
 
@@ -341,11 +435,15 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
         final DataPagingBean<BpmTaskBean> pagingCollection = new DataPagingBean<BpmTaskBean>(
                 adminAlertBeanList, 100, dataTable.getEcho());
 
+		long t1 = System.currentTimeMillis();
+        
         context.getRegistry().withProcessToolContext(new ProcessToolContextCallback() {
 
             @Override
             public void withContext(ProcessToolContext ctx)
             {
+        		long t0 = System.currentTimeMillis();
+        		
                 I18NSource messageSource = I18NSourceFactory.createI18NSource(request.getLocale());
 
                 ProcessInstanceFilter filter = new ProcessInstanceFilter();
@@ -361,6 +459,8 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                 filter.setSortOrderCondition(mapColumnNameToOrderCondition(sortingColumn.getPropertyName()));
                 filter.setSortOrder(sortingColumn.getSortedAsc() ?  QueueOrder.ASC :  QueueOrder.DESC);
 
+                long t1 = System.currentTimeMillis();
+                
                 Collection<BpmTask> tasks = context.getBpmSession().findFilteredTasks(filter, displayStart, displayLength);
 
                 for(BpmTask task: tasks)
@@ -371,13 +471,31 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 
                 }
 
+                long t2 = System.currentTimeMillis();
+
                 int totalRecords = context.getBpmSession().getFilteredTasksCount(filter);
                 pagingCollection.setiTotalRecords(totalRecords);
                 pagingCollection.setiTotalDisplayRecords(totalRecords);
                 pagingCollection.setAaData(adminAlertBeanList);
+                
+        		long t3 = System.currentTimeMillis();
+
+        		logger.log(Level.INFO, "searchTasks.withContext total: " + (t3-t0) + "ms, " +
+        				"[1]: " + (t1-t0) + "ms, " +
+        				"[2]: " + (t2-t1) + "ms " +
+        				"[3]: " + (t3-t2) + "ms " 
+        				);
+        		
             }
         });
 
+		long t2 = System.currentTimeMillis();
+
+		logger.log(Level.INFO, "searchTasks total: " + (t2-t0) + "ms, " +
+				"[1]: " + (t1-t0) + "ms, " +
+				"[2]: " + (t2-t1) + "ms " 
+				);
+		
         return pagingCollection;
     }
 	
@@ -385,6 +503,9 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 	@ResponseBody
 	public DataPagingBean<BpmTaskBean> loadProcessesList(final HttpServletRequest request)
 	{
+		logger.info("loadProcessesList ...");
+		long t0 = System.currentTimeMillis();
+		
         final JQueryDataTable dataTable = JQueryDataTableUtil.analyzeRequest(request.getParameterMap());
 
 		final String queueName = request.getParameter("queueName");
@@ -409,11 +530,15 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 		final DataPagingBean<BpmTaskBean> pagingCollection = new DataPagingBean<BpmTaskBean>(
 				adminAlertBeanList, 100, dataTable.getEcho());
 
+		long t1 = System.currentTimeMillis();
+		
 		context.getRegistry().withProcessToolContext(new ProcessToolContextCallback() {
 
 			@Override
 			public void withContext(ProcessToolContext ctx)
 			{
+				long t0 = System.currentTimeMillis();
+				
 				I18NSource messageSource = I18NSourceFactory.createI18NSource(request.getLocale());
 
 				boolean isQueue = "queue".equals(queueType);
@@ -443,7 +568,11 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                 filter.setSortOrderCondition(mapColumnNameToOrderCondition(sortingColumn.getPropertyName()));
                 filter.setSortOrder(sortingColumn.getSortedAsc() ?  QueueOrder.ASC :  QueueOrder.DESC);
 
+				long t1 = System.currentTimeMillis();
+				
 				Collection<BpmTask> tasks = context.getBpmSession().findFilteredTasks(filter, dataTable.getPageOffset(), dataTable.getPageLength());
+
+				long t2 = System.currentTimeMillis();
 
 				for(BpmTask task: tasks)
 				{
@@ -455,12 +584,32 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 					adminAlertBeanList.add(processBean);
                 }
 
+
+				long t3 = System.currentTimeMillis();
 				int totalRecords = context.getBpmSession().getFilteredTasksCount(filter);
 				pagingCollection.setiTotalRecords(totalRecords);
 				pagingCollection.setiTotalDisplayRecords(totalRecords);
 				pagingCollection.setAaData(adminAlertBeanList);
+				
+				long t4 = System.currentTimeMillis();
+				
+				logger.log(Level.INFO, "loadProcessesList.withContext total: " + (t4-t0) + "ms, " +
+						"[1]: " + (t1-t0) + "ms, " +
+						"[2]: " + (t2-t1) + "ms, " +
+						"[3]: " + (t3-t2) + "ms, " +
+						"[4]: " + (t4-t3) + "ms " 
+						);
+
 			}
 		});
+
+		long t2 = System.currentTimeMillis();
+
+		logger.log(Level.INFO, "loadProcessesList total: " + (t2-t0) + "ms, " +
+				"[1]: " + (t1-t0) + "ms, " +
+				"[2]: " + (t2-t1) + "ms " 
+				);
+
         return pagingCollection;
 	}
 

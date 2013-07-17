@@ -105,7 +105,7 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory,
 		}
 		finally 
 		{
-			session.close();
+			if (session.isOpen()) session.close();
 		}
         return result;
     }
@@ -151,7 +151,7 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory,
 					ProcessToolContext.Util.removeThreadProcessToolContext();
 				}
 			} finally {
-                session.flush();
+                if (session.isOpen()) session.flush();
             }
             ut.commit();
         } catch (Exception e) {

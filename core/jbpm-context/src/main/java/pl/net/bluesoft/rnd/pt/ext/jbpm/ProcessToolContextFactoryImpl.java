@@ -47,6 +47,13 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory,
 		Thread.currentThread().setContextClassLoader(ProcessToolRegistry.Util.getAwfClassLoader());
 
 		try {
+			ProcessToolRegistry.Util.getAwfClassLoader().loadClass(JbpmStepAction.class.getName());
+		} catch (ClassNotFoundException e) {
+			logger.warning("JbpmStepAction.class was not found");
+		}
+		
+		
+		try {
 			ProcessToolContext ctx = getThreadProcessToolContext();
 
 			/* Active context already exists, use it */

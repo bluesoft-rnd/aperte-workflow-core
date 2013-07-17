@@ -1203,8 +1203,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 		@Override
 		public ProcessDefinitionConfig getProcessDefinition() {
-			Long definitionId = (Long)getContext().getHibernateSession().getIdentifier(getProcessInstance().getDefinition());
-			return getContext().getProcessDefinitionDAO().getCachedDefinitionById(definitionId);
+			return getContext().getProcessDefinitionDAO().getCachedDefinitionById(getProcessInstance());
 		}
 	}
 

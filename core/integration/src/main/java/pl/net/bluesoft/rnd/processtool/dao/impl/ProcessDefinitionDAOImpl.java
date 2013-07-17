@@ -9,6 +9,7 @@ import org.hibernate.criterion.Restrictions;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
 import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.config.*;
 import pl.net.bluesoft.util.lang.ExpiringCache;
 
@@ -78,6 +79,11 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 						.uniqueResult();
 			}
 		});
+	}
+
+	public ProcessDefinitionConfig getCachedDefinitionById(ProcessInstance processInstance) {
+		Long definitionId = (Long)getSession().getIdentifier(processInstance.getDefinition());
+		return getCachedDefinitionById(definitionId);
 	}
 
 	@SuppressWarnings("unchecked")

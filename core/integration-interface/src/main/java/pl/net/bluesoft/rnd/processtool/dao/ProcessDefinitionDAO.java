@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import pl.net.bluesoft.rnd.processtool.hibernate.HibernateBean;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
@@ -21,6 +22,7 @@ public interface ProcessDefinitionDAO extends HibernateBean<ProcessDefinitionCon
 	ProcessDefinitionConfig getConfigurationByProcessId(String processId);
 
 	ProcessDefinitionConfig getCachedDefinitionById(Long id);
+	ProcessDefinitionConfig getCachedDefinitionById(ProcessInstance processInstance);
 
 	Collection<ProcessQueueConfig> getQueueConfigs();
 	ProcessStateConfiguration getProcessStateConfiguration(BpmTask task);

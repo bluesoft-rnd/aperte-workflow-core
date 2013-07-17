@@ -763,6 +763,8 @@ public class SessionTest extends TestCase {
 		});
         ProcessToolContextFactory contextFactory = new ProcessToolContextFactoryImpl(registry);
         registry.setProcessToolContextFactory(contextFactory);
+		registry.setProcessToolSessionFactory(new ProcessToolJbpmSessionFactory());
+		ProcessToolRegistry.Util.setAwfClassLoader(Thread.currentThread().getContextClassLoader());
 
 		super.setUp();
 	}

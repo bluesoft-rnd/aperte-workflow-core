@@ -100,7 +100,7 @@ public class TaskViewBuilder
         }
 
         /* Check if user, who is checking the task, is the assigned person */
-        Boolean isUserAssignedToTask = task.getAssignee().equals(user.getLogin());
+        Boolean isUserAssignedToTask = user.getLogin().equals(task.getAssignee());
         if(isUserAssignedToTask)
         {
             addSaveActionButton(actionsNode);

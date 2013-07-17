@@ -46,12 +46,12 @@ public class TaskViewController extends AbstractProcessToolServletController
 		final String queueName = request.getParameter("queueName");
 		final String taskId = request.getParameter("taskId");
 		
-		if(taskId == null || taskId.isEmpty())
+		if(isNull(taskId))
 		{
 			response.getWriter().print(messageSource.getMessage("request.performaction.error.notaskid"));
 			return null;
 		}
-		else if(queueName == null || queueName.isEmpty())
+		else if(isNull(queueName))
 		{
 			response.getWriter().print(messageSource.getMessage("request.performaction.error.noqueuename"));
 			return null;
@@ -95,12 +95,12 @@ public class TaskViewController extends AbstractProcessToolServletController
 		final String processStateConfigurationId = request.getParameter("processStateConfigurationId");
 		final String taskId = request.getParameter("taskId");
 		
-		if(taskId == null || taskId.isEmpty())
+		if(isNull(taskId))
 		{
 			response.getWriter().print(messageSource.getMessage("request.performaction.error.notaskid"));
 			return;
 		}
-		else if(processStateConfigurationId == null || processStateConfigurationId.isEmpty())
+		else if(isNull(processStateConfigurationId))
 		{
 			response.getWriter().print(messageSource.getMessage("request.performaction.error.nocofnigurationid"));
 			return;
@@ -174,5 +174,9 @@ public class TaskViewController extends AbstractProcessToolServletController
 
 			}
 		});
+	}
+
+	private static boolean isNull(String value) {
+		return value == null || value.isEmpty() || "null".equals(value);
 	}
 }

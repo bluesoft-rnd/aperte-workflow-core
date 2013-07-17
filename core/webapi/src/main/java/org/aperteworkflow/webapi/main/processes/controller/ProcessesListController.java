@@ -82,12 +82,12 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
             final String actionName = request.getParameter("actionName");
             final String skipSaving = request.getParameter("skipSaving");
 
-            if(taskId == null || taskId.isEmpty())
+            if(isNull(taskId))
             {
                 resultBean.addError(SYSTEM_SOURCE, context.getMessageSource().getMessage("request.performaction.error.notaskid"));
                 return resultBean;
             }
-            else if(actionName == null || actionName.isEmpty())
+            else if(isNull(actionName))
             {
                 resultBean.addError(SYSTEM_SOURCE, context.getMessageSource().getMessage("request.performaction.error.actionName"));
                 return resultBean;
@@ -146,7 +146,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 
 		return resultBean;
 	}
-	
+
 	/**
 	 * Request parameters:
 	 * - processStateConfigurationId: process state configuration db id
@@ -176,7 +176,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 		final String widgetDataJson = request.getParameter("widgetData");
 		final Collection<HtmlWidget> widgetData;
 		
-		if(taskId == null || taskId.isEmpty())
+		if(isNull(taskId))
 		{
 			resultBean.addError(SYSTEM_SOURCE, context.getMessageSource().getMessage("request.performaction.error.notaskid"));
 			return resultBean;
@@ -279,7 +279,6 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 
             context.getRegistry().withProcessToolContext(new ProcessToolContextCallback()
             {
-
                 @Override
                 public void withContext(ProcessToolContext ctx)
                 {
@@ -394,7 +393,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 
 		final List<BpmTaskBean> adminAlertBeanList = new ArrayList<BpmTaskBean>();
 		
-		if(queueName == null || queueName.isEmpty() || queueType == null || queueType.isEmpty() || ownerLogin == null)
+		if(isNull(queueName) || isNull(queueType) || isNull(ownerLogin))
 		{
 			return new DataPagingBean<BpmTaskBean>(adminAlertBeanList, 0, dataTable.getEcho());
 		}
@@ -488,4 +487,8 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
         else
             return null;
     }
+
+	private static boolean isNull(String value) {
+		return value == null || value.isEmpty() || "null".equals(value);
+	}
 }

@@ -59,13 +59,12 @@
 			
 			if(errors.length > 0) { return; }
 			
-			var taskId = data.taskId;
-			var processStateConfigurationId = data.processStateConfigurationId;
-			
-			console.log( "processStateConfigurationId: "+processStateConfigurationId ); 
-			
-			loadProcessView(processStateConfigurationId, taskId);
-			
+			if (data.taskId!=null) {
+				console.log( "processStateConfigurationId: "+data.processStateConfigurationId ); 
+				loadProcessView(data.processStateConfigurationId, data.taskId);
+			} else {
+				windowManager.showNewProcessPanel();
+			}
 			reloadQueues();
 
 		});

@@ -18,7 +18,6 @@ import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionPermission;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
-import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.util.lang.Strings;
 
 import com.thoughtworks.xstream.XStream;
@@ -118,10 +117,7 @@ public class ProcessDeployer
 			InputStream imageStream, 
 			InputStream logoStream) 
 	{
-		if (jpdlStream == null || processToolConfigStream == null || queueConfigStream == null) {
-			throw new IllegalArgumentException(
-					"at least one of the streams is null");
-		}
+		checkRequiredFiles(jpdlStream, processToolConfigStream, queueConfigStream);
 		XStream xstream = new XStream();
 		xstream.aliasPackage("config", ProcessDefinitionConfig.class
 				.getPackage().getName());
@@ -142,6 +138,18 @@ public class ProcessDeployer
 		deployOrUpdateProcessDefinition(jpdlStream, config,
 				qConfigs.toArray(new ProcessQueueConfig[qConfigs.size()]),
 				imageStream);
+	}
+
+	private void checkRequiredFiles(InputStream jpdlStream, InputStream processToolConfigStream, InputStream queueConfigStream) {
+		if (jpdlStream == null) {
+			throw new IllegalArgumentException("processdefinition." + getRegistry().getBpmDefinitionLanguage() + " file missing");
+		}
+		if (processToolConfigStream == null) {
+			throw new IllegalArgumentException("processtool-config.xml file missing");
+		}
+		if (queueConfigStream == null) {
+			throw new IllegalArgumentException("queues-config.xml file missing");
+		}
 	}
 
 	private byte[] loadBytesFromStream(InputStream stream) {

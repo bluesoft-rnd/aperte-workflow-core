@@ -1156,6 +1156,9 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 		@Override
 		public UserData getOwner() {
+			if (getAssignee() == null) {
+				return null;
+			}
 			UserData userData = getContext().getUserDataDAO().loadUserByLogin(getAssignee());
 			if (userData == null) {
 				userData = new UserData();
@@ -1172,7 +1175,8 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 		@Override
 		public String getCreator() {
-			return task.getTaskData().getCreatedBy().getId();
+			User createdBy = task.getTaskData().getCreatedBy();
+			return createdBy != null ? createdBy.getId() : null;
 		}
 
 		@Override
@@ -1203,8 +1207,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 		@Override
 		public ProcessDefinitionConfig getProcessDefinition() {
-			Long definitionId = (Long)getContext().getHibernateSession().getIdentifier(getProcessInstance().getDefinition());
-			return getContext().getProcessDefinitionDAO().getCachedDefinitionById(definitionId);
+			return getContext().getProcessDefinitionDAO().getCachedDefinitionById(getProcessInstance());
 		}
 	}
 
@@ -1263,16 +1266,16 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		return String.valueOf(processInstanceId);
 	}
 
-	private static long toJbpmTaskId(String taskId) {
-		return Long.parseLong(taskId);
+	private static Long toJbpmTaskId(String taskId) {
+		return taskId != null ? Long.parseLong(taskId) : null;
 	}
 
-	private static long toJbpmTaskId(BpmTask t) {
+	private static Long toJbpmTaskId(BpmTask t) {
 		return toJbpmTaskId(t.getInternalTaskId());
 	}
 
-	private static String toAwfTaskId(long taskId) {
-		return String.valueOf(taskId);
+	private static String toAwfTaskId(Long taskId) {
+		return taskId != null ? String.valueOf(taskId) : null;
 	}
 
 	private static String toAwfTaskId(BpmTask task) {

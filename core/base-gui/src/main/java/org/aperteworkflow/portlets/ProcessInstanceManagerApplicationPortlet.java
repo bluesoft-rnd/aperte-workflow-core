@@ -10,7 +10,6 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
-import pl.net.bluesoft.rnd.util.i18n.impl.DefaultI18NSource;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
@@ -21,9 +20,10 @@ import javax.portlet.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
+
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -51,9 +51,8 @@ public class ProcessInstanceManagerApplicationPortlet extends ApplicationPortlet
                                 ResourceResponse resp = (ResourceResponse) response;
                                 if (rr.getParameter("instanceId") != null) { //special handling
                                     logger.info("Image request");
-                                    ProcessToolBpmSession session = ctx.getProcessToolSessionFactory()
-                                            .createSession(new UserData("admin", "admin@aperteworkflow.org", "Admin admin"),
-                                                    new ArrayList<String>());
+                                    ProcessToolBpmSession session = getRegistry().getProcessToolSessionFactory()
+                                            .createSession(new UserData("admin", "admin@aperteworkflow.org", "Admin admin"));
                                     byte[] bytes = session.getProcessMapImage(
                                             session.getProcessData(rr.getParameter("instanceId")));
                                     if (bytes != null) {
@@ -64,9 +63,8 @@ public class ProcessInstanceManagerApplicationPortlet extends ApplicationPortlet
                                 } else if (rr.getParameter("svg") != null) { //to use svg inside of a window
                                     logger.info("SVG request");
 
-                                    ProcessToolBpmSession session = ctx.getProcessToolSessionFactory()
-                                            .createSession(new UserData("admin", "admin@aperteworkflow.org", "Admin admin"), 
-                                                    new ArrayList<String>());
+                                    ProcessToolBpmSession session = getRegistry().getProcessToolSessionFactory()
+                                            .createSession(new UserData("admin", "admin@aperteworkflow.org", "Admin admin"));
                                     ProcessInstance pi = session.getProcessData(rr.getParameter("svg"));
                                     List<GraphElement> processHistory = session.getProcessHistory(pi);
 //                                    final StringBuffer svg = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n");

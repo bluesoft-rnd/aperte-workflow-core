@@ -18,22 +18,20 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
-import java.util.Enumeration;
+
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 
 
 @Controller(value = "MainViewController")
 @RequestMapping("VIEW")
 public class MainViewController extends AbstractMainController
 {
-
-	
 	@Autowired
 	private ProcessToolRegistry processToolRegistry;
 	
 	@RenderMapping ()
-              public ModelAndView handleMainRenderRequest(RenderRequest request,RenderResponse response,Model model)
+	public ModelAndView handleMainRenderRequest(RenderRequest request,RenderResponse response,Model model)
     {
-
         ModelAndView modelView = new ModelAndView();
         modelView.setViewName("main");
         modelView.addObject(IS_STANDALONE, false);
@@ -45,14 +43,12 @@ public class MainViewController extends AbstractMainController
 
     private void processRequest(final ModelAndView modelView, final RenderRequest request)
 	{
-		
 		IAuthorizationService authorizationService = ObjectFactory.create(IAuthorizationService.class);
 		final UserData user = authorizationService.getUserByRequest(request);
 		
 		/* No user to process, abort */
 		if(user == null)
 			return;
-		
 
 		modelView.addObject(USER_PARAMETER_NAME, user);
 		
@@ -64,7 +60,7 @@ public class MainViewController extends AbstractMainController
 				ProcessToolBpmSession bpmSession = (ProcessToolBpmSession)request.getAttribute(ProcessToolBpmSession.class.getName());
 				if(bpmSession == null)
 				{
-					bpmSession = ctx.getProcessToolSessionFactory().createSession(user, user.getRoleNames());
+					bpmSession = getRegistry().getProcessToolSessionFactory().createSession(user, user.getRoleNames());
 					request.setAttribute(ProcessToolBpmSession.class.getName(), bpmSession);
 				}
 				
@@ -76,5 +72,4 @@ public class MainViewController extends AbstractMainController
 			}
 		});
 	}
-
 }

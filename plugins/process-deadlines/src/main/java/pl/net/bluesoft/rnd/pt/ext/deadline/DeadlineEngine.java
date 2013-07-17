@@ -53,6 +53,9 @@ import pl.net.bluesoft.util.lang.Predicate;
 import pl.net.bluesoft.util.lang.Strings;
 import pl.net.bluesoft.util.lang.Transformer;
 
+import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+
 public class DeadlineEngine {
     private static final Logger logger = Logger.getLogger(DeadlineEngine.class.getName());
 
@@ -73,7 +76,7 @@ public class DeadlineEngine {
                     @Override
                     public void withContext(ProcessToolContext ctx) 
                     {
-                        ProcessToolBpmSession bpmSession = ctx.getProcessToolSessionFactory().createAutoSession();
+                        ProcessToolBpmSession bpmSession = getRegistry().getProcessToolSessionFactory().createAutoSession();
                         Session session = ctx.getHibernateSession();
                         List<ProcessInstance> instances = loadProcessesWithDeadlines(session);
                         for (ProcessInstance pi : instances) {
@@ -151,7 +154,7 @@ public class DeadlineEngine {
         }
         String internalId = pi.getInternalId();
         logger.info("Processing deadlines for process: " + internalId);
-        ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
+        ProcessToolContext ctx = getThreadProcessToolContext();
         pi = ctx.getProcessInstanceDAO().getProcessInstance(pi.getId());
         if (pi == null) {
             throw new ProcessToolException("Unable to find process instance by internal id: " + internalId);
@@ -159,7 +162,7 @@ public class DeadlineEngine {
         Set<ProcessDeadline> deadlines = pi.findAttributesByClass(ProcessDeadline.class);
         if (!deadlines.isEmpty()) {
             logger.info("Found deadline configurations for process: " + pi.getInternalId());
-            ProcessToolBpmSession bpmSession = ctx.getProcessToolSessionFactory().createAutoSession();
+            ProcessToolBpmSession bpmSession = getRegistry().getProcessToolSessionFactory().createAutoSession();
             List<BpmTask> tasks = processInitiated || task == null ? bpmSession.findProcessTasks(pi) : new ArrayList<BpmTask>() {{
                 add(task);
             }};
@@ -193,7 +196,7 @@ public class DeadlineEngine {
             @Override
             public void withContext(ProcessToolContext ctx) {
                 try {
-                    signalDeadline(ctx, processInstanceId, processDeadline);
+                    signalDeadline(processInstanceId, processDeadline);
                 }
                 catch (Exception e) {
                     logger.log(Level.SEVERE, "Exception while sending deadline notification", e);
@@ -202,9 +205,10 @@ public class DeadlineEngine {
         });
     }
 
-    private void signalDeadline(ProcessToolContext ctx, String processInstanceId, ProcessDeadline processDeadline) throws Exception {
-        ProcessInstance pi = ctx.getProcessInstanceDAO().getProcessInstanceByInternalId(processInstanceId);
-        ProcessToolBpmSession bpmSession = ctx.getProcessToolSessionFactory().createAutoSession();
+    private void signalDeadline(String processInstanceId, ProcessDeadline processDeadline) throws Exception {
+		ProcessToolContext ctx = getThreadProcessToolContext();
+		ProcessInstance pi = ctx.getProcessInstanceDAO().getProcessInstanceByInternalId(processInstanceId);
+        ProcessToolBpmSession bpmSession = getRegistry().getProcessToolSessionFactory().createAutoSession();
         List<BpmTask> tasks = bpmSession.findProcessTasks(pi);
         
     	ITemplateDataProvider templateDataProvider = new TemplateDataProvider();

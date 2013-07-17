@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
+import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolSessionFactory;
 import pl.net.bluesoft.rnd.processtool.dao.*;
 import pl.net.bluesoft.rnd.processtool.dao.impl.*;
 import pl.net.bluesoft.rnd.processtool.dict.DictionaryLoader;
@@ -68,7 +69,6 @@ import static pl.net.bluesoft.util.lang.Strings.hasText;
 @Component
 @Scope(value = "singleton")
 public class ProcessToolRegistryImpl implements ProcessToolRegistry {
-
 	private static final Logger logger = Logger.getLogger(ProcessToolRegistryImpl.class.getName());
 
     private final List<ProcessToolServiceBridge> SERVICE_BRIDGE_REGISTRY = new LinkedList<ProcessToolServiceBridge>();
@@ -99,6 +99,7 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	private IHtmlTemplateProvider templateProvider;
 
     private ProcessToolContextFactory processToolContextFactory;
+	private ProcessToolSessionFactory processToolSessionFactory;
 	private SessionFactory sessionFactory;
     private PluginManager pluginManager;
     private SearchProvider searchProvider; 
@@ -135,11 +136,10 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	}
 
 	public ProcessToolRegistryImpl() {
-		this.processToolContextFactory = null;
+		Util.setInstance(this);
 		buildSessionFactory();
         updateCaches();
 	}
-
 
 	public ClassLoader getModelAwareClassLoader(ClassLoader parent) {
 		return new ExtClassLoader(parent);
@@ -149,7 +149,7 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
         this.bundleContext = context;
     }
 
-    private class ExtClassLoader extends ClassLoader {
+	private class ExtClassLoader extends ClassLoader {
 		private ExtClassLoader(ClassLoader parent) {
 			super(parent);
 		}
@@ -512,6 +512,15 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 
 	public void setProcessToolContextFactory(ProcessToolContextFactory processToolContextFactory) {
 		this.processToolContextFactory = processToolContextFactory;
+	}
+
+	@Override
+	public ProcessToolSessionFactory getProcessToolSessionFactory() {
+		return processToolSessionFactory;
+	}
+
+	public void setProcessToolSessionFactory(ProcessToolSessionFactory processToolSessionFactory) {
+		this.processToolSessionFactory = processToolSessionFactory;
 	}
 
 	@Override

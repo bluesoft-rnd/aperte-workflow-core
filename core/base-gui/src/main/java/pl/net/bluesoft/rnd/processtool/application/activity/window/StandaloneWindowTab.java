@@ -14,7 +14,6 @@ import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
 import pl.net.bluesoft.rnd.processtool.di.annotations.AutoInject;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
-import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.token.ITokenService;
 import pl.net.bluesoft.rnd.processtool.token.TokenWrapper;
 import pl.net.bluesoft.rnd.processtool.token.exception.TokenException;
@@ -34,6 +33,8 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Window;
+
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 
 /**
  * This class represents browser tab. The logic was moved from Application
@@ -159,18 +160,12 @@ public class StandaloneWindowTab extends Window implements ParameterHandler, Cli
 		
 		bpmSession =  (ProcessToolBpmSession) request.getSession().getAttribute("bpmSessionStandAlone"); 
 		
-		application.setUser(user); 
-		
-		
-		ProcessToolRegistry registry = ProcessToolRegistry.Util.getInstance();
-		registry.withProcessToolContext(new ProcessToolContextCallback() {
-			
+		application.setUser(user);
+
+		getRegistry().withProcessToolContext(new ProcessToolContextCallback() {
 			@Override
-			public void withContext(ProcessToolContext ctx) 
-			{
-				
-		    	
-		    	renderViewWithContext();
+			public void withContext(ProcessToolContext ctx) {
+				renderViewWithContext();
 			}
 		}); 
 		
@@ -179,12 +174,9 @@ public class StandaloneWindowTab extends Window implements ParameterHandler, Cli
 	
 	private void renderView()
 	{
-		ProcessToolRegistry registry = ProcessToolRegistry.Util.getInstance();
-		registry.withProcessToolContext(new ProcessToolContextCallback() {
-			
+		getRegistry().withProcessToolContext(new ProcessToolContextCallback() {
 			@Override
-			public void withContext(ProcessToolContext ctx) 
-			{
+			public void withContext(ProcessToolContext ctx) {
 				renderViewWithContext();
 			}
 		}); 
@@ -210,9 +202,7 @@ public class StandaloneWindowTab extends Window implements ParameterHandler, Cli
         else
         {
         	renderActivityView();
-        } 
-		
-
+        }
 	}
 	
 	
@@ -235,9 +225,7 @@ public class StandaloneWindowTab extends Window implements ParameterHandler, Cli
 	{
     	if(user != null && bpmSession == null)
     	{
-    		ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-    		
-    		bpmSession = ctx.getProcessToolSessionFactory().createSession(user, user.getRoleNames());
+    		bpmSession = getRegistry().getProcessToolSessionFactory().createSession(user, user.getRoleNames());
     	}
 		 
     	/* If there is no main view initialize, create one */

@@ -1,5 +1,6 @@
 package pl.net.bluesoft.rnd.pt.ext.bpmnotifications;
 
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 import static pl.net.bluesoft.util.lang.Strings.hasText;
 
 import java.net.ConnectException;
@@ -396,7 +397,7 @@ public class BpmNotificationEngine implements IBpmNotificationService
             templateProvider.refreshConfig();
             mailSessionProvider.refreshConfig();
 
-            bpmSession = ProcessToolContext.Util.getThreadProcessToolContext().getProcessToolSessionFactory().createAutoSession();
+            bpmSession = getRegistry().getProcessToolSessionFactory().createAutoSession();
             
             logger.info("Mail configuration updated. Interval is set to "+refrshInterval);
         }

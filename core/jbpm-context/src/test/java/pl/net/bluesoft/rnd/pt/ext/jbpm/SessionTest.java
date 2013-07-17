@@ -18,6 +18,7 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
 import pl.net.bluesoft.rnd.processtool.model.token.AccessToken;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistryImpl;
 import pl.net.bluesoft.rnd.processtool.plugins.deployment.ProcessDeployer;
 import pl.net.bluesoft.rnd.processtool.token.IAccessTokenFactory;
@@ -32,6 +33,7 @@ import javax.naming.InitialContext;
 import java.io.InputStream;
 import java.util.*;
 
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
 
 /**
@@ -696,7 +698,7 @@ public class SessionTest extends TestCase {
 	}
 
 	private ProcessToolBpmSession createSession(String user) {
-		return ctx.getProcessToolSessionFactory().createSession(new UserData(user, user, user), Arrays.asList("ADMIN", user + "_ROLE"));
+		return getRegistry().getProcessToolSessionFactory().createSession(new UserData(user, user, user), Arrays.asList("ADMIN", user + "_ROLE"));
 	}
 
 	@Override

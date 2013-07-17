@@ -31,6 +31,7 @@ import pl.net.bluesoft.rnd.processtool.model.nonpersistent.BpmTaskBean;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.BpmTaskDerivedBean;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
 import pl.net.bluesoft.rnd.processtool.model.token.AccessToken;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.token.IAccessTokenFactory;
 import pl.net.bluesoft.rnd.processtool.token.ITokenService;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.service.JbpmService;
@@ -66,8 +67,8 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	private JbpmService jbpmService;
 	private StatefulKnowledgeSession ksession;
 
-	public ProcessToolJbpmSession(UserData user, Collection<String> roleNames, ProcessToolContext ctx) {
-		super(user, roleNames, ctx.getRegistry());
+	public ProcessToolJbpmSession(UserData user, Collection<String> roleNames) {
+		super(user, roleNames);
 
         /* Dependency Injection */
 		ObjectFactory.inject(this);
@@ -77,7 +78,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 	@Override
 	public ProcessToolBpmSession createSession(UserData user, Collection<String> roleNames) {
-		ProcessToolJbpmSession session = new ProcessToolJbpmSession(user, roleNames, getContext());
+		ProcessToolJbpmSession session = new ProcessToolJbpmSession(user, roleNames);
 		session.substitutingUser = this.user;
 		session.substitutingUserEventBusManager = this.eventBusManager;
 		return session;

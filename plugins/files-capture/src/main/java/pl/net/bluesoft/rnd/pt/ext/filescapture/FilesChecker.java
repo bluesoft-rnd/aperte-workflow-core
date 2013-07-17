@@ -1,5 +1,6 @@
 package pl.net.bluesoft.rnd.pt.ext.filescapture;
 
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 
@@ -8,7 +9,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
@@ -28,6 +28,7 @@ import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceSimpleAttribute;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.pt.ext.filescapture.model.FilesCheckerConfiguration;
 import pl.net.bluesoft.rnd.pt.ext.filescapture.model.FilesCheckerRuleConfiguration;
 import pl.net.bluesoft.util.lang.StringUtil;
@@ -57,9 +58,8 @@ public class FilesChecker {
     }
 
     private void execute(FilesCheckerConfiguration cfg) throws Exception {
-        ProcessToolBpmSession toolBpmSession = context.getProcessToolSessionFactory().createSession(
-                new UserData(cfg.getAutomaticUser(), cfg.getAutomaticUser(), cfg.getAutomaticUser()),
-                new HashSet());
+        ProcessToolBpmSession toolBpmSession = getRegistry().getProcessToolSessionFactory().createSession(
+                new UserData(cfg.getAutomaticUser(), cfg.getAutomaticUser(), cfg.getAutomaticUser()));
 
 
         File file = new File(cfg.getFilesProperties());

@@ -7,6 +7,8 @@ import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+
 /** 
  * Manager for the bpm process actions 
  * 
@@ -34,7 +36,7 @@ public class ProcessActionManager
 	{
 		if(processToolSession == null)
 		{
-			processToolSession = ctx.getProcessToolSessionFactory().createSession(user, user.getRoleNames());
+			processToolSession = getRegistry().getProcessToolSessionFactory().createSession(user, user.getRoleNames());
 		}
 		
 		return processToolSession;

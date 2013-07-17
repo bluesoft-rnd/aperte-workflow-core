@@ -35,7 +35,6 @@ import java.util.Map;
  */
 public class ProcessToolContextImpl implements ProcessToolContext { 
     private Session hibernateSession;
-    private ProcessToolJbpmSessionFactory processToolJbpmSessionFactory;
     private ProcessDictionaryRegistry processDictionaryRegistry;
     private ProcessToolRegistry registry;
     private IUserProcessQueueManager userProcessQueueManager;
@@ -170,11 +169,8 @@ public class ProcessToolContextImpl implements ProcessToolContext {
     }
 
     @Override
-    public synchronized ProcessToolSessionFactory getProcessToolSessionFactory() {
-        if (processToolJbpmSessionFactory == null) {
-            processToolJbpmSessionFactory = new ProcessToolJbpmSessionFactory(this);
-        }
-        return processToolJbpmSessionFactory;
+    public ProcessToolSessionFactory getProcessToolSessionFactory() {
+        return registry.getProcessToolSessionFactory();
     }
 
     @Override
@@ -304,6 +300,5 @@ public class ProcessToolContextImpl implements ProcessToolContext {
 	@Override
 	public void close() {
 		this.closed = true;
-		
 	}
 }

@@ -18,9 +18,12 @@ import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionPermission;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.util.lang.Strings;
 
 import com.thoughtworks.xstream.XStream;
+
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 
 /**
  * Process Definition deployer
@@ -104,7 +107,7 @@ public class ProcessDeployer
 	}
 
 	private ProcessToolBpmSession createAdminSession() {
-		return processToolContext.getProcessToolSessionFactory().createSession(
+		return getRegistry().getProcessToolSessionFactory().createSession(
 				new UserData("admin", "admin@aperteworkflow.org", "Admin"), Collections.singletonList("ADMIN"));
 	}
 
@@ -135,8 +138,7 @@ public class ProcessDeployer
 				config.setProcessLogo(logoBytes);
 			}
 		}
-		Collection<ProcessQueueConfig> qConfigs = (Collection<ProcessQueueConfig>) xstream
-				.fromXML(queueConfigStream);
+		Collection<ProcessQueueConfig> qConfigs = (Collection<ProcessQueueConfig>) xstream.fromXML(queueConfigStream);
 		deployOrUpdateProcessDefinition(jpdlStream, config,
 				qConfigs.toArray(new ProcessQueueConfig[qConfigs.size()]),
 				imageStream);

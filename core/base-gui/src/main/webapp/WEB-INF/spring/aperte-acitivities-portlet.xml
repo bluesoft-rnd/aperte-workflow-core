@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                            http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+            http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd
+            http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+            http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+	
+	<context:annotation-config /> 
+	<context:component-scan base-package="org.aperteworkflow.webapi.main" />
+	
+	<!-- STATIC RESOURCES -->
+	<mvc:resources location="/css/" mapping="/css/**"></mvc:resources>
+	<mvc:resources location="/js/" mapping="/js/**"></mvc:resources>
+    <mvc:resources location="/img/" mapping="/img/**"></mvc:resources>
+
+	<bean class="org.springframework.web.portlet.mvc.annotation.DefaultAnnotationHandlerMapping"></bean>
+	<bean class="org.aperteworkflow.webapi.main.MainViewController"></bean>
+	<bean class="org.aperteworkflow.webapi.main.MainServletViewController"></bean>
+
+	<bean id="jspViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="viewClass" value="org.springframework.web.servlet.view.InternalResourceView"></property>
+		<property name="prefix" value="/WEB-INF/jsp/"></property>
+		<property name="suffix" value=".jsp"></property>
+		<property name="order" value="1"></property>
+	</bean>
+	
+	<!-- MESSAGES RESOLVER -->
+	<bean id="messageSource" class="org.aperteworkflow.webapi.messages.ReloadableResourceBundleMessageSource">
+		<property name="basenames" value="classpath*:messages,/WEB-INF/messages"/>
+		<property name="defaultEncoding" value="UTF-8"></property>
+		<property name="useCodeAsDefaultMessage" value="true"/>
+	</bean>
+	<!-- session scope to disable interferences between browsers -->
+	<bean id="eventBus" class="com.google.common.eventbus.EventBus" scope="session">
+		<aop:scoped-proxy/>
+	</bean>
+</beans>

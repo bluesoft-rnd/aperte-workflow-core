@@ -3,6 +3,8 @@ package pl.net.bluesoft.rnd.processtool.roles.impl;
 import java.util.Collection;
 
 import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 import pl.net.bluesoft.rnd.processtool.dao.UserRoleDAO;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
@@ -15,7 +17,13 @@ import pl.net.bluesoft.rnd.processtool.roles.exception.UserWithRoleNotFoundExcep
 
 public class AperteUserRolesManager implements IUserRolesManager 
 {
-	private ProcessToolRegistry reg;
+	@Autowired
+	private ProcessToolRegistry processToolRegistry;
+	
+	public AperteUserRolesManager()
+	{
+		SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+	}
 
 	@Override
 	public boolean isRoleExist(String roleName) 
@@ -26,7 +34,7 @@ public class AperteUserRolesManager implements IUserRolesManager
 	@Override
 	public void createRole(String roleName, String description) throws RoleCreationExceptionException 
 	{
-		UserRoleDAO userRoleDao = reg.getUserRoleDao(getSession());
+		UserRoleDAO userRoleDao = processToolRegistry.getUserRoleDao(getSession());
 		
 		UserRole userRole = new UserRole();
 		userRole.setName(roleName);
@@ -64,9 +72,9 @@ public class AperteUserRolesManager implements IUserRolesManager
 	
 	private Session getSession()
 	{
-		Session session = reg.getSessionFactory().getCurrentSession();
+		Session session = processToolRegistry.getSessionFactory().getCurrentSession();
 		if(session == null)
-			session = reg.getSessionFactory().openSession();
+			session = processToolRegistry.getSessionFactory().openSession();
 		
 		return session;
 	}

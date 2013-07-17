@@ -30,8 +30,8 @@ public interface ProcessToolBpmSession extends ProcessToolBpmConstants {
 	ProcessInstance startProcess(String bpmDefinitionId, String externalKey, String description, String keyword,
 								 String source);
 	BpmTask performAction(ProcessStateAction action, BpmTask bpmTask);
-	BpmTask assignTaskFromQueue(ProcessQueue q);
-	BpmTask assignTaskFromQueue(ProcessQueue q, BpmTask task);
+	BpmTask assignTaskFromQueue(String queueName);
+	BpmTask assignTaskFromQueue(String queueName, BpmTask task);
 	void assignTaskToUser(String taskId, String userLogin);
 
     ProcessInstance getProcessData(String internalId);
@@ -58,6 +58,7 @@ public interface ProcessToolBpmSession extends ProcessToolBpmConstants {
 	 */
 	int getFilteredTasksCount(ProcessInstanceFilter filter);
 
+	BpmTask getHistoryTask(String taskId);
 	List<BpmTask> getAllTasks();
 
 	List<BpmTask> findUserTasks(ProcessInstance processInstance);

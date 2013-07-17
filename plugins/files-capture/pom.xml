@@ -35,6 +35,12 @@
 		    <artifactId>chemistry-opencmis-osgi-client</artifactId>
 		    <version>0.9.0-beta-1</version>
 		 </dependency>
+		<dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>org.springframework.web</artifactId>
+            <version>${spring.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -57,7 +63,15 @@
                         <Export-Package>
                         </Export-Package>
                         <Import-Package>
-                            pl.net.bluesoft.rnd.util.i18n,javassist.util.proxy,org.hibernate.proxy,org.osgi.framework,pl.net.bluesoft.rnd.processtool.plugins,pl.net.bluesoft.rnd.processtool.plugins.osgi,pl.net.bluesoft.rnd.processtool.model,javax.persistence,org.hibernate,*;resolution:=optional
+                            pl.net.bluesoft.rnd.util.i18n,
+                            org.springframework.web.context.support;resolution:=optional
+                            javassist.util.proxy,org.hibernate.proxy,
+                            org.osgi.framework,
+                            pl.net.bluesoft.rnd.processtool.plugins,
+                            pl.net.bluesoft.rnd.processtool.plugins.osgi,
+                            pl.net.bluesoft.rnd.processtool.model,
+                            javax.persistence,org.hibernate,
+                            *;resolution:=optional
                         </Import-Package>
                         <Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>
                         <Bundle-Activator>pl.net.bluesoft.rnd.pt.ext.filescapture.Activator</Bundle-Activator>

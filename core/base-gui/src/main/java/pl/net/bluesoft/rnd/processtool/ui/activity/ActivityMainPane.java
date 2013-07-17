@@ -1,6 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.ui.activity;
 
 import static org.aperteworkflow.util.vaadin.VaadinUtility.verticalLayout;
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 import static pl.net.bluesoft.util.lang.Formats.nvl;
 
 import java.util.ArrayList;
@@ -17,13 +18,11 @@ import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
 import org.aperteworkflow.util.vaadin.UriChangedCallback;
 import org.aperteworkflow.util.vaadin.VaadinUtility;
 
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
-import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.ui.newprocess.NewProcessExtendedPane;
 import pl.net.bluesoft.rnd.processtool.ui.process.ProcessMultiViewDataPane;
 import pl.net.bluesoft.rnd.processtool.ui.process.ToolbarProcessDataViewComponent;
@@ -238,8 +237,7 @@ public class ActivityMainPane extends AbstractActivityView
 
 		// to remove "strange" views, depending on external addons. Such
 		// approach also gives us much greater flexibility
-		ProcessToolRegistry registry = ProcessToolRegistry.ThreadUtil.getThreadRegistry();
-		IViewRegistry registeredService = registry.getRegisteredService(IViewRegistry.class);
+		IViewRegistry registeredService = getRegistry().getRegisteredService(IViewRegistry.class);
 		if(registeredService != null)
 		{
 			for(final ViewRenderer viewRenderer: registeredService.getViews())

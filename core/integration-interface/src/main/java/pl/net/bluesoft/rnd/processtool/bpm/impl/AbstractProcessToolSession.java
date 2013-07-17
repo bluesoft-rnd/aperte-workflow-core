@@ -1,10 +1,20 @@
 package pl.net.bluesoft.rnd.processtool.bpm.impl;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Logger;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.event.IEvent;
 import pl.net.bluesoft.rnd.processtool.event.ProcessToolEventBusManager;
-import pl.net.bluesoft.rnd.processtool.hibernate.TransactionFinishedCallback;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.*;
@@ -17,18 +27,13 @@ import pl.net.bluesoft.util.lang.Mapcar;
 import pl.net.bluesoft.util.lang.Pair;
 import pl.net.bluesoft.util.lang.Predicate;
 
-import java.io.Serializable;
-import java.util.*;
-import java.util.logging.Logger;
-
 import static pl.net.bluesoft.util.lang.Formats.nvl;
 
 /**
  * @author tlipski@bluesoft.net.pl
  * @author mpawlak@bluesoft.net.pl
  */
-public abstract class AbstractProcessToolSession
-        implements ProcessToolBpmSession, Serializable {
+public abstract class AbstractProcessToolSession implements ProcessToolBpmSession, Serializable {
 
     protected Logger log = Logger.getLogger(ProcessToolBpmSession.class.getName());
 
@@ -43,29 +48,28 @@ public abstract class AbstractProcessToolSession
     protected UserData substitutingUser;
     protected EventBusManager substitutingUserEventBusManager;
 
-    protected AbstractProcessToolSession(UserData user, Collection<String> roleNames, ProcessToolRegistry registry) {
+    @Autowired
+    private ProcessToolRegistry processToolRegistry;
+
+    protected AbstractProcessToolSession(UserData user, Collection<String> roleNames) {
+    	SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+
         this.user = user;
         this.roleNames = new HashSet<String>(roleNames);
-        this.eventBusManager = new ProcessToolEventBusManager(registry, registry.getExecutorService());
+        this.eventBusManager = new ProcessToolEventBusManager(processToolRegistry, processToolRegistry.getExecutorService());
         log.finest("Created session for user: " + user);
     }
 
-    protected void broadcastEvent(final IEvent event) {
+    protected void broadcastEvent(IEvent event) {
         eventBusManager.publish(event);
-        if (substitutingUserEventBusManager != null)
-            substitutingUserEventBusManager.publish(event);
-		final ProcessToolContext ctx = getContext(); // inside callback context is no longer present
-        ctx.addTransactionCallback(new TransactionFinishedCallback() {
-			@Override
-			public void onFinished() {
-				ctx.getEventBusManager().post(event);
-			}
-		});
+        if (substitutingUserEventBusManager != null) {
+			substitutingUserEventBusManager.publish(event);
+		}
     }
 
 	protected UserData findOrCreateUser(UserData user)
 	{
-		return getContext().getUserDataDAO().findOrCreateUser(user);
+		return getContext().getUserDataDAO().loadOrCreateUserByLogin(user);
 	}
 
     protected Set<String> getPermissions(Collection<? extends IPermission> col) {

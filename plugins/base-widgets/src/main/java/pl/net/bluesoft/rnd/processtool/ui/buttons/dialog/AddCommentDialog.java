@@ -9,11 +9,9 @@ import org.aperteworkflow.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComment;
-import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 
 import com.vaadin.data.Item;
 import com.vaadin.data.util.BeanItem;
-import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.AbstractLayout;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -25,6 +23,8 @@ import com.vaadin.ui.Field;
 import com.vaadin.ui.Form;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.RichTextArea;
+
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 
 /**
  * 
@@ -174,30 +174,27 @@ public class AddCommentDialog extends DialogWindow implements ClickListener
 	{
 		if(event.getButton().equals(addButton))
 		{
-    		  ProcessToolRegistry registry = ProcessToolRegistry.ThreadUtil.getThreadRegistry();
-    		  
-    		  registry.withProcessToolContext(new ProcessToolContextCallback() {
-					
-					@Override
-					public void withContext(ProcessToolContext ctx) 
-					{
-		                if (form.isValid()) {
-		                    form.commit();
-		                    closeWindow();
-		                    handleAddComment();
-		                } else {
-		                    StringBuilder sb = new StringBuilder("<ul>");
-		                    for (Object propertyId : form.getItemPropertyIds()) {
-		                        Field field = form.getField(propertyId);
-		                        if (!field.isValid() && field.isRequired()) {
-		                            sb.append("<li>").append(field.getRequiredError()).append("</li>");
-		                        }
-		                    }
-		                    sb.append("</ul>");
-		                    VaadinUtility.validationNotification(getApplication(), i18NSource, sb.toString());
-		                }
+			getRegistry().withProcessToolContext(new ProcessToolContextCallback() {
+				@Override
+				public void withContext(ProcessToolContext ctx) {
+					if (form.isValid()) {
+						form.commit();
+						closeWindow();
+						handleAddComment();
 					}
-				});
+					else {
+						StringBuilder sb = new StringBuilder("<ul>");
+						for (Object propertyId : form.getItemPropertyIds()) {
+							Field field = form.getField(propertyId);
+							if (!field.isValid() && field.isRequired()) {
+								sb.append("<li>").append(field.getRequiredError()).append("</li>");
+							}
+						}
+						sb.append("</ul>");
+						VaadinUtility.validationNotification(getApplication(), i18NSource, sb.toString());
+					}
+				}
+			});
 		}
 		else if(event.getButton().equals(cancelButton))
 		{

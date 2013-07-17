@@ -1,0 +1,33 @@
+<nav class="sort-pages modify-pages" id="navigation">
+
+	<ul class="nav nav-pills">
+		#foreach ($nav_item in $nav_items)
+			#if ($nav_item.isSelected())
+				<li class="selected aperte-navigation">
+			#else
+				<li class="aperte-navigation">
+			#end
+
+				<a href="$nav_item.getURL()" $nav_item.getTarget()><span>$nav_item.icon() $htmlUtil.escape($nav_item.getName())</span></a>
+
+				#if ($nav_item.hasChildren())
+					<ul class="child-menu">
+						#foreach ($nav_child in $nav_item.getChildren())
+							#if ($nav_child.isSelected())
+								<li class="selected">
+							#else
+								<li>
+							#end
+
+								<a href="$nav_child.getURL()" $nav_child.getTarget()>$nav_child.getName()</a>
+							</li>
+						#end
+					</ul>
+				#end
+			</li>
+		#end
+		#if(!$is_signed_in)
+			<a href="$sign_in_url" id="sign-in" rel="nofollow" class="aperte-navigation-signin">$sign_in_text</a>
+		#end
+	</ul>
+</nav>

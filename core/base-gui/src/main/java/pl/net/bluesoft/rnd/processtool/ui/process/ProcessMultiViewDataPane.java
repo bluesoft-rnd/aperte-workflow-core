@@ -45,6 +45,7 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolChildrenFilteringWi
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinRenderable;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.WidgetFactory;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.event.WidgetEventBus;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.util.lang.Lang;
@@ -90,6 +91,8 @@ public class ProcessMultiViewDataPane extends VerticalLayout implements WidgetCo
 
 	private ProcessToolActionCallback actionCallback;
 	private GuiAction guiAction = null;
+	
+	private WidgetFactory widgetFactory;
 
 	private static enum GuiAction {
 		ACTION_PERFORMED, SAVE_PERFORMED, ACTION_FAILED;
@@ -102,6 +105,9 @@ public class ProcessMultiViewDataPane extends VerticalLayout implements WidgetCo
 		this.i18NSource = i18NSource;
 		displayProcessContext = hideProcessHandler;
 		task = bpmTask;
+		
+		this.widgetFactory = new WidgetFactory(bpmSession, application, i18NSource);
+		
 
 		refreshTask();
 		prepare();
@@ -614,11 +620,9 @@ public class ProcessMultiViewDataPane extends VerticalLayout implements WidgetCo
 										String generatorKey, WidgetEventBus widgetEventBus) {
 		ProcessToolWidget processToolWidget;
 		try {
-			ProcessToolRegistry toolRegistry = ProcessToolRegistry.ThreadUtil.getThreadRegistry();
+			String widgetClassName = w.getClassName() == null ? w.getName() : w.getClassName();
 			
-			processToolWidget = w.getClassName() == null ? toolRegistry.makeWidget(w.getName()) : toolRegistry.makeWidget(w.getClassName());
-			processToolWidget.setContext(stateConfiguration, w, i18NSource, bpmSession, application,
-					ProcessToolBpmSessionHelper.getPermissionsForWidget(bpmSession, ctx, w), isOwner);
+			processToolWidget = widgetFactory.makeWidget(widgetClassName, w, ProcessToolBpmSessionHelper.getPermissionsForWidget(bpmSession, ctx, w), isOwner);
 			processToolWidget.setGeneratorKey(generatorKey);
 			processToolWidget.setWidgetEventBus(widgetEventBus);
 			if (processToolWidget instanceof ProcessToolDataWidget) {

@@ -26,7 +26,8 @@ import javax.jws.WebService;
 import java.util.*; 
 
 import static org.aperteworkflow.util.ContextUtil.withContext;
-import static org.aperteworkflow.util.HibernateBeanUtil.fetchHibernateData; 
+import static org.aperteworkflow.util.HibernateBeanUtil.fetchHibernateData;
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 
 /**
  * Most of WebMethods works, some of them are taged as (exclude=true), because they allow for too much interference in the aperet workflow  data.
@@ -245,7 +246,7 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
         return withContext(new ReturningProcessToolContextCallback<UserData>() {
             @Override
             public UserData processWithContext(ProcessToolContext ctx) {
-                return fetchHibernateData(ctx.getUserDataDAO().findOrCreateUser(user)); 
+                return fetchHibernateData(ctx.getUserDataDAO().loadOrCreateUserByLogin(user));
             }
         });
     }
@@ -463,8 +464,7 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
         return withContext(new ReturningProcessToolContextCallback<List<String>>() {
             @Override
             public List<String> processWithContext(ProcessToolContext ctx) {
-                return getSession(ctx)
-                        .getAvailableLogins(filter);
+                return getSession().getAvailableLogins(filter);
             }
         });
     }
@@ -482,8 +482,7 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
         return ContextUtil.withContext(new ReturningProcessToolContextCallback<byte[]>() {
             @Override
             public byte[] processWithContext(ProcessToolContext ctx) {
-                return getSession(ctx)
-                        .getProcessLatestDefinition(bpmDefinitionKey);
+                return getSession().getProcessLatestDefinition(bpmDefinitionKey);
             }
         });
     }
@@ -497,9 +496,7 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
         return withContext(new ReturningProcessToolContextCallback<byte[]>() {
             @Override
             public byte[] processWithContext(ProcessToolContext ctx) {
-            	
-                return getSession(ctx)
-                        .getProcessDefinition(processInstanceByInternalId);
+                return getSession().getProcessDefinition(processInstanceByInternalId);
             }
         });
     }
@@ -511,17 +508,16 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
         return withContext(new ReturningProcessToolContextCallback<byte[]>() {
             @Override
             public byte[] processWithContext(ProcessToolContext ctx) {           	
-                return getSession(ctx)
-                        .getProcessMapImage(processInstanceByInternalId);
+                return getSession().getProcessMapImage(processInstanceByInternalId);
             }
         });
     }
 
-	private ProcessToolBpmSession getSession(ProcessToolContext ctx) {
-		return getSession(ctx, null);
+	private ProcessToolBpmSession getSession() {
+		return getSession(null);
 	}
 
-	private ProcessToolBpmSession getSession(ProcessToolContext ctx, UserData user) {
-		return ctx.getProcessToolSessionFactory().createSession(user, new HashSet<String>());
+	private ProcessToolBpmSession getSession(UserData user) {
+		return getRegistry().getProcessToolSessionFactory().createSession(user);
 	}
 }

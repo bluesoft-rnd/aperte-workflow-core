@@ -18,6 +18,7 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
 import pl.net.bluesoft.rnd.processtool.model.token.AccessToken;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistryImpl;
 import pl.net.bluesoft.rnd.processtool.plugins.deployment.ProcessDeployer;
 import pl.net.bluesoft.rnd.processtool.token.IAccessTokenFactory;
@@ -32,6 +33,7 @@ import javax.naming.InitialContext;
 import java.io.InputStream;
 import java.util.*;
 
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
 
 /**
@@ -481,7 +483,7 @@ public class SessionTest extends TestCase {
 		assertNotNull(queue);
 		assertTrue(queue.getProcessCount() > 0);
 
-		task = session.assignTaskFromQueue(queue, task);
+		task = session.assignTaskFromQueue(queue.getName(), task);
 
 		assertNotNull(task);
 		assertEquals(user, task.getAssignee());
@@ -653,7 +655,7 @@ public class SessionTest extends TestCase {
 			dao.getActiveConfigurationByKey(newConfig.getBpmDefinitionKey());
 
 			processDeployer.deployOrUpdateProcessDefinition(
-					getStream(basePath + "/processdefinition." + registry.getBpmDefinitionLanguage() + ".xml"),
+					getStream(basePath + "/processdefinition." + registry.getBpmDefinitionLanguage()),
 					getStream(basePath + "/processtool-config.xml"),
 					getStream(basePath + "/queues-config.xml"),
 					getStream(basePath + "/processdefinition.png"),
@@ -696,7 +698,7 @@ public class SessionTest extends TestCase {
 	}
 
 	private ProcessToolBpmSession createSession(String user) {
-		return ctx.getProcessToolSessionFactory().createSession(new UserData(user, user, user), Arrays.asList("ADMIN", user + "_ROLE"));
+		return getRegistry().getProcessToolSessionFactory().createSession(new UserData(user, user, user), Arrays.asList("ADMIN", user + "_ROLE"));
 	}
 
 	@Override
@@ -733,9 +735,9 @@ public class SessionTest extends TestCase {
 		ds1.setAllowLocalTransactions(true);
 		ds1.setApplyTransactionTimeout(false);
 		ds1.getDriverProperties().setProperty("driverClassName", "org.postgresql.Driver");
-		ds1.getDriverProperties().setProperty("url", "jdbc:postgresql://localhost:5433/bpmn21");
+		ds1.getDriverProperties().setProperty("url", "jdbc:postgresql://localhost:6432/jbpm7");
 		ds1.getDriverProperties().setProperty("user", "postgres");
-		ds1.getDriverProperties().setProperty("password", "postgres");
+		ds1.getDriverProperties().setProperty("password", "128256");
 		ds1.init();
 		ic.bind("aperte-workflow-ds", ds1);
 
@@ -748,7 +750,7 @@ public class SessionTest extends TestCase {
         new InitialContext().lookup("aperte-workflow-ds");
 
     	registry = new ProcessToolRegistryImpl();
-		registry.setBpmDefinitionLanguage("bpmn");
+		registry.setBpmDefinitionLanguage("bpmn20");
 		registry.setSearchProvider(new SearchProvider() {
 			@Override
 			public void updateIndex(ProcessInstanceSearchData processInstanceSearchData) {
@@ -814,6 +816,8 @@ public class SessionTest extends TestCase {
 			@Override
 			public void withContext(ProcessToolContext ctx) {
 				SessionTest.this.ctx = ctx;
+
+				ctx.getHibernateSession().beginTransaction();
 
 				wipeDb();
 

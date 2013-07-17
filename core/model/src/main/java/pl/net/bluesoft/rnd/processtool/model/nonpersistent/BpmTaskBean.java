@@ -4,7 +4,6 @@ import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -16,7 +15,7 @@ import java.util.List;
  * Date: 2013-06-19
  * Time: 14:29
  */
-public class BpmTaskBean implements BpmTask, Serializable {
+public class BpmTaskBean extends AbstractBpmTask implements Serializable {
 	private static final long serialVersionUID = -6922749510138539783L;
 
 	private String assignee;
@@ -28,7 +27,9 @@ public class BpmTaskBean implements BpmTask, Serializable {
 	private Date createDate;
 	private Date finishDate;
 	private ProcessInstance processInstance;
+	private ProcessDefinitionConfig processDefinition;
 	private boolean isFinished;
+	private Date deadlineDate;
 
 	public BpmTaskBean() {
 	}
@@ -44,6 +45,7 @@ public class BpmTaskBean implements BpmTask, Serializable {
 		this.finishDate = task.getFinishDate();
 		this.processInstance = task.getProcessInstance();
 		this.isFinished = task.isFinished();
+		this.processDefinition = task.getProcessDefinition();
 	}
 
 	@Override
@@ -87,13 +89,17 @@ public class BpmTaskBean implements BpmTask, Serializable {
 		return processInstance;
 	}
 
-	@Override
-	public ProcessInstance getRootProcessInstance() {
-		return processInstance.getRootProcessInstance();
-	}
-
 	public void setProcessInstance(ProcessInstance processInstance) {
 		this.processInstance = processInstance;
+	}
+
+	@Override
+	public ProcessDefinitionConfig getProcessDefinition() {
+		return processDefinition;
+	}
+
+	public void setProcessDefinition(ProcessDefinitionConfig processDefinition) {
+		this.processDefinition = processDefinition;
 	}
 
 	@Override
@@ -147,46 +153,12 @@ public class BpmTaskBean implements BpmTask, Serializable {
 	}
 
 	@Override
-	public ProcessDefinitionConfig getProcessDefinition() {
-		return processInstance != null ? processInstance.getDefinition() : null;
+	public Date getDeadlineDate() {
+		return deadlineDate;
 	}
 
-	@Override
-	public ProcessStateConfiguration getCurrentProcessStateConfiguration() {
-    	/* Find current state by action name */
-		ProcessDefinitionConfig processDefinitionConfig = getProcessDefinition();
-
-		if(processDefinitionConfig == null)
-			return null;
-
-		String stateName = getTaskName();
-
-		return processDefinitionConfig.getProcessStateConfigurationByName(stateName);
-	}
-
-	@Override
-	public String getInternalProcessId() {
-		return processInstance != null ? processInstance.getInternalId() : null;
-	}
-
-	@Override
-	public String getExternalProcessId() {
-		return processInstance != null ? processInstance.getExternalKey() : null;
-	}
-
-	@Override
-	public String toString() {
-		return "BpmTaskBean{" +
-				"assignee='" + assignee + '\'' +
-				", groupId='" + groupId + '\'' +
-				", owner=" + owner +
-				", taskName='" + taskName + '\'' +
-				", internalTaskId='" + internalTaskId + '\'' +
-				", executionId='" + executionId + '\'' +
-				", createDate=" + createDate +
-				", finishDate=" + finishDate +
-				", isFinished=" + isFinished +
-				'}';
+	public void setDeadlineDate(Date deadlineDate) {
+		this.deadlineDate = deadlineDate;
 	}
 
 	public static List<BpmTaskBean> asBeans(List<? extends BpmTask> list) {

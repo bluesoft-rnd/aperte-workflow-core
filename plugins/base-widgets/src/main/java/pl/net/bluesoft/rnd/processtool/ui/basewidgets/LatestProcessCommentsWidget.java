@@ -65,8 +65,8 @@ public class LatestProcessCommentsWidget extends BaseProcessToolVaadinWidget imp
     @Override
     public Component render() {
         if (!showContent) {
-            return null;
-        }
+            return new CssLayout();
+        } 
 
         Panel commentsPanel = new Panel();
         commentsPanel.setStyleName("borderless light");

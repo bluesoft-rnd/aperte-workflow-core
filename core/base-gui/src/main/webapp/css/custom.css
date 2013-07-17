@@ -1,0 +1,8 @@
+/* This file allows you to override default styles in one central location for easier upgrade and maintenance. */
+
+@import "bootstrap.css";
+@import "bootstrap.min.css";
+@import "bootstrap-datetimepicker.min.css";
+@import "datepicker.css";
+@import "select2.css";
+@import "aperteworkflow.css";

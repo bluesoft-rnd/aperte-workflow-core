@@ -20,10 +20,24 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
 import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
+import pl.net.bluesoft.rnd.processtool.plugins.IBundleResourceProvider;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.plugins.deployment.ProcessDeployer;
+import pl.net.bluesoft.rnd.processtool.plugins.osgi.beans.HtmlFileNameBean;
+import pl.net.bluesoft.rnd.processtool.plugins.osgi.beans.ScriptFileNameBean;
 import pl.net.bluesoft.rnd.processtool.roles.IUserRolesManager;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
+import pl.net.bluesoft.rnd.processtool.web.controller.IOsgiWebController;
+import pl.net.bluesoft.rnd.processtool.web.controller.OsgiController;
+import pl.net.bluesoft.rnd.processtool.web.domain.IWidgetContentProvider;
+import pl.net.bluesoft.rnd.processtool.web.domain.IWidgetScriptProvider;
+import pl.net.bluesoft.rnd.processtool.web.widgets.impl.FileWidgetContentProvider;
+import pl.net.bluesoft.rnd.processtool.web.widgets.impl.FileWidgetJavaScriptProvider;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.IWidgetDataHandler;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.IWidgetValidator;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.MockWidgetValidator;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.SimpleWidgetDataHandler;
 import pl.net.bluesoft.rnd.util.i18n.impl.PropertiesBasedI18NProvider;
 import pl.net.bluesoft.rnd.util.i18n.impl.PropertyLoader;
 
@@ -35,8 +49,9 @@ import com.thoughtworks.xstream.XStream;
  * Time: 16:17
  */
 public class BundleInstallationHandler {
-
-
+    public static final String		VIEW	    			= "ProcessTool-Widget-View";
+    public static final String		SCRIPT	   				= "ProcessTool-Widget-Script";
+    public static final String		CONTROLLER		        = "ProcessTool-Controller";
 	public static final String		MODEL_ENHANCEMENT	    = "ProcessTool-Model-Enhancement";
 	public static final String		WIDGET_ENHANCEMENT	    = "ProcessTool-Widget-Enhancement";
 	public static final String		BUTTON_ENHANCEMENT  	= "ProcessTool-Button-Enhancement";
@@ -56,8 +71,8 @@ public class BundleInstallationHandler {
 	public static final String      DOCUMENTATION_URL       = Constants.BUNDLE_DOCURL;
 
 	public static final String[]	HEADER_NAMES		    = {
-			MODEL_ENHANCEMENT, WIDGET_ENHANCEMENT, BUTTON_ENHANCEMENT, STEP_ENHANCEMENT, I18N_PROPERTY,
-			PROCESS_DEPLOYMENT, GLOBAL_DICTIONARY, ICON_RESOURCES, RESOURCES, HUMAN_NAME, DESCRIPTION_KEY,
+			MODEL_ENHANCEMENT, WIDGET_ENHANCEMENT, BUTTON_ENHANCEMENT, STEP_ENHANCEMENT, I18N_PROPERTY,VIEW,SCRIPT,
+			PROCESS_DEPLOYMENT, GLOBAL_DICTIONARY, ICON_RESOURCES, RESOURCES, HUMAN_NAME, DESCRIPTION_KEY, CONTROLLER,
 			ROLE_FILES, IMPLEMENTATION_BUILD, TASK_ITEM_ENHANCEMENT, DESCRIPTION, HOMEPAGE_URL, DOCUMENTATION_URL
 	};
 
@@ -80,6 +95,18 @@ public class BundleInstallationHandler {
 		}
 
 		OSGiBundleHelper bundleHelper = new OSGiBundleHelper(bundle);
+		
+		if (bundleHelper.hasHeaderValues(VIEW)) {
+			handleView(eventType, bundleHelper, registry);
+		}
+		
+		if (bundleHelper.hasHeaderValues(SCRIPT)) {
+			handleScript(eventType, bundleHelper, registry);
+		}
+
+        if (bundleHelper.hasHeaderValues(CONTROLLER)) {
+            handleController(eventType, bundleHelper, registry);
+        }
 
 		if (bundleHelper.hasHeaderValues(MODEL_ENHANCEMENT)) {
 			handleModelEnhancement(eventType, bundleHelper, registry);
@@ -118,6 +145,119 @@ public class BundleInstallationHandler {
 			handleTaskItemEnhancement(eventType, bundleHelper, registry);
 		}
 	}
+
+	private void handleScript(int eventType, OSGiBundleHelper bundleHelper,ProcessToolRegistry toolRegistry) 
+	{
+		Bundle bundle = bundleHelper.getBundle();
+		String[] javaScriptFiles = bundleHelper.getHeaderValues(SCRIPT);
+
+		
+		for (String javaScriptFileName : javaScriptFiles) 
+		{
+			try
+			{
+				ScriptFileNameBean scriptFileNameBean = new ScriptFileNameBean(javaScriptFileName);
+				IWidgetScriptProvider scriptProvider = null;
+				
+				if(scriptFileNameBean.getProviderClass().equals(FileWidgetJavaScriptProvider.class.getName()))
+				{
+					scriptProvider = 
+							new FileWidgetJavaScriptProvider(
+									scriptFileNameBean.getFileName(), 
+									bundle.getResource(scriptFileNameBean.getFileName()));
+				}
+				else
+				{
+					scriptProvider = (IWidgetScriptProvider)bundle
+							.loadClass(scriptFileNameBean.getProviderClass())
+							.getConstructor(String.class, URL.class)
+							.newInstance(scriptFileNameBean.getFileName());
+				}
+				
+				
+				
+				if (eventType == Bundle.ACTIVE) 
+				{
+					toolRegistry.registerJavaScript(scriptFileNameBean.getFileName(), scriptProvider);
+				}
+				else {
+					toolRegistry.unregisterJavaScript(scriptFileNameBean.getFileName());
+				}
+			}
+			catch(Throwable e)
+			{
+				logger.log(Level.SEVERE, e.getMessage(), e);
+				forwardErrorInfoToMonitor(bundle.getSymbolicName(), e);
+			}
+		}
+		
+	}
+
+	private void handleView(int eventType, OSGiBundleHelper bundleHelper,ProcessToolRegistry toolRegistry) 
+	{
+		Bundle bundle = bundleHelper.getBundle();
+		String[] widgetClasses = bundleHelper.getHeaderValues(VIEW);
+
+		
+		for (String widgetClass : widgetClasses)
+		{
+			try
+			{
+                ProcessHtmlWidget htmlWidget = (ProcessHtmlWidget)bundle
+                        .loadClass(widgetClass)
+                        .getConstructor(IBundleResourceProvider.class)
+                        .newInstance(bundleHelper);
+
+				if (eventType == Bundle.ACTIVE) 
+				{
+					toolRegistry.registerHtmlView(htmlWidget.getWidgetName(), htmlWidget);
+				}
+				else 
+				{
+					toolRegistry.unregisterHtmlView(htmlWidget.getWidgetName());
+				}
+			}
+			catch(Throwable e)
+			{
+				logger.log(Level.SEVERE, e.getMessage(), e);
+				forwardErrorInfoToMonitor(bundle.getSymbolicName(), e);
+			}
+		}
+		
+	}
+
+    private void handleController(int eventType, OSGiBundleHelper bundleHelper,ProcessToolRegistry toolRegistry)
+    {
+        Bundle bundle = bundleHelper.getBundle();
+        String[] classes = bundleHelper.getHeaderValues(CONTROLLER);
+
+        for (String cls : classes)
+        {
+            try
+            {
+                Class<? extends IOsgiWebController> controllerClass =
+                        (Class<? extends IOsgiWebController>)bundleHelper.getBundle().loadClass(cls);
+                OsgiController controllerAnnotation = controllerClass.getAnnotation(OsgiController.class);
+
+                String controllerName = controllerAnnotation.name();
+                if (eventType == Bundle.ACTIVE)
+                {
+                    IOsgiWebController controller = (IOsgiWebController)controllerClass.newInstance();
+                    toolRegistry.registerWebController(controllerName, controller);
+                }
+                else
+                {
+                    toolRegistry.unregisterWebController(controllerName);
+                }
+            }
+            catch (Throwable e)
+            {
+                logger.log(Level.SEVERE, e.getMessage(), e);
+                forwardErrorInfoToMonitor(bundle.getSymbolicName(), e);
+            }
+        }
+
+    }
 
 	private void handleMessageSources(int eventType, OSGiBundleHelper bundleHelper, ProcessToolRegistry toolRegistry) {
 		final Bundle bundle = bundleHelper.getBundle();
@@ -266,8 +406,6 @@ public class BundleInstallationHandler {
 		}
 	}
 
-
-
 	private void handleProcessRoles(int eventType, OSGiBundleHelper bundleHelper, ProcessToolRegistry registry) {
 		if (eventType != Bundle.ACTIVE) {
 			return;
@@ -405,7 +543,7 @@ public class BundleInstallationHandler {
 		this.registry = registry;
 	}
 
-	private void forwardErrorInfoToMonitor(String path, Exception e) {
+	private void forwardErrorInfoToMonitor(String path, Throwable e) {
 		errorMonitor.forwardErrorInfoToMonitor(path, e);
 	}
 }

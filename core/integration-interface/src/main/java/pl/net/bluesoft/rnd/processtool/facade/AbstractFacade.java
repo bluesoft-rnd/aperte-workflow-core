@@ -3,8 +3,9 @@ package pl.net.bluesoft.rnd.processtool.facade;
 import pl.net.bluesoft.rnd.processtool.IProcessToolSettings;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
-import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.token.callbacks.GetSettingCallback;
+
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 
 /**
  * Abstract facade which encapsultes the callback processing logic
@@ -20,9 +21,7 @@ public abstract class AbstractFacade
 		ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
 		if(ctx == null || !ctx.isActive())
 		{
-			ProcessToolRegistry reg = ProcessToolRegistry.ThreadUtil.getThreadRegistry();
-			
-			return reg.withProcessToolContext(callback);
+			return getRegistry().withProcessToolContext(callback);
 		}
 		else
 		{
@@ -37,6 +36,4 @@ public abstract class AbstractFacade
 		
 		return processCallback(getSettingCallback);
 	}
-	
-
 }

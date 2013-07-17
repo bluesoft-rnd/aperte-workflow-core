@@ -7,6 +7,7 @@ import java.util.Set;
 import javax.persistence.*;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.swing.*;
 
 import org.hibernate.annotations.*;
 
@@ -33,9 +34,17 @@ public class ProcessInstanceFilter extends AbstractPersistentEntity {
 	private Date notUpdatedAfter;
 	private String genericQuery;
 	private String name;
-	
-	/** Type of the queue */
+    private String processBpmKey;
 
+    @Enumerated(EnumType.STRING)
+    private QueueOrder sortOrder;
+
+    @Enumerated(EnumType.STRING)
+    private QueueOrderCondition sortOrderCondition;
+
+
+
+    private String expression;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "filter_owner_id")
@@ -88,6 +97,14 @@ public class ProcessInstanceFilter extends AbstractPersistentEntity {
 	public void setQueues(Set<String> queues) {
 		this.queues = queues;
 	}
+
+    public String getExpression() {
+        return expression;
+    }
+
+    public void setExpression(String expression) {
+        this.expression = expression;
+    }
 
 	public Date getCreatedAfter() {
 		return createdAfter;
@@ -194,5 +211,28 @@ public class ProcessInstanceFilter extends AbstractPersistentEntity {
 		this.queueTypes.add(queueType);
 		
 	}
-	
+
+    public QueueOrder getSortOrder() {
+        return sortOrder;
+    }
+
+    public void setSortOrder(QueueOrder sortOrder) {
+        this.sortOrder = sortOrder;
+    }
+
+    public QueueOrderCondition getSortOrderCondition() {
+        return sortOrderCondition;
+    }
+
+    public void setSortOrderCondition(QueueOrderCondition sortOrderCondition) {
+        this.sortOrderCondition = sortOrderCondition;
+    }
+
+    public String getProcessBpmKey() {
+        return processBpmKey;
+    }
+
+    public void setProcessBpmKey(String processBpmKey) {
+        this.processBpmKey = processBpmKey;
+    }
 }

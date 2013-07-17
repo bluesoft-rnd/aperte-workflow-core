@@ -8,7 +8,7 @@ import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
 
 import pl.net.bluesoft.rnd.processtool.ui.activity.AbstractActivityView;
 import pl.net.bluesoft.rnd.processtool.ui.activity.ActivityMainPane;
-import pl.net.bluesoft.rnd.processtool.ui.utils.QueuesPanelRefresherUtil;
+import pl.net.bluesoft.rnd.processtool.ui.utils.VaadinQueuesRefresherUtil;
 
 import com.vaadin.ui.Window.CloseEvent;
 import com.vaadin.ui.Window.CloseListener;
@@ -46,14 +46,14 @@ public class ActivityPortletApplication extends GenericVaadinPortlet2BpmApplicat
 	@Override
 	protected void renderPortlet() 
 	{
-		QueuesPanelRefresherUtil.registerUser(getMainWindow(), user.getLogin());
-		QueuesPanelRefresherUtil.changeRefresherInterval(getMainWindow());
+		VaadinQueuesRefresherUtil.registerUser(getMainWindow(), user.getLogin());
+		VaadinQueuesRefresherUtil.changeRefresherInterval(getMainWindow());
 	}
 
 	@Override
 	public void windowClose(CloseEvent e) 
 	{
-		QueuesPanelRefresherUtil.unregisterUser(getMainWindow(), user.getLogin());
+		VaadinQueuesRefresherUtil.unregisterUser(getMainWindow(), user.getLogin());
 	}
 	
     public static SystemMessages getSystemMessages() 

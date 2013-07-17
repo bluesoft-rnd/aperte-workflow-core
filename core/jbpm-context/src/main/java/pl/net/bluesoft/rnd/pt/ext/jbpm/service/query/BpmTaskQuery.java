@@ -3,10 +3,8 @@ package pl.net.bluesoft.rnd.pt.ext.jbpm.service.query;
 import org.hibernate.SQLQuery;
 import org.hibernate.type.StandardBasicTypes;
 import org.jbpm.task.Status;
-import pl.net.bluesoft.rnd.processtool.model.BpmTask;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.model.QueueType;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
+import pl.net.bluesoft.rnd.processtool.model.*;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.BpmTaskBean;
 import pl.net.bluesoft.util.lang.cquery.func.F;
 
@@ -55,7 +53,8 @@ public class BpmTaskQuery {
 	private Collection<String> taskNames;
 	private Date createdBefore;
 	private Date createdAfter;
-	private boolean orderByCreateDateDesc;
+	private QueueOrderCondition sortField;
+	private QueueOrder sortOrder;
 
 	private int offset;
 	private int limit = -1;
@@ -95,10 +94,12 @@ public class BpmTaskQuery {
 		return this;
 	}
 
-	public BpmTaskQuery orderByCreateDateDesc() {
-		this.orderByCreateDateDesc = true;
+	public BpmTaskQuery orderBy(QueueOrderCondition sortField, QueueOrder sortOrder) {
+		this.sortField = sortField;
+		this.sortOrder = sortOrder;
 		return this;
 	}
+
 
 	public BpmTaskQuery page(int offset, int limit) {
 		this.offset = offset;
@@ -118,6 +119,8 @@ public class BpmTaskQuery {
 
 		List<BpmTask> result = new ArrayList<BpmTask>();
 
+		ProcessDefinitionDAO processDefinitionDAO = getThreadProcessToolContext().getProcessDefinitionDAO();
+
 		for (Object[] resultRow : queryResults) {
 			ProcessInstance processInstance = (ProcessInstance)resultRow[0];
 			UserData owner = (UserData)resultRow[1];
@@ -128,6 +131,8 @@ public class BpmTaskQuery {
 			Date createDate = (Date)resultRow[6];
 			Date finishDate = (Date)resultRow[7];
 			String status = (String)resultRow[8];
+			Long definitionId = (Long)resultRow[9];
+			Date taskDeadline = (Date)resultRow[10];
 
 			BpmTaskBean bpmTask = new BpmTaskBean();
 
@@ -141,7 +146,8 @@ public class BpmTaskQuery {
 			bpmTask.setCreateDate(createDate);
 			bpmTask.setFinishDate(finishDate);
 			bpmTask.setFinished(Status.valueOf(status) == Status.Completed);
-
+			bpmTask.setProcessDefinition(processDefinitionDAO.getCachedDefinitionById(definitionId));
+			bpmTask.setDeadlineDate(taskDeadline);
 			result.add(bpmTask);
 		}
 		return result;
@@ -161,7 +167,9 @@ public class BpmTaskQuery {
 					.addScalar("taskName", StandardBasicTypes.STRING)
 					.addScalar("createdOn", StandardBasicTypes.DATE)
 					.addScalar("completedOn", StandardBasicTypes.DATE)
-					.addScalar("taskStatus", StandardBasicTypes.STRING);
+					.addScalar("taskStatus", StandardBasicTypes.STRING)
+					.addScalar("definitionId", StandardBasicTypes.LONG)
+					.addScalar("taskDeadline", StandardBasicTypes.DATE);
 		}
 
 		for (QueryParameter parameter : queryParameters) {
@@ -192,7 +200,9 @@ public class BpmTaskQuery {
 			sb.append("process.*, owner.*, task_.id as taskId, task_.actualowner_id as assignee, ");
 			sb.append("CASE WHEN task_.actualowner_id IS NULL THEN potowners.entity_id END as groupId, ");
 			sb.append("i18ntext_.shortText as taskName, task_.createdOn as createdOn, task_.completedOn as completedOn, ");
-			sb.append("task_.status as taskStatus");
+			sb.append("task_.status as taskStatus, process.definition_id as definitionId, ");
+			sb.append("(SELECT MIN(dueDate) FROM pt_ext_pi_deadline_attr da JOIN pt_process_instance_attr pa ON pa.id = da.id WHERE pa.process_instance_id = process.id AND da.taskname = i18ntext_.shortText)\n" +
+					"AS taskDeadline");
 		}
 
 		sb.append(" FROM pt_process_instance process JOIN task task_ ON CAST(task_.processinstanceid AS VARCHAR(10)) = process.internalId");
@@ -245,11 +255,43 @@ public class BpmTaskQuery {
 			queryParameters.add(new QueryParameter("createdAfter", createdAfter));
 		}
 
-		if (queryType == QueryType.LIST && orderByCreateDateDesc) {
-			sb.append(" ORDER BY task_.createdOn DESC");
+		if (queryType == QueryType.LIST) {
+			sb.append(" ORDER BY ").append(getOrder());
 		}
 
 		return sb.toString();
+	}
+
+	private String getOrder() {
+		if (sortField != null) {
+			return getOrderField() + ' ' + getOrderDirection();
+		}
+		return "task_.createdOn DESC";
+	}
+
+	private String getOrderField() {
+		switch (sortField) {
+			case SORT_BY_DATE_ORDER:
+				return "task_.createdOn";
+			case SORT_BY_CREATE_DATE_ORDER:
+				return "process.createdate";
+			case SORT_BY_PROCESS_CODE_ORDER:
+				return "process.internalid";
+			case SORT_BY_PROCESS_STEP_ORDER:
+				return "i18ntext_.shortText";
+			case SORT_BY_PROCESS_NAME_ORDER:
+				return "process.definitionname";
+			case SORT_BY_ASSIGNEE_ORDER:
+				return "task_.actualowner_id";
+			case SORT_BY_CREATOR_ORDER:
+				return "creator.login";
+			default:
+				throw new RuntimeException("Unhandled order by field " + sortField);
+		}
+	}
+
+	private String getOrderDirection() {
+		return sortOrder == QueueOrder.DESC ? " DESC" : " ASC";
 	}
 
 	private static final F<QueueType,Object> GET_VIRTUAL_QUEUES = new F<QueueType, Object>() {
@@ -286,7 +328,6 @@ public class BpmTaskQuery {
 				", taskNames=" + taskNames +
 				", createdBefore=" + createdBefore +
 				", createdAfter=" + createdAfter +
-				", orderByCreateDateDesc=" + orderByCreateDateDesc +
 				", offset=" + offset +
 				", limit=" + limit +
 				'}';

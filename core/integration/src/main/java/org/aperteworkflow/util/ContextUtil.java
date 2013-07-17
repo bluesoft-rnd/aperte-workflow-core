@@ -2,7 +2,8 @@ package org.aperteworkflow.util;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
-import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -10,13 +11,11 @@ import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 public class ContextUtil {
     public static <T> T withContext(final ReturningProcessToolContextCallback<T> callback) 
     {
-    	ProcessToolRegistry registry = ProcessToolRegistry.ThreadUtil.getThreadRegistry();
-            return registry.withProcessToolContext(new ReturningProcessToolContextCallback<T>() {
-                @Override
-                public T processWithContext(ProcessToolContext ctx) 
-                {
-                   return callback.processWithContext(ctx); 
-                }
-            });
-        }
+		return getRegistry().withProcessToolContext(new ReturningProcessToolContextCallback<T>() {
+			@Override
+			public T processWithContext(ProcessToolContext ctx) {
+				return callback.processWithContext(ctx);
+			}
+		});
+	}
 }

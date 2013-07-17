@@ -5,8 +5,6 @@ import static com.vaadin.ui.Alignment.MIDDLE_CENTER;
 import static com.vaadin.ui.Alignment.MIDDLE_LEFT;
 import static org.aperteworkflow.util.vaadin.VaadinUtility.horizontalLayout;
 import static org.aperteworkflow.util.vaadin.VaadinUtility.labelWithIcon;
-import static pl.net.bluesoft.rnd.processtool.ui.activity.MyProcessesListPane.getDeadlineDate;
-import static pl.net.bluesoft.rnd.processtool.ui.activity.MyProcessesListPane.isOutdated;
 import static pl.net.bluesoft.util.lang.Formats.nvl;
 
 import java.text.SimpleDateFormat;
@@ -40,7 +38,6 @@ import com.vaadin.ui.VerticalLayout;
  * Date: 2011-12-14
  * Time: 09:46:29
  */
-//@AliasName(name = "Default")
 public class TaskItemProviderBase {
     private TaskItemProvider impl;
 
@@ -48,7 +45,11 @@ public class TaskItemProviderBase {
         this.impl = enhancement;
     }
 
-    public Component getTaskPane(final TaskItemProviderParams params) {
+	public static boolean isOutdated(Date checkedDate) {
+		return checkedDate != null && checkedDate.before(new Date());
+	}
+
+	public Component getTaskPane(final TaskItemProviderParams params) {
         Component res = impl != null ? impl.getTaskPane(params) : null;
         if (res != null) {
             return res;
@@ -125,7 +126,7 @@ public class TaskItemProviderBase {
 
 	protected Component createTaskIcon(TaskItemProviderParams params) {
 		BpmTask task = params.getTask();
-		final ProcessDefinitionConfig cfg = task.getProcessInstance().getDefinition();
+		ProcessDefinitionConfig cfg = task.getProcessDefinition();
 		String path = cfg.getProcessLogo() != null ? cfg.getBpmDefinitionKey() + "_" + cfg.getId() + "_logo.png" : "/img/aperte-logo.png";
 		Resource res = params.getResource(path);
 		if (res == null) {
@@ -153,7 +154,7 @@ public class TaskItemProviderBase {
 
 	protected String getTaskPaneStyleName(TaskItemProviderParams params) {
 		boolean running = ProcessToolBpmSessionHelper.isProcessRunning(params.getBpmSession(), params.getCtx(), params.getProcessInstance().getInternalId());
-		boolean outdated = running && isOutdated(new Date(), getDeadlineDate(params.getTask()));
+		boolean outdated = running && isOutdated(params.getTask().getDeadlineDate());
 
 		return "link tti-head" + (outdated ? "-outdated" : !running ? "-ended" : "");
 	}
@@ -263,10 +264,10 @@ public class TaskItemProviderBase {
 	}
 
 	protected Component createDeadlineDateLabel(TaskItemProviderParams params) {
-		Date deadlineDate = getDeadlineDate(params.getTask());
+		Date deadlineDate = params.getTask().getDeadlineDate();
 
 		boolean running = ProcessToolBpmSessionHelper.isProcessRunning(params.getBpmSession(), params.getCtx(), params.getProcessInstance().getInternalId());
-		boolean outdated = running && isOutdated(new Date(), deadlineDate);
+		boolean outdated = running && isOutdated(deadlineDate);
 
 		return labelWithIcon(params.getImage("/img/date_deadline.png"),
 				deadlineDate != null ? formatDate(deadlineDate) : params.getMessage("activity.nodeadline"),
@@ -350,7 +351,7 @@ public class TaskItemProviderBase {
 	protected Component createQueuePaneAssignButton(final TaskItemProviderParams params) {
 		return VaadinUtility.link(params.getMessage("activity.tasks.task-claim"), new Button.ClickListener() {
 			@Override
-			public void buttonClick(final Button.ClickEvent event) {
+			public void buttonClick(Button.ClickEvent event) {
 				params.onClick();
 			}
 		});

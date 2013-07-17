@@ -1,6 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.ui.buttons;
 
 import static org.aperteworkflow.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
@@ -9,7 +10,6 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSessionHelper;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
-import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 
 import org.apache.commons.lang3.StringUtils;
 import org.aperteworkflow.util.vaadin.TaskAlreadyCompletedException; 
@@ -42,18 +42,14 @@ public abstract class BaseProcessToolVaadinActionButton extends BaseProcessToolA
 				                	  @Override
 				                	  public void run() 
 				                	  {
-				                		  ProcessToolRegistry registry = ProcessToolRegistry.ThreadUtil.getThreadRegistry();
-				                		  
-				                		  registry.withProcessToolContext(new ProcessToolContextCallback() {
-											
-											@Override
-											public void withContext(ProcessToolContext ctx) 
-											{
-						                		  WidgetContextSupport support = callback.getWidgetContextSupport();
-						                		  task = support.refreshTask(bpmSession, task);
-						                		  performAction(callback.getWidgetContextSupport());
-											}
-										});
+										  getRegistry().withProcessToolContext(new ProcessToolContextCallback() {
+											  @Override
+											  public void withContext(ProcessToolContext ctx) {
+												  WidgetContextSupport support = callback.getWidgetContextSupport();
+												  task = support.refreshTask(bpmSession, task);
+												  performAction(callback.getWidgetContextSupport());
+											  }
+										  });
 
 				                	  }
 				                  }

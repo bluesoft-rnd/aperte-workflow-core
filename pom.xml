@@ -47,6 +47,27 @@
 			<id>central</id>
 			<layout>default</layout>
 		</repository>
+
+		<repository>
+			<id>com.springsource.repository.bundles.release</id>
+			<url>http://repository.springsource.com/maven/bundles/release</url>
+		</repository>
+		<repository>
+			<id>com.springsource.repository.bundles.external</id>
+			<url>http://repository.springsource.com/maven/bundles/external</url>
+		</repository>
+		<repository>
+			<id>vaadin-snapshots</id>
+			<url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
+		</repository>
+		<repository>
+			<id>vaadin-addons</id>
+			<url>http://maven.vaadin.com/vaadin-addons</url>
+		</repository>
+		<repository>
+			<id>apache.releases.https</id>
+			<url>https://repository.apache.org/service/local/staging/deploy/maven2</url>
+		</repository>
 	</repositories>
 
     <properties>
@@ -69,6 +90,31 @@
 		<maven.bundle.plugin>2.3.7</maven.bundle.plugin>
 		<aperteworkflow.version>2.1-SNAPSHOT</aperteworkflow.version>
     </properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>asm</groupId>
+				<artifactId>asm</artifactId>
+				<version>3.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.javassist</groupId>
+				<artifactId>javassist</artifactId>
+				<version>3.14.0-GA</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.neethi</groupId>
+				<artifactId>neethi</artifactId>
+				<version>3.0.2</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.ws.xmlschema</groupId>
+				<artifactId>xmlschema-core</artifactId>
+				<version>2.0.2</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
     <dependencies>
         <dependency>

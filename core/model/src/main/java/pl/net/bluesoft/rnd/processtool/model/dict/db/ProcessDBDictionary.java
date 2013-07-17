@@ -150,6 +150,11 @@ public class ProcessDBDictionary extends AbstractPersistentEntity implements Pro
         }
     }
 
+    public ProcessDBDictionaryItem getItemByKey(String key)
+    {
+        return items.get(key);
+    }
+
     @Override
     public Collection<ProcessDictionaryItem<String, String>> items() {
         Set<ProcessDictionaryItem<String, String>> dictItems = new HashSet<ProcessDictionaryItem<String, String>>();

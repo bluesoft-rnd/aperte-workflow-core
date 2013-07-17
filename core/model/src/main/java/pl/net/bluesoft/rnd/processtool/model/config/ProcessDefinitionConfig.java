@@ -24,9 +24,23 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 public class ProcessDefinitionConfig extends PersistentEntity {
 	private static final long serialVersionUID = 3568533142091163609L;
 
+	public static final String _DESCRIPTION = "description";
+	public static final String _BPM_DEFINITION_KEY = "bpmDefinitionKey";
+	public static final String _BPM_DEFINITION_VERSION = "bpmDefinitionVersion";
+	public static final String _DEPLOYMENT_ID = "deploymentId";
+	public static final String _PROCESS_VERSION = "processVersion";
+	public static final String _COMMENT = "comment";
+	public static final String _CREATOR_ID = "creator_id";
+	public static final String _CREATE_DATE = "createDate";
+	public static final String _STATES = "states";
+	public static final String _PERMISSIONS = "permissions";
+	public static final String _PROCESS_LOGO = "processLogo";
+	public static final String _ENABLED = "enabled";
+	public static final String _TASK_ITEM_CLASS = "taskItemClass";
+	public static final String _LATEST = "latest";
+
 	public static final String VERSION_SEPARATOR = "_";
 
-	private String processName;
 	private String description;
 	private String bpmDefinitionKey;
 	private int bpmDefinitionVersion;
@@ -46,24 +60,24 @@ public class ProcessDefinitionConfig extends PersistentEntity {
 
 	private Date createDate;
 
-	@OneToMany(cascade = {CascadeType.ALL}, fetch=FetchType.EAGER)
+	@OneToMany(cascade = {CascadeType.ALL}, fetch=FetchType.LAZY)
 	@JoinColumn(name="definition_id")
 	private Set<ProcessStateConfiguration> states = new HashSet<ProcessStateConfiguration>();
 
-	@OneToMany(cascade = {CascadeType.ALL}, fetch=FetchType.EAGER)
+	@OneToMany(cascade = {CascadeType.ALL}, fetch=FetchType.LAZY)
 	@JoinColumn(name="definition_id")
 	private Set<ProcessDefinitionPermission> permissions = new HashSet<ProcessDefinitionPermission>();
 
     @Lob
     private byte[] processLogo;
 	
-    private Boolean enabled;
+    private boolean enabled;
 
     private String taskItemClass;
 	/**
 	 * latest definition of process with processName ensures uniqueness and versioning of definitions
 	 */
-	private Boolean latest;
+	private boolean latest;
 
     public byte[] getProcessLogo() {
         return processLogo;
@@ -80,14 +94,6 @@ public class ProcessDefinitionConfig extends PersistentEntity {
     public void setTaskItemClass(String taskItemClass) {
         this.taskItemClass = taskItemClass;
     }
-
-    public String getProcessName() {
-		return processName;
-	}
-
-	public void setProcessName(String processName) {
-		this.processName = processName;
-	}
 
 	public String getDescription() {
 		return description;
@@ -125,11 +131,11 @@ public class ProcessDefinitionConfig extends PersistentEntity {
 		this.deploymentId = deploymentId;
 	}
 
-	public Boolean getLatest() {
+	public boolean isLatest() {
 		return latest;
 	}
 
-	public void setLatest(Boolean latest) {
+	public void setLatest(boolean latest) {
 		this.latest = latest;
 	}
 
@@ -170,21 +176,24 @@ public class ProcessDefinitionConfig extends PersistentEntity {
 		this.comment = comment;
 	}
 
+	public boolean isEnabled() {
+		return enabled;
+	}
 
-    public Boolean getEnabled() {
-        return nvl(enabled, true);
-    }
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
 
-    public void setEnabled(Boolean enabled) {
-        this.enabled = enabled;
-    }
-    
-    public String getProcessVersion() {
+	public String getProcessVersion() {
 		return nvl(processVersion, "");
 	}
 
 	public void setProcessVersion(String version) {
 		this.processVersion = version;
+	}
+
+	public String getProcessName() {
+		return description;
 	}
 
 	public static final Comparator<ProcessDefinitionConfig> DEFAULT_COMPARATOR = new Comparator<ProcessDefinitionConfig>() {
@@ -221,11 +230,6 @@ public class ProcessDefinitionConfig extends PersistentEntity {
 		this.permissions = permissions;
     }
 
-    @Override
-    public String toString() {
-    	return processName;
-    }
-
 	public static boolean hasVersion(String processId) {
 		return processId.matches("^.*" + Pattern.quote(VERSION_SEPARATOR) + "\\d+$");
 	}
@@ -241,4 +245,31 @@ public class ProcessDefinitionConfig extends PersistentEntity {
 
 		return separatorPos >= 0 ? Integer.valueOf(processId.substring(separatorPos + VERSION_SEPARATOR.length())) : null;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ProcessDefinitionConfig other = (ProcessDefinitionConfig) obj;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		return true;
+	}
+    
+    
 }

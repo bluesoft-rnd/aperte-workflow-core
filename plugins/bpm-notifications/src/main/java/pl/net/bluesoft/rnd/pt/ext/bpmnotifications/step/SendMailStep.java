@@ -99,8 +99,11 @@ public class SendMailStep implements ProcessToolProcessStep {
 		if(recipient.matches("#\\{.*\\}")){
         	String loginKey = recipient.replaceAll("#\\{(.*)\\}", "$1");
         	recipient = pi.getSimpleAttributeValue(loginKey);
-    		if (recipient == null) {
-    			return null;
+    		if (recipient == null)
+            {
+                recipient = (String)pi.getSimpleAttributeValue(loginKey);
+                if(recipient == null)
+                    return null;
     		}
         }
 		return ctx.getUserDataDAO().loadUserByLogin(recipient);

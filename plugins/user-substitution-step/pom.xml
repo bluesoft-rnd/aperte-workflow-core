@@ -50,7 +50,7 @@
 
     <build>
         <plugins>
-            <plugin>
+<!--             <plugin>
                 <groupId>pl.project13.maven</groupId>
                 <artifactId>git-commit-id-plugin</artifactId>
                 <version>2.1.4</version>
@@ -66,7 +66,7 @@
 				    <generateGitPropertiesFile>true</generateGitPropertiesFile>
 				    <generateGitPropertiesFilename>src/main/resources/git.properties</generateGitPropertiesFilename>
 				</configuration>
-            </plugin>
+            </plugin> -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -122,9 +122,13 @@
                         <Embed-Transitive>true</Embed-Transitive>
                         <ProcessTool-Widget-Enhancement>pl.net.bluesoft.rnd.pt.ext.usersubstitution.widget.UserSubstitutionRequestWidget
                         </ProcessTool-Widget-Enhancement>
-                        <ProcessTool-Step-Enhancement>pl.net.bluesoft.rnd.pt.ext.usersubstitution.step.HandleSubstitutionAcceptance
+                        <ProcessTool-Step-Enhancement>
+                        pl.net.bluesoft.rnd.pt.ext.usersubstitution.step.HandleSubstitutionAcceptance
                         </ProcessTool-Step-Enhancement>
                         <ProcessTool-I18N-Property>messages</ProcessTool-I18N-Property>
+                        <ProcessTool-Widget-View>
+                            pl.net.bluesoft.rnd.pt.ext.usersubstitution.widget.UserSubstitutionComment
+                        </ProcessTool-Widget-View>
                     </instructions>
                 </configuration>
             </plugin>

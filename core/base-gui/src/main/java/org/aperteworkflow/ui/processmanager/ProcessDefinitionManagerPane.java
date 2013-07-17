@@ -57,15 +57,15 @@ public class ProcessDefinitionManagerPane extends VerticalLayout {
             HorizontalLayout buttonLayout = new HorizontalLayout();
             buttonLayout.setSpacing(true);
 
-            buttonLayout.addComponent(linkButton(getLocalizedMessage(!cfg.getEnabled() ? "processdefinitions.console.enable" : "processdefinitions.console.disable"),
+            buttonLayout.addComponent(linkButton(getLocalizedMessage(!cfg.isEnabled() ? "processdefinitions.console.enable" : "processdefinitions.console.disable"),
                     new Runnable() {
                         @Override
                         public void run() {
                             ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
                             final ProcessToolRegistry registry = ctx.getRegistry();
                             final ProcessDefinitionDAO dao = registry.getProcessDefinitionDAO(ctx.getHibernateSession());
-                            dao.setConfigurationEnabled(cfg, !cfg.getEnabled());
-                            String msg = getLocalizedMessage(!cfg.getEnabled() ? "processdefinitions.console.enable.success" : "processdefinitions.console.disable.success");
+                            dao.setConfigurationEnabled(cfg, !cfg.isEnabled());
+                            String msg = getLocalizedMessage(!cfg.isEnabled() ? "processdefinitions.console.enable.success" : "processdefinitions.console.disable.success");
                             Window.Notification n = new Window.Notification(msg);
                             n.setDelayMsec(-1);
                             getApplication().getMainWindow().showNotification(n);

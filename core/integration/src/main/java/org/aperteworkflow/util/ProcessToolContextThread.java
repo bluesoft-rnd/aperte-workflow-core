@@ -2,7 +2,8 @@ package org.aperteworkflow.util;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
-import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 
 /**
  * This abstract class should be used when new 
@@ -28,17 +29,12 @@ public abstract class ProcessToolContextThread implements Runnable
 		/* There is no context in parent thread, create new one */
 		else
 		{
-			ProcessToolRegistry registry = ProcessToolRegistry.ThreadUtil.getThreadRegistry();
-	    	registry.withProcessToolContext(new ProcessToolContextCallback() {
-				
+			getRegistry().withProcessToolContext(new ProcessToolContextCallback() {
 				@Override
-				public void withContext(ProcessToolContext ctx) 
-				{
+				public void withContext(ProcessToolContext ctx) {
 					runWithContext(ctx);
 				}
 			});
 		}
-
 	}
-
 }

@@ -6,8 +6,11 @@ import static pl.net.bluesoft.util.lang.Formats.nvl;
 import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
 
 import com.vaadin.Application;
+import com.vaadin.data.Item;
+import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.service.ApplicationContext.TransactionListener;
@@ -29,8 +32,10 @@ import pl.net.bluesoft.rnd.processtool.ui.activity.ActivityMainPane;
 import pl.net.bluesoft.rnd.processtool.ui.process.ProcessMultiViewDataPane;
 import pl.net.bluesoft.rnd.processtool.ui.process.WindowProcessDataDisplayContext;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+
 import org.aperteworkflow.util.vaadin.VaadinUtility;
 import org.aperteworkflow.util.vaadin.VaadinUtility.Refreshable;
+
 import pl.net.bluesoft.util.lang.cquery.func.F;
 
 import java.io.ByteArrayInputStream;
@@ -57,7 +62,7 @@ public class NewProcessExtendedPane extends VerticalLayout implements Refreshabl
 
 	private ListSelect processesSelect;
 	private Label title;
-	private IndexedContainer processesContainer;
+	private BeanItemContainer<ProcessDefinitionConfig> processesContainer;
 	private Window processesPopup;
 	private Button firstButton;
 	private Button secondButton;
@@ -120,14 +125,13 @@ public class NewProcessExtendedPane extends VerticalLayout implements Refreshabl
 		processesPopupLayout.addComponent(descriptionPanel);
 		processesPopupPanel.addComponent(processesPopupLayout);
 
-		processesContainer = new IndexedContainer();
-		processesContainer.addContainerProperty("name", String.class, "");
-		processesContainer.addContainerProperty("logo", Resource.class, defaultLogoResource);
+		processesContainer = new BeanItemContainer<ProcessDefinitionConfig>(ProcessDefinitionConfig.class);
+//		processesContainer.addContainerProperty("logo", Resource.class, defaultLogoResource);
 		processesSelect.setContainerDataSource(processesContainer);
-		processesSelect.setItemIconPropertyId("logo");
+//		processesSelect.setItemIcon(itemId, icon);
+//		processesSelect.setItemIconPropertyId("processLogo");
 
-		processesSelect.setItemCaptionMode(Select.ITEM_CAPTION_MODE_PROPERTY);
-		processesSelect.setItemCaptionPropertyId("name");
+		processesSelect.setItemCaptionMode(Select.ITEM_CAPTION_MODE_EXPLICIT);
 
 		defaultLogoResource = VaadinUtility.imageResource(activityMainPane.getActivityApplication(), "aperte-logo.png");
 		defaultLogoEmbedded = new Embedded(null,  defaultLogoResource);
@@ -168,8 +172,10 @@ public class NewProcessExtendedPane extends VerticalLayout implements Refreshabl
 				}
 
 				processesContainer.addItem(definition);
-				processesContainer.getItem(definition).getItemProperty("name").setValue(getMessage(definition.getDescription()));
-				processesContainer.getItem(definition).getItemProperty("logo").setValue(logoResourceCache.get(definition));
+				processesSelect.setItemCaption(definition, getMessage(definition.getDescription()));
+
+				//FIXME 
+				//item.getItemProperty("processLogo").setValue(logoResourceCache.get(definition));
 
 				if(processesSelect.getValue() == null){
 					processesSelect.setValue(definition);

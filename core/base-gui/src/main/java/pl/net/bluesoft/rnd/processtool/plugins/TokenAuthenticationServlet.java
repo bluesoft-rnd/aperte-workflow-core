@@ -65,7 +65,6 @@ public abstract class TokenAuthenticationServlet extends HttpServlet
 	protected void doGet(final HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException 
 	{
 		ProcessToolRegistry reg = (ProcessToolRegistry) getServletContext().getAttribute(ProcessToolRegistry.class.getName());
-		ProcessToolRegistry.ThreadUtil.setThreadRegistry(reg);
 		
 		/* Get the mime type. If no is provided, use plan text mode */
 		String textModeParameter = req.getParameter(ProcessToolBpmConstants.TEXT_MODE);

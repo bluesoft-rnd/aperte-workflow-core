@@ -1,5 +1,6 @@
 package pl.net.bluesoft.rnd.pt.ext.emailcapture;
 
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 
@@ -67,9 +68,8 @@ public class EmailChecker {
     }
 
     public void execute(EmailCheckerConfiguration cfg) throws Exception {
-        ProcessToolBpmSession toolBpmSession = context.getProcessToolSessionFactory().createSession(
-                new UserData(cfg.getAutomaticUser(), cfg.getAutomaticUser(), cfg.getAutomaticUser()),
-                new HashSet());
+        ProcessToolBpmSession toolBpmSession = getRegistry().getProcessToolSessionFactory().createSession(
+                new UserData(cfg.getAutomaticUser(), cfg.getAutomaticUser(), cfg.getAutomaticUser()));
 
         ByteArrayInputStream bis = new ByteArrayInputStream(cfg.getMailSessionProperties().getBytes());
         final Properties cfgProperties = new Properties();

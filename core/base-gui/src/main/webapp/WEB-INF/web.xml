@@ -7,7 +7,11 @@
 		<param-name>productionMode</param-name>
 		<param-value>false</param-value>
 	</context-param>
-
+    <!-- CONFIG -->
+    <context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>/WEB-INF/spring/webAppContext.xml</param-value>
+	</context-param>
 	<security-constraint>
 		<display-name>excluded</display-name>
 		<web-resource-collection>
@@ -344,12 +348,13 @@
 	</filter-mapping>
 
 	<listener>
-		<listener-class>com.liferay.portal.kernel.servlet.SerializableSessionAttributeListener
-		</listener-class>
+		<listener-class>com.liferay.portal.kernel.servlet.SerializableSessionAttributeListener</listener-class>
 	</listener>
+	    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
 	<listener>
-		<listener-class>com.liferay.portal.kernel.servlet.PortletContextListener
-		</listener-class>
+		<listener-class>com.liferay.portal.kernel.servlet.PortletContextListener</listener-class>
 	</listener>
 	<listener>
 		<!-- each gui for each BPM engine should provide its own implementation 
@@ -357,7 +362,9 @@
 		<listener-class>pl.net.bluesoft.rnd.util.ProcessToolRegistryContextLoader
 		</listener-class>
 	</listener>
-
+  <listener>
+    <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
+  </listener>
 	<session-config>
 		<session-timeout>60</session-timeout>
 	</session-config>
@@ -374,7 +381,28 @@
 		<load-on-startup>0</load-on-startup>
 	</servlet>
 	
-    <servlet>
+	<servlet>
+		<servlet-name>VaadinWidgetServlet</servlet-name>
+		<servlet-class>
+			pl.net.bluesoft.rnd.processtool.application.activity.ResponsiveUIApplicationServlet
+		</servlet-class>
+		<init-param>
+		  <param-name>application</param-name>
+		  <param-value>pl.net.bluesoft.rnd.processtool.application.activity.WidgetApplication</param-value>
+		</init-param>
+		<init-param>
+            <description>Application widgetset</description>
+            <param-name>widgetset</param-name>
+            <param-value>pl.net.bluesoft.rnd.widgetset.PortalDefaultWidgetSet</param-value>
+        </init-param>
+		<load-on-startup>1</load-on-startup>
+	  </servlet>
+	<servlet-mapping>
+		<servlet-name>VaadinWidgetServlet</servlet-name>
+		<url-pattern>/widget/*</url-pattern>
+	 </servlet-mapping>
+	 
+	 <servlet>
 		<servlet-name>VaadinApplicationServlet</servlet-name>
 		<servlet-class>
 			pl.net.bluesoft.rnd.processtool.application.activity.ResponsiveUIApplicationServlet
@@ -473,17 +501,7 @@
 		</init-param>
 		<load-on-startup>5</load-on-startup>
 	</servlet>
-	<servlet>
-		<servlet-name>DummyVaadinServlet</servlet-name>
-		<servlet-class>com.vaadin.terminal.gwt.server.ApplicationServlet
-		</servlet-class>
-		<init-param>
-			<param-name>application</param-name>
-			<param-value>org.aperteworkflow.editor.stepeditor.DummyApplication
-			</param-value>
-		</init-param>
-		<load-on-startup>6</load-on-startup>
-	</servlet>
+
 	<servlet>
 		<servlet-name>ButtonExposureServlet</servlet-name>
 		<servlet-class>pl.net.bluesoft.rnd.processtool.plugins.ButtonExposureServlet
@@ -574,11 +592,6 @@
 	</servlet-mapping>
 
 	<servlet-mapping>
-		<servlet-name>DummyVaadinServlet</servlet-name>
-		<url-pattern>/VAADIN/*</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
 		<servlet-name>ActionEditorServlet</servlet-name>
 		<url-pattern>/action_editor/*</url-pattern>
 	</servlet-mapping>
@@ -592,7 +605,68 @@
 		<servlet-name>OSGIServlet</servlet-name>
 		<url-pattern>/osgi</url-pattern>
 	</servlet-mapping>
+	
+    <!-- SPRING SERVLET -->
+	<servlet>  
+	  <servlet-name>aperte-acitivities-servlet</servlet-name>  
+	  <servlet-class>org.springframework.web.servlet.ViewRendererServlet</servlet-class>  
+	  <load-on-startup>1</load-on-startup>  
+	</servlet>  
+	<servlet-mapping>  
+	  <servlet-name>aperte-acitivities-servlet</servlet-name>  
+	  <url-pattern>/WEB-INF/servlet/view</url-pattern>  
+	</servlet-mapping>  
+	
+    <servlet>  
+	  <servlet-name>aperte-servlet</servlet-name>  
+	  <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>  
+	  <load-on-startup>1</load-on-startup>  
+	  <init-param>
+         <param-name>contextConfigLocation</param-name>
+         <param-value>/WEB-INF/spring/aperte-acitivities-portlet.xml</param-value>
+     </init-param>
+	</servlet>  
+	<servlet-mapping>  
+	  <servlet-name>aperte-servlet</servlet-name>  
+	  <url-pattern>/</url-pattern>  
+	</servlet-mapping> 
+	
+    <!-- LIFERAY USER MAPPING FOR SPRING SERVLET (AJAX) REQUEST -->
+	<!-- Without this filters, the user authorization for servlet request in post ajax request doesn' work -->
+	<filter>
+		<filter-name>Auto Login Filter</filter-name>
+		<filter-class>com.liferay.portal.kernel.servlet.PortalClassLoaderFilter</filter-class>
+		<init-param>
+		<param-name>filter-class</param-name>
+		<param-value>com.liferay.portal.servlet.filters.autologin.AutoLoginFilter</param-value>
+		</init-param>
+	</filter>
+	<filter>
+		<filter-name>Servlet Authorizing Filter</filter-name>
+		<filter-class>com.liferay.portal.kernel.servlet.PortalClassLoaderFilter</filter-class>
+		<init-param>
+		<param-name>filter-class</param-name>
+		<param-value>com.liferay.portal.servlet.filters.servletauthorizing.ServletAuthorizingFilter</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>Auto Login Filter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>Servlet Authorizing Filter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>	
 
+	
+	<error-page>
+	    <error-code>404</error-code>
+	    <location>/error.jsp</location>
+	</error-page>
+	<welcome-file-list>
+		<welcome-file>/index.jsp</welcome-file>
+	</welcome-file-list>
+		
 	<resource-env-ref>
 		<resource-env-ref-name>jdbc/aperte-workflow-ds</resource-env-ref-name>
 		<resource-env-ref-type>javax.sql.DataSource</resource-env-ref-type>

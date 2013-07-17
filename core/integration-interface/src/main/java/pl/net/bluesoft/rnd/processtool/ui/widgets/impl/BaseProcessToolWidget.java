@@ -7,6 +7,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
@@ -19,6 +22,7 @@ import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidgetAttribute;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.PropertyAutoWiring;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.event.WidgetEvent;
@@ -44,14 +48,26 @@ public abstract class BaseProcessToolWidget implements ProcessToolWidget {
 	protected boolean isOwner;
 	private Application application;
 	protected WidgetEventBus widgetEventBus;
+	protected String taskId;
 	
     @AutoInject
     protected IPortalUserSource userSource;
+    
+    @Autowired
+    protected ProcessToolRegistry processToolRegistry;
 	
 	public BaseProcessToolWidget()
 	{
     	/* init user source */
 		ObjectFactory.inject(this);
+		
+		SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+		
+	}
+	
+	@Override
+	public void setTaskId(String taskId) {
+		this.taskId = taskId;
 		
 	}
 
@@ -145,7 +161,7 @@ public abstract class BaseProcessToolWidget implements ProcessToolWidget {
         ctx.getUserDataDAO().saveOrUpdate(bpmUser);
     }
 
-	protected boolean hasPermission(String... names) {
+	public boolean hasPermission(String... names) {
 		boolean canView = !isOwner && Arrays.asList(names).contains("VIEW");
 		for (String name : names) {
 			if (permissions.contains(name) && (isOwner || canView))

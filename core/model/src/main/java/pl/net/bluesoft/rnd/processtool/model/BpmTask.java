@@ -27,4 +27,7 @@ public interface BpmTask {
 
 	/** Method returns current state configuration */
     ProcessStateConfiguration getCurrentProcessStateConfiguration();
+
+	/** Get deadline */
+	Date getDeadlineDate();
 }

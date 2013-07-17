@@ -1,54 +1,33 @@
 package pl.net.bluesoft.rnd.processtool.dao.impl;
 
-import static org.hibernate.criterion.Restrictions.eq;
-import static org.hibernate.criterion.Restrictions.in;
-import static pl.net.bluesoft.util.lang.DateUtil.addDays;
-import static pl.net.bluesoft.util.lang.DateUtil.truncHours;
-import static pl.net.bluesoft.util.lang.FormatUtil.formatShortDate;
-import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.aperteworkflow.search.ProcessInstanceSearchAttribute;
 import org.aperteworkflow.search.ProcessInstanceSearchData;
-import org.aperteworkflow.search.SearchProvider; 
+import org.aperteworkflow.search.SearchProvider;
 import org.aperteworkflow.search.Searchable;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
 import org.hibernate.Session;
-import org.hibernate.criterion.CriteriaSpecification;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.ProjectionList;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Property;
-import org.hibernate.criterion.Restrictions;
-import org.hibernate.criterion.Subqueries;
-
+import org.hibernate.criterion.*;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceDAO;
 import pl.net.bluesoft.rnd.processtool.hibernate.ResultsPageWrapper;
 import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
 import pl.net.bluesoft.rnd.processtool.hibernate.transform.NestedAliasToBeanResultTransformer;
-import pl.net.bluesoft.rnd.processtool.model.BpmTask;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttachmentAttribute;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.processtool.model.*;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionPermission;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStatePermission;
 import pl.net.bluesoft.util.lang.Collections;
 import pl.net.bluesoft.util.lang.Transformer;
+
+import java.util.*;
+
+import static org.hibernate.criterion.Restrictions.eq;
+import static org.hibernate.criterion.Restrictions.in;
+import static pl.net.bluesoft.util.lang.DateUtil.addDays;
+import static pl.net.bluesoft.util.lang.DateUtil.truncHours;
+import static pl.net.bluesoft.util.lang.FormatUtil.formatShortDate;
+import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
 
 /**
@@ -110,11 +89,11 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
                 {"instance_create_date", formatShortDate(processInstance.getCreateDate())},
         });
         ProcessDefinitionConfig def = processInstance.getDefinition();
-        searchData.addSearchAttributes(new String[][]{
+		searchData.addSearchAttributes(new String[][]{
                 {"definition_key", def.getBpmDefinitionKey()},
                 {"definition_description", def.getDescription()},
                 {"definition_comment", def.getComment()},
-                {"definition_processname", def.getProcessName()},
+                {"definition_processname", def.getDescription() },
         });
         for (ProcessDefinitionPermission perm : def.getPermissions()) {
             if ("SEARCH".equals(perm.getPrivilegeName())) {

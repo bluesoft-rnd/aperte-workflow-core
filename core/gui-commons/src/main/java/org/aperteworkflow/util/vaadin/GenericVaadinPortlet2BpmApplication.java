@@ -44,6 +44,8 @@ import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Window;
 
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+
 /**
  * @author tlipski@bluesoft.net.pl
  */
@@ -76,12 +78,9 @@ public abstract class GenericVaadinPortlet2BpmApplication extends Application im
 
     protected final ListenableSupport<RequestParameterListener> listenable = ListenableSupport.strongListenable();
 
-	
-
     @Override
     public void init() 
     {
-    	
         final Window mainWindow = new Window();
         setMainWindow(mainWindow);
         ApplicationContext applicationContext = getContext();
@@ -93,8 +92,6 @@ public abstract class GenericVaadinPortlet2BpmApplication extends Application im
         } else {
             mainWindow.addComponent(new Label(getMessage("please.use.from.a.portlet")));
         }
-
-
     }
 
     @Override
@@ -110,7 +107,8 @@ public abstract class GenericVaadinPortlet2BpmApplication extends Application im
         return r.processWithContext(ctx);
     }
 
-    public void handleRenderRequest(RenderRequest request, RenderResponse response, Window window) 
+    @Override
+	public void handleRenderRequest(RenderRequest request, RenderResponse response, Window window)
     {
         showKeysString = request.getParameter("showKeys");
 
@@ -139,13 +137,12 @@ public abstract class GenericVaadinPortlet2BpmApplication extends Application im
                 return;
             }
         } else {
-            PortletSession session = ((PortletApplicationContext2) (getContext())).getPortletSession();
+            PortletSession session = ((PortletApplicationContext2)getContext()).getPortletSession();
             bpmSession = (ProcessToolBpmSession) session.getAttribute("bpmSession", PortletSession.APPLICATION_SCOPE);
 
             if (bpmSession == null) {
-                ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
                 session.setAttribute("bpmSession",
-                        bpmSession = ctx.getProcessToolSessionFactory().createSession(user, userRoles),
+                        bpmSession = getRegistry().getProcessToolSessionFactory().createSession(user, userRoles),
                         PortletSession.APPLICATION_SCOPE);
             }
             setUser(user);

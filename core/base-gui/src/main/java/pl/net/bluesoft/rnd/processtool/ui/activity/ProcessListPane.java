@@ -54,14 +54,14 @@ public abstract class ProcessListPane extends AbstractListPane {
     private NavigationComponent topNavigationComponent;
     private NavigationComponent bottomNavigationComponent;
 
-    public ProcessListPane(ActivityMainPane activityMainPane, String title, ProcessInstanceFilter filter) {
+    protected ProcessListPane(ActivityMainPane activityMainPane, String title, ProcessInstanceFilter filter) {
         super(activityMainPane.getActivityApplication(), activityMainPane.getI18NSource(), title);
         this.activityMainPane = activityMainPane;
         this.filter = filter;
 		this.addRefreshButton = false;
     }
 
-    public ProcessListPane(ActivityMainPane activityMainPane, String title) {
+    protected ProcessListPane(ActivityMainPane activityMainPane, String title) {
         this(activityMainPane, title, null);
     }
 
@@ -140,9 +140,6 @@ public abstract class ProcessListPane extends AbstractListPane {
 	        dataPane.setComponentAlignment(bottomNavigationComponent, Alignment.TOP_RIGHT);
         }
     }
-
-    protected void sortTaskItems(List<TaskTableItem> taskItems) {
-    }
     
     @Override
     public void refreshData() 
@@ -202,10 +199,10 @@ public abstract class ProcessListPane extends AbstractListPane {
 	        setWidth("100%");
 
 	        prevButton = VaadinUtility.link(getMessage("activity.tasks.previous"));
-	        prevButton.addListener((ClickListener)NavigationComponent.this);
+	        prevButton.addListener(this);
 	        
 	        nextButton = VaadinUtility.link(getMessage("activity.tasks.next"));
-	        nextButton.addListener((ClickListener)NavigationComponent.this);
+	        nextButton.addListener(this);
 
 	        int first = getTotalResults() > 0 ? offset + 1 : 0;
 	        int last = Math.min(offset + limit, getTotalResults());
@@ -267,7 +264,7 @@ public abstract class ProcessListPane extends AbstractListPane {
 	}
 
 
-    protected TaskItemProviderBase getTaskItemProvider(final ProcessToolContext ctx, ProcessInstance pi) 
+    protected TaskItemProviderBase getTaskItemProvider(ProcessToolContext ctx, ProcessInstance pi)
     {
         String itemClass = pi.getDefinition().getTaskItemClass();
         if (hasText(itemClass) && !itemClass.equals("null")) {

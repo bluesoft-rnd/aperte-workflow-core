@@ -1,39 +1,21 @@
 package pl.net.bluesoft.rnd.processtool.dao.impl;
 
-import static pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig.*;
-import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Logger;
-
 import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
-
 import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
 import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
-import pl.net.bluesoft.rnd.processtool.model.config.IPermission;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionPermission;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueRight;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateActionAttribute;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateActionPermission;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidgetAttribute;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidgetPermission;
+import pl.net.bluesoft.rnd.processtool.model.config.*;
+import pl.net.bluesoft.util.lang.ExpiringCache;
+
+import java.util.*;
+
+import static pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig.*;
+import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -41,7 +23,11 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidgetPermission
 public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinitionConfig>
         implements ProcessDefinitionDAO {
 
-	private Logger logger = Logger.getLogger(ProcessDefinitionDAOImpl.class.getName());
+	private static final ExpiringCache<Long, ProcessDefinitionConfig> DEFINITION_BY_ID =
+			new ExpiringCache<Long, ProcessDefinitionConfig>(Long.MAX_VALUE);
+
+	private static final ExpiringCache<Object, List<ProcessQueueConfig>> QUEUE_CONFIGS =
+			new ExpiringCache<Object, List<ProcessQueueConfig>>(Long.MAX_VALUE);
 
 	public ProcessDefinitionDAOImpl(Session session) {
 		super(session);
@@ -50,46 +36,59 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 	@Override
 	@SuppressWarnings("unchecked")
 	public Collection<ProcessDefinitionConfig> getAllConfigurations() {
-		return getSession().createCriteria(ProcessDefinitionConfig.class).addOrder(Order.desc("processName")).list();
+		return getSession().createCriteria(ProcessDefinitionConfig.class).addOrder(Order.desc(_DESCRIPTION)).list();
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public Collection<ProcessDefinitionConfig> getActiveConfigurations() {		
-		 long start = System.currentTimeMillis(); 
-		
-		List<ProcessDefinitionConfig> list = getSession().createCriteria(ProcessDefinitionConfig.class)
-				.addOrder(Order.desc("processName"))
-				.add(Restrictions.eq("latest", Boolean.TRUE))
-				.add(Restrictions.or(Restrictions.eq("enabled", Boolean.TRUE), Restrictions.isNull("enabled")))
+	public Collection<ProcessDefinitionConfig> getActiveConfigurations() {
+		return getSession().createCriteria(ProcessDefinitionConfig.class)
+				.addOrder(Order.desc(_DESCRIPTION))
+				.add(Restrictions.eq(_LATEST, Boolean.TRUE))
+				.add(Restrictions.eq(_ENABLED, Boolean.TRUE))
 				.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
                 .list();
-		 
-		 
-		 long duration = System.currentTimeMillis() - start;
-			logger.severe("getActiveConfigurations: " +  duration);
-		 return list;
 	}
 
 	@Override
 	public ProcessDefinitionConfig getActiveConfigurationByKey(String key) {
 		return (ProcessDefinitionConfig) getSession().createCriteria(ProcessDefinitionConfig.class)
-				.add(Restrictions.eq("latest", Boolean.TRUE))
-				.add(Restrictions.eq("bpmDefinitionKey", key)).uniqueResult();
+				.add(Restrictions.eq(_LATEST, Boolean.TRUE))
+				.add(Restrictions.eq(_BPM_DEFINITION_KEY, key)).uniqueResult();
 	}
 
 	@Override
 	public ProcessDefinitionConfig getConfigurationByProcessId(String processId) {
 		return (ProcessDefinitionConfig)getSession().createCriteria(ProcessDefinitionConfig.class)
-				.add(Restrictions.eq("bpmDefinitionKey", extractBpmDefinitionKey(processId)))
-				.add(Restrictions.eq("bpmDefinitionVersion", extractBpmDefinitionVersion(processId)))
+				.add(Restrictions.eq(_BPM_DEFINITION_KEY, extractBpmDefinitionKey(processId)))
+				.add(Restrictions.eq(_BPM_DEFINITION_VERSION, extractBpmDefinitionVersion(processId)))
 				.uniqueResult();
+	}
+
+	@Override
+	public ProcessDefinitionConfig getCachedDefinitionById(Long id) {
+		return DEFINITION_BY_ID.get(id, new ExpiringCache.NewValueCallback<Long, ProcessDefinitionConfig>() {
+			@Override
+			public ProcessDefinitionConfig getNewValue(Long id) {
+				return (ProcessDefinitionConfig)getSession().createCriteria(ProcessDefinitionConfig.class)
+						.add(Restrictions.eq(_ID, id))
+						.setFetchMode(_STATES, FetchMode.EAGER)
+						.setFetchMode(_PERMISSIONS, FetchMode.LAZY)
+						.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+						.uniqueResult();
+			}
+		});
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public Collection<ProcessQueueConfig> getQueueConfigs() {
-		return getSession().createCriteria(ProcessQueueConfig.class).list();
+		return QUEUE_CONFIGS.get(null, new ExpiringCache.NewValueCallback<Object, List<ProcessQueueConfig>>() {
+			@Override
+			public List<ProcessQueueConfig> getNewValue(Object key) {
+				return getSession().createCriteria(ProcessQueueConfig.class).list();
+			}
+		});
 	}
 
 	@Override
@@ -108,6 +107,7 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 	public void updateOrCreateProcessDefinitionConfig(ProcessDefinitionConfig cfg) {
 		cfg.setCreateDate(new Date());
 		cfg.setLatest(true);
+		cfg.setEnabled(true);
 
 		adjustStatesAndPermissions(cfg);
 
@@ -132,8 +132,8 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 
 	private ProcessDefinitionConfig getLatestDefinition(ProcessDefinitionConfig cfg) {
 		return (ProcessDefinitionConfig)getSession().createCriteria(ProcessDefinitionConfig.class)
-				.add(Restrictions.eq("latest", true))
-				.add(Restrictions.eq("bpmDefinitionKey", cfg.getBpmDefinitionKey()))
+				.add(Restrictions.eq(_LATEST, true))
+				.add(Restrictions.eq(_BPM_DEFINITION_KEY, cfg.getBpmDefinitionKey()))
 				.uniqueResult();
 	}
 
@@ -166,7 +166,7 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 			return false;
 		
 		/* process name */
-		if (!cfg.getProcessName().equals(c.getProcessName())) 
+		if (!cfg.getDescription().equals(c.getDescription()))
 			return false;
 		
 		/* process version */
@@ -338,37 +338,39 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 		for (ProcessQueueConfig q : cfgs) {
 			List<ProcessQueueConfig> queues = session.createCriteria(ProcessQueueConfig.class)
 					.add(Restrictions.eq("name", q.getName())).list();
-			
 
-			for (Object o :queues) 
-				session.delete(o);
+			for (ProcessQueueConfig queue : queues) {
+				session.delete(queue);
+			}
 			
-			for (ProcessQueueRight r : q.getRights()) 
+			for (ProcessQueueRight r : q.getRights()) {
 				r.setQueue(q);
-			
+			}
 
 			session.save(q);
 		}
+		QUEUE_CONFIGS.clear();
 	}
 
     @SuppressWarnings("unchecked")
 	@Override
-   public void removeQueueConfigs(Collection<ProcessQueueConfig> cfgs) {
-       Session session = getSession();
-       for (ProcessQueueConfig q : cfgs) {
-           List<ProcessQueueConfig> queues = session.createCriteria(ProcessQueueConfig.class)
-                   .add(Restrictions.eq("name", q.getName())).list();
-           for (Object o : queues) {
-               session.delete(o);
-           }
-       }
-   }
+	public void removeQueueConfigs(Collection<ProcessQueueConfig> cfgs) {
+		Session session = getSession();
+		for (ProcessQueueConfig q : cfgs) {
+			List<ProcessQueueConfig> queues = session.createCriteria(ProcessQueueConfig.class)
+					.add(Restrictions.eq("name", q.getName())).list();
+			for (Object o : queues) {
+				session.delete(o);
+			}
+		}
+		QUEUE_CONFIGS.clear();
+	}
 
 	@Override
 	public int getNextProcessVersion(String bpmDefinitionKey) {
 		Object version = session.createCriteria(ProcessDefinitionConfig.class)
-				.setProjection(Projections.max("bpmDefinitionVersion"))
-				.add(Restrictions.eq("bpmDefinitionKey", bpmDefinitionKey))
+				.setProjection(Projections.max(_BPM_DEFINITION_VERSION))
+				.add(Restrictions.eq(_BPM_DEFINITION_KEY, bpmDefinitionKey))
 				.uniqueResult();
 		return version != null ? ((Number)version).intValue() + 1 : 1;
 	}
@@ -376,15 +378,30 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 	@Override
     public Collection<ProcessDefinitionConfig> getConfigurationVersions(ProcessDefinitionConfig cfg) {
         return session.createCriteria(ProcessDefinitionConfig.class)
-        						.add(Restrictions.eq("bpmDefinitionKey", cfg.getBpmDefinitionKey()))
+        						.add(Restrictions.eq(_BPM_DEFINITION_KEY, cfg.getBpmDefinitionKey()))
                         .list();
     }
 
     @Override
     public void setConfigurationEnabled(ProcessDefinitionConfig cfg, boolean enabled) {
-
         cfg = (ProcessDefinitionConfig) session.get(ProcessDefinitionConfig.class, cfg.getId());
         cfg.setEnabled(enabled);
         session.save(cfg);
     }
+
+	@Override
+	public ProcessStateWidget getProcessStateWidget(Long widgetStateId) 
+	{
+		return (ProcessStateWidget) getSession().createCriteria(ProcessStateWidget.class)
+				.add(Restrictions.eq("id", widgetStateId))
+				.uniqueResult();
+	}
+
+	@Override
+	public ProcessStateConfiguration getProcessStateConfiguration(
+			Long processStateConfigurationId) {
+		return (ProcessStateConfiguration) getSession().createCriteria(ProcessStateConfiguration.class)
+				.add(Restrictions.eq("id", processStateConfigurationId))
+				.uniqueResult();
+	}
 }

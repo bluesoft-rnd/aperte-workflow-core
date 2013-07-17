@@ -45,7 +45,7 @@ public class QueueListPane extends ProcessListPane {
     protected void onClick(final TaskItemProviderParams params) {
         withErrorHandling(getApplication(), new Runnable() {
             public void run() {
-                BpmTask task = getBpmSession().assignTaskFromQueue(queue, params.getTask());
+                BpmTask task = getBpmSession().assignTaskFromQueue(queue.getName(), params.getTask());
                 if (task != null) {
                     getApplication().getMainWindow().showNotification(getMessage("process-tool.task.assigned"),
                             Window.Notification.TYPE_HUMANIZED_MESSAGE);

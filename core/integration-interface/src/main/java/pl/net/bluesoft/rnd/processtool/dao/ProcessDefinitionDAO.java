@@ -1,13 +1,13 @@
 package pl.net.bluesoft.rnd.processtool.dao;
 
+import java.util.Collection;
+
 import pl.net.bluesoft.rnd.processtool.hibernate.HibernateBean;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
-
-import java.util.Collection;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -20,12 +20,16 @@ public interface ProcessDefinitionDAO extends HibernateBean<ProcessDefinitionCon
 	ProcessDefinitionConfig getActiveConfigurationByKey(String key);
 	ProcessDefinitionConfig getConfigurationByProcessId(String processId);
 
+	ProcessDefinitionConfig getCachedDefinitionById(Long id);
+
 	Collection<ProcessQueueConfig> getQueueConfigs();
 	ProcessStateConfiguration getProcessStateConfiguration(BpmTask task);
+	ProcessStateConfiguration getProcessStateConfiguration(Long processStateConfigurationId);
+	
+	ProcessStateWidget getProcessStateWidget(Long widgetStateId);
 
 	boolean differsFromTheLatest(ProcessDefinitionConfig cfg);
 	void updateOrCreateProcessDefinitionConfig(ProcessDefinitionConfig cfg);
-//	void updateOrCreateQueueConfigs(ProcessQueueConfig[] cfgs);
 
     void setConfigurationEnabled(ProcessDefinitionConfig cfg, boolean enabled);
 

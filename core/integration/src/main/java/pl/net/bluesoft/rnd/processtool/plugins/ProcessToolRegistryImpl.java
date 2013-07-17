@@ -1,28 +1,6 @@
 package pl.net.bluesoft.rnd.processtool.plugins;
 
-import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
-import static pl.net.bluesoft.util.lang.Strings.hasText;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.naming.InitialContext;
-import javax.sql.DataSource;
-import javax.transaction.UserTransaction;
-
+import com.google.common.io.CharStreams;
 import org.aperteworkflow.search.SearchProvider;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -30,30 +8,15 @@ import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessDictionaryDAO;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceDAO;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceFilterDAO;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceSimpleAttributeDAO;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessStateActionDAO;
-import pl.net.bluesoft.rnd.processtool.dao.UserDataDAO;
-import pl.net.bluesoft.rnd.processtool.dao.UserProcessQueueDAO;
-import pl.net.bluesoft.rnd.processtool.dao.UserRoleDAO;
-import pl.net.bluesoft.rnd.processtool.dao.UserSubstitutionDAO;
-import pl.net.bluesoft.rnd.processtool.dao.impl.ProcessDefinitionDAOImpl;
-import pl.net.bluesoft.rnd.processtool.dao.impl.ProcessDictionaryDAOImpl;
-import pl.net.bluesoft.rnd.processtool.dao.impl.ProcessInstanceDAOImpl;
-import pl.net.bluesoft.rnd.processtool.dao.impl.ProcessInstanceFilterDAOImpl;
-import pl.net.bluesoft.rnd.processtool.dao.impl.ProcessInstanceSimpleAttributeDAOImpl;
-import pl.net.bluesoft.rnd.processtool.dao.impl.ProcessStateActionDAOImpl;
-import pl.net.bluesoft.rnd.processtool.dao.impl.UserDataDAOImpl;
-import pl.net.bluesoft.rnd.processtool.dao.impl.UserProcessQueueDAOImpl;
-import pl.net.bluesoft.rnd.processtool.dao.impl.UserRoleDAOImpl;
-import pl.net.bluesoft.rnd.processtool.dao.impl.UserSubstitutionDAOImpl;
+import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolSessionFactory;
+import pl.net.bluesoft.rnd.processtool.dao.*;
+import pl.net.bluesoft.rnd.processtool.dao.impl.*;
 import pl.net.bluesoft.rnd.processtool.dict.DictionaryLoader;
 import pl.net.bluesoft.rnd.processtool.dict.exception.DictionaryLoadingException;
 import pl.net.bluesoft.rnd.processtool.dict.xml.ProcessDictionaries;
@@ -64,10 +27,14 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessToolAutowire;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionary;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryPermission;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolActionButton;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.taskitem.TaskItemProvider;
+import pl.net.bluesoft.rnd.processtool.web.controller.IOsgiWebController;
+import pl.net.bluesoft.rnd.processtool.web.domain.IHtmlTemplateProvider;
+import pl.net.bluesoft.rnd.processtool.web.domain.IWidgetScriptProvider;
 import pl.net.bluesoft.rnd.util.func.Func;
 import pl.net.bluesoft.rnd.util.i18n.I18NProvider;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
@@ -78,13 +45,30 @@ import pl.net.bluesoft.util.eventbus.EventBusManager;
 import pl.net.bluesoft.util.lang.FormatUtil;
 import pl.net.bluesoft.util.lang.Strings;
 
+import javax.naming.InitialContext;
+import javax.sql.DataSource;
+import javax.transaction.UserTransaction;
+import java.io.*;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
+
+import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
+import static pl.net.bluesoft.util.lang.Strings.hasText;
+
 /** 
  * @author tlipski@bluesoft.net.pl
  * @author amichalak@bluesoft.net.pl
  * @author kkolodziej@bluesoft.net.pl
+ * @author mpawlak@bluesoft.net.pl
  */
+@Component
+@Scope(value = "singleton")
 public class ProcessToolRegistryImpl implements ProcessToolRegistry {
-
 	private static final Logger logger = Logger.getLogger(ProcessToolRegistryImpl.class.getName());
 
     private final List<ProcessToolServiceBridge> SERVICE_BRIDGE_REGISTRY = new LinkedList<ProcessToolServiceBridge>();
@@ -95,6 +79,12 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
     private final Map<String, I18NProvider> I18N_PROVIDER_REGISTRY = new HashMap<String, I18NProvider>();
     private final Map<String, Func<? extends ProcessToolProcessStep>> STEP_REGISTRY = new HashMap<String, Func<? extends ProcessToolProcessStep>>();
     private final Map<String, Class<? extends TaskItemProvider>> TASK_ITEM_REGISTRY = new HashMap<String, Class<? extends TaskItemProvider>>();
+    
+    private final Map<String, ProcessHtmlWidget> VIEW_REGISTRY = new HashMap<String, ProcessHtmlWidget>();
+    private final Map<String, IWidgetScriptProvider> JAVASCRIPT_REGISTRY = new HashMap<String, IWidgetScriptProvider>();
+    private final Map<String, IOsgiWebController> CONTROLLER_REGISTRY = new HashMap<String, IOsgiWebController>();
+
+    private String javaScriptContent = "";
 
     private ExecutorService executorService = Executors.newCachedThreadPool();
 	private EventBusManager eventBusManager = new ProcessToolEventBusManager(this, executorService);
@@ -104,8 +94,12 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
     private Map<String, ClassLoader> classLoaders = new HashMap<String, ClassLoader>();
 
     private Map<String, Map> caches = new HashMap<String, Map>();
+    
+	@Autowired
+	private IHtmlTemplateProvider templateProvider;
 
     private ProcessToolContextFactory processToolContextFactory;
+	private ProcessToolSessionFactory processToolSessionFactory;
 	private SessionFactory sessionFactory;
     private PluginManager pluginManager;
     private SearchProvider searchProvider; 
@@ -121,7 +115,7 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
             public InputStream loadProperty(String path) throws IOException {
                 return classloader.getResourceAsStream(path);
             }
-        }, "messages"));
+        }, "messages")); 
     }
 
 	public synchronized void unregisterWidget(String name) {
@@ -130,15 +124,6 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 
 	public synchronized void registerWidget(String name, Class<? extends ProcessToolWidget> cls) {
 		WIDGET_REGISTRY.put(name, cls);
-	}
-
-	public <T extends ProcessToolWidget> T makeWidget(String name) throws IllegalAccessException, InstantiationException {
-		Class<? extends ProcessToolWidget> aClass = WIDGET_REGISTRY.get(name);
-		if (aClass == null) {
-			throw new IllegalAccessException("No class nicknamed by: " + name);
-		}
-		return (T) aClass.newInstance();
-
 	}
 
 	public <T extends ProcessToolActionButton> T makeButton(String name) throws IllegalAccessException, InstantiationException {
@@ -151,11 +136,10 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	}
 
 	public ProcessToolRegistryImpl() {
-		this.processToolContextFactory = null;
+		Util.setInstance(this);
 		buildSessionFactory();
         updateCaches();
 	}
-
 
 	public ClassLoader getModelAwareClassLoader(ClassLoader parent) {
 		return new ExtClassLoader(parent);
@@ -165,7 +149,7 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
         this.bundleContext = context;
     }
 
-    private class ExtClassLoader extends ClassLoader {
+	private class ExtClassLoader extends ClassLoader {
 		private ExtClassLoader(ClassLoader parent) {
 			super(parent);
 		}
@@ -422,10 +406,6 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
         return ut;
     }
 
-    public <T extends ProcessToolWidget> T makeWidget(Class<? extends ProcessToolWidget> aClass) throws IllegalAccessException, InstantiationException {
-		return (T) aClass.newInstance();
-	}
-
 	public void registerI18NProvider(I18NProvider i18Provider, String providerId) {
 		I18N_PROVIDER_REGISTRY.put(providerId, i18Provider);
 		I18NSourceFactory.invalidateCache();
@@ -532,6 +512,15 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 
 	public void setProcessToolContextFactory(ProcessToolContextFactory processToolContextFactory) {
 		this.processToolContextFactory = processToolContextFactory;
+	}
+
+	@Override
+	public ProcessToolSessionFactory getProcessToolSessionFactory() {
+		return processToolSessionFactory;
+	}
+
+	public void setProcessToolSessionFactory(ProcessToolSessionFactory processToolSessionFactory) {
+		this.processToolSessionFactory = processToolSessionFactory;
 	}
 
 	@Override
@@ -706,81 +695,96 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 		return Collections.unmodifiableMap(TASK_ITEM_REGISTRY);
 	}
 
-	@Override
-	public void registerGlobalDictionaries(InputStream is) {
-		if (is != null) {
-			ProcessDictionaries dictionaries = (ProcessDictionaries) DictionaryLoader.getInstance().unmarshall(is);
-			String processBpmKey = dictionaries.getProcessBpmDefinitionKey();
-			if (Strings.hasText(processBpmKey)) {
-				logger.warning("Global process dictionary should not be defined for a specific process: "
-						+ dictionaries.getProcessBpmDefinitionKey());
-			}
-			Session session = sessionFactory.openSession();
-			try {
-				Transaction tx = session.beginTransaction();
+    @Override
+    public IOsgiWebController getWebController(String controllerName) {
+        return CONTROLLER_REGISTRY.get(controllerName);
+    }
 
-				Collection<ProcessDBDictionary> processDBDictionaries = saveDictionaryInternal(dictionaries);
+    @Override
+    public void registerWebController(String controllerName, IOsgiWebController controller) {
+        CONTROLLER_REGISTRY.put(controllerName, controller);
+    }
 
-				ProcessDictionaryDAO dao = getProcessDictionaryDAO(session);
-				dao.processGlobalDictionaries(processDBDictionaries, dictionaries.getOverwrite() != null && dictionaries.getOverwrite());
+    @Override
+    public void unregisterWebController(String controllerName) {
+        CONTROLLER_REGISTRY.remove(controllerName);
+    }
 
-				tx.commit();
-				logger.warning("Registered global dictionaries");
-			}
-			finally {
-				session.close();
-			}
-		}
-	}
+    @Override
+       public void registerGlobalDictionaries(InputStream is) {
+           if (is != null) {
+               ProcessDictionaries dictionaries = (ProcessDictionaries) DictionaryLoader.getInstance().unmarshall(is);
+               String processBpmKey = dictionaries.getProcessBpmDefinitionKey();
+               if (Strings.hasText(processBpmKey)) {
+                   logger.warning("Global process dictionary should not be defined for a specific process: "
+                           + dictionaries.getProcessBpmDefinitionKey());
+               }
+               Session session = sessionFactory.openSession();
+               try {
+                   Transaction tx = session.beginTransaction();
+                   
+                   Collection<ProcessDBDictionary> processDBDictionaries = saveDictionaryInternal(dictionaries);
+                   
+                   ProcessDictionaryDAO dao = getProcessDictionaryDAO(session);
+                   dao.processGlobalDictionaries(processDBDictionaries, dictionaries.getOverwrite() != null && dictionaries.getOverwrite());
+                   
+                   tx.commit();
+                   logger.warning("Registered global dictionaries");
+               }
+               finally {
+                   session.close();
+               }
+           }
+       }
 
-	@Override
-	public void registerProcessDictionaries(InputStream is, ProcessDefinitionConfig newConfig, ProcessDefinitionConfig oldConfig) {
-		if (is != null) {
-			ProcessDictionaries dictionaries = (ProcessDictionaries) DictionaryLoader.getInstance().unmarshall(is);
-			String processBpmKey = dictionaries.getProcessBpmDefinitionKey();
-			if (!Strings.hasText(processBpmKey)) {
-				throw new DictionaryLoadingException("No process name specified in the dictionaries XML");
-			}
-			Session session = sessionFactory.openSession();
-			try {
-				Transaction tx = session.beginTransaction();
+       @Override
+       public void registerProcessDictionaries(InputStream is, ProcessDefinitionConfig newConfig, ProcessDefinitionConfig oldConfig) {
+           if (is != null) {
+               ProcessDictionaries dictionaries = (ProcessDictionaries) DictionaryLoader.getInstance().unmarshall(is);
+               String processBpmKey = dictionaries.getProcessBpmDefinitionKey();
+               if (!Strings.hasText(processBpmKey)) {
+                   throw new DictionaryLoadingException("No process name specified in the dictionaries XML");
+               }
+               Session session = sessionFactory.openSession();
+               try {
+                   Transaction tx = session.beginTransaction();
 
-				if (newConfig == null) {
-					throw new DictionaryLoadingException("No active definition config with BPM key: " + processBpmKey);
-				}
+                   if (newConfig == null) {
+                       throw new DictionaryLoadingException("No active definition config with BPM key: " + processBpmKey);
+                   }
+                   
+                   Collection<ProcessDBDictionary> processDBDictionaries = saveDictionaryInternal(dictionaries);
+                   
+                   ProcessDictionaryDAO dao = getProcessDictionaryDAO(session);
+                   dao.processProcessDictionaries(processDBDictionaries,newConfig, oldConfig,
+                           dictionaries.getOverwrite() != null && dictionaries.getOverwrite());
+                   
+                   tx.commit();
+                   logger.warning("Registered dictionaries for process: " + processBpmKey);
+               }
+               finally {
+                   session.close();
+               }
+           }
+       }
 
-				Collection<ProcessDBDictionary> processDBDictionaries = saveDictionaryInternal(dictionaries);
-
-				ProcessDictionaryDAO dao = getProcessDictionaryDAO(session);
-				dao.processProcessDictionaries(processDBDictionaries,newConfig, oldConfig,
-						dictionaries.getOverwrite() != null && dictionaries.getOverwrite());
-
-				tx.commit();
-				logger.warning("Registered dictionaries for process: " + processBpmKey);
-			}
-			finally {
-				session.close();
-			}
-		}
-	}
-
-	private Collection<ProcessDBDictionary> saveDictionaryInternal(ProcessDictionaries dictionaries) {
-
-		List<ProcessDBDictionary> processDBDictionaries = DictionaryLoader.getDictionariesFromXML(dictionaries);
-		for (ProcessDBDictionary dict : processDBDictionaries) {
-			for (ProcessDBDictionaryPermission perm : dict.getPermissions()) {
-				if (!Strings.hasText(perm.getRoleName())) {
-					perm.setRoleName(PATTERN_MATCH_ALL);
-				}
-				if (!Strings.hasText(perm.getPrivilegeName())) {
-					perm.setPrivilegeName(PRIVILEGE_EDIT);
-				}
-			}
-		}
-		DictionaryLoader.validateDictionaries(processDBDictionaries);
-
-		return processDBDictionaries;
-	}
+       private Collection<ProcessDBDictionary> saveDictionaryInternal(ProcessDictionaries dictionaries) {
+          
+           List<ProcessDBDictionary> processDBDictionaries = DictionaryLoader.getDictionariesFromXML(dictionaries);
+           for (ProcessDBDictionary dict : processDBDictionaries) {
+               for (ProcessDBDictionaryPermission perm : dict.getPermissions()) {
+                   if (!Strings.hasText(perm.getRoleName())) {
+                       perm.setRoleName(PATTERN_MATCH_ALL);
+                   }
+                   if (!Strings.hasText(perm.getPrivilegeName())) {
+                       perm.setPrivilegeName(PRIVILEGE_EDIT);
+                   }
+               }
+           }
+           DictionaryLoader.validateDictionaries(processDBDictionaries);
+           
+           return processDBDictionaries;
+       }
 	
 
     @Override
@@ -932,9 +936,144 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 		return caches.get(cacheName);
 	}
 
-	@Override
-	public <K, V> void registerCache(String cacheName, Map<K, V> cache) {
-		caches.put(cacheName, cache);
-		logger.warning("Registered cache named: " + cacheName);
-	}
+        public <K, V> void registerCache(String cacheName, Map<K, V> cache) {
+            caches.put(cacheName, cache);
+            logger.warning("Registered cache named: " + cacheName);
+        }
+
+		@Override
+		public Class<? extends ProcessToolWidget> getWidgetClassName(String widgetName) 
+		{
+
+			return WIDGET_REGISTRY.get(widgetName);
+		}
+
+		@Override
+		public void registerJavaScript(String fileName,IWidgetScriptProvider scriptProvider) 
+		{
+			JAVASCRIPT_REGISTRY.put(fileName, scriptProvider);
+			
+			InputStream javaScript = scriptProvider.getJavaScriptContent();
+			
+			String compressedScript = compress(javaScript);
+			javaScriptContent += compressedScript;
+			
+		}
+
+		@Override
+		public void unregisterJavaScript(String fileName) 
+		{
+			JAVASCRIPT_REGISTRY.remove(fileName);
+		}
+
+		@Override
+		public void registerHtmlView(String widgetName,ProcessHtmlWidget processHtmlWidget) 
+		{		
+			VIEW_REGISTRY.put(widgetName, processHtmlWidget);
+			
+			try
+			{
+				InputStream htmlFileStream = processHtmlWidget.getContentProvider().getHtmlContent();
+				String htmlBody = CharStreams.toString(new InputStreamReader(htmlFileStream, "UTF-8"));
+				
+				templateProvider.addTemplate(widgetName, htmlBody);
+			}
+			catch(Exception ex)
+			{
+				throw new RuntimeException("Problem during adding new html template", ex);
+			}
+			
+		}
+
+		@Override
+		public void unregisterHtmlView(String widgetName) 
+		{
+			VIEW_REGISTRY.remove(widgetName);
+			
+			templateProvider.removeTemplate(widgetName);
+			
+		}
+		
+		@Override
+		public String getJavaScripts() 
+		{
+			return decompress(javaScriptContent);
+		}
+		
+		private static String compress(InputStream stream) 
+		{
+			try
+			{
+				ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
+				OutputStream output = new GZIPOutputStream(byteOutput);
+		        byte[] buffer = new byte[1024];
+		        int bytesRead = 0;
+		        
+		        while ((bytesRead = stream.read(buffer)) != -1) 
+		        	output.write(buffer, 0, bytesRead);
+		        
+		        output.close();
+		        byteOutput.close();
+		        
+			    return byteOutput.toString();
+			}
+			catch(IOException ex)
+			{
+				throw new RuntimeException("Problem during javascript compressing", ex);
+			}
+		}
+		
+		
+		private static String compress(String string) 
+		{
+			try
+			{
+			    ByteArrayOutputStream os = new ByteArrayOutputStream(string.length());
+			    GZIPOutputStream gos = new GZIPOutputStream(os);
+			    gos.write(string.getBytes());
+			    gos.close();
+			    os.close();
+			    return os.toString();
+			}
+			catch(IOException ex)
+			{
+				throw new RuntimeException("Problem during javascript compressing", ex);
+			}
+		}
+
+		private static String decompress(String stringToCompress) 
+		{
+			try
+			{
+			    final int BUFFER_SIZE = 32;
+			    ByteArrayInputStream is = new ByteArrayInputStream(stringToCompress.getBytes());
+			    GZIPInputStream gis = new GZIPInputStream(is, BUFFER_SIZE);
+			    StringBuilder string = new StringBuilder();
+			    byte[] data = new byte[BUFFER_SIZE];
+			    int bytesRead;
+			    while ((bytesRead = gis.read(data)) != -1) {
+			        string.append(new String(data, 0, bytesRead));
+			    }
+			    gis.close();
+			    is.close();
+			    return string.toString();
+			}
+			catch(IOException ex)
+			{
+				throw new RuntimeException("Problem during javascript decompressing", ex);
+			}
+		}
+
+
+		@Override
+		public ProcessHtmlWidget getHtmlWidget(String widgetName) {
+			return VIEW_REGISTRY.get(widgetName);
+		}
+
+    @Override
+    public Collection<ProcessHtmlWidget> getHtmlWidgets() {
+        return VIEW_REGISTRY.values();
+    }
+
+
 }

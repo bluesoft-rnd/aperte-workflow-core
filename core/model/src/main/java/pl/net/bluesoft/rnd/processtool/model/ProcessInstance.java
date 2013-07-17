@@ -7,12 +7,11 @@ import java.util.*;
 import javax.persistence.*;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.Parameter;
 import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.annotations.*;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
-import pl.net.bluesoft.rnd.processtool.model.nonpersistent.BpmTaskBean;
 import pl.net.bluesoft.rnd.pt.utils.lang.Lang2;
 
 /**
@@ -24,7 +23,10 @@ import pl.net.bluesoft.rnd.pt.utils.lang.Lang2;
 
 @Entity
 @Table(name="pt_process_instance")
-public class ProcessInstance extends AbstractPersistentEntity {
+public class ProcessInstance extends AbstractPersistentEntity
+{
+    public static final String EXTERNAL_KEY_PROPERTY = "externalKey";
+
 	@Id
 	@GeneratedValue(generator = "idGenerator")
 	@GenericGenerator(
@@ -53,7 +55,7 @@ public class ProcessInstance extends AbstractPersistentEntity {
     @Transient
     private String[] taskQueues;
     @Transient
-    private BpmTaskBean[] activeTasks;
+    private BpmTask[] activeTasks;
 
 	private Date createDate;
 
@@ -257,6 +259,16 @@ public class ProcessInstance extends AbstractPersistentEntity {
 		}
 		return null;
 	}
+	
+    public <T extends ProcessInstanceAttribute> T findAttributeByClassName(String className) {
+        Set<ProcessInstanceAttribute> attrs = getProcessAttributes();
+        for (ProcessInstanceAttribute pia : attrs) {
+            if (className.equals(pia.getClass().getName())) {
+                return (T) pia;
+            }
+        }
+        return null;
+    }
 
     public <T extends ProcessInstanceAttribute> T findAttributeByClass(Class<T> clazz) {
         Set<ProcessInstanceAttribute> attrs = getProcessAttributes();
@@ -351,6 +363,7 @@ public class ProcessInstance extends AbstractPersistentEntity {
 
     }
 
+	@XmlTransient
     public String[] getAssignees() {
         return nvl(assignees, new String[] { });
     }
@@ -359,6 +372,7 @@ public class ProcessInstance extends AbstractPersistentEntity {
         this.assignees = assignees;
     }
 
+	@XmlTransient
     public String[] getTaskQueues() {
         return nvl(taskQueues, new String[] { });
     }
@@ -375,11 +389,12 @@ public class ProcessInstance extends AbstractPersistentEntity {
         this.status = status;
     }
 
-    public BpmTaskBean[] getActiveTasks() {
+	@XmlTransient
+    public BpmTask[] getActiveTasks() {
         return activeTasks;
     }
 
-    public void setActiveTasks(BpmTaskBean[] activeTasks) {
+    public void setActiveTasks(BpmTask[] activeTasks) {
         this.activeTasks = Lang2.noCopy(activeTasks);
     }
 

@@ -80,11 +80,19 @@ public class TaskViewController extends AbstractProcessToolServletController
 
 			@Override
 			public BpmTaskBean processWithContext(ProcessToolContext ctx) {
+				BpmTaskBean taskBean = null;
 				BpmTask task = context.getBpmSession().getTaskData(taskId);
-
 				BpmTask newTask = context.getBpmSession().assignTaskFromQueue(queueName, task);
 				
-				BpmTaskBean taskBean = BpmTaskBean.createFrom(newTask, messageSource);
+				if (newTask!=null) {
+					taskBean = BpmTaskBean.createFrom(newTask, messageSource);
+				} else {
+					try {
+						response.getWriter().print(messageSource.getMessage("request.performaction.error.notask"));
+					} catch (IOException e) {
+						throw new RuntimeException(e);
+					}
+				}
 				
 				return taskBean;
 			}

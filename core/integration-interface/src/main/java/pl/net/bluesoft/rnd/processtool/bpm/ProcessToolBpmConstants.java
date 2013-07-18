@@ -25,6 +25,9 @@ public interface ProcessToolBpmConstants {
     
 	/** Text mode request parameter. If it is set to true, no html will be generated */
 	String TEXT_MODE = "textMode";
+
+	/** Default interval for queue refresh */
+	Integer DEFAULT_QUEUE_INTERVAL = 30000;
 	
 	/** Text modes enumeration type */
 	public static enum 			TextModes 

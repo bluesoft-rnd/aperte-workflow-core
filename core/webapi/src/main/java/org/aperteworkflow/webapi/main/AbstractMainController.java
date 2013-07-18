@@ -27,6 +27,7 @@ public class AbstractMainController
     public static final String QUEUES_PARAMETER_NAME = "queues";
     public static final String USER_PARAMETER_NAME = "aperteUser";
     public static final String IS_STANDALONE = "isStandAlone";
+    public static final String QUEUE_INTERVAL = "queueInterval";
 
     /** Add user queeus to model */
     protected Collection<UserProcessQueuesSizeProvider.UsersQueuesDTO> addUserQueues(UserData user, ProcessToolContext ctx, I18NSource messageSource)

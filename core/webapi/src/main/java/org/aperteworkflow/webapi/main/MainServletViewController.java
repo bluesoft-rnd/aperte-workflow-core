@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+
+import pl.net.bluesoft.rnd.processtool.BasicSettings;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.authorization.IAuthorizationService;
@@ -11,14 +13,9 @@ import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
-import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
-
 
 @Controller(value = "MainServletViewController")
 @RequestMapping(value ="/view")
@@ -57,14 +54,21 @@ public class MainServletViewController extends AbstractMainController
 				ProcessToolBpmSession bpmSession = (ProcessToolBpmSession)request.getAttribute(ProcessToolBpmSession.class.getName());
 				if(bpmSession == null)
 				{
-					bpmSession = getRegistry().getProcessToolSessionFactory().createSession(user, user.getRoleNames());
+					bpmSession = processToolRegistry.getProcessToolSessionFactory().createSession(user, user.getRoleNames());
 					request.setAttribute(ProcessToolBpmSession.class.getName(), bpmSession);
 				}
 				
-//				I18NSource messageSource = I18NSourceFactory.createI18NSource(request.getLocale());
-				
-				//addUserQueues(modelView, user, ctx, messageSource);
                 modelView.addObject(PROCESS_START_LIST, addProcessStartList(ctx, bpmSession));
+                
+				Integer interval = ctx.DEFAULT_QUEUE_INTERVAL;
+                String refreshInterval = ctx.getSetting(BasicSettings.REFRESHER_INTERVAL_SETTINGS_KEY);
+                if (refreshInterval!=null && refreshInterval.trim().length()>0) {
+    				try {
+						interval = Integer.parseInt(refreshInterval+"000");
+					} catch (NumberFormatException e) {}
+                }
+        		modelView.addObject(QUEUE_INTERVAL,interval);
+                
 			}
 		});
 	}

@@ -181,37 +181,4 @@ public class ProcessDBDictionary extends AbstractPersistentEntity implements Pro
     public String toString() {
     	return defaultName;
     }
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result
-				+ ((dictionaryId == null) ? 0 : dictionaryId.hashCode());
-		result = prime * result
-				+ ((defaultName == null) ? 0 : defaultName.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ProcessDBDictionary other = (ProcessDBDictionary) obj;
-		if (dictionaryId == null) {
-			if (other.dictionaryId != null)
-				return false;
-		} else if (!dictionaryId.equals(other.dictionaryId))
-			return false;
-		if (defaultName == null) {
-			if (other.defaultName != null)
-				return false;
-		} else if (!defaultName.equals(other.defaultName))
-			return false;
-		return true;
-	}
 }

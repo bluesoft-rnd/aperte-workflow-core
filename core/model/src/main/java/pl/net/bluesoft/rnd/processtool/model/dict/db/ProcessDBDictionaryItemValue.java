@@ -16,11 +16,11 @@ import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItemValue;
 @Entity
 @Table(name = "pt_dictionary_item_value")
 public class ProcessDBDictionaryItemValue extends PersistentEntity implements ProcessDictionaryItemValue {
-	public static String _DEFAULT_VALUE = "defaultValue";
-	public static String _VALID_FROM = "validFrom";
-	public static String _VALID_TO = "validTo";
-	public static String _LOCALIZED_VALUES = "localizedValues";
-	public static String _EXTENSIONS = "extensions";
+	public static final String _DEFAULT_VALUE = "defaultValue";
+	public static final String _VALID_FROM = "validFrom";
+	public static final String _VALID_TO = "validTo";
+	public static final String _LOCALIZED_VALUES = "localizedValues";
+	public static final String _EXTENSIONS = "extensions";
 
     @ManyToOne(fetch = FetchType.LAZY)
     private ProcessDBDictionaryItem item;
@@ -182,32 +182,4 @@ public class ProcessDBDictionaryItemValue extends PersistentEntity implements Pr
         }
         return true;
     }
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-
-		ProcessDBDictionaryItemValue that = (ProcessDBDictionaryItemValue)o;
-
-		if (extensions != null ? !extensions.equals(that.extensions) : that.extensions != null) return false;
-		if (localizedValues != null ? !localizedValues.equals(that.localizedValues) : that.localizedValues != null)
-			return false;
-		if (validTo != null ? !validTo.equals(that.validTo) : that.validTo != null) return false;
-		if (validFrom != null ? !validFrom.equals(that.validFrom) : that.validFrom != null)
-			return false;
-		if (defaultValue != null ? !defaultValue.equals(that.defaultValue) : that.defaultValue != null) return false;
-
-		return true;
-	}
-
-	@Override
-	public int hashCode() {
-		int result = defaultValue != null ? defaultValue.hashCode() : 0;
-		result = 31 * result + (validFrom != null ? validFrom.hashCode() : 0);
-		result = 31 * result + (validTo != null ? validTo.hashCode() : 0);
-		result = 31 * result + (localizedValues != null ? localizedValues.hashCode() : 0);
-		result = 31 * result + (extensions != null ? extensions.hashCode() : 0);
-		return result;
-	}
 }

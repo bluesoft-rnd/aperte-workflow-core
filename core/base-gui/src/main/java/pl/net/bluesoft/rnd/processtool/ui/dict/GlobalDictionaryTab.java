@@ -21,7 +21,7 @@ import com.vaadin.ui.Select;
  * @author mpawlak@bluesoft.net.pl
  *
  */
-public class GlobalDictionaryTab extends DictionaryTab implements ValueChangeListener
+public final class GlobalDictionaryTab extends DictionaryTab implements ValueChangeListener
 {
 	private Select selectDictionary;
 	private Select selectLocale;
@@ -30,6 +30,7 @@ public class GlobalDictionaryTab extends DictionaryTab implements ValueChangeLis
 	
 	public GlobalDictionaryTab(DictionariesMainPane mainPanel, GlobalDictionaryModelView modelView) {
 		super(mainPanel, modelView);
+		init();
 	}
 	
 	@Override
@@ -64,12 +65,6 @@ public class GlobalDictionaryTab extends DictionaryTab implements ValueChangeLis
     	
         selectDictionary.setContainerDataSource(getGlobalModelView().getBeanItemContainerDictionaries());
         selectLocale.setContainerDataSource(getGlobalModelView().getBeanItemContainerLanguageCodes());
-	}
-	
-	@Override
-	protected void refreshData() 
-	{
-		super.refreshData();
 	}
 	
 	@Override

@@ -21,7 +21,7 @@ import com.vaadin.data.util.BeanItemContainer;
  * @author mpawlak@bluesoft.net.pl
  *
  */
-public class GlobalDictionaryModelView extends DictionaryModelView
+public final class GlobalDictionaryModelView extends DictionaryModelView
 {
 	private Collection<String> languageCodes;
 	private BeanItemContainer<String> beanItemContainerLanguageCodes;
@@ -32,6 +32,7 @@ public class GlobalDictionaryModelView extends DictionaryModelView
 	
 	public GlobalDictionaryModelView(TransactionProvider transactionProvider, GenericVaadinPortlet2BpmApplication application) {
 		super(transactionProvider, application);
+		init();
 	}
 
 	@Override

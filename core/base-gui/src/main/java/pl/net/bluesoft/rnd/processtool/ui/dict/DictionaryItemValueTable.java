@@ -29,10 +29,10 @@ import com.vaadin.ui.TextField;
  */
 public class DictionaryItemValueTable extends GenericTable<ProcessDBDictionaryItemValue> 
 {
-	public static final String VALUE_COLUMN_NAME = "stringValue";
-	public static final String START_DATE_COLUMN_NAME = "validStartDate";
-	public static final String END_DATE_COLUMN_NAME = "validEndDate";
-	public static final String EXTENSIONS_COLUMN_NAME = "extensions";
+	public static final String VALUE_COLUMN_NAME = ProcessDBDictionaryItemValue._DEFAULT_VALUE;
+	public static final String START_DATE_COLUMN_NAME = ProcessDBDictionaryItemValue._VALID_FROM;
+	public static final String END_DATE_COLUMN_NAME = ProcessDBDictionaryItemValue._VALID_TO;
+	public static final String EXTENSIONS_COLUMN_NAME = ProcessDBDictionaryItemValue._EXTENSIONS;
 	public static final String DELETE_COLUMN_NAME = "delete";
 	public static final String COPY_COLUMN_NAME = "copy";
 	
@@ -42,11 +42,10 @@ public class DictionaryItemValueTable extends GenericTable<ProcessDBDictionaryIt
 		EXTENSIONS_COLUMN_NAME, COPY_COLUMN_NAME, DELETE_COLUMN_NAME
 	};
 	
-	private static final String[] EDITABLE_COLUMNS =
-		{
+	private static final String[] EDITABLE_COLUMNS = {
 		VALUE_COLUMN_NAME, START_DATE_COLUMN_NAME, END_DATE_COLUMN_NAME,
 		EXTENSIONS_COLUMN_NAME
-		};
+	};
 
 	public DictionaryItemValueTable(BeanItemContainer<ProcessDBDictionaryItemValue> container, I18NSource i18NSource, GenericVaadinPortlet2BpmApplication application) 
 	{
@@ -65,7 +64,6 @@ public class DictionaryItemValueTable extends GenericTable<ProcessDBDictionaryIt
 		setSortContainerPropertyId(START_DATE_COLUMN_NAME);
 		setSortAscending(false);
 		sort();
-
 	}
 
 	@Override
@@ -97,6 +95,7 @@ public class DictionaryItemValueTable extends GenericTable<ProcessDBDictionaryIt
 			textField.setWidth(100, UNITS_PERCENTAGE);
             return textField;
 		}
+
 		if(columnId.equals(START_DATE_COLUMN_NAME))
 		{
             OptionalDateField dateField = new OptionalDateField(i18NSource);
@@ -125,7 +124,6 @@ public class DictionaryItemValueTable extends GenericTable<ProcessDBDictionaryIt
 		}
 		
 		throw new PropertyNameNotDefinedException("Column name not defined: "+columnId);
-		
 	}
 
 	@Override
@@ -188,5 +186,4 @@ public class DictionaryItemValueTable extends GenericTable<ProcessDBDictionaryIt
 			DictionaryItemValueTable.this.notifyListeners(actionRequest);
 		}
 	}
-
 }

@@ -32,8 +32,6 @@ public abstract class DictionaryTab extends VerticalLayout implements ClickListe
 	{
 		this.mainPanel = mainPanel;
 		this.modelView = modelView;
-		
-		init();
 	}
 	
 	protected void refreshData()

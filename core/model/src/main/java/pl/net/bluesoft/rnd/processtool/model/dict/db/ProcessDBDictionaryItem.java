@@ -1,9 +1,6 @@
 package pl.net.bluesoft.rnd.processtool.model.dict.db;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import javax.persistence.*;
 import javax.persistence.Entity;
@@ -121,7 +118,7 @@ public class ProcessDBDictionaryItem extends AbstractPersistentEntity implements
 
     @Override
     public Collection<ProcessDictionaryItemValue> values() {
-        return new HashSet<ProcessDictionaryItemValue>(values);
+        return Collections.unmodifiableCollection((Set)values);
     }
 
     @Override
@@ -138,37 +135,4 @@ public class ProcessDBDictionaryItem extends AbstractPersistentEntity implements
         }
         return null;
     }
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((key == null) ? 0 : key.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ProcessDBDictionaryItem other = (ProcessDBDictionaryItem) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		if (key == null) {
-			if (other.key != null)
-				return false;
-			else
-				return this == obj;
-		} else if (!key.equals(other.key))
-			return false;
-		return true;
-	}
 }

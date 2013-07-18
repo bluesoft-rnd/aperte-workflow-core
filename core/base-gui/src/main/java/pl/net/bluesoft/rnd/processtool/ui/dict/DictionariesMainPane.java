@@ -40,13 +40,10 @@ import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
-public class DictionariesMainPane extends VerticalLayout implements ProcessToolBpmConstants, Refreshable, IActionRequestListener, IEntryValidator<ProcessDBDictionaryItem>
+public class DictionariesMainPane extends VerticalLayout implements Refreshable, IActionRequestListener, IEntryValidator<ProcessDBDictionaryItem>
 {
     private GenericVaadinPortlet2BpmApplication application;
     private I18NSource i18NSource;
-    public I18NSource getI18NSource() {
-		return i18NSource;
-	}
 
 	private TransactionProvider transactionProvider;
 
@@ -89,7 +86,8 @@ public class DictionariesMainPane extends VerticalLayout implements ProcessToolB
     	globalTab.getModelView().reloadData();
     }
 
-    public void refreshData() 
+    @Override
+	public void refreshData()
     {
     	globalTab.getModelView().refreshData();
     }
@@ -240,7 +238,8 @@ public class DictionariesMainPane extends VerticalLayout implements ProcessToolB
      * @param item item to validate
      * @return false if item is invalid
      */
-    public boolean isEntryValid(ProcessDBDictionaryItem item)
+    @Override
+	public boolean isEntryValid(ProcessDBDictionaryItem item)
     {
     	DictionaryItemValidator validator = new DictionaryItemValidator(application);
     	
@@ -264,6 +263,10 @@ public class DictionariesMainPane extends VerticalLayout implements ProcessToolB
     {
 		return globalTab;
     }
+
+	public I18NSource getI18NSource() {
+		return i18NSource;
+	}
 }
 
 

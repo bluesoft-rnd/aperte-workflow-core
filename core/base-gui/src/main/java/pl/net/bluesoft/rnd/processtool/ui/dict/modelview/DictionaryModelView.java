@@ -45,14 +45,11 @@ public class DictionaryModelView
     private ProcessDBDictionary selectedDictionary;
     private ProcessDBDictionaryItem selectedDictionaryItem;
     private String selectedDictionaryItemKey;
-    
 
 	public DictionaryModelView(TransactionProvider transactionProvider, GenericVaadinPortlet2BpmApplication application) 
 	{
 		this.application = application;
 		this.transactionProvider = transactionProvider;
-		
-		init();
 	}
 	
 	protected void init()

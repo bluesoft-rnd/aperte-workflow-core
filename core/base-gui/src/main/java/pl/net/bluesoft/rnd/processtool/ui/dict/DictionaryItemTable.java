@@ -44,7 +44,6 @@ import com.vaadin.ui.TextField;
  */
 public class DictionaryItemTable extends GenericTable<ProcessDBDictionaryItem>
 {
-	
     private static final String EMPTY_VALID_DATE = "...";
     
 	public static final String KEY_COLUMN_NAME = "key";
@@ -62,9 +61,9 @@ public class DictionaryItemTable extends GenericTable<ProcessDBDictionaryItem>
 	};
 	
 	private static final String[] EDITABLE_COLUMNS =
-		{
-			KEY_COLUMN_NAME, DESCRIPTION_COLUMN_NAME, 
-		};
+	{
+		KEY_COLUMN_NAME, DESCRIPTION_COLUMN_NAME,
+	};
 	
 
 	public DictionaryItemTable(BeanItemContainer<ProcessDBDictionaryItem> container, I18NSource i18NSource, GenericVaadinPortlet2BpmApplication application) 
@@ -80,7 +79,6 @@ public class DictionaryItemTable extends GenericTable<ProcessDBDictionaryItem>
 		
 		setSortContainerPropertyId(KEY_COLUMN_NAME);
 		sort(new Object[] {KEY_COLUMN_NAME}, new boolean[] {true});
-
 	}
 
 	@Override
@@ -213,7 +211,6 @@ public class DictionaryItemTable extends GenericTable<ProcessDBDictionaryItem>
 	protected String[] getEditableFields() {
 		return EDITABLE_COLUMNS;
 	}
-	
 
 	/** Delete item request */
 	private class EditItemButton extends Button implements ClickListener
@@ -290,7 +287,6 @@ public class DictionaryItemTable extends GenericTable<ProcessDBDictionaryItem>
 		{
 			CancelEditionOfDictionaryItemActionRequest actionRequest = new CancelEditionOfDictionaryItemActionRequest(entryToSave);
 			DictionaryItemTable.this.notifyListeners(actionRequest);
-
 		}
 	}
 	
@@ -409,7 +405,6 @@ public class DictionaryItemTable extends GenericTable<ProcessDBDictionaryItem>
             sb.append("</i>)");
             return sb.toString();
         }
-    	
     }
     
     private abstract class DictPopupVisibilityListener implements PopupVisibilityListener 
@@ -445,7 +440,6 @@ public class DictionaryItemTable extends GenericTable<ProcessDBDictionaryItem>
                         @Override
                         public int compare(ProcessDBDictionaryItemValue o1, ProcessDBDictionaryItemValue o2) 
                         {
-                        	
                         	/* The null value is higher then anything else */
                         	if(o1.getValidFrom() == null)
                         		return Integer.MAX_VALUE;
@@ -455,8 +449,7 @@ public class DictionaryItemTable extends GenericTable<ProcessDBDictionaryItem>
                         	
                         	else if(o2.getValidFrom() == null)
                         		return Integer.MIN_VALUE;
-                        	
-                        	
+
                 			/* Fix na IBMowa impelementacje TimeStampa, który próbuje rzutować
                 			 * obiekt Date na Timestamp i przez to leci wyjątek. 
                 			 */

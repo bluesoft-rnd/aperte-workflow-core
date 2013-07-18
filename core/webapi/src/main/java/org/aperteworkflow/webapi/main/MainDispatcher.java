@@ -1,13 +1,13 @@
 package org.aperteworkflow.webapi.main;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.web.controller.IOsgiWebController;
 import pl.net.bluesoft.rnd.processtool.web.controller.OsgiWebRequest;
 import pl.net.bluesoft.rnd.processtool.web.controller.ControllerMethod;
@@ -31,12 +31,15 @@ public class MainDispatcher extends AbstractProcessToolServletController
 {
     private static Logger logger = Logger.getLogger(MainDispatcher.class.getName());
 
+    @Autowired
+    private ProcessToolRegistry registry;
+    
     @RequestMapping(value = "/dispatcher/{controllerName}/{actionName}")
     @ResponseBody
     public Object invoke(final @PathVariable String controllerName, @PathVariable String actionName, final HttpServletRequest request, final HttpServletResponse respone)
     {
         final GenericResultBean resultBean = new GenericResultBean();
-        final IProcessToolRequestContext context = this.initilizeContext(request);
+        final IProcessToolRequestContext context = this.initilizeContext(request, registry.getProcessToolSessionFactory());
 
         if(!context.isUserAuthorized())
         {
@@ -62,7 +65,7 @@ public class MainDispatcher extends AbstractProcessToolServletController
             return resultBean;
         }
 
-        return context.getRegistry().withProcessToolContext(new ReturningProcessToolContextCallback<Object>() {
+        return registry.withProcessToolContext(new ReturningProcessToolContextCallback<Object>() {
             @Override
             public Object processWithContext(ProcessToolContext ctx)
             {

@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import pl.net.bluesoft.rnd.processtool.web.domain.IProcessToolRequestContext;
 import org.aperteworkflow.webapi.main.AbstractProcessToolServletController;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.userqueues.UserProcessQueuesSizeProvider;
 import pl.net.bluesoft.rnd.processtool.userqueues.UserProcessQueuesSizeProvider.UsersQueuesDTO;
 
@@ -23,14 +25,19 @@ import pl.net.bluesoft.rnd.processtool.userqueues.UserProcessQueuesSizeProvider.
 public class QueuesController extends AbstractProcessToolServletController
 {
 	private static Logger logger = Logger.getLogger(QueuesController.class.getName());
+
+    @Autowired
+    private ProcessToolRegistry registry;
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/queues/getUserQueues.json")
 	@ResponseBody
 	public Collection<UsersQueuesDTO> getUserQueues(final HttpServletRequest request)
 	{
+		logger.log(Level.INFO,"getUserQueues ...");
+		
 		long t0 = System.currentTimeMillis();
 		
-		final IProcessToolRequestContext context = this.initilizeContext(request);
+		final IProcessToolRequestContext context = this.initilizeContext(request, registry.getProcessToolSessionFactory());
 		final Collection<UsersQueuesDTO> userQueues = new ArrayList<UsersQueuesDTO>();
 		
 		if(!context.isUserAuthorized())
@@ -40,7 +47,7 @@ public class QueuesController extends AbstractProcessToolServletController
 
 		long t1 = System.currentTimeMillis();
 		
-		context.getRegistry().withProcessToolContext(new ProcessToolContextCallback() 
+		registry.withProcessToolContext(new ProcessToolContextCallback() 
 		{
 
 			@Override

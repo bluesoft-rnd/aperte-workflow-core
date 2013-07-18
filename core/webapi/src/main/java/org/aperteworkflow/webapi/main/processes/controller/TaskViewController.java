@@ -16,6 +16,7 @@ import pl.net.bluesoft.rnd.processtool.web.domain.IProcessToolRequestContext;
 import org.aperteworkflow.webapi.main.AbstractProcessToolServletController;
 import org.aperteworkflow.webapi.main.processes.BpmTaskBean;
 import org.aperteworkflow.webapi.main.ui.TaskViewBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -28,6 +29,7 @@ import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 
@@ -35,6 +37,9 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 public class TaskViewController extends AbstractProcessToolServletController
 {
 	private static Logger logger = Logger.getLogger(TaskViewController.class.getName());
+	
+    @Autowired
+    private ProcessToolRegistry registry;
 	
 	@RequestMapping(method = RequestMethod.POST, value = "/task/claimTaskFromQueue")
 	@ResponseBody
@@ -60,7 +65,7 @@ public class TaskViewController extends AbstractProcessToolServletController
 		}
 		
 		/* Initilize request context */
-		final IProcessToolRequestContext context = this.initilizeContext(request);
+		final IProcessToolRequestContext context = this.initilizeContext(request,registry.getProcessToolSessionFactory());
 		
 		if(!context.isUserAuthorized())
 		{
@@ -70,7 +75,7 @@ public class TaskViewController extends AbstractProcessToolServletController
 		
 		long t1 = System.currentTimeMillis();
 
-		BpmTaskBean taskBean = context.getRegistry().withProcessToolContext(new ReturningProcessToolContextCallback<BpmTaskBean>() 
+		BpmTaskBean taskBean = registry.withProcessToolContext(new ReturningProcessToolContextCallback<BpmTaskBean>() 
 		{
 
 			@Override
@@ -123,7 +128,7 @@ public class TaskViewController extends AbstractProcessToolServletController
 		long t1 = System.currentTimeMillis();
 		
 		/* Initilize request context */
-		final IProcessToolRequestContext context = this.initilizeContext(request);
+		final IProcessToolRequestContext context = this.initilizeContext(request,registry.getProcessToolSessionFactory());
 		
 		if(!context.isUserAuthorized())
 		{
@@ -133,7 +138,7 @@ public class TaskViewController extends AbstractProcessToolServletController
 
 		long t2 = System.currentTimeMillis();
 		
-		context.getRegistry().withProcessToolContext(new ProcessToolContextCallback() 
+		registry.withProcessToolContext(new ProcessToolContextCallback() 
 		{
 
 			@Override

@@ -52,7 +52,6 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory,
 			logger.warning("JbpmStepAction.class was not found");
 		}
 		
-		
 		try {
 			ProcessToolContext ctx = getThreadProcessToolContext();
 

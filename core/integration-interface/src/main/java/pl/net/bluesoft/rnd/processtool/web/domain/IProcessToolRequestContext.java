@@ -19,9 +19,6 @@ public interface IProcessToolRequestContext
 	/** Get user from request */
 	UserData getUser();
 	
-	/** Get registry */
-	ProcessToolRegistry getRegistry();
-	
 	/** Get process tool bpm session */
 	ProcessToolBpmSession getBpmSession();
 	

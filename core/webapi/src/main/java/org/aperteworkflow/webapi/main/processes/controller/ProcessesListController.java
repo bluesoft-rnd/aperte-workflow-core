@@ -14,6 +14,7 @@ import org.aperteworkflow.webapi.main.processes.domain.NewProcessInstanceBean;
 import org.aperteworkflow.webapi.main.processes.processor.TaskProcessor;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.JavaType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -23,6 +24,7 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.model.*;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.web.domain.DataPagingBean;
 import pl.net.bluesoft.rnd.processtool.web.domain.ErrorResultBean;
 import pl.net.bluesoft.rnd.processtool.web.domain.IProcessToolRequestContext;
@@ -53,6 +55,10 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
     private static final String CREATED_DATE_COLUMN = "creationDate";
 
     private static final String EMPTY_JSON = "[{}]";
+    
+    @Autowired
+    private ProcessToolRegistry registry;
+    
 	/**
 	 * Request parameters:
 	 * - processStateConfigurationId: process state configuration db id
@@ -74,7 +80,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 			long t0 = System.currentTimeMillis();
 			
             /* Initilize request context */
-            final IProcessToolRequestContext context = this.initilizeContext(request);
+            final IProcessToolRequestContext context = this.initilizeContext(request, registry.getProcessToolSessionFactory());
 
             if(!context.isUserAuthorized())
             {
@@ -110,7 +116,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 
 			long t1 = System.currentTimeMillis();
 
-            BpmTaskBean bpmTaskBean = context.getRegistry().withProcessToolContext(new ReturningProcessToolContextCallback<BpmTaskBean>() {
+            BpmTaskBean bpmTaskBean = registry.withProcessToolContext(new ReturningProcessToolContextCallback<BpmTaskBean>() {
 
                 @Override
                 public BpmTaskBean processWithContext(ProcessToolContext ctx)
@@ -202,7 +208,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 		final SaveResultBean resultBean = new SaveResultBean();
 		
 		/* Initilize request context */
-		final IProcessToolRequestContext context = this.initilizeContext(request);
+		final IProcessToolRequestContext context = this.initilizeContext(request,registry.getProcessToolSessionFactory());
 		
 		if(!context.isUserAuthorized()) 
 		{
@@ -234,7 +240,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 		
 		long t1 = System.currentTimeMillis();
 		
-		context.getRegistry().withProcessToolContext(new ProcessToolContextCallback() 
+		registry.withProcessToolContext(new ProcessToolContextCallback() 
 		{
 
 			@Override
@@ -317,7 +323,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
         {
     		long t0 = System.currentTimeMillis();
     		
-            final IProcessToolRequestContext context = this.initilizeContext(request);
+            final IProcessToolRequestContext context = this.initilizeContext(request,registry.getProcessToolSessionFactory());
 
             if(!context.isUserAuthorized())
             {
@@ -347,7 +353,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 
     		long t1 = System.currentTimeMillis();
 
-            context.getRegistry().withProcessToolContext(new ProcessToolContextCallback()
+            registry.withProcessToolContext(new ProcessToolContextCallback()
             {
                 @Override
                 public void withContext(ProcessToolContext ctx)
@@ -417,7 +423,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 
         final List<BpmTaskBean> adminAlertBeanList = new ArrayList<BpmTaskBean>();
 
-        final IProcessToolRequestContext context = this.initilizeContext(request);
+        final IProcessToolRequestContext context = this.initilizeContext(request,registry.getProcessToolSessionFactory());
 
         if(!context.isUserAuthorized())
             return new DataPagingBean<BpmTaskBean>(adminAlertBeanList, 0, dataTable.getEcho());
@@ -437,7 +443,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 
 		long t1 = System.currentTimeMillis();
         
-        context.getRegistry().withProcessToolContext(new ProcessToolContextCallback() {
+        registry.withProcessToolContext(new ProcessToolContextCallback() {
 
             @Override
             public void withContext(ProcessToolContext ctx)
@@ -519,7 +525,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 			return new DataPagingBean<BpmTaskBean>(adminAlertBeanList, 0, dataTable.getEcho());
 		}
 
-		final IProcessToolRequestContext context = this.initilizeContext(request);
+		final IProcessToolRequestContext context = this.initilizeContext(request,registry.getProcessToolSessionFactory());
 		
 		if(!context.isUserAuthorized())
 			return new DataPagingBean<BpmTaskBean>(adminAlertBeanList, 0, dataTable.getEcho());
@@ -532,7 +538,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 
 		long t1 = System.currentTimeMillis();
 		
-		context.getRegistry().withProcessToolContext(new ProcessToolContextCallback() {
+		registry.withProcessToolContext(new ProcessToolContextCallback() {
 
 			@Override
 			public void withContext(ProcessToolContext ctx)

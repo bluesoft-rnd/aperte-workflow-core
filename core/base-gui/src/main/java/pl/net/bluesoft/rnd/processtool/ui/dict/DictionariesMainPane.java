@@ -18,7 +18,6 @@ import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItem;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemExtension;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemValue;
 import pl.net.bluesoft.rnd.processtool.ui.dict.modelview.GlobalDictionaryModelView;
-import pl.net.bluesoft.rnd.processtool.ui.dict.modelview.ProcessDictionaryModelView;
 import pl.net.bluesoft.rnd.processtool.ui.dict.request.AddNewDictionaryItemActionRequest;
 import pl.net.bluesoft.rnd.processtool.ui.dict.request.CancelEditionOfDictionaryItemActionRequest;
 import pl.net.bluesoft.rnd.processtool.ui.dict.request.CopyDictionaryItemValueActionRequest;
@@ -36,7 +35,6 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import com.vaadin.Application;
 import com.vaadin.data.Validator.InvalidValueException;
-import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.VerticalLayout;
@@ -54,11 +52,9 @@ public class DictionariesMainPane extends VerticalLayout implements ProcessToolB
 
     private TabSheet tabSheet;
 
-    private Window detailsWindow = null;
-    
-    private ProcessDictionaryTab processTab;
+    private Window detailsWindow;
+
     private GlobalDictionaryTab globalTab;
-   
 
     public DictionariesMainPane(GenericVaadinPortlet2BpmApplication application, I18NSource i18NSource, TransactionProvider transactionProvider) {
         this.application = application;
@@ -77,12 +73,10 @@ public class DictionariesMainPane extends VerticalLayout implements ProcessToolB
         titleLabel.addStyleName("h1 color processtool-title");
         titleLabel.setWidth("100%");
 
-        processTab = new ProcessDictionaryTab(this, new ProcessDictionaryModelView(transactionProvider, application));
         globalTab = new GlobalDictionaryTab(this, new GlobalDictionaryModelView(transactionProvider, application));
 
         tabSheet = new TabSheet();
         tabSheet.setWidth("100%");
-        tabSheet.addTab(processTab, getMessage("dict.title.process"), VaadinUtility.imageResource(application, "dict.png"));
         tabSheet.addTab(globalTab, getMessage("dict.title.global"), VaadinUtility.imageResource(application, "globe.png"));   
 
         addComponent(horizontalLayout(titleLabel, VaadinUtility.refreshIcon(application, this)));
@@ -92,14 +86,11 @@ public class DictionariesMainPane extends VerticalLayout implements ProcessToolB
 
     private void loadData() 
     {
-    	processTab.getModelView().reloadData();
     	globalTab.getModelView().reloadData();
     }
 
-
     public void refreshData() 
     {
-    	processTab.getModelView().refreshData();
     	globalTab.getModelView().refreshData();
     }
 
@@ -206,7 +197,7 @@ public class DictionariesMainPane extends VerticalLayout implements ProcessToolB
 			ProcessDBDictionaryItemValue shallowCopy = value.shallowCopy();
 			
 			/* Add copy to the items' values */
-			value.getItem().getValues().add(shallowCopy);
+			value.getItem().addValue(shallowCopy);
 			
 			/* Inform modelView about change */
 			getTabByItem(value.getItem()).getModelView().addDictionaryItemValue(shallowCopy);
@@ -217,7 +208,7 @@ public class DictionariesMainPane extends VerticalLayout implements ProcessToolB
 			ProcessDBDictionaryItemValue value =  showRequest.getItemValueToDelete();
 			
 			/* Remove value from the item's collection */
-			value.getItem().getValues().remove(value);
+			value.getItem().removeValue(value);
 			
 			/* Inform modelView about change */
 			getTabByItem(value.getItem()).getModelView().removeItemValue(value);
@@ -236,7 +227,7 @@ public class DictionariesMainPane extends VerticalLayout implements ProcessToolB
 	
 	public GenericVaadinPortlet2BpmApplication getVaadinApplication()
 	{
-		return (GenericVaadinPortlet2BpmApplication)application;
+		return application;
 	}
 
     public TransactionProvider getTransactionProvider() {
@@ -271,10 +262,7 @@ public class DictionariesMainPane extends VerticalLayout implements ProcessToolB
     
     private DictionaryTab getTabByItem(ProcessDBDictionaryItem item)
     {
-    	if(item.getDictionary().isGlobalDictionary())
-    		return globalTab;
-    	else
-    		return processTab;
+		return globalTab;
     }
 }
 

@@ -1,7 +1,5 @@
 package pl.net.bluesoft.rnd.processtool.model.dict.db;
 
-//import org.hibernate.annotations.OnDelete;
-//import org.hibernate.annotations.OnDeleteAction;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -16,14 +14,18 @@ import org.hibernate.annotations.*;
 
 import org.hibernate.annotations.CascadeType;
 import pl.net.bluesoft.rnd.processtool.model.AbstractPersistentEntity;
-import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItem;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItemValue;
 
 @Entity
 @Table(name = "pt_dictionary_item")
-public class ProcessDBDictionaryItem extends AbstractPersistentEntity implements ProcessDictionaryItem<String, String>
-{
+public class ProcessDBDictionaryItem extends AbstractPersistentEntity implements ProcessDictionaryItem {
+	public static final String _DICTIONARY = "dictionary";
+	public static final String _KEY = "key";
+	public static final String _VALUE_TYPE = "valueType";
+	public static final String _DESCRIPTION = "description";
+	public static final String _VALUES = "values";
+
 	@Id
 	@GeneratedValue(generator = "idGenerator")
 	@GenericGenerator(
@@ -54,10 +56,12 @@ public class ProcessDBDictionaryItem extends AbstractPersistentEntity implements
     @Cascade(value = CascadeType.ALL)
     private Set<ProcessDBDictionaryItemValue> values = new HashSet<ProcessDBDictionaryItemValue>();
 
+	@Override
 	public Long getId() {
 		return id;
 	}
 
+	@Override
 	public void setId(Long id) {
 		this.id = id;
 	}
@@ -70,7 +74,8 @@ public class ProcessDBDictionaryItem extends AbstractPersistentEntity implements
         return dictionary;
     }
 
-    public String getDescription() {
+    @Override
+	public String getDescription() {
         return description;
     }
 
@@ -87,15 +92,8 @@ public class ProcessDBDictionaryItem extends AbstractPersistentEntity implements
         this.key = key;
     }
 
-	public String getStringKey() {
-		return getKey();
-	}
-
-	public void setStringKey(String key) {
-		setKey(key);
-	}
-
-    public String getValueType() {
+    @Override
+	public String getValueType() {
         return valueType;
     }
 
@@ -111,33 +109,19 @@ public class ProcessDBDictionaryItem extends AbstractPersistentEntity implements
         this.values = values;
     }
 
-	public Set<ProcessDBDictionaryItemValue> getDbValues() {
-		return getValues();
+	public void addValue(ProcessDBDictionaryItemValue value) {
+		value.setItem(this);
+		values.add(value);
 	}
 
-	public void setDbValues(Set<ProcessDBDictionaryItemValue> values) {
-		setValues(values);
-	}
-
-    @Override
-    public Collection<ProcessDictionaryItemValue<String>> values() {
-        return new HashSet<ProcessDictionaryItemValue<String>>(values);
-    }
-
-	public Collection<ProcessDictionaryItemValue<String>> dbValues() {
-		return values();
+	public void removeValue(ProcessDBDictionaryItemValue value) {
+		value.setItem(null);
+		values.remove(value);
 	}
 
     @Override
-    public void addValue(ProcessDictionaryItemValue<String> value) {
-        ProcessDBDictionaryItemValue val = (ProcessDBDictionaryItemValue) value;
-        val.setItem(this);
-        values.add(val);
-    }
-
-    @Override
-    public void removeValue(ProcessDictionaryItemValue<String> value) {
-        values.remove(value);
+    public Collection<ProcessDictionaryItemValue> values() {
+        return new HashSet<ProcessDictionaryItemValue>(values);
     }
 
     @Override
@@ -145,7 +129,8 @@ public class ProcessDBDictionaryItem extends AbstractPersistentEntity implements
         return getValueForDate(new Date());
     }
 
-    public ProcessDBDictionaryItemValue getValueForDate(Date date) {
+    @Override
+	public ProcessDBDictionaryItemValue getValueForDate(Date date) {
         for (ProcessDBDictionaryItemValue value : values) {
             if (value.isValidForDate(date)) {
                 return value;
@@ -186,7 +171,4 @@ public class ProcessDBDictionaryItem extends AbstractPersistentEntity implements
 			return false;
 		return true;
 	}
-
-    
-    
 }

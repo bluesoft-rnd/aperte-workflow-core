@@ -1,7 +1,6 @@
 package org.aperteworkflow.help.impl;
 
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.vaadin.jonatan.contexthelp.ContextHelp;
 import org.vaadin.jonatan.contexthelp.Placement;
 
@@ -18,6 +17,8 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.themes.BaseTheme;
 
+import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
+
 /**
  * Created by IntelliJ IDEA. User: mwysocki_bls Date: 8/29/11 Time: 12:33 PM To
  * change this template use File | Settings | File Templates.
@@ -25,17 +26,17 @@ import com.vaadin.ui.themes.BaseTheme;
  * @author mpawlak
  */
 public class HelpUtility {
-	public static Component helpIcon(final Application application, final I18NSource i18NSource, ContextHelp contextHelp, String dictionary, String key,
+	public static Component helpIcon(Application application, I18NSource i18NSource, ContextHelp contextHelp, String dictionary, String key,
 			Boolean showDebugKey, Component optionalComponent, Placement popupPlacement) {
-		ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
+		ProcessToolContext ctx = getThreadProcessToolContext();
 		ProcessDictionaryRegistry processDictionaryRegistry = ctx.getProcessDictionaryRegistry();
-		ProcessDictionary dict = processDictionaryRegistry.getSpecificOrDefaultGlobalDictionary("db", dictionary, i18NSource.getLocale().toString());
+		ProcessDictionary dict = processDictionaryRegistry.getDictionary(dictionary);
 
 		return helpIcon(dict, application, i18NSource, contextHelp, key, showDebugKey, optionalComponent, popupPlacement);
 	}
 
-	public static Button helpIcon(final ProcessDictionary dict, final Application application, final I18NSource i18NSource, final ContextHelp contextHelp,
-			final String key, Boolean showDebugKey, final Component optionalComponent, Placement popupPlacement) {
+	public static Button helpIcon(ProcessDictionary dict, Application application, I18NSource i18NSource, final ContextHelp contextHelp,
+			String key, Boolean showDebugKey, final Component optionalComponent, Placement popupPlacement) {
 		String message = getMessageFromDictionary(dict, i18NSource, key, canUserEditDictionaries(application), showDebugKey);
 
 		if (popupPlacement == null) {
@@ -80,53 +81,47 @@ public class HelpUtility {
 		if(dictItem == null)
 			messageBuilder.append(i18NSource.getMessage("help.empty").replaceAll("\\{0\\}", key));
 		else
-			messageBuilder.append(dictItem.getValueForCurrentDate().getValue());
+			messageBuilder.append(dictItem.getValueForCurrentDate().getDefaultValue());
 		
 		messageBuilder.append("</div>");
 		
 		/* Add edit icon */
 		if(showEditButton)
 		{
-			String processDefinitionName = dict.getProcessDefinition() == null ? null : dict.getProcessDefinition().getBpmDefinitionKey();
 			String dictionaryId = dict.getDictionaryId();
 			String languageCode = i18NSource.getLocale().toString();
-			String dictionaryItemKey = key;
-			String dictionaryItemValue = dictItem == null ? "" : dictItem.getValueForCurrentDate().getValue().toString();
+			String dictionaryItemValue = dictItem == null ? "" : dictItem.getValueForCurrentDate().getDefaultValue();
 			
 			String escapedValue = StringEscapeUtils.escapeHtml4(dictionaryItemValue);
-			
-			
+
 			messageBuilder.append("<br/>");
-			messageBuilder.append("<input type=\"button\" value=\""+i18NSource.getMessage("help.popup.edit")+"\" name=\"editButton\" onClick=\"showEditHelpContextPopup('");
-			messageBuilder.append(processDefinitionName);
+			messageBuilder.append("<input type=\"button\" value=\"")
+					.append(i18NSource.getMessage("help.popup.edit"))
+					.append("\" name=\"editButton\" onClick=\"showEditHelpContextPopup('");
+			messageBuilder.append((String)null);
 			messageBuilder.append("','");
 			messageBuilder.append(dictionaryId);
 			messageBuilder.append("','");
 			messageBuilder.append(languageCode);
 			messageBuilder.append("','");
-			messageBuilder.append(dictionaryItemKey);
+			messageBuilder.append(key);
 			messageBuilder.append("','");
 			messageBuilder.append(escapedValue);
 			messageBuilder.append("')\" />");
-			
-			
 		}
-		
 
 		if (showDebugKey) 
 		{
 			messageBuilder.append("<br/><br/><small>");
 			messageBuilder.append(i18NSource.getMessage("help.dictionary"));
 			messageBuilder.append(": ");
-			messageBuilder.append(dict.getDictionaryName());
+			messageBuilder.append(dict.getDefaultName());
 			messageBuilder.append("</small><br/><small>");
 			messageBuilder.append(i18NSource.getMessage("help.key"));
 			messageBuilder.append(": ");
 			messageBuilder.append(key);
 			messageBuilder.append("</small>");
 		}
-		
-
 
 		return messageBuilder.toString();
 	}

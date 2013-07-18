@@ -96,21 +96,21 @@ public class DictionaryItemValuesField extends CustomField {
             {
             	
             	/* The null value is higher then anything else */
-            	if(o1.getValidStartDate() == null)
+            	if(o1.getValidFrom() == null)
             		return Integer.MAX_VALUE;
             	
-            	else if(o1.getValidEndDate() == null)
+            	else if(o1.getValidTo() == null)
             		return Integer.MIN_VALUE;
             	
-            	else if(o2.getValidStartDate() == null)
+            	else if(o2.getValidFrom() == null)
             		return Integer.MIN_VALUE;
             	
             	
     			/* Fix na IBMowa impelementacje TimeStampa, który próbuje rzutować
     			 * obiekt Date na Timestamp i przez to leci wyjątek. 
     			 */
-    			Date paymentDate1 = new Date(o1.getValidStartDate().getTime());
-    			Date paymentDate2 = new Date(o2.getValidStartDate().getTime());
+    			Date paymentDate1 = new Date(o1.getValidFrom().getTime());
+    			Date paymentDate2 = new Date(o2.getValidFrom().getTime());
             	
             	/* The newer the date is the position of value is higher in collection */
                 return paymentDate2.compareTo(paymentDate1);
@@ -190,8 +190,8 @@ public class DictionaryItemValuesField extends CustomField {
                 form.commit();
             }
             for (ProcessDBDictionaryItemValue val : modifiedValue) {
-                Date startDate = val.getValidStartDate() != null ? truncHours(val.getValidStartDate()) : null;
-                Date endDate = val.getValidEndDate() != null ? truncHours(val.getValidEndDate()) : null;
+                Date startDate = val.getValidFrom() != null ? truncHours(val.getValidFrom()) : null;
+                Date endDate = val.getValidTo() != null ? truncHours(val.getValidTo()) : null;
 
                 if (endDate != null && startDate != null && endDate.before(startDate)) {
                     throw new InvalidValueException(getMessage("validate.item.val.dates"));
@@ -199,8 +199,8 @@ public class DictionaryItemValuesField extends CustomField {
             }
             boolean startDateFullRange = false, endDateFullRange = false;
             for (ProcessDBDictionaryItemValue val : modifiedValue) {
-                startDateFullRange = validateSingleDate(startDateFullRange, val, val.getValidStartDate());
-                endDateFullRange = validateSingleDate(endDateFullRange, val, val.getValidEndDate());
+                startDateFullRange = validateSingleDate(startDateFullRange, val, val.getValidFrom());
+                endDateFullRange = validateSingleDate(endDateFullRange, val, val.getValidTo());
             }
         }
     }
@@ -341,7 +341,5 @@ public class DictionaryItemValuesField extends CustomField {
             }
             layout.setComponentAlignment(field, Alignment.MIDDLE_LEFT);
         }
-
-
     }
 }

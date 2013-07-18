@@ -8,11 +8,7 @@ import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
 import org.aperteworkflow.util.vaadin.TransactionProvider;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
-import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
-import pl.net.bluesoft.rnd.processtool.dict.GlobalDictionaryProvider;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionary;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolGuiCallback;
 
 import com.vaadin.data.Container.Filter;
 import com.vaadin.data.Item;
@@ -57,13 +53,10 @@ public class GlobalDictionaryModelView extends DictionaryModelView
 		super.loadData(ctx);
 		
 		languageCodes.clear();
-		
 
     	beanItemContainerLanguageCodes.removeAllItems();
- 
-        
-        GlobalDictionaryProvider gdp = ctx.getProcessDictionaryRegistry().getGlobalDictionaryProvider("db");
-        List<ProcessDBDictionary> allDictionaries = gdp.fetchAllGlobalDictionaries();
+
+		List<ProcessDBDictionary> allDictionaries = ctx.getProcessDictionaryRegistry().getDictionaryProvider("db").fetchAllDictionaries();
         
         for (ProcessDBDictionary dict : orderByDictionaryName(allDictionaries))
         {
@@ -83,14 +76,6 @@ public class GlobalDictionaryModelView extends DictionaryModelView
 		this.beanItemContainerLanguageCodes = beanItemContainerLanguageCodes;
 	}
 
-	@Override
-	public void addDictionary(ProcessDBDictionary dict) 
-	{
-		super.addDictionary(dict);
-		addLanguageCode(dict.getLanguageCode());
-		
-	}
-	
 	public void addLanguageCode(String languageCode)
 	{
 		languageCodes.add(languageCode);
@@ -133,15 +118,8 @@ public class GlobalDictionaryModelView extends DictionaryModelView
 	{
 		@Override
 		public boolean passesFilter(Object itemId, Item item) throws UnsupportedOperationException 
-		{	
-			ProcessDBDictionary dictionary = (ProcessDBDictionary)itemId;
-			if(dictionary == null)
-				return false;
-			
-			if(!dictionary.getLanguageCode().equals(selectedLocale))
-				return false;
-			
-			return true;
+		{
+			return itemId != null;
 		}
 
 		@Override
@@ -149,9 +127,5 @@ public class GlobalDictionaryModelView extends DictionaryModelView
 		{
 			return true;
 		}
-		
 	}
-
-
-	
 }

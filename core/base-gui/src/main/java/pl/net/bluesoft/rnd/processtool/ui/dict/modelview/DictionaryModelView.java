@@ -8,7 +8,6 @@ import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
 import org.aperteworkflow.util.vaadin.TransactionProvider;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
@@ -269,10 +268,8 @@ public class DictionaryModelView
 		return from(dictionaries).orderBy(new F<ProcessDBDictionary, String>() {
 			@Override
 			public String invoke(ProcessDBDictionary x) {
-				return x.getDictionaryName();
+				return x.getDefaultName();
 			}
 		}).toList();
 	}
-
-
 }

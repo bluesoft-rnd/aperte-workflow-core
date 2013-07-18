@@ -28,8 +28,7 @@ public abstract class DictionaryTab extends VerticalLayout implements ClickListe
     
     protected Button addValueButton;
 
-	
-	public DictionaryTab(DictionariesMainPane mainPanel, DictionaryModelView modelView) 
+	protected DictionaryTab(DictionariesMainPane mainPanel, DictionaryModelView modelView)
 	{
 		this.mainPanel = mainPanel;
 		this.modelView = modelView;
@@ -46,7 +45,6 @@ public abstract class DictionaryTab extends VerticalLayout implements ClickListe
 	protected void init()
 	{
 		headerLayout = new HorizontalLayout();
-	
 		
 		dictionaryItemTable = new DictionaryItemTable(getModelView().getBeanItemContainerDictionaryItems(), mainPanel.getI18NSource(), mainPanel.getVaadinApplication());
 		dictionaryItemTable.addActionRequestListener(mainPanel);
@@ -75,17 +73,11 @@ public abstract class DictionaryTab extends VerticalLayout implements ClickListe
 		
 	}
 
-    
     protected String getMessage(String key, Object ... parameters)
     {
     	return mainPanel.getMessage(key, parameters);
     }
-    
-	public void updateItem(ProcessDBDictionaryItem item) {
 
-		
-	}
-	
 	public void removeItem(ProcessDBDictionaryItem itemToRemove) 
 	{
 		getModelView().removeItem(itemToRemove);
@@ -165,8 +157,8 @@ public abstract class DictionaryTab extends VerticalLayout implements ClickListe
 			
 			ProcessDBDictionaryItemValue newValue = new ProcessDBDictionaryItemValue();
 			newValue.setItem(item);
-			newValue.setValue("");
-			item.getValues().add(newValue);
+			newValue.setDefaultValue("");
+			item.addValue(newValue);
 			
 			modelView.addDictionaryItemValue(newValue);
 		}
@@ -180,6 +172,4 @@ public abstract class DictionaryTab extends VerticalLayout implements ClickListe
 	protected void setModelView(DictionaryModelView modelView) {
 		this.modelView = modelView;
 	}
-
-
 }

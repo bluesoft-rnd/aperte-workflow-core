@@ -4,7 +4,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -12,52 +12,62 @@ import java.util.List;
 public class DictionaryEntryValue {
     @XStreamAsAttribute
     private String value;
+	@XStreamImplicit(itemFieldName = "i18n-value")
+	private List<DictionaryI18N> localizedValues;
     @XStreamAsAttribute
-    private Date validStartDate;
+    private Date validFrom;
     @XStreamAsAttribute
-    private Date validEndDate;
+    private Date validTo;
     @XStreamAsAttribute
-    private Date validSingleDate;
+    private Date validDay;
     @XStreamImplicit
     private List<DictionaryEntryExtension> extensions;
 
-    public List<DictionaryEntryExtension> getExtensions() {
-        return extensions == null ? (extensions = new ArrayList<DictionaryEntryExtension>()) : extensions;
-    }
+	public String getValue() {
+		return value;
+	}
 
-    public void setExtensions(List<DictionaryEntryExtension> extensions) {
-        this.extensions = extensions;
-    }
+	public void setValue(String value) {
+		this.value = value;
+	}
 
-    public String getValue() {
-        return value;
-    }
+	public List<DictionaryI18N> getLocalizedValues() {
+		return localizedValues != null ? localizedValues : Collections.<DictionaryI18N>emptyList();
+	}
 
-    public void setValue(String value) {
-        this.value = value;
-    }
+	public void setLocalizedValues(List<DictionaryI18N> localizedValues) {
+		this.localizedValues = localizedValues;
+	}
 
-    public Date getValidStartDate() {
-        return validStartDate;
-    }
+	public Date getValidFrom() {
+		return validFrom;
+	}
 
-    public void setValidStartDate(Date validStartDate) {
-        this.validStartDate = validStartDate;
-    }
+	public void setValidFrom(Date validFrom) {
+		this.validFrom = validFrom;
+	}
 
-    public Date getValidEndDate() {
-        return validEndDate;
-    }
+	public Date getValidTo() {
+		return validTo;
+	}
 
-    public void setValidEndDate(Date validEndDate) {
-        this.validEndDate = validEndDate;
-    }
+	public void setValidTo(Date validTo) {
+		this.validTo = validTo;
+	}
 
-    public Date getValidSingleDate() {
-        return validSingleDate;
-    }
+	public Date getValidDay() {
+		return validDay;
+	}
 
-    public void setValidSingleDate(Date validSingleDate) {
-        this.validSingleDate = validSingleDate;
-    }
+	public void setValidDay(Date validDay) {
+		this.validDay = validDay;
+	}
+
+	public List<DictionaryEntryExtension> getExtensions() {
+		return extensions != null ? extensions : Collections.<DictionaryEntryExtension>emptyList();
+	}
+
+	public void setExtensions(List<DictionaryEntryExtension> extensions) {
+		this.extensions = extensions;
+	}
 }

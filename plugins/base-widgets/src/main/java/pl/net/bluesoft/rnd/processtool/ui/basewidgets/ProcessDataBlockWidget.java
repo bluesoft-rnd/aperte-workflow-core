@@ -348,38 +348,31 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         new ComponentEvaluator<AbstractSelect>(dictContainers) {
             @Override
             public void evaluate(AbstractSelect component, WidgetElement element) throws Exception {
-            	
-                ProcessDictionary dict = nvl(element.getGlobal(), false) ?
-                        processDictionaryRegistry.getSpecificOrDefaultGlobalDictionary(element.getProvider(),
-                                element.getDict(), i18NSource.getLocale().toString()) :
-                        processDictionaryRegistry.getSpecificOrDefaultProcessDictionary(
-                                processInstance.getDefinition(), element.getProvider(),
-                                element.getDict(), i18NSource.getLocale().toString());
+                ProcessDictionary dict = processDictionaryRegistry.getDictionary(element.getDict());
 
                 if (dict != null) {
                     Date validForDate = getValidForDate(element);
                     int i = 0;
-                    for (Object o : dict.items()) {
-                        ProcessDictionaryItem item = (ProcessDictionaryItem) o;
-                        component.addItem(item.getKey());
-                        String itemKey = item.getKey().toString();
-                        ProcessDictionaryItemValue val = item.getValueForDate(validForDate);
-                        String message = getMessage((String) (val != null ? val.getValue() : item.getKey()));
-                        component.setItemCaption(item.getKey(),message);
-                        if (element instanceof AbstractSelectWidgetElement) {
+
+                    for (ProcessDictionaryItem item : dict.items()) {
+						component.addItem(item.getKey());
+
+						ProcessDictionaryItemValue val = item.getValueForDate(validForDate);
+                        String message = getMessage(val != null ? val.getValue(i18NSource.getLocale()) : item.getKey());
+
+						component.setItemCaption(item.getKey(),message);
+
+						if (element instanceof AbstractSelectWidgetElement) {
                             AbstractSelectWidgetElement select = (AbstractSelectWidgetElement) element;
+
                             if (select.getDefaultSelect() != null && i == select.getDefaultSelect()) {
                                 component.setValue(item.getKey());
                             }
-                            List<ItemElement> values = select.getValues();
-                            values.add(new ItemElement(itemKey, message));
-                            
+							select.getValues().add(new ItemElement(item.getKey(), message));
                         }
-                        
                         ++i;
                     }
                 }
-                
             }
         };
     }

@@ -16,10 +16,6 @@ public class GlobalDictEntryProvider extends PTDictEntryProvider {
 
 	@Override
 	protected ProcessDictionary getDictionary(ProcessDictionaryRegistry processDictionaryRegistry, DictEntryProviderParams params) {
-		return processDictionaryRegistry.getSpecificOrDefaultGlobalDictionary(
-				"db",
-				dictDesc.getName(),
-				params.getI18NSource().getLocale().toString()
-		);
+		return processDictionaryRegistry.getDictionary(dictDesc.getName());
 	}
 }

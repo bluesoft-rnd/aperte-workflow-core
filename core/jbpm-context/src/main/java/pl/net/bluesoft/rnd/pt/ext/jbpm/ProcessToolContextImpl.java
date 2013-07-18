@@ -11,7 +11,6 @@ import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolSessionFactory;
 import pl.net.bluesoft.rnd.processtool.bpm.exception.ProcessToolException;
 import pl.net.bluesoft.rnd.processtool.dao.*;
 import pl.net.bluesoft.rnd.processtool.dict.GlobalDictionaryProvider;
-import pl.net.bluesoft.rnd.processtool.dict.ProcessDictionaryProvider;
 import pl.net.bluesoft.rnd.processtool.dict.ProcessDictionaryRegistry;
 import pl.net.bluesoft.rnd.processtool.hibernate.HibernateBean;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
@@ -75,8 +74,7 @@ public class ProcessToolContextImpl implements ProcessToolContext {
     public ProcessDictionaryRegistry getProcessDictionaryRegistry() {
         if (processDictionaryRegistry == null) {
             processDictionaryRegistry = new ProcessDictionaryRegistry();
-            processDictionaryRegistry.addProcessDictionaryProvider("db", (ProcessDictionaryProvider) getProcessDictionaryDAO());
-            processDictionaryRegistry.addGlobalDictionaryProvider("db", (GlobalDictionaryProvider) getProcessDictionaryDAO());
+            processDictionaryRegistry.addDictionaryProvider("db", (GlobalDictionaryProvider)getProcessDictionaryDAO());
         }
         return processDictionaryRegistry;
     }

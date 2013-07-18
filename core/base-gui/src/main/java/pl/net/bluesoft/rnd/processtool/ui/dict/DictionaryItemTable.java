@@ -2,6 +2,7 @@ package pl.net.bluesoft.rnd.processtool.ui.dict;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -357,7 +358,7 @@ public class DictionaryItemTable extends GenericTable<ProcessDBDictionaryItem>
 
         @Override
         public String getItemRepresentation(ProcessDBDictionaryItemValue item) {
-            StringBuilder sb = new StringBuilder().append("<b>").append(item.getValue()).append("</b>").append("<ul>");
+            StringBuilder sb = new StringBuilder().append("<b>").append(item.getDefaultValue()).append("</b>").append("<ul>");
             
             if(item.getExtensions().isEmpty())
             {
@@ -396,14 +397,14 @@ public class DictionaryItemTable extends GenericTable<ProcessDBDictionaryItem>
         @Override
         public String getItemRepresentation(ProcessDBDictionaryItemValue item) {
             DateFormat dateFormat = VaadinUtility.simpleDateFormat();
-            StringBuilder sb = new StringBuilder().append("<b>").append(item.getValue()).append("</b>").append(" (").append("<i>");
+            StringBuilder sb = new StringBuilder().append("<b>").append(item.getDefaultValue()).append("</b>").append(" (").append("<i>");
             if (item.hasFullDatesRange()) {
                 sb.append(getMessage("dict.full.range"));
             }
             else {
-                sb.append(item.getValidStartDate() != null ? dateFormat.format(item.getValidStartDate()) : EMPTY_VALID_DATE)
+                sb.append(item.getValidFrom() != null ? dateFormat.format(item.getValidFrom()) : EMPTY_VALID_DATE)
                         .append(" - ")
-                        .append(item.getValidEndDate() != null ? dateFormat.format(item.getValidEndDate()) : EMPTY_VALID_DATE);
+                        .append(item.getValidTo() != null ? dateFormat.format(item.getValidTo()) : EMPTY_VALID_DATE);
             }
             sb.append("</i>)");
             return sb.toString();
@@ -439,28 +440,28 @@ public class DictionaryItemTable extends GenericTable<ProcessDBDictionaryItem>
                 }
                 else {
                     sb.append("<ul>");
-                    java.util.Collections.sort(values, new Comparator<ProcessDBDictionaryItemValue>() 
+                    Collections.sort(values, new Comparator<ProcessDBDictionaryItemValue>()
                     {
                         @Override
                         public int compare(ProcessDBDictionaryItemValue o1, ProcessDBDictionaryItemValue o2) 
                         {
                         	
                         	/* The null value is higher then anything else */
-                        	if(o1.getValidStartDate() == null)
+                        	if(o1.getValidFrom() == null)
                         		return Integer.MAX_VALUE;
                         	
-                        	else if(o1.getValidEndDate() == null)
+                        	else if(o1.getValidTo() == null)
                         		return Integer.MIN_VALUE;
                         	
-                        	else if(o2.getValidStartDate() == null)
+                        	else if(o2.getValidFrom() == null)
                         		return Integer.MIN_VALUE;
                         	
                         	
                 			/* Fix na IBMowa impelementacje TimeStampa, który próbuje rzutować
                 			 * obiekt Date na Timestamp i przez to leci wyjątek. 
                 			 */
-                			Date paymentDate1 = new Date(o1.getValidStartDate().getTime());
-                			Date paymentDate2 = new Date(o2.getValidStartDate().getTime());
+                			Date paymentDate1 = new Date(o1.getValidFrom().getTime());
+                			Date paymentDate2 = new Date(o2.getValidFrom().getTime());
                         	
                         	/* The newer the date is the position of value is higher in collection */
                             return paymentDate2.compareTo(paymentDate1);

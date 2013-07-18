@@ -88,8 +88,8 @@ public class DictionaryItemValidator implements Validator
         for (ProcessDBDictionaryItemValue val : itemToValidate.getValues()) 
         {
         	/* Represent bottom full range as date with min value, and upper full range as maximum date */
-        	Date itemToValidateStartDate = val.getValidStartDate() == null ? new Date(Long.MIN_VALUE) : truncHours(val.getValidStartDate());
-        	Date itemToValidateEndDate = val.getValidEndDate() == null ? new Date(Long.MAX_VALUE) : truncHours(val.getValidEndDate());
+        	Date itemToValidateStartDate = val.getValidFrom() == null ? new Date(Long.MIN_VALUE) : truncHours(val.getValidFrom());
+        	Date itemToValidateEndDate = val.getValidTo() == null ? new Date(Long.MAX_VALUE) : truncHours(val.getValidTo());
         	
         	for (ProcessDBDictionaryItemValue otherVal : itemToValidate.getValues()) 
         	{
@@ -97,8 +97,8 @@ public class DictionaryItemValidator implements Validator
         		if(otherVal == val)
         			continue;
         		
-            	Date currentValueStartDate = otherVal.getValidStartDate() == null ? new Date(Long.MIN_VALUE) : truncHours(otherVal.getValidStartDate());
-            	Date currentValueEndDate = otherVal.getValidEndDate() == null ? new Date(Long.MAX_VALUE) : truncHours(otherVal.getValidEndDate());
+            	Date currentValueStartDate = otherVal.getValidFrom() == null ? new Date(Long.MIN_VALUE) : truncHours(otherVal.getValidFrom());
+            	Date currentValueEndDate = otherVal.getValidTo() == null ? new Date(Long.MAX_VALUE) : truncHours(otherVal.getValidTo());
             	
             	/*
             	 * Let ConditionA Mean DateRange A Completely After DateRange B (True if StartA > EndB)
@@ -115,8 +115,9 @@ public class DictionaryItemValidator implements Validator
             	boolean areDatesOverlapping = DateUtil.beforeInclusive(itemToValidateStartDate, currentValueEndDate) &&
             			DateUtil.afterInclusive(itemToValidateEndDate, currentValueStartDate);
             	
-            	if(areDatesOverlapping)
-            		throw new InvalidValueException(application.getMessage("validate.item.val.overlapping.dates", "", val.getValue(), otherVal.getValue()));
+            	if(areDatesOverlapping) {
+					throw new InvalidValueException(application.getMessage("validate.item.val.overlapping.dates", "", val.getDefaultValue(), otherVal.getDefaultValue()));
+				}
         	}
  
         }
@@ -125,8 +126,8 @@ public class DictionaryItemValidator implements Validator
 	/** Check if the all item value dates are correct: end date is after start date */
 	private void validateItemValueEndDateAfterStartDate(ProcessDBDictionaryItemValue itemVaueToValidate) throws InvalidValueException
 	{
-        Date startDate = itemVaueToValidate.getValidStartDate() != null ? truncHours(itemVaueToValidate.getValidStartDate()) : null;
-        Date endDate = itemVaueToValidate.getValidEndDate() != null ? truncHours(itemVaueToValidate.getValidEndDate()) : null;
+        Date startDate = itemVaueToValidate.getValidFrom() != null ? truncHours(itemVaueToValidate.getValidFrom()) : null;
+        Date endDate = itemVaueToValidate.getValidTo() != null ? truncHours(itemVaueToValidate.getValidTo()) : null;
 
         if (endDate != null && startDate != null && endDate.before(startDate)) {
             throw new InvalidValueException(application.getMessage("validate.item.val.dates"));
@@ -136,7 +137,7 @@ public class DictionaryItemValidator implements Validator
 	/** Check if item value is not empty */
 	private void validateItemValueContent(ProcessDBDictionaryItemValue itemVaueToValidate)
 	{
-		boolean isItemValueEmpty = itemVaueToValidate.getValue() == null || itemVaueToValidate.getValue().isEmpty();
+		boolean isItemValueEmpty = itemVaueToValidate.getDefaultValue() == null || itemVaueToValidate.getDefaultValue().isEmpty();
 		
 		if(isItemValueEmpty)
 			throw new InvalidValueException(application.getMessage("validate.item.val.empty"));

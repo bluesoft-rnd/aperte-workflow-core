@@ -2,9 +2,7 @@ package pl.net.bluesoft.rnd.processtool.plugins.util;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessDictionaryDAO;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionary;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 
@@ -31,34 +29,24 @@ public class DictionaryHelpChanger
 			@Override
 			public void withContext(ProcessToolContext ctx) 
 			{
-				ProcessToolContext.Util.setThreadProcessToolContext(ctx);
-				
-				ProcessDefinitionDAO processDefinitionDao = registry.getProcessDefinitionDAO(ctx.getHibernateSession());
-				ProcessDefinitionConfig processDefinition = processDefinitionDao.getActiveConfigurationByKey(changeRequest.getProcessDeifinitionName());
-				
 				ProcessDictionaryDAO dictionaryDao = registry.getProcessDictionaryDAO(ctx.getHibernateSession());
-				
-				ProcessDBDictionary dictionary = dictionaryDao.fetchProcessDictionary(processDefinition, changeRequest.getDictionaryId(), changeRequest.getLanguageCode());
+				ProcessDBDictionary dictionary = dictionaryDao.fetchDictionary(changeRequest.getDictionaryId());
+
 				if(dictionary == null)
 				{
-					dictionary = createDictionary(processDefinition, changeRequest.getDictionaryId(), changeRequest.getLanguageCode());
+					dictionary = createDictionary(changeRequest.getDictionaryId());
 					dictionaryDao.saveOrUpdate(dictionary);
 				}
-				
-				dictionaryDao.createOrUpdateDictionaryItem(dictionary, changeRequest.getDictionaryItemKey(), changeRequest.getDictionaryItemValue());
+				dictionaryDao.createOrUpdateDictionaryItem(dictionary, changeRequest.getLanguageCode(), changeRequest.getDictionaryItemKey(), changeRequest.getDictionaryItemValue());
 			}
 			
 		});
 	}
 	
-	private ProcessDBDictionary createDictionary(ProcessDefinitionConfig processDefinition, String dictionaryId, String languageCode)
+	private ProcessDBDictionary createDictionary(String dictionaryId)
 	{
 		ProcessDBDictionary processDictionary = new ProcessDBDictionary();
-		processDictionary.setDefaultDictionary(true);
 		processDictionary.setDictionaryId(dictionaryId);
-		processDictionary.setLanguageCode(languageCode);
-		processDictionary.setProcessDefinition(processDefinition);
-		
 		return processDictionary;
 	}
 	
@@ -113,8 +101,5 @@ public class DictionaryHelpChanger
 			this.dictionaryItemValue = dictionaryItemValue;
 			return this;
 		}
-
-		
-		
 	}
 }

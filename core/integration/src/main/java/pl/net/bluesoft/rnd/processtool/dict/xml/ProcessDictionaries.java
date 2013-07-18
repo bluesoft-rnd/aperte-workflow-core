@@ -4,48 +4,28 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @XStreamAlias("process-dictionaries")
 public class ProcessDictionaries {
     @XStreamAsAttribute
-    private String processBpmDefinitionKey;
-    @XStreamAsAttribute
-    private Boolean overwrite;
-    @XStreamAsAttribute
-    private String defaultLanguage;
+    private boolean overwrite;
     @XStreamImplicit
     private List<DictionaryPermission> permissions;
     @XStreamImplicit
     protected List<Dictionary> dictionaries;
-  
-    public String getDefaultLanguage() {
-        return defaultLanguage;
-    }
 
-    public void setDefaultLanguage(String defaultLanguage) {
-        this.defaultLanguage = defaultLanguage;
-    }
-
-    public Boolean getOverwrite() {
+    public boolean isOverwrite() {
         return overwrite;
     }
 
-    public void setOverwrite(Boolean overwrite) {
+    public void setOverwrite(boolean overwrite) {
         this.overwrite = overwrite;
     }
 
-    public String getProcessBpmDefinitionKey() {
-        return processBpmDefinitionKey;
-    }
-
-    public void setProcessBpmDefinitionKey(String processBpmDefinitionKey) {
-        this.processBpmDefinitionKey = processBpmDefinitionKey;
-    }
-
     public List<Dictionary> getDictionaries() {
-        return dictionaries == null ? (dictionaries = new ArrayList<Dictionary>()) : dictionaries;
+        return dictionaries != null ? dictionaries : Collections.<Dictionary>emptyList();
     }
 
     public void setDictionaries(List<Dictionary> dictionaries) {
@@ -53,7 +33,7 @@ public class ProcessDictionaries {
     }
 
     public List<DictionaryPermission> getPermissions() {
-        return permissions == null ? (permissions = new ArrayList<DictionaryPermission>()) : permissions;
+        return permissions != null ? permissions : Collections.<DictionaryPermission>emptyList();
     }
 
     public void setPermissions(List<DictionaryPermission> permissions) {

@@ -2,17 +2,14 @@ package pl.net.bluesoft.rnd.processtool.ui.dict;
 
 import static org.aperteworkflow.util.vaadin.VaadinUtility.horizontalLayout;
 import static org.aperteworkflow.util.vaadin.VaadinUtility.validationNotification;
+import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
 
 import java.util.HashSet;
 
 import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
-import org.aperteworkflow.util.vaadin.TransactionProvider;
 import org.aperteworkflow.util.vaadin.VaadinUtility;
 import org.aperteworkflow.util.vaadin.VaadinUtility.Refreshable;
 
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
-import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionary;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItem;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemExtension;
@@ -30,7 +27,6 @@ import pl.net.bluesoft.rnd.processtool.ui.dict.validator.DictionaryItemValidator
 import pl.net.bluesoft.rnd.processtool.ui.request.IActionRequest;
 import pl.net.bluesoft.rnd.processtool.ui.request.IActionRequestListener;
 import pl.net.bluesoft.rnd.processtool.ui.request.exception.UnknownActionRequestException;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolGuiCallback;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import com.vaadin.Application;
@@ -45,7 +41,6 @@ public class DictionariesMainPane extends VerticalLayout implements Refreshable,
     private GenericVaadinPortlet2BpmApplication application;
     private I18NSource i18NSource;
 
-	private TransactionProvider transactionProvider;
 
     private TabSheet tabSheet;
 
@@ -53,10 +48,9 @@ public class DictionariesMainPane extends VerticalLayout implements Refreshable,
 
     private GlobalDictionaryTab globalTab;
 
-    public DictionariesMainPane(GenericVaadinPortlet2BpmApplication application, I18NSource i18NSource, TransactionProvider transactionProvider) {
+    public DictionariesMainPane(GenericVaadinPortlet2BpmApplication application, I18NSource i18NSource) {
         this.application = application;
         this.i18NSource = i18NSource;
-        this.transactionProvider = transactionProvider;
         setWidth("100%");
         initWidget();
         loadData();
@@ -70,7 +64,7 @@ public class DictionariesMainPane extends VerticalLayout implements Refreshable,
         titleLabel.addStyleName("h1 color processtool-title");
         titleLabel.setWidth("100%");
 
-        globalTab = new GlobalDictionaryTab(this, new GlobalDictionaryModelView(transactionProvider, application));
+        globalTab = new GlobalDictionaryTab(this, new GlobalDictionaryModelView(application));
 
         tabSheet = new TabSheet();
         tabSheet.setWidth("100%");
@@ -112,12 +106,9 @@ public class DictionariesMainPane extends VerticalLayout implements Refreshable,
                 }
             }
         }
-        getTransactionProvider().withTransaction(new ProcessToolGuiCallback() {
-            @Override
-            public void callback(ProcessToolContext ctx, ProcessToolBpmSession session) {
-                ctx.getProcessDictionaryDAO().updateDictionary(item.getDictionary());
-            }
-        });
+
+		getThreadProcessToolContext().getProcessDictionaryDAO().updateDictionary(item.getDictionary());
+
         application.getMainWindow().removeWindow(detailsWindow);
         detailsWindow = null;
         
@@ -228,10 +219,6 @@ public class DictionariesMainPane extends VerticalLayout implements Refreshable,
 		return application;
 	}
 
-    public TransactionProvider getTransactionProvider() {
-		return transactionProvider;
-	}
-    
     /**
      * Validate given dictionary item
      * 

@@ -10,7 +10,7 @@ public class DictionariesPortletApplication extends GenericVaadinPortlet2BpmAppl
 
     @Override
     protected void initializePortlet() {
-        DictionariesMainPane pane = new DictionariesMainPane(this, this, this);
+        DictionariesMainPane pane = new DictionariesMainPane(this, this);
         getMainWindow().setContent(pane);
     }
 

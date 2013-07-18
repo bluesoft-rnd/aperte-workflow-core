@@ -181,4 +181,21 @@ public class ProcessDBDictionary extends AbstractPersistentEntity implements Pro
     public String toString() {
     	return defaultName;
     }
+
+	public Set<String> getUsedLanguageCodes() {
+		Set<String> result = new HashSet<String>();
+
+		for (ProcessDBDictionaryI18N localizedName : localizedNames) {
+			result.add(localizedName.getLanguageCode());
+		}
+
+		for (ProcessDBDictionaryItem item : items.values()) {
+			for (ProcessDBDictionaryItemValue value : item.getValues()) {
+				for (ProcessDBDictionaryI18N localizedValue : value.getLocalizedValues()) {
+					result.add(localizedValue.getLanguageCode());
+				}
+			}
+		}
+		return result;
+	}
 }

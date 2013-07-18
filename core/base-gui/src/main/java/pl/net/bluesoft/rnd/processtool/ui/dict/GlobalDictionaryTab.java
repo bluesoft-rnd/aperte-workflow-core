@@ -1,8 +1,8 @@
 package pl.net.bluesoft.rnd.processtool.ui.dict;
 
+import com.vaadin.terminal.Sizeable;
 import org.aperteworkflow.util.vaadin.VaadinUtility;
 
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionary;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItem;
 import pl.net.bluesoft.rnd.processtool.ui.dict.modelview.GlobalDictionaryModelView;
@@ -47,6 +47,8 @@ public final class GlobalDictionaryTab extends DictionaryTab implements ValueCha
     	selectLocale.setImmediate(true);
     	selectLocale.setVisible(true);
     	selectLocale.setNullSelectionAllowed(false);
+		selectLocale.setNewItemsAllowed(true);
+		selectLocale.setWidth(100, Sizeable.UNITS_PIXELS);
     	
     	selectDictionary.addListener((ValueChangeListener)this);
     	selectLocale.addListener((ValueChangeListener)this);

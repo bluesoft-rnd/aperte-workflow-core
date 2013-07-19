@@ -54,7 +54,7 @@ public class QueuesController extends AbstractProcessToolServletController
 			public void withContext(ProcessToolContext ctx) 
 			{
 				long t0 = System.currentTimeMillis();
-				UserProcessQueuesSizeProvider userQueuesSizeProvider = new UserProcessQueuesSizeProvider(ctx.getRegistry(), context.getUser().getLogin(), context.getMessageSource());
+				UserProcessQueuesSizeProvider userQueuesSizeProvider = new UserProcessQueuesSizeProvider(registry, context.getUser().getLogin(), context.getMessageSource());
 				long t1 = System.currentTimeMillis();
 				Collection<UsersQueuesDTO> queues = userQueuesSizeProvider.getUserProcessQueueSize();
 				

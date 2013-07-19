@@ -1,4 +1,4 @@
-﻿<%@ page import="org.springframework.web.servlet.support.RequestContextUtils"%>
+﻿﻿<%@ page import="org.springframework.web.servlet.support.RequestContextUtils"%>
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
@@ -29,12 +29,6 @@
 
 <script type="text/javascript">
 //<![CDATA[
-
-$(document).ready(function() {
-	$('#processesTable').dataTable( {
-		"bStateSave": true
-	} );
-} );
 
 	$('#processInputTextField').keyup(function() 
 	{
@@ -69,15 +63,10 @@ $(document).ready(function() {
 	
 	function toggleColumn(columnNumber)
 	{
-		var bVis = columnVisibility(columnNumber);
+		var oTable = $('#processesTable').dataTable();
+		var bVis = oTable.fnSettings().aoColumns[columnNumber].bVisible;
 		oTable.fnSetColumnVis( columnNumber, bVis ? false : true);
 	}
-	function columnVisibility(columnNumber)
-    	{
-    		var oTable = $('#processesTable').dataTable();
-    		var bVis = oTable.fnSettings().aoColumns[columnNumber].bVisible;
-    		return bVis;
-    	}
 	
 
 	function reloadQueue(newQueueName, queueType, ownerLogin, queueDesc)

@@ -12,6 +12,7 @@ import pl.net.bluesoft.util.lang.cquery.func.F;
 import java.util.Collection;
 import java.util.List;
 
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
 
 /**
@@ -31,7 +32,7 @@ public class AbstractMainController
     /** Add user queeus to model */
     protected Collection<UserProcessQueuesSizeProvider.UsersQueuesDTO> addUserQueues(UserData user, ProcessToolContext ctx, I18NSource messageSource)
     {
-        UserProcessQueuesSizeProvider userQueuesSizeProvider = new UserProcessQueuesSizeProvider(ctx.getRegistry(), user.getLogin(), messageSource);
+        UserProcessQueuesSizeProvider userQueuesSizeProvider = new UserProcessQueuesSizeProvider(getRegistry(), user.getLogin(), messageSource);
         Collection<UserProcessQueuesSizeProvider.UsersQueuesDTO> queues = userQueuesSizeProvider.getUserProcessQueueSize();
 
         return queues;

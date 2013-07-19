@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 import static pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.EditorHelper.getLocalizedMessage;
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
@@ -60,7 +61,7 @@ public class ScriptCodeEditor extends CustomField implements FormAwareField {
             return;
         }
         try {
-            ScriptProcessorRegistry registry = ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().lookupService(
+            ScriptProcessorRegistry registry = getRegistry().lookupService(
                     ScriptProcessorRegistry.class.getName());
             Property scriptType = formProperties.get("scriptEngineType");
             if (scriptType == null || scriptType.getValue() == null || ((String) scriptType.getValue()).isEmpty())

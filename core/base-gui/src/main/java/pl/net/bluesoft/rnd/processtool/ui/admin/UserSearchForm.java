@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 import static pl.net.bluesoft.util.lang.Strings.hasText;
 
 public class UserSearchForm extends VerticalLayout {
@@ -114,7 +115,7 @@ public class UserSearchForm extends VerticalLayout {
     private void refreshUserSelect() {
         users.removeAllItems();
         ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-        ProcessToolUserService srv = ctx.getRegistry().getRegisteredService(ProcessToolUserService.class);
+        ProcessToolUserService srv = getRegistry().getRegisteredService(ProcessToolUserService.class);
 
         List<UserData> tetaUsers = srv.findUsersByCriteria(getCriteriaConfigurer(
                 (String) emailField.getValue(),

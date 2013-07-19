@@ -34,6 +34,8 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+
 /**
  * Aperte process main web controller based on Spring MVC
  * 
@@ -104,7 +106,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                 }
             }
 
-            BpmTaskBean bpmTaskBean = context.getRegistry().withProcessToolContext(new ReturningProcessToolContextCallback<BpmTaskBean>() {
+            BpmTaskBean bpmTaskBean = getRegistry().withProcessToolContext(new ReturningProcessToolContextCallback<BpmTaskBean>() {
 
                 @Override
                 public BpmTaskBean processWithContext(ProcessToolContext ctx)
@@ -194,7 +196,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 			return resultBean;
 		} 
 
-		context.getRegistry().withProcessToolContext(new ProcessToolContextCallback() 
+		getRegistry().withProcessToolContext(new ProcessToolContextCallback() 
 		{
 
 			@Override
@@ -277,7 +279,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                     simpleAttributes.put(keyValueBean.getKey(), keyValueBean.getValue());
             }
 
-            context.getRegistry().withProcessToolContext(new ProcessToolContextCallback()
+            getRegistry().withProcessToolContext(new ProcessToolContextCallback()
             {
                 @Override
                 public void withContext(ProcessToolContext ctx)
@@ -341,7 +343,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
         final DataPagingBean<BpmTaskBean> pagingCollection = new DataPagingBean<BpmTaskBean>(
                 adminAlertBeanList, 100, dataTable.getEcho());
 
-        context.getRegistry().withProcessToolContext(new ProcessToolContextCallback() {
+        getRegistry().withProcessToolContext(new ProcessToolContextCallback() {
 
             @Override
             public void withContext(ProcessToolContext ctx)
@@ -409,7 +411,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 		final DataPagingBean<BpmTaskBean> pagingCollection = new DataPagingBean<BpmTaskBean>(
 				adminAlertBeanList, 100, dataTable.getEcho());
 
-		context.getRegistry().withProcessToolContext(new ProcessToolContextCallback() {
+		getRegistry().withProcessToolContext(new ProcessToolContextCallback() {
 
 			@Override
 			public void withContext(ProcessToolContext ctx)

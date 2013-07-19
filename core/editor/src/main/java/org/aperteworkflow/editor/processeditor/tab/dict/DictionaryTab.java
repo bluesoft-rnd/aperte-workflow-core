@@ -6,6 +6,10 @@ import org.aperteworkflow.editor.vaadin.DataHandler;
 
 import java.util.Collection;
 
+/**
+ * Removed from version 3.0
+ */
+@Deprecated
 public class DictionaryTab extends VerticalLayout implements DataHandler {
 
     private ProcessConfig processConfig;

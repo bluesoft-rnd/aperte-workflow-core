@@ -31,6 +31,8 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+
 @Controller
 public class TaskViewController extends AbstractProcessToolServletController
 {
@@ -66,7 +68,7 @@ public class TaskViewController extends AbstractProcessToolServletController
 			return null;
 		}
 		
-		BpmTaskBean taskBean = context.getRegistry().withProcessToolContext(new ReturningProcessToolContextCallback<BpmTaskBean>() 
+		BpmTaskBean taskBean = getRegistry().withProcessToolContext(new ReturningProcessToolContextCallback<BpmTaskBean>()
 		{
 
 			@Override
@@ -116,7 +118,7 @@ public class TaskViewController extends AbstractProcessToolServletController
 			return;
 		}
 		
-		context.getRegistry().withProcessToolContext(new ProcessToolContextCallback() 
+		getRegistry().withProcessToolContext(new ProcessToolContextCallback()
 		{
 
 			@Override

@@ -21,6 +21,7 @@ import javax.portlet.RenderResponse;
 
 import java.util.Collection;
 
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
 
 /**
@@ -100,7 +101,7 @@ public class GenericUserPortletApplication extends GenericVaadinPortlet2BpmAppli
 
 	private Collection<GenericPortletViewRenderer> getRegisteredViews() {
 		ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-		IViewRegistry viewRegistry = ctx.getRegistry().getRegisteredService(IViewRegistry.class);
+		IViewRegistry viewRegistry = getRegistry().getRegisteredService(IViewRegistry.class);
 		return viewRegistry.getGenericPortletViews(PortletKeys.USER);
 	}
 }

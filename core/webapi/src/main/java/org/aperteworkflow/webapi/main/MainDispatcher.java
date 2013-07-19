@@ -21,6 +21,8 @@ import java.lang.reflect.Method;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+
 /**
  * Main Dispatcher for osgi plugins
  *
@@ -62,7 +64,7 @@ public class MainDispatcher extends AbstractProcessToolServletController
             return resultBean;
         }
 
-        return context.getRegistry().withProcessToolContext(new ReturningProcessToolContextCallback<Object>() {
+        return getRegistry().withProcessToolContext(new ReturningProcessToolContextCallback<Object>() {
             @Override
             public Object processWithContext(ProcessToolContext ctx)
             {

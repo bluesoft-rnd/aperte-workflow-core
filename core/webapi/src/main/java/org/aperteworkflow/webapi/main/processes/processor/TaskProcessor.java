@@ -18,6 +18,8 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import com.google.common.eventbus.EventBus;
 
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+
 /**
  * Task save processor class 
  * 
@@ -66,7 +68,7 @@ public class TaskProcessor
 		for(HtmlWidget widgetToValidate: widgets)
 		{
 			/** Get widget definition to retrive validator class */
-			ProcessHtmlWidget processWidget = ctx.getRegistry().getHtmlWidget(widgetToValidate.getWidgetName());
+			ProcessHtmlWidget processWidget = getRegistry().getHtmlWidget(widgetToValidate.getWidgetName());
 			if(processWidget == null)
 				throw new RuntimeException(messageSource.getMessage("process.widget.name.unknown", (String)widgetToValidate.getWidgetName()));
 			
@@ -83,7 +85,7 @@ public class TaskProcessor
 		for(HtmlWidget widgetToSave: widgets)
 		{
 			/** Get widget definition to retrive data handler class */
-			ProcessHtmlWidget processWidget = ctx.getRegistry().getHtmlWidget(widgetToSave.getWidgetName());
+			ProcessHtmlWidget processWidget = getRegistry().getHtmlWidget(widgetToSave.getWidgetName());
 			if(processWidget == null)
 				throw new RuntimeException(messageSource.getMessage("process.widget.name.unknown", (String)widgetToSave.getWidgetName()));
 			

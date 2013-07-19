@@ -17,6 +17,8 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.userqueues.UserProcessQueuesSizeProvider;
 import pl.net.bluesoft.rnd.processtool.userqueues.UserProcessQueuesSizeProvider.UsersQueuesDTO;
 
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+
 @Controller
 public class QueuesController extends AbstractProcessToolServletController
 {
@@ -32,13 +34,13 @@ public class QueuesController extends AbstractProcessToolServletController
 			return userQueues;
 		}
 		
-		context.getRegistry().withProcessToolContext(new ProcessToolContextCallback() 
+		getRegistry().withProcessToolContext(new ProcessToolContextCallback()
 		{
 
 			@Override
 			public void withContext(ProcessToolContext ctx) 
 			{
-				UserProcessQueuesSizeProvider userQueuesSizeProvider = new UserProcessQueuesSizeProvider(ctx.getRegistry(), context.getUser().getLogin(), context.getMessageSource());
+				UserProcessQueuesSizeProvider userQueuesSizeProvider = new UserProcessQueuesSizeProvider(getRegistry(), context.getUser().getLogin(), context.getMessageSource());
 				Collection<UsersQueuesDTO> queues = userQueuesSizeProvider.getUserProcessQueueSize();
 				
 				userQueues.addAll(queues);

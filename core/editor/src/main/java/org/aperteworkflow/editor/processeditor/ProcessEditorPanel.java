@@ -26,7 +26,7 @@ public class ProcessEditorPanel extends GridLayout implements DataHandler {
     private QueueTab queueTab;
     private ProcessPermissionTab permissionTab;
     private MessageTab messageTab;
-    private DictionaryTab dictionaryTab;
+   // private DictionaryTab dictionaryTab;
     private ProcessDefinitionTab processDefinitionTab;
 
     private Label titleLabel;
@@ -62,7 +62,7 @@ public class ProcessEditorPanel extends GridLayout implements DataHandler {
         tabSheet.addTab(permissionTab = new ProcessPermissionTab(), messages.getMessage("process.editor.process.permissions"));
         tabSheet.addTab(queueTab = new QueueTab(), messages.getMessage("process.editor.queues"));
         tabSheet.addTab(messageTab = new MessageTab(), messages.getMessage("process.editor.messages"));
-        tabSheet.addTab(dictionaryTab = new DictionaryTab(), messages.getMessage("process.editor.dictionary"));
+       // tabSheet.addTab(dictionaryTab = new DictionaryTab(), messages.getMessage("process.editor.dictionary"));
         tabSheet.addTab(otherTab = new OtherTab(), messages.getMessage("process.editor.other"));
 
         saveButton = VaadinUtility.button(messages.getMessage("process.editor.save"), new Runnable() {
@@ -107,7 +107,7 @@ public class ProcessEditorPanel extends GridLayout implements DataHandler {
         permissionTab.setProcessConfig(processConfig);
         queueTab.setProcessConfig(processConfig);
         messageTab.setProcessConfig(processConfig);
-        dictionaryTab.setProcessConfig(processConfig);
+        //dictionaryTab.setProcessConfig(processConfig);
         otherTab.setProcessConfig(processConfig);
         processDefinitionTab.setProcessConfig(processConfig);
     }

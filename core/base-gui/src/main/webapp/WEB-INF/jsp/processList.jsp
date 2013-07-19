@@ -1,11 +1,11 @@
-﻿﻿<%@ page import="org.springframework.web.servlet.support.RequestContextUtils"%>
+﻿<%@ page import="org.springframework.web.servlet.support.RequestContextUtils"%>
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
 <div class="process-panel" id="process-panel-view" hidden="true">
 	<div class="process-queue-name" id="process-queue-name-id">
-		 
+
 	</div>
 	<table id="processesTable" class="process-table table table-striped" border="1">
 		<thead>
@@ -23,16 +23,16 @@
 	</table>
 	<div id="search-process-table">
 		<input type="text" id="processInputTextField" class="input-medium" placeholder="<spring:message code='processes.search.label' />">
-	</div> 
+	</div>
 
 </div>
 
 <script type="text/javascript">
 //<![CDATA[
 
-	$('#processInputTextField').keyup(function() 
+	$('#processInputTextField').keyup(function()
 	{
-		
+
 		delay(function(){
 		  $('#processesTable').dataTable().fnFilter( $('#processInputTextField').val() );
 		}, 500 );
@@ -42,18 +42,18 @@
 	var currentQueueType = 'process';
 	var currentOwnerLogin = '${aperteUser.login}';
 	var currentQueueDesc = '<spring:message code="activity.assigned.tasks" />';
-	
+
 	function reloadCurrentQueue()
 	{
 		reloadQueue(currentQueue, currentQueueType, currentOwnerLogin, currentQueueDesc);
 	}
-	
+
 	function toggleColumnButton(columnNumber, active)
 	{
-		
+
 		var button = $("#process-table-hide-"+columnNumber);
-		
-		var changeState = !XOR(button.hasClass("active"), active); 
+
+		var changeState = !XOR(button.hasClass("active"), active);
 		if(changeState == true)
 		{
 			button.trigger('click');
@@ -61,12 +61,12 @@
 
 	}
 	
-	function toggleColumn(columnNumber)
+	function toggleColumnVisible(columnNumber,isVisible)
 	{
 		var oTable = $('#processesTable').dataTable();
-		var bVis = oTable.fnSettings().aoColumns[columnNumber].bVisible;
-		oTable.fnSetColumnVis( columnNumber, bVis ? false : true);
+		oTable.fnSetColumnVis( columnNumber,isVisible);
 	}
+	
 	
 
 	function reloadQueue(newQueueName, queueType, ownerLogin, queueDesc)
@@ -109,10 +109,12 @@
 
 		var requestUrl = '<spring:url value="/processes/loadProcessesList.json?queueName=activity.assigned.tasks&queueType=process"/>';
 		createDataTable('processesTable',requestUrl,columnDefs, [[ 5, "desc" ]]);
-	
+		selectConfigurationOptions();
 		$("#process-queue-name-id").text('<spring:message code="processes.currentqueue" />'+" "+currentQueueDesc);
 	}
 
+	
+	
 	function generateNameColumn(task)
 	{
 		
@@ -168,6 +170,7 @@
 	function createDataTable(tableId,url,columns,sortingOrder){
 		$('#'+tableId).dataTable({
 			"bLengthChange": true,
+			"bStateSave": true,
 			"bFilter": true,
 			"bProcessing": true,
 			"bServerSide": true,
@@ -205,5 +208,13 @@
 				}
 		});
 	}
+	
+	function columnVisibility(columnNumber)
+    	{
+    		var oTable2 = $('#processesTable').dataTable();
+    		var bVis2 = oTable2.fnSettings().aoColumns[columnNumber].bVisible;
+			//alert(bVis2);
+    		return bVis2;
+    	}
 //]]>
 </script>

@@ -1,6 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.ui.dict.validator;
 
 import static pl.net.bluesoft.util.lang.DateUtil.truncHours;
+import static pl.net.bluesoft.util.lang.Strings.hasText;
 
 import java.util.Date;
 
@@ -135,30 +136,31 @@ public class DictionaryItemValidator implements Validator
 	}
 	
 	/** Check if item value is not empty */
-	private void validateItemValueContent(ProcessDBDictionaryItemValue itemVaueToValidate)
+	private void validateItemValueContent(ProcessDBDictionaryItemValue itemValueToValidate)
 	{
-		boolean isItemValueEmpty = itemVaueToValidate.getDefaultValue() == null || itemVaueToValidate.getDefaultValue().isEmpty();
-		
-		if(isItemValueEmpty)
+		if (!hasText(itemValueToValidate.getDefaultValue())) {
 			throw new InvalidValueException(application.getMessage("validate.item.val.empty"));
+		}
 	}
 	
 	/** Check item value extension for empty values */
 	private void validateItemValueExtensionForEmptyValues(ProcessDBDictionaryItemExtension itemExtension)
 	{
-		boolean isExtensionNameEmpty = itemExtension.getName() == null || itemExtension.getName().isEmpty();
-
-		if(isExtensionNameEmpty)
+		if (!hasText(itemExtension.getName())) {
 			throw new InvalidValueException(application.getMessage("validate.item.ext.name.empty"));
+		}
 	}
 	
 	/** Check if the item value extension key is duplicated */
 	private void validateItemValueExtensionKeyDuplication(ProcessDBDictionaryItemValue itemVaueToValidate) throws InvalidValueException
 	{
-        for (ProcessDBDictionaryItemExtension ext : itemVaueToValidate.getExtensions()) 
-            for (ProcessDBDictionaryItemExtension otherExt : itemVaueToValidate.getExtensions()) 
-                if (ext != otherExt && ext.getName().equals(otherExt.getName())) 
-                    throw new InvalidValueException(application.getMessage("validate.item.ext.name.duplicate", "", ext.getName()));
+        for (ProcessDBDictionaryItemExtension ext : itemVaueToValidate.getExtensions()) {
+			for (ProcessDBDictionaryItemExtension otherExt : itemVaueToValidate.getExtensions()) {
+				if (ext != otherExt && ext.getName().equals(otherExt.getName())) {
+					throw new InvalidValueException(application.getMessage("validate.item.ext.name.duplicate", "", ext.getName()));
+				}
+			}
+		}
 	}
 
 	@Override
@@ -175,5 +177,4 @@ public class DictionaryItemValidator implements Validator
 		
 		return true;
 	}
-
 }

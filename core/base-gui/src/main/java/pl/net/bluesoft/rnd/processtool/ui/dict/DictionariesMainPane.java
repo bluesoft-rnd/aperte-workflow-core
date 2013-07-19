@@ -41,7 +41,6 @@ public class DictionariesMainPane extends VerticalLayout implements Refreshable,
     private GenericVaadinPortlet2BpmApplication application;
     private I18NSource i18NSource;
 
-
     private TabSheet tabSheet;
 
     private Window detailsWindow;
@@ -111,8 +110,8 @@ public class DictionariesMainPane extends VerticalLayout implements Refreshable,
 
         application.getMainWindow().removeWindow(detailsWindow);
         detailsWindow = null;
-        
-        getTabByItem(item).commitChanges();
+
+		globalTab.commitChanges();
         refreshData();
     }
 
@@ -123,8 +122,8 @@ public class DictionariesMainPane extends VerticalLayout implements Refreshable,
 		if(actionRequest instanceof DeleteDictionaryItemActionRequest)
 		{
 			DeleteDictionaryItemActionRequest deleteRequest = (DeleteDictionaryItemActionRequest)actionRequest;
-			
-			getTabByItem(deleteRequest.getItemToDelete()).removeItem(deleteRequest.getItemToDelete());
+
+			globalTab.removeItem(deleteRequest.getItemToDelete());
 		}
 		else if(actionRequest instanceof SaveNewDictionaryItemActionRequest)
 		{
@@ -152,14 +151,14 @@ public class DictionariesMainPane extends VerticalLayout implements Refreshable,
 			AddNewDictionaryItemActionRequest addNewRequest = (AddNewDictionaryItemActionRequest)actionRequest;
 			
 			/* Show edition window for new item */
-			getTabByItem(addNewRequest.getItemToShow()).editItem(addNewRequest.getItemToShow());
+			globalTab.editItem(addNewRequest.getItemToShow());
 		}
 		else if(actionRequest instanceof EditDictionaryItemActionRequest)
 		{
 			EditDictionaryItemActionRequest showRequest = (EditDictionaryItemActionRequest)actionRequest;
 			
 			/* Show edition window for item to edit */
-			getTabByItem(showRequest.getItemToShow()).editItem(showRequest.getItemToShow());
+			globalTab.editItem(showRequest.getItemToShow());
 		}
 		else if(actionRequest instanceof CancelEditionOfDictionaryItemActionRequest)
 		{
@@ -168,13 +167,13 @@ public class DictionariesMainPane extends VerticalLayout implements Refreshable,
 			/* New item creantion cancellation */
 			if(cancelRequest.getItemToRollback().getId() == null)
 			{
-				getTabByItem(cancelRequest.getItemToRollback()).dicardChanges();
-				getTabByItem(cancelRequest.getItemToRollback()).removeItem(cancelRequest.getItemToRollback());
+				globalTab.dicardChanges();
+				globalTab.removeItem(cancelRequest.getItemToRollback());
 			}
 			/* Discard current change and refresh dictionary and view */
 			else
 			{
-		        getTabByItem(cancelRequest.getItemToRollback()).dicardChanges();
+				globalTab.dicardChanges();
 			}
 		}
 		else if(actionRequest instanceof CopyDictionaryItemValueActionRequest)
@@ -182,31 +181,30 @@ public class DictionariesMainPane extends VerticalLayout implements Refreshable,
 			CopyDictionaryItemValueActionRequest request = (CopyDictionaryItemValueActionRequest)actionRequest;
 			
 			/* Make shallow copy of the item's value */
-			ProcessDBDictionaryItemValue value =  request.getItemValueToCopy();
+			ProcessDBDictionaryItemValue value =  request.getItemValueToCopy().getWrappedObject();
 			ProcessDBDictionaryItemValue shallowCopy = value.shallowCopy();
 			
 			/* Add copy to the items' values */
 			value.getItem().addValue(shallowCopy);
 			
 			/* Inform modelView about change */
-			getTabByItem(value.getItem()).getModelView().addDictionaryItemValue(shallowCopy);
+			globalTab.getModelView().addDictionaryItemValue(shallowCopy);
 		}
 		else if(actionRequest instanceof DeleteDictionaryItemValueActionRequest)
 		{
 			DeleteDictionaryItemValueActionRequest showRequest = (DeleteDictionaryItemValueActionRequest)actionRequest;
-			ProcessDBDictionaryItemValue value =  showRequest.getItemValueToDelete();
+			ProcessDBDictionaryItemValue value =  showRequest.getItemValueToDelete().getWrappedObject();
 			
 			/* Remove value from the item's collection */
 			value.getItem().removeValue(value);
 			
 			/* Inform modelView about change */
-			getTabByItem(value.getItem()).getModelView().removeItemValue(value);
+			globalTab.getModelView().removeItemValue(showRequest.getItemValueToDelete());
 		}
 		else
 		{
 			throw new UnknownActionRequestException("Unknown action request: "+actionRequest);
 		}
-		
 	}
 	
 	@Override
@@ -244,11 +242,6 @@ public class DictionariesMainPane extends VerticalLayout implements Refreshable,
 			/* Invalid value */
 			return false;
     	}
-    }
-    
-    private DictionaryTab getTabByItem(ProcessDBDictionaryItem item)
-    {
-		return globalTab;
     }
 
 	public I18NSource getI18NSource() {

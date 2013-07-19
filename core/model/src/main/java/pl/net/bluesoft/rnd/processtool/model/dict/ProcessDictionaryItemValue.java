@@ -5,8 +5,6 @@ import java.util.Date;
 import java.util.Locale;
 
 public interface ProcessDictionaryItemValue {
-	@Deprecated
-    String getDefaultValue();
 	String getValue(String languageCode);
 	String getValue(Locale locale);
     Date getValidFrom();

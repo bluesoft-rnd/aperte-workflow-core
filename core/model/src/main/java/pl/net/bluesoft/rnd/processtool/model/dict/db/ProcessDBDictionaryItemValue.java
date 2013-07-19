@@ -103,7 +103,6 @@ public class ProcessDBDictionaryItemValue extends PersistentEntity implements Pr
 		this.validTo = validTo;
 	}
 
-	@Override
 	public String getDefaultValue() {
 		return defaultValue;
 	}

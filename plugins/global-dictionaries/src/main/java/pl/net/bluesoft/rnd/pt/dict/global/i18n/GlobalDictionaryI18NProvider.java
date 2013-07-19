@@ -59,7 +59,7 @@ public class GlobalDictionaryI18NProvider implements I18NProvider {
             ProcessDictionaryItem item = dictionary.lookup(key);
             ProcessDictionaryItemValue value = item.getValueForCurrentDate();
             if (value != null) {
-                return value.getDefaultValue();
+                return value.getValue(locale);
             }
         }
         return null;

@@ -20,38 +20,24 @@ import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
  * @author mpawlak@bluesoft.net.pl
  *
  */
-public final class GlobalDictionaryModelView extends DictionaryModelView
+public class GlobalDictionaryModelView extends DictionaryModelView
 {
-	private BeanItemContainer<String> beanItemContainerLanguageCodes;
-	
-	private String selectedLocale;
-	
 	public GlobalDictionaryModelView(GenericVaadinPortlet2BpmApplication application) {
 		super(application);
 		init();
-	}
-
-	@Override
-	protected void init() 
-	{
-		super.init();
-		
-    	beanItemContainerLanguageCodes = new BeanItemContainer<String>(String.class);
 	}
 	
 	@Override
 	protected void loadData()
 	{
 		super.loadData();
-		
-    	beanItemContainerLanguageCodes.removeAllItems();
 
 		List<ProcessDBDictionary> allDictionaries = getThreadProcessToolContext().getProcessDictionaryRegistry()
 				.getDictionaryProvider("db").fetchAllDictionaries();
-        
+
         for (ProcessDBDictionary dict : orderByDictionaryName(allDictionaries))
         {
-            if (hasPermissionsForDictionary(dict)) 
+            if (hasPermissionsForDictionary(dict))
             {
             	addDictionary(dict);
 
@@ -64,31 +50,5 @@ public final class GlobalDictionaryModelView extends DictionaryModelView
 
 	private Collection<String> getAvailableLanguages(ProcessDBDictionary dict) {
 		return from(dict.getUsedLanguageCodes()).concat(getThreadI18nSource().getLocale().toString()).ordered();
-	}
-
-	public BeanItemContainer<String> getBeanItemContainerLanguageCodes() {
-		return beanItemContainerLanguageCodes;
-	}
-
-	public void addLanguageCode(String languageCode)
-	{
-		beanItemContainerLanguageCodes.addBean(languageCode);
-	}
-
-	public String getSelectedLocale() {
-		return selectedLocale;
-	}
-
-	public void setSelectedLocale(String selectedLocale) 
-	{
-		this.selectedLocale = selectedLocale;
-
-		/* There was selected Dictionary, try to find its coresponding dictionary 
-		 * in new locale
-		 */
-		if(getSelectedDictionary() != null)
-		{
-			setSelectedDictionary(getSelectedDictionary());
-		}
 	}
 }

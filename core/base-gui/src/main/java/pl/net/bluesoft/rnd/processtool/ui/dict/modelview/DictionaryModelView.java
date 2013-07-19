@@ -1,15 +1,11 @@
 package pl.net.bluesoft.rnd.processtool.ui.dict.modelview;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
 
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
-import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionary;
-import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItem;
-import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemValue;
-import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryPermission;
+import pl.net.bluesoft.rnd.processtool.model.dict.db.*;
 import pl.net.bluesoft.util.lang.Collections;
 import pl.net.bluesoft.util.lang.Predicate;
 
@@ -31,10 +27,12 @@ public class DictionaryModelView
 {
 	private GenericVaadinPortlet2BpmApplication application;
 
+	private BeanItemContainer<String> beanItemContainerLanguageCodes;
     private EnteryBeanItemContainer<ProcessDBDictionary> beanItemContainerDictionaries;
     private EnteryBeanItemContainer<ProcessDBDictionaryItem> beanItemContainerDictionaryItems;
-    private EnteryBeanItemContainer<ProcessDBDictionaryItemValue> beanItemContainerDictionaryItemsValues;
-    
+    private EnteryBeanItemContainer<ProcessDBDictionaryItemValueWrapper> beanItemContainerDictionaryItemsValues;
+
+	private String selectedLocale;
     private ProcessDBDictionary selectedDictionary;
     private ProcessDBDictionaryItem selectedDictionaryItem;
     private String selectedDictionaryItemKey;
@@ -46,9 +44,10 @@ public class DictionaryModelView
 	
 	protected void init()
 	{
+		beanItemContainerLanguageCodes = new BeanItemContainer<String>(String.class);
 		beanItemContainerDictionaries = new EnteryBeanItemContainer<ProcessDBDictionary>(ProcessDBDictionary.class);
 		beanItemContainerDictionaryItems = new EnteryBeanItemContainer<ProcessDBDictionaryItem>(ProcessDBDictionaryItem.class);
-		beanItemContainerDictionaryItemsValues = new EnteryBeanItemContainer<ProcessDBDictionaryItemValue>(ProcessDBDictionaryItemValue.class);
+		beanItemContainerDictionaryItemsValues = new EnteryBeanItemContainer<ProcessDBDictionaryItemValueWrapper>(ProcessDBDictionaryItemValueWrapper.class);
 	}
 	
 	public void reloadData()
@@ -58,6 +57,7 @@ public class DictionaryModelView
 	
 	protected void loadData()
 	{
+		beanItemContainerLanguageCodes.removeAllItems();
     	beanItemContainerDictionaries.removeAllItems();
 	}
 	
@@ -92,7 +92,6 @@ public class DictionaryModelView
 		
 		this.selectedDictionaryItem = null;
 		this.selectedDictionaryItemKey = null;
-		//beanItemContainerDictionaryItems.refresh();
 	}
 	
 	public void refreshData() 
@@ -127,7 +126,7 @@ public class DictionaryModelView
 		}
 
 		selectedDictionaryItem.addValue(newValue);
-		beanItemContainerDictionaryItemsValues.addBean(newValue);
+		beanItemContainerDictionaryItemsValues.addBean(new ProcessDBDictionaryItemValueWrapper(newValue));
 	}
 	
 	public void setSelectedDictionaryItem(ProcessDBDictionaryItem item) 
@@ -136,7 +135,12 @@ public class DictionaryModelView
     	this.selectedDictionaryItemKey = item.getKey();
     	
     	beanItemContainerDictionaryItemsValues.removeAllItems();
-    	beanItemContainerDictionaryItemsValues.addAll(item.getValues());
+    	beanItemContainerDictionaryItemsValues.addAll(from(item.getValues()).select(new F<ProcessDBDictionaryItemValue, ProcessDBDictionaryItemValueWrapper>() {
+			@Override
+			public ProcessDBDictionaryItemValueWrapper invoke(ProcessDBDictionaryItemValue x) {
+				return new ProcessDBDictionaryItemValueWrapper(x);
+			}
+		}));
 	}
 	
 	public ProcessDBDictionaryItem getSelectedDictionaryItem() {
@@ -161,7 +165,7 @@ public class DictionaryModelView
 		}
 	}
 	
-	public void removeItemValue(ProcessDBDictionaryItemValue value) 
+	public void removeItemValue(ProcessDBDictionaryItemValueWrapper value)
 	{
 		beanItemContainerDictionaryItemsValues.removeItem(value);
 	}
@@ -174,8 +178,34 @@ public class DictionaryModelView
 		return beanItemContainerDictionaryItems;
 	}
 
-	public BeanItemContainer<ProcessDBDictionaryItemValue> getBeanItemContainerDictionaryItemsValues() {
+	public BeanItemContainer<ProcessDBDictionaryItemValueWrapper> getBeanItemContainerDictionaryItemsValues() {
 		return beanItemContainerDictionaryItemsValues;
+	}
+
+	public BeanItemContainer<String> getBeanItemContainerLanguageCodes() {
+		return beanItemContainerLanguageCodes;
+	}
+
+	public void addLanguageCode(String languageCode)
+	{
+		beanItemContainerLanguageCodes.addBean(languageCode);
+	}
+
+	public String getSelectedLocale() {
+		return selectedLocale;
+	}
+
+	public void setSelectedLocale(String selectedLocale)
+	{
+		this.selectedLocale = selectedLocale;
+
+		/* There was selected Dictionary, try to find its coresponding dictionary
+		 * in new locale
+		 */
+		if(selectedDictionary != null)
+		{
+			setSelectedDictionary(selectedDictionary);
+		}
 	}
 
 	public ProcessDBDictionary getSelectedDictionary() {
@@ -226,5 +256,57 @@ public class DictionaryModelView
 				return x.getDefaultName();
 			}
 		}).toList();
+	}
+
+	public class ProcessDBDictionaryItemValueWrapper {
+		private final ProcessDBDictionaryItemValue wrappedObject;
+
+		private ProcessDBDictionaryItemValueWrapper(ProcessDBDictionaryItemValue wrappedObject) {
+			this.wrappedObject = wrappedObject;
+		}
+
+		public ProcessDBDictionaryItemValue getWrappedObject() {
+			return wrappedObject;
+		}
+
+		public String getDefaultValue() {
+			return wrappedObject.getDefaultValue();
+		}
+
+		public void setDefaultValue(String value) {
+			wrappedObject.setDefaultValue(value);
+		}
+
+		public String getValue() {
+			return wrappedObject.getValue(selectedLocale);
+		}
+
+		public void setValue(String value) {
+			wrappedObject.setValue(selectedLocale, value);
+		}
+
+		public Date getValidFrom() {
+			return wrappedObject.getValidFrom();
+		}
+
+		public void setValidFrom(Date validFrom) {
+			wrappedObject.setValidFrom(validFrom);
+		}
+
+		public Date getValidTo() {
+			return wrappedObject.getValidTo();
+		}
+
+		public void setValidTo(Date validTo) {
+			wrappedObject.setValidTo(validTo);
+		}
+
+		public Set<ProcessDBDictionaryItemExtension> getExtensions() {
+			return wrappedObject.getExtensions();
+		}
+
+		public void setExtensions(Set<ProcessDBDictionaryItemExtension> extensions) {
+			wrappedObject.setExtensions(extensions);
+		}
 	}
 }

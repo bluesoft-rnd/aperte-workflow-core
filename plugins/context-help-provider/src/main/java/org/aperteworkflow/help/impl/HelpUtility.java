@@ -73,6 +73,7 @@ public class HelpUtility {
 	private static String getMessageFromDictionary(ProcessDictionary dict, I18NSource i18NSource, String key, boolean showEditButton, boolean showDebugKey) 
 	{
 		ProcessDictionaryItem dictItem = dict.lookup(key);
+		String languageCode = i18NSource.getLocale().toString();
 		
 		StringBuilder messageBuilder = new StringBuilder();
 		
@@ -81,7 +82,7 @@ public class HelpUtility {
 		if(dictItem == null)
 			messageBuilder.append(i18NSource.getMessage("help.empty").replaceAll("\\{0\\}", key));
 		else
-			messageBuilder.append(dictItem.getValueForCurrentDate().getDefaultValue());
+			messageBuilder.append(dictItem.getValueForCurrentDate().getValue(languageCode));
 		
 		messageBuilder.append("</div>");
 		
@@ -89,8 +90,7 @@ public class HelpUtility {
 		if(showEditButton)
 		{
 			String dictionaryId = dict.getDictionaryId();
-			String languageCode = i18NSource.getLocale().toString();
-			String dictionaryItemValue = dictItem == null ? "" : dictItem.getValueForCurrentDate().getDefaultValue();
+			String dictionaryItemValue = dictItem == null ? "" : dictItem.getValueForCurrentDate().getValue(languageCode);
 			
 			String escapedValue = StringEscapeUtils.escapeHtml4(dictionaryItemValue);
 

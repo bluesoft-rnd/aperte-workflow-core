@@ -15,6 +15,7 @@ import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.rnd.processtool.usersource.IPortalUserSource;
 
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
@@ -42,20 +43,23 @@ public class MainViewController extends AbstractMainController
 
     private void processRequest(final ModelAndView modelView, final RenderRequest request)
 	{
-		IAuthorizationService authorizationService = ObjectFactory.create(IAuthorizationService.class);
-		final UserData user = authorizationService.getUserByRequest(request);
-		
-		/* No user to process, abort */
-		if(user == null)
-			return;
 
-		modelView.addObject(USER_PARAMETER_NAME, user);
 		
 		processToolRegistry.withProcessToolContext(new ProcessToolContextCallback() {
 
 			@Override
 			public void withContext(ProcessToolContext ctx) 
 			{
+                IPortalUserSource userSource = ObjectFactory.create(IPortalUserSource.class);
+                UserData user = userSource.getUserByRequest(request);
+
+		        /* No user to process, abort */
+                if(user == null)
+                    return;
+
+                modelView.addObject(USER_PARAMETER_NAME, user);
+
+
 				ProcessToolBpmSession bpmSession = (ProcessToolBpmSession)request.getAttribute(ProcessToolBpmSession.class.getName());
 				if(bpmSession == null)
 				{

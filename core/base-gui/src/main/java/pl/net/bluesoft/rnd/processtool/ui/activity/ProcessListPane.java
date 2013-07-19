@@ -1,5 +1,6 @@
 package pl.net.bluesoft.rnd.processtool.ui.activity;
 
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 import static pl.net.bluesoft.util.lang.Strings.hasText;
 
 import java.io.ByteArrayInputStream;
@@ -269,7 +270,7 @@ public abstract class ProcessListPane extends AbstractListPane {
         String itemClass = pi.getDefinition().getTaskItemClass();
         if (hasText(itemClass) && !itemClass.equals("null")) {
             try {
-                return new TaskItemProviderBase(ctx.getRegistry().makeTaskItemProvider(itemClass.trim()));
+                return new TaskItemProviderBase(getRegistry().makeTaskItemProvider(itemClass.trim()));
             }
             catch (Exception e) {
                 throw new RuntimeException(e);

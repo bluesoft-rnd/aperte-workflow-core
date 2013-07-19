@@ -26,7 +26,6 @@ public interface ProcessToolContext  extends ProcessToolBpmConstants
 	
 	ProcessDictionaryRegistry getProcessDictionaryRegistry();
 
-	ProcessToolRegistry getRegistry();
 	ProcessInstanceDAO getProcessInstanceDAO();
 	
 	UserProcessQueueDAO getUserProcessQueueDAO();
@@ -47,10 +46,6 @@ public interface ProcessToolContext  extends ProcessToolBpmConstants
 	String getSetting(IProcessToolSettings key);
 
     void setSetting(IProcessToolSettings key, String value);
-
-    String getAutowiredProperty(String key);
-
-    void setAutowiredProperty(String key, String value);
 
     long getNextValue(String processDefinitionName, String sequenceName);
     long getNextValue(ProcessInstance processInstance, String sequenceName);

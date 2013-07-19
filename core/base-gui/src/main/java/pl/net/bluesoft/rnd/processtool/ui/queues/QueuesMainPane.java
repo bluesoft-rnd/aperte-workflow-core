@@ -34,6 +34,7 @@ import java.util.logging.Logger;
 import static org.aperteworkflow.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
 import static org.aperteworkflow.util.vaadin.VaadinUtility.horizontalLayout;
 import static org.aperteworkflow.util.vaadin.VaadinUtility.refreshIcon;
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 
 public class QueuesMainPane extends VerticalLayout implements Refreshable {
 	private I18NSource i18NSource;
@@ -109,7 +110,7 @@ public class QueuesMainPane extends VerticalLayout implements Refreshable {
 					public void run() 
 					{
 						ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-						ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().withProcessToolContext(new ProcessToolContextCallback() {
+						getRegistry().withProcessToolContext(new ProcessToolContextCallback() {
 							@Override
 							public void withContext(ProcessToolContext ctx) {
 								ctx.getProcessDefinitionDAO().removeQueueConfigs(queues);
@@ -244,7 +245,7 @@ public class QueuesMainPane extends VerticalLayout implements Refreshable {
 					withErrorHandling(getApplication(), new Runnable() {
 						@Override
 						public void run() {
-							ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().withProcessToolContext(new ProcessToolContextCallback() {
+							getRegistry().withProcessToolContext(new ProcessToolContextCallback() {
 
 								@Override
 								public void withContext(ProcessToolContext ctx) {

@@ -76,11 +76,11 @@ public class ProcessConfig implements Serializable {
     public void setDescription(String description) {
         this.description = description;
     }
-
+    // TODO: Remove after tests
 	public String getDictionary() {
 		return dictionary;
 	}
-
+    // TODO: Remove after tests
 	public void setDictionary(String dictionary) {
 		this.dictionary = dictionary;
 	}

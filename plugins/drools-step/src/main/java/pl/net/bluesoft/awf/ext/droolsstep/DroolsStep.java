@@ -15,6 +15,8 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 import pl.net.bluesoft.util.lang.Strings;
 
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+
 /**
  * @author tlipski@bluesoft.net.pl
  */
@@ -31,7 +33,7 @@ public class DroolsStep implements ProcessToolProcessStep {
         ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
         DroolsUtils.DroolsResource resource;
         if (Strings.hasText(bundleResource)) {
-            InputStream ruleStream = ctx.getRegistry().loadResource(bundleResource, ruleUrl);
+            InputStream ruleStream = getRegistry().loadResource(bundleResource, ruleUrl);
             String fullRuleUrl = bundleResource.replace(".", "/") + "/" + ruleUrl;
             resource = new DroolsUtils.DroolsResource(fullRuleUrl, ruleStream);
         }

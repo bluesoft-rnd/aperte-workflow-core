@@ -30,6 +30,12 @@
 <script type="text/javascript">
 //<![CDATA[
 
+$(document).ready(function() {
+	$('#processesTable').dataTable( {
+		"bStateSave": true
+	} );
+} );
+
 	$('#processInputTextField').keyup(function() 
 	{
 		
@@ -63,10 +69,15 @@
 	
 	function toggleColumn(columnNumber)
 	{
-		var oTable = $('#processesTable').dataTable();
-		var bVis = oTable.fnSettings().aoColumns[columnNumber].bVisible;
+		var bVis = columnVisibility(columnNumber);
 		oTable.fnSetColumnVis( columnNumber, bVis ? false : true);
 	}
+	function columnVisibility(columnNumber)
+    	{
+    		var oTable = $('#processesTable').dataTable();
+    		var bVis = oTable.fnSettings().aoColumns[columnNumber].bVisible;
+    		return bVis;
+    	}
 	
 
 	function reloadQueue(newQueueName, queueType, ownerLogin, queueDesc)

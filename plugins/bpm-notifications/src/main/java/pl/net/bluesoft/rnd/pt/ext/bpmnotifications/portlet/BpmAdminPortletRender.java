@@ -4,6 +4,8 @@ import org.aperteworkflow.ui.view.GenericPortletViewRenderer;
 import org.aperteworkflow.ui.view.RenderParams;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+
 /**
  * User: POlszewski
  * Date: 2012-07-31
@@ -34,6 +36,6 @@ public class BpmAdminPortletRender implements GenericPortletViewRenderer {
 
 	@Override
 	public Object render(RenderParams params) {
-		return new BpmNotificationsAdminPanel(params.getI18NSource(), params.getContext().getRegistry());
+		return new BpmNotificationsAdminPanel(params.getI18NSource(), getRegistry());
 	}
 }

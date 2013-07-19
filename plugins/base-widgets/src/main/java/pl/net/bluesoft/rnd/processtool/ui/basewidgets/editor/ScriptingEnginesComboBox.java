@@ -7,6 +7,8 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 
 import java.util.Collection;
 
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+
 /**
  * Created by IntelliJ IDEA.
  * User: zmalinowski
@@ -18,7 +20,7 @@ public class ScriptingEnginesComboBox extends CustomComboBoxField {
 
     @Override
     protected Container getValues() {
-        ScriptProcessorRegistry registry =  ProcessToolContext.Util.getThreadProcessToolContext().getRegistry()
+        ScriptProcessorRegistry registry =  getRegistry()
                 .lookupService(
                 ScriptProcessorRegistry.class.getName());
         Collection<String> registeredProcessors = registry.getRegisteredProcessors();

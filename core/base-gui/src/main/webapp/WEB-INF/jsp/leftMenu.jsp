@@ -95,6 +95,14 @@
 	});
 
 	var oldProcessCount = -1;
+	
+	function reloadQueuesLoop()
+	{
+		console.log( "auto reload queues");
+		reloadQueuesOrdered = false;
+		reloadQueues();
+	}
+	
 	function reloadQueues()
 	{
 		var queuesJson = $.getJSON('<spring:url value="/queues/getUserQueues.json"/>', function(queues) 
@@ -142,7 +150,6 @@
 
 						if(oldProcessCount != this.queueSize)
 						{
-							console.log( "auto reload queue");
 							reloadCurrentQueue();
 							oldProcessCount = this.queueSize;
 						}
@@ -155,10 +162,21 @@
 				});
 				
 
-				var tid = setTimeout(reloadQueues, queueInterval);
+			
 
 			});
+			registerNextLoop();
 		});
+	}
+	
+	var reloadQueuesOrdered = false; 
+	function registerNextLoop()
+	{
+		if(reloadQueuesOrdered == false)
+		{
+			reloadQueuesOrdered = true;
+			setTimeout(reloadQueuesLoop, queueInterval);
+		}
 	}
 	
 	function addProcessRow(processRow, accordionID, userLogin)

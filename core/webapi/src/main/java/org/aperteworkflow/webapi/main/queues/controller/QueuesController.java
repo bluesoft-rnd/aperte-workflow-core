@@ -47,27 +47,27 @@ public class QueuesController extends AbstractProcessToolServletController
 
 		long t1 = System.currentTimeMillis();
 		
-		registry.withProcessToolContext(new ProcessToolContextCallback() 
+		/*registry.withProcessToolContext(new ProcessToolContextCallback() 
 		{
 
 			@Override
-			public void withContext(ProcessToolContext ctx) 
+			public void withContext(ProcessToolContext ctx) */
 			{
-				long t0 = System.currentTimeMillis();
-				UserProcessQueuesSizeProvider userQueuesSizeProvider = new UserProcessQueuesSizeProvider(ctx.getRegistry(), context.getUser().getLogin(), context.getMessageSource());
-				long t1 = System.currentTimeMillis();
+				//long t0 = System.currentTimeMillis();
+				UserProcessQueuesSizeProvider userQueuesSizeProvider = new UserProcessQueuesSizeProvider(registry, context.getUser().getLogin(), context.getMessageSource());
+				//long t1 = System.currentTimeMillis();
 				Collection<UsersQueuesDTO> queues = userQueuesSizeProvider.getUserProcessQueueSize();
 				
 				userQueues.addAll(queues);
-				long t2 = System.currentTimeMillis();
+				//long t2 = System.currentTimeMillis();
 
-				logger.log(Level.INFO, "getUserQueues.withContext total: " + (t2-t0) + "ms, " +
+				/*logger.log(Level.INFO, "getUserQueues.withContext total: " + (t2-t0) + "ms, " +
 						"[1]: " + (t1-t0) + "ms, " +
 						"[2]: " + (t2-t1) + "ms " 
-						);
+						);*/
 				
 			}
-		});
+		/*});*/
 
 		long t2 = System.currentTimeMillis();
 		

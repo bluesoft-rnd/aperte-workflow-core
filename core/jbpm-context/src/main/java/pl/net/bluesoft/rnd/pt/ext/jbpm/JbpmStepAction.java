@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 
 public class JbpmStepAction {
 	public String invoke(final String processInstanceId, final String stepName, final Map<String, String> params) throws Exception {
@@ -30,7 +31,7 @@ public class JbpmStepAction {
 
         ProcessInstance pi = dao.getProcessInstanceByInternalId(processInstanceId);
 
-        ProcessToolProcessStep stepInstance = ctx.getRegistry().getStep(stepName);
+        ProcessToolProcessStep stepInstance = getRegistry().getStep(stepName);
 
         if (stepInstance == null) {
             throw new IllegalArgumentException("No step defined by name: " + stepName);

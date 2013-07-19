@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
 
 @AliasName(name = "SendMailStep")
@@ -41,7 +42,7 @@ public class SendMailStep implements ProcessToolProcessStep {
     @Override
     public String invoke(BpmStep step, Map<String, String> params) throws Exception {
         ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-        IBpmNotificationService service = ctx.getRegistry().getRegisteredService(IBpmNotificationService.class);
+        IBpmNotificationService service = getRegistry().getRegisteredService(IBpmNotificationService.class);
         
         Map<String, Object> data = new HashMap<String, Object>();
         String processId = step.getProcessInstance().getExternalKey();

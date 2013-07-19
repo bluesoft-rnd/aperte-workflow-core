@@ -49,6 +49,10 @@ import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+/**
+ * Removed from version 3.0
+ */
+@Deprecated
 public class DictionaryEditor extends VerticalLayout implements TabSheet.CloseHandler, Button.ClickListener, DataHandler,
 		DictionaryItemTableBuilder.DictionaryItemModificationHandler<XmlDictionaryItemWrapper> {
 

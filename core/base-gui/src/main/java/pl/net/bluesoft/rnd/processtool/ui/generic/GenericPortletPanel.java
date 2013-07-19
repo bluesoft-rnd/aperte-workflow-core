@@ -21,6 +21,7 @@ import static org.aperteworkflow.util.vaadin.VaadinExceptionHandler.Util.withErr
 import static org.aperteworkflow.util.vaadin.VaadinUtility.horizontalLayout;
 import static org.aperteworkflow.util.vaadin.VaadinUtility.refreshIcon;
 import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
 
 /**
@@ -134,7 +135,7 @@ public abstract class GenericPortletPanel extends VerticalLayout {
 	}
 
 	protected List<GenericPortletViewRenderer> getPermittedRenderers() {
-		IViewRegistry viewRegistry = getThreadProcessToolContext().getRegistry().getRegisteredService(IViewRegistry.class);
+		IViewRegistry viewRegistry = getRegistry().getRegisteredService(IViewRegistry.class);
 		List<GenericPortletViewRenderer> permittedViews = new ArrayList<GenericPortletViewRenderer>();
 
 		for (GenericPortletViewRenderer renderer : viewRegistry.getGenericPortletViews(portletKey)) {

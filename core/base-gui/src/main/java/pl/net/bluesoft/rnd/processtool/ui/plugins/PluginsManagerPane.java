@@ -16,6 +16,8 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.aperteworkflow.util.vaadin.VaadinUtility.*;
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+
 /**
  * @author tlipski@bluesoft.net.pl
  */
@@ -43,7 +45,7 @@ public class PluginsManagerPane extends VerticalLayout {
                     public void close() throws IOException {
                         super.close();
                         final byte[] bytes = toByteArray();
-                        PluginManager pluginManager = ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().getPluginManager();
+                        PluginManager pluginManager = getRegistry().getPluginManager();
                         pluginManager.registerPlugin(filename,
                                 new ByteArrayInputStream(bytes));
                         displayBundleList();
@@ -83,7 +85,7 @@ public class PluginsManagerPane extends VerticalLayout {
 
     private void displayBundleList() {
         bundleList.removeAllComponents();
-        final PluginManager pluginManager = ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().getPluginManager();
+        final PluginManager pluginManager = getRegistry().getPluginManager();
         List<PluginMetadata> registeredPlugins = new ArrayList<PluginMetadata>(pluginManager.getRegisteredPlugins());
         Collections.sort(registeredPlugins);
 
@@ -95,7 +97,7 @@ public class PluginsManagerPane extends VerticalLayout {
                 buttonLayout.addComponent(linkButton(getLocalizedMessage("plugins.console.enable"), new Runnable() {
                     @Override
                     public void run() {
-                        ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().getPluginManager().enablePlugin(metadata);
+                        getRegistry().getPluginManager().enablePlugin(metadata);
                         String msg = getLocalizedMessage("plugins.console.enable.success");
                                                 Window.Notification n = new Window.Notification(msg);
                                                 n.setDelayMsec(-1);
@@ -108,7 +110,7 @@ public class PluginsManagerPane extends VerticalLayout {
                 buttonLayout.addComponent(linkButton(getLocalizedMessage("plugins.console.disable"), new Runnable() {
                     @Override
                     public void run() {
-                        ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().getPluginManager().disablePlugin(metadata);
+                        getRegistry().getPluginManager().disablePlugin(metadata);
                         String msg = getLocalizedMessage("plugins.console.disable.success");
                         Window.Notification n = new Window.Notification(msg);
                         n.setDelayMsec(-1);
@@ -122,7 +124,7 @@ public class PluginsManagerPane extends VerticalLayout {
                 buttonLayout.addComponent(linkButton(getLocalizedMessage("plugins.console.uninstall"), new Runnable() {
                     @Override
                     public void run() {
-                        ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().getPluginManager().uninstallPlugin(metadata);
+                        getRegistry().getPluginManager().uninstallPlugin(metadata);
                         String msg = getLocalizedMessage("plugins.console.uninstall.success");
                         Window.Notification n = new Window.Notification(msg);
                         n.setDelayMsec(-1);

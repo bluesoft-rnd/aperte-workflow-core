@@ -2,6 +2,7 @@ package pl.net.bluesoft.rnd.processtool.ui.process;
 
 import static com.vaadin.ui.Label.CONTENT_XHTML;
 import static org.aperteworkflow.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 import static pl.net.bluesoft.util.lang.Formats.nvl;
 
 import java.io.ByteArrayOutputStream;
@@ -118,7 +119,7 @@ public class ProcessMultiViewDataPane extends VerticalLayout implements WidgetCo
 
 	private void prepare() {
         HelpProviderFactory helpProviderFactory =
-                ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().lookupService(HelpProviderFactory.class.getName());
+                getRegistry().lookupService(HelpProviderFactory.class.getName());
         if (helpProviderFactory != null)
             helpFactory = helpProviderFactory.getInstance(application, task.getProcessDefinition(), true, "step_help");
 
@@ -499,7 +500,7 @@ public class ProcessMultiViewDataPane extends VerticalLayout implements WidgetCo
 	private ProcessToolActionButton makeButton(ProcessStateAction a) {
 		try {
 			ProcessToolContext ctx = getCurrentContext();
-			ProcessToolActionButton actionButton = ctx.getRegistry().makeButton(a.getButtonName());
+			ProcessToolActionButton actionButton = getRegistry().makeButton(a.getButtonName());
 			actionButton.setContext(a, bpmSession, application, i18NSource);
 			return actionButton;
 		}

@@ -13,6 +13,8 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.aperteworkflow.util.vaadin.VaadinUtility.*;
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 import static pl.net.bluesoft.util.lang.FormatUtil.formatFullDate;
 
 /**
@@ -48,7 +50,7 @@ public class ProcessDefinitionManagerPane extends VerticalLayout {
     private void displayDefinitionList() {
         definitionList.removeAllComponents();
         ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-        ProcessToolRegistry registry = ctx.getRegistry();
+        ProcessToolRegistry registry = getRegistry();
         ProcessDefinitionDAO dao = registry.getProcessDefinitionDAO(ctx.getHibernateSession());
         List<ProcessDefinitionConfig> latestConfigurations = new ArrayList(dao.getActiveConfigurations());
         Collections.sort(latestConfigurations, ProcessDefinitionConfig.DEFAULT_COMPARATOR);
@@ -62,7 +64,7 @@ public class ProcessDefinitionManagerPane extends VerticalLayout {
                         @Override
                         public void run() {
                             ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-                            final ProcessToolRegistry registry = ctx.getRegistry();
+                            final ProcessToolRegistry registry = getRegistry();
                             final ProcessDefinitionDAO dao = registry.getProcessDefinitionDAO(ctx.getHibernateSession());
                             dao.setConfigurationEnabled(cfg, !cfg.isEnabled());
                             String msg = getLocalizedMessage(!cfg.isEnabled() ? "processdefinitions.console.enable.success" : "processdefinitions.console.disable.success");
@@ -137,7 +139,7 @@ public class ProcessDefinitionManagerPane extends VerticalLayout {
 
     private VerticalLayout getHistoryPanel(ProcessDefinitionConfig cfg) {
         ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-        final ProcessToolRegistry registry = ctx.getRegistry();
+        final ProcessToolRegistry registry = getRegistry();
         final ProcessDefinitionDAO dao = registry.getProcessDefinitionDAO(ctx.getHibernateSession());
         List<ProcessDefinitionConfig> configurationVersions = new ArrayList<ProcessDefinitionConfig>(dao.getConfigurationVersions(cfg));
         Collections.sort(configurationVersions, ProcessDefinitionConfig.DEFAULT_COMPARATOR);

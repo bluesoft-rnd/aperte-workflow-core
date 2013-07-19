@@ -23,7 +23,7 @@ public class PropertyAutoWiring {
             if (awp != null) {
                 autoName = AutoWiredProperty.DEFAULT.equals(awp.name()) ? f.getName() : awp.name();
             }
-            String v = nvl(attributes.get(autoName), ctx.getAutowiredProperty("autowire." + autoName));
+            String v = attributes.get(autoName);
             if (autoName != null && v != null) {
                 try {
                 	logger.finer("Setting class " + clazz.getSimpleName() + " attribute " + autoName + " to " + v);

@@ -6,6 +6,7 @@ import pl.net.bluesoft.rnd.processtool.portlets.caches.CachesPortletRenderer;
 import pl.net.bluesoft.rnd.processtool.ui.generic.GenericAdminPortletPanel;
 
 import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 
 /**
  * User: POlszewski
@@ -28,6 +29,6 @@ public class GenericAdminPortletApplication extends GenericVaadinPortlet2BpmAppl
 	}
 
 	private IViewRegistry getViewRegistry() {
-		return getThreadProcessToolContext().getRegistry().getRegisteredService(IViewRegistry.class);
+		return getRegistry().getRegisteredService(IViewRegistry.class);
 	}
 }

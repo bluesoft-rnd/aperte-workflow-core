@@ -62,7 +62,7 @@
 		
 		this.showLoadingScreen = function()
 		{
-			this.showView('loading-screen', false);
+			this.showView('loading-screen', true);
 		}
 		
 		this.showQueueList = function()
@@ -106,6 +106,8 @@
 		
 		this.showView = function(viewName, addToHistory)
 		{
+			$(document.getElementById(this.currentView)).stop(true, true);
+			
 			if(this.tabletMode == true && $("#mobile-collapse").hasClass('in') == true)
 			{
 				console.log( "toggle hide ");

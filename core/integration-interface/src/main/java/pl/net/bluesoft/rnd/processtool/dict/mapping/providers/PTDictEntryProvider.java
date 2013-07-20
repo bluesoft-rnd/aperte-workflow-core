@@ -48,7 +48,7 @@ public abstract class PTDictEntryProvider implements DictEntryProvider {
 	
 	private ProcessDictionary dict;
 
-	public PTDictEntryProvider(PTDictDescription dictDesc) {
+	protected PTDictEntryProvider(PTDictDescription dictDesc) {
 		this.dictDesc = dictDesc;
 	}
 
@@ -66,7 +66,7 @@ public abstract class PTDictEntryProvider implements DictEntryProvider {
 	@Override
 	public Map<String, ?> getEntries(DictEntryFilter entryFilter) {
 		if (entryFilter != null) {
-			Map<String, Object> result = new HashMap();
+			Map<String, Object> result = new HashMap<String, Object>();
 			for (Map.Entry<String, ?> e : entries.entrySet()) {
 				if (entryFilter.filter(e.getValue())) {
 					result.put(e.getKey(), e.getValue());
@@ -107,7 +107,7 @@ public abstract class PTDictEntryProvider implements DictEntryProvider {
 			}
 		}
 		else {
-			entries = new HashMap();
+			entries = new HashMap<String, Object>();
 		}
 	}
 
@@ -162,7 +162,7 @@ public abstract class PTDictEntryProvider implements DictEntryProvider {
 
         for (Object item : dict.items()) {
             ProcessDictionaryItem pdItem = (ProcessDictionaryItem)item; 
-            ProcessDictionaryItemValue<String> value = date != null ? pdItem.getValueForDate(date) : pdItem.getValueForCurrentDate();
+            ProcessDictionaryItemValue value = date != null ? pdItem.getValueForDate(date) : pdItem.getValueForCurrentDate();
             
             if(value != null)
             {
@@ -171,7 +171,7 @@ public abstract class PTDictEntryProvider implements DictEntryProvider {
             }
             else
             {
-            	errorMessages.add(i18NSource.getMessage("dictionary.novaluefor", "item", pdItem.getKey().toString(), entriesDate));
+            	errorMessages.add(i18NSource.getMessage("dictionary.novaluefor", "item", pdItem.getKey(), entriesDate));
             }
         }
         return items;
@@ -182,13 +182,13 @@ public abstract class PTDictEntryProvider implements DictEntryProvider {
 
         for (Object item : dict.items()) {
             ProcessDictionaryItem pdItem = (ProcessDictionaryItem)item;
-            ProcessDictionaryItemValue<String> value = date != null ? pdItem.getValueForDate(date) : pdItem.getValueForCurrentDate();
-			items.put(getKey(pdItem), value != null ? valueOf(value.getValue()) : null);
+            ProcessDictionaryItemValue value = date != null ? pdItem.getValueForDate(date) : pdItem.getValueForCurrentDate();
+			items.put(getKey(pdItem), value != null ? valueOf(value.getValue(i18NSource.getLocale())) : null);
 		}
 		return items;
 	}
 
-	private Object mapTo(EntryInfo entryInfo, ProcessDictionaryItem pdItem, ProcessDictionaryItemValue<String> value) {
+	private Object mapTo(EntryInfo entryInfo, ProcessDictionaryItem pdItem, ProcessDictionaryItemValue value) {
 		if (value == null) {
 			return null;
 		}
@@ -220,15 +220,15 @@ public abstract class PTDictEntryProvider implements DictEntryProvider {
 		return  pdItem.getKey() != null ? valueOf(pdItem.getKey()) : null;
 	}
 
-	private Object getValue(ProcessDictionaryItemValue<String> value) {
-		return value != null ? value.getValue() : null;
+	private Object getValue(ProcessDictionaryItemValue value) {
+		return value != null ? value.getValue(i18NSource.getLocale()) : null;
 	}
 
-	private Object getExtValue(ProcessDictionaryItemValue<String> value, String name) {
+	private Object getExtValue(ProcessDictionaryItemValue value, String name) {
 		if (value == null) {
 			return null;
 		}
-		for(ProcessDictionaryItemExtension<String> ext: value.getItemExtensions())
+		for(ProcessDictionaryItemExtension ext: value.getItemExtensions())
 			if(name.equals(ext.getName()))
 				return ext.getValue();
 			
@@ -275,12 +275,12 @@ public abstract class PTDictEntryProvider implements DictEntryProvider {
 		if (dict != null) {
 			ProcessDictionaryItem pdItem = dict.lookup(key);
 			if (pdItem != null) {
-				ProcessDictionaryItemValue<String> value = date != null ? pdItem.getValueForDate(date) : pdItem.getValueForCurrentDate();
+				ProcessDictionaryItemValue value = date != null ? pdItem.getValueForDate(date) : pdItem.getValueForCurrentDate();
 				if (dictDesc.getEntryClass() != null) {				
 					return mapTo(entryInfo, pdItem, value);
 				}
 				else {
-					return value != null ? valueOf(value.getValue()) : null;
+					return value != null ? valueOf(value.getValue(i18NSource.getLocale())) : null;
 				}
 			}
 		}

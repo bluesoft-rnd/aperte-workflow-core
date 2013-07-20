@@ -22,8 +22,8 @@ import pl.net.bluesoft.util.lang.Transformer;
 
 import java.util.*;
 
-import static org.hibernate.criterion.Restrictions.eq;
-import static org.hibernate.criterion.Restrictions.in;
+import static org.hibernate.criterion.Restrictions.*;
+import static org.hibernate.criterion.Restrictions.like;
 import static pl.net.bluesoft.util.lang.DateUtil.addDays;
 import static pl.net.bluesoft.util.lang.DateUtil.truncHours;
 import static pl.net.bluesoft.util.lang.FormatUtil.formatShortDate;
@@ -488,17 +488,24 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
                                                        String assignee, String... queues) {
     	
     	 long start = System.currentTimeMillis();
-        List<Long> processIds = searchProvider.searchProcesses(filter, offset, limit, onlyRunning, userRoles, assignee, queues);
-        List<ProcessInstance> processInstancesByIds = getProcessInstancesByIds(processIds);
-        java.util.Collections.sort(processInstancesByIds, new Comparator<ProcessInstance>() {
-            @Override
-            public int compare(ProcessInstance o1, ProcessInstance o2) {
-                return o2.getId().compareTo(o1.getId());
-            }
-        });
-        
+//        List<Long> processIds = searchProvider.searchProcesses(filter, offset, limit, onlyRunning, userRoles, assignee, queues);
+//        List<ProcessInstance> processInstancesByIds = getProcessInstancesByIds(processIds);
+//        java.util.Collections.sort(processInstancesByIds, new Comparator<ProcessInstance>() {
+//            @Override
+//            public int compare(ProcessInstance o1, ProcessInstance o2) {
+//                return o2.getId().compareTo(o1.getId());
+//            }
+//        });
+//
+        List<ProcessInstance> list = (List<ProcessInstance>)session.createCriteria(ProcessInstance.class)
+                .add(or(like("externalKey", "%"+filter+"%"), like("internalId", "%"+filter+"%")))
+                .setMaxResults(limit)
+                .setFirstResult(offset)
+                .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+                .addOrder(Order.asc("createDate"))
+                .list();
         long duration = System.currentTimeMillis() - start;
 		logger.severe("searchProcesses: " +  duration);
-        return processInstancesByIds;
+        return list;
     }
 }

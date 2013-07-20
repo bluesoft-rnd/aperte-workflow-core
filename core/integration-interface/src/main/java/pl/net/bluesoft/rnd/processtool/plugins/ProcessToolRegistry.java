@@ -24,7 +24,6 @@ import pl.net.bluesoft.rnd.processtool.dao.UserDataDAO;
 import pl.net.bluesoft.rnd.processtool.dao.UserProcessQueueDAO;
 import pl.net.bluesoft.rnd.processtool.dao.UserRoleDAO;
 import pl.net.bluesoft.rnd.processtool.dao.UserSubstitutionDAO;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.web.controller.IOsgiWebController;
 import pl.net.bluesoft.rnd.processtool.web.domain.IWidgetScriptProvider;
@@ -86,8 +85,6 @@ public interface ProcessToolRegistry extends ProcessToolBpmConstants {
 
 	ProcessToolProcessStep getStep(String name);
 
-    void registerProcessDictionaries(InputStream dictionariesStream, ProcessDefinitionConfig newConfig, ProcessDefinitionConfig oldConfig);
-
     void registerGlobalDictionaries(InputStream dictionariesStream);
 
 	<T extends ProcessToolActionButton> T makeButton(String name) throws IllegalAccessException, InstantiationException;
@@ -103,8 +100,6 @@ public interface ProcessToolRegistry extends ProcessToolBpmConstants {
     <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback);
 
     <T> T withExistingOrNewContext(ReturningProcessToolContextCallback<T> callback);
-
-//	void withProcessToolContext(ProcessToolContextCallback callback);
 
     ProcessDictionaryDAO getProcessDictionaryDAO(Session hibernateSession);
 

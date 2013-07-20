@@ -13,6 +13,8 @@ import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.rnd.processtool.usersource.IPortalUserSource;
+import pl.net.bluesoft.rnd.processtool.usersource.IUserSource;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -37,21 +39,23 @@ public class MainServletViewController extends AbstractMainController
 
     private void processRequest(final ModelAndView modelView, final HttpServletRequest request)
 	{
-		IAuthorizationService authorizationService = ObjectFactory.create(IAuthorizationService.class);
-		final UserData user = authorizationService.getUserByRequest(request);
-		
-		/* No user to process, abort */
-		if(user == null)
-			return;
-
-		modelView.addObject(USER_PARAMETER_NAME, user);
 		
 		processToolRegistry.withProcessToolContext(new ProcessToolContextCallback() {
 
 			@Override
 			public void withContext(ProcessToolContext ctx) 
 			{
-				ProcessToolBpmSession bpmSession = (ProcessToolBpmSession)request.getAttribute(ProcessToolBpmSession.class.getName());
+
+                IPortalUserSource userSource = ObjectFactory.create(IPortalUserSource.class);
+                final UserData user = userSource.getUserByRequest(request);
+
+		        /* No user to process, abort */
+                if(user == null)
+                    return;
+
+                modelView.addObject(USER_PARAMETER_NAME, user);
+
+                ProcessToolBpmSession bpmSession = (ProcessToolBpmSession)request.getAttribute(ProcessToolBpmSession.class.getName());
 				if(bpmSession == null)
 				{
 					bpmSession = processToolRegistry.getProcessToolSessionFactory().createSession(user, user.getRoleNames());

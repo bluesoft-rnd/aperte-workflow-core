@@ -11,7 +11,6 @@ import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolSessionFactory;
 import pl.net.bluesoft.rnd.processtool.bpm.exception.ProcessToolException;
 import pl.net.bluesoft.rnd.processtool.dao.*;
 import pl.net.bluesoft.rnd.processtool.dict.GlobalDictionaryProvider;
-import pl.net.bluesoft.rnd.processtool.dict.ProcessDictionaryProvider;
 import pl.net.bluesoft.rnd.processtool.dict.ProcessDictionaryRegistry;
 import pl.net.bluesoft.rnd.processtool.hibernate.HibernateBean;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
@@ -28,6 +27,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+
 /**
  * Context replacement for Spring library
  *
@@ -36,10 +37,8 @@ import java.util.Map;
 public class ProcessToolContextImpl implements ProcessToolContext { 
     private Session hibernateSession;
     private ProcessDictionaryRegistry processDictionaryRegistry;
-    private ProcessToolRegistry registry;
     private IUserProcessQueueManager userProcessQueueManager;
 
-    private Map<String, String> autowiringCache;
     private Map<Class<? extends HibernateBean>, HibernateBean> daoCache = new HashMap<Class<? extends HibernateBean>, HibernateBean>();
 
     private Boolean closed = false;
@@ -47,8 +46,6 @@ public class ProcessToolContextImpl implements ProcessToolContext {
     public ProcessToolContextImpl(Session hibernateSession,
     								ProcessToolRegistry registry) {
         this.hibernateSession = hibernateSession;
-        this.registry = registry;
-        this.autowiringCache = registry.getCache(ProcessToolAutowire.class.getName());
         this.userProcessQueueManager = new UserProcessQueueManager(hibernateSession, getUserProcessQueueDAO());
     }
 
@@ -75,16 +72,9 @@ public class ProcessToolContextImpl implements ProcessToolContext {
     public ProcessDictionaryRegistry getProcessDictionaryRegistry() {
         if (processDictionaryRegistry == null) {
             processDictionaryRegistry = new ProcessDictionaryRegistry();
-            processDictionaryRegistry.addProcessDictionaryProvider("db", (ProcessDictionaryProvider) getProcessDictionaryDAO());
-            processDictionaryRegistry.addGlobalDictionaryProvider("db", (GlobalDictionaryProvider) getProcessDictionaryDAO());
+            processDictionaryRegistry.addDictionaryProvider("db", (GlobalDictionaryProvider)getProcessDictionaryDAO());
         }
         return processDictionaryRegistry;
-    }
-
-
-    @Override
-    public ProcessToolRegistry getRegistry() {
-        return registry;
     }
 
     @SuppressWarnings("unchecked")
@@ -170,12 +160,12 @@ public class ProcessToolContextImpl implements ProcessToolContext {
 
     @Override
     public ProcessToolSessionFactory getProcessToolSessionFactory() {
-        return registry.getProcessToolSessionFactory();
+        return getRegistry().getProcessToolSessionFactory();
     }
 
     @Override
     public EventBusManager getEventBusManager() {
-        return registry.getEventBusManager();
+        return getRegistry().getEventBusManager();
     }
 
     @Override
@@ -199,28 +189,6 @@ public class ProcessToolContextImpl implements ProcessToolContext {
         }
         setting.setValue(value);
         hibernateSession.saveOrUpdate(setting);
-    }
-
-    @Override
-    public String getAutowiredProperty(String key) {
-        return autowiringCache.get(key);
-    }
-
-    @Override
-    public void setAutowiredProperty(String key, String value) {
-        String cachedValue = autowiringCache.get(key);
-        if (cachedValue == null || !cachedValue.equals(value)) {
-            verifyContextOpen();
-            ProcessToolAutowire pta = (ProcessToolAutowire) hibernateSession.createCriteria(ProcessToolAutowire.class)
-                    .add(Restrictions.eq("key", key)).uniqueResult();
-            if (pta == null) {
-                pta = new ProcessToolAutowire();
-                pta.setKey(key);
-            }
-            pta.setValue(value);
-            hibernateSession.saveOrUpdate(pta);
-            autowiringCache.put(key, value);
-        }
     }
 
     @Override

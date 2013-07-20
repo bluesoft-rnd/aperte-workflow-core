@@ -1,8 +1,8 @@
 package pl.net.bluesoft.rnd.processtool.ui.dict;
 
+import com.vaadin.terminal.Sizeable;
 import org.aperteworkflow.util.vaadin.VaadinUtility;
 
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionary;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItem;
 import pl.net.bluesoft.rnd.processtool.ui.dict.modelview.GlobalDictionaryModelView;
@@ -21,7 +21,7 @@ import com.vaadin.ui.Select;
  * @author mpawlak@bluesoft.net.pl
  *
  */
-public class GlobalDictionaryTab extends DictionaryTab implements ValueChangeListener
+public final class GlobalDictionaryTab extends DictionaryTab implements ValueChangeListener
 {
 	private Select selectDictionary;
 	private Select selectLocale;
@@ -30,6 +30,7 @@ public class GlobalDictionaryTab extends DictionaryTab implements ValueChangeLis
 	
 	public GlobalDictionaryTab(DictionariesMainPane mainPanel, GlobalDictionaryModelView modelView) {
 		super(mainPanel, modelView);
+		init();
 	}
 	
 	@Override
@@ -41,12 +42,13 @@ public class GlobalDictionaryTab extends DictionaryTab implements ValueChangeLis
     	selectDictionary.setImmediate(true);
     	selectDictionary.setVisible(false);
     	selectDictionary.setNullSelectionAllowed(false);
-    	
 
     	selectLocale = new Select();
     	selectLocale.setImmediate(true);
     	selectLocale.setVisible(true);
     	selectLocale.setNullSelectionAllowed(false);
+		selectLocale.setNewItemsAllowed(true);
+		selectLocale.setWidth(100, Sizeable.UNITS_PIXELS);
     	
     	selectDictionary.addListener((ValueChangeListener)this);
     	selectLocale.addListener((ValueChangeListener)this);
@@ -68,14 +70,6 @@ public class GlobalDictionaryTab extends DictionaryTab implements ValueChangeLis
 	}
 	
 	@Override
-	protected void refreshData() 
-	{
-		super.refreshData();
-		
-
-	}
-	
-	@Override
 	protected void disableEdition() 
 	{
 		addButton.setEnabled(true);
@@ -83,10 +77,10 @@ public class GlobalDictionaryTab extends DictionaryTab implements ValueChangeLis
 		super.disableEdition();
 	}
 
-    public void loadData(ProcessToolContext ctx)
+    @Override
+	public void loadData()
     {
     	getGlobalModelView().reloadData();
-        
     }
 
     public GlobalDictionaryModelView getGlobalModelView() {

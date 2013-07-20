@@ -62,6 +62,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.vaadin.ui.Alignment.*;
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 
@@ -348,38 +349,31 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         new ComponentEvaluator<AbstractSelect>(dictContainers) {
             @Override
             public void evaluate(AbstractSelect component, WidgetElement element) throws Exception {
-            	
-                ProcessDictionary dict = nvl(element.getGlobal(), false) ?
-                        processDictionaryRegistry.getSpecificOrDefaultGlobalDictionary(element.getProvider(),
-                                element.getDict(), i18NSource.getLocale().toString()) :
-                        processDictionaryRegistry.getSpecificOrDefaultProcessDictionary(
-                                processInstance.getDefinition(), element.getProvider(),
-                                element.getDict(), i18NSource.getLocale().toString());
+                ProcessDictionary dict = processDictionaryRegistry.getDictionary(element.getDict());
 
                 if (dict != null) {
                     Date validForDate = getValidForDate(element);
                     int i = 0;
-                    for (Object o : dict.items()) {
-                        ProcessDictionaryItem item = (ProcessDictionaryItem) o;
-                        component.addItem(item.getKey());
-                        String itemKey = item.getKey().toString();
-                        ProcessDictionaryItemValue val = item.getValueForDate(validForDate);
-                        String message = getMessage((String) (val != null ? val.getValue() : item.getKey()));
-                        component.setItemCaption(item.getKey(),message);
-                        if (element instanceof AbstractSelectWidgetElement) {
+
+                    for (ProcessDictionaryItem item : dict.items()) {
+						component.addItem(item.getKey());
+
+						ProcessDictionaryItemValue val = item.getValueForDate(validForDate);
+                        String message = getMessage(val != null ? val.getValue(i18NSource.getLocale()) : item.getKey());
+
+						component.setItemCaption(item.getKey(),message);
+
+						if (element instanceof AbstractSelectWidgetElement) {
                             AbstractSelectWidgetElement select = (AbstractSelectWidgetElement) element;
+
                             if (select.getDefaultSelect() != null && i == select.getDefaultSelect()) {
                                 component.setValue(item.getKey());
                             }
-                            List<ItemElement> values = select.getValues();
-                            values.add(new ItemElement(itemKey, message));
-                            
+							select.getValues().add(new ItemElement(item.getKey(), message));
                         }
-                        
                         ++i;
                     }
                 }
-                
             }
         };
     }
@@ -534,7 +528,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
             Map<String, Object> fields = getFieldsMap(widgetsDefinitionElement.getWidgets());
             fields.put("process", processInstance);
 
-            ScriptProcessorRegistry registry = ProcessToolContext.Util.getThreadProcessToolContext().getRegistry().lookupService(
+            ScriptProcessorRegistry registry = getRegistry().lookupService(
                     ScriptProcessorRegistry.class.getName());
 //          TODO: some smart cacheing
             InputStream is = loadScriptCode();

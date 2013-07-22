@@ -25,7 +25,7 @@ import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadP
  * @author tlipski@bluesoft.net.pl
  * @author mpawlak@bluesoft.net.pl
  */
-public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory, ProcessToolBpmConstants {
+public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory {
     private static Logger logger = Logger.getLogger(ProcessToolContextFactoryImpl.class.getName());
     private ProcessToolRegistry registry;
 
@@ -85,7 +85,7 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory,
 		try 
 		{
 			Transaction tx = session.beginTransaction();
-			ProcessToolContext ctx = new ProcessToolContextImpl(session, registry);
+			ProcessToolContext ctx = new ProcessToolContextImpl(session);
 			ProcessToolContext.Util.setThreadProcessToolContext(ctx);
 			try
 			{
@@ -134,7 +134,7 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory,
 			Session session = registry.getSessionFactory().getCurrentSession();
 
 			try {
-				ProcessToolContext ctx = new ProcessToolContextImpl(session, registry);
+				ProcessToolContext ctx = new ProcessToolContextImpl(session);
 				ProcessToolContext.Util.setThreadProcessToolContext(ctx);
 				try
 				{

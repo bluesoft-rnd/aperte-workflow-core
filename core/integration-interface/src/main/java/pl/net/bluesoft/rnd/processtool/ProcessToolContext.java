@@ -1,14 +1,11 @@
 package pl.net.bluesoft.rnd.processtool;
 
 import org.hibernate.Session;
-import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolSessionFactory;
 import pl.net.bluesoft.rnd.processtool.dao.*;
 import pl.net.bluesoft.rnd.processtool.dict.ProcessDictionaryRegistry;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
-import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
-import pl.net.bluesoft.rnd.processtool.userqueues.IUserProcessQueueManager;
 import pl.net.bluesoft.util.eventbus.EventBusManager;
 
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
@@ -19,16 +16,11 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
  * @author tlipski@bluesoft.net.pl
  * @author mpawlak@bluesoft.net.pl
  */
-public interface ProcessToolContext  extends ProcessToolBpmConstants 
+public interface ProcessToolContext
 {
-	/** Get the user process queues manager */
-	IUserProcessQueueManager getUserProcessQueueManager();
-	
 	ProcessDictionaryRegistry getProcessDictionaryRegistry();
 
 	ProcessInstanceDAO getProcessInstanceDAO();
-	
-	UserProcessQueueDAO getUserProcessQueueDAO();
 
     ProcessInstanceFilterDAO getProcessInstanceFilterDAO();
 

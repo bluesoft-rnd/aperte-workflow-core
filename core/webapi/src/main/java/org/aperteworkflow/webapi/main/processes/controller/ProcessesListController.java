@@ -549,11 +549,9 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 				if(isQueue)
 				{
 					filter.addQueue(queueName);
-					filter.addQueueType(QueueType.OWN_IN_QUEUE);
 				}
 				else if("process".equals(queueType))
 				{
-			        //processFilter.setName(getMessage("activity.assigned.tasks"));
 			        filter.addOwner(owner);
 			        filter.setFilterOwner(owner);
 			        filter.addQueueType(QueueType.fromQueueId(queueName));

@@ -3,7 +3,6 @@ package pl.net.bluesoft.rnd.processtool.ui.activity;
 import java.util.Calendar;
 import java.util.List;
 
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
 import pl.net.bluesoft.rnd.processtool.model.QueueType;
@@ -34,7 +33,7 @@ public class RecentProcessesListPane extends MyProcessesListPane {
 		tfi.setFilterOwner(getBpmSession().getUser());
 //		tfi.addOwner(getBpmSession().getUser());
 		tfi.setUpdatedAfter(minDate.getTime());
-		tfi.addQueueType(QueueType.OWN_ASSIGNED);
+		tfi.addQueueType(QueueType.MY_TASKS);
 		return tfi;
 	}
 }

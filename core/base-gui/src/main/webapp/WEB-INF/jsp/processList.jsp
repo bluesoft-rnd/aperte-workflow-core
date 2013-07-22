@@ -98,7 +98,7 @@
 		}, 500 );
 	});
 
-	var currentQueue = 'activity.assigned.tasks';
+	var currentQueue = 'activity.created.assigned.tasks';
 	var currentQueueType = 'process';
 	var currentOwnerLogin = '${aperteUser.login}';
 	var currentQueueDesc = '<spring:message code="activity.assigned.tasks" />';
@@ -110,7 +110,6 @@
 	
 	function toggleColumnButton(columnNumber, active)
 	{
-		
 		var button = $("#process-table-hide-"+columnNumber);
 		
 		var changeState = !XOR(button.hasClass("active"), active); 
@@ -118,7 +117,6 @@
 		{
 			button.trigger('click');
 		}
-
 	}
 	
 	function toggleColumn(columnNumber)
@@ -173,7 +171,6 @@
 
 	function generateNameColumn(task)
 	{
-		
 	    var linkBody = '<a class="process-view-link" data-toggle="tooltip" title="'+task.tooltip+'" onclick="loadProcessView('+task.processStateConfigurationId+','+task.taskId+') ">' + task.processName + '</a>';
 
 		if(task.queueName)
@@ -185,7 +182,6 @@
 	
 	function claimTaskFromQueue(queueName, processStateConfigurationId, taskId)
 	{
-		
 		var bpmJson = $.post('<spring:url value="/task/claimTaskFromQueue"/>', 
 		{
 			"queueName": queueName,

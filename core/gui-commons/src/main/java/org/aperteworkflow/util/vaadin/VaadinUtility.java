@@ -51,17 +51,6 @@ public class VaadinUtility {
         return new SimpleDateFormat(FULL_DATE_FORMAT_STRING);
     }
 
-    public static ProcessToolContextFactory getProcessToolContext(ApplicationContext applicationContext) {
-        ProcessToolRegistry factory = null;
-        if (applicationContext instanceof PortletApplicationContext2) {
-            PortletApplicationContext2 portletCtx = (PortletApplicationContext2) applicationContext;
-            factory = (ProcessToolRegistry) portletCtx.getPortletConfig()
-                    .getPortletContext()
-                    .getAttribute(ProcessToolRegistry.class.getName());
-        }
-        return factory != null ? factory.getProcessToolContextFactory() : null;
-    }
-
     public static HorizontalLayout horizontalLayout(String width, com.vaadin.ui.Component... components) {
         HorizontalLayout hl = new HorizontalLayout();
         hl.setSpacing(true);

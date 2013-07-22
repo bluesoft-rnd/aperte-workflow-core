@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+
 public class ButtonExposureServlet extends HttpServlet {
 	public enum Format {
 		JSON, XML
@@ -26,12 +28,11 @@ public class ButtonExposureServlet extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		ProcessToolRegistry reg = (ProcessToolRegistry) getServletContext().getAttribute(ProcessToolRegistry.class.getName());
 		resp.setContentType("text/plain");
 
 		List<String> steps = new ArrayList<String>();
 
-        for (String buttonAlias : reg.getAvailableButtons().keySet()) {
+        for (String buttonAlias : getRegistry().getAvailableButtons().keySet()) {
            steps.add(buttonAlias);
         }
 

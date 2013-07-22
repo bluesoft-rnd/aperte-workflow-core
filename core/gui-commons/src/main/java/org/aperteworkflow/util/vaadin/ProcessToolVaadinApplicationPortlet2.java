@@ -13,27 +13,12 @@ import javax.portlet.PortletResponse;
 import java.io.IOException;
 import java.util.logging.Logger;
 
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+
 /**
  * @author tlipski@bluesoft.net.pl
  */
 public class ProcessToolVaadinApplicationPortlet2 extends ApplicationPortlet2WithLoadingMessage {
-
-    private static class ExceptionCarrier extends RuntimeException {
-        private Exception realException;
-
-        private ExceptionCarrier(Exception realException) {
-            this.realException = realException;
-        }
-
-        public Exception getRealException() {
-            return realException;
-        }
-
-        public void setRealException(Exception realException) {
-            this.realException = realException;
-        }
-    }
-
     private static ThreadLocal<PortletRequest> CURRENT_REQUEST = new ThreadLocal<PortletRequest>();
 
     @Override
@@ -42,34 +27,32 @@ public class ProcessToolVaadinApplicationPortlet2 extends ApplicationPortlet2Wit
         Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
         CURRENT_REQUEST.set(request);
         try {
-            ProcessToolRegistry registry = (ProcessToolRegistry) getPortletConfig().getPortletContext()
-                    .getAttribute(ProcessToolRegistry.class.getName());
-
-			if (registry == null) {
+			if (getRegistry() == null) {
 				if (getApplication() != null) {
 					getApplication().getMainWindow().addComponent(new Label(
 							"Aperte Workflow is being installed. Please refresh your page."
 					));
 				}
 				Logger.getLogger(ProcessToolVaadinApplicationPortlet2.class.getSimpleName()).severe(ProcessToolRegistry.class.getName() + " not found in servlet context");
-				//throw new ProcessToolException(ProcessToolRegistry.class.getName() + " not found in servlet context");
 				return;
             }
-            registry.withProcessToolContext(new ProcessToolContextCallback() {
-                @Override
-                public void withContext(ProcessToolContext ctx) {
-                    try {
-                        try {
-                            I18NSource.ThreadUtil.setThreadI18nSource(I18NSourceFactory.createI18NSource(request.getLocale()));
-                            ProcessToolVaadinApplicationPortlet2.super.handleRequest(request, response);
-                        } finally {
-                            I18NSource.ThreadUtil.removeThreadI18nSource();
-                        }
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    } 
-                }
-            });
+            getRegistry().withProcessToolContext(new ProcessToolContextCallback() {
+				@Override
+				public void withContext(ProcessToolContext ctx) {
+					try {
+						try {
+							I18NSource.ThreadUtil.setThreadI18nSource(I18NSourceFactory.createI18NSource(request.getLocale()));
+							ProcessToolVaadinApplicationPortlet2.super.handleRequest(request, response);
+						}
+						finally {
+							I18NSource.ThreadUtil.removeThreadI18nSource();
+						}
+					}
+					catch (Exception e) {
+						throw new RuntimeException(e);
+					}
+				}
+			});
         } finally {
             CURRENT_REQUEST.set(null);
             Thread.currentThread().setContextClassLoader(contextClassLoader);
@@ -80,8 +63,3 @@ public class ProcessToolVaadinApplicationPortlet2 extends ApplicationPortlet2Wit
         return CURRENT_REQUEST.get();
     }
 }
-
-
-/*
-
-*/

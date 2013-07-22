@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+
 public class AperteWorkflowConfigurationExposureServlet extends HttpServlet {
 	public enum Format {
 		JSON, XML
@@ -27,7 +29,7 @@ public class AperteWorkflowConfigurationExposureServlet extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		ProcessToolRegistry reg = (ProcessToolRegistry) getServletContext().getAttribute(ProcessToolRegistry.class.getName());
+		ProcessToolRegistry reg = getRegistry();
 		resp.setContentType("text/plain");
 
         Map<String,Object> res = new HashMap<String,Object>();

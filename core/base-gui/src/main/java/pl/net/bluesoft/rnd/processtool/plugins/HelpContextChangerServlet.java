@@ -17,6 +17,8 @@ import pl.net.bluesoft.rnd.processtool.plugins.util.DictionaryHelpChanger;
 
 import com.thoughtworks.xstream.XStream;
 
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+
 /**
  * Servlet with dictionary update logic. It requires active liferay session 
  * and CHANGE_HELP_TOOLTIPS role to proceed
@@ -88,9 +90,8 @@ public class HelpContextChangerServlet extends AbstractLiferayServlet
 				.setDictionaryItemValue(dictionaryItemValue);
 			
 			/* All parameters specified, proceed with dictionary item change */
-			ProcessToolRegistry registry = (ProcessToolRegistry) getServletContext().getAttribute(ProcessToolRegistry.class.getName());
-			
-			DictionaryHelpChanger helpChanger = new DictionaryHelpChanger(registry);
+
+			DictionaryHelpChanger helpChanger = new DictionaryHelpChanger(getRegistry());
 			helpChanger.changeDictionaryHelp(dictionaryChangeRequest);
 		}
 		catch(Exception ex)

@@ -31,6 +31,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.aperteworkflow.util.vaadin.VaadinUtility.styled;
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 
 public class AutoStepEditorWindow extends AbstractStepEditorWindow {
 
@@ -46,6 +47,7 @@ public class AutoStepEditorWindow extends AbstractStepEditorWindow {
 		super(application, jsonConfig, url, stepName, stepType);
 	}
 
+	@Override
 	public ComponentContainer init() {
 		I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
 
@@ -178,8 +180,7 @@ public class AutoStepEditorWindow extends AbstractStepEditorWindow {
 
 	
 	private Class<?> getStepClass(String stepType) {
-		ProcessToolRegistry reg = GenericEditorApplication.getRegistry();
-        Map<String,ProcessToolProcessStep> availableSteps = reg.getAvailableSteps();
+        Map<String,ProcessToolProcessStep> availableSteps = getRegistry().getAvailableSteps();
         for (ProcessToolProcessStep stepInstance : availableSteps.values()) {
             Class stepClass = stepInstance.getClass();
             AliasName a = Classes.getClassAnnotation(stepClass, AliasName.class);
@@ -189,5 +190,4 @@ public class AutoStepEditorWindow extends AbstractStepEditorWindow {
         }
         return null;
 	}
-	
 }

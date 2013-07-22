@@ -48,7 +48,7 @@
 	var queueInterval = '${queueInterval}';
 	$(document).ready(function()
 	{
-		loadQueue('');
+		reloadCurrentQueue();
 		moveQueueList();
 		reloadQueues();
 	});

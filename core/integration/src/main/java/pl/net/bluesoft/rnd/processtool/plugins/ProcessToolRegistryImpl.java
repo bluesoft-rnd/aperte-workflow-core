@@ -433,6 +433,22 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	}
 
 	@Override
+	public <T> T withProcessToolContextReadOnly(ReturningProcessToolContextCallback<T> callback) {
+		if (processToolContextFactory == null) {
+			throw new RuntimeException("No process tool context factory implementation registered");
+		}
+		return processToolContextFactory.withProcessToolContextReadOnly(callback);
+	}
+	
+	@Override
+	public <T> T withProcessToolContextNonJta(ReturningProcessToolContextCallback<T> callback) {
+		if (processToolContextFactory == null) {
+			throw new RuntimeException("No process tool context factory implementation registered");
+		}
+		return processToolContextFactory.withProcessToolContextNonJta(callback);
+	}
+
+	@Override
 	public <T> T withExistingOrNewContext(ReturningProcessToolContextCallback<T> callback) {
 		if (processToolContextFactory == null) {
 			throw new RuntimeException("No process tool context factory implementation registered");

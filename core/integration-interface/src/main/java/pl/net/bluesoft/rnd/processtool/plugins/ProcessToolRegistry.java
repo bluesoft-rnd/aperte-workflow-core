@@ -99,6 +99,10 @@ public interface ProcessToolRegistry extends ProcessToolBpmConstants {
 
     <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback);
 
+    <T> T withProcessToolContextReadOnly(ReturningProcessToolContextCallback<T> callback);
+    
+    <T> T withProcessToolContextNonJta(ReturningProcessToolContextCallback<T> callback);
+
     <T> T withExistingOrNewContext(ReturningProcessToolContextCallback<T> callback);
 
     ProcessDictionaryDAO getProcessDictionaryDAO(Session hibernateSession);

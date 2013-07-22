@@ -43,15 +43,20 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory,
 
     @Override
 	public <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback) {
-    	return withProcessToolContext(callback,false);
+    	return withProcessToolContext(callback,false,registry.isJta());
     }
     
     @Override
 	public <T> T withProcessToolContextReadOnly(ReturningProcessToolContextCallback<T> callback) {
-    	return withProcessToolContext(callback,true);
+    	return withProcessToolContext(callback,true,registry.isJta());
+    }
+
+    @Override
+	public <T> T withProcessToolContextNonJta(ReturningProcessToolContextCallback<T> callback) {
+    	return withProcessToolContext(callback,true,false);
     }
     
-	public <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback, boolean readOnly) {
+	public <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback, boolean readOnly, boolean jta) {
 		ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(ProcessToolRegistry.Util.getAwfClassLoader());
 
@@ -75,13 +80,13 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory,
 			}
 
 			if (readOnly) {
-				return withProcessToolContextReadOnlyNoJta(callback);
+				return executeWithProcessToolContextReadOnlyNoJta(callback);
 			} else {
-				if (registry.isJta()) {
-					return withProcessToolContextJta(callback);
+				if (jta) {
+					return executeWithProcessToolContextJta(callback);
 				}
 				else {
-					return withProcessToolContextNonJta(callback);
+					return executeWithProcessToolContextNonJta(callback);
 				}
 			}
 			
@@ -91,7 +96,7 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory,
 		}
 	}
 
-	public <T> T withProcessToolContextNonJta(ReturningProcessToolContextCallback<T> callback) 
+	private <T> T executeWithProcessToolContextNonJta(ReturningProcessToolContextCallback<T> callback) 
 	{
         T result = null;
 
@@ -130,7 +135,7 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory,
         return result;
     }
 
-    public <T> T withProcessToolContextJta(ReturningProcessToolContextCallback<T> callback) {
+    private <T> T executeWithProcessToolContextJta(ReturningProcessToolContextCallback<T> callback) {
         T result = null;
 
         try {
@@ -180,7 +185,7 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory,
         return result;
     }
 
-	public <T> T withProcessToolContextReadOnlyNoJta(ReturningProcessToolContextCallback<T> callback) {
+	private <T> T executeWithProcessToolContextReadOnlyNoJta(ReturningProcessToolContextCallback<T> callback) {
         T result = null;
 
 		Session session = registry.getSessionFactory().openSession();

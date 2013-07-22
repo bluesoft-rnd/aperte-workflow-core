@@ -1,13 +1,11 @@
 package pl.net.bluesoft.rnd.pt.ext.jbpm;
 
-import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
-import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.service.JbpmService;
 
@@ -187,7 +185,7 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory 
 		session.setDefaultReadOnly(true);
 		try 
 		{
-			ProcessToolContext ctx = new ProcessToolContextImpl(session, registry);
+			ProcessToolContext ctx = new ProcessToolContextImpl(session);
 			ProcessToolContext.Util.setThreadProcessToolContext(ctx);
 			try {
 				result = callback.processWithContext(ctx);

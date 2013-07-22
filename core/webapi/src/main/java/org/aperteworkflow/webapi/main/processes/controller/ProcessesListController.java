@@ -22,8 +22,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
+import pl.net.bluesoft.rnd.processtool.bpm.StartProcessResult;
 import pl.net.bluesoft.rnd.processtool.model.*;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.web.domain.DataPagingBean;
 import pl.net.bluesoft.rnd.processtool.web.domain.ErrorResultBean;
@@ -117,7 +117,6 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 			long t1 = System.currentTimeMillis();
 
             BpmTaskBean bpmTaskBean = registry.withProcessToolContext(new ReturningProcessToolContextCallback<BpmTaskBean>() {
-
                 @Override
                 public BpmTaskBean processWithContext(ProcessToolContext ctx)
                 {
@@ -126,26 +125,20 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
             			logger.log(Level.INFO, "performAction.withContext ... " );
             					
             			long t0 = System.currentTimeMillis();
-                        BpmTask currentTask = context.getBpmSession().getTaskData(taskId);
-            			
                         long t1 = System.currentTimeMillis();
-
-            			ProcessStateAction actionToPerform = currentTask.getCurrentProcessStateConfiguration().getProcessStateActionByName(actionName);
-            			
             			long t2 = System.currentTimeMillis();
 
-                        BpmTask newTask = context.getBpmSession().performAction(actionToPerform, currentTask);
+                        List<BpmTask> newTasks = context.getBpmSession().performAction(actionName, taskId);
 
             			long t3 = System.currentTimeMillis();
                         
-                        /* Process fished, return null task */
-                        if(newTask.isFinished()) {
-                			logger.log(Level.INFO, "performAction.withContext newTask.isFinished(): " + newTask.isFinished() );
+                        /* Task finished or no tasks created (ie waiting for timer) */
+                        if (newTasks == null || newTasks.isEmpty()) {
                             return null;
                         }
 
                         I18NSource messageSource = I18NSourceFactory.createI18NSource(request.getLocale());
-                        BpmTaskBean processBean = BpmTaskBean.createFrom(newTask, messageSource);
+                        BpmTaskBean processBean = BpmTaskBean.createFrom(newTasks.get(0), messageSource);
 
             			long t4 = System.currentTimeMillis();
 
@@ -360,7 +353,8 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                 {
                 	long t0 = System.currentTimeMillis();
 
-                    ProcessInstance instance = context.getBpmSession().startProcess(bpmDefinitionId, null, null, null, "portlet");
+					StartProcessResult result = context.getBpmSession().startProcess(bpmDefinitionId, null, "portlet");
+					ProcessInstance instance = result.getProcessInstance();
 
                     long t1 = System.currentTimeMillis();
                     for(String key: simpleAttributes.keySet())
@@ -371,16 +365,15 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                             instance.setSimpleAttribute(key, simpleAttributes.get(key));
                     }
 
-
                     long t2 = System.currentTimeMillis();
-                    List<BpmTask> tasks = context.getBpmSession().findUserTasks(instance);
+                    List<BpmTask> tasks = result.getTasksAssignedToCreator();
+
                     if (!tasks.isEmpty())
                     {
                         BpmTask task = tasks.get(0);
 
                         newProcessInstanceBO.setTaskId(task.getInternalTaskId());
                         newProcessInstanceBO.setProcessStateConfigurationId(task.getCurrentProcessStateConfiguration().getId().toString());
-
                     }
                     
             		long t3 = System.currentTimeMillis();

@@ -61,8 +61,6 @@ public class TaskTableItem {
                 internalId,
                 externalId,
                 definitionName,
-                processInstance.getDescription(),
-                processInstance.getKeyword(),
                 stateConfiguration != null ? stateConfiguration.getCommentary() : null
         };
         for (String f : fields) {

@@ -31,20 +31,20 @@ public class ProcessToolBpmSessionHelper {
 		}); 		
 	}
 
-	public static ProcessInstance startProcess(final ProcessToolBpmSession session, ProcessToolContext ctx, final String bpmDefinitionId,
-										final String externalKey, final String description, final String keyword, final String source) {
-		return withContext(ctx, new ReturningProcessToolContextCallback<ProcessInstance>() {
+	public static StartProcessResult startProcess(final ProcessToolBpmSession session, ProcessToolContext ctx, final String bpmDefinitionId,
+										final String externalKey, final String source) {
+		return withContext(ctx, new ReturningProcessToolContextCallback<StartProcessResult>() {
 			@Override
-			public ProcessInstance processWithContext(ProcessToolContext ctx) {
-				return session.startProcess(bpmDefinitionId, externalKey, description, keyword, source);
+			public StartProcessResult processWithContext(ProcessToolContext ctx) {
+				return session.startProcess(bpmDefinitionId, externalKey, source);
 			}
 		});
 	}
 
-	public static BpmTask performAction(final ProcessToolBpmSession session, ProcessToolContext ctx, final ProcessStateAction action, final BpmTask bpmTask) {
-		return withContext(ctx, new ReturningProcessToolContextCallback<BpmTask>() {
+	public static List<BpmTask> performAction(final ProcessToolBpmSession session, ProcessToolContext ctx, final ProcessStateAction action, final BpmTask bpmTask) {
+		return withContext(ctx, new ReturningProcessToolContextCallback<List<BpmTask>>() {
 			@Override
-			public BpmTask processWithContext(ProcessToolContext ctx) {
+			public List<BpmTask> processWithContext(ProcessToolContext ctx) {
 				return session.performAction(action, bpmTask);
 			}
 		});

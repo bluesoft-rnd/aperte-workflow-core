@@ -1,5 +1,6 @@
 package pl.net.bluesoft.rnd.pt.ext.jbpm;
 
+import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -41,8 +42,16 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory 
     }
 
     @Override
-	public <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback) 
-    {
+	public <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback) {
+    	return withProcessToolContext(callback,false);
+    }
+    
+    @Override
+	public <T> T withProcessToolContextReadOnly(ReturningProcessToolContextCallback<T> callback) {
+    	return withProcessToolContext(callback,true);
+    }
+    
+	public <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback, boolean readOnly) {
 		ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(ProcessToolRegistry.Util.getAwfClassLoader());
 
@@ -65,12 +74,17 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory 
 				ProcessToolContext.Util.removeThreadProcessToolContext();
 			}
 
-			if (registry.isJta()) {
-				return withProcessToolContextJta(callback);
+			if (readOnly) {
+				return withProcessToolContextReadOnlyNoJta(callback);
+			} else {
+				if (registry.isJta()) {
+					return withProcessToolContextJta(callback);
+				}
+				else {
+					return withProcessToolContextNonJta(callback);
+				}
 			}
-			else {
-				return withProcessToolContextNonJta(callback);
-			}
+			
 		}
 		finally {
 			Thread.currentThread().setContextClassLoader(contextClassLoader);
@@ -159,13 +173,36 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory 
 			} finally {
                 if (session.isOpen()) session.flush();
             }
-            ut.commit();
+            if (ut.getStatus() == Status.STATUS_ACTIVE) ut.commit();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
         return result;
     }
 
+	public <T> T withProcessToolContextReadOnlyNoJta(ReturningProcessToolContextCallback<T> callback) {
+        T result = null;
+
+		Session session = registry.getSessionFactory().openSession();
+		session.setDefaultReadOnly(true);
+		try 
+		{
+			ProcessToolContext ctx = new ProcessToolContextImpl(session, registry);
+			ProcessToolContext.Util.setThreadProcessToolContext(ctx);
+			try {
+				result = callback.processWithContext(ctx);
+			} catch (RuntimeException e) {
+				logger.log(Level.SEVERE, e.getMessage(), e);
+			} finally {
+				ctx.close();
+				ProcessToolContext.Util.removeThreadProcessToolContext();
+			}
+		} finally  {
+			if (session.isOpen()) session.close();
+		}
+        return result;
+    }
+    
 	private UserTransaction getUserTransaction() throws NamingException {
 		UserTransaction ut;
 		try {

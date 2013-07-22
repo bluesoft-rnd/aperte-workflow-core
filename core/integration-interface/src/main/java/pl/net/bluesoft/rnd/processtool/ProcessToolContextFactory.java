@@ -12,6 +12,7 @@ import java.io.InputStream;
  */
 public interface ProcessToolContextFactory {
     <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback);
+    <T> T withProcessToolContextReadOnly(ReturningProcessToolContextCallback<T> callback);
     <T> T withExistingOrNewContext(ReturningProcessToolContextCallback<T> callback);
 
 	ProcessToolRegistry getRegistry();

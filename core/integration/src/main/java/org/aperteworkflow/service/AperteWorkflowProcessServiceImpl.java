@@ -58,7 +58,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
             @Override
             public ProcessInstance processWithContext(ProcessToolContext ctx) {
                 return fetchHibernateData(getSession(user)
-                        .startProcess(config.getBpmDefinitionKey(), externalKey, description, keyword, source));
+                        .startProcess(config.getBpmDefinitionKey(), externalKey, description, keyword, source)).getProcessInstance();
             }
         });
     }
@@ -81,7 +81,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
             @Override
             public ProcessInstance processWithContext(ProcessToolContext ctx) {            	
                 return fetchHibernateData(getSession(user)
-                        .startProcess(bpmnkey, null, null, null, PROCESS_INSTANCE_SOURCE));
+                        .startProcess(bpmnkey, null, null, null, PROCESS_INSTANCE_SOURCE)).getProcessInstance();
             }
         });
     }
@@ -364,16 +364,13 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 		}
 		BpmTaskBean[] bpmnTable = {task};
 		processData.setActiveTasks(bpmnTable);
-		  BpmTaskBean withContextBpmnTask = withContext(new ReturningProcessToolContextCallback<BpmTaskBean>() {
-	            @Override
-	            public BpmTaskBean processWithContext(ProcessToolContext ctx) {
-	                getSession(user).performAction(action, task);
-	                return null;
-	            }
-	        });
-		
-		  
-            
+		withContext(new ReturningProcessToolContextCallback<BpmTaskBean>() {
+			@Override
+			public BpmTaskBean processWithContext(ProcessToolContext ctx) {
+				getSession(user).performAction(action, task);
+				return null;
+			}
+		});
     }
 	
 	

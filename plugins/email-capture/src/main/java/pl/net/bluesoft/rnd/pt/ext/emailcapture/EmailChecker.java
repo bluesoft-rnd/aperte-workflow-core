@@ -201,7 +201,7 @@ public class EmailChecker {
 						rule.getProcessCode(),
                         null,
                         subject,
-                        preparedSubject, "email");
+                        preparedSubject, "email").getProcessInstance();
                 //save initial email data
                 existingPi.addAttribute(new ProcessInstanceSimpleAttribute("email_from", sender));
                 existingPi.addAttribute(new ProcessInstanceSimpleAttribute("email_subject", msg.getSubject()));

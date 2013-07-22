@@ -25,6 +25,7 @@ import com.vaadin.ui.themes.ChameleonTheme;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
+import pl.net.bluesoft.rnd.processtool.bpm.StartProcessResult;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
@@ -252,12 +253,13 @@ public class NewProcessExtendedPane extends VerticalLayout implements Refreshabl
 		withErrorHandling(getApplication(), new Runnable() {
 			@Override
 			public void run() {
-				ProcessInstance instance = session.startProcess(bpmDefinitionId, null, null, null, "portlet");
+				StartProcessResult result = session.startProcess(bpmDefinitionId, null, null, null, "portlet");
+				ProcessInstance instance = result.getProcessInstance();
 				VaadinUtility.informationNotification(activityMainPane.getActivityApplication(), getMessage("newProcess.started"), 1000);
 				getWindow().executeJavaScript("Liferay.trigger('processtool.bpm.newProcess', '" + instance.getInternalId() + "');");
 				getWindow().executeJavaScript("vaadin.forceSync();");
 
-				List<BpmTask> tasks = session.findUserTasks(instance);
+				List<BpmTask> tasks = result.getTasksAssignedToCreator();
 				if (!tasks.isEmpty()) {
 					BpmTask task = tasks.get(0);
 					if (activityMainPane != null) {

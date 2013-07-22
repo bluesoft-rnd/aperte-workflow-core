@@ -10,6 +10,7 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
+import pl.net.bluesoft.rnd.processtool.bpm.StartProcessResult;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
 import pl.net.bluesoft.rnd.processtool.di.ClassDependencyManager;
 import pl.net.bluesoft.rnd.processtool.model.*;
@@ -623,7 +624,8 @@ public class SessionTest extends TestCase {
 
 		String descr = "descr";
 		String keyword = "kw";
-		ProcessInstance processInstance = session.startProcess(bpmDefinitionKey, externalKey, descr, keyword, "test");
+		StartProcessResult result = session.startProcess(bpmDefinitionKey, externalKey, descr, keyword, "test");
+		ProcessInstance processInstance = result.getProcessInstance();
 
 		assertNotNull(processInstance);
 		assertNotNull(processInstance.getDefinition());

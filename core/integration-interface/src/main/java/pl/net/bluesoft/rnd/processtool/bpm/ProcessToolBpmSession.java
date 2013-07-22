@@ -24,7 +24,7 @@ import java.util.Set;
  * @author amichalak@bluesoft.net.pl
  * @author mpawlak@bluesoft.net.pl
  */
-public interface ProcessToolBpmSession extends ProcessToolBpmConstants {
+public interface ProcessToolBpmSession {
     ProcessToolBpmSession createSession(UserData user, Collection<String> roleNames);
 
 	StartProcessResult startProcess(String bpmDefinitionId, String externalKey, String source);

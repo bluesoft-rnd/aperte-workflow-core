@@ -366,6 +366,30 @@
 		margin-bottom: 10px;
 		color: rgb(52, 58, 129);
 	}
+	
+	.td-hack {
+		display: block;
+		height: 50px;
+		width: 100%;
+		display: table;
+	}
+	
+	.td-hacks-buttons
+	{
+		width: 100%;
+		position: absolute;
+	}
+	
+	tr td .btn.aperte-button.aperte-button-hide
+	{
+		overflow: hidden;
+		margin: 0px 0px 0px 12px;
+		padding: 2px 8px 2px 8px;
+		float: left;
+		overflow: hidden;
+		display: table-cell;
+	}
+	
 
 }
 @media (min-width: 962px) 
@@ -539,6 +563,26 @@
 		font-size: 16px;
 		border:none;
 
+	}
+	
+	.td-hack {
+		width: 100%;
+		height: 100%;
+		position: relative;
+	}
+	
+	.td-hacks-buttons
+	{
+		top: -27px;
+		right: 0;
+		position: absolute;
+	}
+	
+	tr td .btn.aperte-button.aperte-button-hide
+	{
+		overflow: hidden;
+		margin: 0px 0px 0px 12px;
+		padding: 2px 8px 2px 8px;
 	}
 
 	.process-table td,

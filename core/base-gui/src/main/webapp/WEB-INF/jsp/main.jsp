@@ -14,7 +14,7 @@
 
 <div class="main-view">
 	<%@include file="leftMenu.jsp" %>
-	<%@include file="processList.jsp" %>
+	<%@include file="taskView.jsp" %>
 	<%@include file="widgetList.jsp" %>
 	<%@include file="actionsList.jsp" %>
 	<%@include file="processStartList.jsp" %>
@@ -31,6 +31,16 @@
  
   <script type="text/javascript">
   
+	var windowManager = new WindowManager();
+  
+  	$(document).ready(function()
+	{
+		console.log("reload: "); 
+		queueViewManager.reloadCurrentQueue();
+		moveQueueList();
+		reloadQueues();
+	});
+  
   	$(window).unload(function() 
 	{
 		windowManager.clearProcessView();
@@ -40,8 +50,7 @@
 	function XOR(a,b) {
 	  return ( a || b ) && !( a && b );
 	} 
-	
-	var windowManager = new WindowManager();
+
   
 	function WindowManager()
 	{

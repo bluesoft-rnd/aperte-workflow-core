@@ -50,7 +50,6 @@
         <mapping class="pl.net.bluesoft.rnd.processtool.model.UserRole"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.UserAttributePredicates"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.UserAttributesSupport"/>
-        <mapping class="pl.net.bluesoft.rnd.processtool.model.UserProcessQueue"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionPermission"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig"/>

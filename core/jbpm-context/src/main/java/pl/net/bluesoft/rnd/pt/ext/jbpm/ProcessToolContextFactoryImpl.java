@@ -1,13 +1,11 @@
 package pl.net.bluesoft.rnd.pt.ext.jbpm;
 
-import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
-import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.service.JbpmService;
 
@@ -26,7 +24,7 @@ import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadP
  * @author tlipski@bluesoft.net.pl
  * @author mpawlak@bluesoft.net.pl
  */
-public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory, ProcessToolBpmConstants {
+public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory {
     private static Logger logger = Logger.getLogger(ProcessToolContextFactoryImpl.class.getName());
     private ProcessToolRegistry registry;
 
@@ -104,7 +102,7 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory,
 		try 
 		{
 			Transaction tx = session.beginTransaction();
-			ProcessToolContext ctx = new ProcessToolContextImpl(session, registry);
+			ProcessToolContext ctx = new ProcessToolContextImpl(session);
 			ProcessToolContext.Util.setThreadProcessToolContext(ctx);
 			try
 			{
@@ -153,7 +151,7 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory,
 			Session session = registry.getSessionFactory().getCurrentSession();
 
 			try {
-				ProcessToolContext ctx = new ProcessToolContextImpl(session, registry);
+				ProcessToolContext ctx = new ProcessToolContextImpl(session);
 				ProcessToolContext.Util.setThreadProcessToolContext(ctx);
 				try
 				{
@@ -192,7 +190,7 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory,
 		session.setDefaultReadOnly(true);
 		try 
 		{
-			ProcessToolContext ctx = new ProcessToolContextImpl(session, registry);
+			ProcessToolContext ctx = new ProcessToolContextImpl(session);
 			ProcessToolContext.Util.setThreadProcessToolContext(ctx);
 			try {
 				result = callback.processWithContext(ctx);

@@ -10,7 +10,6 @@ import org.springframework.web.portlet.bind.annotation.RenderMapping;
 import pl.net.bluesoft.rnd.processtool.BasicSettings;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
-import pl.net.bluesoft.rnd.processtool.authorization.IAuthorizationService;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
@@ -19,6 +18,8 @@ import pl.net.bluesoft.rnd.processtool.usersource.IPortalUserSource;
 
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
+
+import static pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants.DEFAULT_QUEUE_INTERVAL;
 
 @Controller(value = "MainViewController")
 @RequestMapping("VIEW")
@@ -43,8 +44,6 @@ public class MainViewController extends AbstractMainController
 
     private void processRequest(final ModelAndView modelView, final RenderRequest request)
 	{
-
-		
 		processToolRegistry.withProcessToolContext(new ProcessToolContextCallback() {
 
 			@Override
@@ -69,9 +68,9 @@ public class MainViewController extends AbstractMainController
 				
                 modelView.addObject(PROCESS_START_LIST, addProcessStartList(ctx, bpmSession));
                 
-				Integer interval = ctx.DEFAULT_QUEUE_INTERVAL;
+				Integer interval = DEFAULT_QUEUE_INTERVAL;
                 String refreshInterval = ctx.getSetting(BasicSettings.REFRESHER_INTERVAL_SETTINGS_KEY);
-                if (refreshInterval!=null && refreshInterval.trim().length()>0) {
+                if (refreshInterval!=null && !refreshInterval.trim().isEmpty()) {
     				try {
 						interval = Integer.parseInt(refreshInterval+"000");
 					} catch (NumberFormatException e) {}

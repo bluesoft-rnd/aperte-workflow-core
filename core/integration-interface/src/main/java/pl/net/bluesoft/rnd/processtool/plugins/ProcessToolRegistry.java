@@ -21,7 +21,6 @@ import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceFilterDAO;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceSimpleAttributeDAO;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessStateActionDAO;
 import pl.net.bluesoft.rnd.processtool.dao.UserDataDAO;
-import pl.net.bluesoft.rnd.processtool.dao.UserProcessQueueDAO;
 import pl.net.bluesoft.rnd.processtool.dao.UserRoleDAO;
 import pl.net.bluesoft.rnd.processtool.dao.UserSubstitutionDAO;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
@@ -44,7 +43,7 @@ import pl.net.bluesoft.util.eventbus.EventBusManager;
  * @author tlipski@bluesoft.net.pl
  * @author mpawlak@bluesoft.net.pl
  */
-public interface ProcessToolRegistry extends ProcessToolBpmConstants {
+public interface ProcessToolRegistry {
 
     void registerResource(String bundleSymbolicName, String path);
 
@@ -120,8 +119,6 @@ public interface ProcessToolRegistry extends ProcessToolBpmConstants {
     ProcessStateActionDAO getProcessStateAction(Session hibernateSession);
 
 	ProcessDefinitionDAO getProcessDefinitionDAO(Session hibernateSession);
-	
-	UserProcessQueueDAO getUserProcessQueueDAO(Session hibernateSession);
 
 	ProcessToolContextFactory getProcessToolContextFactory();
 	

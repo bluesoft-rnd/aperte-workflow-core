@@ -54,6 +54,7 @@ import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import static pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants.*;
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 import static pl.net.bluesoft.util.lang.Strings.hasText;
 
@@ -503,12 +504,6 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	}
 
 	@Override
-	public UserProcessQueueDAO getUserProcessQueueDAO(Session hibernateSession)
-	{
-		return new UserProcessQueueDAOImpl(hibernateSession);
-	}
-
-	@Override
 	public boolean registerModelExtension(Class<?>... cls) {
 		logger.warning("Registered model extensions: " + FormatUtil.joinClassNames(cls));
 		return addAnnotatedClass(cls);
@@ -519,10 +514,12 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 		buildSessionFactory();
 	}
 
+	@Override
 	public ProcessToolContextFactory getProcessToolContextFactory() {
 		return processToolContextFactory;
 	}
 
+	@Override
 	public void setProcessToolContextFactory(ProcessToolContextFactory processToolContextFactory) {
 		this.processToolContextFactory = processToolContextFactory;
 	}

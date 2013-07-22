@@ -30,6 +30,66 @@
 <script type="text/javascript">
 //<![CDATA[
 
+
+	var processDataTable;
+  
+	function AperteDataTable(tableId, columnDefs, requestUrl, sortingOrder)
+	{
+		this.tableId = tableId;
+		this.requestUrl = requestUrl;
+		this.columnDefs = columnDefs;
+		this.sortingOrder = sortingOrder;
+		
+		this.reloadTable = function()
+		{
+			$('#'+this.tableId).dataTable().fnReloadAjax(this.requestUrl);
+		}
+		
+		this.createDataTable = function()
+		{
+			$('#'+this.tableId).dataTable({
+				"bLengthChange": true,
+				"bFilter": true,
+				"bProcessing": true,
+				"bServerSide": true,
+				"bInfo": true,
+				"aaSorting": sortingOrder,
+				"bSort": true,
+				"iDisplayLength": 10,
+				"sDom": '<"top"t><"bottom"plr>',
+				"sAjaxSource": this.requestUrl,
+				"fnServerData": function ( sSource, aoData, fnCallback ) {
+
+					$.ajax( {
+						"dataType": 'json',
+						"type": "POST",
+						"url": sSource,
+						"data": aoData,
+						"success": fnCallback
+					} );
+				},
+				"aoColumns": this.columnDefs,
+				"oLanguage": {
+					  //todo: uzeleznic tresci od tlumaczen w messages
+					  "sInfo": "Wyniki od _START_ do _END_ z _TOTAL_",
+					  "sEmptyTable": "<spring:message code='datatable.empty' />",
+					  "sInfoEmpty": "<spring:message code='datatable.empty' />",
+					  "sProcessing": "<spring:message code='datatable.processing' />",
+					  "sLengthMenu": "<spring:message code='datatable.records' />",			  
+					  "sInfoFiltered": "",
+					  "oPaginate": {
+						"sFirst": "<spring:message code='datatable.paginate.firstpage' />",
+						"sNext": "<spring:message code='datatable.paginate.next' />",
+						"sPrevious": "<spring:message code='datatable.paginate.previous' />"
+					  }
+
+					}
+			});
+		}
+		
+		this.createDataTable();
+	}
+
 	$('#processInputTextField').keyup(function() 
 	{
 		
@@ -76,42 +136,40 @@
 		currentOwnerLogin = ownerLogin;
 		currentQueueDesc = queueDesc;
 		
-		if ($('#process-panel-view').css("visibility") == "hidden") 
+		var requestUrl = '<spring:url value="/processes/loadProcessesList.json?queueName="/>' + newQueueName + '&queueType=' + queueType + '&ownerLogin='+ownerLogin;
+		
+		
+		if(!processDataTable)
 		{
-			$('#process-panel-view').show();
+			var columnDefs = [
+						 { "sName":"name", "bSortable": true,"mData": function(object){return generateNameColumn(object);}},
+						 { "sName":"step", "bSortable": true, "mData": "step" },
+						 { "sName":"code", "bSortable": true, "mData": "code" },
+						 { "sName":"creator", "bSortable": true,"mData": "creator" },
+						 { "sName":"assignee", "bSortable": true,"mData": "assignee" },
+						 { "sName":"creationDate", "bSortable": true,"mData": function(object){return $.format.date(object.creationDate, 'dd-MM-yyyy, HH:mm');}},
+						 { "sName":"deadline", "bSortable": true,"mData": function(object){return object.deadline == null ? "<spring:message code='processes.list.table.nodeadline' />" : $.format.date(object.deadline, 'dd-MM-yyyy, HH:mm');}}
+					 ];
+					 
+			processDataTable = new AperteDataTable('processesTable', columnDefs, requestUrl, [[ 5, "desc" ]]);
 		}
 		else
 		{
-			var requestUrl = '<spring:url value="/processes/loadProcessesList.json?queueName="/>' + newQueueName + '&queueType=' + queueType + '&ownerLogin='+ownerLogin;
-
-			$('#processesTable').dataTable().fnReloadAjax(requestUrl);
-			
-			windowManager.showProcessList();
-			
-			$("#process-queue-name-id").text('<spring:message code="processes.currentqueue" />'+" "+currentQueueDesc);
+			if ($('#process-panel-view').css("visibility") == "hidden") 
+			{
+				$('#process-panel-view').show();
+			}
+			else
+			{
+				processDataTable.requestUrl = requestUrl;
+				processDataTable.reloadTable();
+				windowManager.showProcessList();
+			}
 		}
 		
-		
-	}
-
-
-	function loadQueue() 
-	{
-		var columnDefs = [
-							 { "sName":"name", "bSortable": true,"mData": function(object){return generateNameColumn(object);}},
-							 { "sName":"step", "bSortable": true, "mData": "step" },
-							 { "sName":"code", "bSortable": true, "mData": "code" },
-							 { "sName":"creator", "bSortable": true,"mData": "creator" },
-							 { "sName":"assignee", "bSortable": true,"mData": "assignee" },
-							 { "sName":"creationDate", "bSortable": true,"mData": function(object){return $.format.date(object.creationDate, 'dd-MM-yyyy, HH:mm');}},
-							 { "sName":"deadline", "bSortable": true,"mData": function(object){return object.deadline == null ? "" : $.format.date(object.deadline, 'dd-MM-yyyy, HH:mm');}}
-						 ];
-
-		var requestUrl = '<spring:url value="/processes/loadProcessesList.json?queueName=activity.assigned.tasks&queueType=process"/>';
-		createDataTable('processesTable',requestUrl,columnDefs, [[ 5, "desc" ]]);
-	
 		$("#process-queue-name-id").text('<spring:message code="processes.currentqueue" />'+" "+currentQueueDesc);
 	}
+
 
 	function generateNameColumn(task)
 	{
@@ -165,45 +223,6 @@
 	}
 	
 
-	function createDataTable(tableId,url,columns,sortingOrder){
-		$('#'+tableId).dataTable({
-			"bLengthChange": true,
-			"bFilter": true,
-			"bProcessing": true,
-			"bServerSide": true,
-			"bInfo": true,
-			"aaSorting": sortingOrder,
-			"bSort": true,
-			"iDisplayLength": 10,
-			"sDom": '<"top"t><"bottom"plr>',
-			"sAjaxSource": url,
-			"fnServerData": function ( sSource, aoData, fnCallback ) {
 
-				$.ajax( {
-					"dataType": 'json',
-					"type": "POST",
-					"url": sSource,
-					"data": aoData,
-					"success": fnCallback
-				} );
-			},
-			"aoColumns": columns,
-			"oLanguage": {
-				  //todo: uzeleznic tresci od tlumaczen w messages
-				  "sInfo": "Wyniki od _START_ do _END_ z _TOTAL_",
-				  "sEmptyTable": "<spring:message code='datatable.empty' />",
-				  "sInfoEmpty": "<spring:message code='datatable.empty' />",
-				  "sProcessing": "<spring:message code='datatable.processing' />",
-			      "sLengthMenu": "<spring:message code='datatable.records' />",			  
-				  "sInfoFiltered": "",
-				  "oPaginate": {
-					"sFirst": "<spring:message code='datatable.paginate.firstpage' />",
-					"sNext": "<spring:message code='datatable.paginate.next' />",
-					"sPrevious": "<spring:message code='datatable.paginate.previous' />"
-				  }
-
-				}
-		});
-	}
 //]]>
 </script>

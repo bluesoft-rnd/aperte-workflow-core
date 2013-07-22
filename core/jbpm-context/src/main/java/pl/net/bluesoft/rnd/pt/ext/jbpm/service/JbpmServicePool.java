@@ -14,7 +14,6 @@ import org.drools.persistence.jpa.JPAKnowledgeService;
 import org.drools.runtime.Environment;
 import org.drools.runtime.EnvironmentName;
 import org.drools.runtime.StatefulKnowledgeSession;
-import org.drools.runtime.process.ProcessInstance;
 import org.jbpm.process.audit.JPAWorkingMemoryDbLogger;
 import org.jbpm.process.workitem.wsht.LocalHTWorkItemHandler;
 import org.jbpm.task.Task;
@@ -22,7 +21,6 @@ import org.jbpm.task.User;
 import org.jbpm.task.event.TaskEventListener;
 import org.jbpm.task.event.entity.TaskUserEvent;
 import org.jbpm.task.identity.UserGroupCallbackManager;
-import org.jbpm.task.service.ContentData;
 import org.jbpm.task.service.local.LocalTaskService;
 import org.jbpm.task.utils.OnErrorAction;
 import pl.net.bluesoft.rnd.processtool.IProcessToolSettings;
@@ -36,16 +34,13 @@ import javax.persistence.Query;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
 import static pl.net.bluesoft.util.lang.Strings.hasText;
 
-public class JbpmService implements ProcessEventListener, TaskEventListener {
-
+public class JbpmServicePool implements ProcessEventListener, TaskEventListener {
 	private static final IProcessToolSettings KSESSION_ID = new IProcessToolSettings() {
 		@Override
 		public String toString() {
@@ -61,20 +56,19 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
 
 	private EntityManagerFactory emf;
 	private Environment env;
-	private org.jbpm.task.service.TaskService taskService;
-	private org.jbpm.task.TaskService client;
-	private StatefulKnowledgeSession ksession;
+	//private org.jbpm.task.TaskService client;
+	//private StatefulKnowledgeSession ksession;
+	private KnowledgeBase kbase;
 	private JbpmRepository repository;
+	private org.jbpm.task.service.TaskService taskService;
+	private Map<Integer, StatefulKnowledgeSession> ksessionMap = new HashMap<Integer, StatefulKnowledgeSession>();
+	private Map<Integer, LocalTaskService> taskServiceMap = new HashMap<Integer, LocalTaskService>();
 
-	private static JbpmService instance;
+	private static JbpmServicePool instance;
 
-	public static JbpmService getInstance() {
+	public static synchronized JbpmServicePool getInstance() {
 		if (instance == null) {
-			synchronized (JbpmService.class) {
-				if (instance == null) {
-					instance = new JbpmService();
-				}
-			}
+			instance = new JbpmServicePool();
 		}
 		return instance;
 	}
@@ -83,12 +77,13 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
 		initEntityManager();
 		initEnvironment();
 		initClient();
+		initKnowledgeBase();
 	}
 
 	public void destroy() {
-		if (ksession != null) {
+		/*if (ksession != null) {
 			ksession.dispose();
-		}
+		}*/
 	}
 
 	private void initEntityManager() {
@@ -105,13 +100,25 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
 		taskService = new org.jbpm.task.service.TaskService(emf, SystemEventListenerFactory.getSystemEventListener());
 		UserGroupCallbackManager.getInstance().setCallback(new AwfUserCallback());
 
-		LocalTaskService localTaskService = new LocalTaskService(taskService);
+		/*LocalTaskService localTaskService = new LocalTaskService(taskService);
 		localTaskService.setEnvironment(env);
 		localTaskService.addEventListener(this);
-		client = localTaskService;
+		client = localTaskService;*/
 	}
 
-	public synchronized String addProcessDefinition(InputStream definitionStream) {
+	private void initKnowledgeBase() {
+		KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+
+		if (getRepository() != null) {
+			for (byte[] resource : getRepository().getAllResources("bpmn")) {
+				kbuilder.add(ResourceFactory.newByteArrayResource(resource), ResourceType.BPMN2);
+			}
+		}
+
+		kbase = kbuilder.newKnowledgeBase();
+	}
+	
+	public String addProcessDefinition(InputStream definitionStream) {
 		byte[] bytes;
 
 		try {
@@ -123,22 +130,30 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
 		}
 
 		// add to jbpm repository
+
 		String result = null;
+
 		if (getRepository() != null) {
 			result = getRepository().addResource(ProcessResourceNames.DEFINITION, definitionStream);
 		}
 
 		// update session
-		if (ksession != null) {
+
+		/*if (ksession != null) {
 			KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
 			kbuilder.add(ResourceFactory.newByteArrayResource(bytes), ResourceType.BPMN2);
+			ksession.getKnowledgeBase().addKnowledgePackages(kbuilder.getKnowledgePackages());
+		}*/
+		for (StatefulKnowledgeSession ksession : ksessionMap.values()) {
+			KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+			kbuilder.add(ResourceFactory.newInputStreamResource(definitionStream), ResourceType.BPMN2);
 			ksession.getKnowledgeBase().addKnowledgePackages(kbuilder.getKnowledgePackages());
 		}
 
 		return result;
 	}
 
-	private KnowledgeBase getKnowledgeBase() {
+	/*private KnowledgeBase getKnowledgeBase() {
 		KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
 
 		if (getRepository() != null) {
@@ -148,28 +163,42 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
 		}
 
 		return kbuilder.newKnowledgeBase();
-	}
+	}*/
 
-	private void loadSession(int sessionId) {
-		KnowledgeBase kbase = getKnowledgeBase();
+	public StatefulKnowledgeSession getSession(int sessionId) {
+		StatefulKnowledgeSession ksession = ksessionMap.get(sessionId);
+		if (ksession==null) {
+			ksession = loadSession(sessionId);
+		}
+		return ksession;
+	}
+	
+	private StatefulKnowledgeSession loadSession(int sessionId) {
+		StatefulKnowledgeSession ksession = null;
 
 		if (sessionId == -1) {
 			ksession = JPAKnowledgeService.newStatefulKnowledgeSession(kbase, null, env);
 		}
 		else {
 			ksession = JPAKnowledgeService.loadStatefulKnowledgeSession(sessionId, kbase, null, env);
-			ksession.signalEvent("Trigger", null); // may be necessary for pushing processes after server restart
+			//ksession.signalEvent("Trigger", null); // may be necessary for pushing processes after server restart
 		}
 
-		LocalHTWorkItemHandler handler = new LocalHTWorkItemHandler(client, ksession, OnErrorAction.LOG);
+		LocalTaskService localTaskService = new LocalTaskService(taskService);
+		localTaskService.setEnvironment(env);
+		localTaskService.addEventListener(this);
+		
+		LocalHTWorkItemHandler handler = new LocalHTWorkItemHandler(localTaskService, ksession, OnErrorAction.LOG);
 		handler.connect();
 		ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
 		new JPAWorkingMemoryDbLogger(ksession);
 
 		ksession.addEventListener(this);
+		
+		return ksession;
 	}
 
-	private synchronized StatefulKnowledgeSession getSession() {
+	/*public synchronized StatefulKnowledgeSession getSession() {
 		if (ksession == null) {
 			String ksessionIdStr = getThreadProcessToolContext().getSetting(KSESSION_ID);
 			int ksessionId = hasText(ksessionIdStr) ? Integer.parseInt(ksessionIdStr) : -1;
@@ -183,145 +212,53 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
 		return ksession;
 	}
 
-	private org.jbpm.task.TaskService getSessionTaskService() {
+	public org.jbpm.task.TaskService getTaskService() {
 		getSession(); // ensure session is created before task service
 		return client;
-	}
+	}*/
 
-	private org.jbpm.task.TaskService getLocalTaskService() {
-		getSession(); // ensure session is created before task service
-		if (taskServiceTL.get()==null) {
-			LocalTaskService localTaskService = new LocalTaskService(taskService);
-			localTaskService.setEnvironment(env);
-			localTaskService.addEventListener(this);
-			taskServiceTL.set(localTaskService);		
+	private org.jbpm.task.TaskService getTaskService(int sessionId) {
+		LocalTaskService localTaskService = taskServiceMap.get(sessionId);
+		if (localTaskService == null) {
+			getSession(sessionId);
+			localTaskService = taskServiceMap.get(sessionId);
 		}
-		return taskServiceTL.get();
-	}
-	
-	public synchronized Task getTask(long taskId) {
-		return getSessionTaskService().getTask(taskId);
-	}
-	
-	public synchronized void claimTask(long taskId, String userLogin) {
-		getSessionTaskService().claim(taskId, userLogin);
-	}
-	
-	public synchronized void startTask(long taskId, String userLogin) {
-		getSessionTaskService().start(taskId, userLogin);
+		return localTaskService;
 	}
 
-	public synchronized void completeTask(long taskId, String userLogin, ContentData outputData) {
-		getSessionTaskService().complete(taskId, userLogin, outputData);
+	public Task getTask(long taskId) {
+		Task task = null;
+		return task;
 	}
 	
-	public synchronized ProcessInstance getProcessInstance(long processId) {
-		return getSession().getProcessInstance(processId);
+	public void claim(long taskId, String userLogin) {
+		
 	}
 	
-	public synchronized void startProcess(String processId, Map<String,Object> parameters) {
-		getSession().startProcess(processId, parameters);
+	public void start(long taskId, String userLogin) {
+		
 	}
 
-	public synchronized void abortProcessInstance(long processId) {
-		getSession().abortProcessInstance(processId);
-	}
-
-	public void refreshDataForNativeQuery() {
-		// this call forces JBPM to flush awaiting task data
-		getLocalTaskService().query("SELECT task.id FROM Task task ORDER BY task.id DESC", 1, 0);
-	}
-
-	private TaskQuery<Task> createTaskQuery() {
-		return new TaskQuery<Task>(getSessionTaskService());
-	}
-
-	private UserQuery<User> createUserQuery() {
-		return new UserQuery<User>(getSessionTaskService());
-	}
-
-	public synchronized Task getTaskForAssign(String queueName, long taskId) {
-		return createTaskQuery()
-		.groupId(queueName)
-		.taskId(taskId)
-		.assigneeIsNull()
-		.first();
-	}
-
-	public synchronized Task getLatestTask(long processId) {
-		return createTaskQuery()
-		.processInstanceId(processId)
-		.completed()
-		.orderByCompleteDateDesc()
-		.first();
+	public void complete(long taskId, String userLogin) {
+		
 	}
 	
-	public synchronized Task getMostRecentProcessHistoryTask(long processId, String userLogin, Date completedAfrer) {
-		return createTaskQuery()
-		.assignee(userLogin)
-		.processInstanceId(processId)
-		.completedAfter(completedAfrer)
-		.orderByCompleteDateDesc()
-		.first();
+	public void query(String query) {
+		
+	}
+	
+	public TaskQuery<Task> createTaskQuery(org.jbpm.task.TaskService taskService) {
+		return new TaskQuery<Task>(taskService);
 	}
 
-	public synchronized Task getPastOrActualTask(long processId, String userLogin, String taskName, Date completedAfrer) {
-		return createTaskQuery()
-		.assignee(userLogin)
-		.processInstanceId(processId)
-		.completedAfter(completedAfrer)
-		.activityName(taskName)
-		.orderByCompleteDate()
-		.first();
-	}
-	
-	public synchronized List<Task> getTasks(long processId, String userLogin, Collection<String> taskNames) {
-		return createTaskQuery()
-		.processInstanceId(processId)
-		.active()
-		.assignee(userLogin)
-		.activityNames(taskNames)
-		.list();
+	public UserQuery<User> createUserQuery(org.jbpm.task.TaskService taskService) {
+		return new UserQuery<User>(taskService);
 	}
 
-	public synchronized List<Task> getTasks(long processId, String userLogin) {
-		return createTaskQuery()
-		.processInstanceId(processId)
-		.assignee(userLogin)
-		.active()
-		.list();
-	}
-	
-	public synchronized List<Task> getTasks(String userLogin, Integer offset, Integer limit) {
-		return createTaskQuery()
-		.assignee(userLogin)
-		.active()
-		.page(offset, limit)
-		.list();
+	public Query createNativeQuery(String sql) {
+		return emf.createEntityManager().createNativeQuery(sql);
 	}
 
-	public synchronized List<Task> getTasks() {
-		return createTaskQuery().orderByTaskIdDesc().list();
-	}
-	
-	public synchronized List<Object[]> getTaskCounts(List<String> groupNames) {
-		return (List<Object[]>)(List)JbpmService.getInstance().createTaskQuery()
-		.selectGroupId()
-		.selectCount()
-		.assigneeIsNull()
-		.groupIds(groupNames)
-		.groupByGroupId()
-		.list();
-	}
-	
-	public synchronized List<String> getAvailableUserLogins(String filter, Integer offset, Integer limit) {
-		return createUserQuery()
-		.selectId()
-		.whereIdLike(filter != null ? '%' + filter + '%' : null)
-		.page(offset, limit)
-		.list();
-	}
-	
 	@Override
 	public void beforeProcessStarted(ProcessStartedEvent event) {
 		getProcessEventListener().beforeProcessStarted(event);
@@ -499,7 +436,6 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
 
 	private static final ThreadLocal<ProcessEventListener> processListenerTL = new ThreadLocal<ProcessEventListener>();
 	private static final ThreadLocal<TaskEventListener> taskListenerTL = new ThreadLocal<TaskEventListener>();
-	private static final ThreadLocal<org.jbpm.task.TaskService> taskServiceTL = new ThreadLocal<org.jbpm.task.TaskService>();
 
 	public static void setProcessEventListener(ProcessEventListener eventListener) {
 		processListenerTL.set(eventListener);

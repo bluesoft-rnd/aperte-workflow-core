@@ -54,7 +54,7 @@ public class UserProcessQueuesSizeProvider
 		
 		if(ctx == null)
 		{
-			reg.getProcessToolContextFactory().withProcessToolContext(new ProcessToolContextCallback() 
+			reg.getProcessToolContextFactory().withProcessToolContextReadOnly(new ProcessToolContextCallback() 
 			{
 				@Override
 				public void withContext(ProcessToolContext ctx) 

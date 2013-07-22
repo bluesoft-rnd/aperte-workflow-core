@@ -1,11 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.userqueues;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
@@ -53,10 +49,10 @@ public class UserProcessQueuesSizeProvider
 		
 		if(ctx == null)
 		{
-			reg.getProcessToolContextFactory().withProcessToolContextReadOnly(new ProcessToolContextCallback() 
+			reg.getProcessToolContextFactory().withProcessToolContextReadOnly(new ProcessToolContextCallback()
 			{
 				@Override
-				public void withContext(ProcessToolContext ctx) 
+				public void withContext(ProcessToolContext ctx)
 				{
 					fillUserQueuesMap();
 				}
@@ -175,8 +171,8 @@ public class UserProcessQueuesSizeProvider
 		public UsersQueuesDTO(String userLogin) 
 		{
 			this.userLogin = userLogin;
-			this.processesList = new HashSet<UserQueueDTO>();
-			this.queuesList = new HashSet<UserQueueDTO>();
+			this.processesList = new LinkedHashSet<UserQueueDTO>();
+			this.queuesList = new LinkedHashSet<UserQueueDTO>();
 		}
 		
 		public void addProcessListSize(String listName, String listId, String listDesc, Integer queueSize)

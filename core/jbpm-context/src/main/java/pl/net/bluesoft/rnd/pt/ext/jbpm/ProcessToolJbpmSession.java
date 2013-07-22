@@ -84,14 +84,14 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	}
 
 	@Override
-	public StartProcessResult startProcess(String processDefinitionId, String externalKey, String description, String keyword, String source) {
+	public StartProcessResult startProcess(String processDefinitionId, String externalKey, String source) {
 		ProcessDefinitionConfig config = getContext().getProcessDefinitionDAO().getActiveConfigurationByKey(processDefinitionId);
 
 		if (!config.isEnabled()) {
 			throw new IllegalArgumentException("Process definition has been disabled!");
 		}
 
-		startProcessParams = new StartProcessParams(config, externalKey, description, keyword, source, loadOrCreateUser(user));
+		startProcessParams = new StartProcessParams(config, externalKey, source, loadOrCreateUser(user));
 
 		try {
 			getKSession().startProcess(config.getBpmProcessId(), getInitialParams());
@@ -991,18 +991,13 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	private static class StartProcessParams extends TaskCapturer {
 		public final ProcessDefinitionConfig config;
 		public final String externalKey;
-		public final String description;
-		public final String keyword;
 		public final String source;
 		public final UserData creator;
 		public ProcessInstance newProcessInstance;
 
-		public StartProcessParams(ProcessDefinitionConfig config, String externalKey, String description,
-								  String keyword, String source, UserData creator) {
+		public StartProcessParams(ProcessDefinitionConfig config, String externalKey, String source, UserData creator) {
 			this.config = config;
 			this.externalKey = externalKey;
-			this.description = description;
-			this.keyword = keyword;
 			this.source = source;
 			this.creator = creator;
 		}
@@ -1016,8 +1011,6 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 			newProcessInstance.setCreateDate(new Date());
 			newProcessInstance.setExternalKey(externalKey);
 			newProcessInstance.setInternalId(toAwfPIId(jbpmProcessInstance));
-			newProcessInstance.setDescription(description);
-			newProcessInstance.setKeyword(keyword);
 			newProcessInstance.setStatus(ProcessStatus.NEW);
 			newProcessInstance.addOwner(creator.getLogin());
 
@@ -1088,7 +1081,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 						.getConfigurationByProcessId(subprocessParams.processId);
 
 				StartProcessParams params = new StartProcessParams(
-						config, null, null, null, "parent_process", parentProcessInstance.getCreator()
+						config, null, "parent_process", parentProcessInstance.getCreator()
 				);
 				newProcessInstance = params.createFromParams(jbpmProcessInstance, parentProcessInstance);
 

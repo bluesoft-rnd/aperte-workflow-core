@@ -32,11 +32,11 @@ public class ProcessToolBpmSessionHelper {
 	}
 
 	public static StartProcessResult startProcess(final ProcessToolBpmSession session, ProcessToolContext ctx, final String bpmDefinitionId,
-										final String externalKey, final String description, final String keyword, final String source) {
+										final String externalKey, final String source) {
 		return withContext(ctx, new ReturningProcessToolContextCallback<StartProcessResult>() {
 			@Override
 			public StartProcessResult processWithContext(ProcessToolContext ctx) {
-				return session.startProcess(bpmDefinitionId, externalKey, description, keyword, source);
+				return session.startProcess(bpmDefinitionId, externalKey, source);
 			}
 		});
 	}

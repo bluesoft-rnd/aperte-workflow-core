@@ -82,9 +82,7 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
         searchData.addSearchAttributes(new String[][]{
                 {"instance_key", processInstance.getExternalKey()},
                 {"definition_name", processInstance.getDefinitionName()},
-                {"instance_description", processInstance.getDescription()},
                 {"instance_internal_id", processInstance.getInternalId()},
-                {"instance_keyword", processInstance.getKeyword()},
 //                {"instance_state", processInstance.getState()},//TODO remember about multiple states (when BpmTask is merged)
                 {"instance_create_date", formatShortDate(processInstance.getCreateDate())},
         });

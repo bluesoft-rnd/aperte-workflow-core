@@ -56,7 +56,7 @@ public class NewProcessPane extends VerticalLayout {
                 withErrorHandling(getApplication(), new Runnable() {
                     public void run() {
                         ProcessDefinitionConfig cfg = (ProcessDefinitionConfig) l.getValue();
-						StartProcessResult result = session.startProcess(cfg.getBpmDefinitionKey(), null, null, null, "portlet");
+						StartProcessResult result = session.startProcess(cfg.getBpmDefinitionKey(), null, "portlet");
 						ProcessInstance instance = result.getProcessInstance();
                         getWindow().showNotification(getMessage("newProcess.started"), 2000);
                         getWindow().executeJavaScript("Liferay.trigger('processtool.bpm.newProcess', '" + instance.getInternalId() + "');");

@@ -50,15 +50,12 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
     public ProcessInstance createProcessInstance(@WebParam(name="config")final ProcessDefinitionConfig config,
                                                  @WebParam(name="externalKey")final String externalKey,
                                                  @WebParam(name="user")final UserData user,
-                                                 @WebParam(name="description")final String description,
-                                                 @WebParam(name="keyword")final String keyword,
-                                                 @WebParam(name="source")final String source,
-                                                 @WebParam(name="internalId")final String internalId) {		
+                                                 @WebParam(name="source")final String source) {
         return withContext(new ReturningProcessToolContextCallback<ProcessInstance>() {
             @Override
             public ProcessInstance processWithContext(ProcessToolContext ctx) {
                 return fetchHibernateData(getSession(user)
-                        .startProcess(config.getBpmDefinitionKey(), externalKey, description, keyword, source)).getProcessInstance();
+                        .startProcess(config.getBpmDefinitionKey(), externalKey,  source)).getProcessInstance();
             }
         });
     }
@@ -81,7 +78,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
             @Override
             public ProcessInstance processWithContext(ProcessToolContext ctx) {            	
                 return fetchHibernateData(getSession(user)
-                        .startProcess(bpmnkey, null, null, null, PROCESS_INSTANCE_SOURCE)).getProcessInstance();
+                        .startProcess(bpmnkey, null, PROCESS_INSTANCE_SOURCE)).getProcessInstance();
             }
         });
     }
@@ -157,27 +154,6 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
             }
         });
     }
-	
-	
-
-	@Override
-    @WebMethod
-    public boolean isProcessOwnedByUser(@WebParam(name="internalId")final String internalId,@WebParam(name="userLogin") final String userLogin) throws AperteWsWrongArgumentException {
-		throw new RuntimeException("TODO: is it really necessary?");
-
-//		final ProcessInstance processData = getProcessData(internalId);
-//    	final UserData findUser = findUser(userLogin);
-//        return withContext(new ReturningProcessToolContextCallback<Boolean>() {
-//            @Override
-//            public Boolean processWithContext(ProcessToolContext ctx) {
-//
-//                return getSession(ctx, findUser).isProcessOwnedByUser(processData);
-//            }
-//        });
-    }
-	
-
-    
 
 	@Override
 	@WebMethod (exclude=true)
@@ -437,28 +413,6 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 	return null;
     }
 
-
-	@Override
-    @WebMethod
-    public List<String> getOutgoingTransitionNamesByTaskId(@WebParam(name="taskId")final String taskId) throws AperteWsWrongArgumentException {
-		throw new RuntimeException("TODO: is it really necessary?");
-//		AperteErrorCheckUtil.checkCorrectnessOfArgument(taskId, AperteIllegalArgumentCodes.TASK);
-//
-//		 List<String> outgoingTransmisionsList = withContext(new ReturningProcessToolContextCallback<List<String>>() {
-//            @Override
-//            public List<String> processWithContext(ProcessToolContext ctx) {
-//                return getSession(ctx).getOutgoingTransitionNames(taskId);
-//            }
-//        });
-//
-//		 if( outgoingTransmisionsList.isEmpty() ){
-//			  AperteWrongArgumentCodes.BpmTaskBean.throwAperteWebServiceException();
-//		 }
-//
-//		 return outgoingTransmisionsList;
-		 
-    }
-	 
 	@Override
 	@WebMethod (exclude=true)
     public UserData getSubstitutingUser(@WebParam(name="user")final String userLogin) throws AperteWsWrongArgumentException {
@@ -471,18 +425,6 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
         });
     }
 
-	@Override
-    @WebMethod
-    public List<String> getOutgoingTransitionDestinationNames(@WebParam(name="executionId")final String executionId) throws AperteWsWrongArgumentException {
-		throw new RuntimeException("TODO: is it really necessary?");
-//		final ProcessInstance processData = getProcessData(executionId);
-//        return withContext(new ReturningProcessToolContextCallback<List<String>>() {
-//            @Override
-//            public List<String> processWithContext(ProcessToolContext ctx) {
-//                return getSession(ctx).getOutgoingTransitionDestinationNames(processData.getInternalId());
-//            }
-//        });
-    }
 
 	@Override
     @WebMethod
@@ -660,7 +602,4 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 	private ProcessToolBpmSession getSession(UserData user) {
 		return getRegistry().getProcessToolSessionFactory().createSession(user);
 	}
-	
-	
-	
 }

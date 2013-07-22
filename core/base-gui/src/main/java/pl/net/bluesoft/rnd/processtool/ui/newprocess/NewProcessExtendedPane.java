@@ -253,7 +253,7 @@ public class NewProcessExtendedPane extends VerticalLayout implements Refreshabl
 		withErrorHandling(getApplication(), new Runnable() {
 			@Override
 			public void run() {
-				StartProcessResult result = session.startProcess(bpmDefinitionId, null, null, null, "portlet");
+				StartProcessResult result = session.startProcess(bpmDefinitionId, null, "portlet");
 				ProcessInstance instance = result.getProcessInstance();
 				VaadinUtility.informationNotification(activityMainPane.getActivityApplication(), getMessage("newProcess.started"), 1000);
 				getWindow().executeJavaScript("Liferay.trigger('processtool.bpm.newProcess', '" + instance.getInternalId() + "');");

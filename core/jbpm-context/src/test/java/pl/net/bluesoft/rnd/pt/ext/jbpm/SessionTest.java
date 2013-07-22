@@ -508,11 +508,11 @@ public class SessionTest extends TestCase {
 
 		print("--------> " + task);
 
-		task = session.performAction(action, task);
+		List<BpmTask> tasks = session.performAction(action, task);
 
 		print("--------> AFTER " + task);
 
-		assertNotNull(task);
+		assertTrue(tasks != null && !tasks.isEmpty());
 		assertTrue(user.equals(task.getAssignee()) || task.isFinished());
 	}
 
@@ -622,9 +622,7 @@ public class SessionTest extends TestCase {
 
 		String externalKey = "NR" + System.currentTimeMillis();
 
-		String descr = "descr";
-		String keyword = "kw";
-		StartProcessResult result = session.startProcess(bpmDefinitionKey, externalKey, descr, keyword, "test");
+		StartProcessResult result = session.startProcess(bpmDefinitionKey, externalKey, "test");
 		ProcessInstance processInstance = result.getProcessInstance();
 
 		assertNotNull(processInstance);
@@ -634,8 +632,6 @@ public class SessionTest extends TestCase {
 		assertEquals(externalKey, processInstance.getExternalKey());
 		assertNotNull(processInstance.getCreateDate());
 		assertNotNull(processInstance.getCreator());
-		assertEquals(descr, processInstance.getDescription());
-		assertEquals(keyword, processInstance.getKeyword());
 		assertFalse(processInstance.isSubprocess());
 		assertNull(processInstance.getParent());
 //		assertTrue(processInstance.getChildren() == null || processInstance.getChildren().isEmpty());

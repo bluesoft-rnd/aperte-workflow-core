@@ -353,7 +353,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                 {
                 	long t0 = System.currentTimeMillis();
 
-					StartProcessResult result = context.getBpmSession().startProcess(bpmDefinitionId, null, null, null, "portlet");
+					StartProcessResult result = context.getBpmSession().startProcess(bpmDefinitionId, null, "portlet");
 					ProcessInstance instance = result.getProcessInstance();
 
                     long t1 = System.currentTimeMillis();

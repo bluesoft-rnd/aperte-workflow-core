@@ -27,8 +27,7 @@ import java.util.Set;
 public interface ProcessToolBpmSession extends ProcessToolBpmConstants {
     ProcessToolBpmSession createSession(UserData user, Collection<String> roleNames);
 
-	StartProcessResult startProcess(String bpmDefinitionId, String externalKey, String description, String keyword,
-								 String source);
+	StartProcessResult startProcess(String bpmDefinitionId, String externalKey, String source);
 	List<BpmTask> performAction(String actionName, String taskId);
 	List<BpmTask> performAction(ProcessStateAction action, BpmTask bpmTask);
 	BpmTask assignTaskFromQueue(String queueName);

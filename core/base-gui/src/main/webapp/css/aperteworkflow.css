@@ -568,7 +568,7 @@
 		-moz-border-radius: 4px;
 		border-radius: 4px;
 		border:1px;
-		padding: 16px 25px;
+		padding: 6px 15px;
 		font-size: 16px;
 		background-color: rgb(64, 125, 247);
 		background: rgb(64, 125, 247);
@@ -660,6 +660,9 @@
 	background-position:center; 
 }
 
+.v-loading-indicator, 
+.v-loading-indicator-delay, 
+.v-loading-indicator-wait,
 .loader
 {
 	width: 100%;

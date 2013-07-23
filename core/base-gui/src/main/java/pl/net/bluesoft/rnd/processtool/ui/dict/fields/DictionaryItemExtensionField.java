@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -17,7 +16,6 @@ import java.util.Set;
 import org.vaadin.addon.customfield.CustomField;
 
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemExtension;
-import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemValue;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import com.vaadin.Application;

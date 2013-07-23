@@ -7,6 +7,8 @@ import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 
+import java.util.List;
+
 import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 
 /** 
@@ -27,7 +29,7 @@ public class ProcessActionManager
 		this.user = user;
 	}
 	
-	public BpmTask perfomAction(ProcessStateAction processStateAction, BpmTask task )
+	public List<BpmTask> perfomAction(ProcessStateAction processStateAction, BpmTask task )
 	{
 		return ProcessToolBpmSessionHelper.performAction(getProcessToolBpmSession(), ctx, processStateAction, task);
 	}

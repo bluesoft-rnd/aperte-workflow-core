@@ -44,8 +44,6 @@ public class ProcessInstance extends AbstractPersistentEntity
 	private String externalKey;
 	private String internalId;
 	private String definitionName;
-	private String description;
-	private String keyword;
 
     @Enumerated(EnumType.STRING)
     private ProcessStatus status;
@@ -108,22 +106,6 @@ public class ProcessInstance extends AbstractPersistentEntity
     	}
     	return parentProcess;
     }
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public String getKeyword() {
-		return keyword;
-	}
-
-	public void setKeyword(String keyword) {
-		this.keyword = keyword;
-	}
 
 	public ProcessInstance(String externalKey, UserData creator, String definionName) {
 		this.externalKey = externalKey;

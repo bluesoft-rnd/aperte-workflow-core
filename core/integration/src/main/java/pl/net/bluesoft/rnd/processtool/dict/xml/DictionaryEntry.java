@@ -4,15 +4,13 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @XStreamAlias("entry")
 public class DictionaryEntry {
     @XStreamAsAttribute
     private String key;
-    @XStreamAsAttribute
-    private String value;
     @XStreamAsAttribute
     private String description;
     @XStreamAsAttribute
@@ -21,7 +19,7 @@ public class DictionaryEntry {
     private List<DictionaryEntryValue> values;
 
     public List<DictionaryEntryValue> getValues() {
-        return values == null ? (values = new ArrayList<DictionaryEntryValue>()) : values;
+        return values != null ? values : Collections.<DictionaryEntryValue>emptyList();
     }
 
     public void setValues(List<DictionaryEntryValue> values) {
@@ -42,14 +40,6 @@ public class DictionaryEntry {
 
     public void setKey(String key) {
         this.key = key;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
     }
 
     public String getDescription() {

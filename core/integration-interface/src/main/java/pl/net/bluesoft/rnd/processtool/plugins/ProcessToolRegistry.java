@@ -21,10 +21,8 @@ import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceFilterDAO;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceSimpleAttributeDAO;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessStateActionDAO;
 import pl.net.bluesoft.rnd.processtool.dao.UserDataDAO;
-import pl.net.bluesoft.rnd.processtool.dao.UserProcessQueueDAO;
 import pl.net.bluesoft.rnd.processtool.dao.UserRoleDAO;
 import pl.net.bluesoft.rnd.processtool.dao.UserSubstitutionDAO;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.web.controller.IOsgiWebController;
 import pl.net.bluesoft.rnd.processtool.web.domain.IWidgetScriptProvider;
@@ -45,7 +43,7 @@ import pl.net.bluesoft.util.eventbus.EventBusManager;
  * @author tlipski@bluesoft.net.pl
  * @author mpawlak@bluesoft.net.pl
  */
-public interface ProcessToolRegistry extends ProcessToolBpmConstants {
+public interface ProcessToolRegistry {
 
     void registerResource(String bundleSymbolicName, String path);
 
@@ -86,8 +84,6 @@ public interface ProcessToolRegistry extends ProcessToolBpmConstants {
 
 	ProcessToolProcessStep getStep(String name);
 
-    void registerProcessDictionaries(InputStream dictionariesStream, ProcessDefinitionConfig newConfig, ProcessDefinitionConfig oldConfig);
-
     void registerGlobalDictionaries(InputStream dictionariesStream);
 
 	<T extends ProcessToolActionButton> T makeButton(String name) throws IllegalAccessException, InstantiationException;
@@ -104,8 +100,6 @@ public interface ProcessToolRegistry extends ProcessToolBpmConstants {
 
     <T> T withExistingOrNewContext(ReturningProcessToolContextCallback<T> callback);
 
-//	void withProcessToolContext(ProcessToolContextCallback callback);
-
     ProcessDictionaryDAO getProcessDictionaryDAO(Session hibernateSession);
 
 	ProcessInstanceDAO getProcessInstanceDAO(Session hibernateSession);
@@ -121,8 +115,6 @@ public interface ProcessToolRegistry extends ProcessToolBpmConstants {
     ProcessStateActionDAO getProcessStateAction(Session hibernateSession);
 
 	ProcessDefinitionDAO getProcessDefinitionDAO(Session hibernateSession);
-	
-	UserProcessQueueDAO getUserProcessQueueDAO(Session hibernateSession);
 
 	ProcessToolContextFactory getProcessToolContextFactory();
 	

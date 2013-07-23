@@ -30,7 +30,7 @@ public class MyProcessesListPane extends ProcessListPane {
         processFilter.setName(getMessage("activity.assigned.tasks"));
 		processFilter.setFilterOwner(getBpmSession().getUser());
 //		processFilter.addOwner(processFilter.getFilterOwner());
-        processFilter.addQueueType(QueueType.ASSIGNED_TO_CURRENT_USER);
+        processFilter.addQueueType(QueueType.MY_TASKS);
         return processFilter;
     }
 

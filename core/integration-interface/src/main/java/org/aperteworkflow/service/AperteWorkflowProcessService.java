@@ -32,9 +32,7 @@ public interface AperteWorkflowProcessService {
 	 * @param internalId Always filled: "portlet" internalID - internal key (if null, it will be generated from config and externalkey, when externalkey is null, it will generate a unique number) (the field is not required)
 	 * @return Newly created process instance.
 	 *</pre>*/
-	ProcessInstance createProcessInstance(ProcessDefinitionConfig config,
-			String externalKey, UserData user, String description,
-			String keyword, String source, String internalId);
+	ProcessInstance createProcessInstance(ProcessDefinitionConfig config, String externalKey, UserData user, String source);
 
 	
 	/**<pre>
@@ -167,29 +165,6 @@ public interface AperteWorkflowProcessService {
 	List<BpmTaskBean> getAllTasks(UserData user);
 
 	/**<pre>
-	 * Service returns the name of the current output of a task, is dependent of the process state.
-	 * 
-	 * @param taskId taskId from jbpm4_task table
-	 * @return Names of outgoing Transitions 
-	 * @throws AperteWsWrongArgumentException If executionId is wrong and  process instance, does not exists (including param null or empty values).
-	 *</pre>*/
-	List<String> getOutgoingTransitionNamesByTaskId(String taskId)
-			throws AperteWsWrongArgumentException;
-	
-
-
-	/**<pre>
-	 * 
-	 * Returns Destination names of outgoing transitions, based on process Internal id.
-	 * 
-	 * @param executionId InternalID from t_process_instance table
-	 * @return Names of transistions destinations.
-	 * @throws AperteWsWrongArgumentException  If executionId is wrong and  process instance, does not exists (including param null or empty values).
-	 *</pre>*/
-	List<String> getOutgoingTransitionDestinationNames(String executionId)
-			throws AperteWsWrongArgumentException;
-
-	/**<pre>
 	 * 
 	 * Service changes task assigned user to any other.
 	 * 
@@ -252,18 +227,6 @@ public interface AperteWorkflowProcessService {
 	 * @throws AperteWsWrongArgumentException  If userLogin is wrong and  User, does not exists (including param null or empty values).
 	 *</pre>*/
 	Collection<ProcessQueueBean> getUserAvailableQueues(String userLogin)
-			throws AperteWsWrongArgumentException;
-
-	/**<pre>
-	 * 
-	 * Returns information whether the user is currently assigned to the task.
-	 * 
-	 * @param internalId InternalID from t_process_instance table
-	 * @param userLogin User login
-	 * @return True if process is owned by user.
-	 * @throws AperteWsWrongArgumentException If userLogin,internalId is wrong and  User or process instance does not exists (including param null or empty values).
-	 *</pre>*/
-	boolean isProcessOwnedByUser(String internalId, String userLogin)
 			throws AperteWsWrongArgumentException;
 
 	/**<pre>
@@ -406,7 +369,4 @@ public interface AperteWorkflowProcessService {
 	List<ProcessStateAction> getActionsListByNameFromInstance(
 			String internalId, String actionName)
 			throws AperteWsWrongArgumentException;
-
-
-	
 }

@@ -14,8 +14,14 @@ import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItemExtension
 
 @Entity
 @Table(name = "pt_dictionary_item_ext")
-public class ProcessDBDictionaryItemExtension extends PersistentEntity implements ProcessDictionaryItemExtension<String> {
-    @ManyToOne(fetch = FetchType.LAZY)
+public class ProcessDBDictionaryItemExtension extends PersistentEntity implements ProcessDictionaryItemExtension {
+    public static final String _ITEM_VALUE = "itemValue";
+	public static final String _NAME = "name";
+	public static final String _VALUE = "value";
+	public static final String _DESCRIPTION = "description";
+	public static final String _VALUE_TYPE = "valueType";
+
+	@ManyToOne(fetch = FetchType.LAZY)
     @Cascade(value = {CascadeType.ALL})
     private ProcessDBDictionaryItemValue itemValue;
 
@@ -31,22 +37,15 @@ public class ProcessDBDictionaryItemExtension extends PersistentEntity implement
 
     private ProcessDBDictionaryItemExtension(ProcessDBDictionaryItemExtension ext) {
         id = ext.getId();
-        name = ext.getName();
-        value = ext.getValue();
-        valueType = ext.getValue();
-        description = ext.getDescription();
-        itemValue = ext.getItemValue();
+        name = ext.name;
+        value = ext.value;
+        valueType = ext.value;
+        description = ext.description;
+        itemValue = ext.itemValue;
     }
 
     public ProcessDBDictionaryItemExtension exactCopy() {
         return new ProcessDBDictionaryItemExtension(this);
-    }
-
-    public ProcessDBDictionaryItemExtension shallowCopy() {
-        ProcessDBDictionaryItemExtension ext = exactCopy();
-        ext.setItemValue(null);
-        ext.setId(null);
-        return ext;
     }
 
     public ProcessDBDictionaryItemValue getItemValue() {
@@ -57,7 +56,8 @@ public class ProcessDBDictionaryItemExtension extends PersistentEntity implement
         this.itemValue = itemValue;
     }
 
-    public String getName() {
+    @Override
+	public String getName() {
         return name;
     }
 
@@ -65,7 +65,8 @@ public class ProcessDBDictionaryItemExtension extends PersistentEntity implement
         this.name = name;
     }
 
-    public String getValue() {
+    @Override
+	public String getValue() {
         return value;
     }
 
@@ -73,15 +74,8 @@ public class ProcessDBDictionaryItemExtension extends PersistentEntity implement
         this.value = value;
     }
 
-	public String getStringValue() {
-		return getValue();
-	}
-
-	public void setStringValue(String value) {
-		setValue(value);
-	}
-
-    public String getValueType() {
+    @Override
+	public String getValueType() {
         return valueType;
     }
 
@@ -89,50 +83,12 @@ public class ProcessDBDictionaryItemExtension extends PersistentEntity implement
         this.valueType = valueType;
     }
 
-    public String getDescription() {
+    @Override
+	public String getDescription() {
         return description;
     }
 
     public void setDescription(String description) {
         this.description = description;
     }
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ProcessDBDictionaryItemExtension other = (ProcessDBDictionaryItemExtension) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-			else
-				return this == obj;
-		} else if (!name.equals(other.name))
-			return false;
-		return true;
-	}
-
-
-
-
-    
-    
 }

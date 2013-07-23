@@ -2,6 +2,7 @@ package pl.net.bluesoft.rnd.processtool.ui.dict;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -43,7 +44,6 @@ import com.vaadin.ui.TextField;
  */
 public class DictionaryItemTable extends GenericTable<ProcessDBDictionaryItem>
 {
-	
     private static final String EMPTY_VALID_DATE = "...";
     
 	public static final String KEY_COLUMN_NAME = "key";
@@ -61,9 +61,9 @@ public class DictionaryItemTable extends GenericTable<ProcessDBDictionaryItem>
 	};
 	
 	private static final String[] EDITABLE_COLUMNS =
-		{
-			KEY_COLUMN_NAME, DESCRIPTION_COLUMN_NAME, 
-		};
+	{
+		KEY_COLUMN_NAME, DESCRIPTION_COLUMN_NAME,
+	};
 	
 
 	public DictionaryItemTable(BeanItemContainer<ProcessDBDictionaryItem> container, I18NSource i18NSource, GenericVaadinPortlet2BpmApplication application) 
@@ -79,7 +79,6 @@ public class DictionaryItemTable extends GenericTable<ProcessDBDictionaryItem>
 		
 		setSortContainerPropertyId(KEY_COLUMN_NAME);
 		sort(new Object[] {KEY_COLUMN_NAME}, new boolean[] {true});
-
 	}
 
 	@Override
@@ -212,7 +211,6 @@ public class DictionaryItemTable extends GenericTable<ProcessDBDictionaryItem>
 	protected String[] getEditableFields() {
 		return EDITABLE_COLUMNS;
 	}
-	
 
 	/** Delete item request */
 	private class EditItemButton extends Button implements ClickListener
@@ -289,7 +287,6 @@ public class DictionaryItemTable extends GenericTable<ProcessDBDictionaryItem>
 		{
 			CancelEditionOfDictionaryItemActionRequest actionRequest = new CancelEditionOfDictionaryItemActionRequest(entryToSave);
 			DictionaryItemTable.this.notifyListeners(actionRequest);
-
 		}
 	}
 	
@@ -357,7 +354,7 @@ public class DictionaryItemTable extends GenericTable<ProcessDBDictionaryItem>
 
         @Override
         public String getItemRepresentation(ProcessDBDictionaryItemValue item) {
-            StringBuilder sb = new StringBuilder().append("<b>").append(item.getValue()).append("</b>").append("<ul>");
+            StringBuilder sb = new StringBuilder().append("<b>").append(item.getDefaultValue()).append("</b>").append("<ul>");
             
             if(item.getExtensions().isEmpty())
             {
@@ -396,19 +393,18 @@ public class DictionaryItemTable extends GenericTable<ProcessDBDictionaryItem>
         @Override
         public String getItemRepresentation(ProcessDBDictionaryItemValue item) {
             DateFormat dateFormat = VaadinUtility.simpleDateFormat();
-            StringBuilder sb = new StringBuilder().append("<b>").append(item.getValue()).append("</b>").append(" (").append("<i>");
+            StringBuilder sb = new StringBuilder().append("<b>").append(item.getDefaultValue()).append("</b>").append(" (").append("<i>");
             if (item.hasFullDatesRange()) {
                 sb.append(getMessage("dict.full.range"));
             }
             else {
-                sb.append(item.getValidStartDate() != null ? dateFormat.format(item.getValidStartDate()) : EMPTY_VALID_DATE)
+                sb.append(item.getValidFrom() != null ? dateFormat.format(item.getValidFrom()) : EMPTY_VALID_DATE)
                         .append(" - ")
-                        .append(item.getValidEndDate() != null ? dateFormat.format(item.getValidEndDate()) : EMPTY_VALID_DATE);
+                        .append(item.getValidTo() != null ? dateFormat.format(item.getValidTo()) : EMPTY_VALID_DATE);
             }
             sb.append("</i>)");
             return sb.toString();
         }
-    	
     }
     
     private abstract class DictPopupVisibilityListener implements PopupVisibilityListener 
@@ -439,28 +435,26 @@ public class DictionaryItemTable extends GenericTable<ProcessDBDictionaryItem>
                 }
                 else {
                     sb.append("<ul>");
-                    java.util.Collections.sort(values, new Comparator<ProcessDBDictionaryItemValue>() 
+                    Collections.sort(values, new Comparator<ProcessDBDictionaryItemValue>()
                     {
                         @Override
                         public int compare(ProcessDBDictionaryItemValue o1, ProcessDBDictionaryItemValue o2) 
                         {
-                        	
                         	/* The null value is higher then anything else */
-                        	if(o1.getValidStartDate() == null)
+                        	if(o1.getValidFrom() == null)
                         		return Integer.MAX_VALUE;
                         	
-                        	else if(o1.getValidEndDate() == null)
+                        	else if(o1.getValidTo() == null)
                         		return Integer.MIN_VALUE;
                         	
-                        	else if(o2.getValidStartDate() == null)
+                        	else if(o2.getValidFrom() == null)
                         		return Integer.MIN_VALUE;
-                        	
-                        	
+
                 			/* Fix na IBMowa impelementacje TimeStampa, który próbuje rzutować
                 			 * obiekt Date na Timestamp i przez to leci wyjątek. 
                 			 */
-                			Date paymentDate1 = new Date(o1.getValidStartDate().getTime());
-                			Date paymentDate2 = new Date(o2.getValidStartDate().getTime());
+                			Date paymentDate1 = new Date(o1.getValidFrom().getTime());
+                			Date paymentDate2 = new Date(o2.getValidFrom().getTime());
                         	
                         	/* The newer the date is the position of value is higher in collection */
                             return paymentDate2.compareTo(paymentDate1);

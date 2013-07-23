@@ -11,16 +11,12 @@ import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolSessionFactory;
 import pl.net.bluesoft.rnd.processtool.bpm.exception.ProcessToolException;
 import pl.net.bluesoft.rnd.processtool.dao.*;
 import pl.net.bluesoft.rnd.processtool.dict.GlobalDictionaryProvider;
-import pl.net.bluesoft.rnd.processtool.dict.ProcessDictionaryProvider;
 import pl.net.bluesoft.rnd.processtool.dict.ProcessDictionaryRegistry;
 import pl.net.bluesoft.rnd.processtool.hibernate.HibernateBean;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessToolAutowire;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessToolSequence;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessToolSetting;
-import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
-import pl.net.bluesoft.rnd.processtool.userqueues.IUserProcessQueueManager;
 import pl.net.bluesoft.util.eventbus.EventBusManager;
 import pl.net.bluesoft.util.lang.Formats;
 
@@ -38,16 +34,13 @@ import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.g
 public class ProcessToolContextImpl implements ProcessToolContext { 
     private Session hibernateSession;
     private ProcessDictionaryRegistry processDictionaryRegistry;
-    private IUserProcessQueueManager userProcessQueueManager;
 
     private Map<Class<? extends HibernateBean>, HibernateBean> daoCache = new HashMap<Class<? extends HibernateBean>, HibernateBean>();
 
     private Boolean closed = false;
 
-    public ProcessToolContextImpl(Session hibernateSession,
-    								ProcessToolRegistry registry) {
+    public ProcessToolContextImpl(Session hibernateSession) {
         this.hibernateSession = hibernateSession;
-        this.userProcessQueueManager = new UserProcessQueueManager(hibernateSession, getUserProcessQueueDAO());
     }
 
     private synchronized void verifyContextOpen() {
@@ -73,8 +66,7 @@ public class ProcessToolContextImpl implements ProcessToolContext {
     public ProcessDictionaryRegistry getProcessDictionaryRegistry() {
         if (processDictionaryRegistry == null) {
             processDictionaryRegistry = new ProcessDictionaryRegistry();
-            processDictionaryRegistry.addProcessDictionaryProvider("db", (ProcessDictionaryProvider) getProcessDictionaryDAO());
-            processDictionaryRegistry.addGlobalDictionaryProvider("db", (GlobalDictionaryProvider) getProcessDictionaryDAO());
+            processDictionaryRegistry.addDictionaryProvider("db", (GlobalDictionaryProvider)getProcessDictionaryDAO());
         }
         return processDictionaryRegistry;
     }
@@ -94,8 +86,6 @@ public class ProcessToolContextImpl implements ProcessToolContext {
                 dao = (T) getRegistry().getUserDataDAO(hibernateSession);
             } else if (ProcessDefinitionDAO.class.equals(daoClass)) {
                 dao = (T) getRegistry().getProcessDefinitionDAO(hibernateSession);
-            } else if (UserProcessQueueDAO.class.equals(daoClass)) {
-                dao = (T) getRegistry().getUserProcessQueueDAO(hibernateSession);
             } else if (UserSubstitutionDAO.class.equals(daoClass)) {
                 dao = (T) getRegistry().getUserSubstitutionDAO(hibernateSession);
             }else if (ProcessInstanceSimpleAttributeDAO.class.equals(daoClass)) {
@@ -138,11 +128,7 @@ public class ProcessToolContextImpl implements ProcessToolContext {
     public UserSubstitutionDAO getUserSubstitutionDAO() {
         return getHibernateDAO(UserSubstitutionDAO.class);
     }
-    
-	@Override
-	public UserProcessQueueDAO getUserProcessQueueDAO() {
-		return getHibernateDAO(UserProcessQueueDAO.class);
-	}
+
     @Override
 	public ProcessInstanceSimpleAttributeDAO getProcessInstanceSimpleAttributeDAO() {
 		return getHibernateDAO(ProcessInstanceSimpleAttributeDAO.class);
@@ -260,12 +246,6 @@ public class ProcessToolContextImpl implements ProcessToolContext {
     @Override
     public void updateContext(ProcessInstance processInstance) {
     }
-
-	@Override
-	public IUserProcessQueueManager getUserProcessQueueManager()
-	{
-		return userProcessQueueManager;
-	}
 
 	@Override
 	public void close() {

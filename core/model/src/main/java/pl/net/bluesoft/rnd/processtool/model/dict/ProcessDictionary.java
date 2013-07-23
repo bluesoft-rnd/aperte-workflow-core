@@ -1,18 +1,17 @@
 package pl.net.bluesoft.rnd.processtool.model.dict;
 
 import java.util.Collection;
+import java.util.Locale;
 
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
-
-public interface ProcessDictionary<K, V> {
+public interface ProcessDictionary {
     String getDictionaryId();
-	String getDictionaryName();
-    String getLanguageCode();
-    Boolean isDefaultDictionary();
-    ProcessDefinitionConfig getProcessDefinition();
+	@Deprecated
+	String getDefaultName();
+	String getName(String languageCode);
+	String getName(Locale locale);
 
-    ProcessDictionaryItem<K, V> lookup(K key);
-	boolean containsKey(K key);
-    Collection<K> itemKeys();
-    Collection<ProcessDictionaryItem<K, V>> items();
+    ProcessDictionaryItem lookup(String key);
+	boolean containsKey(String key);
+    Collection<String> itemKeys();
+    Collection<ProcessDictionaryItem> items();
 }

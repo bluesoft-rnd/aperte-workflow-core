@@ -2,23 +2,19 @@ package pl.net.bluesoft.rnd.processtool.ui.dict;
 
 import static org.aperteworkflow.util.vaadin.VaadinUtility.horizontalLayout;
 import static org.aperteworkflow.util.vaadin.VaadinUtility.validationNotification;
+import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
 
 import java.util.HashSet;
 
 import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
-import org.aperteworkflow.util.vaadin.TransactionProvider;
 import org.aperteworkflow.util.vaadin.VaadinUtility;
 import org.aperteworkflow.util.vaadin.VaadinUtility.Refreshable;
 
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
-import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionary;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItem;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemExtension;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemValue;
 import pl.net.bluesoft.rnd.processtool.ui.dict.modelview.GlobalDictionaryModelView;
-import pl.net.bluesoft.rnd.processtool.ui.dict.modelview.ProcessDictionaryModelView;
 import pl.net.bluesoft.rnd.processtool.ui.dict.request.AddNewDictionaryItemActionRequest;
 import pl.net.bluesoft.rnd.processtool.ui.dict.request.CancelEditionOfDictionaryItemActionRequest;
 import pl.net.bluesoft.rnd.processtool.ui.dict.request.CopyDictionaryItemValueActionRequest;
@@ -31,39 +27,29 @@ import pl.net.bluesoft.rnd.processtool.ui.dict.validator.DictionaryItemValidator
 import pl.net.bluesoft.rnd.processtool.ui.request.IActionRequest;
 import pl.net.bluesoft.rnd.processtool.ui.request.IActionRequestListener;
 import pl.net.bluesoft.rnd.processtool.ui.request.exception.UnknownActionRequestException;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolGuiCallback;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import com.vaadin.Application;
 import com.vaadin.data.Validator.InvalidValueException;
-import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
-public class DictionariesMainPane extends VerticalLayout implements ProcessToolBpmConstants, Refreshable, IActionRequestListener, IEntryValidator<ProcessDBDictionaryItem>
+public class DictionariesMainPane extends VerticalLayout implements Refreshable, IActionRequestListener, IEntryValidator<ProcessDBDictionaryItem>
 {
     private GenericVaadinPortlet2BpmApplication application;
     private I18NSource i18NSource;
-    public I18NSource getI18NSource() {
-		return i18NSource;
-	}
-
-	private TransactionProvider transactionProvider;
 
     private TabSheet tabSheet;
 
-    private Window detailsWindow = null;
-    
-    private ProcessDictionaryTab processTab;
-    private GlobalDictionaryTab globalTab;
-   
+    private Window detailsWindow;
 
-    public DictionariesMainPane(GenericVaadinPortlet2BpmApplication application, I18NSource i18NSource, TransactionProvider transactionProvider) {
+    private GlobalDictionaryTab globalTab;
+
+    public DictionariesMainPane(GenericVaadinPortlet2BpmApplication application, I18NSource i18NSource) {
         this.application = application;
         this.i18NSource = i18NSource;
-        this.transactionProvider = transactionProvider;
         setWidth("100%");
         initWidget();
         loadData();
@@ -77,12 +63,10 @@ public class DictionariesMainPane extends VerticalLayout implements ProcessToolB
         titleLabel.addStyleName("h1 color processtool-title");
         titleLabel.setWidth("100%");
 
-        processTab = new ProcessDictionaryTab(this, new ProcessDictionaryModelView(transactionProvider, application));
-        globalTab = new GlobalDictionaryTab(this, new GlobalDictionaryModelView(transactionProvider, application));
+        globalTab = new GlobalDictionaryTab(this, new GlobalDictionaryModelView(application));
 
         tabSheet = new TabSheet();
         tabSheet.setWidth("100%");
-        tabSheet.addTab(processTab, getMessage("dict.title.process"), VaadinUtility.imageResource(application, "dict.png"));
         tabSheet.addTab(globalTab, getMessage("dict.title.global"), VaadinUtility.imageResource(application, "globe.png"));   
 
         addComponent(horizontalLayout(titleLabel, VaadinUtility.refreshIcon(application, this)));
@@ -92,14 +76,12 @@ public class DictionariesMainPane extends VerticalLayout implements ProcessToolB
 
     private void loadData() 
     {
-    	processTab.getModelView().reloadData();
     	globalTab.getModelView().reloadData();
     }
 
-
-    public void refreshData() 
+    @Override
+	public void refreshData()
     {
-    	processTab.getModelView().refreshData();
     	globalTab.getModelView().refreshData();
     }
 
@@ -123,16 +105,13 @@ public class DictionariesMainPane extends VerticalLayout implements ProcessToolB
                 }
             }
         }
-        getTransactionProvider().withTransaction(new ProcessToolGuiCallback() {
-            @Override
-            public void callback(ProcessToolContext ctx, ProcessToolBpmSession session) {
-                ctx.getProcessDictionaryDAO().updateDictionary(item.getDictionary());
-            }
-        });
+
+		getThreadProcessToolContext().getProcessDictionaryDAO().updateDictionary(item.getDictionary());
+
         application.getMainWindow().removeWindow(detailsWindow);
         detailsWindow = null;
-        
-        getTabByItem(item).commitChanges();
+
+		globalTab.commitChanges();
         refreshData();
     }
 
@@ -143,8 +122,8 @@ public class DictionariesMainPane extends VerticalLayout implements ProcessToolB
 		if(actionRequest instanceof DeleteDictionaryItemActionRequest)
 		{
 			DeleteDictionaryItemActionRequest deleteRequest = (DeleteDictionaryItemActionRequest)actionRequest;
-			
-			getTabByItem(deleteRequest.getItemToDelete()).removeItem(deleteRequest.getItemToDelete());
+
+			globalTab.removeItem(deleteRequest.getItemToDelete());
 		}
 		else if(actionRequest instanceof SaveNewDictionaryItemActionRequest)
 		{
@@ -172,14 +151,14 @@ public class DictionariesMainPane extends VerticalLayout implements ProcessToolB
 			AddNewDictionaryItemActionRequest addNewRequest = (AddNewDictionaryItemActionRequest)actionRequest;
 			
 			/* Show edition window for new item */
-			getTabByItem(addNewRequest.getItemToShow()).editItem(addNewRequest.getItemToShow());
+			globalTab.editItem(addNewRequest.getItemToShow());
 		}
 		else if(actionRequest instanceof EditDictionaryItemActionRequest)
 		{
 			EditDictionaryItemActionRequest showRequest = (EditDictionaryItemActionRequest)actionRequest;
 			
 			/* Show edition window for item to edit */
-			getTabByItem(showRequest.getItemToShow()).editItem(showRequest.getItemToShow());
+			globalTab.editItem(showRequest.getItemToShow());
 		}
 		else if(actionRequest instanceof CancelEditionOfDictionaryItemActionRequest)
 		{
@@ -188,13 +167,13 @@ public class DictionariesMainPane extends VerticalLayout implements ProcessToolB
 			/* New item creantion cancellation */
 			if(cancelRequest.getItemToRollback().getId() == null)
 			{
-				getTabByItem(cancelRequest.getItemToRollback()).dicardChanges();
-				getTabByItem(cancelRequest.getItemToRollback()).removeItem(cancelRequest.getItemToRollback());
+				globalTab.dicardChanges();
+				globalTab.removeItem(cancelRequest.getItemToRollback());
 			}
 			/* Discard current change and refresh dictionary and view */
 			else
 			{
-		        getTabByItem(cancelRequest.getItemToRollback()).dicardChanges();
+				globalTab.dicardChanges();
 			}
 		}
 		else if(actionRequest instanceof CopyDictionaryItemValueActionRequest)
@@ -202,31 +181,30 @@ public class DictionariesMainPane extends VerticalLayout implements ProcessToolB
 			CopyDictionaryItemValueActionRequest request = (CopyDictionaryItemValueActionRequest)actionRequest;
 			
 			/* Make shallow copy of the item's value */
-			ProcessDBDictionaryItemValue value =  request.getItemValueToCopy();
+			ProcessDBDictionaryItemValue value =  request.getItemValueToCopy().getWrappedObject();
 			ProcessDBDictionaryItemValue shallowCopy = value.shallowCopy();
 			
 			/* Add copy to the items' values */
-			value.getItem().getValues().add(shallowCopy);
+			value.getItem().addValue(shallowCopy);
 			
 			/* Inform modelView about change */
-			getTabByItem(value.getItem()).getModelView().addDictionaryItemValue(shallowCopy);
+			globalTab.getModelView().addDictionaryItemValue(shallowCopy);
 		}
 		else if(actionRequest instanceof DeleteDictionaryItemValueActionRequest)
 		{
 			DeleteDictionaryItemValueActionRequest showRequest = (DeleteDictionaryItemValueActionRequest)actionRequest;
-			ProcessDBDictionaryItemValue value =  showRequest.getItemValueToDelete();
+			ProcessDBDictionaryItemValue value =  showRequest.getItemValueToDelete().getWrappedObject();
 			
 			/* Remove value from the item's collection */
-			value.getItem().getValues().remove(value);
+			value.getItem().removeValue(value);
 			
 			/* Inform modelView about change */
-			getTabByItem(value.getItem()).getModelView().removeItemValue(value);
+			globalTab.getModelView().removeItemValue(showRequest.getItemValueToDelete());
 		}
 		else
 		{
 			throw new UnknownActionRequestException("Unknown action request: "+actionRequest);
 		}
-		
 	}
 	
 	@Override
@@ -236,20 +214,17 @@ public class DictionariesMainPane extends VerticalLayout implements ProcessToolB
 	
 	public GenericVaadinPortlet2BpmApplication getVaadinApplication()
 	{
-		return (GenericVaadinPortlet2BpmApplication)application;
+		return application;
 	}
 
-    public TransactionProvider getTransactionProvider() {
-		return transactionProvider;
-	}
-    
     /**
      * Validate given dictionary item
      * 
      * @param item item to validate
      * @return false if item is invalid
      */
-    public boolean isEntryValid(ProcessDBDictionaryItem item)
+    @Override
+	public boolean isEntryValid(ProcessDBDictionaryItem item)
     {
     	DictionaryItemValidator validator = new DictionaryItemValidator(application);
     	
@@ -268,14 +243,10 @@ public class DictionariesMainPane extends VerticalLayout implements ProcessToolB
 			return false;
     	}
     }
-    
-    private DictionaryTab getTabByItem(ProcessDBDictionaryItem item)
-    {
-    	if(item.getDictionary().isGlobalDictionary())
-    		return globalTab;
-    	else
-    		return processTab;
-    }
+
+	public I18NSource getI18NSource() {
+		return i18NSource;
+	}
 }
 
 

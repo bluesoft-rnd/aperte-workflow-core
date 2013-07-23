@@ -14,26 +14,12 @@ import static pl.net.bluesoft.rnd.processtool.model.QueueType.*;
  */
 public class ProcessInstanceFilterFactory 
 {
-	public ProcessInstanceFilterFactory() 
-	{
+	public ProcessInstanceFilter createMyTasksFilter(UserData user) {
+		return getProcessInstanceFilter(user, "activity.created.assigned.tasks", MY_TASKS);
 	}
 
-	/** Methods creates new filter which returns tasks created by given user, but done by others */
-	public ProcessInstanceFilter createMyTaskDoneByOthersFilter(UserData user)
-	{
-		return getProcessInstanceFilter(user, "activity.created.tasks", OWN_IN_PROGRESS, OWN_IN_QUEUE);
-	}
-	
-	/** Methods creates new filter which returns tasks created by other users, but assigned to given user */
-	public ProcessInstanceFilter createOthersTaskAssignedToMeFilter(UserData user)
-	{
-		return getProcessInstanceFilter(user, "activity.assigned.tasks", ASSIGNED_TO_CURRENT_USER);
-	}
-	
-	/** Methods creates new filter which returns tasks created by given user and assigned to him */
-	public ProcessInstanceFilter createMyTasksAssignedToMeFilter(UserData user)
-	{
-		return getProcessInstanceFilter(user, "activity.created.assigned.tasks", OWN_ASSIGNED);
+	public ProcessInstanceFilter createMyTasksInProgress(UserData user) {
+		return getProcessInstanceFilter(user, "activity.created.tasks", OWN_IN_PROGRESS);
 	}
 
 	/** Methods creates new filter which returns user closed tasks */
@@ -41,30 +27,17 @@ public class ProcessInstanceFilterFactory
 	{
 		return getProcessInstanceFilter(user, "activity.created.closed.tasks", OWN_FINISHED);
 	}
-	
-	/** Methods creates new filter which returns user closed tasks */
-	public ProcessInstanceFilter createQueuedTaskFilter(UserData user, ProcessQueue processQueue)
+
+	/** Methods creates new filter which returns tasks created by given user and assigned to him */
+	public ProcessInstanceFilter createSubstitutedMyTasksFilter(UserData substitutedUser)
 	{
-		return getProcessInstanceFilterForQueue(user, processQueue);
+		return getProcessInstanceFilter(substitutedUser, "activity.subst.created.assigned.tasks", MY_TASKS);
 	}
 
-	
 	/** Methods creates new filter which returns tasks created by given user, but done by others */
-	public ProcessInstanceFilter createSubstitutedTaskDoneByOthersFilter(UserData substitutedUser)
+	public ProcessInstanceFilter createSubstitutedTasksInProgress(UserData substitutedUser)
 	{
-		return getProcessInstanceFilter(substitutedUser, "activity.subst.created.tasks", OWN_IN_PROGRESS, OWN_IN_QUEUE);
-	}
-	
-	/** Methods creates new filter which returns tasks created by other users, but assigned to given user */
-	public ProcessInstanceFilter createSubstitutedOthersTaskAssignedToMeFilter(UserData substitutedUser)
-	{
-		return getProcessInstanceFilter(substitutedUser, "activity.subst.assigned.tasks", ASSIGNED_TO_CURRENT_USER);
-	}
-	
-	/** Methods creates new filter which returns tasks created by given user and assigned to him */
-	public ProcessInstanceFilter createSubstitutedTasksAssignedToMeFilter(UserData substitutedUser)
-	{
-		return getProcessInstanceFilter(substitutedUser, "activity.subst.created.assigned.tasks", OWN_ASSIGNED);
+		return getProcessInstanceFilter(substitutedUser, "activity.subst.created.tasks", OWN_IN_PROGRESS);
 	}
 
 	/** Methods creates new filter which returns user closed tasks */
@@ -72,20 +45,11 @@ public class ProcessInstanceFilterFactory
 	{
 		return getProcessInstanceFilter(substitutedUser, "activity.subst.created.closed.tasks", OWN_FINISHED);
 	}
-	
+
 	/** Methods creates new filter which returns user closed tasks */
 	public ProcessInstanceFilter createOtherUserTaskForSubstitutedUser(UserData substitutedUser)
 	{
-		return getProcessInstanceFilter(substitutedUser, "activity.other.users.tasks", ASSIGNED_TO_CURRENT_USER);
-	}
-	
-	private ProcessInstanceFilter getProcessInstanceFilterForQueue(UserData user, ProcessQueue processQueue)
-	{
-		ProcessInstanceFilter instanceFilter = getProcessInstanceFilter(user, "user.queue.name."+processQueue.getName());
-		
-		instanceFilter.getQueues().add(processQueue.getName());
-		
-		return instanceFilter;
+		return getProcessInstanceFilter(substitutedUser, "activity.other.users.tasks", MY_TASKS);
 	}
 	
 	private ProcessInstanceFilter getProcessInstanceFilter(UserData user, String name, QueueType... types)
@@ -99,5 +63,4 @@ public class ProcessInstanceFilterFactory
 		}
 		return pif;
 	}
-
 }

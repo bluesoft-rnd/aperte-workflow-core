@@ -14,7 +14,7 @@
 
 <div class="main-view">
 	<%@include file="leftMenu.jsp" %>
-	<%@include file="processList.jsp" %>
+	<%@include file="taskView.jsp" %>
 	<%@include file="widgetList.jsp" %>
 	<%@include file="actionsList.jsp" %>
 	<%@include file="processStartList.jsp" %>
@@ -31,6 +31,16 @@
  
   <script type="text/javascript">
   
+	var windowManager = new WindowManager();
+  
+  	$(document).ready(function()
+	{
+		console.log("reload: "); 
+		queueViewManager.reloadCurrentQueue();
+		moveQueueList();
+		reloadQueues();
+	});
+  
   	$(window).unload(function() 
 	{
 		windowManager.clearProcessView();
@@ -41,7 +51,11 @@
 	  return ( a || b ) && !( a && b );
 	} 
 	
-	var windowManager = new WindowManager();
+	function WindowView(viewId)
+	{
+		this.viewId = viewId;
+	}
+
   
 	function WindowManager()
 	{
@@ -49,7 +63,13 @@
 		this.viewHistory = [];
 		this.mobileMode = false;
 		this.tabletMode = false;
-		this.allViews = ["error-screen", "loading-screen", "process-data-view", "actions-list", "process-panel-view", "new-process-view", "search-view", "outer-queues", "configuration"];
+		this.allViews = {};
+		//this.allViews = ["error-screen", "loading-screen", "process-data-view", "actions-list", "process-panel-view", "new-process-view", "search-view", "outer-queues", "configuration"];
+		
+		this.addView = function(windowView)
+		{
+			this.allViews[windowView.viewId] = windowView;
+		}
 		
 		this.previousView = function()
 		{
@@ -62,18 +82,39 @@
 		
 		this.showLoadingScreen = function()
 		{
-			this.showView('loading-screen', false);
+			this.showView(this.allViews['loading-screen'], true);
 		}
 		
 		this.showQueueList = function()
 		{
-			this.showView('outer-queues', true);
+			this.showView(this.allViews['outer-queues'], true);
 		}
 		
 		
 		this.showConfiguration = function()
 		{
-			this.showView('configuration', true);
+			this.showView(this.allViews['configuration'], true);
+		}
+		
+		this.showSearchProcessPanel = function()
+		{
+			this.showView(this.allViews['search-view'], true);
+		}
+		
+		this.showNewProcessPanel = function()
+		{
+			this.showView(this.allViews['new-process-view'], true);
+		};
+		
+		this.showProcessList = function()
+		{
+			this.showView(this.allViews['process-panel-view'], true);
+		}
+		
+		this.showProcessData = function()
+		{
+			this.showView(this.allViews['process-data-view'], true);
+			$('#actions-list').fadeIn(600);
 		}
 		
 		this.hasPreviousView = function()
@@ -99,13 +140,12 @@
 		
 		
 		
-		this.showSearchProcessPanel = function()
-		{
-			this.showView('search-view', true);
-		};
+
 		
 		this.showView = function(viewName, addToHistory)
 		{
+			$(document.getElementById(this.currentView)).stop(true, true);
+			
 			if(this.tabletMode == true && $("#mobile-collapse").hasClass('in') == true)
 			{
 				console.log( "toggle hide ");
@@ -131,21 +171,6 @@
 			$(document.getElementById(viewName)).fadeIn(500);
 		}
 		
-		this.showNewProcessPanel = function()
-		{
-			this.showView('new-process-view', true);
-		};
-		
-		this.showProcessList = function()
-		{
-			this.showView('process-panel-view', true);
-		}
-		
-		this.showProcessData = function()
-		{
-			this.showView('process-data-view', true);
-			$('#actions-list').fadeIn(600);
-		}
 		
 		this.clearProcessView = function()
 		{

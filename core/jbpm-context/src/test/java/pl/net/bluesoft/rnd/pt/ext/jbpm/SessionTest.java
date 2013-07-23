@@ -10,6 +10,7 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
+import pl.net.bluesoft.rnd.processtool.bpm.StartProcessResult;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
 import pl.net.bluesoft.rnd.processtool.di.ClassDependencyManager;
 import pl.net.bluesoft.rnd.processtool.model.*;
@@ -373,26 +374,16 @@ public class SessionTest extends TestCase {
 
 			ProcessToolBpmSession session = createSession(user);
 
-			assertEquals(elems[0].length, session.getTasksCount(user, QueueType.OWN_ASSIGNED));
+			assertEquals(elems[0].length, session.getTasksCount(user, QueueType.MY_TASKS));
 			assertEquals(elems[1].length, session.getTasksCount(user, QueueType.OWN_IN_PROGRESS));
-			assertEquals(elems[2].length, session.getTasksCount(user, QueueType.OWN_IN_QUEUE));
-			assertEquals(elems[1].length + elems[2].length, session.getTasksCount(user, QueueType.OWN_IN_PROGRESS, QueueType.OWN_IN_QUEUE));
-			assertEquals(elems[3].length, session.getTasksCount(user, QueueType.ASSIGNED_TO_CURRENT_USER));
 			assertEquals(elems[4].length, session.getTasksCount(user, QueueType.OWN_FINISHED));
 
-			assertEquals(elems[0].length, session.getFilteredTasksCount(createFilter(user, QueueType.OWN_ASSIGNED)));
+			assertEquals(elems[0].length, session.getFilteredTasksCount(createFilter(user, QueueType.MY_TASKS)));
 			assertEquals(elems[1].length, session.getFilteredTasksCount(createFilter(user, QueueType.OWN_IN_PROGRESS)));
-			assertEquals(elems[2].length, session.getFilteredTasksCount(createFilter(user, QueueType.OWN_IN_QUEUE)));
-			assertEquals(elems[1].length + elems[2].length, session.getFilteredTasksCount(createFilter(user, QueueType.OWN_IN_PROGRESS, QueueType.OWN_IN_QUEUE)));
-			assertEquals(elems[3].length, session.getFilteredTasksCount(createFilter(user, QueueType.ASSIGNED_TO_CURRENT_USER)));
 			assertEquals(elems[4].length, session.getFilteredTasksCount(createFilter(user, QueueType.OWN_FINISHED)));
 
-			checkVQ(elems[0], session.findFilteredTasks(createFilter(user, QueueType.OWN_ASSIGNED)));
+			checkVQ(elems[0], session.findFilteredTasks(createFilter(user, QueueType.MY_TASKS)));
 			checkVQ(elems[1], session.findFilteredTasks(createFilter(user, QueueType.OWN_IN_PROGRESS)));
-			checkVQ(elems[2], session.findFilteredTasks(createFilter(user, QueueType.OWN_IN_QUEUE)));
-			checkVQ(from(elems[1]).concat(elems[2]).toArray(new VQElem[0]),
-					session.findFilteredTasks(createFilter(user, QueueType.OWN_IN_PROGRESS, QueueType.OWN_IN_QUEUE)));
-			checkVQ(elems[3], session.findFilteredTasks(createFilter(user, QueueType.ASSIGNED_TO_CURRENT_USER)));
 			checkVQ(elems[4], session.findFilteredTasks(createFilter(user, QueueType.OWN_FINISHED)));
 		}
 	}
@@ -507,11 +498,11 @@ public class SessionTest extends TestCase {
 
 		print("--------> " + task);
 
-		task = session.performAction(action, task);
+		List<BpmTask> tasks = session.performAction(action, task);
 
 		print("--------> AFTER " + task);
 
-		assertNotNull(task);
+		assertTrue(tasks != null && !tasks.isEmpty());
 		assertTrue(user.equals(task.getAssignee()) || task.isFinished());
 	}
 
@@ -621,9 +612,8 @@ public class SessionTest extends TestCase {
 
 		String externalKey = "NR" + System.currentTimeMillis();
 
-		String descr = "descr";
-		String keyword = "kw";
-		ProcessInstance processInstance = session.startProcess(bpmDefinitionKey, externalKey, descr, keyword, "test");
+		StartProcessResult result = session.startProcess(bpmDefinitionKey, externalKey, "test");
+		ProcessInstance processInstance = result.getProcessInstance();
 
 		assertNotNull(processInstance);
 		assertNotNull(processInstance.getDefinition());
@@ -632,8 +622,6 @@ public class SessionTest extends TestCase {
 		assertEquals(externalKey, processInstance.getExternalKey());
 		assertNotNull(processInstance.getCreateDate());
 		assertNotNull(processInstance.getCreator());
-		assertEquals(descr, processInstance.getDescription());
-		assertEquals(keyword, processInstance.getKeyword());
 		assertFalse(processInstance.isSubprocess());
 		assertNull(processInstance.getParent());
 //		assertTrue(processInstance.getChildren() == null || processInstance.getChildren().isEmpty());

@@ -7,6 +7,7 @@ import org.aperteworkflow.webapi.context.impl.WebProcessToolContextFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
+import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolSessionFactory;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 
 import com.google.common.eventbus.EventBus;
@@ -27,26 +28,21 @@ public class AbstractProcessToolServletController
     @Autowired
     private ProcessToolRegistry processToolRegistry;
     
-    public AbstractProcessToolServletController()
-    {
+    public AbstractProcessToolServletController() {
     	SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
     }
     
 	/** Initilize context */
-	protected IProcessToolRequestContext initilizeContext(HttpServletRequest request)
-	{
-		IProcessToolRequestContext context = WebProcessToolContextFactory.create(request);
-		
+	protected IProcessToolRequestContext initilizeContext(HttpServletRequest request, ProcessToolSessionFactory sessionFactory) {
+		IProcessToolRequestContext context = WebProcessToolContextFactory.create(request, sessionFactory);
 		return context;
 	}
 	
-	protected EventBus getEventBus()
-	{
+	protected EventBus getEventBus() {
 		return this.eventBus;
 	}
 	
-	protected ProcessToolRegistry getProcessToolRegistry()
-	{
+	protected ProcessToolRegistry getProcessToolRegistry() {
 		return this.processToolRegistry;
 	}
 

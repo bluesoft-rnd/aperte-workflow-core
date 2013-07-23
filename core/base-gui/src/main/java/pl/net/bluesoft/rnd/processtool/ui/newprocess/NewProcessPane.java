@@ -4,6 +4,7 @@ import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.ui.*;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
+import pl.net.bluesoft.rnd.processtool.bpm.StartProcessResult;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
@@ -54,14 +55,14 @@ public class NewProcessPane extends VerticalLayout {
                 }
                 withErrorHandling(getApplication(), new Runnable() {
                     public void run() {
-                        ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
                         ProcessDefinitionConfig cfg = (ProcessDefinitionConfig) l.getValue();
-                        ProcessInstance instance = session.startProcess(cfg.getBpmDefinitionKey(), null, null, null, "portlet");
+						StartProcessResult result = session.startProcess(cfg.getBpmDefinitionKey(), null, "portlet");
+						ProcessInstance instance = result.getProcessInstance();
                         getWindow().showNotification(getMessage("newProcess.started"), 2000);
                         getWindow().executeJavaScript("Liferay.trigger('processtool.bpm.newProcess', '" + instance.getInternalId() + "');");
                         getWindow().executeJavaScript("vaadin.forceSync();");
 
-                        List<BpmTask> tasks = session.findUserTasks(instance);
+                        List<BpmTask> tasks = result.getTasksAssignedToCreator();
                         if (!tasks.isEmpty()) {
                             BpmTask task = tasks.get(0);
                             if (activityMainPane != null) {

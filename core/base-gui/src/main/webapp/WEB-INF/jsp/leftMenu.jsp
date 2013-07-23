@@ -1,4 +1,4 @@
-﻿<%@ page import="org.springframework.web.servlet.support.RequestContextUtils"%>
+<%@ page import="org.springframework.web.servlet.support.RequestContextUtils"%>
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
@@ -45,49 +45,43 @@
  <script type="text/javascript">
  
 	var userLogin = '${aperteUser.login}';
-	$(document).ready(function()
-	{
-		
-		loadQueue('');
-		
-		moveQueueList();
-		reloadQueues();
-		
-
-		
-	});
-	
+	var queueInterval = '${queueInterval}';
 	
 	function moveQueueList()
 	{
 		if($(window).width() < 479 && windowManager.mobileMode == false)
 		{
 			windowManager.mobileMode = true;
+			queueViewManager.enableMobileMode();
 			
-			toggleColumnButton(2, false);
-			toggleColumnButton(3, false);
+			//toggleColumnButton(2, false);
+			//toggleColumnButton(3, false);
 		}
 		if($(window).width() < 962 && windowManager.tabletMode == false)
 		{
 			windowManager.tabletMode = true;
+			queueViewManager.enableTabletMode();
 			$('#queue-view-block').appendTo('#outer-queues');
-			toggleColumnButton(4, false);
-			toggleColumnButton(5, false);
+			
+			//toggleColumnButton(4, false);
+			//toggleColumnButton(5, false);
 		}
 		
 		if($(window).width() >= 480 && windowManager.mobileMode == true)
 		{
 			windowManager.mobileMode = false;
+			queueViewManager.disableMobileMode();
 			
-			toggleColumnButton(2, true);
-			toggleColumnButton(3, true);
+			//toggleColumnButton(2, true);
+			//toggleColumnButton(3, true);
 		}
 		if($(window).width() >= 962 && windowManager.tabletMode == true)
 		{
 			windowManager.tabletMode = false;
+			queueViewManager.disableTabletMode();
 			$('#queue-view-block').appendTo('#inner-queues');
-			toggleColumnButton(4, true);
-			toggleColumnButton(5, true);
+			//toggleColumnButton(4, true);
+			//toggleColumnButton(5, true);
 
 		}
 		
@@ -100,6 +94,13 @@
 	});
 
 	var oldProcessCount = -1;
+	
+	function reloadQueuesLoop()
+	{
+		reloadQueuesOrdered = false;
+		reloadQueues();
+	}
+	
 	function reloadQueues()
 	{
 		var queuesJson = $.getJSON('<spring:url value="/queues/getUserQueues.json"/>', function(queues) 
@@ -112,11 +113,7 @@
 				var currentUserLogin = this.userLogin;
 				var userQueueHeaderId = 'accordion-header-'+currentUserLogin;
 				var userQueuesCount = this.activeTasks;
-				
-				if(oldProcessCount == userQueuesCount && currentQueue)
-				{
-					
-				}
+			
 				
 				var queueName = '<spring:message code="queues.user.queueName" />';
 				if(currentUserLogin != userLogin)
@@ -142,13 +139,12 @@
 					addProcessRow(this, accordionID, currentUserLogin);
 					
 					<!-- Test current queue for reload only if changed queue is shown and user is viewing process list -->
-					if(currentQueue == this.queueName && windowManager.currentView == 'process-panel-view')
+					if(queueViewManager.currentQueue == this.queueName && windowManager.currentView == 'process-panel-view')
 					{
 
 						if(oldProcessCount != this.queueSize)
 						{
-							console.log( "auto reload queue");
-							reloadCurrentQueue();
+							queueViewManager.reloadCurrentQueue();
 							oldProcessCount = this.queueSize;
 						}
 					}
@@ -160,10 +156,21 @@
 				});
 				
 
-				var tid = setTimeout(reloadQueues, 4000);
+			
 
 			});
+			registerNextLoop();
 		});
+	}
+	
+	var reloadQueuesOrdered = false; 
+	function registerNextLoop()
+	{
+		if(reloadQueuesOrdered == false)
+		{
+			reloadQueuesOrdered = true;
+			setTimeout(reloadQueuesLoop, queueInterval);
+		}
 	}
 	
 	function addProcessRow(processRow, accordionID, userLogin)
@@ -171,7 +178,7 @@
 		var layoutId = 'queue-view-' + processRow.queueId+'-'+userLogin;
 		var innerDivId = processRow.queueId+'-'+userLogin;
 
-		$( "<div>", { id : layoutId, "class": "queue-list-row-process", "onclick":"reloadQueue('"+processRow.queueName+"', 'process', '"+userLogin+"', '"+processRow.queueDesc+"') "} )
+		$( "<div>", { id : layoutId, "class": "queue-list-row-process", "onclick":"queueViewManager.loadQueue('"+processRow.queueName+"', 'process', '"+userLogin+"', '"+processRow.queueDesc+"') "} )
 		.appendTo( '#'+accordionID );
 		
 		$( "<div>", { id : innerDivId, "class": "queue-list-name"} )
@@ -192,7 +199,7 @@
 		var layoutId = 'queue-view-' + queueRow.queueId+'-'+userLogin;
 		var innerDivId = queueRow.queueId+'-'+userLogin;
 
-		$( "<div>", { id : layoutId, "class": "queue-list-row-queue", "onclick":"reloadQueue('"+queueRow.queueName+"', 'queue', '"+userLogin+"', '"+queueRow.queueDesc+"') "} )
+		$( "<div>", { id : layoutId, "class": "queue-list-row-queue", "onclick":"queueViewManager.loadQueue('"+queueRow.queueName+"', 'queue', '"+userLogin+"', '"+queueRow.queueDesc+"') "} )
 		.appendTo( '#'+accordionID );
 		
 		$( "<div>", { id : innerDivId, "class": "queue-list-name"} )

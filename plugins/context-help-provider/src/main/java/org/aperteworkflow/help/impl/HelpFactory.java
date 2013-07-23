@@ -55,15 +55,7 @@ public class HelpFactory {
 
 		List<ProcessDictionary> dictionaries = new ArrayList<ProcessDictionary>();
 
-		for (ProcessDefinitionConfig definition : definitions) {
-			ProcessDictionary dictProcess = registry.getSpecificOrDefaultProcessDictionary(definition, "db", dictionary, i18NSource.getLocale().toString());
-
-			if (dictProcess != null) {
-				dictionaries.add(dictProcess);
-			}
-		}
-
-		ProcessDictionary dictGlobal = registry.getSpecificOrDefaultGlobalDictionary("db", dictionary, i18NSource.getLocale().toString());
+		ProcessDictionary dictGlobal = registry.getDictionary(dictionary);
 
 		if (dictGlobal != null) {
 			dictionaries.add(dictGlobal);

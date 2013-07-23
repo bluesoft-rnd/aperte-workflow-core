@@ -303,16 +303,18 @@ public class BpmTaskQuery {
 
 	private static String getVirtualQueueCondition(QueueType virtualQueue) {
 		switch (virtualQueue) {
+			case MY_TASKS:
+				return "(task_.actualowner_id = :user AND task_.status NOT IN ('Completed'))";
 			case OWN_IN_PROGRESS:
-				return "(creator.login = :user AND task_.actualowner_id != :user AND task_.status NOT IN ('Completed'))";
-			case OWN_ASSIGNED:
-				return "(creator.login = :user AND task_.actualowner_id = :user AND task_.status NOT IN ('Completed'))";
-			case OWN_IN_QUEUE:
-				return "(creator.login = :user AND task_.actualowner_id IS NULL AND task_.status NOT IN ('Completed'))";
+				return "(creator.login = :user AND task_.status NOT IN ('Completed'))";
+//			case OWN_ASSIGNED:
+//				return "(creator.login = :user AND task_.actualowner_id = :user AND task_.status NOT IN ('Completed'))";
+//			case OWN_IN_QUEUE:
+//				return "(creator.login = :user AND task_.actualowner_id IS NULL AND task_.status NOT IN ('Completed'))";
 			case OWN_FINISHED:
 				return "(creator.login = :user AND task_.actualowner_id = :user AND task_.status IN ('Completed'))";
-			case ASSIGNED_TO_CURRENT_USER:
-				return "(creator.login != :user AND task_.actualowner_id = :user AND task_.status NOT IN ('Completed'))";
+//			case ASSIGNED_TO_CURRENT_USER:
+//				return "(creator.login != :user AND task_.actualowner_id = :user AND task_.status NOT IN ('Completed'))";
 			default:
 				throw new RuntimeException("Unhandled type: " + virtualQueue);
 		}

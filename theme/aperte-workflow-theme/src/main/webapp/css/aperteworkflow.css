@@ -715,6 +715,11 @@
 	background-image: url(../images/progress_bar/loading_animation_2.gif) !important;
 }
 
+.portlet .v-app .v-loading-indicator, .portlet .v-app .v-loading-indicator-delay, .portlet .v-app .v-loading-indicator-wait 
+{
+	background-image: url(../images/progress_bar/loading_animation_2.gif) !important;
+ }
+
 .loader
 {
 	width: 100%;

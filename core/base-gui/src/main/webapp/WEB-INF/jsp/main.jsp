@@ -35,10 +35,11 @@
   
   	$(document).ready(function()
 	{
-		console.log("reload: "); 
-		queueViewManager.reloadCurrentQueue();
-		moveQueueList();
+		windowManager.addView("error-screen");
+		windowManager.addView("loading-screen");
+		
 		reloadQueues();
+		moveQueueList();
 	});
   
   	$(window).unload(function() 
@@ -64,11 +65,10 @@
 		this.mobileMode = false;
 		this.tabletMode = false;
 		this.allViews = {};
-		//this.allViews = ["error-screen", "loading-screen", "process-data-view", "actions-list", "process-panel-view", "new-process-view", "search-view", "outer-queues", "configuration"];
 		
-		this.addView = function(windowView)
+		this.addView = function(viewId)
 		{
-			this.allViews[windowView.viewId] = windowView;
+			this.allViews[viewId] = new WindowView(viewId);
 		}
 		
 		this.previousView = function()
@@ -76,7 +76,7 @@
 			var lastView = this.viewHistory.pop();
 			if(lastView)
 			{
-				this.showView(lastView, false);
+				this.showView(this.allViews[lastView], false);
 			}
 		}
 		
@@ -108,6 +108,7 @@
 		
 		this.showProcessList = function()
 		{
+			console.log("bb: process-panel-view"); 
 			this.showView(this.allViews['process-panel-view'], true);
 		}
 		
@@ -142,23 +143,22 @@
 		
 
 		
-		this.showView = function(viewName, addToHistory)
+		this.showView = function(windowView, addToHistory)
 		{
+			console.log("windowView: "+windowView); 
 			$(document.getElementById(this.currentView)).stop(true, true);
 			
 			if(this.tabletMode == true && $("#mobile-collapse").hasClass('in') == true)
 			{
-				console.log( "toggle hide ");
 				$("#mobile-collapse").collapse('hide');
 			}
 			windowManager.clearProcessView();
 			
-			$.each(this.allViews, function( ) 
+			$.each(this.allViews, function(index, view ) 
 			{ 
-				var elementId = this;
-				if(this != viewName)
+				if(this != windowView.viewId)
 				{
-					$(document.getElementById(elementId)).hide();
+					$(document.getElementById(view.viewId)).hide();
 				}
 			});
 			
@@ -167,8 +167,8 @@
 				this.viewHistory.push(this.currentView);
 			}
 			
-			this.currentView = viewName;
-			$(document.getElementById(viewName)).fadeIn(500);
+			this.currentView = windowView.viewId;
+			$(document.getElementById(windowView.viewId)).fadeIn(500);
 		}
 		
 		

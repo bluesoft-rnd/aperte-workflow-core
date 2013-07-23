@@ -21,6 +21,11 @@
 <script type="text/javascript">
 //<![CDATA[
   	var queueViewManager = new QueueViewManager();
+	
+	$(document).ready(function()
+	{
+		windowManager.addView("process-panel-view");			
+	});
 
 	function QueueView(tableObject, viewName)
 	{
@@ -39,7 +44,6 @@
 		
 		this.loadQueue = function(newQueueName, queueType, ownerLogin, queueDesc)
 		{
-			console.log("LOAD: "+queueType); 
 			var oldView = this.views[this.currentQueueType];
 			var newView = this.views[queueType];
 			
@@ -199,12 +203,12 @@
 		this.toggleColumnButton = function(columnName, active)
 		{
 			
-			var button = $("#button-"+this.tableId+'-'+columnName);
+			var checkbox = $("#button-"+this.tableId+'-'+columnName);
 			
-			var changeState = !XOR(button.hasClass("active"), active); 
+			var changeState = !XOR(checkbox.is(':checked'), active); 
 			if(changeState == true)
 			{
-				button.trigger('click');
+				checkbox.trigger('click');
 			}
 
 		}

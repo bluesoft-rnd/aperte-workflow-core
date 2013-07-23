@@ -21,6 +21,11 @@
 	var vaadinWidgetsCount = 0;
 	var vaadinWidgetsLoadedCount = 0;
 	
+	$(document).ready(function()
+	{
+		windowManager.addView("process-data-view");
+	});
+	
 	<!-- Widget class  -->
 	function Widget (name, widgetId, taskId)
 	{

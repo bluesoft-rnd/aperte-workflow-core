@@ -24,6 +24,7 @@
 		<script type="text/javascript" src="<spring:url value='js/jquery.dateFormat-1.0.js' />"></script>
 		<script type="text/javascript" src="<spring:url value='js/select2.min.js' />"></script>
 		<script type="text/javascript" src="<spring:url value='js/bootstrap-datetimepicker.min.js' />"></script>
+		<script type="text/javascript" src="<spring:url value='js/ColReorder.js' />"></script>
 		<script src="http://maps.google.com/maps/api/js?sensor=true" type="text/javascript"></script>
 	</head>
 	<body>

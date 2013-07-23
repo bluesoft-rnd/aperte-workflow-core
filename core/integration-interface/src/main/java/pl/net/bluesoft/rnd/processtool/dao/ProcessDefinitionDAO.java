@@ -25,8 +25,9 @@ public interface ProcessDefinitionDAO extends HibernateBean<ProcessDefinitionCon
 	ProcessDefinitionConfig getCachedDefinitionById(ProcessInstance processInstance);
 
 	Collection<ProcessQueueConfig> getQueueConfigs();
+	@Deprecated
 	ProcessStateConfiguration getProcessStateConfiguration(BpmTask task);
-	ProcessStateConfiguration getProcessStateConfiguration(Long processStateConfigurationId);
+	ProcessStateConfiguration getCachedProcessStateConfiguration(Long processStateConfigurationId);
 	
 	ProcessStateWidget getProcessStateWidget(Long widgetStateId);
 

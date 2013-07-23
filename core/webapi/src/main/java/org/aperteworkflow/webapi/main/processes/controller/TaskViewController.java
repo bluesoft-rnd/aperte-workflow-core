@@ -161,7 +161,7 @@ public class TaskViewController extends AbstractProcessToolServletController
 
 				long t1 = System.currentTimeMillis();
 				
-				ProcessStateConfiguration config = ctx.getProcessDefinitionDAO().getProcessStateConfiguration(Long.parseLong(processStateConfigurationId));
+				ProcessStateConfiguration config = ctx.getProcessDefinitionDAO().getCachedProcessStateConfiguration(Long.parseLong(processStateConfigurationId));
 
 				long t2 = System.currentTimeMillis();
 				
@@ -171,7 +171,6 @@ public class TaskViewController extends AbstractProcessToolServletController
 
 					@Override
 					public int compare(ProcessStateWidget widget1, ProcessStateWidget widget2) {
-						// TODO Auto-generated method stub
 						return widget1.getPriority().compareTo(widget2.getPriority());
 					}
 				});

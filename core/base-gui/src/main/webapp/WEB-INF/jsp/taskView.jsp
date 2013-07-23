@@ -220,7 +220,7 @@
 			{
 				if (column.sName == columnName)
 				{
-					  dataTable.fnSetColumnVis(columnIndex, column.bVisible ? false : true);
+					  dataTable.fnSetColumnVis(columnIndex, column.bVisible ? false : true, false);
 				}
 		    });
 		}

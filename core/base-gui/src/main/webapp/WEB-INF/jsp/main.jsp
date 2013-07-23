@@ -38,6 +38,7 @@
 		windowManager.addView("error-screen");
 		windowManager.addView("loading-screen");
 		
+		queueViewManager.reloadCurrentQueue();
 		reloadQueues();
 		moveQueueList();
 	});

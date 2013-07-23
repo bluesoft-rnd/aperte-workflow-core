@@ -6,7 +6,7 @@
 <div class="process-tasks-view" id="task-view-processes" hidden="true">
 	<table id="processesTable" class="process-table table table-striped" border="1">
 		<thead>
-			<tr>
+
 				<th style="width:15%;"><spring:message code="processes.list.table.process.name" /></th>
 				<th style="width:15%;"><spring:message code="processes.list.table.process.step" /></th>
 				<th style="width:20%;"><spring:message code="processes.list.table.process.code" /></th>
@@ -14,7 +14,7 @@
 				<th style="width:10%;"><spring:message code="processes.list.table.process.assignee" /></th>
 				<th style="width:10%;"><spring:message code="processes.list.table.process.creationdate" /></th>
 				<th style="width:10%;"><spring:message code="processes.list.table.process.deadline" /></th>
-			</tr>
+
 		</thead>
 		<tbody></tbody>
 	</table>

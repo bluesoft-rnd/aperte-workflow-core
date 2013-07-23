@@ -50,6 +50,11 @@
 	function XOR(a,b) {
 	  return ( a || b ) && !( a && b );
 	} 
+	
+	function WindowView(viewId)
+	{
+		this.viewId = viewId;
+	}
 
   
 	function WindowManager()
@@ -58,7 +63,13 @@
 		this.viewHistory = [];
 		this.mobileMode = false;
 		this.tabletMode = false;
-		this.allViews = ["error-screen", "loading-screen", "process-data-view", "actions-list", "process-panel-view", "new-process-view", "search-view", "outer-queues", "configuration"];
+		this.allViews = {};
+		//this.allViews = ["error-screen", "loading-screen", "process-data-view", "actions-list", "process-panel-view", "new-process-view", "search-view", "outer-queues", "configuration"];
+		
+		this.addView = function(windowView)
+		{
+			this.allViews[windowView.viewId] = windowView;
+		}
 		
 		this.previousView = function()
 		{
@@ -71,18 +82,39 @@
 		
 		this.showLoadingScreen = function()
 		{
-			this.showView('loading-screen', true);
+			this.showView(this.allViews['loading-screen'], true);
 		}
 		
 		this.showQueueList = function()
 		{
-			this.showView('outer-queues', true);
+			this.showView(this.allViews['outer-queues'], true);
 		}
 		
 		
 		this.showConfiguration = function()
 		{
-			this.showView('configuration', true);
+			this.showView(this.allViews['configuration'], true);
+		}
+		
+		this.showSearchProcessPanel = function()
+		{
+			this.showView(this.allViews['search-view'], true);
+		}
+		
+		this.showNewProcessPanel = function()
+		{
+			this.showView(this.allViews['new-process-view'], true);
+		};
+		
+		this.showProcessList = function()
+		{
+			this.showView(this.allViews['process-panel-view'], true);
+		}
+		
+		this.showProcessData = function()
+		{
+			this.showView(this.allViews['process-data-view'], true);
+			$('#actions-list').fadeIn(600);
 		}
 		
 		this.hasPreviousView = function()
@@ -108,10 +140,7 @@
 		
 		
 		
-		this.showSearchProcessPanel = function()
-		{
-			this.showView('search-view', true);
-		};
+
 		
 		this.showView = function(viewName, addToHistory)
 		{
@@ -142,21 +171,6 @@
 			$(document.getElementById(viewName)).fadeIn(500);
 		}
 		
-		this.showNewProcessPanel = function()
-		{
-			this.showView('new-process-view', true);
-		};
-		
-		this.showProcessList = function()
-		{
-			this.showView('process-panel-view', true);
-		}
-		
-		this.showProcessData = function()
-		{
-			this.showView('process-data-view', true);
-			$('#actions-list').fadeIn(600);
-		}
 		
 		this.clearProcessView = function()
 		{

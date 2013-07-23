@@ -22,7 +22,7 @@
 //<![CDATA[
   	var queueViewManager = new QueueViewManager();
 
-	function View(tableObject, viewName)
+	function QueueView(tableObject, viewName)
 	{
 		this.tableObject = tableObject;
 		this.viewName = viewName;
@@ -68,7 +68,7 @@
 		
 		this.addTableView = function(queueType, tableObject, viewName)
 		{
-			this.views[queueType] = new View(tableObject, viewName);
+			this.views[queueType] = new QueueView(tableObject, viewName);
 		}
 		
 		this.toggleColumn = function(viewName, columnName)

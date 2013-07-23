@@ -71,14 +71,16 @@
 		var linkBody = '';
 		if(task.queueName)
 		{
-			linkBody += '<button id="link-'+task.queueName+'" class="btn aperte-button aperte-button-hide" type="button" data-toggle="tooltip" title="<spring:message code="activity.tasks.task-claim-details" />" onclick="claimTaskFromQueue(\''+task.queueName+'\','+task.processStateConfigurationId+','+task.taskId+'); "><spring:message code="activity.tasks.task-claim" /></a>';
+			linkBody += '<button id="link-'+task.queueName+'" class="btn aperte-button aperte-button-hide" type="button" data-toggle="tooltip" title="<spring:message code="activity.tasks.task-claim-details" />" onclick="claimTaskFromQueue(this, \''+task.queueName+'\','+task.processStateConfigurationId+','+task.taskId+'); "><spring:message code="activity.tasks.task-claim" /></a>';
 		}
 		
 		return linkBody;
 	}
 	
-	function claimTaskFromQueue(queueName, processStateConfigurationId, taskId)
+	function claimTaskFromQueue(button, queueName, processStateConfigurationId, taskId)
 	{
+		$(button).prop('disabled', true);
+		windowManager.showLoadingScreen();
 		
 		var bpmJson = $.post('<spring:url value="/task/claimTaskFromQueue"/>', 
 		{
@@ -86,6 +88,7 @@
 			"taskId": taskId
 		}, function(newTask) 
 		{ 
+			clearAlerts();
 			console.log( "task claimed, new task: "+newTask.taskId); 
 			reloadQueues();
 			loadProcessView(processStateConfigurationId, newTask.taskId);

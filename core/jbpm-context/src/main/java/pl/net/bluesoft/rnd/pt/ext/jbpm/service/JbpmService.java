@@ -169,15 +169,19 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
 		ksession.addEventListener(this);
 	}
 
-	private synchronized StatefulKnowledgeSession getSession() {
+	private StatefulKnowledgeSession getSession() {
 		if (ksession == null) {
-			String ksessionIdStr = getThreadProcessToolContext().getSetting(KSESSION_ID);
-			int ksessionId = hasText(ksessionIdStr) ? Integer.parseInt(ksessionIdStr) : -1;
+			synchronized(JbpmService.class) {
+				if (ksession == null) {
+					String ksessionIdStr = getThreadProcessToolContext().getSetting(KSESSION_ID);
+					int ksessionId = hasText(ksessionIdStr) ? Integer.parseInt(ksessionIdStr) : -1;
 
-			loadSession(ksessionId);
+					loadSession(ksessionId);
 
-			if (ksessionId <= 0) {
-				getThreadProcessToolContext().setSetting(KSESSION_ID, String.valueOf(ksession.getId()));
+					if (ksessionId <= 0) {
+						getThreadProcessToolContext().setSetting(KSESSION_ID, String.valueOf(ksession.getId()));
+					}
+				}
 			}
 		}
 		return ksession;

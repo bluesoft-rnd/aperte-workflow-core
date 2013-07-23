@@ -25,8 +25,8 @@
 //<![CDATA[
   	$(document).ready(function()
 	{
-		queueViewManager.addTableView('queue', 
-			new AperteDataTable("customQueueTable", 
+	
+		var dataTable = new AperteDataTable("customQueueTable", 
 			[
 				 { "sName":"name", "bSortable": true,"mData": function(object){return generateNameColumn(object);}},
 				 { "sName":"step", "bSortable": true, "mData": "step" },
@@ -37,8 +37,33 @@
 				 { "sName":"actions", "bSortable": false,"mData": function(object){return generateButtons(object)}},
 			 ],
 			 [[ 5, "desc" ]]
-			),
-			'customqueue-panel-view');
+			);
+			
+		queueViewManager.addTableView('queue', dataTable, 'customqueue-panel-view');
+			
+		dataTable.enableMobileMode = function()
+		{
+			this.toggleColumnButton("deadline", false);
+			this.toggleColumnButton("creationDate", false);
+		}
+		
+		dataTable.enableTabletMode = function()
+		{
+			this.toggleColumnButton("creator", false);
+			this.toggleColumnButton("code", false);
+		}
+		
+		dataTable.disableMobileMode = function()
+		{
+			this.toggleColumnButton("deadline", true);
+			this.toggleColumnButton("creationDate", true);
+		}
+		
+		dataTable.disableTabletMode = function()
+		{
+			this.toggleColumnButton("creator", true);
+			this.toggleColumnButton("code", true);
+		}
 	});
 	
 	function generateButtons(task)

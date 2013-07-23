@@ -27,8 +27,8 @@
   	$(document).ready(function()
 	{
 		console.log("queueViewManager: "+queueViewManager); 
-		queueViewManager.addTableView('process', 
-			new AperteDataTable("processesTable", 
+		
+		var dataTable = new AperteDataTable("processesTable", 
 			[
 				 { "sName":"name", "bSortable": true,"mData": function(object){return generateNameColumn(object);}},
 				 { "sName":"step", "bSortable": true, "mData": "step" },
@@ -39,8 +39,35 @@
 				 { "sName":"deadline", "bSortable": true,"mData": function(object){return object.deadline == null ? "<spring:message code='processes.list.table.nodeadline' />" : $.format.date(object.deadline, 'dd-MM-yyyy, HH:mm');}}
 			 ],
 			 [[ 5, "desc" ]]
-			),
-			'task-view-processes');
+			);
+		
+		dataTable.enableMobileMode = function()
+		{
+			this.toggleColumnButton("deadline", false);
+			this.toggleColumnButton("assignee", false);
+			this.toggleColumnButton("creationDate", false);
+		}
+		
+		dataTable.enableTabletMode = function()
+		{
+			this.toggleColumnButton("creator", false);
+			this.toggleColumnButton("code", false);
+		}
+		
+		dataTable.disableMobileMode = function()
+		{
+			this.toggleColumnButton("deadline", true);
+			this.toggleColumnButton("assignee", true);
+			this.toggleColumnButton("creationDate", true);
+		}
+		
+		dataTable.disableTabletMode = function()
+		{
+			this.toggleColumnButton("creator", true);
+			this.toggleColumnButton("code", true);
+		}
+		
+		queueViewManager.addTableView('process', dataTable, 'task-view-processes');
 	});
 
 	

@@ -9,17 +9,21 @@
 		<spring:message code="configuration.process.table.header" />
 	</div>
 	<fieldset data-role="controlgroup">
-		<button id="process-table-hide-0" type="button" class="btn mobile-button" data-toggle="button" onClick="toggleColumn(0);" ><spring:message code="processes.button.hide.processname" /></button>
-		<button id="process-table-hide-1" type="button" class="btn mobile-button" data-toggle="button" onClick="toggleColumn(1);" ><spring:message code="processes.button.hide.step" /></button>
-		<button id="process-table-hide-1" type="button" class="btn mobile-button" data-toggle="button" onClick="toggleColumn(2);" ><spring:message code="processes.button.hide.processcode" /></button>
-		<button id="process-table-hide-2" type="button" class="btn mobile-button" data-toggle="button" onClick="toggleColumn(3);" ><spring:message code="processes.button.hide.creator" /></button>
-		<button id="process-table-hide-3" type="button" class="btn mobile-button" data-toggle="button" onClick="toggleColumn(4);" ><spring:message code="processes.button.hide.assignee" /></button>
-		<button id="process-table-hide-4" type="button" class="btn mobile-button" data-toggle="button" onClick="toggleColumn(5);" ><spring:message code="processes.button.hide.creationdate" /></button>
-		<button id="process-table-hide-5" type="button" class="btn mobile-button" data-toggle="button" onClick="toggleColumn(6);" ><spring:message code="processes.button.hide.deadline" /></button>
+		<button id="button-processesTable-name" type="button" class="btn mobile-button" data-toggle="button" onClick="toggleColumn(this, 'process', 'name');" ><spring:message code="processes.button.hide.processname" /></button>
+		<button id="button-processesTable-step" type="button" class="btn mobile-button" data-toggle="button" onClick="toggleColumn(this, 'process','step');" ><spring:message code="processes.button.hide.step" /></button>
+		<button id="button-processesTable-code" type="button" class="btn mobile-button" data-toggle="button" onClick="toggleColumn(this, 'process','code');" ><spring:message code="processes.button.hide.processcode" /></button>
+		<button id="button-processesTable-creator" type="button" class="btn mobile-button" data-toggle="button" onClick="toggleColumn(this, 'process','creator');" ><spring:message code="processes.button.hide.creator" /></button>
+		<button id="button-processesTable-assignee" type="button" class="btn mobile-button" data-toggle="button" onClick="toggleColumn(this, 'process','assignee');" ><spring:message code="processes.button.hide.assignee" /></button>
+		<button id="button-processesTable-creationDate" type="button" class="btn mobile-button" data-toggle="button" onClick="toggleColumn(this, 'process','creationDate');" ><spring:message code="processes.button.hide.creationdate" /></button>
+		<button id="button-processesTable-deadline" type="button" class="btn mobile-button" data-toggle="button" onClick="toggleColumn(this, 'process','deadline');" ><spring:message code="processes.button.hide.deadline" /></button>
 	</fieldset>
 	</div>
 </div>
 
 <script type="text/javascript">
+	function toggleColumn(button, viewName, columnName)
+	{
+		queueViewManager.toggleColumn(viewName, columnName);
+	}	
 
 </script>

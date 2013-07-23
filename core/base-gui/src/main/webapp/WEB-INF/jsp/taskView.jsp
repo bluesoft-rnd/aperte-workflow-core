@@ -71,6 +71,73 @@
 			this.views[queueType] = new View(tableObject, viewName);
 		}
 		
+		this.toggleColumn = function(viewName, columnName)
+		{
+			this.views[viewName].tableObject.toggleColumn(columnName);
+		}
+		
+		this.enableMobileMode = function()
+		{
+			$.each(this.views, function(viewName, view)
+			{
+				view.tableObject.enableMobileMode();
+			});
+		}
+		
+		this.enableTabletMode = function()
+		{
+			$.each(this.views, function(viewName, view)
+			{
+				view.tableObject.enableTabletMode();
+			});
+		}
+		
+		this.disableMobileMode = function()
+		{
+			$.each(this.views, function(viewName, view)
+			{
+				view.tableObject.disableMobileMode();
+			});
+		}
+		
+		this.disableTabletMode = function()
+		{
+			$.each(this.views, function(viewName, view)
+			{
+				view.tableObject.disableTabletMode();
+			});
+		}
+
+		
+		
+	}
+
+  
+	function AperteDataTable(tableId, columnDefs, sortingOrder)
+	{
+		this.tableId = tableId;
+		this.requestUrl = '';
+		this.columnDefs = columnDefs;
+		this.sortingOrder = sortingOrder;
+		this.dataTable;
+		
+		this.initialized = false;
+		
+		this.reloadTable = function(requestUrl)
+		{
+			
+			this.requestUrl = requestUrl;
+			if(this.initialized == false)
+			{
+				this.createDataTable();
+				this.initialized = true;
+			}
+			else
+			{
+				this.dataTable.fnReloadAjax(this.requestUrl);
+			}
+		}
+		
 		this.enableMobileMode = function()
 		{
 		}
@@ -87,37 +154,9 @@
 		{
 		}
 		
-		
-	}
-
-  
-	function AperteDataTable(tableId, columnDefs, sortingOrder)
-	{
-		this.tableId = tableId;
-		this.requestUrl = '';
-		this.columnDefs = columnDefs;
-		this.sortingOrder = sortingOrder;
-		
-		this.initialized = false;
-		
-		this.reloadTable = function(requestUrl)
-		{
-			
-			this.requestUrl = requestUrl;
-			if(this.initialized == false)
-			{
-				this.createDataTable();
-				this.initialized = true;
-			}
-			else
-			{
-				$('#'+this.tableId).dataTable().fnReloadAjax(this.requestUrl);
-			}
-		}
-		
 		this.createDataTable = function()
 		{
-			$('#'+this.tableId).dataTable({
+			this.dataTable = $('#'+this.tableId).dataTable({
 				"bLengthChange": true,
 				"bFilter": true,
 				"bProcessing": true,
@@ -157,10 +196,10 @@
 			});
 		}
 		
-		this.toggleColumnButton = function(columnNumber, active)
+		this.toggleColumnButton = function(columnName, active)
 		{
 			
-			var button = $("#process-table-hide-"+columnNumber);
+			var button = $("#button-"+this.tableId+'-'+columnName);
 			
 			var changeState = !XOR(button.hasClass("active"), active); 
 			if(changeState == true)
@@ -170,11 +209,16 @@
 
 		}
 	
-		this.toggleColumn = function(columnNumber)
+		this.toggleColumn = function(columnName)
 		{
-			var oTable = $('#'+this.tableId).dataTable();
-			var bVis = oTable.fnSettings().aoColumns[columnNumber].bVisible;
-			oTable.fnSetColumnVis( columnNumber, bVis ? false : true);
+			var dataTable = this.dataTable;
+			$.each(dataTable.fnSettings().aoColumns, function (columnIndex, column) 
+			{
+				if (column.sName == columnName)
+				{
+					  dataTable.fnSetColumnVis(columnIndex, column.bVisible ? false : true);
+				}
+		    });
 		}
 	}
 

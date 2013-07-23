@@ -171,6 +171,7 @@
 		$('#'+tableId).dataTable({
 			"bLengthChange": true,
 			"bStateSave": true,
+			"sDom": 'Rlfrtip',
 			"bFilter": true,
 			"bProcessing": true,
 			"bServerSide": true,

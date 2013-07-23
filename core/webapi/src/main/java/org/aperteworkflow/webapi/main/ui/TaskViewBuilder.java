@@ -29,7 +29,9 @@ public class TaskViewBuilder
 {
 	private BpmTask task;
 	private List<ProcessStateWidget> widgets;
-	private List<ProcessStateAction> actions;
+    private List<ProcessStateAction> actions;
+    private String version;
+    private String  description;
 	private I18NSource i18Source;
 	private UserData user;
     private ProcessToolContext ctx;
@@ -44,8 +46,9 @@ public class TaskViewBuilder
 	private StringBuilder scriptBuilder = new StringBuilder("<script type=\"text/javascript\">");
 	
 	private int vaadinWidgetsCount = 0;
-	
-	public TaskViewBuilder()
+
+
+    public TaskViewBuilder()
 	{
 		SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
 	}
@@ -63,6 +66,8 @@ public class TaskViewBuilder
 				.attr("id", "vaadin-widgets")
 				.attr("class", "vaadin-widgets-view");
 		document.appendChild(widgetsNode);
+
+
 		
 		for(ProcessStateWidget widget: widgets)
 		{
@@ -71,8 +76,8 @@ public class TaskViewBuilder
 
         addActionButtons(document);
 
+        addVersionNumber(document);
 
-		
 		printWriter.print(document.toString());
 		
 		scriptBuilder.append("vaadinWidgetsCount = ");
@@ -82,6 +87,15 @@ public class TaskViewBuilder
 		printWriter.print(scriptBuilder.toString());
 		
 	}
+
+    private void addVersionNumber(Document document) {
+        Element versionNumber = document.createElement("div")
+                .attr("id", "versionList")
+                .attr("class", "process-version");
+        document.appendChild(versionNumber);
+
+        versionNumber.append(description + "v. " + version);
+    }
 
     /** Add actions buttons compared to user privileges and process state */
     private void addActionButtons(Document document)
@@ -271,8 +285,6 @@ public class TaskViewBuilder
         return privileges;
     }
 
-
-	
 	private void processAction(ProcessStateAction action, Element parent)
 	{
 
@@ -343,6 +355,15 @@ public class TaskViewBuilder
 		
 		return this;
 	}
+    public TaskViewBuilder setDescription(String description) {
+        this.description = description;
+        return this;
+    }
+
+    public TaskViewBuilder setVersion(String version) {
+        this.version = version;
+        return this;
+    }
 	
 	public TaskViewBuilder setI18Source(I18NSource i18Source) 
 	{

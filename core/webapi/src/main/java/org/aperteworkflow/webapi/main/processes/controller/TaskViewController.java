@@ -130,7 +130,8 @@ public class TaskViewController extends AbstractProcessToolServletController
 					task = context.getBpmSession().getHistoryTask(taskId);
 
 				ProcessStateConfiguration config = ctx.getProcessDefinitionDAO().getProcessStateConfiguration(Long.parseLong(processStateConfigurationId));
-
+               String processVersion = String.valueOf(config.getDefinition().getBpmDefinitionVersion());
+                String processDescription  = String.valueOf(config.getDefinition().getDescription());
 				/* Load view widgets */
 				List<ProcessStateWidget> widgets = new ArrayList<ProcessStateWidget>(config.getWidgets());
 				Collections.sort(widgets, new Comparator<ProcessStateWidget>() {
@@ -160,6 +161,8 @@ public class TaskViewController extends AbstractProcessToolServletController
 				TaskViewBuilder taskViewBuilder = new TaskViewBuilder()
 					.setWidgets(widgets)
 					.setActions(actions)
+                    .setDescription(processDescription)
+                    .setVersion(processVersion)
 					.setI18Source(messageSource)
 					.setUser(context.getUser())
                     .setCtx(ctx)

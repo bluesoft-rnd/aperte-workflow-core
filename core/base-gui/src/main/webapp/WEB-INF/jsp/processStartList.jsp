@@ -9,7 +9,7 @@
 	</div>
 	<c:forEach var="processStart" items="${processStartList}">
 		<div class="process-start-list-row">
-			<div id="${processStart.bpmDefinitionKey}" class="process-start-name" data-toggle="tooltip" title="<spring:message code='${processStart.comment}' /> "><a class="process-start-link" onclick="startProcess('${processStart.bpmDefinitionKey}') "><spring:message code="${processStart.processName}" /></a></div>
+			<div id="${processStart.bpmDefinitionKey}" class="process-start-name" data-toggle="tooltip" title="<spring:message code='${processStart.description}' /> v.<spring:message code='${processStart.bpmDefinitionVersion}' />"><a class="process-start-link" onclick="startProcess('${processStart.bpmDefinitionKey}') "><spring:message code="${processStart.processName}" /></a></div>
 			<div><spring:message code="${processStart.comment}" /> </div>
 		</div>
 	</c:forEach>

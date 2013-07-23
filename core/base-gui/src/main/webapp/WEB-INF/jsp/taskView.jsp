@@ -84,7 +84,10 @@
 		{
 			$.each(this.views, function(viewName, view)
 			{
-				view.tableObject.enableMobileMode();
+				if(view.tableObject.initialized == true)
+				{
+					view.tableObject.enableMobileMode();
+				}
 			});
 		}
 		
@@ -92,7 +95,10 @@
 		{
 			$.each(this.views, function(viewName, view)
 			{
-				view.tableObject.enableTabletMode();
+				if(view.tableObject.initialized == true)
+				{
+					view.tableObject.enableTabletMode();
+				}
 			});
 		}
 		
@@ -100,7 +106,10 @@
 		{
 			$.each(this.views, function(viewName, view)
 			{
-				view.tableObject.disableMobileMode();
+				if(view.tableObject.initialized == true)
+				{
+					view.tableObject.disableMobileMode();
+				}
 			});
 		}
 		
@@ -108,7 +117,10 @@
 		{
 			$.each(this.views, function(viewName, view)
 			{
-				view.tableObject.disableTabletMode();
+				if(view.tableObject.initialized == true)
+				{
+					view.tableObject.disableTabletMode();
+				}
 			});
 		}
 
@@ -198,6 +210,16 @@
 
 					}
 			});
+			
+			if(windowManager.mobileMode == true)
+			{
+				this.enableMobileMode();
+			}
+			
+			if(windowManager.tabletMode == true)
+			{
+				this.enableTabletMode();
+			}
 		}
 		
 		this.toggleColumnButton = function(columnName, active)

@@ -237,14 +237,14 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
 	}
 
 	private TaskQuery<Task> createTaskQuery() {
-		return new TaskQuery<Task>(getSessionTaskService());
+		return new TaskQuery<Task>(getLocalTaskService());
 	}
 
 	private UserQuery<User> createUserQuery() {
-		return new UserQuery<User>(getSessionTaskService());
+		return new UserQuery<User>(getLocalTaskService());
 	}
 
-	public synchronized Task getTaskForAssign(String queueName, long taskId) {
+	public Task getTaskForAssign(String queueName, long taskId) {
 		return createTaskQuery()
 		.groupId(queueName)
 		.taskId(taskId)
@@ -252,7 +252,7 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
 		.first();
 	}
 
-	public synchronized Task getLatestTask(long processId) {
+	public Task getLatestTask(long processId) {
 		return createTaskQuery()
 		.processInstanceId(processId)
 		.completed()
@@ -260,7 +260,7 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
 		.first();
 	}
 	
-	public synchronized Task getMostRecentProcessHistoryTask(long processId, String userLogin, Date completedAfrer) {
+	public Task getMostRecentProcessHistoryTask(long processId, String userLogin, Date completedAfrer) {
 		return createTaskQuery()
 		.assignee(userLogin)
 		.processInstanceId(processId)
@@ -269,7 +269,7 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
 		.first();
 	}
 
-	public synchronized Task getPastOrActualTask(long processId, String userLogin, String taskName, Date completedAfrer) {
+	public Task getPastOrActualTask(long processId, String userLogin, String taskName, Date completedAfrer) {
 		return createTaskQuery()
 		.assignee(userLogin)
 		.processInstanceId(processId)
@@ -279,7 +279,7 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
 		.first();
 	}
 	
-	public synchronized List<Task> getTasks(long processId, String userLogin, Collection<String> taskNames) {
+	public List<Task> getTasks(long processId, String userLogin, Collection<String> taskNames) {
 		return createTaskQuery()
 		.processInstanceId(processId)
 		.active()
@@ -288,7 +288,7 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
 		.list();
 	}
 
-	public synchronized List<Task> getTasks(long processId, String userLogin) {
+	public List<Task> getTasks(long processId, String userLogin) {
 		return createTaskQuery()
 		.processInstanceId(processId)
 		.assignee(userLogin)
@@ -296,7 +296,7 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
 		.list();
 	}
 	
-	public synchronized List<Task> getTasks(String userLogin, Integer offset, Integer limit) {
+	public List<Task> getTasks(String userLogin, Integer offset, Integer limit) {
 		return createTaskQuery()
 		.assignee(userLogin)
 		.active()
@@ -304,11 +304,11 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
 		.list();
 	}
 
-	public synchronized List<Task> getTasks() {
+	public List<Task> getTasks() {
 		return createTaskQuery().orderByTaskIdDesc().list();
 	}
 	
-	public synchronized List<Object[]> getTaskCounts(List<String> groupNames) {
+	public List<Object[]> getTaskCounts(List<String> groupNames) {
 		return (List<Object[]>)(List)JbpmService.getInstance().createTaskQuery()
 		.selectGroupId()
 		.selectCount()
@@ -318,7 +318,7 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
 		.list();
 	}
 	
-	public synchronized List<String> getAvailableUserLogins(String filter, Integer offset, Integer limit) {
+	public List<String> getAvailableUserLogins(String filter, Integer offset, Integer limit) {
 		return createUserQuery()
 		.selectId()
 		.whereIdLike(filter != null ? '%' + filter + '%' : null)

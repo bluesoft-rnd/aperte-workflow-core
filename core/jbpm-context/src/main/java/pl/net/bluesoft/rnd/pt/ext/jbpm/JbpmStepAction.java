@@ -18,7 +18,7 @@ import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.g
 
 public class JbpmStepAction {
 	public String invoke(final String processInstanceId, final String stepName, final Map<String, String> params) throws Exception {
-        return getRegistry().withProcessToolContextNonJta(new ReturningProcessToolContextCallback<String>() {
+        return getRegistry().withProcessToolContextReadOnly(new ReturningProcessToolContextCallback<String>() {
             @Override
             public String processWithContext(ProcessToolContext ctx) {
                 return doInvoke(processInstanceId, stepName, params, ctx);

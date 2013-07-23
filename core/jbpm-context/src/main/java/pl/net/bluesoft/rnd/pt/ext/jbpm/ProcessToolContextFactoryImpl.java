@@ -41,20 +41,15 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory 
 
     @Override
 	public <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback) {
-    	return withProcessToolContext(callback,false,registry.isJta());
+    	return withProcessToolContext(callback,false);
     }
     
     @Override
 	public <T> T withProcessToolContextReadOnly(ReturningProcessToolContextCallback<T> callback) {
-    	return withProcessToolContext(callback,true,registry.isJta());
+    	return withProcessToolContext(callback,true);
     }
 
-    @Override
-	public <T> T withProcessToolContextNonJta(ReturningProcessToolContextCallback<T> callback) {
-    	return withProcessToolContext(callback,true,false);
-    }
-    
-	public <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback, boolean readOnly, boolean jta) {
+	public <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback, boolean readOnly) {
 		ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(ProcessToolRegistry.Util.getAwfClassLoader());
 
@@ -80,7 +75,7 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory 
 			if (readOnly) {
 				return executeWithProcessToolContextReadOnlyNoJta(callback);
 			} else {
-				if (jta) {
+				if (registry.isJta()) {
 					return executeWithProcessToolContextJta(callback);
 				}
 				else {

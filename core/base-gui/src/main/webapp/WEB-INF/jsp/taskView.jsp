@@ -165,7 +165,8 @@
 				"aaSorting": sortingOrder,
 				"bSort": true,
 				"iDisplayLength": 10,
-				"sDom": '<"top"t><"bottom"plr>',
+				"bStateSave": true,
+				"sDom": 'R<"top"t><"bottom"plr>',
 				"sAjaxSource": this.requestUrl,
 				"fnServerData": function ( sSource, aoData, fnCallback ) {
 

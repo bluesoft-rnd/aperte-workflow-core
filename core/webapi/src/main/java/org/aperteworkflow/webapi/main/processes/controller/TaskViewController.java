@@ -16,6 +16,7 @@ import pl.net.bluesoft.rnd.processtool.web.domain.IProcessToolRequestContext;
 import org.aperteworkflow.webapi.main.AbstractProcessToolServletController;
 import org.aperteworkflow.webapi.main.processes.BpmTaskBean;
 import org.aperteworkflow.webapi.main.ui.TaskViewBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -28,21 +29,25 @@ import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
-
-import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 
 @Controller
 public class TaskViewController extends AbstractProcessToolServletController
 {
 	private static Logger logger = Logger.getLogger(TaskViewController.class.getName());
 	
+    @Autowired
+    private ProcessToolRegistry registry;
+
 	@RequestMapping(method = RequestMethod.POST, value = "/task/claimTaskFromQueue")
 	@ResponseBody
 	public BpmTaskBean claimTaskFromQueue(final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException
 	{
-		
+		logger.info("claimTaskFromQueue ...");
+		long t0 = System.currentTimeMillis();
+
 		final I18NSource messageSource = I18NSourceFactory.createI18NSource(request.getLocale());
 		
 		final String queueName = request.getParameter("queueName");
@@ -60,7 +65,7 @@ public class TaskViewController extends AbstractProcessToolServletController
 		}
 		
 		/* Initilize request context */
-		final IProcessToolRequestContext context = this.initilizeContext(request);
+		final IProcessToolRequestContext context = this.initilizeContext(request,registry.getProcessToolSessionFactory());
 		
 		if(!context.isUserAuthorized())
 		{
@@ -68,21 +73,38 @@ public class TaskViewController extends AbstractProcessToolServletController
 			return null;
 		}
 		
-		BpmTaskBean taskBean = getRegistry().withProcessToolContext(new ReturningProcessToolContextCallback<BpmTaskBean>()
+		long t1 = System.currentTimeMillis();
+
+		BpmTaskBean taskBean = registry.withProcessToolContext(new ReturningProcessToolContextCallback<BpmTaskBean>()
 		{
 
 			@Override
 			public BpmTaskBean processWithContext(ProcessToolContext ctx) {
+				BpmTaskBean taskBean = null;
 				BpmTask task = context.getBpmSession().getTaskData(taskId);
-
 				BpmTask newTask = context.getBpmSession().assignTaskFromQueue(queueName, task);
 				
-				BpmTaskBean taskBean = BpmTaskBean.createFrom(newTask, messageSource);
-				
+				if (newTask!=null) {
+					taskBean = BpmTaskBean.createFrom(newTask, messageSource);
+				} else {
+					try {
+						response.getWriter().print(messageSource.getMessage("request.performaction.error.notask"));
+					} catch (IOException e) {
+						throw new RuntimeException(e);
+					}
+				}
+
 				return taskBean;
 			}
 		});
 		
+		long t2 = System.currentTimeMillis();
+
+		logger.log(Level.INFO, "claimTaskFromQueue total: " + (t2-t0) + "ms, " +
+				"[1]: " + (t1-t0) + "ms, " +
+				"[2]: " + (t2-t1) + "ms "
+				);
+
 		return taskBean;
 		
 	}
@@ -91,6 +113,9 @@ public class TaskViewController extends AbstractProcessToolServletController
 	@ResponseBody
 	public void loadTask(final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException
 	{
+		logger.info("loadTask ...");
+		long t0 = System.currentTimeMillis();
+
 		final I18NSource messageSource = I18NSourceFactory.createI18NSource(request.getLocale());
 		
 		/* Get process state configuration db id */
@@ -108,9 +133,10 @@ public class TaskViewController extends AbstractProcessToolServletController
 			return;
 		}
 		
-		
+		long t1 = System.currentTimeMillis();
+
 		/* Initilize request context */
-		final IProcessToolRequestContext context = this.initilizeContext(request);
+		final IProcessToolRequestContext context = this.initilizeContext(request,registry.getProcessToolSessionFactory());
 		
 		if(!context.isUserAuthorized())
 		{
@@ -118,21 +144,27 @@ public class TaskViewController extends AbstractProcessToolServletController
 			return;
 		}
 		
-		getRegistry().withProcessToolContext(new ProcessToolContextCallback()
+		long t2 = System.currentTimeMillis();
+
+		registry.withProcessToolContext(new ProcessToolContextCallback()
 		{
 
 			@Override
 			public void withContext(ProcessToolContext ctx) 
 			{
+				long t0 = System.currentTimeMillis();
+
 				BpmTask task = context.getBpmSession().getTaskData(taskId);
 				
 				if(task == null)
 					task = context.getBpmSession().getHistoryTask(taskId);
 
+				long t1 = System.currentTimeMillis();
+
 				ProcessStateConfiguration config = ctx.getProcessDefinitionDAO().getProcessStateConfiguration(Long.parseLong(processStateConfigurationId));
 
 				long t2 = System.currentTimeMillis();
-                
+
                String processVersion = String.valueOf(config.getDefinition().getBpmDefinitionVersion());
                 String processDescription  = String.valueOf(config.getDefinition().getDescription());
 				/* Load view widgets */
@@ -146,6 +178,8 @@ public class TaskViewController extends AbstractProcessToolServletController
 					}
 				});
 				
+				long t3 = System.currentTimeMillis();
+
 				/* Load view actions */
 				List<ProcessStateAction> actions = new ArrayList<ProcessStateAction>(config.getActions());
 				Collections.sort(actions, new Comparator<ProcessStateAction>() {
@@ -161,13 +195,19 @@ public class TaskViewController extends AbstractProcessToolServletController
 					}
 				});
 				
+				long t4 = System.currentTimeMillis();
+
 				TaskViewBuilder taskViewBuilder = new TaskViewBuilder()
 					.setWidgets(widgets)
 					.setActions(actions)
+                    .setDescription(processDescription)
+                    .setVersion(processVersion)
 					.setI18Source(messageSource)
 					.setUser(context.getUser())
                     .setCtx(ctx)
 					.setTask(task);
+
+				long t5 = System.currentTimeMillis();
 
 				try
 				{
@@ -178,8 +218,29 @@ public class TaskViewController extends AbstractProcessToolServletController
 					logger.log(Level.SEVERE, "Problem during task view generation. TaskId="+taskId, ex);
 				}
 
+				long t6 = System.currentTimeMillis();
+
+				logger.log(Level.INFO, "loadTask.withContext total: " + (t6-t0) + "ms, " +
+						"[1]: " + (t1-t0) + "ms, " +
+						"[2]: " + (t2-t1) + "ms, " +
+						"[3]: " + (t3-t2) + "ms, " +
+						"[4]: " + (t4-t3) + "ms, " +
+						"[5]: " + (t5-t4) + "ms, " +
+						"[6]: " + (t6-t5) + "ms, "
+						);
+
 			}
 		});
+
+
+		long t3 = System.currentTimeMillis();
+
+		logger.log(Level.INFO, "loadTask total: " + (t3-t0) + "ms, " +
+				"[1]: " + (t1-t0) + "ms, " +
+				"[2]: " + (t2-t1) + "ms, " +
+				"[3]: " + (t3-t2) + "ms, "
+				);
+
 	}
 
 	private static boolean isNull(String value) {

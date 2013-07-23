@@ -18,6 +18,8 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.logging.Logger;
 
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+
 public class StepExposureServlet extends HttpServlet {
 	public enum Format {
 		JSON, XML
@@ -34,12 +36,11 @@ public class StepExposureServlet extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		ProcessToolRegistry reg = (ProcessToolRegistry) getServletContext().getAttribute(ProcessToolRegistry.class.getName());
 		resp.setContentType("text/plain");
 
 		List<Map<String, Object>> steps = new LinkedList<Map<String, Object>>();
 
-        Map<String,ProcessToolProcessStep> availableSteps = reg.getAvailableSteps();
+        Map<String,ProcessToolProcessStep> availableSteps = getRegistry().getAvailableSteps();
         Set<Class> classes = new HashSet<Class>();
                 
         for (ProcessToolProcessStep stepInstance : availableSteps.values()) {

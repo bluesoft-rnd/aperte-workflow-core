@@ -23,6 +23,8 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 
 import com.thoughtworks.xstream.XStream;
 
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+
 /**
  * Servlet which provides logic to get all avaiable user process queues
  * 
@@ -43,7 +45,6 @@ public class UserProcessQueuesServlet extends HttpServlet
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException 
 	{
-		ProcessToolRegistry reg = (ProcessToolRegistry) getServletContext().getAttribute(ProcessToolRegistry.class.getName());
 		resp.setContentType("application/json");
 		
 		PrintWriter out = resp.getWriter();
@@ -64,7 +65,7 @@ public class UserProcessQueuesServlet extends HttpServlet
 		
 		I18NSource messageSource = I18NSourceFactory.createI18NSource(req.getLocale());
 		
-		UserProcessQueuesSizeProvider userQueuesSizeProvider = new UserProcessQueuesSizeProvider(reg, userLogin, messageSource);
+		UserProcessQueuesSizeProvider userQueuesSizeProvider = new UserProcessQueuesSizeProvider(getRegistry(), userLogin, messageSource);
 		Collection<UsersQueuesDTO> usersQueuesSize = userQueuesSizeProvider.getUserProcessQueueSize();
 		
 		Map<String, Map<String, Integer>> usersQueues = new HashMap<String, Map<String,Integer>>(usersQueuesSize.size());

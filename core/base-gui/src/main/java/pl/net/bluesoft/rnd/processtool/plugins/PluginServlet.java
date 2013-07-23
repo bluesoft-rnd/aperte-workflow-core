@@ -54,9 +54,6 @@ public class PluginServlet extends HttpServlet
             if (pluginHelper == null) {
                 pluginHelper = new PluginHelper();
 
-//                ProcessToolRegistry processToolRegistry = (ProcessToolRegistry) getServletContext()
-//                        .getAttribute(ProcessToolRegistry.class.getName());
-
                 pluginHelper.initialize(
 						firstExistingDirectory(getServletConfig().getInitParameter("osgi-plugins-directory"),
 								getServletConfig().getServletContext().getRealPath("/WEB-INF/osgi"),

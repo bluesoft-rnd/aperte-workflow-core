@@ -37,10 +37,7 @@ public class ProcessInstanceManagerApplicationPortlet extends ApplicationPortlet
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
         try {
-
-            ProcessToolRegistry registry = (ProcessToolRegistry) getPortletConfig()
-                    .getPortletContext().getAttribute(ProcessToolRegistry.class.getName());
-            registry.withProcessToolContext(new ProcessToolContextCallback() {
+            getRegistry().withProcessToolContext(new ProcessToolContextCallback() {
                 @Override
                 public void withContext(ProcessToolContext ctx) {
                     try {

@@ -29,7 +29,7 @@ public interface ProcessDefinitionDAO extends HibernateBean<ProcessDefinitionCon
 	ProcessStateConfiguration getProcessStateConfiguration(BpmTask task);
 	ProcessStateConfiguration getCachedProcessStateConfiguration(Long processStateConfigurationId);
 	
-	ProcessStateWidget getProcessStateWidget(Long widgetStateId);
+	ProcessStateWidget getCachedProcessStateWidget(Long widgetStateId);
 
 	boolean differsFromTheLatest(ProcessDefinitionConfig cfg);
 	void updateOrCreateProcessDefinitionConfig(ProcessDefinitionConfig cfg);

@@ -419,7 +419,7 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
     }
 
 	@Override
-	public ProcessStateWidget getProcessStateWidget(final Long widgetStateId) {
+	public ProcessStateWidget getCachedProcessStateWidget(final Long widgetStateId) {
 		return WIDGET_BY_ID.get(widgetStateId, new ExpiringCache.NewValueCallback<Long, ProcessStateWidget>() {
 			@Override
 			public ProcessStateWidget getNewValue(Long key) {

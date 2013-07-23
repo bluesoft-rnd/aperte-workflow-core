@@ -169,7 +169,7 @@
 				"aaSorting": sortingOrder,
 				"bSort": true,
 				"iDisplayLength": 10,
-				"sDom": '<"top"t><"bottom"plr>',
+				"sDom": '<"top"tR><"bottom"plr>',
 				"sAjaxSource": this.requestUrl,
 				"fnServerData": function ( sSource, aoData, fnCallback ) {
 

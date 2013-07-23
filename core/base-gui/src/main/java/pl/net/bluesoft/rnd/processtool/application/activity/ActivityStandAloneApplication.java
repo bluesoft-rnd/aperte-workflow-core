@@ -2,7 +2,6 @@ package pl.net.bluesoft.rnd.processtool.application.activity;
 
 import java.util.Locale;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -14,6 +13,8 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import com.vaadin.Application;
 import com.vaadin.terminal.gwt.server.HttpServletRequestListener;
 import com.vaadin.ui.Window;
+
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 
 /**
  * Activity application standalone version to use outside portal portlet and
@@ -39,7 +40,6 @@ public class ActivityStandAloneApplication extends Application  implements HttpS
 	@Override
 	public Window getWindow(String name) 
 	{
-		
 		Window window = super.getWindow(name);
 		
 		/* Window for specified tab with given name already exists, return it */
@@ -60,14 +60,12 @@ public class ActivityStandAloneApplication extends Application  implements HttpS
 
 	@Override
 	public void onRequestStart(HttpServletRequest request, HttpServletResponse response) 
-	{	
-		
+	{
 		this.request = request;
 		
 		if(processToolRegistry == null)
 		{
-			ServletContext context = request.getSession().getServletContext();	
-			processToolRegistry = (ProcessToolRegistry)context.getAttribute(ProcessToolRegistry.class.getName());
+			processToolRegistry = getRegistry();
 		}
 
 		if(!initialized)
@@ -83,29 +81,14 @@ public class ActivityStandAloneApplication extends Application  implements HttpS
 	        
 	        initialized = true;
 		}
-		
 	}
 	
 	@Override
-	public void onRequestEnd(HttpServletRequest request,
-			HttpServletResponse response) {
-		// TODO Auto-generated method stub
-		
+	public void onRequestEnd(HttpServletRequest request, HttpServletResponse response) {
 	}
 
 
 	@Override
 	public void init() {
-		// TODO Auto-generated method stub
-		
 	}
-
-
-
-
-    
-
-	
-
-
 }

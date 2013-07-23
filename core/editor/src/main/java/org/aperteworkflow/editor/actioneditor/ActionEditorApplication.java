@@ -27,9 +27,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction.getAutowiredPropertyNames;
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 
-public class ActionEditorApplication extends GenericEditorApplication implements	ParameterHandler, ClickListener {
-
+public class ActionEditorApplication extends GenericEditorApplication implements ParameterHandler, ClickListener {
 	private static final long serialVersionUID = 2136349126207525109L;
 	private static final Logger	logger = Logger.getLogger(ActionEditorApplication.class.getName());
 	private PropertiesPanel propertiesPanel = new PropertiesPanel();
@@ -44,7 +44,7 @@ public class ActionEditorApplication extends GenericEditorApplication implements
 
 	@Override
 	public void handleParameters(Map<String, String[]> parameters) {
-		if (parameters == null || parameters.size() == 0) {
+		if (parameters == null || parameters.isEmpty()) {
 			// No parameters to handle, we are not interested in such a request
 			// it may be a request for static resource e.g.
 			// <servlet>/APP/323/root.gif
@@ -56,31 +56,28 @@ public class ActionEditorApplication extends GenericEditorApplication implements
 		String buttonName = getStringParameterByName("buttonName", parameters);
 		String actionParameters = getStringParameterByName("actionParameters", parameters);
 		String actionAttributes = getStringParameterByName("actionAttributes", parameters);
-		
-	
-		
-			try {
-				if (!StringUtils.isEmpty(actionParameters)) {
-						 oldActionParameters=mapper.readValue(actionParameters, new TypeReference<HashMap<String,Object>>(){});
+
+		try {
+			if (!StringUtils.isEmpty(actionParameters)) {
+				oldActionParameters=mapper.readValue(actionParameters, new TypeReference<HashMap<String,Object>>(){});
 			}
 			if (!StringUtils.isEmpty(actionAttributes)) {
-						 oldActionAttributes=mapper.readValue(actionAttributes, new TypeReference<HashMap<String,Object>>(){});
-						 if(!oldActionParameters.isEmpty()){							 
-							 oldActionParameters.putAll(oldActionAttributes);
-						 }
-						 
+				oldActionAttributes=mapper.readValue(actionAttributes, new TypeReference<HashMap<String,Object>>(){});
+				if(!oldActionParameters.isEmpty()){
+					oldActionParameters.putAll(oldActionAttributes);
+				}
+
 			}
-			} catch (JsonParseException e) {
-				logger.log(Level.SEVERE, "Error reading action parameters", e);
-			} catch (JsonMappingException e) {
-				logger.log(Level.SEVERE, "Error reading action parameters", e);
-			} catch (IOException e) {
-				logger.log(Level.SEVERE, "Error reading action parameters", e);
-			}
-		
+		} catch (JsonParseException e) {
+			logger.log(Level.SEVERE, "Error reading action parameters", e);
+		} catch (JsonMappingException e) {
+			logger.log(Level.SEVERE, "Error reading action parameters", e);
+		} catch (IOException e) {
+			logger.log(Level.SEVERE, "Error reading action parameters", e);
+		}
+
 		refreshWindow(buttonType, buttonName);
 	}
-	
 
 	private void refreshWindow(String buttonType, String buttonName) {
 		mainWindow.removeAllComponents();
@@ -106,8 +103,6 @@ public class ActionEditorApplication extends GenericEditorApplication implements
 
 		mainWindow.setContent(main);
 	}
-
-	
 
 	@Override
 	public void init() {
@@ -171,7 +166,6 @@ public class ActionEditorApplication extends GenericEditorApplication implements
 		return buttonList;
 	}
 
-
 	@Override
 	public void buttonClick(ClickEvent event) {
 		if (event.getComponent() == saveButton) {
@@ -181,7 +175,6 @@ public class ActionEditorApplication extends GenericEditorApplication implements
 			}
 			ActionDef actionDef = new ActionDef();
 			actionDef.setButtonType(buttonList.getItemCaption(buttonList.getValue()));
-			//Map<String, Object> codedPropertiesValue = codePropertiesValue(propertiesPanel.getPropertiesMap());
 			actionDef.setItems(getProperties());
 			actionDef.setAttributes(getAttributes());
 			

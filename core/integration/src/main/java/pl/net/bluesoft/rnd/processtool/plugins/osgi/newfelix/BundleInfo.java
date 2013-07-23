@@ -45,6 +45,7 @@ class BundleInfo {
 		private final Set<String> importedPackages = new HashSet<String>();
 		private long installationStart;
 		private Status status = Status.UNKNOWN;
+		private int priority;
 
 		public long getLastModified() {
 			return lastModified;
@@ -88,6 +89,14 @@ class BundleInfo {
 		public boolean hasBeenModified() {
 			return installationStart > 0;
 		}
+
+		public void setPriority(int priority) {
+			this.priority = priority;
+		}
+
+		public int getPriority() {
+			return priority;
+		}
 	}
 
 	private static final String STATUS_SEPARATOR = repeat("-", 80).toString("", "", "\n");
@@ -129,7 +138,7 @@ class BundleInfo {
 		return systemPackages.contains(importedPack);
 	}
 
-	private void updatePackageInfo(String bundlePath, String importPackageAttr, String exportPackageAttr) {
+	private void updatePackageInfo(String bundlePath, String importPackageAttr, String exportPackageAttr, int priority) {
 		ExportParser importParser = new ExportParser(importPackageAttr);
 		getImportedPackages(bundlePath).addAll(importParser.parsePackageNamesOnly());
 		getImportedPackages(bundlePath).remove("*");
@@ -137,6 +146,8 @@ class BundleInfo {
 		ExportParser exportParser = new ExportParser(exportPackageAttr);
 		getExportedPackages(bundlePath).addAll(exportParser.parsePackageNamesOnly());
 		getImportedPackages(bundlePath).removeAll(getExportedPackages(bundlePath));
+
+		getEntry(bundlePath).setPriority(priority);
 	}
 
 	public void updateDependencyInfo() {
@@ -147,8 +158,9 @@ class BundleInfo {
 				Manifest manifest = jar.getManifest();
 				String importPackageAttr = manifest.getMainAttributes().getValue("Import-Package");
 				String exportPackageAttr = manifest.getMainAttributes().getValue("Export-Package");
+				String bundlePriority = nvl(manifest.getMainAttributes().getValue("Bundle-Priority"), "0");
 
-				updatePackageInfo(installBundlePath, importPackageAttr, exportPackageAttr);
+				updatePackageInfo(installBundlePath, importPackageAttr, exportPackageAttr, Integer.valueOf(bundlePriority));
 			}
 			catch (Exception e) {
 				logger.log(Level.SEVERE, e.getMessage(), e);
@@ -285,6 +297,10 @@ class BundleInfo {
 
 	public Status getBundleStatus(String bundlePath) {
 		return getEntry(bundlePath).getStatus();
+	}
+
+	public int getBundlePriority(String bundlePath) {
+		return getEntry(bundlePath).getPriority();
 	}
 
 	public String getInstallationStatus() {

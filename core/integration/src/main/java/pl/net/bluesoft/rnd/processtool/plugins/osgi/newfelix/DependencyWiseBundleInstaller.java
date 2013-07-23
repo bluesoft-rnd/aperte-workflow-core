@@ -199,6 +199,8 @@ public class DependencyWiseBundleInstaller extends BundleInstaller {
 				}
 			}
 
+			orderByPriority(result);
+
 			Set<BundleCommand> toSort = new HashSet<BundleCommand>(commands);
 			toSort.removeAll(result);
 
@@ -227,6 +229,8 @@ public class DependencyWiseBundleInstaller extends BundleInstaller {
 
 			return result;
 		}
+
+		protected abstract void orderByPriority(List<BundleCommand> result);
 	}
 
 	private class InstallBundleCommandFactory extends BundleCommandFactory {
@@ -242,6 +246,18 @@ public class DependencyWiseBundleInstaller extends BundleInstaller {
 		protected Collection<String> getAffectedBundlePaths() {
 			return bundlePathsToInstall;
 		}
+
+		@Override
+		protected void orderByPriority(List<BundleCommand> result) {
+			Collections.sort(result, new Comparator<BundleCommand>() {
+				@Override
+				public int compare(BundleCommand o1, BundleCommand o2) {
+					int p1 = getBundleInfo().getBundlePriority(o1.getBundlePath());
+					int p2 = getBundleInfo().getBundlePriority(o2.getBundlePath());
+					return p1 < p2 ? 1 : p1 > p2 ? -1 : 0;  // highest priority goes first
+				}
+			});
+		}
 	}
 
 	private class UninstallBundleCommandFactory extends BundleCommandFactory {
@@ -256,6 +272,18 @@ public class DependencyWiseBundleInstaller extends BundleInstaller {
 		@Override
 		protected Collection<String> getAffectedBundlePaths() {
 			return bundlePathsToRemove;
+		}
+
+		@Override
+		protected void orderByPriority(List<BundleCommand> result) {
+			Collections.sort(result, new Comparator<BundleCommand>() {
+				@Override
+				public int compare(BundleCommand o1, BundleCommand o2) {
+					int p1 = getBundleInfo().getBundlePriority(o1.getBundlePath());
+					int p2 = getBundleInfo().getBundlePriority(o2.getBundlePath());
+					return p1 < p2 ? -1 : p1 > p2 ? 1 : 0;
+				}
+			});
 		}
 	}
 

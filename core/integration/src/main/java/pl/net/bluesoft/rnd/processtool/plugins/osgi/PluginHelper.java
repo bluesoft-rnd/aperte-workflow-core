@@ -9,7 +9,6 @@ import pl.net.bluesoft.rnd.processtool.plugins.PluginManager;
 import pl.net.bluesoft.rnd.processtool.plugins.PluginMetadata;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistryImpl;
 import pl.net.bluesoft.rnd.processtool.plugins.osgi.newfelix.NewFelixBundleService;
-import pl.net.bluesoft.rnd.processtool.plugins.osgi.oldfelix.OldFelixBundleService;
 
 import java.io.File;
 import java.io.InputStream;
@@ -41,7 +40,7 @@ public class PluginHelper implements PluginManager, SearchProvider {
                                         String felixDir,
                                         String luceneDir,
                                         ProcessToolRegistryImpl registry) throws BundleException {
-        felixService = createFelixBundleService(pluginsDir);
+        felixService = createFelixBundleService();
         felixService.setPluginsDir(pluginsDir.replace('/', File.separatorChar));
         searchService.setLuceneDir(luceneDir.replace('/', File.separatorChar));
 
@@ -58,11 +57,8 @@ public class PluginHelper implements PluginManager, SearchProvider {
         state = State.ACTIVE;
     }
 
-    private FelixBundleService createFelixBundleService(String pluginsDir) {
-        if (new File(pluginsDir + File.separator + "use-new-felix").exists()) {
-            return new NewFelixBundleService(errorMonitor, LOGGER);
-        }
-        return new OldFelixBundleService(errorMonitor, LOGGER);
+    private FelixBundleService createFelixBundleService() {
+		return new NewFelixBundleService(errorMonitor, LOGGER);
     }
 
     private void initializeFelix(String felixDir, ProcessToolRegistryImpl registry) throws BundleException {

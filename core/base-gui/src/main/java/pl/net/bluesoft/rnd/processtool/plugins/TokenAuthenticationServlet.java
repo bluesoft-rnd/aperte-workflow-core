@@ -23,6 +23,8 @@ import pl.net.bluesoft.rnd.processtool.token.TokenWrapper;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+
 /**
  * Servlet which provides logic for authentication with one-use token. 
  * If action is not performed due to exception, token is not being used. 
@@ -32,7 +34,6 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
  */
 public abstract class TokenAuthenticationServlet extends HttpServlet 
 {
-
 	private static Logger				logger			= Logger.getLogger(TokenAuthenticationServlet.class.getName());
 	
 	/** Token ID paramater name */
@@ -50,8 +51,6 @@ public abstract class TokenAuthenticationServlet extends HttpServlet
 	/** Request attribute. Process context */
 	protected static final String 		PPROCESSTOOL_CONTEXT = "processToolContext";
 	
-	
-	
 	/** After authentication with current token this method is called. There is available context for
 	 * given user
 	 *  
@@ -64,8 +63,6 @@ public abstract class TokenAuthenticationServlet extends HttpServlet
 	@Override
 	protected void doGet(final HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException 
 	{
-		ProcessToolRegistry reg = (ProcessToolRegistry) getServletContext().getAttribute(ProcessToolRegistry.class.getName());
-		
 		/* Get the mime type. If no is provided, use plan text mode */
 		String textModeParameter = req.getParameter(ProcessToolBpmConstants.TEXT_MODE);
 		TextModes mode = TextModes.getTextModeType(textModeParameter);
@@ -74,8 +71,9 @@ public abstract class TokenAuthenticationServlet extends HttpServlet
 		final I18NSource i18NSource = I18NSourceFactory.createI18NSource(req.getLocale());
 		
 		/* Read text decoration mode */
-		if(mode == null)
+		if(mode == null) {
 			mode = TextModes.PLAIN;
+		}
 		
 		/* Create text decorator based on text mode */
 		final IWriterTextDecorator textDecorator = getTextDecorator(mode, i18NSource);
@@ -98,36 +96,30 @@ public abstract class TokenAuthenticationServlet extends HttpServlet
 			out.write(textDecorator.getOutput());
 			return;
 		}
-		
-		reg.withProcessToolContext(new ProcessToolContextCallback() {
-			
+
+		getRegistry().withProcessToolContext(new ProcessToolContextCallback() {
 			@Override
-			public void withContext(ProcessToolContext ctx) 
-			{
+			public void withContext(ProcessToolContext ctx) {
 				req.setAttribute(PPROCESSTOOL_CONTEXT, ctx);
-				
+
 				ITokenService accessTokenFacade = ObjectFactory.create(ITokenService.class);
 				AccessToken accessToken = accessTokenFacade.getTokenByTokenId(tokenId);
-				
-				if(accessToken == null)
-				{
-					textDecorator.addText(i18NSource.getMessage("token.servlet.notokenfound", "",tokenId));
+
+				if (accessToken == null) {
+					textDecorator.addText(i18NSource.getMessage("token.servlet.notokenfound", "", tokenId));
 					
 					/* Write to user output page */
 					out.write(textDecorator.getOutput());
 					return;
 				}
-				
-				
+
 				TokenWrapper tokenWrapper = accessTokenFacade.wrapAccessToken(accessToken);
 
 				processRequest(req, ctx, tokenWrapper);
-				
+
 				req.removeAttribute(PPROCESSTOOL_CONTEXT);
-				
 			}
 		});
-		
 
 		out.close();
 		
@@ -147,14 +139,7 @@ public abstract class TokenAuthenticationServlet extends HttpServlet
 		logger.info(this.getClass().getSimpleName() + " DESTROYED");
 	}
 	
-	private IWriterTextDecorator getTextDecorator(TextModes mode, I18NSource i18NSource)
-	{
-		if(mode == null)
-			return new PlainTextDecorator();
-		else if(mode.equals(TextModes.HTML))
-			return new HtmlTextDecorator(i18NSource);
-		else
-			return new PlainTextDecorator();
+	private IWriterTextDecorator getTextDecorator(TextModes mode, I18NSource i18NSource) {
+		return mode == TextModes.HTML ? new HtmlTextDecorator(i18NSource) : new PlainTextDecorator();
 	}
-	
 }

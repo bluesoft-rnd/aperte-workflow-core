@@ -26,7 +26,6 @@
 
   	$(document).ready(function()
 	{
-		console.log("queueViewManager: "+queueViewManager); 
 		
 		var dataTable = new AperteDataTable("processesTable", 
 			[

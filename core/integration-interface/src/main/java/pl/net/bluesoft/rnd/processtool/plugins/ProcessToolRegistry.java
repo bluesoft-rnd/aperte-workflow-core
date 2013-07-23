@@ -12,7 +12,6 @@ import org.hibernate.SessionFactory;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
-import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolSessionFactory;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessDictionaryDAO;

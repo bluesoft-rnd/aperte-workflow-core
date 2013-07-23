@@ -16,7 +16,11 @@
 </div>
 
  <script type="text/javascript">
- 
+  	$(document).ready(function()
+	{
+		windowManager.addView("new-process-view");
+	});
+	
 	function KeyValueBean(key, value)
 	{
 		this.key = key;

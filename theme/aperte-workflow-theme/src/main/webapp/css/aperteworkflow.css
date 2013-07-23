@@ -1,3 +1,4 @@
+
 @media (max-width: 961px) 
 {
 	body
@@ -9,12 +10,12 @@
 	{
 		padding: 0px;
 	}
-
+	
 	.main-view
 	{
 		padding-top: 5px;
 	}
-
+	
 	.navbar.left-menu
 	{
 		margin-right: 20px;
@@ -28,14 +29,14 @@
 			left     : 0;
 			z-index: 100;
 	}
-
+	
 	.dataTables_paginate.paging_bootstrap.pagination
 	{
 		font-size: 22px;
 		line-height: 30px;
 	}
 
-
+	
 	.navigation-border
 	{
 		clear: left;
@@ -44,7 +45,7 @@
 		margin-top: 40px;
 	}
 
-
+	
 	.search-process-button,
 	.start-process-button,
 	.show-queues-button,
@@ -64,7 +65,7 @@
 		background: rgb(97, 158, 248);
 		color: #fff;
 	}
-
+	
 	.search-process-button:hover,
 	.start-process-button:hover,
 	.show-queues-button:hover,
@@ -73,13 +74,13 @@
 	{
 		background: rgb(102, 102, 102);
 	}
-
+	
 	.queue-user-accordion
 	{
 		font-size: 20px;
 		line-height: 26px;
 	}
-
+	
 	.queue-list-row-process,
 	.queue-list-row-queue
 	{
@@ -94,7 +95,7 @@
 		border-top: 1px solid #dddddd;
 		cursor:pointer;
 	}
-
+	
 	.queue-list-row-process:hover,
 	.queue-list-row-queue:hover,
 	.process-start-list-row:hover
@@ -105,15 +106,15 @@
 		border-radius: 4px;
 		color: #fff;
 	}
-
+	
 	.process-start-list-row
 	{
 		font-size: 20px;
 		line-height: 32px;
 	}
-
-
-
+	
+	
+	
 	.queues-list
 	{
 		color: #999;
@@ -132,6 +133,8 @@
 		width: 10px;
 		margin-right: 10px;
 	}
+	
+	
 
 
 	.nav.nav-tabs li
@@ -140,7 +143,7 @@
 		width:100%;
 		margin-top:5px;
 	}
-
+	
 	.nav.nav-tabs li a
 	{
 		background: rgb(97, 158, 248);
@@ -150,14 +153,14 @@
 		border-radius: 4px;
 		color: #fff;
 	}
-
+	
 	.nav.nav-tabs li a:hover
 	{
 		color: rgb(68, 68, 68);
 		background: #fff;
 		border: 1px solid rgb(68, 68, 68);
 	}
-
+	
 	.nav.left-menu li
 	{
 		background: rgb(97, 158, 248);
@@ -170,7 +173,7 @@
 		line-height: 16px;
 		color: #fff;
 	}
-
+	
 	.left-menu-link
 	{
 		color: #fff !important;
@@ -180,9 +183,9 @@
 		-webkit-border-radius: 4px;
 		-moz-border-radius: 4px;
 		border-radius: 4px;
-
+		
 	}
-
+	
 	.btn.btn-navbar.left-menu,
 	.btn.btn-navbar.left-menu:hover
 	{
@@ -193,15 +196,15 @@
 		background: rgb(97, 158, 248);
 		margin-top: 2px;
 	}
-
-
+	
+	
 	.process-table
 	{
 		border: none;
 		border-collapse:collapse;
 		width: 100% !important;
 	}
-
+	
 	.search-table
 	{
 		border: none;
@@ -235,29 +238,29 @@
 		border-top: 1px solid #dddddd;
 		line-height: 28px;
 	}
-
+	
 	.process-panel
 	{
 		float: none;
 		width: auto;
 		overflow: hidden;
 	}
-
+	
 	.mobile-button
 	{
 		width: 100%;
 	}
-
+	
 	.toggle-buttons
 	{
 		margin-bottom: 5px;
 	}
-
+	
 	.dataTables_paginate.paging_bootstrap.pagination ul
 	{
 		width: 100%;
 	}
-
+	
 	.dataTables_paginate.paging_bootstrap.pagination ul li a
 	{
 		width: 100%;
@@ -275,10 +278,10 @@
 		text-align: center;
 		border: 1px solid rgb(116, 142, 209);
 		box-sizing:border-box;
-
-
+		
+		
 	}
-
+	
 	.dataTables_paginate.paging_bootstrap.pagination ul li.active a,
 	.dataTables_paginate.paging_bootstrap.pagination ul li.active a:hover,
 	.dataTables_paginate.paging_bootstrap.pagination ul li.disabled a,
@@ -286,13 +289,13 @@
 	{
 		display:none;
 	}
-
-
+	
+	
 	.dataTables_paginate.paging_bootstrap.pagination ul li a:hover
 	{
 		background: rgb(102, 102, 102);
 	}
-
+	
 
 
 	.btn.aperte-button,
@@ -313,7 +316,7 @@
 		line-height: 32px;
 		text-shadow: none;
 	}
-
+	
 	.btn.login-button
 	{
 		-webkit-border-radius: 4px;
@@ -328,7 +331,7 @@
 
 		width: 100%;
 	}
-
+	
 	.input-medium.login-element-username,
 	.input-medium.login-element-password
 	{
@@ -337,7 +340,7 @@
 		width: 100%;
 
 	}
-
+	
 	.login-label
 	{
 		font-size: 18px;
@@ -345,12 +348,12 @@
 		margin-top: 5px;
 
 	}
-
+	
 	.label-container
 	{
 
 	}
-
+	
 	.process-queue-name
 	{
 		font-size: 22px;
@@ -365,20 +368,20 @@
 		margin-bottom: 10px;
 		color: rgb(52, 58, 129);
 	}
-
+	
 	.td-hack {
 		display: block;
 		height: 50px;
 		width: 100%;
 		display: table;
 	}
-
+	
 	.td-hacks-buttons
 	{
 		width: 100%;
 		position: absolute;
 	}
-
+	
 	tr td .btn.aperte-button.aperte-button-hide
 	{
 		overflow: hidden;
@@ -388,7 +391,7 @@
 		overflow: hidden;
 		display: table-cell;
 	}
-
+	
 
 }
 @media (min-width: 962px) 
@@ -397,34 +400,34 @@
 	{
 		padding: 10px;
 	}
-
+	
 	.main-view
 	{
 		width: 100%;
 		display: block;
 		overflow: hidden;
 	}
-
+	
 	.navbar.left-menu
 	{
 		width:200px;
 		float:left;
 		margin-right: 20px;
-
+		
 	}
-
+	
 	.nav.left-menu
 	{
 		display: none !important;
 	}
-
+	
 	.mobile-button
 	{
 		clear: left;
 		float: left;
 		margin-top:5px;
 	}
-
+	
 	.search-process-button,
 	.start-process-button,
 	.show-configuration-button,
@@ -436,7 +439,7 @@
 		padding: 4px 12px;
 		line-height: 20px;
 		text-decoration: none;
-
+		
 		-webkit-border-radius: 4px;
 		-moz-border-radius: 4px;
 		border-radius: 4px;
@@ -444,7 +447,7 @@
 		color: #fff;
 		font-size:16px;
 	}
-
+	
 	.search-button
 	{
 		background: rgb(97, 158, 248);
@@ -454,7 +457,7 @@
 		display: block;
 		float: left;
 	}
-
+	
 	.search-process-button
 	{
 		background-color: rgb(250, 183, 82);
@@ -464,12 +467,12 @@
 	{
 		background-color: rgb(137, 196, 74);
 	}
-
+	
 	.show-configuration-button
 	{
 		background: rgb(97, 158, 248);
 	}
-
+	
 	.search-process-button:hover,
 	.start-process-button:hover,
 	.show-configuration-button:hover,
@@ -478,17 +481,17 @@
 	{
 		background: rgb(102, 102, 102)
 	}
-
+	
 	.show-queues-button
 	{
 		display:none;
 	}
-
+	
 	.queue-user-accordion
 	{
 		font-size: 16px;
 	}
-
+	
 	.queue-list-row-process,
 	.queue-list-row-queue
 	{
@@ -504,7 +507,7 @@
 		cursor:pointer;
 		font-size: 15px;
 	}
-
+	
 	.queues-list
 	{
 		color: #999;
@@ -524,19 +527,19 @@
 		width: 10px;
 		margin-right: 10px;
 	}
-
+	
 	.toggle-buttons
 	{
 		margin-bottom: 5px;
 	}
-
+	
 	.process-table
 	{
 		border: none;
 		border-collapse:collapse;
 		width: 100% !important;
 	}
-
+	
 	.search-table
 	{
 		border: none;
@@ -563,20 +566,20 @@
 		border:none;
 
 	}
-
+	
 	.td-hack {
 		width: 100%;
 		height: 100%;
 		position: relative;
 	}
-
+	
 	.td-hacks-buttons
 	{
 		top: -27px;
 		right: 0;
 		position: absolute;
 	}
-
+	
 	tr td .btn.aperte-button.aperte-button-hide
 	{
 		overflow: hidden;
@@ -594,7 +597,7 @@
 		border-top: 1px solid #dddddd;
 		line-height: 28px;
 	}
-
+	
 	.process-panel
 	{
 		float: none;
@@ -602,7 +605,7 @@
 		overflow: hidden;
 		margin-left: 20px;
 	}
-
+	
 	.btn.aperte-button:hover
 	{
 		-webkit-transform: scale(1.10);
@@ -623,7 +626,7 @@
 		margin-left: 3px;
 		margin-right:3px;
 	}
-
+	
 	.btn.login-button
 	{
 		-webkit-border-radius: 4px;
@@ -638,7 +641,7 @@
 		clear: left;
 		float: left;
 	}
-
+	
 	.input-medium.login-element-username,
 	.input-medium.login-element-password
 	{
@@ -648,7 +651,7 @@
 		float: left;
 		clear: left;
 	}
-
+	
 	.login-label
 	{
 		font-size: 18px;
@@ -658,13 +661,13 @@
 		margin-top: 5px;
 		display:block;
 	}
-
+	
 	.label-container
 	{
 		float:left;
 		display:block;
 	}
-
+	
 	.process-queue-name
 	{
 		font-size: 18px;
@@ -697,7 +700,7 @@
 	margin-left: 15px;
 	margin-right: 15px;
 	margin-bottom: 10px;
-
+	
 }
 
 .vaadin-widget-view
@@ -833,7 +836,7 @@ input[disabled], select[disabled], textarea[disabled], input[readonly], select[r
 	color: #fff;
 	text-decoration: none;
 	font-size: 18px;
-
+	
 }
 
 .vaadin-widgets,
@@ -869,7 +872,7 @@ button, button:hover
 {
 	padding: 8px;
 	margin-bottom: 5px;
-
+	
 }
 
 
@@ -971,7 +974,7 @@ button, button:hover
 	    background-color: rgb(40, 126, 206);
     color: rgb(247, 248, 249);
     text-shadow: 0 -1px 0 rgb(46, 90, 132);
-
+	
 }
 
 .process-version-info

@@ -53,7 +53,7 @@ public class OSGiBundleHelper implements IBundleResourceProvider
 
     private void processHeaders() {
         for (String headerName : HEADER_NAMES) {
-            String headerValue = (String) bundle.getHeaders().get(headerName);
+            String headerValue = bundle.getHeaders().get(headerName);
             if (hasText(headerValue)) {
                 parsedHeadersMap.put(headerName, headerValue.replaceAll("\\s*", "").split(","));
             }
@@ -76,7 +76,8 @@ public class OSGiBundleHelper implements IBundleResourceProvider
         return new BundleMetadata(bundle.getLocation(), bundle.getSymbolicName(), bundle.getLastModified(), bundle.getState());
     }
 
-    public InputStream getBundleResourceStream(String resourcePath) throws IOException {
+    @Override
+	public InputStream getBundleResourceStream(String resourcePath) throws IOException {
         return getBundleResourceStream(bundle, resourcePath);
     }
 

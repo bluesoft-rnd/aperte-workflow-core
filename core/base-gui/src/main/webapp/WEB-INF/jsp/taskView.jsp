@@ -21,6 +21,11 @@
 <script type="text/javascript">
 //<![CDATA[
   	var queueViewManager = new QueueViewManager();
+	
+	$(document).ready(function()
+	{
+		windowManager.addView("process-panel-view");			
+	});
 
 	function QueueView(tableObject, viewName)
 	{
@@ -39,7 +44,6 @@
 		
 		this.loadQueue = function(newQueueName, queueType, ownerLogin, queueDesc)
 		{
-			console.log("LOAD: "+queueType); 
 			var oldView = this.views[this.currentQueueType];
 			var newView = this.views[queueType];
 			
@@ -80,7 +84,10 @@
 		{
 			$.each(this.views, function(viewName, view)
 			{
-				view.tableObject.enableMobileMode();
+				if(view.tableObject.initialized == true)
+				{
+					view.tableObject.enableMobileMode();
+				}
 			});
 		}
 		
@@ -88,7 +95,10 @@
 		{
 			$.each(this.views, function(viewName, view)
 			{
-				view.tableObject.enableTabletMode();
+				if(view.tableObject.initialized == true)
+				{
+					view.tableObject.enableTabletMode();
+				}
 			});
 		}
 		
@@ -96,7 +106,10 @@
 		{
 			$.each(this.views, function(viewName, view)
 			{
-				view.tableObject.disableMobileMode();
+				if(view.tableObject.initialized == true)
+				{
+					view.tableObject.disableMobileMode();
+				}
 			});
 		}
 		
@@ -104,7 +117,10 @@
 		{
 			$.each(this.views, function(viewName, view)
 			{
-				view.tableObject.disableTabletMode();
+				if(view.tableObject.initialized == true)
+				{
+					view.tableObject.disableTabletMode();
+				}
 			});
 		}
 
@@ -195,17 +211,27 @@
 
 					}
 			});
+			
+			if(windowManager.mobileMode == true)
+			{
+				this.enableMobileMode();
+			}
+			
+			if(windowManager.tabletMode == true)
+			{
+				this.enableTabletMode();
+			}
 		}
 		
 		this.toggleColumnButton = function(columnName, active)
 		{
 			
-			var button = $("#button-"+this.tableId+'-'+columnName);
+			var checkbox = $("#button-"+this.tableId+'-'+columnName);
 			
-			var changeState = !XOR(button.hasClass("active"), active); 
+			var changeState = !XOR(checkbox.is(':checked'), active); 
 			if(changeState == true)
 			{
-				button.trigger('click');
+				checkbox.trigger('click');
 			}
 
 		}
@@ -217,7 +243,7 @@
 			{
 				if (column.sName == columnName)
 				{
-					  dataTable.fnSetColumnVis(columnIndex, column.bVisible ? false : true);
+					  dataTable.fnSetColumnVis(columnIndex, column.bVisible ? false : true, false);
 				}
 		    });
 		}

@@ -94,7 +94,7 @@ public class TaskViewBuilder
                 .attr("class", "process-version");
         document.appendChild(versionNumber);
 
-        versionNumber.append(description + "v. " + version);
+        versionNumber.append(description + " v. " + version);
     }
 
     /** Add actions buttons compared to user privileges and process state */

@@ -7,6 +7,7 @@ import org.aperteworkflow.util.vaadin.ui.date.OptionalDateField;
 
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemValue;
 import pl.net.bluesoft.rnd.processtool.ui.dict.fields.DictionaryItemExtensionField;
+import pl.net.bluesoft.rnd.processtool.ui.dict.modelview.DictionaryModelView;
 import pl.net.bluesoft.rnd.processtool.ui.dict.request.CopyDictionaryItemValueActionRequest;
 import pl.net.bluesoft.rnd.processtool.ui.dict.request.DeleteDictionaryItemValueActionRequest;
 import pl.net.bluesoft.rnd.processtool.ui.generic.exception.PropertyNameNotDefinedException;
@@ -27,28 +28,29 @@ import com.vaadin.ui.TextField;
  * @author mpawlak@bluesoft.net.pl
  *
  */
-public class DictionaryItemValueTable extends GenericTable<ProcessDBDictionaryItemValue> 
+public class DictionaryItemValueTable extends GenericTable<DictionaryModelView.ProcessDBDictionaryItemValueWrapper>
 {
-	public static final String VALUE_COLUMN_NAME = "stringValue";
-	public static final String START_DATE_COLUMN_NAME = "validStartDate";
-	public static final String END_DATE_COLUMN_NAME = "validEndDate";
-	public static final String EXTENSIONS_COLUMN_NAME = "extensions";
+	public static final String DEFAULT_VALUE_COLUMN_NAME = ProcessDBDictionaryItemValue._DEFAULT_VALUE;
+	public static final String VALUE_COLUMN_NAME = "value";
+	public static final String START_DATE_COLUMN_NAME = ProcessDBDictionaryItemValue._VALID_FROM;
+	public static final String END_DATE_COLUMN_NAME = ProcessDBDictionaryItemValue._VALID_TO;
+	public static final String EXTENSIONS_COLUMN_NAME = ProcessDBDictionaryItemValue._EXTENSIONS;
 	public static final String DELETE_COLUMN_NAME = "delete";
 	public static final String COPY_COLUMN_NAME = "copy";
 	
 	private static final String[] VISIBLE_COLUMNS = 
 	{
-		VALUE_COLUMN_NAME, START_DATE_COLUMN_NAME, END_DATE_COLUMN_NAME,
-		EXTENSIONS_COLUMN_NAME, COPY_COLUMN_NAME, DELETE_COLUMN_NAME
+			DEFAULT_VALUE_COLUMN_NAME, VALUE_COLUMN_NAME, START_DATE_COLUMN_NAME, END_DATE_COLUMN_NAME,
+			EXTENSIONS_COLUMN_NAME, COPY_COLUMN_NAME, DELETE_COLUMN_NAME
 	};
 	
-	private static final String[] EDITABLE_COLUMNS =
-		{
-		VALUE_COLUMN_NAME, START_DATE_COLUMN_NAME, END_DATE_COLUMN_NAME,
-		EXTENSIONS_COLUMN_NAME
-		};
+	private static final String[] EDITABLE_COLUMNS = {
+			DEFAULT_VALUE_COLUMN_NAME, VALUE_COLUMN_NAME, START_DATE_COLUMN_NAME, END_DATE_COLUMN_NAME,
+			EXTENSIONS_COLUMN_NAME
+	};
 
-	public DictionaryItemValueTable(BeanItemContainer<ProcessDBDictionaryItemValue> container, I18NSource i18NSource, GenericVaadinPortlet2BpmApplication application) 
+	public DictionaryItemValueTable(BeanItemContainer<DictionaryModelView.ProcessDBDictionaryItemValueWrapper> container,
+									I18NSource i18NSource, GenericVaadinPortlet2BpmApplication application)
 	{
 		super(container, i18NSource, application);
 		
@@ -61,15 +63,17 @@ public class DictionaryItemValueTable extends GenericTable<ProcessDBDictionaryIt
 		setColumnHeader(EXTENSIONS_COLUMN_NAME, getMessage("dict.item.extensions"));
 		setColumnHeader(COPY_COLUMN_NAME, getMessage("pagedtable.copy"));
 		setColumnHeader(DELETE_COLUMN_NAME, getMessage("pagedtable.delete"));
-		
+
+		setColumnWidth(COPY_COLUMN_NAME, 60);
+		setColumnWidth(DELETE_COLUMN_NAME, 60);
+
 		setSortContainerPropertyId(START_DATE_COLUMN_NAME);
 		setSortAscending(false);
 		sort();
-
 	}
 
 	@Override
-	protected Component generateCell(ProcessDBDictionaryItemValue entry,String columnId) 
+	protected Component generateCell(DictionaryModelView.ProcessDBDictionaryItemValueWrapper entry, String columnId)
 	{
 		if(columnId.equals(DELETE_COLUMN_NAME))
 			return new DeleteItemButton(entry);
@@ -81,22 +85,23 @@ public class DictionaryItemValueTable extends GenericTable<ProcessDBDictionaryIt
 	}
 	
 	@Override
-	protected Field generateField(ProcessDBDictionaryItemValue entry,String columnId) 
+	protected Field generateField(DictionaryModelView.ProcessDBDictionaryItemValueWrapper entry, String columnId)
 	{
-		BeanItem<ProcessDBDictionaryItemValue> bean =  getContainer().getItem(entry);
+		BeanItem<DictionaryModelView.ProcessDBDictionaryItemValueWrapper> bean =  getContainer().getItem(entry);
 		
-		if(columnId.equals(VALUE_COLUMN_NAME))
+		if(columnId.equals(DEFAULT_VALUE_COLUMN_NAME) || columnId.equals(VALUE_COLUMN_NAME))
 		{
 			TextField textField = new TextField();
 			textField.setRequired(true);
 			textField.setNullRepresentation("");
 			textField.setCaption("");
 			textField.setRequiredError(getMessage("validate.item.val.empty"));
-			textField.setPropertyDataSource(bean.getItemProperty(VALUE_COLUMN_NAME));
+			textField.setPropertyDataSource(bean.getItemProperty(columnId));
 			
 			textField.setWidth(100, UNITS_PERCENTAGE);
             return textField;
 		}
+
 		if(columnId.equals(START_DATE_COLUMN_NAME))
 		{
             OptionalDateField dateField = new OptionalDateField(i18NSource);
@@ -120,12 +125,11 @@ public class DictionaryItemValueTable extends GenericTable<ProcessDBDictionaryIt
 			DictionaryItemExtensionField itemExtensionField = new DictionaryItemExtensionField(application, i18NSource);
 			itemExtensionField.setPropertyDataSource(bean.getItemProperty(EXTENSIONS_COLUMN_NAME));
 			itemExtensionField.setWriteThrough(true);
-			
+			itemExtensionField.setWidth(100, UNITS_PERCENTAGE);
             return itemExtensionField;
 		}
 		
 		throw new PropertyNameNotDefinedException("Column name not defined: "+columnId);
-		
 	}
 
 	@Override
@@ -142,15 +146,16 @@ public class DictionaryItemValueTable extends GenericTable<ProcessDBDictionaryIt
 	/** Copy item's value request */
 	private class CopyItemButton extends Button implements ClickListener
 	{
-		private ProcessDBDictionaryItemValue itemsValueToCopy;
+		private DictionaryModelView.ProcessDBDictionaryItemValueWrapper itemsValueToCopy;
 		
-		public CopyItemButton(ProcessDBDictionaryItemValue itemsValueToCopy)
+		public CopyItemButton(DictionaryModelView.ProcessDBDictionaryItemValueWrapper itemsValueToCopy)
 		{
 			this.itemsValueToCopy = itemsValueToCopy;
 			
 			setImmediate(true);
 			setStyleName("default small");
 			setCaption(getMessage("pagedtable.copy"));
+			setWidth(100, UNITS_PERCENTAGE);
 			addListener((ClickListener)this);
 		}
 
@@ -167,15 +172,16 @@ public class DictionaryItemValueTable extends GenericTable<ProcessDBDictionaryIt
 	/** Delete item's value request */
 	private class DeleteItemButton extends Button implements ClickListener
 	{
-		private ProcessDBDictionaryItemValue entryToDelete;
+		private DictionaryModelView.ProcessDBDictionaryItemValueWrapper entryToDelete;
 		
-		public DeleteItemButton(ProcessDBDictionaryItemValue entryToDelete)
+		public DeleteItemButton(DictionaryModelView.ProcessDBDictionaryItemValueWrapper entryToDelete)
 		{
 			this.entryToDelete = entryToDelete;
 			
 			setImmediate(true);
 			setStyleName("default small");
 			setCaption(getMessage("pagedtable.delete"));
+			setWidth(100, UNITS_PERCENTAGE);
 			addListener((ClickListener)this);
 		}
 
@@ -188,5 +194,4 @@ public class DictionaryItemValueTable extends GenericTable<ProcessDBDictionaryIt
 			DictionaryItemValueTable.this.notifyListeners(actionRequest);
 		}
 	}
-
 }

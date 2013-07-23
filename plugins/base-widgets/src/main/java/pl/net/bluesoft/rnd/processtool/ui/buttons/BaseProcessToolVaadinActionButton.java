@@ -19,6 +19,8 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolActionButt
 import org.aperteworkflow.util.vaadin.VaadinExceptionHandler;
 import org.aperteworkflow.util.vaadin.VaadinUtility;
 
+import java.util.List;
+
 /**
  * @author: amichalak@bluesoft.net.pl
  */
@@ -68,11 +70,16 @@ public abstract class BaseProcessToolVaadinActionButton extends BaseProcessToolA
 
 	protected void invokeBpmTransition() {
 		ProcessToolContext ctx = getCurrentContext();
-		task = ProcessToolBpmSessionHelper.performAction(bpmSession, ctx, definition, task);
-		if (task == null || task.isFinished()) {
+		List<BpmTask> tasks = ProcessToolBpmSessionHelper.performAction(bpmSession, ctx, definition, task);
+
+		if (tasks == null || tasks.isEmpty()) {
 			showTransitionNotification();
+			task = null;
 		}
-		if (task == null) {
+		else {
+			task = tasks.get(0);
+		}
+		if (tasks == null) {
 			throw new TaskAlreadyCompletedException(); 
 		}
 		callback.getWidgetContextSupport().updateTask(task);

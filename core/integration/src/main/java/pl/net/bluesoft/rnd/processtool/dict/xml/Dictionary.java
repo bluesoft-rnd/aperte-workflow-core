@@ -4,17 +4,17 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @XStreamAlias("dict")
 public class Dictionary {
     @XStreamAsAttribute
-    private String dictionaryId;
+    private String id;
     @XStreamAsAttribute
-    private String dictionaryName;
-    @XStreamAsAttribute
-    private String languageCode;
+    private String name;
+	@XStreamImplicit(itemFieldName = "i18n-name")
+	private List<DictionaryI18N> localizedNames;
     @XStreamAsAttribute
     private String description;
 
@@ -24,31 +24,31 @@ public class Dictionary {
     @XStreamImplicit
     private List<DictionaryPermission> permissions;
 
-    public String getDictionaryId() {
-        return dictionaryId;
+    public String getId() {
+        return id;
     }
 
-    public void setDictionaryId(String dictionaryId) {
-        this.dictionaryId = dictionaryId;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    public String getDictionaryName() {
-        return dictionaryName;
+    public String getName() {
+        return name;
     }
 
-    public void setDictionaryName(String dictionaryName) {
-        this.dictionaryName = dictionaryName;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getLanguageCode() {
-        return languageCode;
-    }
+	public List<DictionaryI18N> getLocalizedNames() {
+		return localizedNames != null ? localizedNames : Collections.<DictionaryI18N>emptyList();
+	}
 
-    public void setLanguageCode(String languageCode) {
-        this.languageCode = languageCode;
-    }
+	public void setLocalizedNames(List<DictionaryI18N> localizedNames) {
+		this.localizedNames = localizedNames;
+	}
 
-    public String getDescription() {
+	public String getDescription() {
         return description;
     }
 
@@ -57,7 +57,7 @@ public class Dictionary {
     }
 
     public List<DictionaryEntry> getEntries() {
-        return entries == null ? (entries = new ArrayList<DictionaryEntry>()) : entries;
+        return entries != null ? entries : Collections.<DictionaryEntry>emptyList();
     }
 
     public void setEntries(List<DictionaryEntry> entries) {
@@ -65,7 +65,7 @@ public class Dictionary {
     }
 
     public List<DictionaryPermission> getPermissions() {
-        return permissions == null ? (permissions = new ArrayList<DictionaryPermission>()) : permissions;
+        return permissions != null ? permissions : Collections.<DictionaryPermission>emptyList();
     }
 
     public void setPermissions(List<DictionaryPermission> permissions) {

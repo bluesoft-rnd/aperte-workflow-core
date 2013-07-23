@@ -1,11 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.userqueues;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
@@ -36,7 +32,6 @@ public class UserProcessQueuesSizeProvider
 	private Collection<UsersQueuesDTO> usersQueuesSize;
 	private String userLogin;
 	private ProcessToolRegistry reg;
-	private ProcessToolContext ctx;
 	private I18NSource messageSource;
 	
 	public UserProcessQueuesSizeProvider(ProcessToolRegistry reg, String userLogin, I18NSource messageSource) 
@@ -54,36 +49,32 @@ public class UserProcessQueuesSizeProvider
 		
 		if(ctx == null)
 		{
-			reg.getProcessToolContextFactory().withProcessToolContext(new ProcessToolContextCallback() 
+			reg.getProcessToolContextFactory().withProcessToolContextReadOnly(new ProcessToolContextCallback()
 			{
 				@Override
-				public void withContext(ProcessToolContext ctx) 
+				public void withContext(ProcessToolContext ctx)
 				{
-					fillUserQueuesMap(ctx);
+					fillUserQueuesMap();
 				}
 			});
 		}
 		else
 		{
-			fillUserQueuesMap(ctx);
+			fillUserQueuesMap();
 		}
 		
 		return usersQueuesSize;
 	}
 	
 	/** Initialize new session and context for database access */
-	private void fillUserQueuesMap(ProcessToolContext ctx)
+	private void fillUserQueuesMap()
 	{
-		ProcessToolContext.Util.setThreadProcessToolContext(ctx);
-		
-		UserData userData = reg.getUserDataDAO(ctx.getHibernateSession()).loadUserByLogin(userLogin);
+		UserData userData = getUserData(userLogin);
 
 		/* prevent null pointers during restart when old client instance is open in browser */
 		if (userData == null) {
 			return;
 		}
-
-		UserProcessQueuesSizeProvider.this.ctx = ctx;
 
 		/* Fill queues for main user */
 		ProcessToolBpmSession mainUserSession = getRegistry().getProcessToolSessionFactory().createSession(userData, userData.getRoleNames());
@@ -105,7 +96,7 @@ public class UserProcessQueuesSizeProvider
 	{
 		String currentUserLogin = bpmSession.getUserLogin();
 		
-		UserData user = reg.getUserDataDAO(ctx.getHibernateSession()).loadUserByLogin(currentUserLogin);
+		UserData user = getUserData(currentUserLogin);
 		
 		ProcessInstanceFilterFactory filterFactory = new ProcessInstanceFilterFactory();
 		Collection<ProcessInstanceFilter> queuesFilters = new ArrayList<ProcessInstanceFilter>();
@@ -113,23 +104,22 @@ public class UserProcessQueuesSizeProvider
 		UsersQueuesDTO userQueueSize = new UsersQueuesDTO(currentUserLogin);
 		
 		/* Create organized tasks filters */
-		queuesFilters.add(filterFactory.createMyTasksAssignedToMeFilter(user));
-		queuesFilters.add(filterFactory.createMyTaskDoneByOthersFilter(user));
-		queuesFilters.add(filterFactory.createOthersTaskAssignedToMeFilter(user));
+		queuesFilters.add(filterFactory.createMyTasksFilter(user));
+		queuesFilters.add(filterFactory.createMyTasksInProgress(user));
 		queuesFilters.add(filterFactory.createMyClosedTasksFilter(user));
 		
 		for(ProcessInstanceFilter queueFilter: queuesFilters)
 		{
 			int filteredQueueSize = bpmSession.getTasksCount(queueFilter.getFilterOwner().getLogin(), queueFilter.getQueueTypes());
-			//int filteredQueueSize = session.getFilteredTasksCount(queueFilter, ctx);
 			
 			String queueId = QueuesNameUtil.getQueueTaskId(queueFilter.getName());
 			String queueDesc = messageSource.getMessage(queueFilter.getName());
 			
 			userQueueSize.addProcessListSize(queueFilter.getName(), queueId, queueDesc, filteredQueueSize);
 			
-			if(isAssignedToUserFilter(queueFilter))
+			if(isAssignedToUserFilter(queueFilter)) {
 				userQueueSize.setActiveTasks(userQueueSize.getActiveTasks() + filteredQueueSize);
+			}
 		}
 		
 		/* Add queues */
@@ -146,18 +136,22 @@ public class UserProcessQueuesSizeProvider
 		
 		usersQueuesSize.add(userQueueSize);
 	}
-	
+
+	private UserData getUserData(String userLogin) {
+		ProcessToolContext ctx = getThreadProcessToolContext();
+		return reg.getUserDataDAO(ctx.getHibernateSession()).loadUserByLogin(userLogin);
+	}
+
 	private boolean isAssignedToUserFilter(ProcessInstanceFilter filter)
 	{
 		if(filter.getQueueTypes().contains(QueueType.OWN_IN_PROGRESS))
 			return false;
-		
+
 		if(filter.getQueueTypes().contains(QueueType.OWN_FINISHED))
 			return false;
-		
+
 		return true;
 	}
-
 
 	/**
 	 * DTO Class which binds user login with its queues 
@@ -177,8 +171,8 @@ public class UserProcessQueuesSizeProvider
 		public UsersQueuesDTO(String userLogin) 
 		{
 			this.userLogin = userLogin;
-			this.processesList = new HashSet<UserQueueDTO>();
-			this.queuesList = new HashSet<UserQueueDTO>();
+			this.processesList = new LinkedHashSet<UserQueueDTO>();
+			this.queuesList = new LinkedHashSet<UserQueueDTO>();
 		}
 		
 		public void addProcessListSize(String listName, String listId, String listDesc, Integer queueSize)
@@ -257,9 +251,6 @@ public class UserProcessQueuesSizeProvider
 			this.queueSize = queueSize;
 		}
 		
-		
-		
-		
 		public String getQueueDesc() {
 			return queueDesc;
 		}
@@ -271,7 +262,7 @@ public class UserProcessQueuesSizeProvider
 			final int prime = 31;
 			int result = 1;
 			result = prime * result
-					+ ((queueId == null) ? 0 : queueId.hashCode());
+					+ (queueId == null ? 0 : queueId.hashCode());
 			return result;
 		}
 		@Override
@@ -290,12 +281,5 @@ public class UserProcessQueuesSizeProvider
 				return false;
 			return true;
 		}
-		
-		
-		
-		
 	}
-
-	
-
 }

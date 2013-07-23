@@ -1,6 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.plugins.osgi;
 
-import static pl.net.bluesoft.rnd.processtool.plugins.osgi.OSGiBundleHelper.getBundleResourceStream;
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+import static pl.net.bluesoft.rnd.processtool.plugins.osgi.OSGiBundleHelper.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,31 +14,21 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.osgi.framework.Bundle;
-import org.osgi.framework.Constants;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
 import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.plugins.IBundleResourceProvider;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.plugins.deployment.ProcessDeployer;
-import pl.net.bluesoft.rnd.processtool.plugins.osgi.beans.HtmlFileNameBean;
 import pl.net.bluesoft.rnd.processtool.plugins.osgi.beans.ScriptFileNameBean;
 import pl.net.bluesoft.rnd.processtool.roles.IUserRolesManager;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.web.controller.IOsgiWebController;
 import pl.net.bluesoft.rnd.processtool.web.controller.OsgiController;
-import pl.net.bluesoft.rnd.processtool.web.domain.IWidgetContentProvider;
 import pl.net.bluesoft.rnd.processtool.web.domain.IWidgetScriptProvider;
-import pl.net.bluesoft.rnd.processtool.web.widgets.impl.FileWidgetContentProvider;
 import pl.net.bluesoft.rnd.processtool.web.widgets.impl.FileWidgetJavaScriptProvider;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.IWidgetDataHandler;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.IWidgetValidator;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.MockWidgetValidator;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.SimpleWidgetDataHandler;
 import pl.net.bluesoft.rnd.util.i18n.impl.PropertiesBasedI18NProvider;
 import pl.net.bluesoft.rnd.util.i18n.impl.PropertyLoader;
 
@@ -49,34 +40,6 @@ import com.thoughtworks.xstream.XStream;
  * Time: 16:17
  */
 public class BundleInstallationHandler {
-    public static final String		VIEW	    			= "ProcessTool-Widget-View";
-    public static final String		SCRIPT	   				= "ProcessTool-Widget-Script";
-    public static final String		CONTROLLER		        = "ProcessTool-Controller";
-	public static final String		MODEL_ENHANCEMENT	    = "ProcessTool-Model-Enhancement";
-	public static final String		WIDGET_ENHANCEMENT	    = "ProcessTool-Widget-Enhancement";
-	public static final String		BUTTON_ENHANCEMENT  	= "ProcessTool-Button-Enhancement";
-	public static final String		STEP_ENHANCEMENT	    = "ProcessTool-Step-Enhancement";
-	public static final String		I18N_PROPERTY		    = "ProcessTool-I18N-Property";
-	public static final String		PROCESS_DEPLOYMENT	    = "ProcessTool-Process-Deployment";
-	public static final String		GLOBAL_DICTIONARY	    = "ProcessTool-Global-Dictionary";
-	public static final String		ICON_RESOURCES		    = "ProcessTool-Resources-Icons";
-	public static final String		HUMAN_NAME			    = "Bundle-HumanName-Key";
-	public static final String      DESCRIPTION_KEY         = "Bundle-Description-Key";
-	public static final String		RESOURCES		        = "ProcessTool-Resources";
-	public static final String		ROLE_FILES			    = "ProcessTool-Role-Files";
-	public static final String 		IMPLEMENTATION_BUILD    = "Implementation-Build";
-	public static final String      TASK_ITEM_ENHANCEMENT   = "ProcessTool-TaskItem-Enhancement";
-	public static final String      DESCRIPTION             = Constants.BUNDLE_DESCRIPTION;
-	public static final String      HOMEPAGE_URL            = Constants.BUNDLE_UPDATELOCATION;
-	public static final String      DOCUMENTATION_URL       = Constants.BUNDLE_DOCURL;
-
-	public static final String[]	HEADER_NAMES		    = {
-			MODEL_ENHANCEMENT, WIDGET_ENHANCEMENT, BUTTON_ENHANCEMENT, STEP_ENHANCEMENT, I18N_PROPERTY,VIEW,SCRIPT,
-			PROCESS_DEPLOYMENT, GLOBAL_DICTIONARY, ICON_RESOURCES, RESOURCES, HUMAN_NAME, DESCRIPTION_KEY, CONTROLLER,
-			ROLE_FILES, IMPLEMENTATION_BUILD, TASK_ITEM_ENHANCEMENT, DESCRIPTION, HOMEPAGE_URL, DOCUMENTATION_URL
-	};
-
-
 	private static final String SEPARATOR = "/";
 
 	private ProcessToolRegistry registry;
@@ -88,7 +51,7 @@ public class BundleInstallationHandler {
 		this.logger = logger;
 	}
 
-	public synchronized void processBundleExtensions(final Bundle bundle, int eventType) throws ClassNotFoundException {
+	public synchronized void processBundleExtensions(Bundle bundle, int eventType) throws ClassNotFoundException {
 		if (registry.getProcessToolContextFactory() == null) {
 			logger.severe("No default process tool context registered! - skipping process tool context-based processing of this OSGI bundle");
 			return;
@@ -129,7 +92,7 @@ public class BundleInstallationHandler {
 		}
 
 		if (bundleHelper.hasHeaderValues(PROCESS_DEPLOYMENT)) {
-			handleProcessRoles(eventType, bundleHelper, registry);
+			handleProcessRoles(eventType, bundleHelper);
 			handleProcessDeployment(eventType, bundleHelper, registry);
 		}
 
@@ -157,7 +120,7 @@ public class BundleInstallationHandler {
 			try
 			{
 				ScriptFileNameBean scriptFileNameBean = new ScriptFileNameBean(javaScriptFileName);
-				IWidgetScriptProvider scriptProvider = null;
+				IWidgetScriptProvider scriptProvider;
 				
 				if(scriptFileNameBean.getProviderClass().equals(FileWidgetJavaScriptProvider.class.getName()))
 				{
@@ -242,7 +205,7 @@ public class BundleInstallationHandler {
                 String controllerName = controllerAnnotation.name();
                 if (eventType == Bundle.ACTIVE)
                 {
-                    IOsgiWebController controller = (IOsgiWebController)controllerClass.newInstance();
+                    IOsgiWebController controller = controllerClass.newInstance();
                     toolRegistry.registerWebController(controllerName, controller);
                 }
                 else
@@ -262,7 +225,7 @@ public class BundleInstallationHandler {
 	private void handleMessageSources(int eventType, OSGiBundleHelper bundleHelper, ProcessToolRegistry toolRegistry) {
 		final Bundle bundle = bundleHelper.getBundle();
 		String[] properties = bundleHelper.getHeaderValues(I18N_PROPERTY);
-		for (final String propertyFileName : properties) {
+		for (String propertyFileName : properties) {
 			String providerId = bundle.getBundleId() + File.separator + propertyFileName;
 			if (eventType == Bundle.ACTIVE) {
 				toolRegistry.registerI18NProvider(new PropertiesBasedI18NProvider(new PropertyLoader() {
@@ -352,53 +315,37 @@ public class BundleInstallationHandler {
 		for (final String processPackage : properties) {
 			final String providerId = bundle.getBundleId() + SEPARATOR + processPackage.replace(".", SEPARATOR) + "/messages";
 			if (eventType == Bundle.ACTIVE) {
-					final String basePath = SEPARATOR + processPackage.replace(".", SEPARATOR) + SEPARATOR;
-									
-					toolRegistry.withExistingOrNewContext(new ProcessToolContextCallback() {
-						
-						@Override
-						public void withContext(ProcessToolContext ctx) 
-						{
-							try {
-								
-								/* Initialize process deployer */
-								ProcessDeployer processDeployer = new ProcessDeployer(ctx);
-								
-								ProcessDefinitionConfig newConfig = 
-										processDeployer.unmarshallProcessDefinition(bundleHelper.getBundleResourceStream(basePath + "processtool-config.xml"));
+				final String basePath = SEPARATOR + processPackage.replace(".", SEPARATOR) + SEPARATOR;
 
-								ProcessDefinitionDAO dao = ctx.getProcessDefinitionDAO();
-								ProcessDefinitionConfig oldConfig = dao.getActiveConfigurationByKey(newConfig.getBpmDefinitionKey());
+				toolRegistry.withExistingOrNewContext(new ProcessToolContextCallback() {
+					@Override
+					public void withContext(ProcessToolContext ctx)
+					{
+						try {
+							/* Initialize process deployer */
+							ProcessDeployer processDeployer = new ProcessDeployer(ctx);
 
-                                processDeployer.deployOrUpdateProcessDefinition(
-										bundleHelper.getBundleResourceStream(basePath + "processdefinition." +
-												toolRegistry.getBpmDefinitionLanguage()),
-												bundleHelper.getBundleResourceStream(basePath + "processtool-config.xml"),
-										bundleHelper.getBundleResourceStream(basePath + "queues-config.xml"),
-										bundleHelper.getBundleResourceStream(basePath + "processdefinition.png"),
-										bundleHelper.getBundleResourceStream(basePath + "processdefinition-logo.png"));
-								
-								toolRegistry.registerI18NProvider(new PropertiesBasedI18NProvider(new PropertyLoader() {
-									@Override
-									public InputStream loadProperty(String path) throws IOException {
-										return getBundleResourceStream(bundle, path);
-									}
-								}, "/" + processPackage.replace(".", SEPARATOR) + "/messages"), providerId);
+							processDeployer.deployOrUpdateProcessDefinition(
+									bundleHelper.getBundleResourceStream(basePath + "processdefinition." +
+											toolRegistry.getBpmDefinitionLanguage()),
+											bundleHelper.getBundleResourceStream(basePath + "processtool-config.xml"),
+									bundleHelper.getBundleResourceStream(basePath + "queues-config.xml"),
+									bundleHelper.getBundleResourceStream(basePath + "processdefinition.png"),
+									bundleHelper.getBundleResourceStream(basePath + "processdefinition-logo.png"));
 
-								
-								/* Get current definition */
-								newConfig = dao.getActiveConfigurationByKey(newConfig.getBpmDefinitionKey());
-
-								toolRegistry.registerProcessDictionaries(bundleHelper.getBundleResourceStream(basePath + "process-dictionaries.xml"),
-										newConfig, oldConfig);
-							}
-							catch (Exception e) {
-								logger.log(Level.SEVERE, e.getMessage(), e);
-								forwardErrorInfoToMonitor(bundle.getSymbolicName(), e);
-							}
-							
+							getRegistry().registerI18NProvider(new PropertiesBasedI18NProvider(new PropertyLoader() {
+								@Override
+								public InputStream loadProperty(String path) throws IOException {
+									return getBundleResourceStream(bundle, path);
+								}
+							}, "/" + processPackage.replace(".", SEPARATOR) + "/messages"), providerId);
 						}
-					});
+						catch (Exception e) {
+							logger.log(Level.SEVERE, e.getMessage(), e);
+							forwardErrorInfoToMonitor(bundle.getSymbolicName(), e);
+						}
+					}
+				});
 			}
 			else { // ignore
 				toolRegistry.unregisterI18NProvider(providerId);
@@ -406,12 +353,12 @@ public class BundleInstallationHandler {
 		}
 	}
 
-	private void handleProcessRoles(int eventType, OSGiBundleHelper bundleHelper, ProcessToolRegistry registry) {
+	private void handleProcessRoles(int eventType, OSGiBundleHelper bundleHelper) {
 		if (eventType != Bundle.ACTIVE) {
 			return;
 		}
 
-		final Bundle bundle = bundleHelper.getBundle();
+		Bundle bundle = bundleHelper.getBundle();
 
 		if (bundleHelper.hasHeaderValues(ROLE_FILES)) {
 			String[] files = bundleHelper.getHeaderValues(ROLE_FILES);

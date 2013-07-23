@@ -24,7 +24,6 @@ public class DictionaryItemFormFieldFactory extends DefaultFieldFactory {
 
     public DictionaryItemFormFieldFactory(Application application, DictionaryItemForm dictionaryItemForm, I18NSource source, Set<String> visiblePropertyIds,
 										  Set<String> editablePropertyIds, Set<String> requiredPropertyIds) {
-        super();
         this.application = application;
 		this.dictionaryItemForm = dictionaryItemForm;
 		this.visiblePropertyIds = visiblePropertyIds;

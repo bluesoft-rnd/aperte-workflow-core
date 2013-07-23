@@ -6,7 +6,6 @@ import org.hibernate.Transaction;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
-import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.service.JbpmService;
 
@@ -25,7 +24,7 @@ import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadP
  * @author tlipski@bluesoft.net.pl
  * @author mpawlak@bluesoft.net.pl
  */
-public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory, ProcessToolBpmConstants {
+public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory {
     private static Logger logger = Logger.getLogger(ProcessToolContextFactoryImpl.class.getName());
     private ProcessToolRegistry registry;
 
@@ -41,8 +40,16 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory,
     }
 
     @Override
-	public <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback) 
-    {
+	public <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback) {
+    	return withProcessToolContext(callback,false);
+    }
+    
+    @Override
+	public <T> T withProcessToolContextReadOnly(ReturningProcessToolContextCallback<T> callback) {
+    	return withProcessToolContext(callback,true);
+    }
+    
+	public <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback, boolean readOnly) {
 		ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(ProcessToolRegistry.Util.getAwfClassLoader());
 
@@ -51,7 +58,6 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory,
 		} catch (ClassNotFoundException e) {
 			logger.warning("JbpmStepAction.class was not found");
 		}
-		
 		
 		try {
 			ProcessToolContext ctx = getThreadProcessToolContext();
@@ -66,12 +72,17 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory,
 				ProcessToolContext.Util.removeThreadProcessToolContext();
 			}
 
-			if (registry.isJta()) {
-				return withProcessToolContextJta(callback);
+			if (readOnly) {
+				return withProcessToolContextReadOnlyNoJta(callback);
+			} else {
+				if (registry.isJta()) {
+					return withProcessToolContextJta(callback);
+				}
+				else {
+					return withProcessToolContextNonJta(callback);
+				}
 			}
-			else {
-				return withProcessToolContextNonJta(callback);
-			}
+			
 		}
 		finally {
 			Thread.currentThread().setContextClassLoader(contextClassLoader);
@@ -86,7 +97,7 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory,
 		try 
 		{
 			Transaction tx = session.beginTransaction();
-			ProcessToolContext ctx = new ProcessToolContextImpl(session, registry);
+			ProcessToolContext ctx = new ProcessToolContextImpl(session);
 			ProcessToolContext.Util.setThreadProcessToolContext(ctx);
 			try
 			{
@@ -135,7 +146,7 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory,
 			Session session = registry.getSessionFactory().getCurrentSession();
 
 			try {
-				ProcessToolContext ctx = new ProcessToolContextImpl(session, registry);
+				ProcessToolContext ctx = new ProcessToolContextImpl(session);
 				ProcessToolContext.Util.setThreadProcessToolContext(ctx);
 				try
 				{
@@ -160,13 +171,36 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory,
 			} finally {
                 if (session.isOpen()) session.flush();
             }
-            ut.commit();
+            if (ut.getStatus() == Status.STATUS_ACTIVE) ut.commit();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
         return result;
     }
 
+	public <T> T withProcessToolContextReadOnlyNoJta(ReturningProcessToolContextCallback<T> callback) {
+        T result = null;
+
+		Session session = registry.getSessionFactory().openSession();
+		session.setDefaultReadOnly(true);
+		try 
+		{
+			ProcessToolContext ctx = new ProcessToolContextImpl(session);
+			ProcessToolContext.Util.setThreadProcessToolContext(ctx);
+			try {
+				result = callback.processWithContext(ctx);
+			} catch (RuntimeException e) {
+				logger.log(Level.SEVERE, e.getMessage(), e);
+			} finally {
+				ctx.close();
+				ProcessToolContext.Util.removeThreadProcessToolContext();
+			}
+		} finally  {
+			if (session.isOpen()) session.close();
+		}
+        return result;
+    }
+    
 	private UserTransaction getUserTransaction() throws NamingException {
 		UserTransaction ut;
 		try {

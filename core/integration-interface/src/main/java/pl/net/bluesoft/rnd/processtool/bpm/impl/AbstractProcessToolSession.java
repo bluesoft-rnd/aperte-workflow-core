@@ -27,6 +27,7 @@ import pl.net.bluesoft.util.lang.Mapcar;
 import pl.net.bluesoft.util.lang.Pair;
 import pl.net.bluesoft.util.lang.Predicate;
 
+import static pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants.*;
 import static pl.net.bluesoft.util.lang.Formats.nvl;
 
 /**

@@ -14,9 +14,9 @@ import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.jbpm.workflow.instance.node.StartNodeInstance;
 import org.jbpm.workflow.instance.node.SubProcessNodeInstance;
 import org.jbpm.workflow.instance.node.WorkItemNodeInstance;
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
+import pl.net.bluesoft.rnd.processtool.bpm.StartProcessResult;
 import pl.net.bluesoft.rnd.processtool.bpm.exception.ProcessToolSecurityException;
 import pl.net.bluesoft.rnd.processtool.bpm.impl.AbstractProcessToolSession;
 import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
@@ -31,7 +31,6 @@ import pl.net.bluesoft.rnd.processtool.model.nonpersistent.BpmTaskBean;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.BpmTaskDerivedBean;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
 import pl.net.bluesoft.rnd.processtool.model.token.AccessToken;
-import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.token.IAccessTokenFactory;
 import pl.net.bluesoft.rnd.processtool.token.ITokenService;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.service.JbpmService;
@@ -85,21 +84,41 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	}
 
 	@Override
-	public ProcessInstance startProcess(String processDefinitionId, String externalKey, String description, String keyword, String source) {
+	public StartProcessResult startProcess(String processDefinitionId, String externalKey, String source) {
 		ProcessDefinitionConfig config = getContext().getProcessDefinitionDAO().getActiveConfigurationByKey(processDefinitionId);
 
 		if (!config.isEnabled()) {
 			throw new IllegalArgumentException("Process definition has been disabled!");
 		}
 
-		startProcessParams = new StartProcessParams(config, externalKey, description, keyword, source, loadOrCreateUser(user));
+		startProcessParams = new StartProcessParams(config, externalKey, source, loadOrCreateUser(user));
 
 		try {
-			getKSession().startProcess(config.getBpmProcessId(), getInitialParams());
-			return startProcessParams.newProcessInstance;
+			getJbpmService().startProcess(config.getBpmProcessId(), getInitialParams());
+			return new JbpmStartProcessResult(startProcessParams.newProcessInstance, startProcessParams.createdTasksForCurrentUser);
 		}
 		finally {
 			startProcessParams = null;
+		}
+	}
+
+	private static class JbpmStartProcessResult implements StartProcessResult {
+		private final ProcessInstance processInstance;
+		private final List<BpmTask> tasks;
+
+		public JbpmStartProcessResult(ProcessInstance processInstance, List<BpmTask> tasks) {
+			this.processInstance = processInstance;
+			this.tasks = tasks;
+		}
+
+		@Override
+		public ProcessInstance getProcessInstance() {
+			return processInstance;
+		}
+
+		@Override
+		public List<BpmTask> getTasksAssignedToCreator() {
+			return Collections.unmodifiableList(tasks);
 		}
 	}
 
@@ -110,11 +129,21 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	}
 
 	@Override
-	public BpmTask performAction(ProcessStateAction action, BpmTask task) {
-		task = getTaskData(toAwfTaskId(task));
+	public List<BpmTask> performAction(String actionName, String taskId) {
+		BpmTask task = getTaskData(taskId);
+		ProcessStateAction action = task.getCurrentProcessStateConfiguration().getProcessStateActionByName(actionName);
 
+		return doPerformAction(action, task);
+	}
+
+	@Override
+	public List<BpmTask> performAction(ProcessStateAction action, BpmTask task) {
+		return doPerformAction(action, getTaskData(toAwfTaskId(task)));
+	}
+
+	private List<BpmTask> doPerformAction(ProcessStateAction action, BpmTask task) {
 		if (task == null || task.isFinished()) {
-			return task;
+			return null;
 		}
 
 		ProcessInstance processInstance = task.getProcessInstance();
@@ -127,30 +156,19 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		Task jbpmTask = ((JbpmTask)task).getTask();
 
 		if (jbpmTask.getTaskData().getStatus() != Status.InProgress) {
-			getTaskService().start(jbpmTask.getId(), user.getLogin());
+			getJbpmService().startTask(jbpmTask.getId(), user.getLogin());
 		}
 
 		completeTaskParams = new CompleteTaskParams(task);
 
 		try {
-			getTaskService().complete(jbpmTask.getId(), user.getLogin(), null);
+			getJbpmService().completeTask(jbpmTask.getId(), user.getLogin(), null);
 
-			if (!completeTaskParams.createdTasksForCurrentUser.isEmpty()) {
-				return completeTaskParams.createdTasksForCurrentUser.get(0);
-			}
+			return completeTaskParams.createdTasksForCurrentUser;
 		}
 		finally {
 			completeTaskParams = null;
 		}
-
-        /* Task assigned to queue */
-
-		BpmTaskDerivedBean completedTask = new BpmTaskDerivedBean(task);
-
-		completedTask.setFinished(true);
-		completedTask.setProcessInstance(processInstance);
-
-		return completedTask;
 	}
 
 	private void setStatus(ProcessInstance processInstance, ProcessStateAction action) {
@@ -198,11 +216,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 		long taskId = bpmTask != null ? toJbpmTaskId(bpmTask) : 0;
 
-		Task task = jbpmService.createTaskQuery()
-				.groupId(queueName)
-				.taskId(taskId)
-				.assigneeIsNull()
-				.first();
+		Task task = jbpmService.getTaskForAssign(queueName, taskId); 
 
 		if (task == null) {
 			log.warning("No tasks found in queue: " + queueName);
@@ -216,9 +230,9 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 			return null;
 		}
 
-		getTaskService().claim(task.getId(), user.getLogin());
+		getJbpmService().claimTask(task.getId(), user.getLogin());
 
-		task = getTaskService().getTask(task.getId());
+		task = getJbpmService().getTask(task.getId());
 
 		if (!user.getLogin().equals(getAssignee(task))) {
 			log.warning("Task: + " + taskId + " not assigned to requesting user: " + user.getLogin());
@@ -249,12 +263,12 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 	@Override
 	public void assignTaskToUser(String taskId, String userLogin) {
-		getTaskService().claim(toJbpmTaskId(taskId), userLogin);
+		getJbpmService().claimTask(toJbpmTaskId(taskId), userLogin);
 	}
 
 	@Override
 	public BpmTask getTaskData(String taskId) {
-		Task task = getTaskService().getTask(toJbpmTaskId(taskId));
+		Task task = getJbpmService().getTask(toJbpmTaskId(taskId));
 		if (task == null) {
 			return null;
 		}
@@ -283,11 +297,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	}
 
 	private BpmTask getLatestTask(ProcessInstance pi) {
-		Task task = jbpmService.createTaskQuery()
-				.processInstanceId(toJbpmPIId(pi))
-				.completed()
-				.orderByCompleteDateDesc()
-				.first();
+		Task task = jbpmService.getLatestTask(toJbpmPIId(pi));
 		return getBpmTask(task, null);
 	}
 
@@ -297,21 +307,13 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		if (log.getState() != null && Strings.hasText(log.getState().getName())) {
 			taskName = log.getState().getName();
 		}
-
-		Task task = jbpmService.createTaskQuery()
-				.assignee(log.getUser().getLogin())
-				.processInstanceId(toJbpmPIId(log.getExecutionId()))
-				.completedAfter(new Date())
-				.activityName(taskName)
-				.orderByCompleteDate()
-				.first();
-
+		Task task = jbpmService.getPastOrActualTask(toJbpmPIId(log.getExecutionId()), log.getUser().getLogin(), taskName, new Date());
 		return getBpmTask(task);
 	}
 
 	@Override
 	public BpmTask refreshTaskData(BpmTask task) {
-		Task refreshedTask = getTaskService().getTask(toJbpmTaskId(task));
+		Task refreshedTask = getJbpmService().getTask(toJbpmTaskId(task));
 
 		if (refreshedTask == null || refreshedTask.getTaskData().getStatus() == Status.Suspended ||
 				!user.getLogin().equals(getAssignee(refreshedTask))) {
@@ -331,7 +333,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		if (internalId == null) {
 			return false;
 		}
-		org.drools.runtime.process.ProcessInstance pi = getKSession().getProcessInstance(toJbpmPIId(internalId));
+		org.drools.runtime.process.ProcessInstance pi = getJbpmService().getProcessInstance(toJbpmPIId(internalId));
 		return pi != null && pi.getState() != org.drools.runtime.process.ProcessInstance.STATE_COMPLETED;
 	}
 
@@ -352,38 +354,24 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 	@Override
 	public BpmTask getHistoryTask(String taskId) {
-		return getBpmTask(getTaskService().getTask(toJbpmTaskId(taskId)));
+		return getBpmTask(getJbpmService().getTask(toJbpmTaskId(taskId)));
 	}
 
 	@Override
 	public List<BpmTask> getAllTasks() {
-		List<Task> tasks = jbpmService.createTaskQuery().orderByTaskIdDesc().list();
-
+		List<Task> tasks = jbpmService.getTasks();
 		return getBpmTasks(tasks);
 	}
 
 	@Override
 	public List<BpmTask> findUserTasks(ProcessInstance processInstance) {
-		List<Task> tasks = jbpmService.createTaskQuery()
-				.processInstanceId(toJbpmPIId(processInstance))
-				.assignee(user.getLogin())
-				.active()
-				.list();
-
+		List<Task> tasks = jbpmService.getTasks(toJbpmPIId(processInstance), user.getLogin() ); 
 		return getBpmTasks(tasks, processInstance);
 	}
 
 	@Override
 	public List<BpmTask> findUserTasks(Integer offset, Integer limit) {
-		limit = nvl(limit, DEFAULT_LIMIT_VALUE);
-		offset = nvl(offset, DEFAULT_OFFSET_VALUE);
-
-		List<Task> tasks = jbpmService.createTaskQuery()
-				.assignee(user.getLogin())
-				.active()
-				.page(offset, limit)
-				.list();
-
+		List<Task> tasks = jbpmService.getTasks(user.getLogin(), nvl(offset, DEFAULT_OFFSET_VALUE), nvl(limit, DEFAULT_LIMIT_VALUE));
 		return getBpmTasks(tasks);
 	}
 
@@ -426,11 +414,11 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		}.go();
 	}
 
-	private BpmTask getBpmTask(Task task, ProcessInstance pi) {
+	private static BpmTask getBpmTask(Task task, ProcessInstance pi) {
 		return task != null ? new JbpmTask(pi, task) : null; // pi may be null since it can be lazy loaded
 	}
 
-	private BpmTask getBpmTask(Task task) {
+	private static BpmTask getBpmTask(Task task) {
 		return getBpmTask(task, null);
 	}
 
@@ -443,12 +431,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 	@Override
 	public List<BpmTask> findProcessTasks(ProcessInstance pi, String userLogin, Set<String> taskNames) {
-		List<Task> tasks = jbpmService.createTaskQuery()
-				.processInstanceId(toJbpmPIId(pi))
-				.active()
-				.assignee(userLogin)
-				.activityNames(taskNames)
-				.list();
+		List<Task> tasks = jbpmService.getTasks(toJbpmPIId(pi), userLogin, taskNames);
 		return getBpmTasks(tasks, pi);
 	}
 
@@ -540,15 +523,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	}
 
 	private BpmTask getMostRecentProcessHistoryTask(ProcessInstance pi, UserData user, Date minDate) {
-		Task task = jbpmService.createTaskQuery()
-				.assignee(user.getLogin())
-				.processInstanceId(toJbpmPIId(pi))
-				.completedAfter(minDate)
-				.orderByCompleteDateDesc()
-				.first();
-		if (task == null) {
-			return null;
-		}
+		Task task = jbpmService.getMostRecentProcessHistoryTask(toJbpmPIId(pi), user.getLogin(), minDate); 
 		return getBpmTask(task);
 	}
 
@@ -599,7 +574,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	public void adminCancelProcessInstance(ProcessInstance pi) {
 		log.severe("User: " + user.getLogin() + " attempting to cancel process: " + pi.getInternalId());
 		pi = getProcessData(pi.getInternalId());
-		getKSession().abortProcessInstance(toJbpmPIId(pi));
+		getJbpmService().abortProcessInstance(toJbpmPIId(pi));
 		fillProcessAssignmentData(pi);
 		save(pi);
 		log.severe("User: " + user.getLogin() + " has cancelled process: " + pi.getInternalId());
@@ -610,13 +585,13 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		log.severe("User: " + user.getLogin() + " attempting to reassign task " + toJbpmTaskId(bpmTask) + " for process: " + pi.getInternalId() + " to user: " + userLogin);
 
 		pi = getProcessData(pi.getInternalId());
-		Task task = getTaskService().getTask(toJbpmTaskId(bpmTask));
+		Task task = getJbpmService().getTask(toJbpmTaskId(bpmTask));
 		if (nvl(userLogin, "").equals(nvl(getAssignee(task), ""))) {
 			log.severe("User: " + user.getLogin() + " has not reassigned task " + toJbpmTaskId(bpmTask) + " for process: " + pi.getInternalId() + " as the user is the same: " + userLogin);
 			return;
 		}
 		//this call should also take care of swimlanes
-		getTaskService().claim(toJbpmTaskId(bpmTask), userLogin);
+		getJbpmService().claimTask(toJbpmTaskId(bpmTask), userLogin);
 		fillProcessAssignmentData(pi);
 		log.info("Process.running:" + pi.isProcessRunning());
 		save(pi);
@@ -650,12 +625,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 	@Override
 	public List<String> getAvailableLogins(String filter) {
-		List<String> userIds = jbpmService.createUserQuery()
-				.selectId()
-				.whereIdLike(filter != null ? '%' + filter + '%' : null)
-				.page(0, 20)
-				.list();
-
+		List<String> userIds = jbpmService.getAvailableUserLogins(filter,0,20);
 		Collections.sort(userIds);
 		return userIds;
 	}
@@ -783,19 +753,10 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		return deploymentId;
 	}
 
-	private StatefulKnowledgeSession getKSession() {
-		if (ksession == null) {
-			ksession = jbpmService.getSession();
-		}
+	private JbpmService getJbpmService() {
 		JbpmService.setProcessEventListener(this);
 		JbpmService.setTaskEventListener(this);
-		return ksession;
-	}
-
-	private TaskService getTaskService() {
-		JbpmService.setProcessEventListener(this);
-		JbpmService.setTaskEventListener(this);
-		return jbpmService.getTaskService();
+		return jbpmService;
 	}
 
 	@Override
@@ -866,10 +827,13 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 	@Override
 	public void taskClaimed(TaskUserEvent event) {
-		BpmTask task = getBpmTask(getTaskService().getTask(event.getTaskId()));
+		BpmTask task = getBpmTask(getJbpmService().getTask(event.getTaskId()));
 
-		if (completeTaskParams != null && user.getLogin().equals(event.getUserId())) {
-			completeTaskParams.createdTasksForCurrentUser.add(task);
+		if (completeTaskParams != null) {
+			completeTaskParams.addCreatedTask(task, user.getLogin().equals(event.getUserId()));
+		}
+		else if (startProcessParams != null) {
+			startProcessParams.addCreatedTask(task, user.getLogin().equals(event.getUserId()));
 		}
 
 		assignTokens(task);
@@ -880,13 +844,12 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	}
 
 	private void refreshDataForNativeQuery() {
-		// this call forces JBPM to flush awaiting task data
-		jbpmService.getTaskService().query("SELECT task.id FROM Task task ORDER BY task.id DESC", 1, 0);
+		getJbpmService().refreshDataForNativeQuery();
 	}
 
 	private void assignTokens(BpmTask userTask) {
 		ProcessStateConfiguration stateConfiguration = getContext().getProcessDefinitionDAO()
-				.getProcessStateConfiguration(userTask);
+				.getProcessStateConfiguration(userTask);  //TODO optymalizacja
 
 		Boolean isAccessibleByToken = stateConfiguration.getEnableExternalAccess();
 
@@ -966,21 +929,16 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	public void taskForwarded(TaskUserEvent event) {
 	}
 
-	private static class StartProcessParams {
+	private static class StartProcessParams extends TaskCapturer {
 		public final ProcessDefinitionConfig config;
 		public final String externalKey;
-		public final String description;
-		public final String keyword;
 		public final String source;
 		public final UserData creator;
 		public ProcessInstance newProcessInstance;
 
-		public StartProcessParams(ProcessDefinitionConfig config, String externalKey, String description,
-								  String keyword, String source, UserData creator) {
+		public StartProcessParams(ProcessDefinitionConfig config, String externalKey, String source, UserData creator) {
 			this.config = config;
 			this.externalKey = externalKey;
-			this.description = description;
-			this.keyword = keyword;
 			this.source = source;
 			this.creator = creator;
 		}
@@ -994,8 +952,6 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 			newProcessInstance.setCreateDate(new Date());
 			newProcessInstance.setExternalKey(externalKey);
 			newProcessInstance.setInternalId(toAwfPIId(jbpmProcessInstance));
-			newProcessInstance.setDescription(description);
-			newProcessInstance.setKeyword(keyword);
 			newProcessInstance.setStatus(ProcessStatus.NEW);
 			newProcessInstance.addOwner(creator.getLogin());
 
@@ -1034,12 +990,21 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		}
 	}
 
-	private static class CompleteTaskParams {
+	private static class CompleteTaskParams extends TaskCapturer {
 		public final BpmTask task;
-		public final List<BpmTask> createdTasksForCurrentUser = new ArrayList<BpmTask>();
 
 		private CompleteTaskParams(BpmTask task) {
 			this.task = task;
+		}
+	}
+
+	private static class TaskCapturer {
+		public final List<BpmTask> createdTasksForCurrentUser = new ArrayList<BpmTask>();
+
+		public void addCreatedTask(BpmTask task, boolean assignedToCurrentUser) {
+			if (assignedToCurrentUser) {
+				createdTasksForCurrentUser.add(task);
+			}
 		}
 	}
 
@@ -1057,7 +1022,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 						.getConfigurationByProcessId(subprocessParams.processId);
 
 				StartProcessParams params = new StartProcessParams(
-						config, null, null, null, "parent_process", parentProcessInstance.getCreator()
+						config, null, "parent_process", parentProcessInstance.getCreator()
 				);
 				newProcessInstance = params.createFromParams(jbpmProcessInstance, parentProcessInstance);
 
@@ -1306,20 +1271,11 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		private Map<String, Integer> getCounts() {
 			if (counts == null) {
 				List<String> names = keyFilter("name", configs);
-
-				List<Object[]> rows = (List<Object[]>)(List)JbpmService.getInstance().createTaskQuery()
-						.selectGroupId()
-						.selectCount()
-						.assigneeIsNull()
-						.groupIds(names)
-						.groupByGroupId()
-						.list();
-
+				List<Object[]> rows = JbpmService.getInstance().getTaskCounts(names);
 				counts = new HashMap<String, Integer>();
 				for (Object[] t : rows) {
 					counts.put((String)t[0], ((Number)t[1]).intValue());
 				}
-
 				configs = null;
 			}
 			return counts;

@@ -56,10 +56,10 @@ public class GlobalDictionaryI18NProvider implements I18NProvider {
             dictionary = fetchDefaultDictionary();
         }
         if (dictionary != null && dictionary.containsKey(key)) {
-            ProcessDictionaryItem<String, String> item = dictionary.lookup(key);
-            ProcessDictionaryItemValue<String> value = item.getValueForCurrentDate();
+            ProcessDictionaryItem item = dictionary.lookup(key);
+            ProcessDictionaryItemValue value = item.getValueForCurrentDate();
             if (value != null) {
-                return value.getValue();
+                return value.getValue(locale);
             }
         }
         return null;
@@ -73,7 +73,7 @@ public class GlobalDictionaryI18NProvider implements I18NProvider {
         return locale.getLanguage();
     }
 
-    private ProcessDictionary fetchSpecificDictionary(final String languageCode) {
+    private ProcessDictionary fetchSpecificDictionary(String languageCode) {
         return cache.get(languageCode, new NewValueCallback<String, ProcessDictionary>() {
             @Override
             public ProcessDictionary getNewValue(String key) {
@@ -81,7 +81,7 @@ public class GlobalDictionaryI18NProvider implements I18NProvider {
                     @Override
                     public ProcessDictionary processWithContext(ProcessToolContext ctx) {
                         ProcessDictionaryRegistry dictionaryRegistry = ctx.getProcessDictionaryRegistry();
-                        return dictionaryRegistry.getSpecificGlobalDictionary("db", dictionaryId, languageCode);
+                        return dictionaryRegistry.getDictionary(dictionaryId);
                     }
                 });
             }
@@ -96,7 +96,7 @@ public class GlobalDictionaryI18NProvider implements I18NProvider {
                     @Override
                     public ProcessDictionary processWithContext(ProcessToolContext ctx) {
                         ProcessDictionaryRegistry dictionaryRegistry = ctx.getProcessDictionaryRegistry();
-                        return dictionaryRegistry.getDefaultGlobalDictionary("db", dictionaryId);
+                        return dictionaryRegistry.getDictionary(dictionaryId);
                     }
                 });
             }

@@ -306,12 +306,6 @@ public class TaskItemProviderBase {
 		}
 
 		vl.setWidth("100%");
-		if (pi.getKeyword() != null) {
-			vl.addComponent(createQueuePaneKeyword(params));
-		}
-		if (pi.getDescription() != null) {
-			vl.addComponent(createQueuePaneDescription(params));
-		}
 		p.setWidth("100%");
 		p.addComponent(vl);
 		return p;
@@ -337,15 +331,6 @@ public class TaskItemProviderBase {
 	protected Component createQueuePaneStateCommentary(TaskItemProviderParams params) {
 		return new Label(nvl(params.getMessage(params.getProcessStateConfiguration().getCommentary()), ""),
 		                 Label.CONTENT_XHTML);
-	}
-
-
-	protected Component createQueuePaneKeyword(TaskItemProviderParams params) {
-		return new Label(params.getProcessInstance().getKeyword());
-	}
-
-	protected Component createQueuePaneDescription(TaskItemProviderParams params) {
-		return new Label(params.getProcessInstance().getDescription());
 	}
 
 	protected Component createQueuePaneAssignButton(final TaskItemProviderParams params) {

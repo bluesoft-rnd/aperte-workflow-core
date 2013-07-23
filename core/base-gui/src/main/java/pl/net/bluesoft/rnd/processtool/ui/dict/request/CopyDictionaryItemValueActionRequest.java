@@ -4,6 +4,7 @@ import com.vaadin.data.util.BeanItemContainer;
 
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItem;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemValue;
+import pl.net.bluesoft.rnd.processtool.ui.dict.modelview.DictionaryModelView;
 import pl.net.bluesoft.rnd.processtool.ui.request.IActionRequest;
 
 /**
@@ -14,21 +15,22 @@ import pl.net.bluesoft.rnd.processtool.ui.request.IActionRequest;
  */
 public class CopyDictionaryItemValueActionRequest implements IActionRequest 
 {
-	private ProcessDBDictionaryItemValue itemsValueToCopy;
-	private BeanItemContainer<ProcessDBDictionaryItemValue> container;
+	private DictionaryModelView.ProcessDBDictionaryItemValueWrapper itemsValueToCopy;
+	private BeanItemContainer<DictionaryModelView.ProcessDBDictionaryItemValueWrapper> container;
 
-	public CopyDictionaryItemValueActionRequest(ProcessDBDictionaryItemValue itemToDelete, BeanItemContainer<ProcessDBDictionaryItemValue> container) 
+	public CopyDictionaryItemValueActionRequest(DictionaryModelView.ProcessDBDictionaryItemValueWrapper itemToDelete,
+												BeanItemContainer<DictionaryModelView.ProcessDBDictionaryItemValueWrapper> container)
 	{
 		this.itemsValueToCopy = itemToDelete;
 		this.container = container;
 	}
 	
-	public ProcessDBDictionaryItemValue getItemValueToCopy()
+	public DictionaryModelView.ProcessDBDictionaryItemValueWrapper getItemValueToCopy()
 	{
 		return this.itemsValueToCopy;
 	}
 	
-	public BeanItemContainer<ProcessDBDictionaryItemValue> getContainer()
+	public BeanItemContainer<DictionaryModelView.ProcessDBDictionaryItemValueWrapper> getContainer()
 	{
 		return this.container;
 	}

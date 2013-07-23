@@ -11,7 +11,7 @@ public abstract class PTDictDescription extends DictDescription {
 	private Class entryClass;
 	private CustomValueProvider<?> customValueProvider;
 
-	public PTDictDescription(String name) {
+	protected PTDictDescription(String name) {
 		super(name);
 	}
 

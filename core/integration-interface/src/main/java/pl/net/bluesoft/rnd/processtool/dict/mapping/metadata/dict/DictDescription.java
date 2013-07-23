@@ -14,10 +14,9 @@ public abstract class DictDescription {
 	private final String name;
 	private boolean lazyLoad = true;
 
-	public DictDescription(String name) {
+	protected DictDescription(String name) {
 		this.name = name;
 	}
-
 
 	public String getName() {
 		return name;

@@ -1,5 +1,6 @@
 package pl.net.bluesoft.rnd.processtool.token.impl;
 
+import static pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants.TOKEN_SERVLET_URL;
 import static pl.net.bluesoft.util.lang.Strings.withEnding;
 
 import java.util.Collection;
@@ -7,7 +8,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import pl.net.bluesoft.rnd.processtool.BasicSettings;
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants.TextModes;
 import pl.net.bluesoft.rnd.processtool.facade.AbstractFacade;
@@ -78,7 +78,7 @@ public class AccessTokenFacade extends AbstractFacade implements ITokenService
 	{
 		String portletUrl = getSetting(BasicSettings.ACTIVITY_PORTLET_URL);
 		
-		String url = Strings.hasLength(portletUrl) ? withEnding(portletUrl, ProcessToolContext.TOKEN_SERVLET_URL) : null;
+		String url = Strings.hasLength(portletUrl) ? withEnding(portletUrl, TOKEN_SERVLET_URL) : null;
 		
 		return url;
 	}

@@ -1,8 +1,9 @@
 package pl.net.bluesoft.rnd.pt.dict.global;
 
+import pl.net.bluesoft.rnd.processtool.dict.DictionaryLoader;
+import pl.net.bluesoft.rnd.processtool.dict.xml.Dictionary;
+import pl.net.bluesoft.rnd.processtool.dict.xml.ProcessDictionaries;
 import pl.net.bluesoft.rnd.pt.dict.global.i18n.GlobalDictionaryI18NProvider;
-import pl.net.bluesoft.rnd.pt.dict.global.xml.Dictionary;
-import pl.net.bluesoft.rnd.pt.dict.global.xml.ProcessDictionaries;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ public class GlobalDictionariesActivator extends AbstractPluginActivator {
         Properties properties = loadProperties("plugin.properties");
         ProcessDictionaries dictionaries = (ProcessDictionaries) DictionaryLoader.getInstance().unmarshall(is);
         for (Dictionary dictionary : dictionaries.getDictionaries()) {
-            String dictionaryId = dictionary.getDictionaryId();
+            String dictionaryId = dictionary.getId();
             dictionaryNames.add(dictionaryId);
             registry.registerI18NProvider(new GlobalDictionaryI18NProvider(dictionaryId, registry, properties), getDictionaryProviderId(dictionaryId));
         }

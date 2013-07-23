@@ -197,11 +197,8 @@ public class EmailChecker {
             if (existingPi == null && rule.getStartNewProcesses()) {
                 logger.fine("Starting new process for rule " + rule.getId() + " on matched message " + description +
                         ", process code: " + rule.getProcessCode());
-                existingPi = ProcessToolBpmSessionHelper.startProcess(toolBpmSession, context,
-						rule.getProcessCode(),
-                        null,
-                        subject,
-                        preparedSubject, "email");
+                existingPi = ProcessToolBpmSessionHelper.startProcess(toolBpmSession, context, rule.getProcessCode(),
+						null, "email").getProcessInstance();
                 //save initial email data
                 existingPi.addAttribute(new ProcessInstanceSimpleAttribute("email_from", sender));
                 existingPi.addAttribute(new ProcessInstanceSimpleAttribute("email_subject", msg.getSubject()));

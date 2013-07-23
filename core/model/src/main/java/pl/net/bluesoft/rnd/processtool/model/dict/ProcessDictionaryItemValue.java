@@ -2,16 +2,14 @@ package pl.net.bluesoft.rnd.processtool.model.dict;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.Locale;
 
-public interface ProcessDictionaryItemValue<V> {
-    V getValue();
-    void setValue(V value);
-
-    void setValidStartDate(Date validStartDate);
-    Date getValidStartDate();
-    void setValidEndDate(Date validEndDate);
-    Date getValidEndDate();
+public interface ProcessDictionaryItemValue {
+	String getValue(String languageCode);
+	String getValue(Locale locale);
+    Date getValidFrom();
+    Date getValidTo();
     boolean isValidForDate(Date date);
     
-    Collection<ProcessDictionaryItemExtension<V>> getItemExtensions();
+    Collection<ProcessDictionaryItemExtension> getItemExtensions();
 }

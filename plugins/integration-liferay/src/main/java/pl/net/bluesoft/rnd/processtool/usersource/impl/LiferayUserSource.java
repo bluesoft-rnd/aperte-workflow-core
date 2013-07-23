@@ -1,13 +1,22 @@
 package pl.net.bluesoft.rnd.processtool.usersource.impl;
 
 import java.util.Collection;
+import java.util.LinkedList;
 
 import javax.portlet.RenderRequest;
 import javax.servlet.http.HttpServletRequest;
 
 import org.aperteworkflow.integration.liferay.utils.LiferayUserConverter;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
+import pl.net.bluesoft.rnd.processtool.authorization.IAuthorizationService;
+import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 import pl.net.bluesoft.rnd.processtool.usersource.IPortalUserSource;
 import pl.net.bluesoft.rnd.processtool.usersource.IUserSource;
 import pl.net.bluesoft.rnd.processtool.usersource.exception.UserSourceException;
@@ -26,6 +35,14 @@ import com.liferay.portal.util.PortalUtil;
  */
 public class LiferayUserSource implements IPortalUserSource 
 {
+    @Autowired
+    private ProcessToolRegistry processToolRegistry;
+
+    public LiferayUserSource()
+    {
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+    }
+
 
 	@Override
 	public UserData getUserByLogin(String login) throws UserSourceException 
@@ -107,15 +124,51 @@ public class LiferayUserSource implements IPortalUserSource
 	@Override
 	public UserData getUserByRequest(HttpServletRequest request) 
 	{
-        try {
-            User user = PortalUtil.getUser(request);
-            return LiferayUserConverter.convertLiferayUser(user);
+        try
+        {
+            IAuthorizationService authorizationService = ObjectFactory.create(IAuthorizationService.class);
+            final UserData userData =  authorizationService.getUserByRequest(request);
+
+            if(userData == null)
+                return null;
+
+            ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
+            if(ctx != null)
+            {
+               return synchronizeUser(ctx, userData);
+            }
+            else
+            {
+                return processToolRegistry.withProcessToolContext(new ReturningProcessToolContextCallback<UserData>() {
+                    @Override
+                    public UserData processWithContext(ProcessToolContext ctx) {
+                        return synchronizeUser(ctx, userData);
+                    }
+                });
+            }
         }
         catch (Exception e) 
         {
         	throw new UserSourceException("User not found", e);
         }
 	}
+
+    private UserData synchronizeUser(ProcessToolContext ctx, UserData externalUserData)
+    {
+        UserData aperteUser = ctx.getUserDataDAO().loadUserByLogin(externalUserData.getLogin());
+
+            /* No user in aperte db, create one */
+        if(aperteUser == null)
+        {
+            ctx.getUserDataDAO().saveOrUpdate(externalUserData);
+            return externalUserData;
+        }
+        else
+        {
+            aperteUser.getRoles();
+            return aperteUser;
+        }
+    }
 	
 	@Override
 	public UserData getUserByRequest(RenderRequest request) 

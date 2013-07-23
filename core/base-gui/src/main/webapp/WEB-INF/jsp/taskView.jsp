@@ -21,8 +21,13 @@
 <script type="text/javascript">
 //<![CDATA[
   	var queueViewManager = new QueueViewManager();
+	
+	$(document).ready(function()
+	{
+		windowManager.addView("process-panel-view");			
+	});
 
-	function View(tableObject, viewName)
+	function QueueView(tableObject, viewName)
 	{
 		this.tableObject = tableObject;
 		this.viewName = viewName;
@@ -39,7 +44,6 @@
 		
 		this.loadQueue = function(newQueueName, queueType, ownerLogin, queueDesc)
 		{
-			console.log("LOAD: "+queueType); 
 			var oldView = this.views[this.currentQueueType];
 			var newView = this.views[queueType];
 			
@@ -68,7 +72,74 @@
 		
 		this.addTableView = function(queueType, tableObject, viewName)
 		{
-			this.views[queueType] = new View(tableObject, viewName);
+			this.views[queueType] = new QueueView(tableObject, viewName);
+		}
+		
+		this.toggleColumn = function(viewName, columnName)
+		{
+			this.views[viewName].tableObject.toggleColumn(columnName);
+		}
+		
+		this.enableMobileMode = function()
+		{
+			$.each(this.views, function(viewName, view)
+			{
+				view.tableObject.enableMobileMode();
+			});
+		}
+		
+		this.enableTabletMode = function()
+		{
+			$.each(this.views, function(viewName, view)
+			{
+				view.tableObject.enableTabletMode();
+			});
+		}
+		
+		this.disableMobileMode = function()
+		{
+			$.each(this.views, function(viewName, view)
+			{
+				view.tableObject.disableMobileMode();
+			});
+		}
+		
+		this.disableTabletMode = function()
+		{
+			$.each(this.views, function(viewName, view)
+			{
+				view.tableObject.disableTabletMode();
+			});
+		}
+
+		
+		
+	}
+
+  
+	function AperteDataTable(tableId, columnDefs, sortingOrder)
+	{
+		this.tableId = tableId;
+		this.requestUrl = '';
+		this.columnDefs = columnDefs;
+		this.sortingOrder = sortingOrder;
+		this.dataTable;
+		
+		this.initialized = false;
+		
+		this.reloadTable = function(requestUrl)
+		{
+			
+			this.requestUrl = requestUrl;
+			if(this.initialized == false)
+			{
+				this.createDataTable();
+				this.initialized = true;
+			}
+			else
+			{
+				this.dataTable.fnReloadAjax(this.requestUrl);
+			}
 		}
 		
 		this.enableMobileMode = function()
@@ -87,37 +158,9 @@
 		{
 		}
 		
-		
-	}
-
-  
-	function AperteDataTable(tableId, columnDefs, sortingOrder)
-	{
-		this.tableId = tableId;
-		this.requestUrl = '';
-		this.columnDefs = columnDefs;
-		this.sortingOrder = sortingOrder;
-		
-		this.initialized = false;
-		
-		this.reloadTable = function(requestUrl)
-		{
-			
-			this.requestUrl = requestUrl;
-			if(this.initialized == false)
-			{
-				this.createDataTable();
-				this.initialized = true;
-			}
-			else
-			{
-				$('#'+this.tableId).dataTable().fnReloadAjax(this.requestUrl);
-			}
-		}
-		
 		this.createDataTable = function()
 		{
-			$('#'+this.tableId).dataTable({
+			this.dataTable = $('#'+this.tableId).dataTable({
 				"bLengthChange": true,
 				"bFilter": true,
 				"bProcessing": true,
@@ -126,7 +169,7 @@
 				"aaSorting": sortingOrder,
 				"bSort": true,
 				"iDisplayLength": 10,
-				"sDom": '<"top"t><"bottom"plr>',
+				"sDom": '<"top"tR><"bottom"plr>',
 				"sAjaxSource": this.requestUrl,
 				"fnServerData": function ( sSource, aoData, fnCallback ) {
 
@@ -157,24 +200,29 @@
 			});
 		}
 		
-		this.toggleColumnButton = function(columnNumber, active)
+		this.toggleColumnButton = function(columnName, active)
 		{
 			
-			var button = $("#process-table-hide-"+columnNumber);
+			var checkbox = $("#button-"+this.tableId+'-'+columnName);
 			
-			var changeState = !XOR(button.hasClass("active"), active); 
+			var changeState = !XOR(checkbox.is(':checked'), active); 
 			if(changeState == true)
 			{
-				button.trigger('click');
+				checkbox.trigger('click');
 			}
 
 		}
 	
-		this.toggleColumn = function(columnNumber)
+		this.toggleColumn = function(columnName)
 		{
-			var oTable = $('#'+this.tableId).dataTable();
-			var bVis = oTable.fnSettings().aoColumns[columnNumber].bVisible;
-			oTable.fnSetColumnVis( columnNumber, bVis ? false : true);
+			var dataTable = this.dataTable;
+			$.each(dataTable.fnSettings().aoColumns, function (columnIndex, column) 
+			{
+				if (column.sName == columnName)
+				{
+					  dataTable.fnSetColumnVis(columnIndex, column.bVisible ? false : true, false);
+				}
+		    });
 		}
 	}
 

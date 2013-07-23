@@ -47,6 +47,11 @@
 	var userLogin = '${aperteUser.login}';
 	var queueInterval = '${queueInterval}';
 	
+	 $(document).ready(function()
+	{
+		windowManager.addView("outer-queues");
+	});
+	
 	function moveQueueList()
 	{
 		if($(window).width() < 479 && windowManager.mobileMode == false)

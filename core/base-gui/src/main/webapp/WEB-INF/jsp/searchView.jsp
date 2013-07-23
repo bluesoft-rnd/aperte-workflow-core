@@ -31,6 +31,11 @@
 	</table>
 </div>
  <script type="text/javascript">
+ 
+ 	$(document).ready(function()
+	{
+		windowManager.addView("search-view");
+	});
 
 	var isTableLoaded = false;
 	

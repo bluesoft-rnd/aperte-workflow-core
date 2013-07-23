@@ -25,8 +25,8 @@
 //<![CDATA[
   	$(document).ready(function()
 	{
-		queueViewManager.addTableView('queue', 
-			new AperteDataTable("customQueueTable", 
+	
+		var dataTable = new AperteDataTable("customQueueTable", 
 			[
 				 { "sName":"name", "bSortable": true,"mData": function(object){return generateNameColumn(object);}},
 				 { "sName":"step", "bSortable": true, "mData": "step" },
@@ -37,8 +37,33 @@
 				 { "sName":"actions", "bSortable": false,"mData": function(object){return generateButtons(object)}},
 			 ],
 			 [[ 5, "desc" ]]
-			),
-			'customqueue-panel-view');
+			);
+			
+		queueViewManager.addTableView('queue', dataTable, 'customqueue-panel-view');
+			
+		dataTable.enableMobileMode = function()
+		{
+			this.toggleColumnButton("deadline", false);
+			this.toggleColumnButton("creationDate", false);
+		}
+		
+		dataTable.enableTabletMode = function()
+		{
+			this.toggleColumnButton("creator", false);
+			this.toggleColumnButton("code", false);
+		}
+		
+		dataTable.disableMobileMode = function()
+		{
+			this.toggleColumnButton("deadline", true);
+			this.toggleColumnButton("creationDate", true);
+		}
+		
+		dataTable.disableTabletMode = function()
+		{
+			this.toggleColumnButton("creator", true);
+			this.toggleColumnButton("code", true);
+		}
 	});
 	
 	function generateButtons(task)
@@ -46,14 +71,16 @@
 		var linkBody = '';
 		if(task.queueName)
 		{
-			linkBody += '<button id="link-'+task.queueName+'" class="btn aperte-button aperte-button-hide" type="button" data-toggle="tooltip" title="<spring:message code="activity.tasks.task-claim-details" />" onclick="claimTaskFromQueue(\''+task.queueName+'\','+task.processStateConfigurationId+','+task.taskId+'); "><spring:message code="activity.tasks.task-claim" /></a>';
+			linkBody += '<button id="link-'+task.queueName+'" class="btn aperte-button aperte-button-hide" type="button" data-toggle="tooltip" title="<spring:message code="activity.tasks.task-claim-details" />" onclick="claimTaskFromQueue(this, \''+task.queueName+'\','+task.processStateConfigurationId+','+task.taskId+'); "><spring:message code="activity.tasks.task-claim" /></a>';
 		}
 		
 		return linkBody;
 	}
 	
-	function claimTaskFromQueue(queueName, processStateConfigurationId, taskId)
+	function claimTaskFromQueue(button, queueName, processStateConfigurationId, taskId)
 	{
+		$(button).prop('disabled', true);
+		windowManager.showLoadingScreen();
 		
 		var bpmJson = $.post('<spring:url value="/task/claimTaskFromQueue"/>', 
 		{
@@ -61,6 +88,7 @@
 			"taskId": taskId
 		}, function(newTask) 
 		{ 
+			clearAlerts();
 			console.log( "task claimed, new task: "+newTask.taskId); 
 			reloadQueues();
 			loadProcessView(processStateConfigurationId, newTask.taskId);

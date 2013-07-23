@@ -19,7 +19,7 @@
 		<script type="text/javascript" src="<spring:url value='js/jqModal.js' />"></script>
 		<script type="text/javascript" src="<spring:url value='js/bootstrap.min.js' />"></script>
 		<script type="text/javascript" src="<spring:url value='js/jquery.validate.min.js' />"></script>
-		<script type="text/javascript" src="<spring:url value='js/jquery.dataTables.js' />"></script>
+		<script type="text/javascript" src="<spring:url value='js/jquery.dataTables.min.js' />"></script>
 		<script type="text/javascript" src="<spring:url value='js/jquery.dataTables.bootstrap.js' />"></script>
 		<script type="text/javascript" src="<spring:url value='js/jquery.dateFormat-1.0.js' />"></script>
 		<script type="text/javascript" src="<spring:url value='js/select2.min.js' />"></script>

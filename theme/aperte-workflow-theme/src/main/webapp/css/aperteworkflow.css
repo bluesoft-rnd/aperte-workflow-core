@@ -97,8 +97,7 @@
 	}
 	
 	.queue-list-row-process:hover,
-	.queue-list-row-queue:hover,
-	.process-start-list-row:hover
+	.queue-list-row-queue:hover
 	{
 		background: rgb(102, 102, 102);
 		-webkit-border-radius: 4px;
@@ -106,13 +105,6 @@
 		border-radius: 4px;
 		color: #fff;
 	}
-	
-	.process-start-list-row
-	{
-		font-size: 20px;
-		line-height: 32px;
-	}
-	
 	
 	
 	.queues-list
@@ -134,6 +126,11 @@
 		margin-right: 10px;
 	}
 	
+	.process-start-list-row
+	{
+		font-size: 20px;
+		line-height: 32px;
+	}
 	
 	.nav.nav-tabs li
 	{
@@ -366,30 +363,20 @@
 		margin-bottom: 10px;
 		color: rgb(52, 58, 129);
 	}
-	
-	.td-hack {
-		display: block;
-		height: 50px;
-		width: 100%;
-		display: table;
-	}
-	
-	.td-hacks-buttons
-	{
-		width: 100%;
-		position: absolute;
-	}
-	
-	tr td .btn.aperte-button.aperte-button-hide
-	{
-		overflow: hidden;
-		margin: 0px 0px 0px 12px;
-		padding: 2px 8px 2px 8px;
-		float: left;
-		overflow: hidden;
-		display: table-cell;
-	}
-	
+	.process-queue-title
+    	{
+    		font-size: 16px;
+    		text-align: center;
+    		background-color: #f5f5f5;
+    		-webkit-border-radius: 4px;
+    		-moz-border-radius: 4px;
+    		border-radius: 4px;
+    		border:1px;
+    		padding: 5px;
+    		box-sizing:border-box;
+    		margin-bottom: 10px;
+    		color: rgb(52, 58, 129);
+    	}
 
 }
 @media (min-width: 962px) 
@@ -474,7 +461,6 @@
 	.search-process-button:hover,
 	.start-process-button:hover,
 	.show-configuration-button:hover,
-	.process-start-list-row:hover,
 	.search-button:hover
 	{
 		background: rgb(102, 102, 102)
@@ -564,26 +550,6 @@
 		border:none;
 
 	}
-	
-	.td-hack {
-		width: 100%;
-		height: 100%;
-		position: relative;
-	}
-	
-	.td-hacks-buttons
-	{
-		top: -27px;
-		right: 0;
-		position: absolute;
-	}
-	
-	tr td .btn.aperte-button.aperte-button-hide
-	{
-		overflow: hidden;
-		margin: 0px 0px 0px 12px;
-		padding: 2px 8px 2px 8px;
-	}
 
 	.process-table td,
 	.search-table td
@@ -616,7 +582,7 @@
 		-moz-border-radius: 4px;
 		border-radius: 4px;
 		border:1px;
-		padding: 6px 12px;
+		padding: 16px 25px;
 		font-size: 16px;
 		background-color: rgb(64, 125, 247);
 		background: rgb(64, 125, 247);
@@ -706,13 +672,6 @@
 	background-repeat: no-repeat;
 	background-image: url(../images/progress_bar/loading_animation_2.gif);
 	background-position:center; 
-}
-
-.v-loading-indicator, 
-.v-loading-indicator-delay, 
-.v-loading-indicator-wait
-{
-	background-image: url(../images/progress_bar/loading_animation_2.gif) !important;
 }
 
 .loader

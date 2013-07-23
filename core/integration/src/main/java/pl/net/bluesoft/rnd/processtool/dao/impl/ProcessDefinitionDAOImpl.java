@@ -30,6 +30,9 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 	private static final ExpiringCache<Long, ProcessStateConfiguration> STATE_BY_ID =
 			new ExpiringCache<Long, ProcessStateConfiguration>(Long.MAX_VALUE);
 
+	private static final ExpiringCache<Long, ProcessStateWidget> WIDGET_BY_ID =
+			new ExpiringCache<Long, ProcessStateWidget>(Long.MAX_VALUE);
+
 	private static final ExpiringCache<Object, List<ProcessQueueConfig>> QUEUE_CONFIGS =
 			new ExpiringCache<Object, List<ProcessQueueConfig>>(Long.MAX_VALUE);
 
@@ -82,14 +85,29 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 						.uniqueResult();
 
 				if (config != null) {
-					for (ProcessStateConfiguration state : config.getStates()) {
-						STATE_BY_ID.put(state.getId(), state);
-					}
+					fillCaches(config);
 				}
 
 				return config;
 			}
 		});
+	}
+
+	private void fillCaches(ProcessDefinitionConfig config) {
+		for (ProcessStateConfiguration state : config.getStates()) {
+			STATE_BY_ID.put(state.getId(), state);
+
+			for (ProcessStateWidget widget : state.getWidgets()) {
+				fillWidgetCache(widget);
+			}
+		}
+	}
+
+	private void fillWidgetCache(ProcessStateWidget widget) {
+		WIDGET_BY_ID.put(widget.getId(), widget);
+		for (ProcessStateWidget childWidget : widget.getChildren()) {
+			fillWidgetCache(childWidget);
+		}
 	}
 
 	public ProcessDefinitionConfig getCachedDefinitionById(ProcessInstance processInstance) {
@@ -401,11 +419,15 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
     }
 
 	@Override
-	public ProcessStateWidget getProcessStateWidget(Long widgetStateId) 
-	{
-		return (ProcessStateWidget) getSession().createCriteria(ProcessStateWidget.class)
-				.add(Restrictions.eq("id", widgetStateId))
-				.uniqueResult();
+	public ProcessStateWidget getProcessStateWidget(final Long widgetStateId) {
+		return WIDGET_BY_ID.get(widgetStateId, new ExpiringCache.NewValueCallback<Long, ProcessStateWidget>() {
+			@Override
+			public ProcessStateWidget getNewValue(Long key) {
+				return (ProcessStateWidget) getSession().createCriteria(ProcessStateWidget.class)
+						.add(Restrictions.eq("id", widgetStateId))
+						.uniqueResult();
+			}
+		});
 	}
 
 	@Override

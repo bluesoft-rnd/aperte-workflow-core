@@ -103,10 +103,6 @@ public class BundleInstallationHandler {
 		if (bundleHelper.hasHeaderValues(RESOURCES)) {
 			handleBundleResources(eventType, bundleHelper, registry);
 		}
-
-		if (bundleHelper.hasHeaderValues(TASK_ITEM_ENHANCEMENT)) {
-			handleTaskItemEnhancement(eventType, bundleHelper, registry);
-		}
 	}
 
 	private void handleScript(int eventType, OSGiBundleHelper bundleHelper,ProcessToolRegistry toolRegistry) 
@@ -469,19 +465,6 @@ public class BundleInstallationHandler {
 					logger.log(Level.SEVERE, e.getMessage(), e);
 					forwardErrorInfoToMonitor(bundleHelper.getBundleMetadata().getDescription() + " global-dictionary", e);
 				}
-			}
-		}
-	}
-
-	private void handleTaskItemEnhancement(int eventType, OSGiBundleHelper bundleHelper, ProcessToolRegistry toolRegistry) throws ClassNotFoundException {
-		Bundle bundle = bundleHelper.getBundle();
-		String[] classes = bundleHelper.getHeaderValues(TASK_ITEM_ENHANCEMENT);
-		for (String cls : classes) {
-			if (eventType == Bundle.ACTIVE) {
-				toolRegistry.registerTaskItemProvider(bundle.loadClass(cls));
-			}
-			else {
-				toolRegistry.unregisterTaskItemProvider(bundle.loadClass(cls));
 			}
 		}
 	}

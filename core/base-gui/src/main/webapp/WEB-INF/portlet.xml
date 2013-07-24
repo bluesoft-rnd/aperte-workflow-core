@@ -25,29 +25,6 @@
 			<short-title>Activities 2</short-title>
 		</portlet-info>
 	</portlet>
-	
-    <portlet>
-		<portlet-name>ProcessTool Tasks</portlet-name>
-		<display-name>Aperte Workflow Tasks</display-name>
-        <portlet-class>org.aperteworkflow.util.vaadin.ProcessToolVaadinApplicationPortlet2</portlet-class>
-
-		<init-param>
-			<name>application</name>
-			<value>pl.net.bluesoft.rnd.processtool.portlets.tasks.ProcessToolTasksPortletApplication</value>
-		</init-param>
-        <init-param>
-            <name>widgetset</name>
-            <value>com.vaadin.portal.gwt.PortalDefaultWidgetSet</value>
-        </init-param>
-		<supports>
-			<mime-type>text/html</mime-type>
-			<portlet-mode>view</portlet-mode>
-		</supports>
-		<portlet-info>
-			<title>Aperte Workflow Tasks</title>
-			<short-title>Tasks</short-title>
-		</portlet-info>
-	</portlet>
 
     <portlet>
 		<portlet-name>ProcessTool Queues</portlet-name>
@@ -69,29 +46,6 @@
 		<portlet-info>
 			<title>Aperte Workflow Queues</title>
 			<short-title>Queues</short-title>
-		</portlet-info>
-	</portlet>
-
-    <portlet>
-		<portlet-name>ProcessTool Activities</portlet-name>
-		<display-name>Aperte Workflow Activities</display-name>
-        <portlet-class>org.aperteworkflow.util.vaadin.ProcessToolVaadinApplicationPortlet2</portlet-class>
-
-		<init-param>
-			<name>application</name>
-			<value>pl.net.bluesoft.rnd.processtool.portlets.activity.ActivityPortletApplication</value>
-		</init-param>
-        <init-param>
-            <name>widgetset</name>
-            <value>com.vaadin.portal.gwt.PortalDefaultWidgetSet</value>
-        </init-param>
-		<supports>
-			<mime-type>text/html</mime-type>
-			<portlet-mode>view</portlet-mode>
-		</supports>
-		<portlet-info>
-			<title>Aperte Workflow Activities</title>
-			<short-title>Activities</short-title>
 		</portlet-info>
 	</portlet>
 

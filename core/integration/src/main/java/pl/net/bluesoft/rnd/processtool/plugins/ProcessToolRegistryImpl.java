@@ -27,7 +27,6 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolActionButton;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.taskitem.TaskItemProvider;
 import pl.net.bluesoft.rnd.processtool.web.controller.IOsgiWebController;
 import pl.net.bluesoft.rnd.processtool.web.domain.IHtmlTemplateProvider;
 import pl.net.bluesoft.rnd.processtool.web.domain.IWidgetScriptProvider;
@@ -73,7 +72,6 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	private final Map<String, List<String>> RESOURCE_REGISTRY = new HashMap<String, List<String>>();
 	private final Map<String, I18NProvider> I18N_PROVIDER_REGISTRY = new HashMap<String, I18NProvider>();
 	private final Map<String, Func<? extends ProcessToolProcessStep>> STEP_REGISTRY = new HashMap<String, Func<? extends ProcessToolProcessStep>>();
-	private final Map<String, Class<? extends TaskItemProvider>> TASK_ITEM_REGISTRY = new HashMap<String, Class<? extends TaskItemProvider>>();
 
 	private final Map<String, ProcessHtmlWidget> VIEW_REGISTRY = new HashMap<String, ProcessHtmlWidget>();
 	private final Map<String, IWidgetScriptProvider> JAVASCRIPT_REGISTRY = new HashMap<String, IWidgetScriptProvider>();
@@ -647,42 +645,6 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 		Func<? extends ProcessToolProcessStep> func = STEP_REGISTRY.get(name);
 		if (func != null) return func.invoke();
 		return null;
-	}
-
-	@Override
-	public void registerTaskItemProvider(Class<?> cls) {
-		AliasName annotation = cls.getAnnotation(AliasName.class);
-		if (annotation != null) {
-			TASK_ITEM_REGISTRY.put(annotation.name(), (Class<? extends TaskItemProvider>) cls);
-			logger.warning("Registered task item alias: " + annotation.name() + " -> " + cls.getName());
-		}
-	}
-
-	@Override
-	public void unregisterTaskItemProvider(Class<?> cls) {
-		unregisterTaskItemProvider(cls.getName());
-		AliasName annotation = cls.getAnnotation(AliasName.class);
-		if (annotation != null) {
-			unregisterTaskItemProvider(annotation.name());
-		}
-	}
-
-	public void unregisterTaskItemProvider(String name) {
-		TASK_ITEM_REGISTRY.remove(name);
-	}
-
-	@Override
-	public TaskItemProvider makeTaskItemProvider(String name) throws IllegalAccessException, InstantiationException {
-		Class<? extends TaskItemProvider> aClass = TASK_ITEM_REGISTRY.get(name);
-		if (aClass == null) {
-			throw new IllegalAccessException("No class nicknamed by: " + name);
-		}
-		return aClass.newInstance();
-	}
-
-	@Override
-	public Map<String, Class<? extends TaskItemProvider>> getAvailableTaskItemProviders() {
-		return Collections.unmodifiableMap(TASK_ITEM_REGISTRY);
 	}
 
 	@Override

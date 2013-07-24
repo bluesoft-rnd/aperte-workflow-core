@@ -28,7 +28,6 @@ import pl.net.bluesoft.rnd.processtool.web.domain.IWidgetScriptProvider;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolActionButton;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.taskitem.TaskItemProvider;
 import pl.net.bluesoft.rnd.util.func.Func;
 import pl.net.bluesoft.rnd.util.i18n.I18NProvider;
 import pl.net.bluesoft.util.eventbus.EventBusManager;
@@ -169,14 +168,6 @@ public interface ProcessToolRegistry {
     <K, V> void registerCache(String cacheName, Map<K, V> cache);
 
     <K, V> Map<K, V> getCache(String cacheName);
-
-    void registerTaskItemProvider(Class<?> cls);
-
-    void unregisterTaskItemProvider(Class<?> cls);
-
-    TaskItemProvider makeTaskItemProvider(String name) throws IllegalAccessException, InstantiationException;
-
-	Map<String, Class<? extends TaskItemProvider>> getAvailableTaskItemProviders();
 
     /** Get plugin controller for web invocation */
     IOsgiWebController getWebController(String controllerName);

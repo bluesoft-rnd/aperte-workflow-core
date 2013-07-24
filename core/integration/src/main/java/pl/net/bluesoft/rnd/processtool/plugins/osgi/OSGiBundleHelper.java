@@ -30,7 +30,6 @@ public class OSGiBundleHelper implements IBundleResourceProvider
     public static final String		RESOURCES		        = "ProcessTool-Resources";
     public static final String		ROLE_FILES			    = "ProcessTool-Role-Files";
     public static final String 		IMPLEMENTATION_BUILD    = "Implementation-Build";
-    public static final String      TASK_ITEM_ENHANCEMENT   = "ProcessTool-TaskItem-Enhancement";
     
     public static final String      DESCRIPTION             = Constants.BUNDLE_DESCRIPTION;
     public static final String      HOMEPAGE_URL            = Constants.BUNDLE_UPDATELOCATION;
@@ -39,7 +38,7 @@ public class OSGiBundleHelper implements IBundleResourceProvider
     public static final String[]	HEADER_NAMES		    = {
             MODEL_ENHANCEMENT, WIDGET_ENHANCEMENT, BUTTON_ENHANCEMENT, VIEW, SCRIPT, STEP_ENHANCEMENT, I18N_PROPERTY,
             PROCESS_DEPLOYMENT, GLOBAL_DICTIONARY, ICON_RESOURCES, RESOURCES, HUMAN_NAME, DESCRIPTION_KEY, CONTROLLER,
-            ROLE_FILES, IMPLEMENTATION_BUILD, TASK_ITEM_ENHANCEMENT, DESCRIPTION, HOMEPAGE_URL, DOCUMENTATION_URL
+            ROLE_FILES, IMPLEMENTATION_BUILD, DESCRIPTION, HOMEPAGE_URL, DOCUMENTATION_URL
     };
 
     private Map<String, String[]> parsedHeadersMap;

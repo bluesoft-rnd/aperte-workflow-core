@@ -158,48 +158,31 @@ public class TaskViewController extends AbstractProcessToolServletController
 				long t1 = System.currentTimeMillis();
 				
 				ProcessStateConfiguration config = ctx.getProcessDefinitionDAO().getCachedProcessStateConfiguration(Long.parseLong(processStateConfigurationId));
+				String processDescription = messageSource.getMessage(config.getDefinition().getDescription());
+				String processVersion = String.valueOf(config.getDefinition().getBpmDefinitionVersion());
 
 				long t2 = System.currentTimeMillis();
-				
-               String processVersion = String.valueOf(config.getDefinition().getBpmDefinitionVersion());
-                String processDescription  = messageSource.getMessage(config.getDefinition().getDescription());
+
 				/* Load view widgets */
 				List<ProcessStateWidget> widgets = new ArrayList<ProcessStateWidget>(config.getWidgets());
-				Collections.sort(widgets, new Comparator<ProcessStateWidget>() {
-
-					@Override
-					public int compare(ProcessStateWidget widget1, ProcessStateWidget widget2) {
-						return widget1.getPriority().compareTo(widget2.getPriority());
-					}
-				});
+				Collections.sort(widgets, BY_WIDGET_PRIORITY);
 
 				long t3 = System.currentTimeMillis();
 				
 				/* Load view actions */
 				List<ProcessStateAction> actions = new ArrayList<ProcessStateAction>(config.getActions());
-				Collections.sort(actions, new Comparator<ProcessStateAction>() {
-
-					@Override
-					public int compare(ProcessStateAction action1, ProcessStateAction action2)
-                    {
-                        if(action1.getPriority() == null)
-                            return -1;
-                        if(action2.getPriority() == null)
-                            return 1;
-						return action1.getPriority().compareTo(action2.getPriority());
-					}
-				});
+				Collections.sort(actions, BY_ACTION_PRIORITY);
 				
 				long t4 = System.currentTimeMillis();
 				
 				TaskViewBuilder taskViewBuilder = new TaskViewBuilder()
 					.setWidgets(widgets)
 					.setActions(actions)
-                    .setDescription(processDescription)
-                    .setVersion(processVersion)
+					.setDescription(processDescription)
+					.setVersion(processVersion)
 					.setI18Source(messageSource)
 					.setUser(context.getUser())
-                    .setCtx(ctx)
+					.setCtx(ctx)
 					.setTask(task);
 				
 				long t5 = System.currentTimeMillis();
@@ -234,6 +217,24 @@ public class TaskViewController extends AbstractProcessToolServletController
 				);
 
 	}
+
+	private static final Comparator<ProcessStateWidget> BY_WIDGET_PRIORITY = new Comparator<ProcessStateWidget>() {
+		@Override
+		public int compare(ProcessStateWidget widget1, ProcessStateWidget widget2) {
+			return widget1.getPriority().compareTo(widget2.getPriority());
+		}
+	};
+
+	private Comparator<ProcessStateAction> BY_ACTION_PRIORITY = new Comparator<ProcessStateAction>() {
+		@Override
+		public int compare(ProcessStateAction action1, ProcessStateAction action2) {
+			if(action1.getPriority() == null)
+				return -1;
+			if(action2.getPriority() == null)
+				return 1;
+			return action1.getPriority().compareTo(action2.getPriority());
+		}
+	};
 
 	private static boolean isNull(String value) {
 		return value == null || value.isEmpty() || "null".equals(value);

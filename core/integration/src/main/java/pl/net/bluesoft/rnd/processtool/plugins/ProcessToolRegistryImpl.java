@@ -20,8 +20,6 @@ import pl.net.bluesoft.rnd.processtool.dao.impl.*;
 import pl.net.bluesoft.rnd.processtool.dict.DictionaryLoader;
 import pl.net.bluesoft.rnd.processtool.dict.xml.ProcessDictionaries;
 import pl.net.bluesoft.rnd.processtool.event.ProcessToolEventBusManager;
-import pl.net.bluesoft.rnd.processtool.model.Cacheable;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessToolAutowire;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionary;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryPermission;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
@@ -38,7 +36,6 @@ import pl.net.bluesoft.rnd.util.i18n.I18NProvider;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 import pl.net.bluesoft.rnd.util.i18n.impl.PropertiesBasedI18NProvider;
 import pl.net.bluesoft.rnd.util.i18n.impl.PropertyLoader;
-import pl.net.bluesoft.util.cache.Caches;
 import pl.net.bluesoft.util.eventbus.EventBusManager;
 import pl.net.bluesoft.util.lang.FormatUtil;
 
@@ -136,7 +133,6 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	public ProcessToolRegistryImpl() {
 		Util.setInstance(this);
 		buildSessionFactory();
-		updateCaches();
 	}
 
 	public ClassLoader getModelAwareClassLoader(ClassLoader parent) {
@@ -557,7 +553,7 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	public void unregisterWidget(Class<?> cls) {
 		unregisterWidget(cls.getName());
 		logger.info("Unregistered widget extension: " + cls.getName());
-		AliasName annotation = (AliasName) cls.getAnnotation(AliasName.class);
+		AliasName annotation = cls.getAnnotation(AliasName.class);
 		if (annotation != null) {
 			unregisterWidget(annotation.name());
 			logger.info("Unregistered widget alias: " + annotation.name() + " -> " + cls.getName());
@@ -867,26 +863,26 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 		return loadResource(null, path);
 	}
 
-	private void updateCaches() {
-		Class<? extends Cacheable<String, String>>[] cachedEntities = new Class[] {ProcessToolAutowire.class};
-
-		Session session = sessionFactory.openSession();
-		try {
-			Transaction tx = session.beginTransaction();
-			for (Class<? extends Cacheable<String, String>> entityClass : cachedEntities) {
-				Map<String, String> cache = Caches.synchronizedCache(100);
-				List<Cacheable<String, String>> list = session.createCriteria(entityClass).list();
-				for (Cacheable<String, String> obj : list) {
-					cache.put(obj.getKey(), obj.getValue());
-				}
-				registerCache(entityClass.getName(), cache);
-			}
-			tx.commit();
-		}
-		finally {
-			session.close();
-		}
-	}
+//	private void updateCaches() {
+//		Class<? extends Cacheable<String, String>>[] cachedEntities = new Class[] {ProcessToolAutowire.class};
+//
+//		Session session = sessionFactory.openSession();
+//		try {
+//			Transaction tx = session.beginTransaction();
+//			for (Class<? extends Cacheable<String, String>> entityClass : cachedEntities) {
+//				Map<String, String> cache = Caches.synchronizedCache(100);
+//				List<Cacheable<String, String>> list = session.createCriteria(entityClass).list();
+//				for (Cacheable<String, String> obj : list) {
+//					cache.put(obj.getKey(), obj.getValue());
+//				}
+//				registerCache(entityClass.getName(), cache);
+//			}
+//			tx.commit();
+//		}
+//		finally {
+//			session.close();
+//		}
+//	}
 
 	@Override
 	public <K, V> Map<K, V> getCache(String cacheName) {

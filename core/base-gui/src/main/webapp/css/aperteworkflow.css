@@ -15,9 +15,13 @@
 	{
 		padding-top: 5px;
 	}
-
-
 	
+	.process-version
+    {
+      	color: gray;
+        float: right;
+    }
+
 	.navbar.left-menu
 	{
 		margin-right: 20px;

@@ -1,6 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.userqueues;
 
 import java.io.Serializable;
+
 import java.util.*;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
@@ -15,6 +16,7 @@ import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.util.lang.DateUtil;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory.ExecutionType;
 
 import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
 import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
@@ -49,14 +51,14 @@ public class UserProcessQueuesSizeProvider
 		
 		if(ctx == null)
 		{
-			reg.getProcessToolContextFactory().withProcessToolContextReadOnly(new ProcessToolContextCallback()
+			reg.getProcessToolContextFactory().withProcessToolContext(new ProcessToolContextCallback()
 			{
 				@Override
 				public void withContext(ProcessToolContext ctx)
 				{
 					fillUserQueuesMap();
 				}
-			});
+			}, ExecutionType.NO_TRANSACTION);
 		}
 		else
 		{

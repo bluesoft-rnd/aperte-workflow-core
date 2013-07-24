@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory.ExecutionType;
 import pl.net.bluesoft.rnd.processtool.bpm.StartProcessResult;
 import pl.net.bluesoft.rnd.processtool.model.*;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
@@ -158,7 +159,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                         return null;
                     }
                 }
-            });
+            }, ExecutionType.TRANSACTION_SYNCH );
 		
 		    resultBean.setNextTask(bpmTaskBean);
 
@@ -284,7 +285,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 						);
 				
 			}
-		});
+		}, ExecutionType.TRANSACTION_SYNCH);
 		
 		long t2 = System.currentTimeMillis();
 
@@ -385,7 +386,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
             				);
             		
                 }
-            });
+            }, ExecutionType.TRANSACTION_SYNCH);
             
     		long t2 = System.currentTimeMillis();
 
@@ -486,7 +487,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
         				);
         		
             }
-        });
+        }, ExecutionType.TRANSACTION_SYNCH);
 
 		long t2 = System.currentTimeMillis();
 
@@ -598,7 +599,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 						);
 
 			}
-		});
+		}, ExecutionType.TRANSACTION);
 
 		long t2 = System.currentTimeMillis();
 

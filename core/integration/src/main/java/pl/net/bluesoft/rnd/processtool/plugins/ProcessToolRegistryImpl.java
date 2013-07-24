@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory.ExecutionType;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolSessionFactory;
 import pl.net.bluesoft.rnd.processtool.dao.*;
 import pl.net.bluesoft.rnd.processtool.dao.impl.*;
@@ -427,6 +428,14 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 		return processToolContextFactory.withProcessToolContext(callback);
 	}
 
+	@Override
+	public <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback, ExecutionType type) {
+		if (processToolContextFactory == null) {
+			throw new RuntimeException("No process tool context factory implementation registered");
+		}
+		return processToolContextFactory.withProcessToolContext(callback, type);
+	}
+	
 	@Override
 	public <T> T withExistingOrNewContext(ReturningProcessToolContextCallback<T> callback) {
 		if (processToolContextFactory == null) {

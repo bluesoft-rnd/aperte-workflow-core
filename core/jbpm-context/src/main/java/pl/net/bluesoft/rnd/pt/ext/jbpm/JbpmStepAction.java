@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
-import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory.ExecutionType;
 
 public class JbpmStepAction {
 	public String invoke(final String processInstanceId, final String stepName, final Map<String, String> params) throws Exception {
@@ -23,7 +23,7 @@ public class JbpmStepAction {
             public String processWithContext(ProcessToolContext ctx) {
                 return doInvoke(processInstanceId, stepName, params, ctx);
             }
-        });
+        }, ExecutionType.TRANSACTION_SYNCH);
 	}
 
     private String doInvoke(String processInstanceId, String stepName, Map<String, String> params, ProcessToolContext ctx) {

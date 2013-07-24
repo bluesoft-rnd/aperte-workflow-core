@@ -2,11 +2,9 @@ package pl.net.bluesoft.rnd.processtool.di;
 
 import java.util.logging.Logger;
 
-import org.aperteworkflow.ui.view.impl.GitWidgetVersionProvider;
 
 import pl.net.bluesoft.rnd.processtool.authorization.IAuthorizationService;
 import pl.net.bluesoft.rnd.processtool.authorization.impl.MockAuthorizationService;
-import pl.net.bluesoft.rnd.processtool.plugins.IWidgetVersionProvider;
 import pl.net.bluesoft.rnd.processtool.roles.IUserRolesManager;
 import pl.net.bluesoft.rnd.processtool.roles.impl.AperteUserRolesManager;
 import pl.net.bluesoft.rnd.processtool.token.IAccessTokenFactory;
@@ -51,9 +49,7 @@ public class DependencyInjectionInitializer
 		/* Tokens */
 		ClassDependencyManager.getInstance().injectImplementation(IAccessTokenFactory.class, AccessTokenFactory.class);
 		ClassDependencyManager.getInstance().injectImplementation(ITokenService.class, AccessTokenFacade.class);
-		
-		/* Widget version provider */
-		ClassDependencyManager.getInstance().injectImplementation(IWidgetVersionProvider.class, GitWidgetVersionProvider.class);
+
 		
 		logger.info("All dependencies injected");
 	}

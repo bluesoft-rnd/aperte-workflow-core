@@ -46,9 +46,7 @@ public class ProcessDefinitionConfig extends PersistentEntity {
 	private int bpmDefinitionVersion;
 	private String deploymentId;
 	
-	/** Process version info */
-	@Column(name="process_version")
-	private String processVersion;
+
 
 
 	@Column(name="comment_")
@@ -182,14 +180,6 @@ public class ProcessDefinitionConfig extends PersistentEntity {
 
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
-	}
-
-	public String getProcessVersion() {
-		return nvl(processVersion, "");
-	}
-
-	public void setProcessVersion(String version) {
-		this.processVersion = version;
 	}
 
 	public String getProcessName() {

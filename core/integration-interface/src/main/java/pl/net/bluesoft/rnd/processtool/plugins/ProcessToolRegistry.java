@@ -11,6 +11,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory.ExecutionType;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolSessionFactory;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
@@ -96,6 +97,8 @@ public interface ProcessToolRegistry {
 
     <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback);
 
+    <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback, ExecutionType type);
+    
     <T> T withExistingOrNewContext(ReturningProcessToolContextCallback<T> callback);
 
     ProcessDictionaryDAO getProcessDictionaryDAO(Session hibernateSession);

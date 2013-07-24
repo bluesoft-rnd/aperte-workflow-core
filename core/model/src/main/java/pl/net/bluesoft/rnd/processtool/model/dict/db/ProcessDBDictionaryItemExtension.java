@@ -1,25 +1,36 @@
 package pl.net.bluesoft.rnd.processtool.model.dict.db;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
-import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
+import org.hibernate.annotations.GenericGenerator;
+import pl.net.bluesoft.rnd.processtool.model.AbstractPersistentEntity;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItemExtension;
 
 @Entity
 @Table(name = "pt_dictionary_item_ext")
-public class ProcessDBDictionaryItemExtension extends PersistentEntity implements ProcessDictionaryItemExtension {
+public class ProcessDBDictionaryItemExtension extends AbstractPersistentEntity implements ProcessDictionaryItemExtension {
     public static final String _ITEM_VALUE = "itemValue";
 	public static final String _NAME = "name";
 	public static final String _VALUE = "value";
 	public static final String _DESCRIPTION = "description";
 	public static final String _VALUE_TYPE = "valueType";
+
+	@Id
+	@GeneratedValue(generator = "idGenerator")
+	@GenericGenerator(
+			name = "idGenerator",
+			strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
+			parameters = {
+					@org.hibernate.annotations.Parameter(name = "initial_value", value = "" + 1),
+					@org.hibernate.annotations.Parameter(name = "value_column", value = "_DB_ID"),
+					@org.hibernate.annotations.Parameter(name = "sequence_name", value = "DB_SEQ_ID_DB_DICT_ITEM_EXT")
+			}
+	)
+	@Column(name = "id")
+	protected Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
     @Cascade(value = {CascadeType.ALL})
@@ -36,7 +47,7 @@ public class ProcessDBDictionaryItemExtension extends PersistentEntity implement
     }
 
     private ProcessDBDictionaryItemExtension(ProcessDBDictionaryItemExtension ext) {
-        id = ext.getId();
+        id = ext.id;
         name = ext.name;
         value = ext.value;
         valueType = ext.value;
@@ -48,7 +59,17 @@ public class ProcessDBDictionaryItemExtension extends PersistentEntity implement
         return new ProcessDBDictionaryItemExtension(this);
     }
 
-    public ProcessDBDictionaryItemValue getItemValue() {
+	@Override
+	public Long getId() {
+		return id;
+	}
+
+	@Override
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public ProcessDBDictionaryItemValue getItemValue() {
         return itemValue;
     }
 

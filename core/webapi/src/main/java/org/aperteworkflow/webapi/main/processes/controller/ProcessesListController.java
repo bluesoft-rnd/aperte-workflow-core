@@ -448,7 +448,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 
                 ProcessInstanceFilter filter = new ProcessInstanceFilter();
 
-                if(searchString != null && searchString.length() > 2)
+                if(searchString != null && searchString.length() > 0)
                     filter.setExpression(searchString);
 
                 if(searchProcessKey != null)

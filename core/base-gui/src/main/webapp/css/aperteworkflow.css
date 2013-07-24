@@ -839,12 +839,15 @@ button, button:hover
         float: right;
     }
 
+
 .actions-view
 {
 	padding: 8px;
 	margin-bottom: 5px;
 	
 }
+
+
 
 .btn.btn-inverse.aperte-button,
 .btn.btn-inverse.aperte-button:hover

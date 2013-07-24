@@ -57,7 +57,7 @@
 		  else
 		  {
 				var requestUrl = '<spring:url value="/processes/searchTasks.json?sSearch="/>'+$('#search-expression-text').val()+
-				'processKey='+$('#search-process-type').val();
+				'&processKey='+$('#search-process-type').val();
 
 				$('#searchTable').dataTable().fnReloadAjax(requestUrl);
 		  }
@@ -74,7 +74,49 @@
 						 ];
 
 		var requestUrl = '<spring:url value="/processes/searchTasks.json?sSearch="/>'+$('#search-expression-text').val();
-		createDataTable('searchTable',requestUrl,columnDefs,[[ 0, "asc" ]]);
+		createSearchDataTable('searchTable',requestUrl,columnDefs,[[ 0, "asc" ]]);
+	}
+	
+			
+	function createSearchDataTable(tableId,url,columns,sortingOrder){
+		$('#'+tableId).dataTable({
+			"bLengthChange": true,
+			"bFilter": true,
+			"bProcessing": true,
+			"bServerSide": true,
+			"bInfo": true,
+			"aaSorting": sortingOrder,
+			"bSort": true,
+			"iDisplayLength": 10,
+			"sDom": '<"top"t><"bottom"plr>',
+			"sAjaxSource": url,
+			"fnServerData": function ( sSource, aoData, fnCallback ) {
+
+				$.ajax( {
+					"dataType": 'json',
+					"type": "POST",
+					"url": sSource,
+					"data": aoData,
+					"success": fnCallback
+				} );
+			},
+			"aoColumns": columns,
+			"oLanguage": {
+				  //todo: uzeleznic tresci od tlumaczen w messages
+				  "sInfo": "Wyniki od _START_ do _END_ z _TOTAL_",
+				  "sEmptyTable": "<spring:message code='datatable.empty' />",
+				  "sInfoEmpty": "<spring:message code='datatable.empty' />",
+				  "sProcessing": "<spring:message code='datatable.processing' />",
+			      "sLengthMenu": "<spring:message code='datatable.records' />",			  
+				  "sInfoFiltered": "",
+				  "oPaginate": {
+					"sFirst": "<spring:message code='datatable.paginate.firstpage' />",
+					"sNext": "<spring:message code='datatable.paginate.next' />",
+					"sPrevious": "<spring:message code='datatable.paginate.previous' />"
+				  }
+
+				}
+		});
 	}
  
 

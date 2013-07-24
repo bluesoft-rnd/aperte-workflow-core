@@ -527,7 +527,6 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                 return executed;
             Map<String, Object> fields = getFieldsMap(widgetsDefinitionElement.getWidgets());
             fields.put("process", processInstance);
-
             ScriptProcessorRegistry registry = getRegistry().lookupService(
                     ScriptProcessorRegistry.class.getName());
 //          TODO: some smart cacheing

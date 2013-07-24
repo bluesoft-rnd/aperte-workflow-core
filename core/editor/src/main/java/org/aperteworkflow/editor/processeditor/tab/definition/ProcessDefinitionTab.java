@@ -27,10 +27,6 @@ public class ProcessDefinitionTab extends VerticalLayout implements DataHandler 
     private Label descriptionInfoLabel;
     private TextField descriptionField;
     
-    private Label versionLabel;
-    private Label versionInfoLabel;
-    private TextField versionField;
-    
     public ProcessDefinitionTab() {
         initComponent();
         initLayout();
@@ -42,12 +38,6 @@ public class ProcessDefinitionTab extends VerticalLayout implements DataHandler 
 
     private void initComponent() {
         I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
-        
-        versionLabel = styled(new Label(messages.getMessage("process.definition.version")), "h2");
-        versionInfoLabel = htmlLabel(messages.getMessage("process.definition.version.info"));
-        versionField = new TextField();
-        versionField.setNullRepresentation("");
-        versionField.setWidth("100%");
 
         descriptionLabel = styled(new Label(messages.getMessage("process.definition.description")), "h2");
         descriptionInfoLabel = htmlLabel(messages.getMessage("process.definition.description.info"));
@@ -65,10 +55,6 @@ public class ProcessDefinitionTab extends VerticalLayout implements DataHandler 
     private void initLayout() {
         setSpacing(true);
         setMargin(true);
-        
-        addComponent(versionLabel);
-        addComponent(versionInfoLabel);
-        addComponent(versionField);
 
         addComponent(descriptionLabel);
         addComponent(descriptionInfoLabel);
@@ -82,7 +68,6 @@ public class ProcessDefinitionTab extends VerticalLayout implements DataHandler 
     @Override
     public void loadData() 
     {
-    	versionField.setValue(processConfig.getVersion());
         commentArea.setValue(processConfig.getComment());
         descriptionField.setValue(processConfig.getDescription());
     }
@@ -91,7 +76,6 @@ public class ProcessDefinitionTab extends VerticalLayout implements DataHandler 
     public void saveData() {
         processConfig.setComment((String) commentArea.getValue());
         processConfig.setDescription((String) descriptionField.getValue());
-        processConfig.setVersion((String) versionField.getValue());
     }
 
     @Override

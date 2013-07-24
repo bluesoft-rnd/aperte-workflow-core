@@ -28,6 +28,7 @@ import org.quartz.TriggerBuilder;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.bpm.exception.ProcessToolException;
 import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
@@ -180,7 +181,7 @@ public class DeadlineEngine {
                     logger.log(Level.SEVERE, "Exception while sending deadline notification", e);
                 }
             }
-        });
+        }, ProcessToolContextFactory.ExecutionType.TRANSACTION_SYNCH);
     }
 
     private void signalDeadline(String processInstanceId, ProcessDeadline processDeadline) throws Exception {
@@ -195,11 +196,6 @@ public class DeadlineEngine {
             if (task.getTaskName().equals(processDeadline.getTaskName())) {
                 String assigneeLogin = task.getAssignee();
 				Map<String, UserData> notifyUsers = prepareUsersForNotification(ctx, assigneeLogin, processDeadline);
-
-                // everything is good, unless it’s not
-				I18NSource messageSource = getI18NSource();
-                ProcessStateConfiguration st = ctx.getProcessDefinitionDAO().getProcessStateConfiguration(task);
-                String taskName = messageSource.getMessage(st.getDescription());
 
                 for (UserData user : notifyUsers.values()) {
                     if (processDeadline.getSkipAssignee() != null && processDeadline.getSkipAssignee() && user.getLogin().equals(assigneeLogin)) {

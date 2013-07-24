@@ -198,10 +198,6 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 		if (!cfg.getDescription().equals(c.getDescription()))
 			return false;
 		
-		/* process version */
-		if (!cfg.getProcessVersion().equals(c.getProcessVersion())) 
-			return false;
-		
 		/* process comment or task item name */
 		if (!isEqual(cfg.getComment(), c.getComment()) || !isEqual(cfg.getTaskItemClass(), c.getTaskItemClass()))
 			return false;

@@ -1,13 +1,31 @@
 package pl.net.bluesoft.rnd.pt.ext.jbpm.service;
 
-import bitronix.tm.TransactionManagerServices;
+import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
+import static pl.net.bluesoft.util.lang.Strings.hasText;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
 import org.apache.commons.io.IOUtils;
 import org.drools.KnowledgeBase;
 import org.drools.SystemEventListenerFactory;
 import org.drools.builder.KnowledgeBuilder;
 import org.drools.builder.KnowledgeBuilderFactory;
 import org.drools.builder.ResourceType;
-import org.drools.event.process.*;
+import org.drools.event.process.ProcessCompletedEvent;
+import org.drools.event.process.ProcessEventListener;
+import org.drools.event.process.ProcessNodeLeftEvent;
+import org.drools.event.process.ProcessNodeTriggeredEvent;
+import org.drools.event.process.ProcessStartedEvent;
+import org.drools.event.process.ProcessVariableChangedEvent;
 import org.drools.impl.EnvironmentFactory;
 import org.drools.io.ResourceFactory;
 import org.drools.persistence.jpa.JPAKnowledgeService;
@@ -25,24 +43,12 @@ import org.jbpm.task.identity.UserGroupCallbackManager;
 import org.jbpm.task.service.ContentData;
 import org.jbpm.task.service.local.LocalTaskService;
 import org.jbpm.task.utils.OnErrorAction;
+
 import pl.net.bluesoft.rnd.processtool.IProcessToolSettings;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.ProcessResourceNames;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.service.query.TaskQuery;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.service.query.UserQuery;
-
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.persistence.Query;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
-import static pl.net.bluesoft.util.lang.Strings.hasText;
+import bitronix.tm.TransactionManagerServices;
 
 public class JbpmService implements ProcessEventListener, TaskEventListener {
 
@@ -65,7 +71,7 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
 	private org.jbpm.task.TaskService client;
 	private StatefulKnowledgeSession ksession;
 	private JbpmRepository repository;
-
+	
 	private static JbpmService instance;
 
 	public static JbpmService getInstance() {
@@ -165,7 +171,6 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
 		handler.connect();
 		ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
 		new JPAWorkingMemoryDbLogger(ksession);
-
 		ksession.addEventListener(this);
 	}
 
@@ -186,51 +191,50 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
 		}
 		return ksession;
 	}
-
+	
 	private org.jbpm.task.TaskService getSessionTaskService() {
 		getSession(); // ensure session is created before task service
 		return client;
 	}
 
 	private org.jbpm.task.TaskService getLocalTaskService() {
-		getSession(); // ensure session is created before task service
-		if (taskServiceTL.get()==null) {
-			LocalTaskService localTaskService = new LocalTaskService(taskService);
-			localTaskService.setEnvironment(env);
-			localTaskService.addEventListener(this);
-			taskServiceTL.set(localTaskService);		
-		}
-		return taskServiceTL.get();
+		LocalTaskService localTaskService = new LocalTaskService(taskService);
+		localTaskService.setEnvironment(env);
+		localTaskService.addEventListener(this);
+		return localTaskService;
 	}
 	
-	public synchronized Task getTask(long taskId) {
+	// process operations
+	
+	public Task getTask(long taskId) {
 		return getSessionTaskService().getTask(taskId);
 	}
-	
-	public synchronized void claimTask(long taskId, String userLogin) {
+
+	public void claimTask(long taskId, String userLogin) {
 		getSessionTaskService().claim(taskId, userLogin);
 	}
 	
-	public synchronized void startTask(long taskId, String userLogin) {
-		getSessionTaskService().start(taskId, userLogin);
-	}
-
-	public synchronized void completeTask(long taskId, String userLogin, ContentData outputData) {
+	public void endTask(long taskId, String userLogin, ContentData outputData, boolean startNeeded) {
+		if (startNeeded) {
+			getSessionTaskService().start(taskId, userLogin);
+		}
 		getSessionTaskService().complete(taskId, userLogin, outputData);
 	}
 	
-	public synchronized ProcessInstance getProcessInstance(long processId) {
+	public ProcessInstance getProcessInstance(long processId) {
 		return getSession().getProcessInstance(processId);
 	}
 	
-	public synchronized void startProcess(String processId, Map<String,Object> parameters) {
+	public void startProcess(String processId, Map<String,Object> parameters) {
 		getSession().startProcess(processId, parameters);
 	}
 
-	public synchronized void abortProcessInstance(long processId) {
+	public void abortProcessInstance(long processId) {
 		getSession().abortProcessInstance(processId);
 	}
 
+	// queries
+	
 	public void refreshDataForNativeQuery() {
 		// this call forces JBPM to flush awaiting task data
 		getLocalTaskService().query("SELECT task.id FROM Task task ORDER BY task.id DESC", 1, 0);
@@ -260,20 +264,20 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
 		.first();
 	}
 	
-	public Task getMostRecentProcessHistoryTask(long processId, String userLogin, Date completedAfrer) {
+	public Task getMostRecentProcessHistoryTask(long processId, String userLogin, Date completedAfter) {
 		return createTaskQuery()
 		.assignee(userLogin)
 		.processInstanceId(processId)
-		.completedAfter(completedAfrer)
+		.completedAfter(completedAfter)
 		.orderByCompleteDateDesc()
 		.first();
 	}
 
-	public Task getPastOrActualTask(long processId, String userLogin, String taskName, Date completedAfrer) {
+	public Task getPastOrActualTask(long processId, String userLogin, String taskName, Date completedAfter) {
 		return createTaskQuery()
 		.assignee(userLogin)
 		.processInstanceId(processId)
-		.completedAfter(completedAfrer)
+		.completedAfter(completedAfter)
 		.activityName(taskName)
 		.orderByCompleteDate()
 		.first();
@@ -309,7 +313,7 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
 	}
 	
 	public List<Object[]> getTaskCounts(List<String> groupNames) {
-		return (List<Object[]>)(List)JbpmService.getInstance().createTaskQuery()
+		return (List<Object[]>)(List)createTaskQuery()
 		.selectGroupId()
 		.selectCount()
 		.assigneeIsNull()
@@ -503,7 +507,6 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
 
 	private static final ThreadLocal<ProcessEventListener> processListenerTL = new ThreadLocal<ProcessEventListener>();
 	private static final ThreadLocal<TaskEventListener> taskListenerTL = new ThreadLocal<TaskEventListener>();
-	private static final ThreadLocal<org.jbpm.task.TaskService> taskServiceTL = new ThreadLocal<org.jbpm.task.TaskService>();
 
 	public static void setProcessEventListener(ProcessEventListener eventListener) {
 		processListenerTL.set(eventListener);
@@ -530,4 +533,6 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
 		}
 		return repository;
 	}
+	
+	
 }

@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory.ExecutionType;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
@@ -75,9 +76,7 @@ public class TaskViewController extends AbstractProcessToolServletController
 		
 		long t1 = System.currentTimeMillis();
 
-		BpmTaskBean taskBean = registry.withProcessToolContext(new ReturningProcessToolContextCallback<BpmTaskBean>() 
-		{
-
+		BpmTaskBean taskBean = registry.withProcessToolContext(new ReturningProcessToolContextCallback<BpmTaskBean>() {
 			@Override
 			public BpmTaskBean processWithContext(ProcessToolContext ctx) {
 				BpmTaskBean taskBean = null;
@@ -96,7 +95,7 @@ public class TaskViewController extends AbstractProcessToolServletController
 				
 				return taskBean;
 			}
-		});
+		}, ExecutionType.TRANSACTION_SYNCH);
 		
 		long t2 = System.currentTimeMillis();
 
@@ -146,12 +145,9 @@ public class TaskViewController extends AbstractProcessToolServletController
 
 		long t2 = System.currentTimeMillis();
 		
-		registry.withProcessToolContext(new ProcessToolContextCallback() 
-		{
-
+		registry.withProcessToolContext(new ProcessToolContextCallback() {
 			@Override
-			public void withContext(ProcessToolContext ctx) 
-			{
+			public void withContext(ProcessToolContext ctx) {
 				long t0 = System.currentTimeMillis();
 				
 				BpmTask task = context.getBpmSession().getTaskData(taskId);
@@ -205,12 +201,9 @@ public class TaskViewController extends AbstractProcessToolServletController
 				
 				long t5 = System.currentTimeMillis();
 
-				try
-				{
+				try {
 					taskViewBuilder.processView(response.getWriter());
-				}
-				catch(IOException ex)
-				{
+				} catch(IOException ex) {
 					logger.log(Level.SEVERE, "Problem during task view generation. TaskId="+taskId, ex);
 				}
 				
@@ -226,7 +219,7 @@ public class TaskViewController extends AbstractProcessToolServletController
 						);
 				
 			}
-		});
+		}, ExecutionType.TRANSACTION_SYNCH);
 
 		
 		long t3 = System.currentTimeMillis();

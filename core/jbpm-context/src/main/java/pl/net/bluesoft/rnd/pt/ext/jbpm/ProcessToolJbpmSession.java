@@ -153,7 +153,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		addLogEntry(action, task);
 		save(processInstance);
 
-		Task jbpmTask = ((JbpmTask)task).getTask();
+		/*Task jbpmTask = ((JbpmTask)task).getTask();
 
 		if (jbpmTask.getTaskData().getStatus() != Status.InProgress) {
 			getJbpmService().startTask(jbpmTask.getId(), user.getLogin());
@@ -163,7 +163,16 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 		try {
 			getJbpmService().completeTask(jbpmTask.getId(), user.getLogin(), null);
-
+			return completeTaskParams.createdTasksForCurrentUser;
+		}
+		finally {
+			completeTaskParams = null;
+		}*/
+		
+		Task jbpmTask = ((JbpmTask)task).getTask();
+		completeTaskParams = new CompleteTaskParams(task);
+		try {
+			getJbpmService().endTask(jbpmTask.getId(), user.getLogin(), null, jbpmTask.getTaskData().getStatus() != Status.InProgress);
 			return completeTaskParams.createdTasksForCurrentUser;
 		}
 		finally {

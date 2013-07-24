@@ -1,65 +1,40 @@
 package pl.net.bluesoft.rnd.processtool.ui.process;
 
-import static com.vaadin.ui.Label.CONTENT_XHTML;
-import static org.aperteworkflow.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
-import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
-import static pl.net.bluesoft.util.lang.Formats.nvl;
-
-import java.io.ByteArrayOutputStream;
-import java.io.PrintWriter;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import com.vaadin.Application;
+import com.vaadin.terminal.Sizeable;
+import com.vaadin.ui.*;
 import org.apache.commons.lang3.StringUtils;
 import org.aperteworkflow.ui.help.HelpProvider;
 import org.aperteworkflow.ui.help.HelpProviderFactory;
 import org.aperteworkflow.util.vaadin.VaadinUtility;
-
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSessionHelper;
-import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
-import pl.net.bluesoft.rnd.processtool.plugins.IWidgetVersionProvider;
-import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.ui.WidgetContextSupport;
 import pl.net.bluesoft.rnd.processtool.ui.common.FailedProcessToolWidget;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolActionButton;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolActionCallback;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolChildrenFilteringWidget;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinRenderable;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.WidgetFactory;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.*;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.event.WidgetEventBus;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.util.lang.Lang;
 import pl.net.bluesoft.util.lang.Strings;
 
-import com.vaadin.Application;
-import com.vaadin.terminal.Sizeable;
-import com.vaadin.ui.AbstractLayout;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.CssLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintWriter;
+import java.io.Serializable;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static com.vaadin.ui.Label.CONTENT_XHTML;
+import static org.aperteworkflow.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+import static pl.net.bluesoft.util.lang.Formats.nvl;
 
 /**
  * Main process data panel view
@@ -70,8 +45,6 @@ import com.vaadin.ui.VerticalLayout;
 public class ProcessMultiViewDataPane extends VerticalLayout implements WidgetContextSupport 
 {
 	private static final long serialVersionUID = -5291074970617492821L;
-	
-	private static final String VERSION_STYLE = "process-version-info";
 	private static final String TOP_BUTTONS_PANEL_STYLE = "top-buttins-panel";
 	private static final String BOTTOM_BUTTONS_PANEL_STYLE = "bottom-buttins-panel";
 	
@@ -223,52 +196,9 @@ public class ProcessMultiViewDataPane extends VerticalLayout implements WidgetCo
 			bottomButtonsLayout.addStyleName(BOTTOM_BUTTONS_PANEL_STYLE);
 			addComponent(bottomButtonsLayout);
 		}
-		
-		/* Add version info */
-		addComponent(createVersionInfo());
-		
 	}
 	
-	/** Create process and widget version info component */
-	private Component createVersionInfo()
-	{
-		VerticalLayout layout = new VerticalLayout();
-		layout.addStyleName(VERSION_STYLE);
-		
-		/* Process verion info */
-		ProcessDefinitionConfig config = task.getProcessDefinition();
-		
-		String version = config.getProcessVersion();
-		
-		Label versionLabel = new Label(getMessage("process.data.version.info")+version);
 
-		layout.addComponent(versionLabel);
-		
-		/* Create widget version provider */
-		IWidgetVersionProvider versionProvider = ObjectFactory.create(IWidgetVersionProvider.class);
-		
-		/* Widets version info */
-		for(ProcessToolDataWidget widget: dataWidgets)
-		{
-			
-			String widgetVersionInfo = versionProvider.getWidgetVersionInfo(widget.getClass());
-			
-			if(widgetVersionInfo == null)
-				continue;
-			
-			StringBuilder widgetVersionBuilder = new StringBuilder();
-			
-			widgetVersionBuilder.append(widget.getName());
-			widgetVersionBuilder.append(" [");
-			widgetVersionBuilder.append(widgetVersionInfo);
-			widgetVersionBuilder.append("]");
-			
-			Label widgetVersionLabel = new Label(widgetVersionBuilder.toString());
-			layout.addComponent(widgetVersionLabel);
-		}
-		
-		return layout;
-	}
 	
 	/** Metoda w przypadku wstrzymywania procesu przelacza widok na podproces
 	 * lub w przypadku zamkniecia podprocesu, na proces glowny

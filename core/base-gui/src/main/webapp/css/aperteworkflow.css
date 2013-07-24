@@ -16,11 +16,7 @@
 		padding-top: 5px;
 	}
 
-	.process-verison
-    }
-      	color: gray;
-        float: right;
-    }
+
 	
 	.navbar.left-menu
 	{
@@ -826,7 +822,11 @@ button, button:hover
 	background-color: white;
 	border-radius: 4px;
 }
-
+.process-version
+    {
+      	color: gray;
+        float: right;
+    }
 
 .actions-view
 {
@@ -834,8 +834,6 @@ button, button:hover
 	margin-bottom: 5px;
 	
 }
-
-
 
 .btn.btn-inverse.aperte-button,
 .btn.btn-inverse.aperte-button:hover

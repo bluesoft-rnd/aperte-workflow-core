@@ -16,12 +16,7 @@
 		padding-top: 5px;
 	}
 
-	.process-verison
-    }
-    	color: gray;
-        float: right;
-    }
-	
+
 	.navbar.left-menu
 	{
 		margin-right: 20px;
@@ -873,6 +868,11 @@ button, button:hover
 	border-radius: 4px;
 }
 
+.process-version
+    {
+    	color: gray;
+        float: right;
+    }
 
 .actions-view
 {

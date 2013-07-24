@@ -154,7 +154,7 @@ public class WidgetViewWindow extends Window
 			@Override
 			public void withContext(ProcessToolContext ctx) 
 			{
-				ProcessStateWidget processStateWidget = ctx.getProcessDefinitionDAO().getProcessStateWidget(processStateWidgetId);
+				ProcessStateWidget processStateWidget = ctx.getProcessDefinitionDAO().getCachedProcessStateWidget(processStateWidgetId);
 				
 				BpmTask task = bpmSession.getTaskData(bpmTaskId);
 				

@@ -18,7 +18,7 @@
 	<!-- STATIC RESOURCES -->
 	<mvc:resources location="/css/" mapping="/css/**"></mvc:resources>
 	<mvc:resources location="/js/" mapping="/js/**"></mvc:resources>
-    <mvc:resources location="/img/" mapping="/img/**"></mvc:resources>
+    <mvc:resources location="/images/" mapping="/images/**"></mvc:resources>
 
 	<bean class="org.springframework.web.portlet.mvc.annotation.DefaultAnnotationHandlerMapping"></bean>
 	<bean class="org.aperteworkflow.webapi.main.MainViewController"></bean>

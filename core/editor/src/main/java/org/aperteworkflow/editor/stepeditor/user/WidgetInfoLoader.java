@@ -1,8 +1,6 @@
 package org.aperteworkflow.editor.stepeditor.user;
 
 import com.vaadin.Application;
-import org.aperteworkflow.editor.vaadin.GenericEditorApplication;
-import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.Permission;
@@ -17,14 +15,13 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.*;
 
-public class WidgetInfoLoader {
-    
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 
+public class WidgetInfoLoader {
     private static final String BUNDLE_DESC_PREFIX;
     private static Set<Permission> DEFAULT_PERMISSIONS;
 
     static {
-
         BUNDLE_DESC_PREFIX = "widget.bundle.desc.";
 
         DEFAULT_PERMISSIONS = new HashSet<Permission>();
@@ -50,13 +47,12 @@ public class WidgetInfoLoader {
 
 	public static Map<BundleItem, Collection<WidgetItem>> loadAvailableWidgets(Application application)
             throws ClassNotFoundException {
-		ProcessToolRegistry reg = GenericEditorApplication.getRegistry();
         I18NSource i18NSource = I18NSource.ThreadUtil.getThreadI18nSource();
 
 		Map<BundleItem, Collection<WidgetItem>> availableWidgets = new HashMap<BundleItem, Collection<WidgetItem>>();
 
-        Map<String, Class<? extends ProcessToolWidget>> registeredWidgets = reg.getAvailableWidgets();
-        if (registeredWidgets == null || registeredWidgets.size() == 0) {
+        Map<String, Class<? extends ProcessToolWidget>> registeredWidgets = getRegistry().getAvailableWidgets();
+        if (registeredWidgets == null || registeredWidgets.isEmpty()) {
             return  availableWidgets;
         }
 
@@ -68,7 +64,7 @@ public class WidgetInfoLoader {
             viewableWidgets.put(widgetClass.getName(), widgetClass);
         }
 
-        for(ProcessHtmlWidget htmlWidget: reg.getHtmlWidgets())
+        for(ProcessHtmlWidget htmlWidget: getRegistry().getHtmlWidgets())
             viewableWidgets.put(htmlWidget.getClass().getName(), htmlWidget.getClass());
 
         // Create sorted structure of widgets by processing their annotations
@@ -110,7 +106,7 @@ public class WidgetInfoLoader {
 
 			removeNulls(widgets);
 
-			if (widgets.size() > 0) {
+			if (!widgets.isEmpty()) {
                 availableWidgets.put(bundleItem, widgets);
             }
         }
@@ -125,5 +121,4 @@ public class WidgetInfoLoader {
 			}
 		}
 	}
-
 }

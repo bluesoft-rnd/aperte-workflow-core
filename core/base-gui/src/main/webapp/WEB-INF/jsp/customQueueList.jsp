@@ -3,47 +3,47 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
-<div class="process-tasks-view" id="task-view-processes" hidden="true">
-	<table id="processesTable" class="process-table table table-striped" border="1">
+<div class="process-panel" id="customqueue-panel-view" hidden="true">
+	<table id="customQueueTable" class="process-table table table-striped" border="1">
 		<thead>
-
+			<tr>
 				<th style="width:15%;"><spring:message code="processes.list.table.process.name" /></th>
 				<th style="width:15%;"><spring:message code="processes.list.table.process.step" /></th>
 				<th style="width:20%;"><spring:message code="processes.list.table.process.code" /></th>
 				<th style="width:10%;"><spring:message code="processes.list.table.process.creator" /></th>
-				<th style="width:10%;"><spring:message code="processes.list.table.process.assignee" /></th>
 				<th style="width:10%;"><spring:message code="processes.list.table.process.creationdate" /></th>
 				<th style="width:10%;"><spring:message code="processes.list.table.process.deadline" /></th>
-
+				<th style="width:10%;"><spring:message code="processes.list.table.process.actions" /></th>
+			</tr>
 		</thead>
 		<tbody></tbody>
 	</table>
-</div>
 
+</div>
 
 <script type="text/javascript">
 //<![CDATA[
-
   	$(document).ready(function()
 	{
-		
-		var dataTable = new AperteDataTable("processesTable", 
+	
+		var dataTable = new AperteDataTable("customQueueTable", 
 			[
 				 { "sName":"name", "bSortable": true,"mData": function(object){return generateNameColumn(object);}},
 				 { "sName":"step", "bSortable": true, "mData": "step" },
 				 { "sName":"code", "bSortable": true, "mData": "code" },
 				 { "sName":"creator", "bSortable": true,"mData": "creator" },
-				 { "sName":"assignee", "bSortable": true,"mData": "assignee" },
 				 { "sName":"creationDate", "bSortable": true,"mData": function(object){return $.format.date(object.creationDate, 'dd-MM-yyyy, HH:mm');}},
-				 { "sName":"deadline", "bSortable": true,"mData": function(object){return object.deadline == null ? "<spring:message code='processes.list.table.nodeadline' />" : $.format.date(object.deadline, 'dd-MM-yyyy, HH:mm');}}
+				 { "sName":"deadline", "bSortable": true,"mData": function(object){return object.deadline == null ? "<spring:message code='processes.list.table.nodeadline' />" : $.format.date(object.deadline, 'dd-MM-yyyy, HH:mm');}},
+				 { "sName":"actions", "bSortable": false,"mData": function(object){return generateButtons(object)}},
 			 ],
 			 [[ 5, "desc" ]]
 			);
-		
+			
+		queueViewManager.addTableView('queue', dataTable, 'customqueue-panel-view');
+			
 		dataTable.enableMobileMode = function()
 		{
 			this.toggleColumnButton("deadline", false);
-			this.toggleColumnButton("assignee", false);
 			this.toggleColumnButton("creationDate", false);
 		}
 		
@@ -56,7 +56,6 @@
 		dataTable.disableMobileMode = function()
 		{
 			this.toggleColumnButton("deadline", true);
-			this.toggleColumnButton("assignee", true);
 			this.toggleColumnButton("creationDate", true);
 		}
 		
@@ -65,39 +64,38 @@
 			this.toggleColumnButton("creator", true);
 			this.toggleColumnButton("code", true);
 		}
-		
-		queueViewManager.addTableView('process', dataTable, 'task-view-processes');
 	});
-
 	
-
-	function generateNameColumn(task)
+	function generateButtons(task)
 	{
-		var showOnClickCode = 'onclick="loadProcessView('+task.processStateConfigurationId+','+task.taskId+')"';
-		
-	    var linkBody = '<a class="process-view-link" data-toggle="tooltip" title="'+task.tooltip+'" '+showOnClickCode+' ">' + task.processName + '</a>';
-
-        return linkBody;
-    }
-	
-	
-	function loadProcessView(processStateConfigurationId, taskId)
-	{
-		windowManager.clearProcessView();
-		windowManager.showLoadingScreen();
-		var widgetJson = $.post('<spring:url value="/task/loadTask"/>', 
+		var linkBody = '';
+		if(task.queueName)
 		{
-			"processStateConfigurationId": processStateConfigurationId,
+			linkBody += '<button id="link-'+task.queueName+'" class="btn aperte-button aperte-button-hide" type="button" data-toggle="tooltip" title="<spring:message code="activity.tasks.task-claim-details" />" onclick="claimTaskFromQueue(this, \''+task.queueName+'\','+task.processStateConfigurationId+','+task.taskId+'); "><spring:message code="activity.tasks.task-claim" /></a>';
+		}
+		
+		return linkBody;
+	}
+	
+	function claimTaskFromQueue(button, queueName, processStateConfigurationId, taskId)
+	{
+		$(button).prop('disabled', true);
+		windowManager.showLoadingScreen();
+		
+		var bpmJson = $.post('<spring:url value="/task/claimTaskFromQueue"/>', 
+		{
+			"queueName": queueName,
 			"taskId": taskId
-		}, function(data) 
+		}, function(newTask) 
 		{ 
-			
 			clearAlerts();
-			windowManager.showProcessData();
-			$('#process-data-view').empty();
-			$("#process-data-view").append(data);
-			checkIfViewIsLoaded();
-			
+			console.log( "task claimed, new task: "+newTask.taskId); 
+			reloadQueues();
+			loadProcessView(processStateConfigurationId, newTask.taskId);
+		})
+		.fail(function(request, status, error) 
+		{	
+			console.log( "ojoj:  "+error); 
 		});
 	}
 	

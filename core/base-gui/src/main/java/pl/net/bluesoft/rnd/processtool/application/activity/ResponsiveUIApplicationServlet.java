@@ -40,6 +40,8 @@ public class ResponsiveUIApplicationServlet extends ApplicationServlet
 		WebApplicationContext context = getApplicationContext(request.getSession());
 		WebBrowser browser = context.getBrowser();
 
+        page.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"/aperteworkflow/css/aperteworkflow.css\">");
+
 		/* There is bug with scaling on Safari */
 		if(browser.isSafari())
 		{

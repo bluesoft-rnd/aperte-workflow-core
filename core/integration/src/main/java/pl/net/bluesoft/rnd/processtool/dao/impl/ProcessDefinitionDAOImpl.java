@@ -27,6 +27,12 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 	private static final ExpiringCache<Long, ProcessDefinitionConfig> DEFINITION_BY_ID =
 			new ExpiringCache<Long, ProcessDefinitionConfig>(Long.MAX_VALUE);
 
+	private static final ExpiringCache<Long, ProcessStateConfiguration> STATE_BY_ID =
+			new ExpiringCache<Long, ProcessStateConfiguration>(Long.MAX_VALUE);
+
+	private static final ExpiringCache<Long, ProcessStateWidget> WIDGET_BY_ID =
+			new ExpiringCache<Long, ProcessStateWidget>(Long.MAX_VALUE);
+
 	private static final ExpiringCache<Object, List<ProcessQueueConfig>> QUEUE_CONFIGS =
 			new ExpiringCache<Object, List<ProcessQueueConfig>>(Long.MAX_VALUE);
 
@@ -71,14 +77,37 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 		return DEFINITION_BY_ID.get(id, new ExpiringCache.NewValueCallback<Long, ProcessDefinitionConfig>() {
 			@Override
 			public ProcessDefinitionConfig getNewValue(Long id) {
-				return (ProcessDefinitionConfig)getSession().createCriteria(ProcessDefinitionConfig.class)
+				ProcessDefinitionConfig config = (ProcessDefinitionConfig)getSession().createCriteria(ProcessDefinitionConfig.class)
 						.add(Restrictions.eq(_ID, id))
 						.setFetchMode(_STATES, FetchMode.EAGER)
 						.setFetchMode(_PERMISSIONS, FetchMode.LAZY)
 						.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
 						.uniqueResult();
+
+				if (config != null) {
+					fillCaches(config);
+				}
+
+				return config;
 			}
 		});
+	}
+
+	private void fillCaches(ProcessDefinitionConfig config) {
+		for (ProcessStateConfiguration state : config.getStates()) {
+			STATE_BY_ID.put(state.getId(), state);
+
+			for (ProcessStateWidget widget : state.getWidgets()) {
+				fillWidgetCache(widget);
+			}
+		}
+	}
+
+	private void fillWidgetCache(ProcessStateWidget widget) {
+		WIDGET_BY_ID.put(widget.getId(), widget);
+		for (ProcessStateWidget childWidget : widget.getChildren()) {
+			fillWidgetCache(childWidget);
+		}
 	}
 
 	public ProcessDefinitionConfig getCachedDefinitionById(ProcessInstance processInstance) {
@@ -100,13 +129,7 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 	@Override
 	@SuppressWarnings("unchecked")
 	public ProcessStateConfiguration getProcessStateConfiguration(BpmTask task) {
-        List<ProcessStateConfiguration> res = getSession().createCriteria(ProcessStateConfiguration.class)
-				.add(Restrictions.eq("definition", task.getProcessInstance().getDefinition()))
-				.add(Restrictions.eq("name", task.getTaskName())).list();
-		if (res.isEmpty())
-			return null;
-		return res.get(0);
-
+		return task.getCurrentProcessStateConfiguration();
 	}
 
 	@Override
@@ -392,18 +415,26 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
     }
 
 	@Override
-	public ProcessStateWidget getProcessStateWidget(Long widgetStateId) 
-	{
-		return (ProcessStateWidget) getSession().createCriteria(ProcessStateWidget.class)
-				.add(Restrictions.eq("id", widgetStateId))
-				.uniqueResult();
+	public ProcessStateWidget getCachedProcessStateWidget(final Long widgetStateId) {
+		return WIDGET_BY_ID.get(widgetStateId, new ExpiringCache.NewValueCallback<Long, ProcessStateWidget>() {
+			@Override
+			public ProcessStateWidget getNewValue(Long key) {
+				return (ProcessStateWidget) getSession().createCriteria(ProcessStateWidget.class)
+						.add(Restrictions.eq("id", widgetStateId))
+						.uniqueResult();
+			}
+		});
 	}
 
 	@Override
-	public ProcessStateConfiguration getProcessStateConfiguration(
-			Long processStateConfigurationId) {
-		return (ProcessStateConfiguration) getSession().createCriteria(ProcessStateConfiguration.class)
-				.add(Restrictions.eq("id", processStateConfigurationId))
-				.uniqueResult();
+	public ProcessStateConfiguration getCachedProcessStateConfiguration(final Long processStateConfigurationId) {
+		return STATE_BY_ID.get(processStateConfigurationId, new ExpiringCache.NewValueCallback<Long, ProcessStateConfiguration>() {
+			@Override
+			public ProcessStateConfiguration getNewValue(Long key) {
+				return (ProcessStateConfiguration) getSession().createCriteria(ProcessStateConfiguration.class)
+						.add(Restrictions.eq("id", processStateConfigurationId))
+						.uniqueResult();
+			}
+		});
 	}
 }

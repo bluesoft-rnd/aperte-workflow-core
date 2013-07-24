@@ -21,11 +21,6 @@ public abstract class AbstractBpmTask implements BpmTask {
 	}
 
 	@Override
-	public ProcessDefinitionConfig getProcessDefinition() {
-		return getProcessInstance() != null ? getProcessInstance().getDefinition() : null;
-	}
-
-	@Override
 	public ProcessStateConfiguration getCurrentProcessStateConfiguration() {
 		ProcessDefinitionConfig processDefinitionConfig = getProcessDefinition();
 

@@ -666,22 +666,29 @@
 	background-position:center; 
 }
 
-.v-loading-indicator, 
-.v-loading-indicator-delay, 
-.v-loading-indicator-wait
+.v-app-WidgetApplication .v-loading-indicator, 
+.v-app-WidgetApplication .v-loading-indicator-delay, 
+.v-app-WidgetApplication .v-loading-indicator-wait,
+.v-app-WidgetApplication .v-app-loading  
 {
 	background-image: url(../images/progress_bar/loading_animation_2.gif) !important;
-}
+	background-position:center; 
+	width: 90%;
+	height: 90%;
+	background-repeat: no-repeat;
+	z-index:10;
+	position:absolute;
+ }
 
 .loader
 {
-	width: 100%;
-	height: 100%;
+	width: 90%;
+	height: 90%;
 	background-repeat: no-repeat;
     position:absolute;
 	background-image: url(../images/progress_bar/loading_animation_2.gif);
 	background-position:center; 
-	z-index:-10;
+	z-index:10;
 }
 
 .loader-2

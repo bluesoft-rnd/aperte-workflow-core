@@ -43,11 +43,9 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
      * Of course, the implementation can load the roleNames by itself.
      */
     protected UserData user;
-    protected EventBusManager eventBusManager;
     protected Collection<String> roleNames;
 
     protected UserData substitutingUser;
-    protected EventBusManager substitutingUserEventBusManager;
 
     @Autowired
     private ProcessToolRegistry processToolRegistry;
@@ -57,15 +55,11 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
 
         this.user = user;
         this.roleNames = new HashSet<String>(roleNames);
-        this.eventBusManager = new ProcessToolEventBusManager(processToolRegistry, processToolRegistry.getExecutorService());
         log.finest("Created session for user: " + user);
     }
 
     protected void broadcastEvent(IEvent event) {
-        eventBusManager.publish(event);
-        if (substitutingUserEventBusManager != null) {
-			substitutingUserEventBusManager.publish(event);
-		}
+        processToolRegistry.getEventBusManager().publish(event);
     }
 
 	protected UserData findOrCreateUser(UserData user)
@@ -132,7 +126,7 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
 
     @Override
 	public EventBusManager getEventBusManager() {
-        return eventBusManager;
+        return processToolRegistry.getEventBusManager();
     }
 
     @Override

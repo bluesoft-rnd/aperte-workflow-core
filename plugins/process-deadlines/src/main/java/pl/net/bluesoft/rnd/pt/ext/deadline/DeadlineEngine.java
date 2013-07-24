@@ -147,11 +147,13 @@ public class DeadlineEngine {
         }
     }
 
-    public void onProcessStateChange(final BpmTask task, ProcessInstance pi, boolean processInitiated) {
-        if (pi == null || pi.getId() == null) {
-            logger.info("Event contained no persistent process instance. Omitting.");
+    public void onProcessStateChange(final BpmTask task, ProcessInstance pi, boolean processInitiated)
+    {
+        if (pi == null || pi.getId() == null || task == null) {
+            logger.info("Event contained no persistent process instance and task. Omitting.");
             return;
         }
+
         String internalId = pi.getInternalId();
         logger.info("Processing deadlines for process: " + internalId);
         ProcessToolContext ctx = getThreadProcessToolContext();
@@ -160,34 +162,10 @@ public class DeadlineEngine {
             throw new ProcessToolException("Unable to find process instance by internal id: " + internalId);
         }
         Set<ProcessDeadline> deadlines = pi.findAttributesByClass(ProcessDeadline.class);
-        if (!deadlines.isEmpty()) {
-            logger.info("Found deadline configurations for process: " + pi.getInternalId());
-            ProcessToolBpmSession bpmSession = getRegistry().getProcessToolSessionFactory().createAutoSession();
-            List<BpmTask> tasks = processInitiated || task == null ? bpmSession.findProcessTasks(pi) : new ArrayList<BpmTask>() {{
-                add(task);
-            }};
-            if (!tasks.isEmpty()) {
-                Set<String> taskNames = new HashSet<String>();
-                Collections.collect(tasks, new Transformer<BpmTask, String>() {
-                    @Override
-                    public String transform(BpmTask obj) {
-                        return obj.getTaskName();
-                    }
-                }, taskNames);
-                logger.info("Found tasks for process: " + pi.getInternalId());
-                for (ProcessDeadline da : deadlines) {
-                    if (taskNames.contains(da.getTaskName())) {
-                        scheduleDeadline(pi.getInternalId(), da);
-                    }
-                }
-            }
-            else {
-                logger.info("No tasks found for process: " + pi.getInternalId());
-            }
-        }
-        else {
-            logger.info("No deadlines found for process: " + pi.getInternalId());
-        }
+
+        for (ProcessDeadline da : deadlines)
+            if (task.getTaskName().contains(da.getTaskName()))
+                scheduleDeadline(pi.getInternalId(), da);
     }
 
     public void handleDeadlineJob(final String processInstanceId, final ProcessDeadline processDeadline) 

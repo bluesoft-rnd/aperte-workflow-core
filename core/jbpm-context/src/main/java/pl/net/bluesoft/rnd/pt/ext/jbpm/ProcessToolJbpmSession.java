@@ -64,7 +64,6 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	private ITokenService tokenService;
 
 	private JbpmService jbpmService;
-	private StatefulKnowledgeSession ksession;
 
 	public ProcessToolJbpmSession(UserData user, Collection<String> roleNames) {
 		super(user, roleNames);
@@ -79,7 +78,6 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	public ProcessToolBpmSession createSession(UserData user, Collection<String> roleNames) {
 		ProcessToolJbpmSession session = new ProcessToolJbpmSession(user, roleNames);
 		session.substitutingUser = this.user;
-		session.substitutingUserEventBusManager = this.eventBusManager;
 		return session;
 	}
 
@@ -758,7 +756,6 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		if (processMapImageStream != null) {
 			jbpmService.getRepository().addResource(deploymentId, ProcessResourceNames.MAP_IMAGE, processMapImageStream);
 		}
-		ksession = null;
 		return deploymentId;
 	}
 

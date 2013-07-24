@@ -155,7 +155,7 @@
 			if(!data)
 			{
 			    closeProcessView();
-				reloadCurrentQueue();
+				queueViewManager.reloadCurrentQueue();
 				windowManager.showProcessList();
 				
 				return;
@@ -168,7 +168,7 @@
 			else if(!data.nextTask)
 			{
 				closeProcessView();
-				reloadCurrentQueue();
+				queueViewManager.reloadCurrentQueue();
 				windowManager.showProcessList();
 				
 				return;
@@ -184,7 +184,7 @@
 			else
 			{
 				closeProcessView();
-				reloadCurrentQueue();
+				queueViewManager.reloadCurrentQueue();
 				windowManager.showProcessList();
 			}
 		})

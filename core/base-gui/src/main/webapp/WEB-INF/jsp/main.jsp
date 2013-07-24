@@ -78,6 +78,10 @@
 			if(lastView)
 			{
 				this.showView(this.allViews[lastView], false);
+				if(this.allViews[lastView].viewId == 'process-panel-view')
+				{
+					queueViewManager.reloadCurrentQueue();
+				}
 			}
 		}
 		
@@ -109,7 +113,6 @@
 		
 		this.showProcessList = function()
 		{
-			console.log("bb: process-panel-view"); 
 			this.showView(this.allViews['process-panel-view'], true);
 		}
 		

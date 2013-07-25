@@ -18,6 +18,9 @@ import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
 import pl.net.bluesoft.rnd.processtool.web.domain.IHtmlTemplateProvider;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+import pl.net.bluesoft.util.lang.DateUtil;
+
+import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
 
 /**
  * Html builder for the task view 
@@ -115,17 +118,27 @@ public class TaskViewBuilder
 
         /* Check if user, who is checking the task, is the assigned person */
         Boolean isUserAssignedToTask = user.getLogin().equals(task.getAssignee());
-        if(isUserAssignedToTask)
+        if(isUserAssignedToTask || isSubstitutingUser())
         {
             addSaveActionButton(actionsNode);
-
             for(ProcessStateAction action: actions)
-            {
                 processAction(action, actionsNode);
-            }
         }
 
         addCancelActionButton(actionsNode);
+    }
+
+
+    private boolean isSubstitutingUser()
+    {
+        List<String> substitutedUsersLogins = ctx.getUserSubstitutionDAO()
+                .getCurrentSubstitutedUserLogins(user.getLogin());
+
+        for(String substitutedUserLogin: substitutedUsersLogins)
+            if(substitutedUserLogin.equals(task.getAssignee()))
+                return true;
+
+        return false;
     }
 	
 	private void processWidget(ProcessStateWidget widget, Element parent)

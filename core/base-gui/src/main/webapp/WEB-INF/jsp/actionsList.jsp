@@ -136,7 +136,6 @@
 		})
 		.done(function(data) 
 		{ 
-			console.log( "DONE: "+data); 
 			
 			<!-- Errors handling -->
 			windowManager.clearErrors();

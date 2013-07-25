@@ -14,6 +14,7 @@
 	#js("$javascript_folder/jqModal.js")
 	#js("$javascript_folder/bootstrap.min.js")
 	#js("$javascript_folder/jquery.dataTables.min.js")
+	#js("$javascript_folder/jquery.timer.js")
 	#js("$javascript_folder/jquery.dataTables.bootstrap.js")
 	#js("$javascript_folder/jquery.dateFormat-1.0.js")
 	#js("$javascript_folder/select2.min.js")

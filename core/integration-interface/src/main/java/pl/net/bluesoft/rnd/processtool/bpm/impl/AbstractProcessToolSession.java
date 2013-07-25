@@ -142,7 +142,7 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
 
     @Override
     public UserData getUser() {
-        user = loadOrCreateUser(user);
+      //  user = loadOrCreateUser(user);
         return user;
     }
 

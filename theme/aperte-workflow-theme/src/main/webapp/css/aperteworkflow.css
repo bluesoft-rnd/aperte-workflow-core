@@ -36,6 +36,12 @@
 			z-index: 100;
 	}
 	
+	.process-version
+        {
+          	color: gray;
+            float: right;
+        }
+	
 	.dataTables_paginate.paging_bootstrap.pagination
 	{
 		font-size: 22px;
@@ -426,6 +432,12 @@
 	{
 		display: none !important;
 	}
+	
+	.process-version
+        {
+          	color: gray;
+            float: right;
+        }
 	
 	.mobile-button
 	{

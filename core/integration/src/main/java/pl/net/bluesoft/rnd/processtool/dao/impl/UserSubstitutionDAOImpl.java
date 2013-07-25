@@ -1,6 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.dao.impl;
 
 import org.hibernate.FetchMode;
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.criterion.DetachedCriteria;
 import pl.net.bluesoft.rnd.processtool.dao.UserSubstitutionDAO;
@@ -44,7 +45,18 @@ public class UserSubstitutionDAOImpl extends SimpleHibernateBean<UserSubstitutio
 				.list();
 	}
 
-	@Override
+    @Override
+    public List<String> getCurrentSubstitutedUserLogins(String userLogin)
+    {
+        SQLQuery query = getSession().createSQLQuery("select ud.login from pt_user_substitution sub left join pt_user_data ud on " +
+                "ud.id = sub.user_id " +
+                "where sub.user_substitute_id = (select id from  pt_user_data where login = '"+userLogin+"') and " +
+                "now() between sub.dateFrom and sub.dateTo") ;
+
+        return query.list();
+    }
+
+    @Override
 	public void deleteById(Long id) {
 		if (id == null) {
 			return;

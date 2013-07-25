@@ -15,6 +15,7 @@ import java.util.List;
 public interface UserSubstitutionDAO extends HibernateBean<UserSubstitution> {
     List<UserSubstitution> getActiveSubstitutions(UserData user, Date date);
 	List<UserData> getSubstitutedUsers(UserData user, Date date);
+    List<String> getCurrentSubstitutedUserLogins(String userLogin);
 	void deleteById(Long id);
 	List<UserSubstitution> findAllEagerUserFetch();
 }

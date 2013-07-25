@@ -6,10 +6,12 @@ import static pl.net.bluesoft.util.lang.Strings.hasText;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -52,6 +54,8 @@ import bitronix.tm.TransactionManagerServices;
 
 public class JbpmService implements ProcessEventListener, TaskEventListener {
 
+    protected Logger log = Logger.getLogger(JbpmService.class.getName());
+	
     private static final IProcessToolSettings KSESSION_ID = new IProcessToolSettings() {
         @Override
         public String toString() {
@@ -148,12 +152,28 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
 
         if (getRepository() != null) {
-            for (byte[] resource : getRepository().getAllResources("bpmn")) {
+            for (byte[] resource : getValidResources()) {
                 kbuilder.add(ResourceFactory.newByteArrayResource(resource), ResourceType.BPMN2);
             }
         }
 
         return kbuilder.newKnowledgeBase();
+    }
+    
+    private List<byte[]> getValidResources() {
+    	List<byte[]> validResources = new ArrayList<byte[]>();
+        for (byte[] resource : getRepository().getAllResources("bpmn")) {
+        	KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+        	kbuilder.add(ResourceFactory.newByteArrayResource(resource), ResourceType.BPMN2);
+        	boolean isOK = true;
+        	try {
+				kbuilder.newKnowledgeBase();
+			} catch (Exception e) {
+				isOK = false;
+				log.info("The following process definition contains errors and was not loaded:\n" + new String(resource));}
+			if (isOK) validResources.add(resource);
+        }
+        return validResources;
     }
 
     private void loadSession(int sessionId) {
@@ -161,10 +181,9 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
 
         if (sessionId == -1) {
             ksession = JPAKnowledgeService.newStatefulKnowledgeSession(kbase, null, env);
-        }
-        else {
+        } else {
             ksession = JPAKnowledgeService.loadStatefulKnowledgeSession(sessionId, kbase, null, env);
-            ksession.signalEvent("Trigger", null); // may be necessary for pushing processes after server restart
+            //ksession.signalEvent("Trigger", null); // may be necessary for pushing processes after server restart
         }
 
         LocalHTWorkItemHandler handler = new LocalHTWorkItemHandler(client, ksession, OnErrorAction.LOG);

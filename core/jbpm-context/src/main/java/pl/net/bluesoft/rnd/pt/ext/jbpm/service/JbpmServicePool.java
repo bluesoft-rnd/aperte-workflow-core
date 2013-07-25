@@ -45,6 +45,9 @@ import java.util.Map;
 import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
 import static pl.net.bluesoft.util.lang.Strings.hasText;
 
+/**
+Experimental implementation of JbpmService with one jbpm session per process
+*/
 public class JbpmServicePool implements ProcessEventListener, TaskEventListener {
 	private static final IProcessToolSettings KSESSION_ID = new IProcessToolSettings() {
 		@Override

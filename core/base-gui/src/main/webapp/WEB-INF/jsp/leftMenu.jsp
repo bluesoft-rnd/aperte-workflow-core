@@ -46,10 +46,15 @@
  
 	var userLogin = '${aperteUser.login}';
 	var queueInterval = '${queueInterval}';
+	var reloadQueuesLoopTimer = $.timer(function() 
+	{
+       reloadQueues();
+    });
 	
 	 $(document).ready(function()
 	{
 		windowManager.addView("outer-queues");
+		reloadQueuesLoopTimer.set({ time : queueInterval, autostart : true });
 	});
 	
 	function moveQueueList()
@@ -100,82 +105,79 @@
 
 	var oldProcessCount = -1;
 	
-	function reloadQueuesLoop()
-	{
-		reloadQueuesOrdered = false;
-		reloadQueues();
-	}
-	
 	function reloadQueues()
 	{
-		var queuesJson = $.getJSON('<spring:url value="/queues/getUserQueues.json"/>', function(queues) 
-		{ 
-			$('#queue-view-block').empty();
-	
-			
-			$.each( queues, function( ) 
-			{
-				var currentUserLogin = this.userLogin;
-				var userQueueHeaderId = 'accordion-header-'+currentUserLogin;
-				var userQueuesCount = this.activeTasks;
-			
-				
-				var queueName = '<spring:message code="queues.user.queueName" />';
-				if(currentUserLogin != userLogin)
-				{
-					queueName = currentUserLogin;
-				}
-				
-				queueName += " ["+userQueuesCount+"]";
-				
-				var accordionID = 'accordion-list-'+currentUserLogin;
-				$( "<a>", { id: userQueueHeaderId, text: queueName, "data-toggle":"collapse", "data-parent":'#queue-view-block', href:"#"+accordionID, "class": "queue-user-accordion"} )
-				.appendTo( '#queue-view-block' );
-				
-				var contentClass = "accordion-body collapse in";
-
-				
-				$( "<div>", { id : accordionID, "class": contentClass} )
-				.appendTo( '#queue-view-block' );
-				
-				
-				$.each( this.processesList, function( ) 
-				{
-					addProcessRow(this, accordionID, currentUserLogin);
-					
-					<!-- Test current queue for reload only if changed queue is shown and user is viewing process list -->
-					if(queueViewManager.currentQueue == this.queueName && windowManager.currentView == 'process-panel-view')
-					{
-
-						if(oldProcessCount != this.queueSize)
-						{
-							queueViewManager.reloadCurrentQueue();
-							oldProcessCount = this.queueSize;
-						}
-					}
-				});
-				
-				$.each( this.queuesList, function( ) 
-				{
-					addQueueRow(this, accordionID, currentUserLogin);
-				});
-				
-
-			
-
-			});
-			registerNextLoop();
-		});
-	}
-	
-	var reloadQueuesOrdered = false; 
-	function registerNextLoop()
-	{
-		if(reloadQueuesOrdered == false)
+		reloadQueuesLoopTimer.pause();
+		try
 		{
-			reloadQueuesOrdered = true;
-			setTimeout(reloadQueuesLoop, queueInterval);
+			console.log( "reload quueues");
+			var queuesJson = $.getJSON('<spring:url value="/queues/getUserQueues.json"/>', function(queues) 
+			{ 
+				$('#queue-view-block').empty();
+		
+				
+				$.each( queues, function( ) 
+				{
+					var currentUserLogin = this.userLogin;
+					var userQueueHeaderId = 'accordion-header-'+currentUserLogin;
+					var userQueuesCount = this.activeTasks;
+				
+					
+					var queueName = '<spring:message code="queues.user.queueName" />';
+					if(currentUserLogin != userLogin)
+					{
+						queueName = currentUserLogin;
+					}
+					
+					queueName += " ["+userQueuesCount+"]";
+					
+					var accordionID = 'accordion-list-'+currentUserLogin;
+					$( "<a>", { id: userQueueHeaderId, text: queueName, "data-toggle":"collapse", "data-parent":'#queue-view-block', href:"#"+accordionID, "class": "queue-user-accordion"} )
+					.appendTo( '#queue-view-block' );
+					
+					var contentClass = "accordion-body collapse in";
+
+					
+					$( "<div>", { id : accordionID, "class": contentClass} )
+					.appendTo( '#queue-view-block' );
+					
+					
+					$.each( this.processesList, function( ) 
+					{
+						addProcessRow(this, accordionID, currentUserLogin);
+						
+						<!-- Test current queue for reload only if changed queue is shown and user is viewing process list -->
+						if(queueViewManager.currentQueue == this.queueName 
+							&& windowManager.currentView == 'process-panel-view'
+							&& queueViewManager.currentOwnerLogin == currentUserLogin)
+						{
+
+							if(oldProcessCount != this.queueSize)
+							{
+								console.log( "queueViewManager.currentQueue: "+queueViewManager.currentQueue+" this.queueName: "+this.queueName);
+								console.log( "oldProcessCount: "+oldProcessCount+" this.queueSize: "+this.queueSize);
+								queueViewManager.reloadCurrentQueue();
+								oldProcessCount = this.queueSize;
+							}
+						}
+					});
+					
+					$.each( this.queuesList, function( ) 
+					{
+						addQueueRow(this, accordionID, currentUserLogin);
+					});
+					
+
+				
+
+				});
+			});
 		}
+		catch(err)
+		{
+			console.log( "Reload queues error: "+err.message);
+		}
+		reloadQueuesLoopTimer.play(true);
 	}
 	
 	function addProcessRow(processRow, accordionID, userLogin)
@@ -183,7 +185,7 @@
 		var layoutId = 'queue-view-' + processRow.queueId+'-'+userLogin;
 		var innerDivId = processRow.queueId+'-'+userLogin;
 
-		$( "<div>", { id : layoutId, "class": "queue-list-row-process", "onclick":"queueViewManager.loadQueue('"+processRow.queueName+"', 'process', '"+userLogin+"', '"+processRow.queueDesc+"') "} )
+		$( "<div>", { id : layoutId, "class": "queue-list-row-process", "onclick":"showQueue('"+processRow.queueName+"', 'process', '"+userLogin+"', '"+processRow.queueDesc+"') "} )
 		.appendTo( '#'+accordionID );
 		
 		$( "<div>", { id : innerDivId, "class": "queue-list-name"} )
@@ -204,7 +206,7 @@
 		var layoutId = 'queue-view-' + queueRow.queueId+'-'+userLogin;
 		var innerDivId = queueRow.queueId+'-'+userLogin;
 
-		$( "<div>", { id : layoutId, "class": "queue-list-row-queue", "onclick":"queueViewManager.loadQueue('"+queueRow.queueName+"', 'queue', '"+userLogin+"', '"+queueRow.queueDesc+"') "} )
+		$( "<div>", { id : layoutId, "class": "queue-list-row-queue", "onclick":"showQueue('"+queueRow.queueName+"', 'queue', '"+userLogin+"', '"+queueRow.queueDesc+"') "} )
 		.appendTo( '#'+accordionID );
 		
 		$( "<div>", { id : innerDivId, "class": "queue-list-name"} )
@@ -218,6 +220,14 @@
 		
 		$( "<br>", { style: "clear: left;"} )
 		.appendTo( '#'+layoutId );
+	}
+	
+	function showQueue(newQueueName, queueType, ownerLogin, queueDesc)
+	{
+		reloadQueuesLoopTimer.stop();
+		reloadQueuesLoopTimer.play(true);
+		reloadQueues();
+		queueViewManager.loadQueue(newQueueName, queueType, ownerLogin, queueDesc);
 	}
  
  </script>

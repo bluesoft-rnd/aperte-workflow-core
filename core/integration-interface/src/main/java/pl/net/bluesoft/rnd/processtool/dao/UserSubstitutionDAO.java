@@ -13,6 +13,7 @@ import java.util.List;
  */
 public interface UserSubstitutionDAO extends HibernateBean<UserSubstitution> {
 	List<String> getSubstitutedUserLogins(String userLogin, Date date);
+	List<String> getCurrentSubstitutedUserLogins(String userLogin);
 	void deleteById(Long id);
 	List<UserSubstitution> findAllEagerUserFetch();
 }

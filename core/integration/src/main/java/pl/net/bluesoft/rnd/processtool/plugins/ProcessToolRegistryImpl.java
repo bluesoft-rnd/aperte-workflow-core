@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
-import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory.ExecutionType;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolSessionFactory;
 import pl.net.bluesoft.rnd.processtool.dao.*;
 import pl.net.bluesoft.rnd.processtool.dao.impl.*;
@@ -28,6 +27,7 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolActionButton;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
+import pl.net.bluesoft.rnd.processtool.usersource.IUserSource;
 import pl.net.bluesoft.rnd.processtool.web.controller.IOsgiWebController;
 import pl.net.bluesoft.rnd.processtool.web.domain.IHtmlTemplateProvider;
 import pl.net.bluesoft.rnd.processtool.web.domain.IWidgetScriptProvider;
@@ -101,6 +101,8 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	private BundleContext bundleContext;
 	private String bpmDefinitionLanguage;
 
+	private IUserSource userSource;
+
 	{
 		//init default provider, regardless of OSGi stuff
 		final ClassLoader classloader = getClass().getClassLoader();
@@ -110,6 +112,11 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 				return classloader.getResourceAsStream(path);
 			}
 		}, "messages"));
+	}
+
+	public ProcessToolRegistryImpl() {
+		Util.setInstance(this);
+		buildSessionFactory();
 	}
 
 	public synchronized void unregisterWidget(String name) {
@@ -126,12 +133,6 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 			throw new IllegalAccessException("No class nicknamed by: " + name);
 		}
 		return (T) aClass.newInstance();
-
-	}
-
-	public ProcessToolRegistryImpl() {
-		Util.setInstance(this);
-		buildSessionFactory();
 	}
 
 	public ClassLoader getModelAwareClassLoader(ClassLoader parent) {
@@ -421,6 +422,16 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	}
 
 	@Override
+	public IUserSource getUserSource() {
+		return userSource;
+	}
+
+	@Override
+	public void setUserSource(IUserSource userSource) {
+		this.userSource = userSource;
+	}
+
+	@Override
 	public <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback) {
 		if (processToolContextFactory == null) {
 			throw new RuntimeException("No process tool context factory implementation registered");
@@ -429,7 +440,7 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	}
 
 	@Override
-	public <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback, ExecutionType type) {
+	public <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback, ProcessToolContextFactory.ExecutionType type) {
 		if (processToolContextFactory == null) {
 			throw new RuntimeException("No process tool context factory implementation registered");
 		}
@@ -471,11 +482,6 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	}
 
 	@Override
-	public UserDataDAO getUserDataDAO(Session hibernateSession) {
-		return new UserDataDAOImpl(hibernateSession);
-	}
-
-	@Override
 	public UserSubstitutionDAO getUserSubstitutionDAO(Session hibernateSession) {
 		return new UserSubstitutionDAOImpl(hibernateSession);
 	}
@@ -483,11 +489,6 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	@Override
 	public ProcessDefinitionDAO getProcessDefinitionDAO(Session hibernateSession) {
 		return new ProcessDefinitionDAOImpl(hibernateSession);
-	}
-
-	@Override
-	public UserRoleDAO getUserRoleDao(Session hibernateSession) {
-		return new UserRoleDAOImpl(hibernateSession);
 	}
 
 	@Override

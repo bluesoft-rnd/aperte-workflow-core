@@ -2,7 +2,6 @@ package pl.net.bluesoft.rnd.processtool.model.nonpersistent;
 
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 
@@ -37,8 +36,6 @@ public class BpmTaskDerivedBean implements BpmTask {
 	private String internalTaskId;
 	private boolean taskNamePresent;
 	private String taskName;
-	private boolean ownerPresent;
-	private UserData owner;
 	private boolean creatorPresent;
 	private String creator;
 	private boolean assigneePresent;
@@ -184,19 +181,6 @@ public class BpmTaskDerivedBean implements BpmTask {
 	public void setTaskName(String taskName) {
 		this.taskName = taskName;
 		this.taskNamePresent = true;
-	}
-
-	@Override
-	public UserData getOwner() {
-		if (!ownerPresent) {
-			setOwner(task.getOwner());
-		}
-		return owner;
-	}
-
-	public void setOwner(UserData owner) {
-		this.owner = owner;
-		this.ownerPresent = true;
 	}
 
 	@Override

@@ -285,7 +285,7 @@ public interface AperteWorkflowProcessService {
 	 * @return User Data
 	 * @throws AperteWsWrongArgumentException If userLogin is wrong and  User does not exists (including param null or empty values).
 	 *</pre>*/
-	UserData getSubstitutingUser(String userLogin) throws AperteWsWrongArgumentException;
+	String getSubstitutingUser(String userLogin) throws AperteWsWrongArgumentException;
 
 	/**<pre>
 	 * 

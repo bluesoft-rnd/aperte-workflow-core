@@ -24,6 +24,7 @@ import java.util.*;
 
 import static org.hibernate.criterion.Restrictions.*;
 import static org.hibernate.criterion.Restrictions.like;
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 import static pl.net.bluesoft.util.lang.DateUtil.addDays;
 import static pl.net.bluesoft.util.lang.DateUtil.truncHours;
 import static pl.net.bluesoft.util.lang.FormatUtil.formatShortDate;
@@ -42,21 +43,8 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
         this.searchProvider = searchProvider;
 	}
 
+	@Override
 	public long saveProcessInstance(ProcessInstance processInstance) {
-		UserData creator = processInstance.getCreator();
-		if (creator != null) {
-			if (creator.getId() != null) {
-				processInstance.setCreator((UserData) session.get(UserData.class, creator.getId()));
-			} else {
-				List users = session.createCriteria(UserData.class)
-						.add(eq("login", creator.getLogin())).list();
-				if (users.isEmpty()) {
-					session.saveOrUpdate(creator);
-				} else {
-					processInstance.setCreator((UserData) users.get(0));
-				}
-			}
-		}
         if (processInstance.getToDelete() != null) {
             for (Object o : processInstance.getToDelete()) {
                 session.delete(o);
@@ -74,6 +62,9 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
         //update search indexes
         ProcessInstanceSearchData searchData = new ProcessInstanceSearchData(processInstance.getId());
         //put some default search attributes
+
+		UserData creator = getRegistry().getUserSource().getUserByLogin(processInstance.getCreatorLogin());
+
         if (creator != null) {
             searchData.addSearchAttribute(new ProcessInstanceSearchAttribute("creator_login", creator.getLogin()));
             searchData.addSearchAttribute(new ProcessInstanceSearchAttribute("creator_email", creator.getEmail()));
@@ -308,13 +299,13 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
     
         
     @Override
-    public Collection<ProcessInstance> getUserProcessesAfterDate(UserData userData, Date minDate) {
-    	return getUserProcessesBetweenDates(userData,minDate,null);
+    public Collection<ProcessInstance> getUserProcessesAfterDate(String userLogin, Date minDate) {
+    	return getUserProcessesBetweenDates(userLogin, minDate, null);
     }
     
    
     @Override
-    public Collection<ProcessInstance> getUserProcessesBetweenDates(UserData userData, Date minDate, Date maxDate) {
+    public Collection<ProcessInstance> getUserProcessesBetweenDates(String userLogin, Date minDate, Date maxDate) {
            
     	 long start = System.currentTimeMillis();
     	Session session = getSession(); 
@@ -335,7 +326,7 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
                     }
            
                    criteria.createAlias("user", "u")
-                    .add(Restrictions.eq("u.id", userData.getId()));
+                    .add(Restrictions.eq("u.id", userLogin));
 
            List<Object[]> list = criteria.list();
              Collection<ProcessInstance> collect = Collections.collect(list, new Transformer<Object[], ProcessInstance>() {
@@ -358,7 +349,7 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
     
 
         @Override
-        public ResultsPageWrapper<ProcessInstance> getRecentProcesses(UserData userData, Date minDate, Integer offset, Integer limit) {
+        public ResultsPageWrapper<ProcessInstance> getRecentProcesses(String userLogin, Date minDate, Integer offset, Integer limit) {
             Session session = getSession();
             List<ProcessInstance> instances = null;
             if (offset != null && limit != null) {
@@ -371,7 +362,7 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
                         .createCriteria("processLogs")
                         .add(Restrictions.gt("entryDate", minDate))
                         .createAlias("user", "u")
-                        .add(Restrictions.eq("u.id", userData.getId()))
+                        .add(Restrictions.eq("u.id", userLogin))
                         .list();
                 instances = getProcessInstancesByIds(list);
             }
@@ -382,7 +373,7 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
                     .createCriteria("processLogs")
                     .add(Restrictions.gt("entryDate", minDate))
                     .createAlias("user", "u")
-                    .add(Restrictions.eq("u.id", userData.getId())).uniqueResult();
+                    .add(Restrictions.eq("u.id", userLogin)).uniqueResult();
             
             ResultsPageWrapper<ProcessInstance> resultsPageWrapper = new ResultsPageWrapper<ProcessInstance>(instances != null ? instances : new ArrayList<ProcessInstance>(),
                     total == null ? 0 : total.intValue());
@@ -398,7 +389,7 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
             }
             Session session = getSession();
 
-            DetachedCriteria detachedCriteriaForIds = buildhibernateQuery(internalIds, session, filter, offset, limit);
+            DetachedCriteria detachedCriteriaForIds = buildhibernateQuery(internalIds, filter);
 
             Criteria criteria = detachedCriteriaForIds.getExecutableCriteria(session);
             criteria.setFetchMode("definition",FetchMode.SELECT);
@@ -443,7 +434,7 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
             return new ResultsPageWrapper<ProcessInstance>(list, resultsCount);
         }
 
-        private DetachedCriteria buildhibernateQuery(Collection<String> internalIds, Session session, ProcessInstanceFilter filter, Integer offset, Integer limit) {
+        private DetachedCriteria buildhibernateQuery(Collection<String> internalIds, ProcessInstanceFilter filter) {
             DetachedCriteria criteria = DetachedCriteria.forClass(ProcessInstance.class, "ids");
 
             criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
@@ -459,8 +450,8 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
                 criteria = criteria.add(Restrictions.lt("createDate", filter.getCreatedBefore()));
             }
 
-            if (filter.getCreators() != null && !filter.getCreators().isEmpty()) {
-                criteria = criteria.add(Restrictions.in("creator", filter.getCreators()));
+            if (filter.getCreatorLogins() != null && !filter.getCreatorLogins().isEmpty()) {
+                criteria = criteria.add(Restrictions.in("creatorLogin", filter.getCreatorLogins()));
             }
 
             if (filter.getUpdatedAfter() != null) {

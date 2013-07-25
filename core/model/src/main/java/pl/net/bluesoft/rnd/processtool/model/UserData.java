@@ -1,46 +1,20 @@
 package pl.net.bluesoft.rnd.processtool.model;
 
-//import org.hibernate.annotations.OnDelete;
-//import org.hibernate.annotations.OnDeleteAction;
-import static pl.net.bluesoft.util.lang.FormatUtil.join;
-
+import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.*;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-
-import org.hibernate.annotations.*;
-import pl.net.bluesoft.util.lang.Collections;
-import pl.net.bluesoft.util.lang.Predicate;
-import pl.net.bluesoft.util.lang.Transformer;
+import static pl.net.bluesoft.util.lang.FormatUtil.join;
 
 /**
  * @author tlipski@bluesoft.net.pl
  */
 
-@Entity
-@Table(name="pt_user_data")
-public class UserData extends UserAttributesSupport {
-	@Id
-	@GeneratedValue(generator = "idGenerator")
-	@GenericGenerator(
-			name = "idGenerator",
-			strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
-			parameters = {
-					@org.hibernate.annotations.Parameter(name = "initial_value", value = "" + 1),
-					@org.hibernate.annotations.Parameter(name = "value_column", value = "_DB_ID"),
-					@org.hibernate.annotations.Parameter(name = "sequence_name", value = "DB_SEQ_ID_USER_DATA")
-			}
-	)
-	@Column(name = "id")
-	protected Long id;
+public class UserData {
+	public static final String _LOGIN = "login";
+	public static final String _REAL_NAME = "realName";
+	public static final String _FILTERED_NAME = "filteredName";
 
-	@Column(unique = true)
 	private String login;
 	private String firstName;
 	private String lastName;
@@ -49,16 +23,8 @@ public class UserData extends UserAttributesSupport {
 	private String department;
 	private String superior;
 	private Long companyId;
-    private Long liferayUserId;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private Set<UserAttribute> attributes;
-
-    @Transient
-    private Set<UserAttribute> orphans;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private Set<UserRole> roles;
+    private Set<String> roles = new HashSet<String>();
 
 	public UserData() {
 	}
@@ -84,151 +50,20 @@ public class UserData extends UserAttributesSupport {
         this.lastName = lastName;
     }
 
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public Set<String> getMainAttributeKeys() {
-        return getMainAttributesMap().keySet();
-    }
-
-    public Set<UserAttribute> getMainAttributes() {
-        return Collections.filter(getAttributes(), new Predicate<UserAttribute>() {
-            @Override
-            public boolean apply(UserAttribute input) {
-                return input.getParent() == null;
-            }
-        }, new HashSet<UserAttribute>());
-    }
-
-    public Map<String, UserAttribute> getMainAttributesMap() {
-        return Collections.transform(getAttributes(), new Transformer<UserAttribute, String>() {
-            @Override
-            public String transform(UserAttribute obj) {
-                return obj.getParent() == null ? obj.getKey() : null;
-            }
-        });
-    }
-
-    @Override
-    public UserAttribute findAttribute(final String key) {
-        return findAttribute(getMainAttributes(), UserAttributePredicates.matchKey(key));
-    }
-
-    @Override
-    public UserAttribute findAttribute(final String key, final String value) {
-        return findAttribute(getMainAttributes(), UserAttributePredicates.matchKeyValue(key, value));
-    }
-
-    void addChild(UserAttribute a) {
-        if (!getAttributes().contains(a)) {
-            getAttributes().add(a);
-        }
-        if (!a.getAttributes().isEmpty()) {
-            for (UserAttribute b : a.getAttributes()) {
-                addChild(b);
-            }
-        }
-        getOrphans().remove(a);
-    }
-
-    @Override
-    public UserData getUser() {
-        return this;
-    }
-
-    void addOrphan(UserAttribute a) {
-        getAttributes().remove(a);
-        if (a.getId() != null) {
-            getOrphans().add(a);
-        }
-    }
-
-    public Set<UserAttribute> getOrphans() {
-        return orphans != null ? orphans : (orphans = new HashSet<UserAttribute>());
-    }
-
-    public void setOrphans(Set<UserAttribute> orphans) {
-        this.orphans = orphans;
-    }
-
-    public void removeAllOrphans() {
-        if (orphans != null) {
-            orphans.clear();
-        }
-    }
-
-    public Set<UserAttribute> getAttributes() {
-        return attributes != null ? attributes : (attributes = new HashSet<UserAttribute>());
-    }
-
-    public void setAttributes(Set<UserAttribute> attributes) {
-        this.attributes = attributes;
-    }
-
-    public Set<UserRole> getRoles() {
-        return roles != null ? roles : (roles = new HashSet<UserRole>());
-    }
-
-    public void setRoles(Set<UserRole> roles) {
-        this.roles = roles;
+    public Set<String> getRoles() {
+        return Collections.unmodifiableSet(roles);
     }
 
     public Set<String> getRoleNames() {
-		return Collections.collect(getRoles(), new Transformer<UserRole, String>() {
-            @Override
-            public String transform(UserRole obj) {
-                return obj.getName();
-            }
-        }, new HashSet<String>());
-	}
-
-	public void setRoleNames(Set<String> roleNames) {
-        Set<String> existingRoles = new HashSet<String>();
-        for (Iterator<UserRole> it = getRoles().iterator(); it.hasNext(); ) {
-            UserRole role = it.next();
-            if (!roleNames.contains(role.getName())) {
-                it.remove();
-            }
-            else {
-                existingRoles.add(role.getName());
-            }
-        }
-        for (String name : roleNames) {
-            if (!existingRoles.contains(name)) {
-                addRoleName(name);
-            }
-        }
+		return getRoles();
 	}
 
 	public void addRoleName(String name) {
-        addRoleName(name, null);
-    }
-
-    public void addRoleName(String name, String description) {
-        UserRole role = null;
-        for (UserRole r : getRoles()) {
-            if (r.getName().equals(name)) {
-                role = r;
-                break;
-            }
-        }
-        if (role == null) {
-            role = new UserRole(this, name, description);
-            getRoles().add(role);
-        }
-        else {
-            role.setName(name);
-            role.setDescription(description);
-        }
+        roles.add(name);
     }
 
 	public boolean containsRole(String roleName) {
-		return getRoleNames().contains(roleName);
+		return roles.contains(roleName);
 	}
 
 	public String getLogin() {
@@ -283,20 +118,16 @@ public class UserData extends UserAttributesSupport {
 		this.companyId = companyId;
 	}
 
-    public Long getLiferayUserId() {
-        return liferayUserId;
-	}
-
-    public void setLiferayUserId(Long liferayUserId) {
-        this.liferayUserId = liferayUserId;
-	}
-
-    /**
+	/**
      * Name used in comboboxes to find user
      * @return
      */
     public String getFilteredName() {
-		return firstName + " " + lastName + " (" + login + ")";
+		return firstName + ' ' + lastName + " (" + login + ')';
+	}
+
+	public boolean hasRole(String roleName) {
+		return roles.contains(roleName);
 	}
 
 	@Override
@@ -308,8 +139,7 @@ public class UserData extends UserAttributesSupport {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((login == null) ? 0 : login.hashCode());
+		result = prime * result + (login == null ? 0 : login.hashCode());
 		return result;
 	}
 
@@ -322,11 +152,6 @@ public class UserData extends UserAttributesSupport {
 		if (getClass() != obj.getClass())
 			return false;
 		UserData other = (UserData) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
 		if (login == null) {
 			if (other.login != null)
 				return false;
@@ -334,30 +159,4 @@ public class UserData extends UserAttributesSupport {
 			return false;
 		return true;
 	}
-
-	public String getDepartment() {
-		return department;
-	}
-
-	public void setDepartment(String department) {
-		this.department = department;
-	}
-
-	public String getSuperior() {
-		return superior;
-	}
-
-	public void setSuperior(String superior) {
-		this.superior = superior;
-	}
-
-
-    public boolean hasRole(String roleName)
-    {
-        for(UserRole role: roles)
-            if(role.getName().equals(roleName))
-                return true;
-
-        return false;
-    }
 }

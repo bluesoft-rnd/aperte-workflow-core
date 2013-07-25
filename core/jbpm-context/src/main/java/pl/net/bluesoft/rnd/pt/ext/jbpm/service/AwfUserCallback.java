@@ -11,8 +11,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
 import static pl.net.bluesoft.rnd.processtool.bpm.impl.AbstractProcessToolSession.getQueuesFromConfig;
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
 
 /**
@@ -65,7 +65,7 @@ public class AwfUserCallback implements UserGroupCallback {
 		return queueNamesByUserLogin.get(userId, new ExpiringCache.NewValueCallback<String, Set<String>>() {
 			@Override
 			public Set<String> getNewValue(String key) {
-				UserData user = getThreadProcessToolContext().getUserDataDAO().loadUserByLogin(userId);
+				UserData user = getRegistry().getUserSource().getUserByLogin(userId);
 
 				if (user == null) {
 					return Collections.emptySet();

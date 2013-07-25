@@ -68,8 +68,7 @@ public class EmailChecker {
     }
 
     public void execute(EmailCheckerConfiguration cfg) throws Exception {
-        ProcessToolBpmSession toolBpmSession = getRegistry().getProcessToolSessionFactory().createSession(
-                new UserData(cfg.getAutomaticUser(), cfg.getAutomaticUser(), cfg.getAutomaticUser()));
+        ProcessToolBpmSession toolBpmSession = getRegistry().getProcessToolSessionFactory().createSession(cfg.getAutomaticUser());
 
         ByteArrayInputStream bis = new ByteArrayInputStream(cfg.getMailSessionProperties().getBytes());
         final Properties cfgProperties = new Properties();

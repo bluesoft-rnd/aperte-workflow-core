@@ -404,10 +404,8 @@ public class SessionTest extends TestCase {
 	}
 
 	private ProcessInstanceFilter createFilter(String userLogin, QueueType... queueTypes) {
-		UserData user = ctx.getUserDataDAO().loadUserByLogin(userLogin);
-
 		ProcessInstanceFilter filter = new ProcessInstanceFilter();
-		filter.setFilterOwner(user);
+		filter.setFilterOwnerLogin(userLogin);
 //		filter.setOwners(Collections.singleton(user));
 //		filter.setQueues();
 		filter.setQueueTypes(new HashSet<QueueType>(Arrays.asList(queueTypes)));
@@ -621,7 +619,7 @@ public class SessionTest extends TestCase {
 		assertNotNull(processInstance.getInternalId());
 		assertEquals(externalKey, processInstance.getExternalKey());
 		assertNotNull(processInstance.getCreateDate());
-		assertNotNull(processInstance.getCreator());
+		assertNotNull(processInstance.getCreatorLogin());
 		assertFalse(processInstance.isSubprocess());
 		assertNull(processInstance.getParent());
 //		assertTrue(processInstance.getChildren() == null || processInstance.getChildren().isEmpty());

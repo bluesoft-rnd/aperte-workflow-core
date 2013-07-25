@@ -18,7 +18,6 @@ public interface BpmTask {
     String getInternalTaskId();
 
     String getTaskName();
-	UserData getOwner();
 	String getCreator();
     String getAssignee();
 	String getGroupId();

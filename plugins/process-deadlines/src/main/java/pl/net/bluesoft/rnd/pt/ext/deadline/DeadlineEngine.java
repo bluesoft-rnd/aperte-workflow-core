@@ -1,14 +1,6 @@
 package pl.net.bluesoft.rnd.pt.ext.deadline;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -35,11 +27,9 @@ import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessDeadline;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.roles.IUserRolesManager;
-import pl.net.bluesoft.rnd.processtool.usersource.IUserSource;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.EmailSender;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.IBpmNotificationService;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.ITemplateDataProvider;
@@ -52,7 +42,6 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 import pl.net.bluesoft.util.lang.Collections;
 import pl.net.bluesoft.util.lang.Predicate;
 import pl.net.bluesoft.util.lang.Strings;
-import pl.net.bluesoft.util.lang.Transformer;
 
 import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
 import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
@@ -195,7 +184,7 @@ public class DeadlineEngine {
         for (BpmTask task : tasks) {
             if (task.getTaskName().equals(processDeadline.getTaskName())) {
                 String assigneeLogin = task.getAssignee();
-				Map<String, UserData> notifyUsers = prepareUsersForNotification(ctx, assigneeLogin, processDeadline);
+				Map<String, UserData> notifyUsers = prepareUsersForNotification(assigneeLogin, processDeadline);
 
                 for (UserData user : notifyUsers.values()) {
                     if (processDeadline.getSkipAssignee() != null && processDeadline.getSkipAssignee() && user.getLogin().equals(assigneeLogin)) {
@@ -237,7 +226,7 @@ public class DeadlineEngine {
 		return I18NSourceFactory.createI18NSource(locale);
 	}
 
-	private Map<String, UserData> prepareUsersForNotification(ProcessToolContext ctx, String assigneeLogin, ProcessDeadline processDeadline) {
+	private Map<String, UserData> prepareUsersForNotification(String assigneeLogin, ProcessDeadline processDeadline) {
         Map<String, UserData> notifyUsers;
         List<String> userLogins = new ArrayList<String>();
         userLogins.add(assigneeLogin);
@@ -248,7 +237,7 @@ public class DeadlineEngine {
                 }
             }
         }
-        notifyUsers = loadUsersAsMap(ctx, userLogins);
+        notifyUsers = loadUsersAsMap(userLogins);
         if (!notifyUsers.containsKey(assigneeLogin)) {
             throw new ProcessToolException("Unable to find task assignee with login: " + assigneeLogin);
         }
@@ -267,13 +256,13 @@ public class DeadlineEngine {
         return notifyUsers;
     }
 
-    private Map<String, UserData> loadUsersAsMap(ProcessToolContext ctx, List<String> userLogins) {
-        Map<String, UserData> users = ctx.getUserDataDAO().loadUsersByLogin(userLogins);
+    private Map<String, UserData> loadUsersAsMap(List<String> userLogins) {
+        Map<String, UserData> users = new HashMap<String, UserData>();
+
         for (String login : userLogins) {
             if (users.get(login) == null) 
             {
-            	IUserSource userSource = ObjectFactory.create(IUserSource.class);
-                UserData user = userSource.getUserByLogin(login);
+                UserData user = getRegistry().getUserSource().getUserByLogin(login);
                 
                 if (user == null) {
                     logger.warning("Unable to find user by login: " + login);

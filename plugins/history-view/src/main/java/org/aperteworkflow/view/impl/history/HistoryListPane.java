@@ -69,6 +69,7 @@ import com.vaadin.ui.Table.ColumnGenerator;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 
 /**
  * @author amichalak@bluesoft.net.pl
@@ -92,16 +93,16 @@ public class HistoryListPane extends AbstractListPane implements DateRangeListen
         this.viewCallback = viewCallback;
     }
 
-    private static final String[] allPropertyNames = new String[] {
+    private static final String[] allPropertyNames = {
             "log.entryDate", "def.desc", "pi.externalKey", "pi.internalId", "state.desc", "log.eventName", "log.actionName", "state.name",
             "log.author", "log.substitutedBy"
     };
 
-    private static final String[] processDetailsPropertyNames = new String[] {
+    private static final String[] processDetailsPropertyNames = {
             "def.desc", "def.cmnt", "pi.externalKey", "pi.internalId", "pi.status", "pi.createDate", "pi.creator", "pi.currentTasks"
     };
 
-    private static final String[] taskDetailsPropertyNames = new String[] {
+    private static final String[] taskDetailsPropertyNames = {
             "log.entryDate", "state.desc", "log.eventName", "log.actionName", "log.author", "log.substitutedBy"
     };
 
@@ -127,7 +128,7 @@ public class HistoryListPane extends AbstractListPane implements DateRangeListen
 
     private int taskCount = 0;
 
-    private class DirectIndexedContainer extends IndexedContainer {
+    private static class DirectIndexedContainer extends IndexedContainer {
         public Item getItemDirectly(Object itemId) {
             return getUnfilteredItem(itemId);
         }
@@ -403,8 +404,8 @@ public class HistoryListPane extends AbstractListPane implements DateRangeListen
         table.setValue(null);
         if (bpmSession != null) {
             ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-            UserData user = isHistorySuperuser ? null : bpmSession.getUser();
-            Collection<ProcessInstanceLog> logs = ctx.getProcessInstanceDAO().getUserHistory(user,
+            String userLogin = isHistorySuperuser ? null : bpmSession.getUserLogin();
+            Collection<ProcessInstanceLog> logs = ctx.getProcessInstanceDAO().getUserHistory(getRegistry().getUserSource().getUserByLogin(userLogin),
                     dateRangeField.getStartDate(), dateRangeField.getEndDate());
             DateFormat dateFormat = VaadinUtility.fullDateFormat();
             for (ProcessInstanceLog log : logs) {
@@ -426,10 +427,10 @@ public class HistoryListPane extends AbstractListPane implements DateRangeListen
                     item.getItemProperty("state.name").setValue(getMessage(state.getName()));
                 }
 
-                String authorName = log.getUser().getRealName();
+                String authorName = getRegistry().getUserSource().getUserByLogin(log.getUserLogin()).getRealName();
                 item.getItemProperty("log.author").setValue(authorName);
 
-                UserData userSubstitute = log.getUserSubstitute();
+                UserData userSubstitute = getRegistry().getUserSource().getUserByLogin(log.getUserSubstituteLogin());
                 String userSubstituteName = userSubstitute != null ? userSubstitute.getRealName() : "";
                 item.getItemProperty("log.substitutedBy").setValue(userSubstituteName);
             }
@@ -511,7 +512,7 @@ public class HistoryListPane extends AbstractListPane implements DateRangeListen
                                 return VaadinUtility.boldLabel(dateFormat.format(pi.getCreateDate()));
                             }
                             else if ("pi.creator".equals(itemId)) {
-                                return VaadinUtility.boldLabel(pi.getCreator() != null ? pi.getCreator().getRealName() : "");
+                                return VaadinUtility.boldLabel(pi.getCreatorLogin() != null ? getRegistry().getUserSource().getUserByLogin(pi.getCreatorLogin()).getRealName() : "");
                             }
                             else if ("pi.currentTasks".equals(itemId)) {
                                 return getProcessCurrentTasksView(pi);
@@ -531,8 +532,8 @@ public class HistoryListPane extends AbstractListPane implements DateRangeListen
         Property property = item.getItemProperty("state.desc");
         String stateDescription = (String) property.getValue();
         boolean hasState = Strings.hasText(stateDescription);
-        boolean isFinished = ProcessStatus.FINISHED.equals(log.getProcessInstance().getStatus())
-                || ProcessStatus.CANCELLED.equals(log.getProcessInstance().getStatus());
+        boolean isFinished = ProcessStatus.FINISHED == log.getProcessInstance().getStatus()
+                || ProcessStatus.CANCELLED == log.getProcessInstance().getStatus();
 
         final Button showStateButton = createOpenInstanceButton(log, getMessagePrefixed("open.current.step"),
                 getMessagePrefixed("current.not.found", stateDescription), false, hasState, getMessagePrefixed("no.state"));
@@ -629,7 +630,7 @@ public class HistoryListPane extends AbstractListPane implements DateRangeListen
 
         hl.addComponent(VaadinUtility.boldLabel(getMessage(state.getDescription())));
 
-        String assignedName = "<b>" + (task.getOwner() != null ? task.getOwner().getRealName() : getMessage("activity.assigned.empty")) + "</b>";
+        String assignedName = "<b>" + (task.getAssignee() != null ? getRegistry().getUserSource().getUserByLogin(task.getAssignee()).getRealName() : getMessage("activity.assigned.empty")) + "</b>";
         Component assignedComponent = VaadinUtility.labelWithIcon(getImage("/img/user_assigned.png"), assignedName, null, getMessage("activity.assigned"));
         hl.addComponent(assignedComponent);
 

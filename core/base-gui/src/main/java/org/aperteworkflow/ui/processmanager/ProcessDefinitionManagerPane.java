@@ -14,8 +14,8 @@ import java.util.List;
 
 import static org.aperteworkflow.util.vaadin.VaadinUtility.*;
 import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
-import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 import static pl.net.bluesoft.util.lang.FormatUtil.formatFullDate;
+import static pl.net.bluesoft.util.lang.Formats.nvl;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -52,7 +52,7 @@ public class ProcessDefinitionManagerPane extends VerticalLayout {
         ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
         ProcessToolRegistry registry = getRegistry();
         ProcessDefinitionDAO dao = registry.getProcessDefinitionDAO(ctx.getHibernateSession());
-        List<ProcessDefinitionConfig> latestConfigurations = new ArrayList(dao.getActiveConfigurations());
+        List<ProcessDefinitionConfig> latestConfigurations = new ArrayList<ProcessDefinitionConfig>(dao.getActiveConfigurations());
         Collections.sort(latestConfigurations, ProcessDefinitionConfig.DEFAULT_COMPARATOR);
 
         for (final ProcessDefinitionConfig cfg : latestConfigurations) {
@@ -64,8 +64,7 @@ public class ProcessDefinitionManagerPane extends VerticalLayout {
                         @Override
                         public void run() {
                             ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-                            final ProcessToolRegistry registry = getRegistry();
-                            final ProcessDefinitionDAO dao = registry.getProcessDefinitionDAO(ctx.getHibernateSession());
+							ProcessDefinitionDAO dao = getRegistry().getProcessDefinitionDAO(ctx.getHibernateSession());
                             dao.setConfigurationEnabled(cfg, !cfg.isEnabled());
                             String msg = getLocalizedMessage(!cfg.isEnabled() ? "processdefinitions.console.enable.success" : "processdefinitions.console.disable.success");
                             Window.Notification n = new Window.Notification(msg);
@@ -95,7 +94,6 @@ public class ProcessDefinitionManagerPane extends VerticalLayout {
             history.addComponent(b);
             history.setComponentAlignment(b, Alignment.TOP_RIGHT);
             history.setExpandRatio(lbl, 1.0f);
-
 
             entry.addComponent(history);
             entry.addComponent(buttonLayout);
@@ -133,7 +131,7 @@ public class ProcessDefinitionManagerPane extends VerticalLayout {
         return new Label(
                 getLocalizedMessage("processdefinitions.console.version") + " "
                         + cfg.getId() + " " +
-                        getLocalizedMessage("processdefinitions.console.uploadedby") + " " + (cfg.getCreator() != null ? cfg.getCreator().getLogin() : "unknown") + " "
+                        getLocalizedMessage("processdefinitions.console.uploadedby") + " " + nvl(cfg.getCreatorLogin(), "unknown") + " "
                         + getLocalizedMessage("processdefinitions.console.uploadedon") + " " + formatFullDate(cfg.getCreateDate()));
     }
 

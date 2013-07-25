@@ -1,11 +1,9 @@
-package pl.net.bluesoft.rnd.processtool.model;
+package pl.net.bluesoft.rnd.pt.ext.user.model;
 
-import org.hibernate.annotations.*;
+import org.hibernate.annotations.GenericGenerator;
+import pl.net.bluesoft.rnd.processtool.model.AbstractPersistentEntity;
 
 import javax.persistence.*;
-import javax.persistence.Entity;
-import javax.persistence.Parameter;
-import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlTransient;
 
 /**

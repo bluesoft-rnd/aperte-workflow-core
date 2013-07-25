@@ -1,22 +1,19 @@
-package pl.net.bluesoft.rnd.processtool.dao.impl;
+package pl.net.bluesoft.rnd.pt.ext.user.dao;
 
-import static org.hibernate.criterion.Restrictions.eq;
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Restrictions;
+import pl.net.bluesoft.rnd.processtool.dao.PagedCollection;
+import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
+import pl.net.bluesoft.rnd.pt.ext.user.model.UserData;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.hibernate.Criteria;
-import org.hibernate.Session;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Restrictions;
-
-import pl.net.bluesoft.rnd.processtool.dao.PagedCollection;
-import pl.net.bluesoft.rnd.processtool.dao.UserDataDAO;
-import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
-import pl.net.bluesoft.rnd.processtool.model.UserAttribute;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
+import static org.hibernate.criterion.Restrictions.eq;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -57,15 +54,6 @@ public class UserDataDAOImpl extends SimpleHibernateBean<UserData> implements Us
 		DetachedCriteria criteria = getDetachedCriteria().setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 
 		return findUnique(criteria, eq("login", login));
-	}
-
-	@Override
-	public void saveOrUpdate(UserData object) {
-		super.saveOrUpdate(object);
-		for (UserAttribute a : object.getOrphans()) {
-			session.delete(a);
-		}
-		object.removeAllOrphans();
 	}
 
 	@Override

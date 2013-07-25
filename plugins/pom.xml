@@ -28,7 +28,7 @@
         <module>user-substitution-process</module>
         <module>user-substitution-step</module>
         <module>userdata-widget</module>
-        <module>userdata-service</module>
+        <!--<module>userdata-service</module>-->
         <module>scripting</module>
         <module>scheduler-integration</module>
         <module>global-dictionaries</module>

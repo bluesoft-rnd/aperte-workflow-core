@@ -33,7 +33,7 @@ public class WrapAccessTokenCallback implements ReturningProcessToolContextCallb
 	public TokenWrapper processWithContext(ProcessToolContext ctx) 
 	{
 		/* Get user associated with current token */
-		UserData user = ctx.getUserDataDAO().loadUserByLogin(accessToken.getUser());
+		UserData user = getRegistry().getUserSource().getUserByLogin(accessToken.getUser());
 		
 		if(user == null)
 			throw new NoUserFoundForTokenException("No user was found in system [userLogin="+accessToken.getUser()+"]");

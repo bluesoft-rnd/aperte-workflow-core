@@ -1,7 +1,7 @@
-package pl.net.bluesoft.rnd.processtool.dao;
+package pl.net.bluesoft.rnd.pt.ext.user.dao;
 
 import pl.net.bluesoft.rnd.processtool.hibernate.HibernateBean;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.pt.ext.user.model.UserData;
 
 import java.util.Collection;
 import java.util.Map;

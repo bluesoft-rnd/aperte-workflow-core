@@ -543,9 +543,6 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 
 				boolean isQueue = "queue".equals(queueType);
 
-				UserData owner = new UserData();
-				owner.setLogin(ownerLogin);
-
 				ProcessInstanceFilter filter = new ProcessInstanceFilter();
 				if(isQueue)
 				{
@@ -553,8 +550,8 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 				}
 				else if("process".equals(queueType))
 				{
-			        filter.addOwner(owner);
-			        filter.setFilterOwner(owner);
+			        filter.addOwner(ownerLogin);
+			        filter.setFilterOwnerLogin(ownerLogin);
 			        filter.addQueueType(QueueType.fromQueueId(queueName));
 					filter.setName(queueName);
 				}

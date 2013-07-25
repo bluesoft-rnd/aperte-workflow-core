@@ -3,8 +3,6 @@ package pl.net.bluesoft.rnd.processtool.ui.widgets.impl;
 import com.vaadin.Application;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
-import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSessionHelper;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateActionAttribute;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolActionButton;
@@ -55,8 +53,8 @@ public abstract class BaseProcessToolActionButton implements ProcessToolActionBu
 
 	protected ProcessToolBpmSession bpmSession;
 	protected ProcessStateAction definition;
-	protected UserData loggedUser;
-	protected UserData substitutingUser;
+	protected String loggedUser;
+	protected String substitutingUser;
 
 	protected ProcessToolActionCallback callback;
 
@@ -66,9 +64,10 @@ public abstract class BaseProcessToolActionButton implements ProcessToolActionBu
 		this.messageSource = messageSource;
 		this.bpmSession = bpmSession;
 		this.definition = processStateAction;
-		ProcessToolContext ctx = getCurrentContext();
-        this.substitutingUser = ProcessToolBpmSessionHelper.getSubstitutingUser(bpmSession, ctx);
-        this.loggedUser = ProcessToolBpmSessionHelper.getUser(bpmSession, ctx);
+
+		this.loggedUser = bpmSession.getUserLogin();
+        this.substitutingUser = bpmSession.getSubstitutingUserLogin();
+
 		PropertyAutoWiring.autowire(this, getAutowiredProperties());
 	}
 
@@ -229,22 +228,6 @@ public abstract class BaseProcessToolActionButton implements ProcessToolActionBu
 
     public void setDefinition(ProcessStateAction definition) {
         this.definition = definition;
-    }
-
-    public UserData getLoggedUser() {
-        return loggedUser;
-    }
-
-    public void setLoggedUser(UserData loggedUser) {
-        this.loggedUser = loggedUser;
-    }
-
-    public UserData getSubstitutingUser() {
-        return substitutingUser;
-    }
-
-    public void setSubstitutingUser(UserData substitutingUser) {
-        this.substitutingUser = substitutingUser;
     }
 
     public ProcessToolActionCallback getCallback() {

@@ -20,10 +20,9 @@ import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceDAO;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceFilterDAO;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceSimpleAttributeDAO;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessStateActionDAO;
-import pl.net.bluesoft.rnd.processtool.dao.UserDataDAO;
-import pl.net.bluesoft.rnd.processtool.dao.UserRoleDAO;
 import pl.net.bluesoft.rnd.processtool.dao.UserSubstitutionDAO;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
+import pl.net.bluesoft.rnd.processtool.usersource.IUserSource;
 import pl.net.bluesoft.rnd.processtool.web.controller.IOsgiWebController;
 import pl.net.bluesoft.rnd.processtool.web.domain.IWidgetScriptProvider;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
@@ -73,8 +72,6 @@ public interface ProcessToolRegistry {
     void unregisterStep(String name);
 
 	void unregisterStep(Class<? extends ProcessToolProcessStep> cls);
-	
-	UserRoleDAO getUserRoleDao(Session hibernateSession);
 
     Map<String,ProcessToolProcessStep> getAvailableSteps();
     
@@ -95,6 +92,9 @@ public interface ProcessToolRegistry {
 
     boolean hasI18NProvider(String providerId);
 
+	IUserSource getUserSource();
+	void setUserSource(IUserSource userSource);
+
     <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback);
 
     <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback, ExecutionType type);
@@ -106,8 +106,6 @@ public interface ProcessToolRegistry {
 	ProcessInstanceDAO getProcessInstanceDAO(Session hibernateSession);
 
     ProcessInstanceFilterDAO getProcessInstanceFilterDAO(Session hibernateSession);
-
-	UserDataDAO getUserDataDAO(Session hibernateSession);
 
     UserSubstitutionDAO getUserSubstitutionDAO(Session hibernateSession);
     

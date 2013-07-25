@@ -89,7 +89,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 		UserData userData = withContext(new ReturningProcessToolContextCallback<UserData>() {
 			@Override
 			public UserData processWithContext(ProcessToolContext ctx) {
-				return fetchHibernateData(ctx.getUserDataDAO().loadUserByLogin(
+				return fetchHibernateData(getRegistry().getUserSource().getUserByLogin(
 						userLogin));
 			}
 		});
@@ -415,12 +415,12 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 
 	@Override
 	@WebMethod (exclude=true)
-    public UserData getSubstitutingUser(@WebParam(name="user")final String userLogin) throws AperteWsWrongArgumentException {
+    public String getSubstitutingUser(@WebParam(name="user")final String userLogin) throws AperteWsWrongArgumentException {
 		final UserData user = findUser(userLogin);
-        return withContext(new ReturningProcessToolContextCallback<UserData>() {
+        return withContext(new ReturningProcessToolContextCallback<String>() {
             @Override
-            public UserData processWithContext(ProcessToolContext ctx) {
-                return fetchHibernateData(getSession(user).getSubstitutingUser());
+            public String processWithContext(ProcessToolContext ctx) {
+                return getSession(user).getSubstitutingUserLogin();
             }
         });
     }
@@ -600,6 +600,6 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 	}
 
 	private ProcessToolBpmSession getSession(UserData user) {
-		return getRegistry().getProcessToolSessionFactory().createSession(user);
+		return getRegistry().getProcessToolSessionFactory().createSession(user.getLogin());
 	}
 }

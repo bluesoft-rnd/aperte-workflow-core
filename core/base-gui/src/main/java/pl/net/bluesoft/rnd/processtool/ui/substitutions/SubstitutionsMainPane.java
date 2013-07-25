@@ -10,6 +10,7 @@ import static org.aperteworkflow.util.vaadin.VaadinUtility.select;
 import static org.aperteworkflow.util.vaadin.VaadinUtility.smallButton;
 import static org.aperteworkflow.util.vaadin.VaadinUtility.validationNotification;
 import static org.aperteworkflow.util.vaadin.VaadinUtility.wrapPagedTable;
+import static pl.net.bluesoft.rnd.processtool.model.UserSubstitution.*;
 import static pl.net.bluesoft.util.lang.DateUtil.truncHours;
 import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
 
@@ -107,16 +108,16 @@ public class SubstitutionsMainPane extends VerticalLayout implements Refreshable
         addComponent(headerLayout);
 
         Map<String, Table.ColumnGenerator> customColumns = new HashMap<String, Table.ColumnGenerator>();
-        customColumns.put("user", createUserRealNameColumn());
-        customColumns.put("userSubstitute", createUserRealNameColumn());
-        customColumns.put("dateFrom", createDateColumn());
-        customColumns.put("dateTo", createDateColumn());
+        customColumns.put(_USER_LOGIN, createUserRealNameColumn());
+        customColumns.put(_USER_SUBSTITUTE_LOGIN, createUserRealNameColumn());
+        customColumns.put(_DATE_FROM, createDateColumn());
+        customColumns.put(_DATE_TO, createDateColumn());
         customColumns.put("delete", createDeleteColumn(container));
 
-        String[] visibleColumns = new String[] {"user", "userSubstitute", "dateFrom", "dateTo", "delete"};
-        String[] columnHeaders = new String[] {getMessage("substitutions.user"), getMessage("substitutions.user.substitute"),
+        String[] visibleColumns = {_USER_LOGIN, _USER_SUBSTITUTE_LOGIN, _DATE_FROM, _DATE_TO, "delete"};
+        String[] columnHeaders = { getMessage("substitutions.user"), getMessage("substitutions.user.substitute"),
                 getMessage("substitutions.date.from"), getMessage("substitutions.date.to"),
-                getMessage("pagedtable.delete")};
+                getMessage("pagedtable.delete") };
 
         LocalizedPagedTable table = pagedTable(container, visibleColumns, columnHeaders, customColumns, new ItemClickEvent.ItemClickListener() {
             @Override
@@ -140,14 +141,15 @@ public class SubstitutionsMainPane extends VerticalLayout implements Refreshable
                 
                 IUserSource userSource = ObjectFactory.create(IUserSource.class);
                 
-                usersByLogin = Maps.collectionToMap(userSource.getAllUsers(), "login");
+                usersByLogin = Maps.collectionToMap(userSource.getAllUsers(), UserData._LOGIN);
                 userDataContainer.addAll(usersByLogin.values());
-				userDataContainer.sort(new String[]{ "realName" }, new boolean[]{ true });
+				userDataContainer.sort(new String[]{ UserData._REAL_NAME }, new boolean[]{ true });
             }
         });
     }
 
-    public void refreshData() {
+    @Override
+	public void refreshData() {
         loadData();
     }
 
@@ -157,7 +159,8 @@ public class SubstitutionsMainPane extends VerticalLayout implements Refreshable
             @Override
             public void buttonClick(Button.ClickEvent event) {
                 withErrorHandling(getApplication(), new Runnable() {
-                    public void run() {
+                    @Override
+					public void run() {
                         refreshData();
                     }
                 });
@@ -167,13 +170,6 @@ public class SubstitutionsMainPane extends VerticalLayout implements Refreshable
     }
 
     private Form createSubstitutionForm(final BeanItem<UserSubstitution> item, final boolean add) {
-        UserSubstitution subst = item.getBean();
-        if (subst.getUser() != null) {
-            subst.setUser(usersByLogin.get(subst.getUser().getLogin()));
-        }
-        if (subst.getUserSubstitute() != null) {
-            subst.setUserSubstitute(usersByLogin.get(subst.getUserSubstitute().getLogin()));
-        }
         final Form form = new Form() {
             @Override
             protected void attachField(Object propertyId, Field field) {
@@ -187,26 +183,26 @@ public class SubstitutionsMainPane extends VerticalLayout implements Refreshable
         form.setFormFieldFactory(new FormFieldFactory(){
             @Override
             public Field createField(Item item, Object propertyId, Component component) {
-                if ("user".equals(propertyId)) {
-                    Select s = select(getMessage("substitutions.user"), userDataContainer, "filteredName");
+                if (_USER_LOGIN.equals(propertyId)) {
+                    Select s = select(getMessage("substitutions.user"), userDataContainer, UserData._FILTERED_NAME);
                     s.setRequired(true);
                     s.setRequiredError("Substituted User required");
                     return s;
                 }
-                if ("userSubstitute".equals(propertyId)) {
-                    Select s = select(getMessage("substitutions.user.substitute"), userDataContainer, "filteredName");
+                if (_USER_SUBSTITUTE_LOGIN.equals(propertyId)) {
+                    Select s = select(getMessage("substitutions.user.substitute"), userDataContainer, UserData._FILTERED_NAME);
                     s.setRequired(true);
                     s.setRequiredError("Substituting User required");
 					s.setWidth(250, UNITS_PIXELS);
                     return s;
                 }
-                if ("dateFrom".equals(propertyId)) {
+                if (_DATE_FROM.equals(propertyId)) {
                     DateField df = createDateField(getMessage("substitutions.date.from"));
                     df.setRequired(true);
                     df.setRequiredError(getMessage("substitutions.date.from.required"));
                     return df;
                 }
-                if ("dateTo".equals(propertyId)) {
+                if (_DATE_TO.equals(propertyId)) {
                     DateField df = createDateField(getMessage("substitutions.date.to"));
                     df.setRequired(true);
                     df.setRequiredError(getMessage("substitutions.date.to.required"));
@@ -216,7 +212,7 @@ public class SubstitutionsMainPane extends VerticalLayout implements Refreshable
             }
         });
         form.setItemDataSource(item);
-        form.setVisibleItemProperties(new String[]{ "user", "userSubstitute", "dateFrom", "dateTo" });
+        form.setVisibleItemProperties(new String[]{ _USER_LOGIN, _USER_SUBSTITUTE_LOGIN, _DATE_FROM, _DATE_TO });
         form.setValidationVisible(false);
         form.setValidationVisibleOnCommit(false);
         form.setImmediate(true);
@@ -288,8 +284,6 @@ public class SubstitutionsMainPane extends VerticalLayout implements Refreshable
         transactionProvider.withTransaction(new ProcessToolGuiCallback() {
             @Override
             public void callback(ProcessToolContext ctx, ProcessToolBpmSession session) {
-                item.setUser(ctx.getUserDataDAO().loadOrCreateUserByLogin(item.getUser()));
-                item.setUserSubstitute(ctx.getUserDataDAO().loadOrCreateUserByLogin(item.getUserSubstitute()));
                 ctx.getUserSubstitutionDAO().saveOrUpdate(item);
             }
         });
@@ -360,7 +354,8 @@ public class SubstitutionsMainPane extends VerticalLayout implements Refreshable
         };
     }
 
-    public Application getApplication() {
+    @Override
+	public Application getApplication() {
         return application;
     }
 

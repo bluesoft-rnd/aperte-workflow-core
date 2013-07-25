@@ -14,7 +14,6 @@ import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.event.IEvent;
-import pl.net.bluesoft.rnd.processtool.event.ProcessToolEventBusManager;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.*;
@@ -28,6 +27,7 @@ import pl.net.bluesoft.util.lang.Pair;
 import pl.net.bluesoft.util.lang.Predicate;
 
 import static pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants.*;
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 import static pl.net.bluesoft.util.lang.Formats.nvl;
 
 /**
@@ -35,37 +35,31 @@ import static pl.net.bluesoft.util.lang.Formats.nvl;
  * @author mpawlak@bluesoft.net.pl
  */
 public abstract class AbstractProcessToolSession implements ProcessToolBpmSession, Serializable {
-
     protected Logger log = Logger.getLogger(ProcessToolBpmSession.class.getName());
 
     /**
      * User and role names are provided externally, e.g. from Liferay.
      * Of course, the implementation can load the roleNames by itself.
      */
-    protected UserData user;
+    protected String userLogin;
     protected Collection<String> roleNames;
 
-    protected UserData substitutingUser;
+    protected String substitutingUserLogin;
 
     @Autowired
     private ProcessToolRegistry processToolRegistry;
 
-    protected AbstractProcessToolSession(UserData user, Collection<String> roleNames) {
+    protected AbstractProcessToolSession(String userLogin, Collection<String> roleNames, String substitutingUserLogin) {
     	SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
 
-        this.user = user;
-        this.roleNames = new HashSet<String>(roleNames);
-        log.finest("Created session for user: " + user);
+        this.userLogin = userLogin;
+        this.roleNames = roleNames;
+		this.substitutingUserLogin = substitutingUserLogin;
     }
 
     protected void broadcastEvent(IEvent event) {
         processToolRegistry.getEventBusManager().publish(event);
     }
-
-	protected UserData findOrCreateUser(UserData user)
-	{
-		return getContext().getUserDataDAO().loadOrCreateUserByLogin(user);
-	}
 
     protected Set<String> getPermissions(Collection<? extends IPermission> col) {
         Set<String> res = new HashSet<String>();
@@ -131,23 +125,12 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
 
     @Override
 	public String getUserLogin() {
-        return user.getLogin();
+        return userLogin;
     }
 
     @Override
-    public UserData getUser() {
-        user = loadOrCreateUser(user);
-        return user;
-    }
-
-    @Override
-    public UserData loadOrCreateUser(UserData userData) {
-        return findOrCreateUser(userData);
-    }
-
-    @Override
-    public UserData getSubstitutingUser() {
-        return substitutingUser != null ? findOrCreateUser(substitutingUser) : null;
+    public String getSubstitutingUserLogin() {
+        return substitutingUserLogin;
     }
 
     @Override
@@ -187,7 +170,7 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
     }
 
     protected List<ProcessQueue> getUserQueuesFromConfig() {
-		return getQueuesFromConfig(roleNames);
+		return getQueuesFromConfig(getRoleNames());
     }
 
 	public static List<ProcessQueue> getQueuesFromConfig(final Collection<String> roleNames) {
@@ -234,7 +217,7 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
 	}
 
 	private boolean hasMatchingRole(String roleName) {
-		return hasMatchingRole(roleName, roleNames);
+		return hasMatchingRole(roleName, getRoleNames());
     }
 
 	private static boolean hasMatchingRole(String roleName, Collection<String> roleNames) {
@@ -248,6 +231,10 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
 
 	@Override
     public Collection<String> getRoleNames() {
+		if (roleNames == null) {
+			UserData user = getRegistry().getUserSource().getUserByLogin(userLogin);
+			roleNames = user != null ? user.getRoles() : java.util.Collections.<String>emptySet();
+		}
         return java.util.Collections.unmodifiableCollection(roleNames);
     }
 

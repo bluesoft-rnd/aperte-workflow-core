@@ -1,5 +1,6 @@
 package pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service;
 
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 import static pl.net.bluesoft.rnd.util.TaskUtil.getTaskLink;
 import static pl.net.bluesoft.util.lang.Strings.hasText;
 
@@ -10,7 +11,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.logging.Level;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
@@ -23,7 +23,6 @@ import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.addons.INotificationsAddonsMa
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotificationConfig;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
-import pl.net.bluesoft.util.lang.Strings;
 
 
 /** 
@@ -34,16 +33,17 @@ import pl.net.bluesoft.util.lang.Strings;
  */
 public class TemplateDataProvider implements ITemplateDataProvider
 {
-	
 	private final Set<TemplateArgumentProvider> argumentProviders = new HashSet<TemplateArgumentProvider>();
 	
 	/** Creates new empty template data object */
+	@Override
 	public TemplateData createTemplateData(String templateName, Locale locale)
 	{
 		I18NSource messageSource = I18NSourceFactory.createI18NSource(locale);
 		return new TemplateData(templateName, locale, messageSource);
 	}
 	
+	@Override
 	public ITemplateDataProvider addTaskData(TemplateData templateData, BpmTask task)
 	{
 		if(task == null)
@@ -82,17 +82,19 @@ public class TemplateDataProvider implements ITemplateDataProvider
 		addonsManager.addData(templateData, task, ctx);
 	}
 	
+	@Override
 	public TemplateDataProvider addProcessData(TemplateData templateData, ProcessInstance pi)
 	{		
-		templateData.addEntry(_PROCESS_VISIBLE_ID, Strings.hasText(pi.getExternalKey()) ? pi.getExternalKey() : pi.getInternalId());
-		templateData.addEntry(_PROCESS_ID, Strings.hasText(pi.getExternalKey()) ? pi.getExternalKey() : pi.getInternalId());
+		templateData.addEntry(_PROCESS_VISIBLE_ID, hasText(pi.getExternalKey()) ? pi.getExternalKey() : pi.getInternalId());
+		templateData.addEntry(_PROCESS_ID, hasText(pi.getExternalKey()) ? pi.getExternalKey() : pi.getInternalId());
 		templateData.addEntry(_PROCESS, pi);
-		templateData.addEntry(_CREATOR, pi.getCreator());
+		templateData.addEntry(_CREATOR, getRegistry().getUserSource().getUserByLogin(pi.getCreatorLogin()));
 		
 		return this;
 	}
 	
 	
+	@Override
 	public TemplateDataProvider addUserToNotifyData(TemplateData templateData, UserData userToNotify)
 	{
 		templateData.addEntry(_USER, userToNotify);
@@ -100,6 +102,7 @@ public class TemplateDataProvider implements ITemplateDataProvider
 		return this;
 	}
 	
+	@Override
 	public TemplateDataProvider addContextAdditionalData(TemplateData templateData, BpmNotificationConfig cfg, ProcessToolBpmSession bpmSession)
 	{
 		ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
@@ -111,6 +114,7 @@ public class TemplateDataProvider implements ITemplateDataProvider
 		return this;
 	}
 	
+	@Override
 	public TemplateDataProvider addArgumentProvidersData(TemplateData templateData, BpmNotificationConfig cfg, ProcessInstance pi)
 	{
 		if (hasText(cfg.getTemplateArgumentProvider())) 
@@ -128,18 +132,22 @@ public class TemplateDataProvider implements ITemplateDataProvider
 		return this;
 	}
     
+	@Override
 	public void registerTemplateArgumentProvider(TemplateArgumentProvider provider) {
 		argumentProviders.add(provider);
 	}
 
+	@Override
 	public void unregisterTemplateArgumentProvider(TemplateArgumentProvider provider) {
 		argumentProviders.add(provider);
 	}
 
+	@Override
 	public Collection<TemplateArgumentProvider> getTemplateArgumentProviders() {
 		return new ArrayList<TemplateArgumentProvider>(argumentProviders);
 	}
 
+	@Override
 	public List<TemplateArgumentDescription> getDefaultArgumentDescriptions(I18NSource i18NSource) {
 		return Arrays.asList(
 				descr(_PROCESS_VISIBLE_ID, "Process visible id, external process key or internal id if external doesn't exist", i18NSource),

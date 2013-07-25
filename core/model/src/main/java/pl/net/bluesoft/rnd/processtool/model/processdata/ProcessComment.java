@@ -2,12 +2,9 @@ package pl.net.bluesoft.rnd.processtool.model.processdata;
 
 import org.hibernate.annotations.*;
 import pl.net.bluesoft.rnd.processtool.model.AbstractPersistentEntity;
-import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
 
 import javax.persistence.*;
 import javax.persistence.Entity;
-import javax.persistence.Parameter;
 import javax.persistence.Table;
 import java.util.Date;
 
@@ -40,13 +37,8 @@ public class ProcessComment extends AbstractPersistentEntity {
     @Type(type = "org.hibernate.type.StringClobType")
     private String body;
 
-	@ManyToOne(cascade = {})
-	@JoinColumn(name= "author_id")
-	private UserData author;
-
-    @ManyToOne(cascade = {})
-	@JoinColumn(name= "author_substitute_id")
-	private UserData authorSubstitute;
+	private String author;
+	private String authorSubstitute;
 
 	private String processState;
 	private Date createTime;
@@ -72,19 +64,19 @@ public class ProcessComment extends AbstractPersistentEntity {
 	private ProcessComments comments;
 
 
-	public UserData getAuthor() {
+	public String getAuthor() {
 		return author;
 	}
 
-	public void setAuthor(UserData author) {
+	public void setAuthor(String author) {
 		this.author = author;
 	}
 
-    public UserData getAuthorSubstitute() {
+    public String getAuthorSubstitute() {
         return authorSubstitute;
     }
 
-    public void setAuthorSubstitute(UserData authorSubstitute) {
+    public void setAuthorSubstitute(String authorSubstitute) {
         this.authorSubstitute = authorSubstitute;
     }
 

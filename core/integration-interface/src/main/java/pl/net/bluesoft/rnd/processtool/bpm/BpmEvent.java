@@ -3,7 +3,6 @@ package pl.net.bluesoft.rnd.processtool.bpm;
 import pl.net.bluesoft.rnd.processtool.event.IEvent;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
 
 /**
  * BPM event, e.g. new instance or user action
@@ -29,54 +28,45 @@ public class BpmEvent implements IEvent {
 		END_PROCESS
 	}
 
-	private Type eventType;
-	private ProcessInstance processInstance;
-    private BpmTask task;
-	private UserData userData;
+	private final Type eventType;
+	private final ProcessInstance processInstance;
+    private final BpmTask task;
+	private final String userLogin;
 
-	public BpmEvent(Type eventType, ProcessInstance processInstance, UserData userData) {
+	public BpmEvent(Type eventType, ProcessInstance processInstance, BpmTask task, String userLogin) {
 		this.eventType = eventType;
 		this.processInstance = processInstance;
-		this.userData = userData;
+		this.task = task;
+		this.userLogin = userLogin;
 	}
 
-	public BpmEvent(Type eventType, BpmTask task, UserData userData) {
-        this.eventType = eventType;
-        this.processInstance = task.getProcessInstance();
-        this.userData = userData;
-        this.task = task;
+	public BpmEvent(Type eventType, ProcessInstance processInstance, String userLogin) {
+		this(eventType, processInstance, null, userLogin);
+	}
+
+	public BpmEvent(Type eventType, BpmTask task, String userLogin) {
+        this(eventType, task.getProcessInstance(), task, userLogin);
 	}
 
     public BpmTask getTask() {
         return task;
     }
 
+	@Override
 	public Type getEventType() {
 		return eventType;
-	}
-
-	public void setEventType(Type eventType) {
-		this.eventType = eventType;
 	}
 
 	public ProcessInstance getProcessInstance() {
 		return processInstance;
 	}
 
-	public void setProcessInstance(ProcessInstance processInstance) {
-		this.processInstance = processInstance;
-	}
-
-	public UserData getUserData() {
-		return userData;
-	}
-
-	public void setUserData(UserData userData) {
-		this.userData = userData;
+	public String getUserLogin() {
+		return userLogin;
 	}
 
 	@Override
 	public String toString() {
-		return "BpmEvent [eventType=" + eventType + ", processInstance=" + processInstance + ", task=" + task + ", userData=" + userData + "]";
+		return "BpmEvent [eventType=" + eventType + ", processInstance=" + processInstance + ", task=" + task + ", userLogin=" + userLogin + ']';
 	}
 }

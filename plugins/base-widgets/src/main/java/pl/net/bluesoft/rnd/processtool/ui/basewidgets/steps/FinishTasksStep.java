@@ -59,9 +59,7 @@ public class FinishTasksStep implements ProcessToolProcessStep {
 
         String attributeKey = StepUtil.extractVariable(userLoginToFinishTask, ctx, processInstance);
 
-        UserData user = ctx.getUserDataDAO().loadUserByLogin(attributeKey);
-
-        ProcessToolBpmSession bpmSession = getRegistry().getProcessToolSessionFactory().createSession(user);
+        ProcessToolBpmSession bpmSession = getRegistry().getProcessToolSessionFactory().createSession(attributeKey);
         Set<String> allowedTaskNames = from(taskNames.split(",")).toSet();
 
         List<BpmTask> tasks = bpmSession.findProcessTasks(processInstance);
@@ -73,7 +71,7 @@ public class FinishTasksStep implements ProcessToolProcessStep {
 
                 ProcessStateAction action = from(actions).first(eq("bpmName", actionToPerform));
                 bpmSession.performAction(action, task);
-                logger.info("Finished user "+user.getLogin()+" task ["+task.getTaskName()+"]");
+                logger.info("Finished user "+attributeKey+" task ["+task.getTaskName()+"]");
             }
         }
     }

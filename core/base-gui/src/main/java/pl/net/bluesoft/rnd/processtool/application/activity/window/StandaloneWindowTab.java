@@ -94,7 +94,7 @@ public class StandaloneWindowTab extends Window implements ParameterHandler, Cli
 	{
 		if(parameters.containsKey("tokenId"))
 		{
-			String newTokenId = ((String[]) parameters.get("tokenId"))[0];
+			String newTokenId = parameters.get("tokenId")[0];
 			
 			if(newTokenId != null)
 			{
@@ -225,7 +225,7 @@ public class StandaloneWindowTab extends Window implements ParameterHandler, Cli
 	{
     	if(user != null && bpmSession == null)
     	{
-    		bpmSession = getRegistry().getProcessToolSessionFactory().createSession(user, user.getRoleNames());
+    		bpmSession = getRegistry().getProcessToolSessionFactory().createSession(user);
     	}
 		 
     	/* If there is no main view initialize, create one */

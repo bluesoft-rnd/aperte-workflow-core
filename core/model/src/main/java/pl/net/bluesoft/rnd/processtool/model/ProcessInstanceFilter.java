@@ -7,7 +7,6 @@ import java.util.Set;
 import javax.persistence.*;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.swing.*;
 
 import org.hibernate.annotations.*;
 
@@ -42,13 +41,9 @@ public class ProcessInstanceFilter extends AbstractPersistentEntity {
     @Enumerated(EnumType.STRING)
     private QueueOrderCondition sortOrderCondition;
 
-
-
     private String expression;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "filter_owner_id")
-	private UserData filterOwner;
+	private String filterOwnerLogin;
 	
 	/** Type of the queues */
 	@ElementCollection(fetch = FetchType.LAZY)
@@ -56,13 +51,13 @@ public class ProcessInstanceFilter extends AbstractPersistentEntity {
 	@JoinTable(name = "pt_pi_filters_queue_types", joinColumns = @JoinColumn(name = "filter_id"))
 	private Set<QueueType> queueTypes = new HashSet<QueueType>();
 
-	@ManyToMany(fetch = FetchType.LAZY)
-	@JoinTable(name = "pt_pi_filters_owners", joinColumns = @JoinColumn(name = "filter_id"), inverseJoinColumns = @JoinColumn(name = "owner_id"))
-	private Set<UserData> owners = new HashSet<UserData>();
+	@ElementCollection(fetch = FetchType.LAZY)
+	@CollectionTable(name = "pt_pi_filters_owners", joinColumns = @JoinColumn(name = "filter_id"))
+	private Set<String> ownerLogins = new HashSet<String>();
 
-	@ManyToMany(fetch = FetchType.LAZY)
-	@JoinTable(name = "pt_pi_filters_creats", joinColumns = @JoinColumn(name = "filter_id"), inverseJoinColumns = @JoinColumn(name = "creator_id"))
-	private Set<UserData> creators = new HashSet<UserData>();
+	@ElementCollection(fetch = FetchType.LAZY)
+	@CollectionTable(name = "pt_pi_filters_creats", joinColumns = @JoinColumn(name = "filter_id"))
+	private Set<String> creatorLogins = new HashSet<String>();
 
 	@ElementCollection(fetch = FetchType.LAZY)
 	@CollectionTable(name = "pt_pi_filters_queues", joinColumns = @JoinColumn(name = "filter_id"))
@@ -74,20 +69,22 @@ public class ProcessInstanceFilter extends AbstractPersistentEntity {
 
 	public static final String[] LAZY_RELATIONS = { "owners", "creators", "queues" };
 
+	@Override
 	public Long getId() {
 		return id;
 	}
 
+	@Override
 	public void setId(Long id) {
 		this.id = id;
 	}
 
-	public Set<UserData> getOwners() {
-		return owners;
+	public Set<String> getOwnerLogins() {
+		return ownerLogins;
 	}
 
-	public void setOwners(Set<UserData> owners) {
-		this.owners = owners;
+	public void setOwnerLogins(Set<String> ownerLogins) {
+		this.ownerLogins = ownerLogins;
 	}
 
 	public Set<String> getQueues() {
@@ -138,8 +135,8 @@ public class ProcessInstanceFilter extends AbstractPersistentEntity {
 		this.notUpdatedAfter = notUpdatedAfter;
 	}
 
-	public void addOwner(UserData userData) {
-		owners.add(userData);
+	public void addOwner(String userLogin) {
+		ownerLogins.add(userLogin);
 	}
 
 	public void addQueue(String q) {
@@ -166,20 +163,20 @@ public class ProcessInstanceFilter extends AbstractPersistentEntity {
 		this.genericQuery = genericQuery;
 	}
 
-	public Set<UserData> getCreators() {
-		return creators;
+	public String getFilterOwnerLogin() {
+		return filterOwnerLogin;
 	}
 
-	public void setCreators(Set<UserData> creators) {
-		this.creators = creators;
+	public void setFilterOwnerLogin(String filterOwnerLogin) {
+		this.filterOwnerLogin = filterOwnerLogin;
 	}
 
-	public UserData getFilterOwner() {
-		return filterOwner;
+	public Set<String> getCreatorLogins() {
+		return creatorLogins;
 	}
 
-	public void setFilterOwner(UserData filterOwner) {
-		this.filterOwner = filterOwner;
+	public void setCreatorLogins(Set<String> creatorLogins) {
+		this.creatorLogins = creatorLogins;
 	}
 
 	public String getName() {

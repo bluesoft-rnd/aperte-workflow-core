@@ -174,7 +174,7 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
 	         UserData userData = withContext(new ReturningProcessToolContextCallback<UserData>() {
 	            @Override
 	            public UserData processWithContext(ProcessToolContext ctx) {
-	                return fetchHibernateData(ctx.getUserDataDAO().loadUserByLogin(userLogin));
+	                return fetchHibernateData(getRegistry().getUserSource().getUserByLogin(userLogin));
 	            }
 	        });
 	         if (userLogin!= null && userData==null){
@@ -246,7 +246,7 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
         return withContext(new ReturningProcessToolContextCallback<UserData>() {
             @Override
             public UserData processWithContext(ProcessToolContext ctx) {
-                return fetchHibernateData(ctx.getUserDataDAO().loadOrCreateUserByLogin(user));
+                return fetchHibernateData(getRegistry().getUserSource().getUserByLogin(user.getLogin()));
             }
         });
     }
@@ -284,7 +284,7 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
             @Override
             public Collection<ProcessInstance> processWithContext(ProcessToolContext ctx) {
             	
-                return fetchHibernateData(ctx.getProcessInstanceDAO().getUserProcessesBetweenDates(user, minDate, maxDate));
+                return fetchHibernateData(ctx.getProcessInstanceDAO().getUserProcessesBetweenDates(user.getLogin(), minDate, maxDate));
             }
         });
     }
@@ -297,7 +297,7 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
         return withContext(new ReturningProcessToolContextCallback<Collection<ProcessInstance>>() {
             @Override
             public Collection<ProcessInstance> processWithContext(ProcessToolContext ctx) {
-                return fetchHibernateData(ctx.getProcessInstanceDAO().getUserProcessesAfterDate(user, minDate));
+                return fetchHibernateData(ctx.getProcessInstanceDAO().getUserProcessesAfterDate(user.getLogin(), minDate));
             }
         });
     }
@@ -311,7 +311,7 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
         return withContext(new ReturningProcessToolContextCallback<ResultsPageWrapper<ProcessInstance>>() {
             @Override
             public ResultsPageWrapper<ProcessInstance> processWithContext(ProcessToolContext ctx) {
-                return fetchHibernateData(ctx.getProcessInstanceDAO().getRecentProcesses(user, minDate, offset, limit));
+                return fetchHibernateData(ctx.getProcessInstanceDAO().getRecentProcesses(user.getLogin(), minDate, offset, limit));
             }
         });
     }
@@ -518,6 +518,6 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
 	}
 
 	private ProcessToolBpmSession getSession(UserData user) {
-		return getRegistry().getProcessToolSessionFactory().createSession(user);
+		return getRegistry().getProcessToolSessionFactory().createSession(user.getLogin());
 	}
 }

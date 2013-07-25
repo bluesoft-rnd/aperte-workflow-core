@@ -1,12 +1,10 @@
-package pl.net.bluesoft.rnd.processtool.dao.impl;
-
-import java.util.List;
+package pl.net.bluesoft.rnd.pt.ext.user.dao;
 
 import org.hibernate.Session;
-
-import pl.net.bluesoft.rnd.processtool.dao.UserRoleDAO;
 import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
-import pl.net.bluesoft.rnd.processtool.model.UserRole;
+import pl.net.bluesoft.rnd.pt.ext.user.model.UserRole;
+
+import java.util.List;
 
 
 /**
@@ -16,7 +14,7 @@ import pl.net.bluesoft.rnd.processtool.model.UserRole;
  * @author mpawlak@bluesoft.net.pl
  *
  */
-public class UserRoleDAOImpl extends SimpleHibernateBean<UserRole> implements UserRoleDAO 
+public class UserRoleDAOImpl extends SimpleHibernateBean<UserRole> implements UserRoleDAO
 {
 
 	public UserRoleDAOImpl(Session hibernateSession) {
@@ -36,15 +34,4 @@ public class UserRoleDAOImpl extends SimpleHibernateBean<UserRole> implements Us
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
-
-
-
-
-
-
-
-
-
-
 }

@@ -25,7 +25,7 @@ import java.util.Set;
  * @author mpawlak@bluesoft.net.pl
  */
 public interface ProcessToolBpmSession {
-    ProcessToolBpmSession createSession(UserData user, Collection<String> roleNames);
+    ProcessToolBpmSession createSession(String userLogin, Collection<String> roleNames);
 
 	StartProcessResult startProcess(String bpmDefinitionId, String externalKey, String source);
 	List<BpmTask> performAction(String actionName, String taskId);
@@ -85,9 +85,7 @@ public interface ProcessToolBpmSession {
     boolean hasPermissionsForDefinitionConfig(ProcessDefinitionConfig config);
 
     String getUserLogin();
-    UserData getUser();
-	UserData getSubstitutingUser();
-    UserData loadOrCreateUser(UserData userData);
+	String getSubstitutingUserLogin();
 	Collection<String> getRoleNames();
 
     EventBusManager getEventBusManager();

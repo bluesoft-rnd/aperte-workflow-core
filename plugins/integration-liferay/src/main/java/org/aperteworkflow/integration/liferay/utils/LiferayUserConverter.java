@@ -32,10 +32,9 @@ public class LiferayUserConverter
         ud.setLastName(user.getLastName());
         ud.setJobTitle(user.getJobTitle());
         ud.setCompanyId(user.getCompanyId());
-        ud.setLiferayUserId(user.getUserId());
         for (Role role : user.getRoles()) 
         {
-            ud.addRoleName(role.getName(), role.getDescription());
+            ud.addRoleName(role.getName());
         }
         setGroupRoles(ud, user);
         return ud;

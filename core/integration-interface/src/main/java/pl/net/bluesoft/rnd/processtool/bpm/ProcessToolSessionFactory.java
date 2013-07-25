@@ -10,7 +10,9 @@ import java.util.Collection;
  */
 public interface ProcessToolSessionFactory {
 	ProcessToolBpmSession createSession(UserData user);
-	ProcessToolBpmSession createSession(UserData user, Collection<String> roles);
+
+	ProcessToolBpmSession createSession(String userLogin);
+	ProcessToolBpmSession createSession(String userLogin, Collection<String> roles);
 
     ProcessToolBpmSession createAutoSession();
 	ProcessToolBpmSession createAutoSession(ProcessToolContext ctx);

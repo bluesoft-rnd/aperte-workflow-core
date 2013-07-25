@@ -18,12 +18,17 @@ public class ProcessToolJbpmSessionFactory implements ProcessToolSessionFactory 
 
 	@Override
 	public ProcessToolBpmSession createSession(UserData user) {
-		return createSession(user, Collections.<String>emptySet());
+		return createSession(user.getLogin(), user.getRoles());
 	}
 
 	@Override
-	public ProcessToolBpmSession createSession(UserData user, Collection<String> roles) {
-		return new ProcessToolJbpmSession(user, roles);
+	public ProcessToolBpmSession createSession(String userLogin) {
+		return createSession(userLogin, null);
+	}
+
+	@Override
+	public ProcessToolBpmSession createSession(String userLogin, Collection<String> roles) {
+		return new ProcessToolJbpmSession(userLogin, roles, null);
 	}
 
 	@Override
@@ -45,6 +50,6 @@ public class ProcessToolJbpmSessionFactory implements ProcessToolSessionFactory 
 		if (autoUser == null) {
 			autoUser = ctx.getAutoUser();
 		}
-		return new ProcessToolJbpmSession(autoUser, roles);
+		return new ProcessToolJbpmSession(autoUser.getLogin(), roles, null);
 	}
 }

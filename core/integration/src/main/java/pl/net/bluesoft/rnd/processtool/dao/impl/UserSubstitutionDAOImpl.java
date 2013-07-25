@@ -1,11 +1,8 @@
 package pl.net.bluesoft.rnd.processtool.dao.impl;
 
-import org.hibernate.FetchMode;
 import org.hibernate.Session;
-import org.hibernate.criterion.DetachedCriteria;
 import pl.net.bluesoft.rnd.processtool.dao.UserSubstitutionDAO;
 import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.UserSubstitution;
 
 import java.util.Date;
@@ -21,25 +18,11 @@ public class UserSubstitutionDAOImpl extends SimpleHibernateBean<UserSubstitutio
         super(hibernateSession);
     }
 
-    @Override
-    public List<UserSubstitution> getActiveSubstitutions(UserData user, Date date) {
-        Session session = getSession();
-        return session.createQuery("from UserSubstitution where userSubstitute = :user and :date between dateFrom and dateTo")
-            .setParameter("user", user)
-            .setParameter("date", date)
-            .list();                       
-//        return session.createCriteria(UserSubstitution.class)
-//                .add(eq("userSubstitute", user))
-//                .add(ge("dateFrom", date))
-//                .add(le("dateTo", date))
-//                .list();
-    }
-
 	@Override
-	public List<UserData> getSubstitutedUsers(UserData user, Date date) {
+	public List<String> getSubstitutedUserLogins(String userLogin, Date date) {
 		Session session = getSession();
-		return session.createQuery("select distinct us.user from UserSubstitution us where us.userSubstitute = :user and :date between us.dateFrom and us.dateTo")
-				.setParameter("user", user)
+		return session.createQuery("select distinct us.userLogin from UserSubstitution us where us.userSubstituteLogin = :userLogin and :date between us.dateFrom and us.dateTo")
+				.setParameter("userLogin", userLogin)
 				.setParameter("date", date)
 				.list();
 	}
@@ -60,9 +43,6 @@ public class UserSubstitutionDAOImpl extends SimpleHibernateBean<UserSubstitutio
 
 	@Override
 	public List<UserSubstitution> findAllEagerUserFetch() {
-		DetachedCriteria criteria = getDetachedCriteria()
-				.setFetchMode(UserSubstitution._USER, FetchMode.JOIN)
-				.setFetchMode(UserSubstitution._USER_SUBSTITUTE, FetchMode.JOIN);
-		return findByCriteria(criteria);
+		return findByCriteria(getDetachedCriteria());
 	}
 }

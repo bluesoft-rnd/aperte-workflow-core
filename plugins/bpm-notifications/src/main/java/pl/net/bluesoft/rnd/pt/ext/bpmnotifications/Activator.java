@@ -128,7 +128,8 @@ public class Activator implements BundleActivator, EventListener<BpmEvent>
 	}
 
 
-	public void onEvent(BpmEvent e) 
+	@Override
+	public void onEvent(BpmEvent e)
 	{
 		if(Type.NEW_PROCESS == e.getEventType() || Type.END_PROCESS == e.getEventType())
 			logger.log(Level.INFO, "Received event " + e.getEventType() + " for process " + e.getProcessInstance().getId());
@@ -142,7 +143,7 @@ public class Activator implements BundleActivator, EventListener<BpmEvent>
 			boolean processEnded = BpmEvent.Type.END_PROCESS == e.getEventType();
             boolean enteringStep = Type.ASSIGN_TASK == e.getEventType() || Type.NEW_PROCESS == e.getEventType();
 			engine.onProcessStateChange(e.getTask(), e.getProcessInstance(),
-                    e.getUserData(), processStarted, processEnded, enteringStep);
+                    e.getUserLogin(), processStarted, processEnded, enteringStep);
         }
 	}
 	

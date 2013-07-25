@@ -11,11 +11,11 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinRenderable;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.*;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolVaadinWidget;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
 import pl.net.bluesoft.util.lang.FormatUtil;
 
 import java.util.*;
 
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 import static pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessHistoryWidget.label;
 
 @AliasName(name = "LatestComments")
@@ -89,9 +89,9 @@ public class LatestProcessCommentsWidget extends BaseProcessToolVaadinWidget imp
                 HorizontalLayout hl;
                 hl = new HorizontalLayout();
                 hl.setSpacing(true);
-                String authorLabel = pc.getAuthor() != null ? pc.getAuthor().getRealName() : "System";
+                String authorLabel = pc.getAuthor() != null ? getRegistry().getUserSource().getUserByLogin(pc.getAuthor()).getRealName() : "System";
                 if (pc.getAuthorSubstitute() != null) {
-                    authorLabel = (pc.getAuthorSubstitute() != null ? pc.getAuthorSubstitute().getRealName() : "System")
+                    authorLabel = (pc.getAuthorSubstitute() != null ? getRegistry().getUserSource().getUserByLogin(pc.getAuthorSubstitute()).getRealName() : "System")
                                 + " ( " + getMessage("processdata.comments.substituting") + " "
                                 + authorLabel
                                 + " )";

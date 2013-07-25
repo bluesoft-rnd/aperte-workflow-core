@@ -68,19 +68,15 @@ public class ProcessInstanceLog extends AbstractPersistentEntity {
 	@JoinColumn(name="process_instance_id")
 	private ProcessInstance processInstance;
 
+	private String userLogin;
+	private String userSubstituteLogin;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name="user_id")
-	private UserData user;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name="user_substitute_id")
-	private UserData userSubstitute;
-
+	@Override
 	public Long getId() {
 		return id;
 	}
 
+	@Override
 	public void setId(Long id) {
 		this.id = id;
 	}
@@ -126,23 +122,23 @@ public class ProcessInstanceLog extends AbstractPersistentEntity {
 		this.processInstance = processInstance;
 	}
 
-	public void setUser(UserData user) {
-		this.user = user;
+	public String getUserLogin() {
+		return userLogin;
 	}
 
-	public UserData getUser() {
-		return user;
+	public void setUserLogin(String userLogin) {
+		this.userLogin = userLogin;
 	}
 
-    public UserData getUserSubstitute() {
-        return userSubstitute;
-    }
+	public String getUserSubstituteLogin() {
+		return userSubstituteLogin;
+	}
 
-    public void setUserSubstitute(UserData userSubstitute) {
-        this.userSubstitute = userSubstitute;
-    }
+	public void setUserSubstituteLogin(String userSubstituteLogin) {
+		this.userSubstituteLogin = userSubstituteLogin;
+	}
 
-    public String getLogValue() {
+	public String getLogValue() {
 		return logValue;
 	}
 

@@ -157,7 +157,7 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
     public Collection<ProcessInstanceLog> getUserHistory(@WebParam(name="userLogin")final String userLogin,
                                                          @WebParam(name="startDate")final Date startDate,
                                                          @WebParam(name="endDate")final Date endDate) throws AperteWsWrongArgumentException {
-		final UserData loadUserByLogin = findUser(userLogin);
+		final UserDataBean loadUserByLogin = findUser(userLogin);
         return withContext(new ReturningProcessToolContextCallback<Collection<ProcessInstanceLog>>() {
             @Override
             public Collection<ProcessInstanceLog> processWithContext(ProcessToolContext ctx)  {
@@ -170,11 +170,11 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
 	
 	@Override
 	    @WebMethod
-	    public UserData findUser(@WebParam(name="userLogin")final String userLogin) throws AperteWsWrongArgumentException {
-	         UserData userData = withContext(new ReturningProcessToolContextCallback<UserData>() {
+	    public UserDataBean findUser(@WebParam(name="userLogin")final String userLogin) throws AperteWsWrongArgumentException {
+	         UserDataBean userData = withContext(new ReturningProcessToolContextCallback<UserDataBean>() {
 	            @Override
-	            public UserData processWithContext(ProcessToolContext ctx) {
-	                return fetchHibernateData(getRegistry().getUserSource().getUserByLogin(userLogin));
+	            public UserDataBean processWithContext(ProcessToolContext ctx) {
+	                return new UserDataBean(getRegistry().getUserSource().getUserByLogin(userLogin));
 	            }
 	        });
 	         if (userLogin!= null && userData==null){
@@ -242,11 +242,11 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
 	
 	@Override
 	@WebMethod 
-    public UserData findOrCreateUser(@WebParam(name="user")final UserData user) {
-        return withContext(new ReturningProcessToolContextCallback<UserData>() {
+    public UserDataBean findOrCreateUser(@WebParam(name="user")final UserDataBean user) {
+        return withContext(new ReturningProcessToolContextCallback<UserDataBean>() {
             @Override
-            public UserData processWithContext(ProcessToolContext ctx) {
-                return fetchHibernateData(getRegistry().getUserSource().getUserByLogin(user.getLogin()));
+            public UserDataBean processWithContext(ProcessToolContext ctx) {
+                return new UserDataBean(getRegistry().getUserSource().getUserByLogin(user.getLogin()));
             }
         });
     }
@@ -279,7 +279,7 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
                                                                  @WebParam(name="minDate")final Date minDate,
                                                                  @WebParam(name="maxDate")final Date maxDate) throws AperteWsWrongArgumentException {
 		
-		final UserData user = findUser(userLogin);
+		final UserDataBean user = findUser(userLogin);
         return withContext(new ReturningProcessToolContextCallback<Collection<ProcessInstance>>() {
             @Override
             public Collection<ProcessInstance> processWithContext(ProcessToolContext ctx) {
@@ -292,7 +292,7 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
 	
 	@Override
 	@WebMethod (exclude=true)
-    public Collection<ProcessInstance> getUserProcessesAfterDate(@WebParam(name="user")final UserData user,
+    public Collection<ProcessInstance> getUserProcessesAfterDate(@WebParam(name="user")final UserDataBean user,
                                                                  @WebParam(name="minDate")final Date minDate) {
         return withContext(new ReturningProcessToolContextCallback<Collection<ProcessInstance>>() {
             @Override
@@ -304,7 +304,7 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
 
 	@Override
 	@WebMethod (exclude=true)
-    public ResultsPageWrapper<ProcessInstance> getRecentProcesses(@WebParam(name="user")final UserData user,
+    public ResultsPageWrapper<ProcessInstance> getRecentProcesses(@WebParam(name="user")final UserDataBean user,
                                                                   @WebParam(name="minDate")final Date minDate,
                                                                   @WebParam(name="offset")final Integer offset,
                                                                   @WebParam(name="limit")final Integer limit) {
@@ -517,7 +517,7 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
 		return getSession(null);
 	}
 
-	private ProcessToolBpmSession getSession(UserData user) {
+	private ProcessToolBpmSession getSession(UserDataBean user) {
 		return getRegistry().getProcessToolSessionFactory().createSession(user.getLogin());
 	}
 }

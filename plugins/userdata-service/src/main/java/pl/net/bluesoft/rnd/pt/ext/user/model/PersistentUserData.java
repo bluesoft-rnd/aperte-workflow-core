@@ -41,8 +41,6 @@ public class PersistentUserData extends AbstractPersistentEntity implements User
 	private String lastName;
 	private String email;
 	private String jobTitle;
-	private String department;
-	private String superior;
 	private Long companyId;
     private Long liferayUserId;
 
@@ -212,24 +210,8 @@ public class PersistentUserData extends AbstractPersistentEntity implements User
 		return true;
 	}
 
-	public String getDepartment() {
-		return department;
-	}
-
-	public void setDepartment(String department) {
-		this.department = department;
-	}
-
-	public String getSuperior() {
-		return superior;
-	}
-
-	public void setSuperior(String superior) {
-		this.superior = superior;
-	}
-
-    public boolean hasRole(String roleName)
-    {
+    @Override
+	public boolean hasRole(String roleName) {
         return roles.contains(roleName);
     }
 }

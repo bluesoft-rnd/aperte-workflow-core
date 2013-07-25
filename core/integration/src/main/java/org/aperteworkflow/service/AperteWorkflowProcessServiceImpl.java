@@ -23,7 +23,7 @@ import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.ProcessStatus;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.processtool.model.UserDataBean;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
@@ -49,7 +49,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 	@WebMethod 
     public ProcessInstance createProcessInstance(@WebParam(name="config")final ProcessDefinitionConfig config,
                                                  @WebParam(name="externalKey")final String externalKey,
-                                                 @WebParam(name="user")final UserData user,
+                                                 @WebParam(name="user")final UserDataBean user,
                                                  @WebParam(name="source")final String source) {
         return withContext(new ReturningProcessToolContextCallback<ProcessInstance>() {
             @Override
@@ -72,7 +72,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 		
 		AperteErrorCheckUtil.checkCorrectnessOfArgument(bpmnkey, AperteIllegalArgumentCodes.DEFINITION);
 		
-		final UserData user = findUser(userLogin);
+		final UserDataBean user = findUser(userLogin);
 		
         return withContext(new ReturningProcessToolContextCallback<ProcessInstance>() {
             @Override
@@ -84,13 +84,12 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
     }
 	
 	
-	private UserData findUser(final String userLogin) throws  AperteWsWrongArgumentException {
+	private UserDataBean findUser(final String userLogin) throws  AperteWsWrongArgumentException {
 
-		UserData userData = withContext(new ReturningProcessToolContextCallback<UserData>() {
+		UserDataBean userData = withContext(new ReturningProcessToolContextCallback<UserDataBean>() {
 			@Override
-			public UserData processWithContext(ProcessToolContext ctx) {
-				return fetchHibernateData(getRegistry().getUserSource().getUserByLogin(
-						userLogin));
+			public UserDataBean processWithContext(ProcessToolContext ctx) {
+				return new UserDataBean(getRegistry().getUserSource().getUserByLogin(userLogin));
 			}
 		});
 		if (userLogin!=null && userData == null ) {
@@ -145,7 +144,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 	@Override
     @WebMethod (exclude=true)
     public Collection<ProcessQueueBean> getUserAvailableQueues(@WebParam(name="userLogin") String userLogin) throws  AperteWsWrongArgumentException {
-		final UserData findUser = findUser(userLogin);
+		final UserDataBean findUser = findUser(userLogin);
         return withContext(new ReturningProcessToolContextCallback<Collection<ProcessQueueBean>>() {
             @Override
             public Collection<ProcessQueueBean> processWithContext(ProcessToolContext ctx) {
@@ -157,7 +156,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 
 	@Override
 	@WebMethod (exclude=true)
-    public BpmTaskBean assignTaskFromQueue(@WebParam(name="q")final ProcessQueueBean q, @WebParam(name="user")final UserData user) {
+    public BpmTaskBean assignTaskFromQueue(@WebParam(name="q")final ProcessQueueBean q, @WebParam(name="user")final UserDataBean user) {
         return withContext(new ReturningProcessToolContextCallback<BpmTaskBean>() {
             @Override
             public BpmTaskBean processWithContext(ProcessToolContext ctx) {
@@ -170,7 +169,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 	@WebMethod (exclude=true)
     public BpmTaskBean assignSpecificTaskFromQueue(@WebParam(name="q")final ProcessQueueBean q,
                                                @WebParam(name="task")final BpmTaskBean task,
-                                               @WebParam(name="user")final UserData user) {
+                                               @WebParam(name="user")final UserDataBean user) {
         return withContext(new ReturningProcessToolContextCallback<BpmTaskBean>() {
             @Override
             public BpmTaskBean processWithContext(ProcessToolContext ctx) {
@@ -183,7 +182,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
     @WebMethod 
     public void assignTaskToUser(@WebParam(name="taskId")final String taskId, @WebParam(name="userLogin")final String userLogin) throws AperteWsWrongArgumentException {
 		final BpmTaskBean taskData = getTaskData(taskId);
-		final UserData user = findUser(userLogin);		
+		final UserDataBean user = findUser(userLogin);		
         withContext(new ReturningProcessToolContextCallback<ProcessInstance>() {
             @Override
             public ProcessInstance processWithContext(ProcessToolContext ctx) {          	
@@ -242,7 +241,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
     public List<BpmTaskBean> findUserTasks(@WebParam(name="processInstanceInternalId") String internalId,
     		@WebParam(name="userLogin") String userLogin) throws AperteWsWrongArgumentException {
 		final ProcessInstance processInstance = getProcessData(internalId);
-		final UserData user = findUser(userLogin);
+		final UserDataBean user = findUser(userLogin);
         return withContext(new ReturningProcessToolContextCallback<List<BpmTaskBean>>() {
             @Override
             public List<BpmTaskBean> processWithContext(ProcessToolContext ctx) {
@@ -256,7 +255,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
     public List<BpmTaskBean> findUserTasksPaging(@WebParam(name="offset")final Integer offset,
                                              @WebParam(name="limit")final Integer limit,
                                              @WebParam(name="userLogin")final String userLogin) throws AperteWsWrongArgumentException {
-		final UserData user = findUser(userLogin);
+		final UserDataBean user = findUser(userLogin);
 		
         return withContext(new ReturningProcessToolContextCallback<List<BpmTaskBean>>() {
             @Override
@@ -271,7 +270,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
     public List<BpmTaskBean> findProcessTasks(@WebParam(name="internalId")final String internalId,
                                           @WebParam(name="userLogin")final String userLogin) throws AperteWsWrongArgumentException {
 		
-		final UserData user = findUser(userLogin);
+		final UserDataBean user = findUser(userLogin);
 		final ProcessInstance processInstance = getProcessData(internalId);
 		
         return withContext(new ReturningProcessToolContextCallback<List<BpmTaskBean>>() {
@@ -285,7 +284,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 	@Override
 	@WebMethod (exclude=true)
     public List<BpmTaskBean> findProcessTasksByNames(@WebParam(name="processInstance")final ProcessInstance processInstance,
-                                                 @WebParam(name="user")final UserData user,
+                                                 @WebParam(name="user")final UserDataBean user,
                                                  @WebParam(name="taskNames")final Set<String> taskNames) {
         return withContext(new ReturningProcessToolContextCallback<List<BpmTaskBean>>() {
             @Override
@@ -297,7 +296,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 
 	@Override
 	@WebMethod (exclude=true)
-    public Integer getRecentTasksCount(@WebParam(name="minDate")final Date minDate, @WebParam(name="user")final UserData user) {
+    public Integer getRecentTasksCount(@WebParam(name="minDate")final Date minDate, @WebParam(name="user")final UserDataBean user) {
         return withContext(new ReturningProcessToolContextCallback<Integer>() {
             @Override
             public Integer processWithContext(ProcessToolContext ctx) {
@@ -308,7 +307,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 
 	@Override
 	@WebMethod (exclude=true)
-    public List<BpmTaskBean> getAllTasks(@WebParam(name="user")final UserData user) {
+    public List<BpmTaskBean> getAllTasks(@WebParam(name="user")final UserDataBean user) {
         return withContext(new ReturningProcessToolContextCallback<List<BpmTaskBean>>() {
             @Override
             public List<BpmTaskBean> processWithContext(ProcessToolContext ctx) {
@@ -331,7 +330,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
                                  @WebParam(name="userLogin")final String userLogin) throws  AperteWsWrongArgumentException {
 		
 		final BpmTaskBean task = findProcessTask(internalId, userLogin, BpmTaskBeanName);
-		final UserData user = findUser(userLogin); 	
+		final UserDataBean user = findUser(userLogin); 	
 		final ProcessInstance processData = getProcessData(internalId);
 		final ProcessStateAction action= getActionIfExists(processData, actionName);
 		
@@ -416,7 +415,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 	@Override
 	@WebMethod (exclude=true)
     public String getSubstitutingUser(@WebParam(name="user")final String userLogin) throws AperteWsWrongArgumentException {
-		final UserData user = findUser(userLogin);
+		final UserDataBean user = findUser(userLogin);
         return withContext(new ReturningProcessToolContextCallback<String>() {
             @Override
             public String processWithContext(ProcessToolContext ctx) {
@@ -443,7 +442,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 	@WebMethod (exclude=true)
     public void adminReassignProcessTask(@WebParam(name="processInstance")final ProcessInstance processInstance,
                                          @WebParam(name="BpmTaskBean")final BpmTaskBean BpmTaskBean,
-                                         @WebParam(name="user")final UserData user) {
+                                         @WebParam(name="user")final UserDataBean user) {
         withContext(new ReturningProcessToolContextCallback<ProcessInstance>() {
             @Override
             public ProcessInstance processWithContext(ProcessToolContext ctx) {
@@ -599,7 +598,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 		return getSession(null);
 	}
 
-	private ProcessToolBpmSession getSession(UserData user) {
+	private ProcessToolBpmSession getSession(UserDataBean user) {
 		return getRegistry().getProcessToolSessionFactory().createSession(user.getLogin());
 	}
 }

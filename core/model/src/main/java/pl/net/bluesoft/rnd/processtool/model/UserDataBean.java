@@ -17,13 +17,21 @@ public class UserDataBean implements UserData {
 	private String lastName;
 	private String email;
 	private String jobTitle;
-	private String department;
-	private String superior;
 	private Long companyId;
 
 	private Set<String> roles = new HashSet<String>();
 
 	public UserDataBean() {
+	}
+
+	public UserDataBean(UserData userData) {
+		this.login = userData.getLogin();
+		this.firstName = userData.getFirstName();
+		this.lastName = userData.getLastName();
+		this.email = userData.getEmail();
+		this.jobTitle = userData.getJobTitle();
+		this.companyId = userData.getCompanyId();
+		this.roles.addAll(userData.getRoles());
 	}
 
 	public UserDataBean(String login, String realName, String email) {

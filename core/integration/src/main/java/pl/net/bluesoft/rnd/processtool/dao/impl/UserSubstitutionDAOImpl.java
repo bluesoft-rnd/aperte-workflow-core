@@ -1,6 +1,5 @@
 package pl.net.bluesoft.rnd.processtool.dao.impl;
 
-import org.hibernate.FetchMode;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import pl.net.bluesoft.rnd.processtool.dao.UserSubstitutionDAO;

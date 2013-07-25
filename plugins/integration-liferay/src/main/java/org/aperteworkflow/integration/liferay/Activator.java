@@ -42,7 +42,7 @@ public class Activator implements BundleActivator, EventListener<BpmEvent> {
 		
 		/* Inject Liferay based user source */
 		ClassDependencyManager.getInstance().injectImplementation(IUserSource.class, LiferayUserSource.class, 1, true);
-		ClassDependencyManager.getInstance().injectImplementation(IPortalUserSource.class, LiferayUserSource.class, 1);
+		ClassDependencyManager.getInstance().injectImplementation(IPortalUserSource.class, LiferayUserSource.class, 1, true);
 		ClassDependencyManager.getInstance().injectImplementation(IDirectoryService.class, LdapUsersSource.class, 1);
 		
 		/* Inject Liferay based role manager */

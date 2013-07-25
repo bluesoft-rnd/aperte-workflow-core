@@ -1,7 +1,7 @@
 package pl.net.bluesoft.rnd.pt.ext.user.service;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 import javax.portlet.RenderRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -49,7 +49,7 @@ public class AperteUserSource implements IPortalUserSource {
 	}
 
 	@Override
-	public Collection<UserData> getAllUsers() 
+	public List<UserData> getAllUsers()
 	{
 		UserDataDAO userDao = new UserDataDAOImpl(getSession());
 		

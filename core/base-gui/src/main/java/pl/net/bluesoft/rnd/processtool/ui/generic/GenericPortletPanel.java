@@ -3,21 +3,17 @@ package pl.net.bluesoft.rnd.processtool.ui.generic;
 import com.vaadin.Application;
 import com.vaadin.ui.*;
 import org.aperteworkflow.ui.view.GenericPortletViewRenderer;
-import org.aperteworkflow.ui.view.RenderParams;
 import org.aperteworkflow.ui.view.IViewRegistry;
+import org.aperteworkflow.ui.view.RenderParams;
 import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
-import org.aperteworkflow.util.vaadin.TransactionProvider;
 import org.aperteworkflow.util.vaadin.VaadinUtility;
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolGuiCallback;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.util.lang.cquery.func.F;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.aperteworkflow.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
 import static org.aperteworkflow.util.vaadin.VaadinUtility.horizontalLayout;
 import static org.aperteworkflow.util.vaadin.VaadinUtility.refreshIcon;
 import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
@@ -33,15 +29,13 @@ public abstract class GenericPortletPanel extends VerticalLayout {
 	protected Application application;
 	protected I18NSource i18NSource;
 	protected ProcessToolBpmSession bpmSession;
-	protected TransactionProvider transactionProvider;
 	protected String portletKey;
 
-	public GenericPortletPanel(Application application, I18NSource i18NSource, ProcessToolBpmSession bpmSession,
-							   TransactionProvider transactionProvider, String portletKey) {
+	protected GenericPortletPanel(Application application, I18NSource i18NSource, ProcessToolBpmSession bpmSession,
+								  String portletKey) {
 		this.application = application;
 		this.i18NSource = i18NSource;
 		this.bpmSession = bpmSession;
-		this.transactionProvider = transactionProvider;
 		this.portletKey = portletKey;
 	}
 
@@ -88,18 +82,8 @@ public abstract class GenericPortletPanel extends VerticalLayout {
 	}
 
 	private RenderParams createParams() {
-		RenderParams params = new RenderParams() {
-			@Override
-			public void withTransaction(final TransactionCallback callback) {
-				transactionProvider.withTransaction(new ProcessToolGuiCallback() {
-					@Override
-					public void callback(ProcessToolContext ctx, ProcessToolBpmSession session) {
-						callback.invoke(ctx, session);
-					}
-				});
-			}
-		};
-		params.setContext(ProcessToolContext.Util.getThreadProcessToolContext());
+		RenderParams params = new RenderParams();
+		params.setContext(getThreadProcessToolContext());
 		params.setBpmSession(bpmSession);
 		params.setI18NSource(i18NSource);
 		params.setApplication(application);

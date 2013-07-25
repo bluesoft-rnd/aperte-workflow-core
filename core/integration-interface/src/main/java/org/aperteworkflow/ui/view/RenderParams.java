@@ -10,7 +10,7 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSource;
  * Date: 2012-07-19
  * Time: 10:49
  */
-public abstract class RenderParams {
+public class RenderParams {
 	private I18NSource i18NSource;
 	private ProcessToolBpmSession bpmSession;
 	private ProcessToolContext context;
@@ -51,6 +51,4 @@ public abstract class RenderParams {
 	public interface TransactionCallback {
 		void invoke(ProcessToolContext ctx, ProcessToolBpmSession session);
 	}
-
-	public abstract void withTransaction(TransactionCallback callback);
 }

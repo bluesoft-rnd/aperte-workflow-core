@@ -1,7 +1,6 @@
 package org.aperteworkflow.integration.liferay.utils;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import pl.net.bluesoft.rnd.processtool.model.UserData;
@@ -41,9 +40,9 @@ public class LiferayUserConverter
         return ud;
     }
     
-    public static Collection<UserData> convertLiferayUsers(List<User> liferayUsers) throws SystemException 
+    public static List<UserData> convertLiferayUsers(List<User> liferayUsers) throws SystemException
     {
-    	Collection<UserData> users = new ArrayList<UserData>(liferayUsers.size());
+    	List<UserData> users = new ArrayList<UserData>(liferayUsers.size());
         for (User liferayUser : liferayUsers) {
             users.add(convertLiferayUser(liferayUser));
         }

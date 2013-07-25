@@ -1,61 +1,29 @@
 package pl.net.bluesoft.rnd.processtool.ui.substitutions;
 
-import static org.aperteworkflow.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
-import static org.aperteworkflow.util.vaadin.VaadinUtility.addIcon;
-import static org.aperteworkflow.util.vaadin.VaadinUtility.horizontalLayout;
-import static org.aperteworkflow.util.vaadin.VaadinUtility.modalWindow;
-import static org.aperteworkflow.util.vaadin.VaadinUtility.pagedTable;
-import static org.aperteworkflow.util.vaadin.VaadinUtility.refreshIcon;
-import static org.aperteworkflow.util.vaadin.VaadinUtility.select;
-import static org.aperteworkflow.util.vaadin.VaadinUtility.smallButton;
-import static org.aperteworkflow.util.vaadin.VaadinUtility.validationNotification;
-import static org.aperteworkflow.util.vaadin.VaadinUtility.wrapPagedTable;
-import static pl.net.bluesoft.rnd.processtool.model.UserSubstitution.*;
-import static pl.net.bluesoft.util.lang.DateUtil.truncHours;
-import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import org.aperteworkflow.util.vaadin.TransactionProvider;
-import org.aperteworkflow.util.vaadin.VaadinUtility.Refreshable;
-import org.aperteworkflow.util.vaadin.ui.table.LocalizedPagedTable;
-
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
-import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
-import pl.net.bluesoft.rnd.processtool.model.UserSubstitution;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolGuiCallback;
-import pl.net.bluesoft.rnd.processtool.usersource.IUserSource;
-import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import pl.net.bluesoft.util.lang.Maps;
-
 import com.vaadin.Application;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Validator;
+import com.vaadin.data.util.BeanContainer;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
-import com.vaadin.data.util.PropertyFormatter;
 import com.vaadin.event.ItemClickEvent;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.DateField;
-import com.vaadin.ui.Field;
-import com.vaadin.ui.Form;
-import com.vaadin.ui.FormFieldFactory;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Panel;
-import com.vaadin.ui.PopupDateField;
-import com.vaadin.ui.Select;
-import com.vaadin.ui.Table;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
+import com.vaadin.ui.*;
+import org.aperteworkflow.util.vaadin.ui.table.LocalizedPagedTable;
+import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.processtool.model.UserSubstitution;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+import pl.net.bluesoft.util.lang.DateUtil;
+
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+import static org.aperteworkflow.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.*;
+import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
+import static pl.net.bluesoft.rnd.processtool.model.UserSubstitution.*;
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
 
 /**
  * User: POlszewski
@@ -63,20 +31,18 @@ import com.vaadin.ui.Window;
  * Time: 13:05:13
  */
 public class SubstitutionsMainPane extends VerticalLayout implements Refreshable {
-    private Application application;
+	public static final String DATE_FORMAT = "yyyy-MM-dd";
+	private Application application;
     private I18NSource i18NSource;
-    private TransactionProvider transactionProvider;
 
-    private Window detailsWindow = null;
+    private Window detailsWindow;
 
     private BeanItemContainer<UserSubstitution> container = new BeanItemContainer<UserSubstitution>(UserSubstitution.class);
-    private BeanItemContainer<UserData> userDataContainer = new BeanItemContainer<UserData>(UserData.class);
-    private Map<String, UserData> usersByLogin;
+    private BeanContainer<String, UserData> userDataContainer = new BeanContainer<String, UserData>(UserData.class);
 
-    public SubstitutionsMainPane(Application application, I18NSource i18NSource, TransactionProvider transactionProvider) {
+    public SubstitutionsMainPane(Application application, I18NSource i18NSource) {
         this.application = application;
         this.i18NSource = i18NSource;
-        this.transactionProvider = transactionProvider;
         setWidth("100%");
         initWidget();
         loadData();
@@ -134,18 +100,15 @@ public class SubstitutionsMainPane extends VerticalLayout implements Refreshable
     private void loadData() {
         container.removeAllItems();
         userDataContainer.removeAllItems();
-        transactionProvider.withTransaction(new ProcessToolGuiCallback() {
-            @Override
-            public void callback(ProcessToolContext ctx, ProcessToolBpmSession session) {
-                container.addAll(ctx.getUserSubstitutionDAO().findAllEagerUserFetch());
-                
-                IUserSource userSource = ObjectFactory.create(IUserSource.class);
-                
-                usersByLogin = Maps.collectionToMap(userSource.getAllUsers(), UserData._LOGIN);
-                userDataContainer.addAll(usersByLogin.values());
-				userDataContainer.sort(new String[]{ UserData._REAL_NAME }, new boolean[]{ true });
-            }
-        });
+
+		container.addAll(getThreadProcessToolContext().getUserSubstitutionDAO().findAll());
+
+		List<UserData> allUsers = getRegistry().getUserSource().getAllUsers();
+
+		for (UserData user : allUsers) {
+			userDataContainer.addItem(user.getLogin(), user);
+		}
+		userDataContainer.sort(new String[]{ UserData._FILTERED_NAME }, new boolean[]{ true });
     }
 
     @Override
@@ -278,38 +241,19 @@ public class SubstitutionsMainPane extends VerticalLayout implements Refreshable
         detailsWindow = modalWindow(getMessage("substitutions.Substitution"), panel);
     }
 
-    private void saveSubstitution(final UserSubstitution item) {
-        item.setDateFrom(truncHours(item.getDateFrom()));
-        item.setDateTo(truncHours(item.getDateTo()));
-        transactionProvider.withTransaction(new ProcessToolGuiCallback() {
-            @Override
-            public void callback(ProcessToolContext ctx, ProcessToolBpmSession session) {
-                ctx.getUserSubstitutionDAO().saveOrUpdate(item);
-            }
-        });
+    private void saveSubstitution(UserSubstitution item) {
+        item.setDateFrom(DateUtil.beginOfDay(item.getDateFrom()));
+        item.setDateTo(DateUtil.endOfDay(item.getDateTo()));
+
+		getThreadProcessToolContext().getUserSubstitutionDAO().saveOrUpdate(item);
     }
 
     private Table.ColumnGenerator createUserRealNameColumn() {
         return new Table.ColumnGenerator() {
             @Override
-            public Component generateCell(Table source, final Object itemId, Object columnId) {
+            public Object generateCell(Table source, final Object itemId, Object columnId) {
                 Property prop = source.getItem(itemId).getItemProperty(columnId);
-                if (prop.getType().equals(UserData.class)) {
-                    Label l = new Label();        
-                    l.setPropertyDataSource(new PropertyFormatter(prop) {
-                        @Override
-                        public String format(Object o) {
-                            return ((UserData)o).getRealName();
-                        }
-
-                        @Override
-                        public Object parse(String s) throws Exception {
-                            throw new UnsupportedOperationException();
-                        }
-                    });
-                    return l;
-                }
-                return null;
+                return prop.getValue();
             }
         };
     }
@@ -317,16 +261,10 @@ public class SubstitutionsMainPane extends VerticalLayout implements Refreshable
     private Table.ColumnGenerator createDateColumn() {
         return new Table.ColumnGenerator() {
             @Override
-            public Component generateCell(Table source, final Object itemId, Object columnId) {
+            public Object generateCell(Table source, final Object itemId, Object columnId) {
                 Property prop = source.getItem(itemId).getItemProperty(columnId);
-                if (prop.getType().equals(Date.class)) {
-                    DateField df = createDateField(null);
-                    df.setRequired(true);
-                    df.setReadOnly(true);
-                    df.setPropertyDataSource(prop);
-                    return df;
-                }
-                return null;                
+                Date date = (Date)prop.getValue();
+				return date != null ? new SimpleDateFormat(DATE_FORMAT).format(date) : "";
             }
         };
     }
@@ -339,14 +277,11 @@ public class SubstitutionsMainPane extends VerticalLayout implements Refreshable
                 b.addListener(new Button.ClickListener() {
                     @Override
                     public void buttonClick(Button.ClickEvent event) {
-                        final UserSubstitution item = (UserSubstitution)container.getItem(itemId).getBean();
-                        container.removeItem(itemId);
-                        transactionProvider.withTransaction(new ProcessToolGuiCallback() {
-                            @Override
-                            public void callback(ProcessToolContext ctx, ProcessToolBpmSession session) {
-								ctx.getUserSubstitutionDAO().deleteById(item.getId());                                
-                            }
-                        });
+                        UserSubstitution item = (UserSubstitution)container.getItem(itemId).getBean();
+
+						container.removeItem(itemId);
+
+						getThreadProcessToolContext().getUserSubstitutionDAO().deleteById(item.getId());
                     }
                 });
                 return b;
@@ -361,7 +296,7 @@ public class SubstitutionsMainPane extends VerticalLayout implements Refreshable
 
     private PopupDateField createDateField(String caption) {
         PopupDateField dateField = new PopupDateField(caption);
-        dateField.setDateFormat("yyyy-MM-dd");
+        dateField.setDateFormat(DATE_FORMAT);
         dateField.setResolution(PopupDateField.RESOLUTION_DAY);        
         dateField.setImmediate(true);
         return dateField;

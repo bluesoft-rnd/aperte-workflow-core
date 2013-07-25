@@ -1,6 +1,6 @@
 package pl.net.bluesoft.rnd.processtool.usersource;
 
-import java.util.Collection;
+import java.util.List;
 
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.usersource.exception.UserSourceException;
@@ -47,6 +47,6 @@ public interface IUserSource
 	 * 
 	 * @return
 	 */
-	Collection<UserData> getAllUsers();
+	List<UserData> getAllUsers();
 
 }

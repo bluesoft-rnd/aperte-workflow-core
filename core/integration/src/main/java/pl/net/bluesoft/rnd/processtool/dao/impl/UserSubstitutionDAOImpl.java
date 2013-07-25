@@ -1,6 +1,5 @@
 package pl.net.bluesoft.rnd.processtool.dao.impl;
 
-import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import pl.net.bluesoft.rnd.processtool.dao.UserSubstitutionDAO;
 import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
@@ -19,24 +18,14 @@ public class UserSubstitutionDAOImpl extends SimpleHibernateBean<UserSubstitutio
         super(hibernateSession);
     }
 
-	@Override
-	public List<String> getSubstitutedUserLogins(String userLogin, Date date) {
-		Session session = getSession();
-		return session.createQuery("select distinct us.userLogin from UserSubstitution us where us.userSubstituteLogin = :userLogin and :date between us.dateFrom and us.dateTo")
-				.setParameter("userLogin", userLogin)
-				.setParameter("date", date)
-				.list();
-	}
-
     @Override
     public List<String> getCurrentSubstitutedUserLogins(String userLogin)
     {
-        SQLQuery query = getSession().createSQLQuery("select ud.login from pt_user_substitution sub left join pt_user_data ud on " +
-                "ud.id = sub.user_id " +
-                "where sub.user_substitute_id = (select id from  pt_user_data where login = '"+userLogin+"') and " +
-                "now() between sub.dateFrom and sub.dateTo") ;
-
-        return query.list();
+		String query = "select distinct us.userLogin from UserSubstitution us where us.userSubstituteLogin = :userLogin and :date between us.dateFrom and us.dateTo";
+		return getSession().createQuery(query)
+				.setParameter("userLogin", userLogin)
+				.setParameter("date", new Date())
+				.list();
     }
 
     @Override
@@ -51,10 +40,5 @@ public class UserSubstitutionDAOImpl extends SimpleHibernateBean<UserSubstitutio
 		if (item != null) {
 			delete((UserSubstitution)item);
 		}
-	}
-
-	@Override
-	public List<UserSubstitution> findAllEagerUserFetch() {
-		return findByCriteria(getDetachedCriteria());
 	}
 }

@@ -7,12 +7,10 @@ import org.aperteworkflow.ui.view.GenericPortletViewRenderer;
 import org.aperteworkflow.ui.view.IViewRegistry;
 import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.ui.generic.GenericUserPortletPanel;
 import pl.net.bluesoft.rnd.processtool.ui.generic.GenericUserPortletSettingsPanel;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
-import pl.net.bluesoft.rnd.util.i18n.impl.DefaultI18NSource;
 
 import javax.portlet.PortletMode;
 import javax.portlet.PortletPreferences;
@@ -41,7 +39,7 @@ public class GenericUserPortletApplication extends GenericVaadinPortlet2BpmAppli
 
 	@Override
 	protected void renderPortlet() {
-		getMainWindow().setContent(new GenericUserPortletPanel(this, this, bpmSession, this, PortletKeys.USER, viewKeys));
+		getMainWindow().setContent(new GenericUserPortletPanel(this, this, bpmSession, PortletKeys.USER, viewKeys));
 	}
 
 	@Override

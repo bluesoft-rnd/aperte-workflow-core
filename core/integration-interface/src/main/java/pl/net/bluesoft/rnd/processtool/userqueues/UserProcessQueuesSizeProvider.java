@@ -14,7 +14,6 @@ import pl.net.bluesoft.rnd.processtool.model.QueueType;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import pl.net.bluesoft.util.lang.DateUtil;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory.ExecutionType;
 
 import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
@@ -82,7 +81,7 @@ public class UserProcessQueuesSizeProvider
 		
 		/* Fill queues for substitutedUsers */
 		List<String> substitutedUserLogins = getThreadProcessToolContext().getUserSubstitutionDAO()
-				.getSubstitutedUserLogins(userLogin, DateUtil.truncHours(new Date()));
+				.getCurrentSubstitutedUserLogins(userLogin);
 		
 		for (String substitutedUserLogin : substitutedUserLogins)
 		{

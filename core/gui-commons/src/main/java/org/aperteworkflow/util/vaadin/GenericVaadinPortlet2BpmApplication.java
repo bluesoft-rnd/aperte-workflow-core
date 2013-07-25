@@ -1,34 +1,14 @@
 package org.aperteworkflow.util.vaadin;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.portlet.ActionRequest;
-import javax.portlet.ActionResponse;
-import javax.portlet.EventRequest;
-import javax.portlet.EventResponse;
-import javax.portlet.PortletSession;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
-import javax.portlet.ResourceRequest;
-import javax.portlet.ResourceResponse;
-
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
+import com.vaadin.Application;
+import com.vaadin.service.ApplicationContext;
+import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Window;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
 import pl.net.bluesoft.rnd.processtool.di.annotations.AutoInject;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolGuiCallback;
 import pl.net.bluesoft.rnd.processtool.usersource.IPortalUserSource;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
@@ -37,11 +17,12 @@ import pl.net.bluesoft.util.eventbus.listenables.Listenable;
 import pl.net.bluesoft.util.eventbus.listenables.ListenableSupport;
 import pl.net.bluesoft.util.lang.Strings;
 
-import com.vaadin.Application;
-import com.vaadin.service.ApplicationContext;
-import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Window;
+import javax.portlet.*;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 
@@ -49,7 +30,7 @@ import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.g
  * @author tlipski@bluesoft.net.pl
  */
 public abstract class GenericVaadinPortlet2BpmApplication extends Application implements
-        PortletApplicationContext2.PortletListener, TransactionProvider, I18NSource, VaadinExceptionHandler,
+        PortletApplicationContext2.PortletListener, I18NSource, VaadinExceptionHandler,
         Listenable<GenericVaadinPortlet2BpmApplication.RequestParameterListener> {
 
     private static Logger logger = Logger.getLogger(GenericVaadinPortlet2BpmApplication.class.getName());
@@ -64,7 +45,7 @@ public abstract class GenericVaadinPortlet2BpmApplication extends Application im
     protected I18NSource i18NSource;
 
     private String showKeysString;
-    private boolean showExitWarning = false;
+    private boolean showExitWarning;
     private Locale lastLocale;
     
     @AutoInject
@@ -90,19 +71,6 @@ public abstract class GenericVaadinPortlet2BpmApplication extends Application im
         } else {
             mainWindow.addComponent(new Label(getMessage("please.use.from.a.portlet")));
         }
-    }
-
-    @Override
-    public void withTransaction(final ProcessToolGuiCallback r) {
-        ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-        r.callback(ctx, bpmSession);
-    }
-    
-    @Override
-    public <T> T withTransaction(ReturningProcessToolContextCallback<T> r) 
-    {
-        ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-        return r.processWithContext(ctx);
     }
 
     @Override

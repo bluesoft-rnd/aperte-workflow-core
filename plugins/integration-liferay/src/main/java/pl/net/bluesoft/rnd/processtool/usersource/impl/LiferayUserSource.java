@@ -1,12 +1,11 @@
 package pl.net.bluesoft.rnd.processtool.usersource.impl;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.portlet.RenderRequest;
 import javax.servlet.http.HttpServletRequest;
 
-import com.liferay.portal.kernel.exception.PortalException;
 import org.aperteworkflow.integration.liferay.utils.LiferayUserConverter;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +33,7 @@ import pl.net.bluesoft.util.lang.ExpiringCache;
  */
 public class LiferayUserSource implements IPortalUserSource 
 {
+	private final ExpiringCache<String, List<UserData>> allUsers = new ExpiringCache<String, List<UserData>>(15 * 60 * 1000);
 	private final ExpiringCache<String, UserData> usersByLogin = new ExpiringCache<String, UserData>(15 * 60 * 1000);
 
     @Autowired
@@ -55,33 +55,25 @@ public class LiferayUserSource implements IPortalUserSource
 		return usersByLogin.get(login, new ExpiringCache.NewValueCallback<String, UserData>() {
 			@Override
 			public UserData getNewValue(String key) {
-				Logger.getLogger(LiferayUserSource.class.getName()).warning("--------> Caching user " + login);
-				return doGetUserByLogin(login);
+				long[] companyIds = PortalUtil.getCompanyIds();
+
+				for (long companyId : companyIds) {
+					try {
+						User u = UserLocalServiceUtil.getUserByScreenName(companyId, login);
+						if (u != null) {
+							return LiferayUserConverter.convertLiferayUser(u);
+						}
+					}
+					catch (NoSuchUserException e) {
+						// continue
+					}
+					catch (Exception e) {
+						throw new UserSourceException(e);
+					}
+				}
+				return null;
 			}
 		});
-	}
-
-	private UserData doGetUserByLogin(String login) {
-		long[] companyIds = PortalUtil.getCompanyIds();
-
-		for (long companyId : companyIds) {
-			try {
-				User u = UserLocalServiceUtil.getUserByScreenName(companyId, login);
-				if (u != null) {
-					return LiferayUserConverter.convertLiferayUser(u);
-				}
-			}
-			catch (NoSuchUserException e) {
-				// continue
-			}
-			catch (SystemException e) {
-				throw new UserSourceException(e);
-			}
-			catch (PortalException e) {
-				throw new UserSourceException(e);
-			}
-		}
-		return null;
 	}
 
 	@Override
@@ -124,19 +116,25 @@ public class LiferayUserSource implements IPortalUserSource
 	}
 
 	@Override
-	public Collection<UserData> getAllUsers() 
+	public List<UserData> getAllUsers()
 	{
-        try {
-			Collection<UserData> users = LiferayUserConverter.convertLiferayUsers(UserLocalServiceUtil.getUsers(0, UserLocalServiceUtil.getUsersCount()));
+		return allUsers.get(null, new ExpiringCache.NewValueCallback<String, List<UserData>>() {
+			@Override
+			public List<UserData> getNewValue(String key) {
+				try {
+					List<UserData> users = LiferayUserConverter.convertLiferayUsers(UserLocalServiceUtil.getUsers(0, UserLocalServiceUtil.getUsersCount()));
 
-			for (UserData user : users) {
-				usersByLogin.put(user.getLogin(), user);
+					for (UserData user : users) {
+						Logger.getLogger(LiferayUserSource.class.getName()).warning("--------> Caching user " + user.getLogin());
+						usersByLogin.put(user.getLogin(), user);
+					}
+					return users;
+				}
+				catch (SystemException e) {
+					throw new UserSourceException(e);
+				}
 			}
-			return users;
-        }
-        catch (SystemException e) {
-            throw new UserSourceException(e);
-        }
+		});
 	}
 
 	@Override
@@ -146,47 +144,12 @@ public class LiferayUserSource implements IPortalUserSource
         {
             IAuthorizationService authorizationService = ObjectFactory.create(IAuthorizationService.class);
             return authorizationService.getUserByRequest(request);
-
-//            if (userData == null)
-//                return null;
-//
-//            ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-//            if(ctx != null)
-//            {
-//               return synchronizeUser(ctx, userData);
-//            }
-//            else
-//            {
-//                return processToolRegistry.withProcessToolContext(new ReturningProcessToolContextCallback<UserData>() {
-//                    @Override
-//                    public UserData processWithContext(ProcessToolContext ctx) {
-//                        return synchronizeUser(ctx, userData);
-//                    }
-//                });
-//            }
         }
         catch (Exception e) 
         {
         	throw new UserSourceException("User not found", e);
         }
 	}
-
-//    private UserData synchronizeUser(ProcessToolContext ctx, UserData externalUserData)
-//    {
-//        UserData aperteUser = getRegistry().getUserSource().getUserByLogin(externalUserData.getLogin());
-//
-//            /* No user in aperte db, create one */
-//        if(aperteUser == null)
-//        {
-//            ctx.getUserDataDAO().saveOrUpdate(externalUserData);
-//            return externalUserData;
-//        }
-//        else
-//        {
-//            aperteUser.getRoles();
-//            return aperteUser;
-//        }
-//    }
 	
 	@Override
 	public UserData getUserByRequest(RenderRequest request) 

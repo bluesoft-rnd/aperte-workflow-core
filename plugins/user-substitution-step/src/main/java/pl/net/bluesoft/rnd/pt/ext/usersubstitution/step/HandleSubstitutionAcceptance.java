@@ -1,17 +1,19 @@
 package pl.net.bluesoft.rnd.pt.ext.usersubstitution.step;
 
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import pl.net.bluesoft.rnd.processtool.model.BpmStep;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserSubstitution;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
-import pl.net.bluesoft.util.lang.Formats;
+
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
+import static pl.net.bluesoft.util.lang.DateUtil.beginOfDay;
+import static pl.net.bluesoft.util.lang.DateUtil.endOfDay;
+import static pl.net.bluesoft.util.lang.Formats.parseShortDate;
 
 @AliasName(name = "HandleSubstitutionAcceptanceStep")
 public class HandleSubstitutionAcceptance implements ProcessToolProcessStep {
@@ -24,8 +26,8 @@ public class HandleSubstitutionAcceptance implements ProcessToolProcessStep {
 			UserSubstitution userSubstitution = new UserSubstitution();
 
 			userSubstitution.setUserLogin(processInstance.getCreatorLogin());
-            userSubstitution.setDateFrom(Formats.parseShortDate(processInstance.getSimpleAttributeValue("dateFrom")));
-            userSubstitution.setDateTo(Formats.parseShortDate(processInstance.getSimpleAttributeValue("dateTo")));
+            userSubstitution.setDateFrom(beginOfDay(parseShortDate(processInstance.getSimpleAttributeValue("dateFrom"))));
+            userSubstitution.setDateTo(endOfDay(parseShortDate(processInstance.getSimpleAttributeValue("dateTo"))));
 			userSubstitution.setUserSubstituteLogin(processInstance.getSimpleAttributeValue("userSubstitute"));
 
             getThreadProcessToolContext().getUserSubstitutionDAO().saveOrUpdate(userSubstitution);

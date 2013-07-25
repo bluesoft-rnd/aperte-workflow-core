@@ -1,5 +1,6 @@
 package pl.net.bluesoft.rnd.pt.ext.user.service;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.portlet.RenderRequest;
@@ -14,6 +15,7 @@ import pl.net.bluesoft.rnd.processtool.usersource.IUserSource;
 import pl.net.bluesoft.rnd.processtool.usersource.exception.UserSourceException;
 import pl.net.bluesoft.rnd.pt.ext.user.dao.UserDataDAO;
 import pl.net.bluesoft.rnd.pt.ext.user.dao.UserDataDAOImpl;
+import pl.net.bluesoft.rnd.pt.ext.user.model.PersistentUserData;
 
 /**
  * Standard implementation of {@link IUserSource} 
@@ -28,9 +30,9 @@ public class AperteUserSource implements IPortalUserSource {
 	public UserData getUserByLogin(String login) throws UserSourceException 
 	{
 		UserDataDAO userDao = new UserDataDAOImpl(getSession());
-		
-		return userDao.loadUserByLogin(login);
-		
+
+		PersistentUserData userData = userDao.loadUserByLogin(login);
+		return userData;
 	}
 
 	@Override
@@ -51,7 +53,7 @@ public class AperteUserSource implements IPortalUserSource {
 	{
 		UserDataDAO userDao = new UserDataDAOImpl(getSession());
 		
-		return userDao.findAll();
+		return new ArrayList<UserData>(userDao.findAll());
 	}
 	
 	@Override

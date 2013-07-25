@@ -6,6 +6,7 @@ import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
+import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.roles.IUserRolesManager;
 import pl.net.bluesoft.rnd.processtool.roles.exception.RoleCreationExceptionException;
@@ -13,8 +14,7 @@ import pl.net.bluesoft.rnd.processtool.roles.exception.RoleNotFoundException;
 import pl.net.bluesoft.rnd.processtool.roles.exception.UserWithRoleNotFoundException;
 import pl.net.bluesoft.rnd.pt.ext.user.dao.UserRoleDAO;
 import pl.net.bluesoft.rnd.pt.ext.user.dao.UserRoleDAOImpl;
-import pl.net.bluesoft.rnd.pt.ext.user.model.UserData;
-import pl.net.bluesoft.rnd.pt.ext.user.model.UserRole;
+import pl.net.bluesoft.rnd.pt.ext.user.model.PersistentUserRole;
 
 public class AperteUserRolesManager implements IUserRolesManager 
 {
@@ -37,10 +37,8 @@ public class AperteUserRolesManager implements IUserRolesManager
 	{
 		UserRoleDAO userRoleDao = new UserRoleDAOImpl(getSession());
 		
-		UserRole userRole = new UserRole();
-		userRole.setName(roleName);
-		userRole.setDescription(description);
-		
+		PersistentUserRole userRole = new PersistentUserRole(roleName, description);
+
 		userRoleDao.saveOrUpdate(userRole);
 
 	}

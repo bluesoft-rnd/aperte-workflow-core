@@ -6,7 +6,7 @@ import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import pl.net.bluesoft.rnd.processtool.dao.PagedCollection;
 import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
-import pl.net.bluesoft.rnd.pt.ext.user.model.UserData;
+import pl.net.bluesoft.rnd.pt.ext.user.model.PersistentUserData;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -18,7 +18,7 @@ import static org.hibernate.criterion.Restrictions.eq;
 /**
  * @author tlipski@bluesoft.net.pl
  */
-public class UserDataDAOImpl extends SimpleHibernateBean<UserData> implements UserDataDAO
+public class UserDataDAOImpl extends SimpleHibernateBean<PersistentUserData> implements UserDataDAO
 {
 	private static final int PAGE_LENGTH = 500;
 
@@ -27,17 +27,17 @@ public class UserDataDAOImpl extends SimpleHibernateBean<UserData> implements Us
 	}
 
 	@Override
-	public UserData loadOrCreateUserByLogin(UserData ud) {
+	public PersistentUserData loadOrCreateUserByLogin(PersistentUserData ud) {
 		Session session = getSession();
 
 		if (session.contains(ud)) {
 			return ud;
 		}
 		if (ud.getId() != null) {
-			return (UserData) session.get(UserData.class, ud.getId());
+			return (PersistentUserData) session.get(PersistentUserData.class, ud.getId());
 		}
 		else {
-			UserData user = loadUserByLogin(ud.getLogin());
+			PersistentUserData user = loadUserByLogin(ud.getLogin());
 
 			if (user == null) {
 				session.saveOrUpdate(ud);
@@ -50,20 +50,20 @@ public class UserDataDAOImpl extends SimpleHibernateBean<UserData> implements Us
 	}
 
 	@Override
-	public UserData loadUserByLogin(String login) {
+	public PersistentUserData loadUserByLogin(String login) {
 		DetachedCriteria criteria = getDetachedCriteria().setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 
 		return findUnique(criteria, eq("login", login));
 	}
 
 	@Override
-	public Map<String, UserData> loadUsersByLogin(Collection<String> logins)
+	public Map<String, PersistentUserData> loadUsersByLogin(Collection<String> logins)
 	{
 		/* Logins size is smaller then max page size, no need to advanced processing */
 		if(logins.size() <= PAGE_LENGTH)
 			return loadUsersPageByLogin(logins);
 
-		Map<String, UserData> users = new HashMap<String, UserData>(logins.size());
+		Map<String, PersistentUserData> users = new HashMap<String, PersistentUserData>(logins.size());
 
 		PagedCollection<String> pagedCollection = new PagedCollection<String>(logins);
     	  
@@ -71,28 +71,28 @@ public class UserDataDAOImpl extends SimpleHibernateBean<UserData> implements Us
 		while(pagedCollection.hasMoreElements())
 		{
 			Collection<String> loginsPage = pagedCollection.getNextPage();
-			Map<String, UserData> usersPage = loadUsersPageByLogin(loginsPage);
+			Map<String, PersistentUserData> usersPage = loadUsersPageByLogin(loginsPage);
 
 			users.putAll(usersPage);
 		}
 		return users;
 	}
 
-	private Map<String, UserData> loadUsersPageByLogin(Collection<String> logins)
+	private Map<String, PersistentUserData> loadUsersPageByLogin(Collection<String> logins)
 	{
-		final List<UserData> users = findByCriteria(getDetachedCriteria()
+		final List<PersistentUserData> users = findByCriteria(getDetachedCriteria()
 				.add(Restrictions.in("login", logins))
 				.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY));
 
-		return new HashMap<String, UserData>(users.size()) {{
-			for (UserData user : users) {
+		return new HashMap<String, PersistentUserData>(users.size()) {{
+			for (PersistentUserData user : users) {
 				put(user.getLogin(), user);
 			}
 		}};
 	}
 
 	@Override
-	public UserData loadUserByEmail(String userEmail)
+	public PersistentUserData loadUserByEmail(String userEmail)
 	{
 		DetachedCriteria criteria = getDetachedCriteria().setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 		return findUnique(criteria, eq("email", userEmail));

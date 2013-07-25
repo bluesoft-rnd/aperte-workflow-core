@@ -2,12 +2,10 @@ package pl.net.bluesoft.rnd.pt.ext.user.model;
 
 import org.hibernate.annotations.GenericGenerator;
 import pl.net.bluesoft.rnd.processtool.model.AbstractPersistentEntity;
-import pl.net.bluesoft.util.lang.Collections;
-import pl.net.bluesoft.util.lang.Transformer;
+import pl.net.bluesoft.rnd.processtool.model.UserData;
 
 import javax.persistence.*;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import static pl.net.bluesoft.util.lang.FormatUtil.join;
@@ -18,7 +16,7 @@ import static pl.net.bluesoft.util.lang.FormatUtil.join;
 
 @Entity
 @Table(name="pt_user_data")
-public class UserData extends AbstractPersistentEntity {
+public class PersistentUserData extends AbstractPersistentEntity implements UserData {
 	public static final String _LOGIN = "login";
 	public static final String _REAL_NAME = "realName";
 	public static final String _FILTERED_NAME = "filteredName";
@@ -48,13 +46,17 @@ public class UserData extends AbstractPersistentEntity {
 	private Long companyId;
     private Long liferayUserId;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private Set<UserRole> roles;
+	/** Type of the queues */
+	@ElementCollection(fetch = FetchType.EAGER)
+	@Enumerated(EnumType.STRING)
+	@JoinTable(name = "pt_user_roles", joinColumns = @JoinColumn(name = "user_id"))
+	private Set<String> roles = new HashSet<String>();
 
-	public UserData() {
+
+	public PersistentUserData() {
 	}
 
-	public UserData(String login, String realName, String email) {
+	public PersistentUserData(String login, String realName, String email) {
 		this.login = login;
 		this.email = email;
         String[] names = realName.split("\\s", 2);
@@ -68,7 +70,7 @@ public class UserData extends AbstractPersistentEntity {
         }
 	}
 
-    public UserData(String login, String firstName, String lastName, String email) {
+    public PersistentUserData(String login, String firstName, String lastName, String email) {
         this.login = login;
         this.email = email;
         this.firstName = firstName;
@@ -85,67 +87,20 @@ public class UserData extends AbstractPersistentEntity {
 		this.id = id;
 	}
 
-    public Set<UserRole> getRoles() {
-        return roles != null ? roles : (roles = new HashSet<UserRole>());
+    @Override
+	public Set<String> getRoles() {
+        return roles != null ? roles : (roles = new HashSet<String>());
     }
 
-    public void setRoles(Set<UserRole> roles) {
+    public void setRoles(Set<String> roles) {
         this.roles = roles;
     }
 
-    public Set<String> getRoleNames() {
-		return Collections.collect(getRoles(), new Transformer<UserRole, String>() {
-            @Override
-            public String transform(UserRole obj) {
-                return obj.getName();
-            }
-        }, new HashSet<String>());
-	}
-
-	public void setRoleNames(Set<String> roleNames) {
-        Set<String> existingRoles = new HashSet<String>();
-        for (Iterator<UserRole> it = getRoles().iterator(); it.hasNext(); ) {
-            UserRole role = it.next();
-            if (!roleNames.contains(role.getName())) {
-                it.remove();
-            }
-            else {
-                existingRoles.add(role.getName());
-            }
-        }
-        for (String name : roleNames) {
-            if (!existingRoles.contains(name)) {
-                addRoleName(name);
-            }
-        }
-	}
-
-	public void addRoleName(String name) {
-        addRoleName(name, null);
+	public void addRole(String name) {
+        roles.add(name);
     }
 
-    public void addRoleName(String name, String description) {
-        UserRole role = null;
-        for (UserRole r : getRoles()) {
-            if (r.getName().equals(name)) {
-                role = r;
-                break;
-            }
-        }
-        if (role == null) {
-            role = new UserRole(this, name, description);
-            getRoles().add(role);
-        }
-        else {
-            role.setName(name);
-            role.setDescription(description);
-        }
-    }
-
-	public boolean containsRole(String roleName) {
-		return getRoleNames().contains(roleName);
-	}
-
+	@Override
 	public String getLogin() {
 		return login;
 	}
@@ -154,7 +109,8 @@ public class UserData extends AbstractPersistentEntity {
 		this.login = login;
 	}
 
-    public String getFirstName() {
+    @Override
+	public String getFirstName() {
         return firstName;
     }
 
@@ -162,6 +118,7 @@ public class UserData extends AbstractPersistentEntity {
         this.firstName = firstName;
     }
 
+	@Override
 	public String getRealName() {
 		return join(" ", firstName, lastName);
 	}
@@ -170,10 +127,12 @@ public class UserData extends AbstractPersistentEntity {
         this.lastName = lastName;
 	}
 
-    public String getLastName() {
+    @Override
+	public String getLastName() {
 		return lastName;
 	}
 
+	@Override
 	public String getEmail() {
 		return email;
 	}
@@ -182,6 +141,7 @@ public class UserData extends AbstractPersistentEntity {
 		this.email = email;
 	}
 
+	@Override
 	public String getJobTitle() {
 		return jobTitle;
 	}
@@ -190,6 +150,7 @@ public class UserData extends AbstractPersistentEntity {
 		this.jobTitle = jobTitle;
 	}
 
+	@Override
 	public Long getCompanyId() {
 		return companyId;
 	}
@@ -210,7 +171,8 @@ public class UserData extends AbstractPersistentEntity {
      * Name used in comboboxes to find user
      * @return
      */
-    public String getFilteredName() {
+    @Override
+	public String getFilteredName() {
 		return firstName + ' ' + lastName + " (" + login + ')';
 	}
 
@@ -236,7 +198,7 @@ public class UserData extends AbstractPersistentEntity {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		UserData other = (UserData) obj;
+		PersistentUserData other = (PersistentUserData) obj;
 		if (id == null) {
 			if (other.id != null)
 				return false;
@@ -266,13 +228,8 @@ public class UserData extends AbstractPersistentEntity {
 		this.superior = superior;
 	}
 
-
     public boolean hasRole(String roleName)
     {
-        for(UserRole role: roles)
-            if(role.getName().equals(roleName))
-                return true;
-
-        return false;
+        return roles.contains(roleName);
     }
 }

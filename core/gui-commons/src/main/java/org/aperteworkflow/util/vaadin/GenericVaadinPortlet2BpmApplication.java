@@ -126,7 +126,7 @@ public abstract class GenericVaadinPortlet2BpmApplication extends Application im
 		ObjectFactory.inject(this);
 		
 		user = userSource.getUserByRequest(request);
-        userRoles = user != null ? user.getRoleNames() : Collections.<String>emptyList();
+        userRoles = user != null ? user.getRoles() : Collections.<String>emptyList();
 
         if (user == null) {
             if (loginRequired) {

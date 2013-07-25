@@ -157,7 +157,7 @@ public class HelpUtility {
 	{
 		UserData user = (UserData)application.getUser();
 		
-		boolean canEdit = user.getRoleNames().contains("CHANGE_HELP_TOOLTIPS");
+		boolean canEdit = user.getRoles().contains("CHANGE_HELP_TOOLTIPS");
 		
 		return canEdit;
 	}

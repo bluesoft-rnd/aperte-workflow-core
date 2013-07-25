@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 
 import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.processtool.model.UserDataBean;
 import pl.net.bluesoft.rnd.processtool.usersource.exception.UserSourceException;
 
 import com.liferay.portal.kernel.exception.SystemException;
@@ -25,7 +26,7 @@ public class LiferayUserConverter
         if (user == null) {
             return null;
         }
-        UserData ud = new UserData();
+		UserDataBean ud = new UserDataBean();
         ud.setEmail(user.getEmailAddress());
         ud.setLogin(user.getScreenName());
         ud.setFirstName(user.getFirstName());
@@ -34,7 +35,7 @@ public class LiferayUserConverter
         ud.setCompanyId(user.getCompanyId());
         for (Role role : user.getRoles()) 
         {
-            ud.addRoleName(role.getName());
+            ud.addRole(role.getName());
         }
         setGroupRoles(ud, user);
         return ud;
@@ -49,12 +50,12 @@ public class LiferayUserConverter
         return users;
     }
     
-    private static void setGroupRoles(UserData ud, User user) {
+    private static void setGroupRoles(UserDataBean ud, User user) {
         try {
             for (UserGroup userGroup : user.getUserGroups()) {
                 List<Role> roles = RoleLocalServiceUtil.getGroupRoles(userGroup.getGroup().getGroupId());
                 for (Role role : roles) {
-                    ud.addRoleName(role.getName());
+                    ud.addRole(role.getName());
                 }
             }
         }

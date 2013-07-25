@@ -71,7 +71,7 @@ public class AwfUserCallback implements UserGroupCallback {
 					return Collections.emptySet();
 				}
 
-				List<ProcessQueue> queues = getQueuesFromConfig(user.getRoleNames());
+				List<ProcessQueue> queues = getQueuesFromConfig(user.getRoles());
 
 				return from(queues).select(GET_NAME).toSet();
 			}

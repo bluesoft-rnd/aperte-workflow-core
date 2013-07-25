@@ -1,7 +1,7 @@
 package pl.net.bluesoft.rnd.pt.ext.user.dao;
 
 import pl.net.bluesoft.rnd.processtool.hibernate.HibernateBean;
-import pl.net.bluesoft.rnd.pt.ext.user.model.UserRole;
+import pl.net.bluesoft.rnd.pt.ext.user.model.PersistentUserRole;
 
 import java.util.List;
 
@@ -10,8 +10,8 @@ import java.util.List;
  * 
  * @author mpawlak@bluesoft.net.pl
  */
-public interface UserRoleDAO extends HibernateBean<UserRole>
+public interface UserRoleDAO extends HibernateBean<PersistentUserRole>
 {
-	UserRole getUserRoleByName();
-	List<UserRole> getAll();
+	PersistentUserRole getUserRoleByName();
+	List<PersistentUserRole> getAll();
 }

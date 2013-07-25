@@ -283,7 +283,7 @@ public class HistoryListPane extends AbstractListPane implements DateRangeListen
         isHistorySuperuser = false;
         if (bpmSession != null) {
             UserData user = (UserData) application.getUser();
-            if (user.containsRole(HISTORY_SUPERUSER_ROLE_NAME)) {
+            if (user.hasRole(HISTORY_SUPERUSER_ROLE_NAME)) {
                 isHistorySuperuser = true;
             }
             else 
@@ -291,7 +291,7 @@ public class HistoryListPane extends AbstractListPane implements DateRangeListen
             	Collection<String> roles = HistoryViewSettingsProvider.getSuperUserRoles();
 
                 for (String roleName : roles) {
-                    if (user.containsRole(roleName)) {
+                    if (user.hasRole(roleName)) {
                         isHistorySuperuser = true;
                         break;
                     }

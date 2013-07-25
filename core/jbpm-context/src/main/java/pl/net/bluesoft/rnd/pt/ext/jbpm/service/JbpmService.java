@@ -47,6 +47,7 @@ import org.jbpm.task.service.local.LocalTaskService;
 import org.jbpm.task.utils.OnErrorAction;
 
 import pl.net.bluesoft.rnd.processtool.IProcessToolSettings;
+import pl.net.bluesoft.rnd.pt.ext.jbpm.JbpmStepAction;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.ProcessResourceNames;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.service.query.TaskQuery;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.service.query.UserQuery;
@@ -55,7 +56,8 @@ import bitronix.tm.TransactionManagerServices;
 public class JbpmService implements ProcessEventListener, TaskEventListener {
 
     protected Logger log = Logger.getLogger(JbpmService.class.getName());
-	
+
+    private static final int MAX_PROC_DEF_LENGTH = 1024;
     private static final IProcessToolSettings KSESSION_ID = new IProcessToolSettings() {
         @Override
         public String toString() {
@@ -122,6 +124,7 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
     }
 
     public synchronized String addProcessDefinition(InputStream definitionStream) {
+        String result = null;
         byte[] bytes;
 
         try {
@@ -132,17 +135,18 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
             throw new RuntimeException(e);
         }
 
-        // add to jbpm repository
-        String result = null;
-        if (getRepository() != null) {
-            result = getRepository().addResource(ProcessResourceNames.DEFINITION, definitionStream);
-        }
+        if (isValidResource(bytes)) {
+            // add to jbpm repository
+            if (getRepository() != null) {
+                result = getRepository().addResource(ProcessResourceNames.DEFINITION, definitionStream);
+            }
 
-        // update session
-        if (ksession != null) {
-            KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
-            kbuilder.add(ResourceFactory.newByteArrayResource(bytes), ResourceType.BPMN2);
-            ksession.getKnowledgeBase().addKnowledgePackages(kbuilder.getKnowledgePackages());
+            // update session
+            if (ksession != null) {
+                KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+                kbuilder.add(ResourceFactory.newByteArrayResource(bytes), ResourceType.BPMN2);
+                ksession.getKnowledgeBase().addKnowledgePackages(kbuilder.getKnowledgePackages());
+            }
         }
 
         return result;
@@ -151,6 +155,12 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
     private KnowledgeBase getKnowledgeBase() {
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
 
+        try {
+			Thread.currentThread().getContextClassLoader().loadClass(JbpmStepAction.class.getName());
+		} catch (ClassNotFoundException e) {
+			log.warning("JbpmStepAction.class was not found");
+		}
+        
         if (getRepository() != null) {
             for (byte[] resource : getValidResources()) {
                 kbuilder.add(ResourceFactory.newByteArrayResource(resource), ResourceType.BPMN2);
@@ -163,19 +173,24 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
     private List<byte[]> getValidResources() {
     	List<byte[]> validResources = new ArrayList<byte[]>();
         for (byte[] resource : getRepository().getAllResources("bpmn")) {
-        	KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
-        	kbuilder.add(ResourceFactory.newByteArrayResource(resource), ResourceType.BPMN2);
-        	boolean isOK = true;
-        	try {
-				kbuilder.newKnowledgeBase();
-			} catch (Exception e) {
-				isOK = false;
-				log.info("The following process definition contains errors and was not loaded:\n" + new String(resource));}
-			if (isOK) validResources.add(resource);
+    		if (isValidResource(resource)) validResources.add(resource);
         }
         return validResources;
     }
 
+    private boolean isValidResource(byte[] resource) {
+    	KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+    	kbuilder.add(ResourceFactory.newByteArrayResource(resource), ResourceType.BPMN2);
+    	boolean isOK = true;
+    	try {
+			kbuilder.newKnowledgeBase();
+		} catch (Exception e) {
+			isOK = false;
+			log.info("The following process definition contains errors and was not loaded:\n" + new String(resource).substring(0, Math.min(MAX_PROC_DEF_LENGTH, resource.length-1)) + "...");
+		}
+		return isOK;
+    }
+    
     private void loadSession(int sessionId) {
         KnowledgeBase kbase = getKnowledgeBase();
 

@@ -3,33 +3,24 @@ package pl.net.bluesoft.rnd.processtool.ui.queues;
 import com.vaadin.data.Container;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
-import com.vaadin.event.ItemClickEvent;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Table.ColumnGenerator;
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
-import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent;
-import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
-import pl.net.bluesoft.rnd.processtool.model.BpmTask;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueRight;
-import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
-import pl.net.bluesoft.rnd.processtool.ui.process.ProcessMultiViewDataPane;
-import pl.net.bluesoft.rnd.processtool.ui.process.WindowProcessDataDisplayContext;
-import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
 import org.aperteworkflow.util.vaadin.VaadinUtility;
 import org.aperteworkflow.util.vaadin.VaadinUtility.Refreshable;
-import pl.net.bluesoft.util.eventbus.EventListener;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
+import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
+import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.logging.Logger;
 
 import static org.aperteworkflow.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
 import static org.aperteworkflow.util.vaadin.VaadinUtility.horizontalLayout;
@@ -39,7 +30,6 @@ import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.g
 public class QueuesMainPane extends VerticalLayout implements Refreshable {
 	private I18NSource i18NSource;
 	private ProcessToolBpmSession session;
-	private EventListener<BpmEvent> bpmEventSubScriber;
 	private GenericVaadinPortlet2BpmApplication application;
 	private Table table;
 	private BeanItemContainer<ProcessQueue> bic;
@@ -53,14 +43,12 @@ public class QueuesMainPane extends VerticalLayout implements Refreshable {
 	}
 
 	private void initUI() {
-		final ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-
-		final Table table = getUserTasksTable(ctx);		
+		final Table table = getUserTasksTable();
 		Button addButton = new Button(getMessage("queues.add"));
 		Button removeButton = new Button(getMessage("queues.remove"));
 		
 		Component refreshButton = refreshIcon(application, this);
-        addComponent(horizontalLayout(new Label(getMessage("queues.help.short")), refreshButton));
+        addComponent(horizontalLayout(new Label(""), refreshButton));
 		addComponent(table);
 		HorizontalLayout hl = new HorizontalLayout();
 		hl.setSpacing(true);
@@ -109,7 +97,6 @@ public class QueuesMainPane extends VerticalLayout implements Refreshable {
 					@Override
 					public void run() 
 					{
-						ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
 						getRegistry().withProcessToolContext(new ProcessToolContextCallback() {
 							@Override
 							public void withContext(ProcessToolContext ctx) {
@@ -126,7 +113,7 @@ public class QueuesMainPane extends VerticalLayout implements Refreshable {
 		});
 	}
 
-	private Table getUserTasksTable(ProcessToolContext ctx) {
+	private Table getUserTasksTable() {
 		table = new Table();
 		table.setWidth("100%");
 		table.setHeight("200px");
@@ -173,39 +160,10 @@ public class QueuesMainPane extends VerticalLayout implements Refreshable {
 		for (Object o : table.getVisibleColumns()) {
 			table.setColumnHeader(o, getMessage("queues." + o));
 		}
-
-		table.addListener(
-			new ItemClickEvent.ItemClickListener() {
-				public void itemClick(final ItemClickEvent event) {
-                    withErrorHandling(getApplication(), new Runnable() {
-                        public void run() {
-                             if (event.isDoubleClick()) {
-                                 BeanItem<ProcessQueue> beanItem = bic.getItem(event.getItemId());
-                                 BpmTask task = session.assignTaskFromQueue(beanItem.getBean().getName());
-                                 if (task != null) {
-                                     getWindow().executeJavaScript("Liferay.trigger('processtool.bpm.assignProcess', '"
-                                             + task.getProcessInstance().getInternalId() + "');");
-                                     getWindow().executeJavaScript("vaadin.forceSync();");
-                                     Window w = new Window(task.getProcessInstance().getInternalId());
-                                     w.setContent(new ProcessMultiViewDataPane(getApplication(), session, i18NSource, task, new WindowProcessDataDisplayContext(w)));
-                                     w.center();
-                                     getWindow().addWindow(w);
-	                                 w.focus();
-
-                                 }
-
-                             }
-                        }});
-				}
-			 });
-		if (bpmEventSubScriber == null) {
-			session.getEventBusManager().subscribe(BpmEvent.class, bpmEventSubScriber = new MyBpmEventEventListener());
-		}
-
-
 		return table;
 	}
 
+	@Override
 	public void refreshData() {
 		bic.removeAllItems();
 		for (ProcessQueue pq : session.getUserAvailableQueues()) {
@@ -218,8 +176,7 @@ public class QueuesMainPane extends VerticalLayout implements Refreshable {
 	}
 	
 	private Form getAddQueueForm() {
-		
-		final QueueForm form = new QueueForm(ProcessToolContext.Util.getThreadProcessToolContext(), i18NSource, application);
+		final QueueForm form = new QueueForm(i18NSource, application);
 		final QueueBean queue = new QueueBean();
 		BeanItem<QueueBean> item = new BeanItem<QueueBean>(queue);
 		form.setItemDataSource(item, Arrays.asList("process", "name", "description", "rights"));
@@ -246,19 +203,10 @@ public class QueuesMainPane extends VerticalLayout implements Refreshable {
 						@Override
 						public void run() {
 							getRegistry().withProcessToolContext(new ProcessToolContextCallback() {
-
 								@Override
 								public void withContext(ProcessToolContext ctx) {
-
-                                    //no way!
-//									for (ProcessQueueRight r : config.getRights()) {
-//										if (ctx.getRegistry().createRoleIfNotExists(r.getRoleName(), "Role generated by queue portlet"))
-//											logger.info("Created new role " + r.getRoleName());
-//									}
-									
-									ctx.getProcessDefinitionDAO().updateOrCreateQueueConfigs(queues);
-									getApplication().getMainWindow().removeWindow(addQueueWindow);
-
+								ctx.getProcessDefinitionDAO().updateOrCreateQueueConfigs(queues);
+								getApplication().getMainWindow().removeWindow(addQueueWindow);
 								}
 							});
 						}
@@ -282,14 +230,5 @@ public class QueuesMainPane extends VerticalLayout implements Refreshable {
 		
 		form.getFooter().addComponent(saveButton);
 		return form;
-	}
-
-	private class MyBpmEventEventListener implements EventListener<BpmEvent>, Serializable {
-		@Override
-		public void onEvent(BpmEvent e) {
-			if (QueuesMainPane.this.isVisible() && QueuesMainPane.this.getApplication() != null) {
-				refreshData();
-			}
-		}
 	}
 }

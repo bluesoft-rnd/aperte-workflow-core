@@ -25,10 +25,13 @@ import java.util.Set;
  * @author mpawlak@bluesoft.net.pl
  */
 public interface ProcessToolBpmSession {
+	ProcessToolBpmSession createSession(String userLogin);
     ProcessToolBpmSession createSession(String userLogin, Collection<String> roleNames);
 
 	StartProcessResult startProcess(String bpmDefinitionId, String externalKey, String source);
 	List<BpmTask> performAction(String actionName, String taskId);
+	List<BpmTask> performAction(String actionName, BpmTask bpmTask);
+	List<BpmTask> performAction(String actionName, BpmTask bpmTask, boolean reloadTask);
 	List<BpmTask> performAction(ProcessStateAction action, BpmTask bpmTask);
 	BpmTask assignTaskFromQueue(String queueName);
 	BpmTask assignTaskFromQueue(String queueName, BpmTask task);

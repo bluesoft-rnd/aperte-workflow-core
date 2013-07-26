@@ -33,8 +33,8 @@ import pl.net.bluesoft.util.lang.ExpiringCache;
  */
 public class LiferayUserSource implements IPortalUserSource 
 {
-	private final ExpiringCache<String, List<UserData>> allUsers = new ExpiringCache<String, List<UserData>>(15 * 60 * 1000);
-	private final ExpiringCache<String, UserData> usersByLogin = new ExpiringCache<String, UserData>(15 * 60 * 1000);
+	private static final ExpiringCache<String, List<UserData>> allUsers = new ExpiringCache<String, List<UserData>>(15 * 60 * 1000);
+	private static final ExpiringCache<String, UserData> usersByLogin = new ExpiringCache<String, UserData>(15 * 60 * 1000);
 
     @Autowired
     private ProcessToolRegistry processToolRegistry;

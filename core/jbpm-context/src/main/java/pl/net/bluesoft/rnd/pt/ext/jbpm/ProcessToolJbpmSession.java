@@ -75,10 +75,13 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	}
 
 	@Override
+	public ProcessToolBpmSession createSession(String userLogin) {
+		return createSession(userLogin, null);
+	}
+
+	@Override
 	public ProcessToolBpmSession createSession(String userLogin, Collection<String> roleNames) {
-		ProcessToolJbpmSession session = new ProcessToolJbpmSession(userLogin, roleNames, this.userLogin);
-		session.substitutingUserLogin = this.userLogin;
-		return session;
+		return new ProcessToolJbpmSession(userLogin, roleNames, this.userLogin);
 	}
 
 	@Override
@@ -131,6 +134,20 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		BpmTask task = getTaskData(taskId);
 		ProcessStateAction action = task.getCurrentProcessStateConfiguration().getProcessStateActionByName(actionName);
 
+		return doPerformAction(action, task);
+	}
+
+	@Override
+	public List<BpmTask> performAction(String actionName, BpmTask task) {
+		return performAction(actionName, task, true);
+	}
+
+	@Override
+	public List<BpmTask> performAction(String actionName, BpmTask task, boolean reloadTask) {
+		if (reloadTask) {
+			task = getTaskData(toAwfTaskId(task));
+		}
+		ProcessStateAction action = task.getCurrentProcessStateConfiguration().getProcessStateActionByName(actionName);
 		return doPerformAction(action, task);
 	}
 

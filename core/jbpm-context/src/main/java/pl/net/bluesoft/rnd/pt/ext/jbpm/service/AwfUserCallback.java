@@ -23,7 +23,7 @@ import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
 public class AwfUserCallback implements UserGroupCallback {
 	private static final String DUMMY_USER_GROUP = "__DUMMY_USER_GROUP__";
 
-	private static final ExpiringCache<String, Set<String>> queueNamesByUserLogin = new ExpiringCache<String, Set<String>>(60 * 60 * 1000);
+	private static final ExpiringCache<String, Set<String>> queueNamesByUserLogin = new ExpiringCache<String, Set<String>>(5 * 60 * 1000);
 
 	@Override
 	public boolean existsUser(String userId) {

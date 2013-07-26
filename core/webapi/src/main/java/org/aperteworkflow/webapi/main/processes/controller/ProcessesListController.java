@@ -23,6 +23,7 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory.ExecutionType;
+import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.bpm.StartProcessResult;
 import pl.net.bluesoft.rnd.processtool.model.*;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
@@ -129,7 +130,19 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                         long t1 = System.currentTimeMillis();
             			long t2 = System.currentTimeMillis();
 
-                        List<BpmTask> newTasks = context.getBpmSession().performAction(actionName, taskId);
+						ProcessToolBpmSession userSession = context.getBpmSession();
+
+						BpmTask task = userSession.getTaskData(taskId);
+						List<BpmTask> newTasks;
+
+						if (ctx.getUserSubstitutionDAO().isSubstitutedBy(task.getAssignee(), userSession.getUserLogin())) {
+							ProcessToolBpmSession substitutedUserSession = userSession.createSession(task.getAssignee());
+
+							newTasks = substitutedUserSession.performAction(actionName, task, false);
+						}
+						else {
+                        	newTasks = userSession.performAction(actionName, task, false);
+						}
 
             			long t3 = System.currentTimeMillis();
                         
@@ -159,7 +172,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                         return null;
                     }
                 }
-            }, ExecutionType.TRANSACTION_SYNCH );
+            }, ExecutionType.TRANSACTION_SYNCH);
 		
 		    resultBean.setNextTask(bpmTaskBean);
 

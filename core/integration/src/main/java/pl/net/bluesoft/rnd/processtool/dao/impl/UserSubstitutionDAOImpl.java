@@ -4,7 +4,9 @@ import org.hibernate.Session;
 import pl.net.bluesoft.rnd.processtool.dao.UserSubstitutionDAO;
 import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
 import pl.net.bluesoft.rnd.processtool.model.UserSubstitution;
+import pl.net.bluesoft.util.lang.ExpiringCache;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -14,21 +16,57 @@ import java.util.List;
  * Time: 10:18:37
  */
 public class UserSubstitutionDAOImpl extends SimpleHibernateBean<UserSubstitution> implements UserSubstitutionDAO {
+	private static final ExpiringCache<String, List<String>> currentSubstitutedUserLogins = new ExpiringCache<String, List<String>>(10 * 60 * 1000);
+
     public UserSubstitutionDAOImpl(Session hibernateSession) {
         super(hibernateSession);
     }
 
     @Override
-    public List<String> getCurrentSubstitutedUserLogins(String userLogin)
+    public List<String> getCurrentSubstitutedUserLogins(final String userLogin)
     {
-		String query = "select distinct us.userLogin from UserSubstitution us where us.userSubstituteLogin = :userLogin and :date between us.dateFrom and us.dateTo";
-		return getSession().createQuery(query)
-				.setParameter("userLogin", userLogin)
-				.setParameter("date", new Date())
-				.list();
+		return currentSubstitutedUserLogins.get(userLogin, new ExpiringCache.NewValueCallback<String, List<String>>() {
+			@Override
+			public List<String> getNewValue(String key) {
+				String query = "select distinct us.userLogin from UserSubstitution us where us.userSubstituteLogin = :userLogin and :date between us.dateFrom and us.dateTo";
+				return getSession().createQuery(query)
+						.setParameter("userLogin", userLogin)
+						.setParameter("date", new Date())
+						.list();
+			}
+		});
     }
 
-    @Override
+	@Override
+	public boolean isSubstitutedBy(String userLogin, String userSubstituteLogin) {
+		return getCurrentSubstitutedUserLogins(userSubstituteLogin).contains(userLogin);
+	}
+
+	@Override
+	public void saveOrUpdate(UserSubstitution object) {
+		super.saveOrUpdate(object);
+		currentSubstitutedUserLogins.clear();
+	}
+
+	@Override
+	public void saveOrUpdate(Collection<UserSubstitution> objects) {
+		super.saveOrUpdate(objects);
+		currentSubstitutedUserLogins.clear();
+	}
+
+	@Override
+	public void delete(Collection<UserSubstitution> objects) {
+		super.delete(objects);
+		currentSubstitutedUserLogins.clear();
+	}
+
+	@Override
+	public void delete(UserSubstitution object) {
+		super.delete(object);
+		currentSubstitutedUserLogins.clear();
+	}
+
+	@Override
 	public void deleteById(Long id) {
 		if (id == null) {
 			return;
@@ -39,6 +77,7 @@ public class UserSubstitutionDAOImpl extends SimpleHibernateBean<UserSubstitutio
 				.uniqueResult();
 		if (item != null) {
 			delete((UserSubstitution)item);
+			currentSubstitutedUserLogins.clear();
 		}
 	}
 }

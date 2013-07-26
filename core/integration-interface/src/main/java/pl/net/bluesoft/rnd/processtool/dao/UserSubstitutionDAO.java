@@ -12,5 +12,6 @@ import java.util.List;
  */
 public interface UserSubstitutionDAO extends HibernateBean<UserSubstitution> {
 	List<String> getCurrentSubstitutedUserLogins(String userLogin);
+	boolean isSubstitutedBy(String userLogin, String userSubstituteLogin);
 	void deleteById(Long id);
 }

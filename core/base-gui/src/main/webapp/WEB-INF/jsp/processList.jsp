@@ -26,16 +26,19 @@
 
   	$(document).ready(function()
 	{
+	
+		var loadedProcess = loadCookies("process");
+		var parsedProcess = parseCookie(loadedProcess);
 		
 		var dataTable = new AperteDataTable("processesTable", 
 			[
-				 { "sName":"name", "bSortable": true,"mData": function(object){return generateNameColumn(object);}},
-				 { "sName":"step", "bSortable": true, "mData": "step" },
-				 { "sName":"code", "bSortable": true, "mData": "code" },
-				 { "sName":"creator", "bSortable": true,"mData": "creator" },
-				 { "sName":"assignee", "bSortable": true,"mData": "assignee" },
-				 { "sName":"creationDate", "bSortable": true,"mData": function(object){return $.format.date(object.creationDate, 'dd-MM-yyyy, HH:mm');}},
-				 { "sName":"deadline", "bSortable": true,"mData": function(object){return object.deadline == null ? "<spring:message code='processes.list.table.nodeadline' />" : $.format.date(object.deadline, 'dd-MM-yyyy, HH:mm');}}
+				 { "sName":"name", "bSortable": true ,"bVisible":parsedProcess.name, "mData": function(object){return generateNameColumn(object);}},
+				 { "sName":"step", "bSortable": true ,"bVisible":parsedProcess.step, "mData": "step" },
+				 { "sName":"code", "bSortable": true ,"bVisible":parsedProcess.code, "mData": "code" },
+				 { "sName":"creator", "bSortable": true ,"bVisible":parsedProcess.creator,"mData": "creator" },
+				 { "sName":"assignee", "bSortable": true ,"bVisible":parsedProcess.assignee,"mData": "assignee" },
+				 { "sName":"creationDate", "bSortable": true ,"bVisible":parsedProcess.creationDate,"mData": function(object){return $.format.date(object.creationDate, 'dd-MM-yyyy, HH:mm');}},
+				 { "sName":"deadline","bVisible":true ,"bVisible":parsedProcess.deadline, "bSortable": true,"mData": function(object){return object.deadline == null ? "<spring:message code='processes.list.table.nodeadline' />" : $.format.date(object.deadline, 'dd-MM-yyyy, HH:mm');}}
 			 ],
 			 [[ 5, "desc" ]]
 			);
@@ -46,6 +49,8 @@
 			this.toggleColumnButton("assignee", false);
 			this.toggleColumnButton("creationDate", false);
 		}
+
+
 		
 		dataTable.enableTabletMode = function()
 		{
@@ -67,7 +72,11 @@
 		}
 		
 		queueViewManager.addTableView('process', dataTable, 'task-view-processes');
+
 	});
+
+
+
 
 	
 

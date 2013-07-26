@@ -25,16 +25,18 @@
 //<![CDATA[
   	$(document).ready(function()
 	{
+		var loadedCustom = loadCookies("queue");
+		var parsedCustom = parseCookie(loadedCustom);
 	
 		var dataTable = new AperteDataTable("customQueueTable", 
 			[
-				 { "sName":"name", "bSortable": true,"mData": function(object){return generateNameColumn(object);}},
-				 { "sName":"step", "bSortable": true, "mData": "step" },
-				 { "sName":"code", "bSortable": true, "mData": "code" },
-				 { "sName":"creator", "bSortable": true,"mData": "creator" },
-				 { "sName":"creationDate", "bSortable": true,"mData": function(object){return $.format.date(object.creationDate, 'dd-MM-yyyy, HH:mm');}},
-				 { "sName":"deadline", "bSortable": true,"mData": function(object){return object.deadline == null ? "<spring:message code='processes.list.table.nodeadline' />" : $.format.date(object.deadline, 'dd-MM-yyyy, HH:mm');}},
-				 { "sName":"actions", "bSortable": false,"mData": function(object){return generateButtons(object)}},
+				 { "sName":"name", "bSortable": true,"bVisible":parsedCustom.name,"mData": function(object){return generateNameColumn(object);}},
+				 { "sName":"step", "bSortable": true,"bVisible":parsedCustom.step, "mData": "step" },
+				 { "sName":"code", "bSortable": true,"bVisible":parsedCustom.code, "mData": "code" },
+				 { "sName":"creator", "bSortable": true,"bVisible":parsedCustom.creator,"mData": "creator" },
+				 { "sName":"creationDate", "bSortable": true,"bVisible":parsedCustom.creationDate,"mData": function(object){return $.format.date(object.creationDate, 'dd-MM-yyyy, HH:mm');}},
+				 { "sName":"deadline", "bSortable": true,"bVisible":parsedCustom.deadline,"mData": function(object){return object.deadline == null ? "<spring:message code='processes.list.table.nodeadline' />" : $.format.date(object.deadline, 'dd-MM-yyyy, HH:mm');}},
+				 { "sName":"actions", "bSortable": false,"bVisible":parsedCustom.actions,"mData": function(object){return generateButtons(object)}},
 			 ],
 			 [[ 5, "desc" ]]
 			);

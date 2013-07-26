@@ -2,7 +2,8 @@ package pl.net.bluesoft.rnd.pt.ext.bpmnotifications.portlet.components;
 
 import static com.vaadin.ui.Window.Notification.POSITION_CENTERED;
 import static com.vaadin.ui.Window.Notification.TYPE_HUMANIZED_MESSAGE;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
+
+import pl.net.bluesoft.rnd.processtool.model.UserDataBean;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.IBpmNotificationService;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.ProcessedNotificationData;
@@ -90,8 +91,8 @@ public class OthersPanel extends VerticalLayout implements Button.ClickListener 
 					informationNotification(i18NSource.getMessage("bpmnot.send.test.mail.recipient.empty"));
 					return;
 				}
-				
-				UserData recipientUser = new UserData();
+
+				UserDataBean recipientUser = new UserDataBean();
 				recipientUser.setEmail(recipient);
 				
 				ProcessedNotificationData notificationData = new ProcessedNotificationData();

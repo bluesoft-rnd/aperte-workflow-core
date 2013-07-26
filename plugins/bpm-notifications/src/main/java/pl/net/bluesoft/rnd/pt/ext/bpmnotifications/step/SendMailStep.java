@@ -41,15 +41,9 @@ public class SendMailStep implements ProcessToolProcessStep {
 
     @Override
     public String invoke(BpmStep step, Map<String, String> params) throws Exception {
-        ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
         IBpmNotificationService service = getRegistry().getRegisteredService(IBpmNotificationService.class);
-        
-        Map<String, Object> data = new HashMap<String, Object>();
-        String processId = step.getProcessInstance().getExternalKey();
-        if (!Strings.hasText(processId))
-        	processId = step.getProcessInstance().getInternalId();
-		
-		UserData user = findUser(recipient, ctx, step.getProcessInstance());
+
+		UserData user = findUser(recipient, step.getProcessInstance());
 		
 		TemplateData templateData =	service.createTemplateData(template, Locale.getDefault());
 		
@@ -92,7 +86,7 @@ public class SendMailStep implements ProcessToolProcessStep {
 		return null;
 	}
 
-	private UserData findUser(String recipient, ProcessToolContext ctx, ProcessInstance pi) {
+	private UserData findUser(String recipient, ProcessInstance pi) {
 		if (recipient == null) {
 			return null;
 		}
@@ -102,12 +96,12 @@ public class SendMailStep implements ProcessToolProcessStep {
         	recipient = pi.getSimpleAttributeValue(loginKey);
     		if (recipient == null)
             {
-                recipient = (String)pi.getSimpleAttributeValue(loginKey);
+                recipient = pi.getSimpleAttributeValue(loginKey);
                 if(recipient == null)
                     return null;
     		}
         }
-		return ctx.getUserDataDAO().loadUserByLogin(recipient);
+		return getRegistry().getUserSource().getUserByLogin(recipient);
 	}
 }
 

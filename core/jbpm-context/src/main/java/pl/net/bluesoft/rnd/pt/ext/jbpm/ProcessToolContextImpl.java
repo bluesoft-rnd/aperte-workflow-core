@@ -15,6 +15,7 @@ import pl.net.bluesoft.rnd.processtool.dict.ProcessDictionaryRegistry;
 import pl.net.bluesoft.rnd.processtool.hibernate.HibernateBean;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.processtool.model.UserDataBean;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessToolSequence;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessToolSetting;
 import pl.net.bluesoft.util.eventbus.EventBusManager;
@@ -82,8 +83,6 @@ public class ProcessToolContextImpl implements ProcessToolContext {
                 dao = (T) getRegistry().getProcessInstanceDAO(hibernateSession);
             } else if (ProcessInstanceFilterDAO.class.equals(daoClass)) {
                 dao = (T) getRegistry().getProcessInstanceFilterDAO(hibernateSession);
-            } else if (UserDataDAO.class.equals(daoClass)) {
-                dao = (T) getRegistry().getUserDataDAO(hibernateSession);
             } else if (ProcessDefinitionDAO.class.equals(daoClass)) {
                 dao = (T) getRegistry().getProcessDefinitionDAO(hibernateSession);
             } else if (UserSubstitutionDAO.class.equals(daoClass)) {
@@ -112,11 +111,6 @@ public class ProcessToolContextImpl implements ProcessToolContext {
     @Override
     public ProcessInstanceFilterDAO getProcessInstanceFilterDAO() {
         return getHibernateDAO(ProcessInstanceFilterDAO.class);
-    }
-
-    @Override
-    public UserDataDAO getUserDataDAO() {
-        return getHibernateDAO(UserDataDAO.class);
     }
 
     @Override
@@ -239,7 +233,7 @@ public class ProcessToolContextImpl implements ProcessToolContext {
 
     @Override
     public UserData getAutoUser() {
-        return new UserData(Formats.nvl(getSetting(BasicSettings.AUTO_USER_LOGIN), "system"), Formats.nvl(getSetting(BasicSettings.AUTO_USER_NAME), "System"),
+        return new UserDataBean(Formats.nvl(getSetting(BasicSettings.AUTO_USER_LOGIN), "system"), Formats.nvl(getSetting(BasicSettings.AUTO_USER_NAME), "System"),
                 Formats.nvl(getSetting(BasicSettings.AUTO_USER_EMAIL), "awf@bluesoft.net.pl"));
     }
 

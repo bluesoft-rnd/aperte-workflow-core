@@ -27,7 +27,6 @@ public interface ProcessToolContext
     ProcessDictionaryDAO getProcessDictionaryDAO();
 
 	Session getHibernateSession();
-	UserDataDAO getUserDataDAO();
     UserSubstitutionDAO getUserSubstitutionDAO();
     ProcessInstanceSimpleAttributeDAO getProcessInstanceSimpleAttributeDAO();
     ProcessStateActionDAO getProcessStateActionDAO();

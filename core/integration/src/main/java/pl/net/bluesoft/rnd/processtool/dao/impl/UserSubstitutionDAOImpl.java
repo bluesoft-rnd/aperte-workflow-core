@@ -1,13 +1,12 @@
 package pl.net.bluesoft.rnd.processtool.dao.impl;
 
-import org.hibernate.FetchMode;
 import org.hibernate.Session;
-import org.hibernate.criterion.DetachedCriteria;
 import pl.net.bluesoft.rnd.processtool.dao.UserSubstitutionDAO;
 import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.UserSubstitution;
+import pl.net.bluesoft.util.lang.ExpiringCache;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -17,31 +16,54 @@ import java.util.List;
  * Time: 10:18:37
  */
 public class UserSubstitutionDAOImpl extends SimpleHibernateBean<UserSubstitution> implements UserSubstitutionDAO {
+	private static final ExpiringCache<String, List<String>> currentSubstitutedUserLogins = new ExpiringCache<String, List<String>>(10 * 60 * 1000);
+
     public UserSubstitutionDAOImpl(Session hibernateSession) {
         super(hibernateSession);
     }
 
     @Override
-    public List<UserSubstitution> getActiveSubstitutions(UserData user, Date date) {
-        Session session = getSession();
-        return session.createQuery("from UserSubstitution where userSubstitute = :user and :date between dateFrom and dateTo")
-            .setParameter("user", user)
-            .setParameter("date", date)
-            .list();                       
-//        return session.createCriteria(UserSubstitution.class)
-//                .add(eq("userSubstitute", user))
-//                .add(ge("dateFrom", date))
-//                .add(le("dateTo", date))
-//                .list();
+    public List<String> getCurrentSubstitutedUserLogins(final String userLogin)
+    {
+		return currentSubstitutedUserLogins.get(userLogin, new ExpiringCache.NewValueCallback<String, List<String>>() {
+			@Override
+			public List<String> getNewValue(String key) {
+				String query = "select distinct us.userLogin from UserSubstitution us where us.userSubstituteLogin = :userLogin and :date between us.dateFrom and us.dateTo";
+				return getSession().createQuery(query)
+						.setParameter("userLogin", userLogin)
+						.setParameter("date", new Date())
+						.list();
+			}
+		});
     }
 
 	@Override
-	public List<UserData> getSubstitutedUsers(UserData user, Date date) {
-		Session session = getSession();
-		return session.createQuery("select distinct us.user from UserSubstitution us where us.userSubstitute = :user and :date between us.dateFrom and us.dateTo")
-				.setParameter("user", user)
-				.setParameter("date", date)
-				.list();
+	public boolean isSubstitutedBy(String userLogin, String userSubstituteLogin) {
+		return getCurrentSubstitutedUserLogins(userSubstituteLogin).contains(userLogin);
+	}
+
+	@Override
+	public void saveOrUpdate(UserSubstitution object) {
+		super.saveOrUpdate(object);
+		currentSubstitutedUserLogins.clear();
+	}
+
+	@Override
+	public void saveOrUpdate(Collection<UserSubstitution> objects) {
+		super.saveOrUpdate(objects);
+		currentSubstitutedUserLogins.clear();
+	}
+
+	@Override
+	public void delete(Collection<UserSubstitution> objects) {
+		super.delete(objects);
+		currentSubstitutedUserLogins.clear();
+	}
+
+	@Override
+	public void delete(UserSubstitution object) {
+		super.delete(object);
+		currentSubstitutedUserLogins.clear();
 	}
 
 	@Override
@@ -55,14 +77,7 @@ public class UserSubstitutionDAOImpl extends SimpleHibernateBean<UserSubstitutio
 				.uniqueResult();
 		if (item != null) {
 			delete((UserSubstitution)item);
+			currentSubstitutedUserLogins.clear();
 		}
-	}
-
-	@Override
-	public List<UserSubstitution> findAllEagerUserFetch() {
-		DetachedCriteria criteria = getDetachedCriteria()
-				.setFetchMode(UserSubstitution._USER, FetchMode.JOIN)
-				.setFetchMode(UserSubstitution._USER_SUBSTITUTE, FetchMode.JOIN);
-		return findByCriteria(criteria);
 	}
 }

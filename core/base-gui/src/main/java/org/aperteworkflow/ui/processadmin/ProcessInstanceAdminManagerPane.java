@@ -4,22 +4,16 @@ import com.vaadin.Application;
 import com.vaadin.data.Property;
 import com.vaadin.event.FieldEvents;
 import com.vaadin.terminal.ExternalResource;
-import com.vaadin.terminal.StreamResource;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.BaseTheme;
 import com.vaadin.ui.themes.Reindeer;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.aperteworkflow.bpm.graph.GraphElement;
-import org.aperteworkflow.bpm.graph.StateNode;
-import org.aperteworkflow.bpm.graph.TransitionArc;
-import org.aperteworkflow.bpm.graph.TransitionArcPoint;
 import org.aperteworkflow.portlets.ProcessInstanceManagerPortlet;
-import org.aperteworkflow.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog;
+import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
@@ -28,7 +22,6 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,6 +31,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.aperteworkflow.util.vaadin.VaadinUtility.*;
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 import static pl.net.bluesoft.util.lang.FormatUtil.formatFullDate;
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 import static pl.net.bluesoft.util.lang.StringUtil.hasText;
@@ -99,8 +93,6 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements R
         addComponent(errorLbl);
         
         addComponent(searchResults);
-
-
     }
 
     private Component getNavigation() {
@@ -128,7 +120,6 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements R
             @Override
             public void buttonClick(Button.ClickEvent event) {
                 offset += limit;
-//                if (offset > cnt - 1) offset = cnt - 1;
                 refreshData();
             }
         });
@@ -174,8 +165,6 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements R
             errorLbl.setValue(getLocalizedMessage("processinstances.console.failed") + " " + e.getClass().getName() 
                     + ": " + e.getMessage());
         }
-
-
     }
 
     private Component getProcessInstancePane(final ProcessInstance pi) {
@@ -196,7 +185,7 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements R
 
         final Label lbl = new Label(
                 getLocalizedMessage("processinstances.console.history.createdby") + " " +
-                        (pi.getCreator() != null ? pi.getCreator().getLogin() : "unknown") + " " +
+                        nvl(pi.getCreatorLogin(), "unknown") + " " +
                         getLocalizedMessage("processinstances.console.history.on") + " " +
                         formatFullDate(pi.getCreateDate()));
 
@@ -413,9 +402,9 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements R
         HorizontalLayout hl = hl(new Label(getLocalizedMessage("processinstances.console.entry.state") + " " +
                 task.getTaskName() + ", " + task.getInternalTaskId()));
 
-        if (task.getOwner() != null)
+        if (task.getAssignee() != null)
             hl.addComponent(new Label(getLocalizedMessage("processinstances.console.entry.owner") + " " +
-                    (task.getOwner() != null ? task.getOwner().getLogin() : "NIL")));
+                    nvl(task.getAssignee(), "NIL")));
         else
             hl.addComponent(new Label(getLocalizedMessage("processinstances.console.entry.no-owner")));
 
@@ -432,7 +421,7 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements R
 
             }
         }));
-        if (task.getOwner() != null) {
+        if (task.getAssignee() != null) {
             hl.addComponent(linkButton(getLocalizedMessage("processinstances.console.entry.remove-owner"),
                     confirmable(getApplication(),
                             getLocalizedMessage("processinstances.console.remove-owner.confirm.title"),
@@ -453,8 +442,6 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements R
     }
 
     private class UserSearchComponent extends VerticalLayout {
-
-
         private TextField smallSearchField = new TextField();
         private CssLayout results = new CssLayout();
         private String filter;
@@ -503,7 +490,7 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements R
         }
     }
 
-    public class ProcessLogInfo {
+    public static class ProcessLogInfo {
         public String userDescription;
         public String actionDescription;
         public String entryDescription;
@@ -553,9 +540,9 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements R
 
     private ProcessLogInfo getProcessLogInfo(ProcessInstanceLog pl) {
         ProcessLogInfo plInfo = new ProcessLogInfo();
-        String userDescription = pl.getUser() != null ? nvl(pl.getUser().getRealName(), pl.getUser().getLogin()) : "";
-        if (pl.getUserSubstitute() != null) {
-            String substituteDescription = nvl(pl.getUserSubstitute().getRealName(), pl.getUserSubstitute().getLogin());
+		String userDescription = getUserDescription(pl.getUserLogin());
+		if (pl.getUserSubstituteLogin() != null) {
+            String substituteDescription = getUserDescription(pl.getUserSubstituteLogin());
             plInfo.userDescription = substituteDescription + "(" +
                     getLocalizedMessage("processinstances.console.history.substituting") + " " + userDescription + ")";
         } else {
@@ -571,7 +558,17 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements R
         return plInfo;
     }
 
-    private ComponentContainer getHistoryPane(ProcessInstance pi) {
+	private String getUserDescription(String login) {
+		if (login != null) {
+			UserData user = getRegistry().getUserSource().getUserByLogin(login);
+			if (user != null) {
+				return nvl(user.getRealName(), user.getLogin());
+			}
+		}
+		return "";
+	}
+
+	private ComponentContainer getHistoryPane(ProcessInstance pi) {
         //refresh
         pi = ProcessToolContext.Util.getThreadProcessToolContext().getProcessInstanceDAO().getProcessInstance(pi.getId());
 

@@ -57,9 +57,7 @@ public class ProcessInstance extends AbstractPersistentEntity
 
 	private Date createDate;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name="creator_id")
-	private UserData creator;
+	private String creatorLogin;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name="definition_id")
@@ -107,9 +105,9 @@ public class ProcessInstance extends AbstractPersistentEntity
     	return parentProcess;
     }
 
-	public ProcessInstance(String externalKey, UserData creator, String definionName) {
+	public ProcessInstance(String externalKey, String creatorLogin, String definionName) {
 		this.externalKey = externalKey;
-		this.creator = creator;
+		this.creatorLogin = creatorLogin;
 		this.definitionName = definionName;
 		this.createDate = new Date();
 	}
@@ -144,12 +142,12 @@ public class ProcessInstance extends AbstractPersistentEntity
 		this.createDate = createDate;
 	}
 
-	public UserData getCreator() {
-		return creator;
+	public String getCreatorLogin() {
+		return creatorLogin;
 	}
 
-	public void setCreator(UserData creator) {
-		this.creator = creator;
+	public void setCreatorLogin(String creatorLogin) {
+		this.creatorLogin = creatorLogin;
 	}
 
 	public String getDefinitionName() {

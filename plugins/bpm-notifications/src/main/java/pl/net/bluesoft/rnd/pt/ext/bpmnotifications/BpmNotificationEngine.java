@@ -207,7 +207,7 @@ public class BpmNotificationEngine implements IBpmNotificationService
     }
     
     
-    public void onProcessStateChange(BpmTask task, ProcessInstance pi, UserData userData, boolean processStarted,
+    public void onProcessStateChange(BpmTask task, ProcessInstance pi, String userLogin, boolean processStarted,
 									 boolean processEnded, boolean enteringStep) {
         refreshConfigIfNecessary();
         ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
@@ -231,40 +231,36 @@ public class BpmNotificationEngine implements IBpmNotificationService
                 if (hasText(cfg.getProcessTypeRegex()) && !pi.getDefinitionName().toLowerCase().matches(cfg.getProcessTypeRegex().toLowerCase())) 
                     continue;
                
-                if (!(
-					(!hasText(cfg.getStateRegex()) || (task != null && task.getTaskName().toLowerCase().matches(cfg.getStateRegex().toLowerCase())))
-				)) {
-
+                if (!(!hasText(cfg.getStateRegex()) || task != null && task.getTaskName().toLowerCase().matches(cfg.getStateRegex().toLowerCase()))) {
                     continue;
                 }
                 if (hasText(cfg.getLastActionRegex())) {
                 	String lastAction = pi.getSimpleAttributeValue("ACTION");
                 	if (lastAction == null || !lastAction.toLowerCase().matches(cfg.getLastActionRegex().toLowerCase())) {
-//                		logger.info("Not matched notification #" + cfg.getId() + ": lastAction=" + lastAction );
                         continue;
                 	}
                 }
                 logger.info("Matched notification #" + cfg.getId() + " for process state change #" + pi.getInternalId());
                 List<UserData> recipients = new LinkedList<UserData>();
                 if (task != null && cfg.isNotifyTaskAssignee()) {
-                    UserData owner = task.getOwner();
+                    UserData assignee = getRegistry().getUserSource().getUserByLogin(task.getAssignee());
                     if (cfg.isSkipNotificationWhenTriggeredByAssignee() &&
-                            owner != null &&
-                            owner.getLogin() != null &&
-                            owner.getLogin().equals(userData.getLogin())) {
-                        logger.info("Not notifying user " + owner.getLogin() + " - this user has initiated processed action");
+                            assignee != null &&
+                            assignee.getLogin() != null &&
+                            assignee.getLogin().equals(userLogin)) {
+                        logger.info("Not notifying user " + assignee.getLogin() + " - this user has initiated processed action");
                         continue;
                     }
-                    if (owner != null && hasText(owner.getEmail())) {
-                    	recipients.add(owner);
-                        logger.info("Notification will be sent to " + owner.getEmail());
+                    if (assignee != null && hasText(assignee.getEmail())) {
+                    	recipients.add(assignee);
+                        logger.info("Notification will be sent to " + assignee.getEmail());
                     }
                 }
                 if (hasText(cfg.getNotifyEmailAddresses())) 
                 {
                 	for(String userEmail: cfg.getNotifyEmailAddresses().split(","))
                 	{
-                		UserData recipient = ctx.getUserDataDAO().loadUserByEmail(userEmail);
+                		UserData recipient = getRegistry().getUserSource().getUserByEmail(userEmail);
                 		recipients.add(recipient);
                 	}
                 }
@@ -286,7 +282,7 @@ public class BpmNotificationEngine implements IBpmNotificationService
 	                templateDataProvider
 	                	.addTaskData(templateData, task)
 	                	.addProcessData(templateData, pi)
-	                	.addUserToNotifyData(templateData, userData)
+	                	.addUserToNotifyData(templateData, getRegistry().getUserSource().getUserByLogin(userLogin))
 	                	.addArgumentProvidersData(templateData, cfg, pi)
 	                	.addContextAdditionalData(templateData, cfg, bpmSession);
 	                
@@ -335,7 +331,7 @@ public class BpmNotificationEngine implements IBpmNotificationService
 				}
 	        }
 			if (hasText(attribute)) {
-				UserData user = ctx.getUserDataDAO().loadUserByLogin(attribute);
+				UserData user = getRegistry().getUserSource().getUserByLogin(attribute);
 				users.add(user);
 			}
 		}

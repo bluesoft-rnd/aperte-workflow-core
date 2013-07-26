@@ -166,7 +166,7 @@ public class WidgetApplication extends Application  implements HttpServletReques
 						ProcessToolBpmSession bpmSession =  (ProcessToolBpmSession) request.getSession().getAttribute(ProcessToolBpmSession.class.getName()); 
 						if(bpmSession == null)
 						{
-							bpmSession = getRegistry().getProcessToolSessionFactory().createSession(user, user.getRoleNames());
+							bpmSession = getRegistry().getProcessToolSessionFactory().createSession(user);
 							request.getSession().setAttribute(ProcessToolBpmSession.class.getName(), bpmSession);
 						}
 						

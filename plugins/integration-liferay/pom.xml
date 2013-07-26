@@ -147,6 +147,7 @@
                         <Embed-Directory>lib</Embed-Directory>
                         <Embed-Transitive>true</Embed-Transitive>
                         <ProcessTool-I18N-Property>messages</ProcessTool-I18N-Property>
+						<Bundle-Priority>1000</Bundle-Priority>
                     </instructions>
                 </configuration>
             </plugin>

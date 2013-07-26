@@ -58,9 +58,7 @@ public class FilesChecker {
     }
 
     private void execute(FilesCheckerConfiguration cfg) throws Exception {
-        ProcessToolBpmSession toolBpmSession = getRegistry().getProcessToolSessionFactory().createSession(
-                new UserData(cfg.getAutomaticUser(), cfg.getAutomaticUser(), cfg.getAutomaticUser()));
-
+        ProcessToolBpmSession toolBpmSession = getRegistry().getProcessToolSessionFactory().createSession(cfg.getAutomaticUser());
 
         File file = new File(cfg.getFilesProperties());
 

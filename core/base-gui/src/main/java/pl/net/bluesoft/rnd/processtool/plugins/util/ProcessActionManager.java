@@ -38,7 +38,7 @@ public class ProcessActionManager
 	{
 		if(processToolSession == null)
 		{
-			processToolSession = getRegistry().getProcessToolSessionFactory().createSession(user, user.getRoleNames());
+			processToolSession = getRegistry().getProcessToolSessionFactory().createSession(user);
 		}
 		
 		return processToolSession;

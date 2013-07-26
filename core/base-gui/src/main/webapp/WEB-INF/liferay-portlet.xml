@@ -12,32 +12,7 @@
     <portlet>
         <!-- Matches definition in portlet.xml. -->
         <!-- Note: Must not be the same as servlet name. -->
-        <portlet-name>ProcessTool Tasks</portlet-name>
-        <instanceable>false</instanceable>
-        <ajaxable>false</ajaxable>
-        <header-portlet-javascript>/js/jquery.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/jquery-ui-1.8.4.custom.min.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/jquery.ui.selectmenu.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/awf_functions.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/refresher.js</header-portlet-javascript>
-    </portlet>
-    <portlet>
-        <!-- Matches definition in portlet.xml. -->
-        <!-- Note: Must not be the same as servlet name. -->
         <portlet-name>ProcessTool Queues</portlet-name>
-        <instanceable>false</instanceable>
-        <ajaxable>false</ajaxable>
-        <header-portlet-javascript>/js/jquery.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/jquery-ui-1.8.4.custom.min.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/jquery.ui.selectmenu.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/awf_functions.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/refresher.js</header-portlet-javascript>
-    </portlet>
-
-    <portlet>
-        <!-- Matches definition in portlet.xml. -->
-        <!-- Note: Must not be the same as servlet name. -->
-        <portlet-name>ProcessTool Activities</portlet-name>
         <instanceable>false</instanceable>
         <ajaxable>false</ajaxable>
         <header-portlet-javascript>/js/jquery.js</header-portlet-javascript>

@@ -2,10 +2,10 @@ package pl.net.bluesoft.rnd.processtool.ui.basewidgets;
 
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.ui.*;
-import com.vaadin.ui.themes.Reindeer;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog;
+import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinRenderable;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
@@ -14,7 +14,7 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.ChildrenAllowed;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolVaadinWidget;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
+import pl.net.bluesoft.util.lang.FormatUtil;
 import pl.net.bluesoft.util.lang.Strings;
 
 import java.text.SimpleDateFormat;
@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 import static pl.net.bluesoft.util.lang.Formats.nvl;
 import static pl.net.bluesoft.util.lang.Strings.hasText;
 
@@ -67,7 +68,7 @@ public class ProcessHistoryWidget extends BaseProcessToolVaadinWidget implements
 	@Override
 	public void loadData(BpmTask task) {
         ProcessInstance pi = task.getProcessInstance().getRootProcessInstance();
-		List<ProcessInstanceLog> processLogs = new ArrayList(pi.getProcessLogs());
+		List<ProcessInstanceLog> processLogs = new ArrayList<ProcessInstanceLog>(pi.getProcessLogs());
 		Collections.sort(processLogs, ProcessInstanceLog.DEFAULT_COMPARATOR);
 		for (ProcessInstanceLog pl : processLogs) {
 			logInfos.add(getProcessLogInfo(pl));
@@ -77,9 +78,9 @@ public class ProcessHistoryWidget extends BaseProcessToolVaadinWidget implements
     //TODO refactor & reuse common code with ProcessInstanceAdminManagerPane
     private ProcessLogInfo getProcessLogInfo(ProcessInstanceLog pl) {
         ProcessLogInfo plInfo = new ProcessLogInfo();
-        String userDescription = pl.getUser() != null ? nvl(pl.getUser().getRealName(), pl.getUser().getLogin()) : "";
-        if (pl.getUserSubstitute() != null) {
-            String substituteDescription = nvl(pl.getUserSubstitute().getRealName(), pl.getUserSubstitute().getLogin());
+        String userDescription = getUserDescription(pl.getUserLogin());
+        if (pl.getUserSubstituteLogin() != null) {
+            String substituteDescription = getUserDescription(pl.getUserSubstituteLogin());
             plInfo.userDescription = substituteDescription + "(" + getMessage("awf.basewidgets.process-history.substituting") + " " + userDescription  + ")";
         }
         else {
@@ -93,10 +94,19 @@ public class ProcessHistoryWidget extends BaseProcessToolVaadinWidget implements
         plInfo.performDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(pl.getEntryDate().getTime());
         plInfo.stateDescription = pl.getState() != null ? nvl(pl.getState().getDescription(), pl.getState().getName()) : "";
         return plInfo;
-
 	}
 
-    public class ProcessLogInfo {
+	private String getUserDescription(String login) {
+		if (login != null) {
+			UserData user = getRegistry().getUserSource().getUserByLogin(login);
+			if (user != null) {
+				return FormatUtil.nvl(user.getRealName(), user.getLogin());
+			}
+		}
+		return "";
+	}
+
+    public static class ProcessLogInfo {
 		public String userDescription;
 		public String actionDescription;
 		public String entryDescription;
@@ -166,8 +176,6 @@ public class ProcessHistoryWidget extends BaseProcessToolVaadinWidget implements
 					"actionDescription"};
 			table.setVisibleColumns(cols);
 
-//			int[] widths = new int[]{100, 100, -1, -1, -1};
-
 			for (Object o : table.getVisibleColumns()) {
 				table.setColumnHeader(o, getMessage("awf.basewidgets.process-history." + o));
 			}
@@ -176,8 +184,6 @@ public class ProcessHistoryWidget extends BaseProcessToolVaadinWidget implements
 		}
 		else
 		{
-
-
 			CssLayout layout = new CssLayout();
 			layout.setSizeFull();
 			layout.addStyleName("history-panel");
@@ -220,5 +226,4 @@ public class ProcessHistoryWidget extends BaseProcessToolVaadinWidget implements
 	public void setTable(Boolean table) {
 		this.table = table;
 	}
-
 }

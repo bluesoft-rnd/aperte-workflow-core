@@ -1,7 +1,6 @@
 package pl.net.bluesoft.rnd.processtool.model.config;
 
 import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.pt.utils.lang.Lang2;
 
 import javax.persistence.*;
@@ -28,9 +27,8 @@ public class ProcessDefinitionConfig extends PersistentEntity {
 	public static final String _BPM_DEFINITION_KEY = "bpmDefinitionKey";
 	public static final String _BPM_DEFINITION_VERSION = "bpmDefinitionVersion";
 	public static final String _DEPLOYMENT_ID = "deploymentId";
-	public static final String _PROCESS_VERSION = "processVersion";
 	public static final String _COMMENT = "comment";
-	public static final String _CREATOR_ID = "creator_id";
+	public static final String _CREATOR_LOGIN = "creatorLogin";
 	public static final String _CREATE_DATE = "createDate";
 	public static final String _STATES = "states";
 	public static final String _PERMISSIONS = "permissions";
@@ -45,16 +43,11 @@ public class ProcessDefinitionConfig extends PersistentEntity {
 	private String bpmDefinitionKey;
 	private int bpmDefinitionVersion;
 	private String deploymentId;
-	
-
-
 
 	@Column(name="comment_")
 	private String comment;
 
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="creator_id")
-	private UserData creator;
+	private String creatorLogin;
 
 	private Date createDate;
 
@@ -145,15 +138,15 @@ public class ProcessDefinitionConfig extends PersistentEntity {
 		this.createDate = createDate;
 	}
 
-	public UserData getCreator() {
-		return creator;
+	public String getCreatorLogin() {
+		return creatorLogin;
 	}
 
-	public void setCreator(UserData creator) {
-		this.creator = creator;
+	public void setCreatorLogin(String creatorLogin) {
+		this.creatorLogin = creatorLogin;
 	}
 
-	public Set<ProcessStateConfiguration> getStates() 
+	public Set<ProcessStateConfiguration> getStates()
 	{
         if (states == null) 
         	states = new HashSet<ProcessStateConfiguration>();
@@ -260,6 +253,4 @@ public class ProcessDefinitionConfig extends PersistentEntity {
 			return false;
 		return true;
 	}
-    
-    
 }

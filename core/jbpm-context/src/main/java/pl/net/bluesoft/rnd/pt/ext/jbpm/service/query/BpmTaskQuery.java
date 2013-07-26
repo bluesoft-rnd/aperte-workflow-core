@@ -123,21 +123,19 @@ public class BpmTaskQuery {
 
 		for (Object[] resultRow : queryResults) {
 			ProcessInstance processInstance = (ProcessInstance)resultRow[0];
-			UserData owner = (UserData)resultRow[1];
-			int taskId = (Integer)resultRow[2];
-			String assignee = (String)resultRow[3];
-			String groupId = (String)resultRow[4];
-			String taskName = (String)resultRow[5];
-			Date createDate = (Date)resultRow[6];
-			Date finishDate = (Date)resultRow[7];
-			String status = (String)resultRow[8];
-			Long definitionId = (Long)resultRow[9];
-			Date taskDeadline = (Date)resultRow[10];
+			int taskId = (Integer)resultRow[1];
+			String assignee = (String)resultRow[2];
+			String groupId = (String)resultRow[3];
+			String taskName = (String)resultRow[4];
+			Date createDate = (Date)resultRow[5];
+			Date finishDate = (Date)resultRow[6];
+			String status = (String)resultRow[7];
+			Long definitionId = (Long)resultRow[8];
+			Date taskDeadline = (Date)resultRow[9];
 
 			BpmTaskBean bpmTask = new BpmTaskBean();
 
 			bpmTask.setProcessInstance(processInstance);
-			bpmTask.setOwner(owner);
 			bpmTask.setExecutionId(processInstance.getInternalId());
 			bpmTask.setInternalTaskId(String.valueOf(taskId));
 			bpmTask.setAssignee(assignee);
@@ -160,7 +158,6 @@ public class BpmTaskQuery {
 
 		if (queryType == QueryType.LIST) {
 			query.addEntity("process", ProcessInstance.class)
-					.addEntity("owner", UserData.class)
 					.addScalar("taskId", StandardBasicTypes.INTEGER)
 					.addScalar("assignee", StandardBasicTypes.STRING)
 					.addScalar("groupId", StandardBasicTypes.STRING)
@@ -197,7 +194,7 @@ public class BpmTaskQuery {
 			sb.append("COUNT(*)");
 		}
 		else {
-			sb.append("process.*, owner.*, task_.id as taskId, task_.actualowner_id as assignee, ");
+			sb.append("process.*, task_.id as taskId, task_.actualowner_id as assignee, ");
 			sb.append("CASE WHEN task_.actualowner_id IS NULL THEN potowners.entity_id END as groupId, ");
 			sb.append("i18ntext_.shortText as taskName, task_.createdOn as createdOn, task_.completedOn as completedOn, ");
 			sb.append("task_.status as taskStatus, process.definition_id as definitionId, ");
@@ -213,14 +210,6 @@ public class BpmTaskQuery {
 
 		if (taskNames != null || queryType == QueryType.LIST) {
 			sb.append(" JOIN i18ntext i18ntext_ ON i18ntext_.task_names_id = task_.id");
-		}
-
-		if (virtualQueues != null) {
-			sb.append(" JOIN pt_user_data creator ON creator.id = process.creator_id");
-		}
-
-		if (queryType == QueryType.LIST) {
-			sb.append(" LEFT JOIN pt_user_data owner ON owner.login = task_.actualowner_id");
 		}
 
 		sb.append(" WHERE 1=1");
@@ -284,7 +273,7 @@ public class BpmTaskQuery {
 			case SORT_BY_ASSIGNEE_ORDER:
 				return "task_.actualowner_id";
 			case SORT_BY_CREATOR_ORDER:
-				return "creator.login";
+				return "process.creatorLogin";
 			default:
 				throw new RuntimeException("Unhandled order by field " + sortField);
 		}
@@ -306,15 +295,9 @@ public class BpmTaskQuery {
 			case MY_TASKS:
 				return "(task_.actualowner_id = :user AND task_.status NOT IN ('Completed'))";
 			case OWN_IN_PROGRESS:
-				return "(creator.login = :user AND task_.status NOT IN ('Completed'))";
-//			case OWN_ASSIGNED:
-//				return "(creator.login = :user AND task_.actualowner_id = :user AND task_.status NOT IN ('Completed'))";
-//			case OWN_IN_QUEUE:
-//				return "(creator.login = :user AND task_.actualowner_id IS NULL AND task_.status NOT IN ('Completed'))";
+				return "(process.creatorLogin = :user AND task_.status NOT IN ('Completed'))";
 			case OWN_FINISHED:
-				return "(creator.login = :user AND task_.actualowner_id = :user AND task_.status IN ('Completed'))";
-//			case ASSIGNED_TO_CURRENT_USER:
-//				return "(creator.login != :user AND task_.actualowner_id = :user AND task_.status NOT IN ('Completed'))";
+				return "(process.creatorLogin = :user AND task_.actualowner_id = :user AND task_.status IN ('Completed'))";
 			default:
 				throw new RuntimeException("Unhandled type: " + virtualQueue);
 		}

@@ -4,7 +4,6 @@ import org.hibernate.annotations.*;
 
 import javax.persistence.*;
 import javax.persistence.Entity;
-import javax.persistence.Parameter;
 import javax.persistence.Table;
 import java.util.Date;
 
@@ -16,8 +15,10 @@ import java.util.Date;
 @Entity
 @Table(name="pt_user_substitution")
 public class UserSubstitution extends AbstractPersistentEntity {
-	public static final String _USER = "user";
-	public static final String _USER_SUBSTITUTE = "userSubstitute";
+	public static final String _USER_LOGIN = "userLogin";
+	public static final String _USER_SUBSTITUTE_LOGIN = "userSubstituteLogin";
+	public static final String _DATE_FROM = "dateFrom";
+	public static final String _DATE_TO = "dateTo";
 
 	@Id
 	@GeneratedValue(generator = "idGenerator")
@@ -33,40 +34,38 @@ public class UserSubstitution extends AbstractPersistentEntity {
 	@Column(name = "id")
 	protected Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="user_id")
-    private UserData user;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="user_substitute_id")
-    private UserData userSubstitute;
+    private String userLogin;
+    private String userSubstituteLogin;
     private Date dateFrom;
     private Date dateTo;
 
+	@Override
 	public Long getId() {
 		return id;
 	}
 
+	@Override
 	public void setId(Long id) {
 		this.id = id;
 	}
 
-	public UserData getUser() {
-        return user;
-    }
+	public String getUserLogin() {
+		return userLogin;
+	}
 
-    public void setUser(UserData user) {
-        this.user = user;
-    }
+	public void setUserLogin(String userLogin) {
+		this.userLogin = userLogin;
+	}
 
-    public UserData getUserSubstitute() {
-        return userSubstitute;
-    }
+	public String getUserSubstituteLogin() {
+		return userSubstituteLogin;
+	}
 
-    public void setUserSubstitute(UserData userSubstitute) {
-        this.userSubstitute = userSubstitute;
-    }
+	public void setUserSubstituteLogin(String userSubstituteLogin) {
+		this.userSubstituteLogin = userSubstituteLogin;
+	}
 
-    public Date getDateFrom() {
+	public Date getDateFrom() {
         return dateFrom;
     }
 

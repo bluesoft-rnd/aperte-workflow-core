@@ -106,8 +106,7 @@ public class ProcessDeployer
 	}
 
 	private ProcessToolBpmSession createAdminSession() {
-		return getRegistry().getProcessToolSessionFactory().createSession(
-				new UserData("admin", "admin@aperteworkflow.org", "Admin"), Collections.singletonList("ADMIN"));
+		return getRegistry().getProcessToolSessionFactory().createSession("admin", Collections.singletonList("ADMIN"));
 	}
 
 	public void deployOrUpdateProcessDefinition(

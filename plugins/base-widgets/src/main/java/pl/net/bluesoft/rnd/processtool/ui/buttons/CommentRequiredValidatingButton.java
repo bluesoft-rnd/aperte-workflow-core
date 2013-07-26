@@ -1,6 +1,5 @@
 package pl.net.bluesoft.rnd.processtool.ui.buttons;
 
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComment;
@@ -78,10 +77,9 @@ public class CommentRequiredValidatingButton extends StandardValidatingButton {
 		if (skipAddingComment) {
 			return;
 		}
-        ProcessToolContext ctx = getCurrentContext();
 		ProcessComment pc = dialog.getProcessComment();
-        pc.setAuthor(ctx.getUserDataDAO().loadOrCreateUserByLogin(loggedUser));
-        pc.setAuthorSubstitute(substitutingUser != null ? ctx.getUserDataDAO().loadOrCreateUserByLogin(substitutingUser) : null);
+        pc.setAuthor(loggedUser);
+        pc.setAuthorSubstitute(substitutingUser);
         pc.setCreateTime(new Date());
         pc.setProcessState(task.getTaskName());
         ProcessInstance pi = task.getProcessInstance().getRootProcessInstance();

@@ -40,8 +40,7 @@ public class WebProcessToolContextFactory
 
 			if(bpmSession == null && user != null)
 			{
-				ProcessToolBpmSession processToolBpmSession = sessionFactory.
-						createSession(processToolContext.getUser(), processToolContext.getUser().getRoleNames());
+				ProcessToolBpmSession processToolBpmSession = sessionFactory.createSession(user);
 
 				request.getSession().setAttribute(ProcessToolBpmSession.class.getName(), processToolBpmSession);
 				processToolContext.setBpmSession(processToolBpmSession);

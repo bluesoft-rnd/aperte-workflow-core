@@ -257,9 +257,8 @@ public class ProcessMultiViewDataPane extends VerticalLayout implements WidgetCo
 		/* Check if the current process has active task. It should has at least one */
 		if(activeTasks.isEmpty())
 			return false;
-		
-		UserData user = ProcessToolBpmSessionHelper.getUser(bpmSession, getCurrentContext());
-		String userLogin = user.getLogin();
+
+		String userLogin = bpmSession.getUserLogin();
 		
 		for(BpmTask task: activeTasks)
 		{

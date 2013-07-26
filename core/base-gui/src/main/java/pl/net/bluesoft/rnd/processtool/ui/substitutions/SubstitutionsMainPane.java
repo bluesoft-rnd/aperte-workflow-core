@@ -1,60 +1,29 @@
 package pl.net.bluesoft.rnd.processtool.ui.substitutions;
 
-import static org.aperteworkflow.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
-import static org.aperteworkflow.util.vaadin.VaadinUtility.addIcon;
-import static org.aperteworkflow.util.vaadin.VaadinUtility.horizontalLayout;
-import static org.aperteworkflow.util.vaadin.VaadinUtility.modalWindow;
-import static org.aperteworkflow.util.vaadin.VaadinUtility.pagedTable;
-import static org.aperteworkflow.util.vaadin.VaadinUtility.refreshIcon;
-import static org.aperteworkflow.util.vaadin.VaadinUtility.select;
-import static org.aperteworkflow.util.vaadin.VaadinUtility.smallButton;
-import static org.aperteworkflow.util.vaadin.VaadinUtility.validationNotification;
-import static org.aperteworkflow.util.vaadin.VaadinUtility.wrapPagedTable;
-import static pl.net.bluesoft.util.lang.DateUtil.truncHours;
-import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import org.aperteworkflow.util.vaadin.TransactionProvider;
-import org.aperteworkflow.util.vaadin.VaadinUtility.Refreshable;
-import org.aperteworkflow.util.vaadin.ui.table.LocalizedPagedTable;
-
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
-import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
-import pl.net.bluesoft.rnd.processtool.model.UserSubstitution;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolGuiCallback;
-import pl.net.bluesoft.rnd.processtool.usersource.IUserSource;
-import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import pl.net.bluesoft.util.lang.Maps;
-
 import com.vaadin.Application;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Validator;
+import com.vaadin.data.util.BeanContainer;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
-import com.vaadin.data.util.PropertyFormatter;
 import com.vaadin.event.ItemClickEvent;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.DateField;
-import com.vaadin.ui.Field;
-import com.vaadin.ui.Form;
-import com.vaadin.ui.FormFieldFactory;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Panel;
-import com.vaadin.ui.PopupDateField;
-import com.vaadin.ui.Select;
-import com.vaadin.ui.Table;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
+import com.vaadin.ui.*;
+import org.aperteworkflow.util.vaadin.ui.table.LocalizedPagedTable;
+import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.processtool.model.UserSubstitution;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+import pl.net.bluesoft.util.lang.DateUtil;
+
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+import static org.aperteworkflow.util.vaadin.VaadinExceptionHandler.Util.withErrorHandling;
+import static org.aperteworkflow.util.vaadin.VaadinUtility.*;
+import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
+import static pl.net.bluesoft.rnd.processtool.model.UserSubstitution.*;
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
 
 /**
  * User: POlszewski
@@ -62,20 +31,18 @@ import com.vaadin.ui.Window;
  * Time: 13:05:13
  */
 public class SubstitutionsMainPane extends VerticalLayout implements Refreshable {
-    private Application application;
+	public static final String DATE_FORMAT = "yyyy-MM-dd";
+	private Application application;
     private I18NSource i18NSource;
-    private TransactionProvider transactionProvider;
 
-    private Window detailsWindow = null;
+    private Window detailsWindow;
 
     private BeanItemContainer<UserSubstitution> container = new BeanItemContainer<UserSubstitution>(UserSubstitution.class);
-    private BeanItemContainer<UserData> userDataContainer = new BeanItemContainer<UserData>(UserData.class);
-    private Map<String, UserData> usersByLogin;
+    private BeanContainer<String, UserData> userDataContainer = new BeanContainer<String, UserData>(UserData.class);
 
-    public SubstitutionsMainPane(Application application, I18NSource i18NSource, TransactionProvider transactionProvider) {
+    public SubstitutionsMainPane(Application application, I18NSource i18NSource) {
         this.application = application;
         this.i18NSource = i18NSource;
-        this.transactionProvider = transactionProvider;
         setWidth("100%");
         initWidget();
         loadData();
@@ -107,16 +74,16 @@ public class SubstitutionsMainPane extends VerticalLayout implements Refreshable
         addComponent(headerLayout);
 
         Map<String, Table.ColumnGenerator> customColumns = new HashMap<String, Table.ColumnGenerator>();
-        customColumns.put("user", createUserRealNameColumn());
-        customColumns.put("userSubstitute", createUserRealNameColumn());
-        customColumns.put("dateFrom", createDateColumn());
-        customColumns.put("dateTo", createDateColumn());
+        customColumns.put(_USER_LOGIN, createUserRealNameColumn());
+        customColumns.put(_USER_SUBSTITUTE_LOGIN, createUserRealNameColumn());
+        customColumns.put(_DATE_FROM, createDateColumn());
+        customColumns.put(_DATE_TO, createDateColumn());
         customColumns.put("delete", createDeleteColumn(container));
 
-        String[] visibleColumns = new String[] {"user", "userSubstitute", "dateFrom", "dateTo", "delete"};
-        String[] columnHeaders = new String[] {getMessage("substitutions.user"), getMessage("substitutions.user.substitute"),
+        String[] visibleColumns = {_USER_LOGIN, _USER_SUBSTITUTE_LOGIN, _DATE_FROM, _DATE_TO, "delete"};
+        String[] columnHeaders = { getMessage("substitutions.user"), getMessage("substitutions.user.substitute"),
                 getMessage("substitutions.date.from"), getMessage("substitutions.date.to"),
-                getMessage("pagedtable.delete")};
+                getMessage("pagedtable.delete") };
 
         LocalizedPagedTable table = pagedTable(container, visibleColumns, columnHeaders, customColumns, new ItemClickEvent.ItemClickListener() {
             @Override
@@ -133,21 +100,19 @@ public class SubstitutionsMainPane extends VerticalLayout implements Refreshable
     private void loadData() {
         container.removeAllItems();
         userDataContainer.removeAllItems();
-        transactionProvider.withTransaction(new ProcessToolGuiCallback() {
-            @Override
-            public void callback(ProcessToolContext ctx, ProcessToolBpmSession session) {
-                container.addAll(ctx.getUserSubstitutionDAO().findAllEagerUserFetch());
-                
-                IUserSource userSource = ObjectFactory.create(IUserSource.class);
-                
-                usersByLogin = Maps.collectionToMap(userSource.getAllUsers(), "login");
-                userDataContainer.addAll(usersByLogin.values());
-				userDataContainer.sort(new String[]{ "realName" }, new boolean[]{ true });
-            }
-        });
+
+		container.addAll(getThreadProcessToolContext().getUserSubstitutionDAO().findAll());
+
+		List<UserData> allUsers = getRegistry().getUserSource().getAllUsers();
+
+		for (UserData user : allUsers) {
+			userDataContainer.addItem(user.getLogin(), user);
+		}
+		userDataContainer.sort(new String[]{ UserData._FILTERED_NAME }, new boolean[]{ true });
     }
 
-    public void refreshData() {
+    @Override
+	public void refreshData() {
         loadData();
     }
 
@@ -157,7 +122,8 @@ public class SubstitutionsMainPane extends VerticalLayout implements Refreshable
             @Override
             public void buttonClick(Button.ClickEvent event) {
                 withErrorHandling(getApplication(), new Runnable() {
-                    public void run() {
+                    @Override
+					public void run() {
                         refreshData();
                     }
                 });
@@ -167,13 +133,6 @@ public class SubstitutionsMainPane extends VerticalLayout implements Refreshable
     }
 
     private Form createSubstitutionForm(final BeanItem<UserSubstitution> item, final boolean add) {
-        UserSubstitution subst = item.getBean();
-        if (subst.getUser() != null) {
-            subst.setUser(usersByLogin.get(subst.getUser().getLogin()));
-        }
-        if (subst.getUserSubstitute() != null) {
-            subst.setUserSubstitute(usersByLogin.get(subst.getUserSubstitute().getLogin()));
-        }
         final Form form = new Form() {
             @Override
             protected void attachField(Object propertyId, Field field) {
@@ -187,26 +146,26 @@ public class SubstitutionsMainPane extends VerticalLayout implements Refreshable
         form.setFormFieldFactory(new FormFieldFactory(){
             @Override
             public Field createField(Item item, Object propertyId, Component component) {
-                if ("user".equals(propertyId)) {
-                    Select s = select(getMessage("substitutions.user"), userDataContainer, "filteredName");
+                if (_USER_LOGIN.equals(propertyId)) {
+                    Select s = select(getMessage("substitutions.user"), userDataContainer, UserData._FILTERED_NAME);
                     s.setRequired(true);
                     s.setRequiredError("Substituted User required");
                     return s;
                 }
-                if ("userSubstitute".equals(propertyId)) {
-                    Select s = select(getMessage("substitutions.user.substitute"), userDataContainer, "filteredName");
+                if (_USER_SUBSTITUTE_LOGIN.equals(propertyId)) {
+                    Select s = select(getMessage("substitutions.user.substitute"), userDataContainer, UserData._FILTERED_NAME);
                     s.setRequired(true);
                     s.setRequiredError("Substituting User required");
 					s.setWidth(250, UNITS_PIXELS);
                     return s;
                 }
-                if ("dateFrom".equals(propertyId)) {
+                if (_DATE_FROM.equals(propertyId)) {
                     DateField df = createDateField(getMessage("substitutions.date.from"));
                     df.setRequired(true);
                     df.setRequiredError(getMessage("substitutions.date.from.required"));
                     return df;
                 }
-                if ("dateTo".equals(propertyId)) {
+                if (_DATE_TO.equals(propertyId)) {
                     DateField df = createDateField(getMessage("substitutions.date.to"));
                     df.setRequired(true);
                     df.setRequiredError(getMessage("substitutions.date.to.required"));
@@ -216,7 +175,7 @@ public class SubstitutionsMainPane extends VerticalLayout implements Refreshable
             }
         });
         form.setItemDataSource(item);
-        form.setVisibleItemProperties(new String[]{ "user", "userSubstitute", "dateFrom", "dateTo" });
+        form.setVisibleItemProperties(new String[]{ _USER_LOGIN, _USER_SUBSTITUTE_LOGIN, _DATE_FROM, _DATE_TO });
         form.setValidationVisible(false);
         form.setValidationVisibleOnCommit(false);
         form.setImmediate(true);
@@ -282,40 +241,19 @@ public class SubstitutionsMainPane extends VerticalLayout implements Refreshable
         detailsWindow = modalWindow(getMessage("substitutions.Substitution"), panel);
     }
 
-    private void saveSubstitution(final UserSubstitution item) {
-        item.setDateFrom(truncHours(item.getDateFrom()));
-        item.setDateTo(truncHours(item.getDateTo()));
-        transactionProvider.withTransaction(new ProcessToolGuiCallback() {
-            @Override
-            public void callback(ProcessToolContext ctx, ProcessToolBpmSession session) {
-                item.setUser(ctx.getUserDataDAO().loadOrCreateUserByLogin(item.getUser()));
-                item.setUserSubstitute(ctx.getUserDataDAO().loadOrCreateUserByLogin(item.getUserSubstitute()));
-                ctx.getUserSubstitutionDAO().saveOrUpdate(item);
-            }
-        });
+    private void saveSubstitution(UserSubstitution item) {
+        item.setDateFrom(DateUtil.beginOfDay(item.getDateFrom()));
+        item.setDateTo(DateUtil.endOfDay(item.getDateTo()));
+
+		getThreadProcessToolContext().getUserSubstitutionDAO().saveOrUpdate(item);
     }
 
     private Table.ColumnGenerator createUserRealNameColumn() {
         return new Table.ColumnGenerator() {
             @Override
-            public Component generateCell(Table source, final Object itemId, Object columnId) {
+            public Object generateCell(Table source, final Object itemId, Object columnId) {
                 Property prop = source.getItem(itemId).getItemProperty(columnId);
-                if (prop.getType().equals(UserData.class)) {
-                    Label l = new Label();        
-                    l.setPropertyDataSource(new PropertyFormatter(prop) {
-                        @Override
-                        public String format(Object o) {
-                            return ((UserData)o).getRealName();
-                        }
-
-                        @Override
-                        public Object parse(String s) throws Exception {
-                            throw new UnsupportedOperationException();
-                        }
-                    });
-                    return l;
-                }
-                return null;
+                return prop.getValue();
             }
         };
     }
@@ -323,16 +261,10 @@ public class SubstitutionsMainPane extends VerticalLayout implements Refreshable
     private Table.ColumnGenerator createDateColumn() {
         return new Table.ColumnGenerator() {
             @Override
-            public Component generateCell(Table source, final Object itemId, Object columnId) {
+            public Object generateCell(Table source, final Object itemId, Object columnId) {
                 Property prop = source.getItem(itemId).getItemProperty(columnId);
-                if (prop.getType().equals(Date.class)) {
-                    DateField df = createDateField(null);
-                    df.setRequired(true);
-                    df.setReadOnly(true);
-                    df.setPropertyDataSource(prop);
-                    return df;
-                }
-                return null;                
+                Date date = (Date)prop.getValue();
+				return date != null ? new SimpleDateFormat(DATE_FORMAT).format(date) : "";
             }
         };
     }
@@ -345,14 +277,11 @@ public class SubstitutionsMainPane extends VerticalLayout implements Refreshable
                 b.addListener(new Button.ClickListener() {
                     @Override
                     public void buttonClick(Button.ClickEvent event) {
-                        final UserSubstitution item = (UserSubstitution)container.getItem(itemId).getBean();
-                        container.removeItem(itemId);
-                        transactionProvider.withTransaction(new ProcessToolGuiCallback() {
-                            @Override
-                            public void callback(ProcessToolContext ctx, ProcessToolBpmSession session) {
-								ctx.getUserSubstitutionDAO().deleteById(item.getId());                                
-                            }
-                        });
+                        UserSubstitution item = (UserSubstitution)container.getItem(itemId).getBean();
+
+						container.removeItem(itemId);
+
+						getThreadProcessToolContext().getUserSubstitutionDAO().deleteById(item.getId());
                     }
                 });
                 return b;
@@ -360,13 +289,14 @@ public class SubstitutionsMainPane extends VerticalLayout implements Refreshable
         };
     }
 
-    public Application getApplication() {
+    @Override
+	public Application getApplication() {
         return application;
     }
 
     private PopupDateField createDateField(String caption) {
         PopupDateField dateField = new PopupDateField(caption);
-        dateField.setDateFormat("yyyy-MM-dd");
+        dateField.setDateFormat(DATE_FORMAT);
         dateField.setResolution(PopupDateField.RESOLUTION_DAY);        
         dateField.setImmediate(true);
         return dateField;

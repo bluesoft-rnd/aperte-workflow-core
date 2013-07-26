@@ -11,6 +11,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory.ExecutionType;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolSessionFactory;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
@@ -19,16 +20,14 @@ import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceDAO;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceFilterDAO;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceSimpleAttributeDAO;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessStateActionDAO;
-import pl.net.bluesoft.rnd.processtool.dao.UserDataDAO;
-import pl.net.bluesoft.rnd.processtool.dao.UserRoleDAO;
 import pl.net.bluesoft.rnd.processtool.dao.UserSubstitutionDAO;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
+import pl.net.bluesoft.rnd.processtool.usersource.IUserSource;
 import pl.net.bluesoft.rnd.processtool.web.controller.IOsgiWebController;
 import pl.net.bluesoft.rnd.processtool.web.domain.IWidgetScriptProvider;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolActionButton;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.taskitem.TaskItemProvider;
 import pl.net.bluesoft.rnd.util.func.Func;
 import pl.net.bluesoft.rnd.util.i18n.I18NProvider;
 import pl.net.bluesoft.util.eventbus.EventBusManager;
@@ -73,8 +72,6 @@ public interface ProcessToolRegistry {
     void unregisterStep(String name);
 
 	void unregisterStep(Class<? extends ProcessToolProcessStep> cls);
-	
-	UserRoleDAO getUserRoleDao(Session hibernateSession);
 
     Map<String,ProcessToolProcessStep> getAvailableSteps();
     
@@ -95,8 +92,13 @@ public interface ProcessToolRegistry {
 
     boolean hasI18NProvider(String providerId);
 
+	IUserSource getUserSource();
+	void setUserSource(IUserSource userSource);
+
     <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback);
 
+    <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback, ExecutionType type);
+    
     <T> T withExistingOrNewContext(ReturningProcessToolContextCallback<T> callback);
 
     ProcessDictionaryDAO getProcessDictionaryDAO(Session hibernateSession);
@@ -104,8 +106,6 @@ public interface ProcessToolRegistry {
 	ProcessInstanceDAO getProcessInstanceDAO(Session hibernateSession);
 
     ProcessInstanceFilterDAO getProcessInstanceFilterDAO(Session hibernateSession);
-
-	UserDataDAO getUserDataDAO(Session hibernateSession);
 
     UserSubstitutionDAO getUserSubstitutionDAO(Session hibernateSession);
     
@@ -169,14 +169,6 @@ public interface ProcessToolRegistry {
     <K, V> void registerCache(String cacheName, Map<K, V> cache);
 
     <K, V> Map<K, V> getCache(String cacheName);
-
-    void registerTaskItemProvider(Class<?> cls);
-
-    void unregisterTaskItemProvider(Class<?> cls);
-
-    TaskItemProvider makeTaskItemProvider(String name) throws IllegalAccessException, InstantiationException;
-
-	Map<String, Class<? extends TaskItemProvider>> getAvailableTaskItemProviders();
 
     /** Get plugin controller for web invocation */
     IOsgiWebController getWebController(String controllerName);

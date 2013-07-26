@@ -1,6 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.userqueues;
 
 import java.io.Serializable;
+
 import java.util.*;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
@@ -10,11 +11,10 @@ import pl.net.bluesoft.rnd.processtool.filters.factory.ProcessInstanceFilterFact
 import pl.net.bluesoft.rnd.processtool.filters.factory.QueuesNameUtil;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
 import pl.net.bluesoft.rnd.processtool.model.QueueType;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import pl.net.bluesoft.util.lang.DateUtil;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory.ExecutionType;
 
 import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
 import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
@@ -49,14 +49,14 @@ public class UserProcessQueuesSizeProvider
 		
 		if(ctx == null)
 		{
-			reg.getProcessToolContextFactory().withProcessToolContextReadOnly(new ProcessToolContextCallback()
+			reg.getProcessToolContextFactory().withProcessToolContext(new ProcessToolContextCallback()
 			{
 				@Override
 				public void withContext(ProcessToolContext ctx)
 				{
 					fillUserQueuesMap();
 				}
-			});
+			}, ExecutionType.NO_TRANSACTION);
 		}
 		else
 		{
@@ -69,34 +69,30 @@ public class UserProcessQueuesSizeProvider
 	/** Initialize new session and context for database access */
 	private void fillUserQueuesMap()
 	{
-		UserData userData = getUserData(userLogin);
-
 		/* prevent null pointers during restart when old client instance is open in browser */
-		if (userData == null) {
+		if (userLogin == null) {
 			return;
 		}
 
 		/* Fill queues for main user */
-		ProcessToolBpmSession mainUserSession = getRegistry().getProcessToolSessionFactory().createSession(userData, userData.getRoleNames());
+		ProcessToolBpmSession mainUserSession = getRegistry().getProcessToolSessionFactory().createSession(userLogin);
 		
-		fillUserQueues(mainUserSession);
+		fillUserQueues(userLogin, mainUserSession);
 		
 		/* Fill queues for substitutedUsers */
-		List<UserData> substitutedUsers = getThreadProcessToolContext().getUserSubstitutionDAO()
-				.getSubstitutedUsers(userData,DateUtil.truncHours(new Date()));
+		List<String> substitutedUserLogins = getThreadProcessToolContext().getUserSubstitutionDAO()
+				.getCurrentSubstitutedUserLogins(userLogin);
 		
-		for(UserData substitutedUser: substitutedUsers)
+		for (String substitutedUserLogin : substitutedUserLogins)
 		{
-			ProcessToolBpmSession substitutedUserSession = getRegistry().getProcessToolSessionFactory().createSession(substitutedUser, substitutedUser.getRoleNames());
-			fillUserQueues(substitutedUserSession);
+			ProcessToolBpmSession substitutedUserSession = getRegistry().getProcessToolSessionFactory().createSession(substitutedUserLogin);
+			fillUserQueues(substitutedUserLogin, substitutedUserSession);
 		}
 	}
 
-	private void fillUserQueues(ProcessToolBpmSession bpmSession)
+	private void fillUserQueues(String userLogin, ProcessToolBpmSession bpmSession)
 	{
 		String currentUserLogin = bpmSession.getUserLogin();
-		
-		UserData user = getUserData(currentUserLogin);
 		
 		ProcessInstanceFilterFactory filterFactory = new ProcessInstanceFilterFactory();
 		Collection<ProcessInstanceFilter> queuesFilters = new ArrayList<ProcessInstanceFilter>();
@@ -104,13 +100,13 @@ public class UserProcessQueuesSizeProvider
 		UsersQueuesDTO userQueueSize = new UsersQueuesDTO(currentUserLogin);
 		
 		/* Create organized tasks filters */
-		queuesFilters.add(filterFactory.createMyTasksFilter(user));
-		queuesFilters.add(filterFactory.createMyTasksInProgress(user));
-		queuesFilters.add(filterFactory.createMyClosedTasksFilter(user));
+		queuesFilters.add(filterFactory.createMyTasksFilter(userLogin));
+		queuesFilters.add(filterFactory.createMyTasksInProgress(userLogin));
+		queuesFilters.add(filterFactory.createMyClosedTasksFilter(userLogin));
 		
 		for(ProcessInstanceFilter queueFilter: queuesFilters)
 		{
-			int filteredQueueSize = bpmSession.getTasksCount(queueFilter.getFilterOwner().getLogin(), queueFilter.getQueueTypes());
+			int filteredQueueSize = bpmSession.getTasksCount(queueFilter.getFilterOwnerLogin(), queueFilter.getQueueTypes());
 			
 			String queueId = QueuesNameUtil.getQueueTaskId(queueFilter.getName());
 			String queueDesc = messageSource.getMessage(queueFilter.getName());
@@ -135,11 +131,6 @@ public class UserProcessQueuesSizeProvider
 		}
 		
 		usersQueuesSize.add(userQueueSize);
-	}
-
-	private UserData getUserData(String userLogin) {
-		ProcessToolContext ctx = getThreadProcessToolContext();
-		return reg.getUserDataDAO(ctx.getHibernateSession()).loadUserByLogin(userLogin);
 	}
 
 	private boolean isAssignedToUserFilter(ProcessInstanceFilter filter)

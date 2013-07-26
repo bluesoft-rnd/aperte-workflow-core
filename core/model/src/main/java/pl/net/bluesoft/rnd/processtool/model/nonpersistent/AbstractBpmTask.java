@@ -55,7 +55,6 @@ public abstract class AbstractBpmTask implements BpmTask {
 		return "BpmTask{" +
 				"assignee='" + getAssignee() + '\'' +
 				", groupId='" + getGroupId() + '\'' +
-				", owner=" + getOwner() +
 				", taskName='" + getTaskName() + '\'' +
 				", internalTaskId='" + getInternalTaskId() + '\'' +
 				", executionId='" + getExecutionId() + '\'' +

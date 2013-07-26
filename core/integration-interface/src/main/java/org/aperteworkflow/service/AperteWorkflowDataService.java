@@ -115,7 +115,7 @@ public interface AperteWorkflowDataService {
 	 * @return Created user.
 	 * @return User in form of Userdata object.
 	 *</pre>*/
-	UserData findOrCreateUser(UserData ud);
+	UserDataBean findOrCreateUser(UserDataBean ud);
 
 	/**<pre>
 	 * Method finds the process instance using Lucena. 
@@ -143,7 +143,7 @@ public interface AperteWorkflowDataService {
 	 * @param minDate The oldest allowed date.
 	 * @return List of processInstances,
 	 *</pre>*/
-	Collection<ProcessInstance> getUserProcessesAfterDate(UserData userData, Date minDate);
+	Collection<ProcessInstance> getUserProcessesAfterDate(UserDataBean userData, Date minDate);
 
 	/**<pre>
 	 * Returns process witch, assigned user is userData, and entry date is no older than minDate. Results are limited with "limit", and "offset".
@@ -156,7 +156,7 @@ public interface AperteWorkflowDataService {
 	 * @param limit Maximum number of results.
 	 * @return List of processInstances.
 	 *</pre>*/
-	ResultsPageWrapper<ProcessInstance> getRecentProcesses(UserData userData,
+	ResultsPageWrapper<ProcessInstance> getRecentProcesses(UserDataBean userData,
 														   Date minDate, Integer offset, Integer limit);
 
 	/**<pre>
@@ -276,10 +276,10 @@ public interface AperteWorkflowDataService {
 	 * Method searches user, based one userLogin.
 	 * 
 	 * @param userLogin user login
-	 * @return User in form of UserData.
+	 * @return User in form of UserDataBean.
 	 * @throws AperteWsWrongArgumentException If user does not exists (including param null or empty values). 
 	 *</pre>*/
-	UserData findUser(String userLogin) throws AperteWsWrongArgumentException;
+	UserDataBean findUser(String userLogin) throws AperteWsWrongArgumentException;
 
 	/**<pre>
 	 * 

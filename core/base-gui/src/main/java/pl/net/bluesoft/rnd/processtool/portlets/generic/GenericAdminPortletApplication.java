@@ -5,7 +5,6 @@ import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
 import pl.net.bluesoft.rnd.processtool.portlets.caches.CachesPortletRenderer;
 import pl.net.bluesoft.rnd.processtool.ui.generic.GenericAdminPortletPanel;
 
-import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
 import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 
 /**
@@ -21,7 +20,7 @@ public class GenericAdminPortletApplication extends GenericVaadinPortlet2BpmAppl
 
 	@Override
 	protected void renderPortlet() {
-		getMainWindow().setContent(new GenericAdminPortletPanel(this, this, bpmSession, this, PortletKeys.ADMIN));
+		getMainWindow().setContent(new GenericAdminPortletPanel(this, this, bpmSession, PortletKeys.ADMIN));
 	}
 
 	private synchronized void registerDefaultAdminPortlets() {

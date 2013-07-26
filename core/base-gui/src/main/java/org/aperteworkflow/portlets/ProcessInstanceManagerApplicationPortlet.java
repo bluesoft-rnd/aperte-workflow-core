@@ -11,8 +11,6 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
-import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import javax.imageio.ImageIO;
@@ -49,7 +47,7 @@ public class ProcessInstanceManagerApplicationPortlet extends ApplicationPortlet
                                 if (rr.getParameter("instanceId") != null) { //special handling
                                     logger.info("Image request");
                                     ProcessToolBpmSession session = getRegistry().getProcessToolSessionFactory()
-                                            .createSession(new UserData("admin", "admin@aperteworkflow.org", "Admin admin"));
+                                            .createSession("admin");
                                     byte[] bytes = session.getProcessMapImage(
                                             session.getProcessData(rr.getParameter("instanceId")));
                                     if (bytes != null) {
@@ -61,7 +59,7 @@ public class ProcessInstanceManagerApplicationPortlet extends ApplicationPortlet
                                     logger.info("SVG request");
 
                                     ProcessToolBpmSession session = getRegistry().getProcessToolSessionFactory()
-                                            .createSession(new UserData("admin", "admin@aperteworkflow.org", "Admin admin"));
+                                            .createSession("admin");
                                     ProcessInstance pi = session.getProcessData(rr.getParameter("svg"));
                                     List<GraphElement> processHistory = session.getProcessHistory(pi);
 //                                    final StringBuffer svg = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n");
@@ -137,7 +135,5 @@ public class ProcessInstanceManagerApplicationPortlet extends ApplicationPortlet
         } finally {
             Thread.currentThread().setContextClassLoader(contextClassLoader);
         }
-
-
     }
 }

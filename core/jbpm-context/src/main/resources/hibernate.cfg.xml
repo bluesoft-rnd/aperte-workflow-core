@@ -34,9 +34,11 @@
         <!--<property name="hibernate.transaction.manager_lookup_class">org.hibernate.transaction.JBossTransactionManagerLookup</property>-->
 
         <!-- moved these settings to ProcessToolRegistryImpl.java -->
-        <!--<property name="hibernate.transaction.manager_lookup_class">org.hibernate.transaction.BTMTransactionManagerLookup</property>-->
-        <!--<property name="hibernate.transaction.factory_class">org.hibernate.transaction.JTATransactionFactory</property>-->
-        <!--<property name="current_session_context_class">jta</property>-->
+        <!--<property name="hibernate.transaction.manager_lookup_class">org.hibernate.transaction.BTMTransactionManagerLookup</property>
+        <property name="hibernate.transaction.factory_class">org.hibernate.transaction.JTATransactionFactory</property>
+        <property name="current_session_context_class">jta</property>-->
+		<property name="hibernate.transaction.flush_before_completion">true</property>
+
 
         <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstance"/>
@@ -44,12 +46,9 @@
         <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstanceSimpleAttribute"/>
-        <mapping class="pl.net.bluesoft.rnd.processtool.model.UserData"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.UserAttribute"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.UserSubstitution"/>
-        <mapping class="pl.net.bluesoft.rnd.processtool.model.UserRole"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.UserAttributePredicates"/>
-        <mapping class="pl.net.bluesoft.rnd.processtool.model.UserAttributesSupport"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionPermission"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig"/>

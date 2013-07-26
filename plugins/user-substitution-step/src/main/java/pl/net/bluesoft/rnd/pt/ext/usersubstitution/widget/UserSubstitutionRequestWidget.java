@@ -37,6 +37,8 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.PopupDateField;
 
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+
 /**
  * User: POlszewski
  * Date: 2011-09-02
@@ -65,7 +67,7 @@ public class UserSubstitutionRequestWidget extends BaseProcessToolWidget impleme
     public void loadData(BpmTask task) 
     {	
         ProcessInstance pi = task.getProcessInstance();
-        user = pi.getCreator();
+        user = getRegistry().getUserSource().getUserByLogin(pi.getCreatorLogin());
         String userSubstituteLogin = pi.getSimpleAttributeValue(USER_SUBSTITUTE_LOGIN, null);
         dateFrom = parseShortDate(pi.getSimpleAttributeValue(DATE_FROM, null));
         dateTo = parseShortDate(pi.getSimpleAttributeValue(DATE_TO, null));
@@ -85,12 +87,6 @@ public class UserSubstitutionRequestWidget extends BaseProcessToolWidget impleme
         pi.setSimpleAttribute(USER_SUBSTITUTE_LOGIN, userSubstitute.getLogin());
         pi.setSimpleAttribute(DATE_FROM, formatShortDate(dateFrom));
         pi.setSimpleAttribute(DATE_TO, formatShortDate(dateTo));
-//        if (user.getSuperior() != null && user.getSuperior().length() > 0) {
-//            processInstance.setSimpleAttribute("superior", user.getSuperior());
-//        }
-//        else {
-//            processInstance.setSimpleAttribute("superior", user.getLogin());
-//        }
     }
 
     @Override

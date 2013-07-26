@@ -1,7 +1,7 @@
 package org.aperteworkflow.service;
 
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.processtool.model.UserDataBean;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
@@ -32,7 +32,7 @@ public interface AperteWorkflowProcessService {
 	 * @param internalId Always filled: "portlet" internalID - internal key (if null, it will be generated from config and externalkey, when externalkey is null, it will generate a unique number) (the field is not required)
 	 * @return Newly created process instance.
 	 *</pre>*/
-	ProcessInstance createProcessInstance(ProcessDefinitionConfig config, String externalKey, UserData user, String source);
+	ProcessInstance createProcessInstance(ProcessDefinitionConfig config, String externalKey, UserDataBean user, String source);
 
 	
 	/**<pre>
@@ -80,7 +80,7 @@ public interface AperteWorkflowProcessService {
 	 * @param user User Data
 	 * @return BpmTaskBean with new assigned user
 	 *</pre>*/
-	BpmTaskBean assignTaskFromQueue(ProcessQueueBean q, UserData user);
+	BpmTaskBean assignTaskFromQueue(ProcessQueueBean q, UserDataBean user);
 
 	/**<pre>
 	 * 
@@ -96,8 +96,8 @@ public interface AperteWorkflowProcessService {
 	 * @param user User Data
 	 * @return Bpm Task with new assigned User.
 	 *</pre>*/
-	BpmTaskBean assignSpecificTaskFromQueue(ProcessQueueBean q, BpmTaskBean task,
-			UserData user);
+	BpmTaskBean assignSpecificTaskFromQueue(ProcessQueueBean q, String taskId,
+			UserDataBean user);
 
 	/**<pre>
 	 * 
@@ -139,7 +139,7 @@ public interface AperteWorkflowProcessService {
 	 * @param taskNames List of task names
 	 * @return List of Bpm Tasks
 	 *</pre>*/
-	List<BpmTaskBean> findProcessTasksByNames(ProcessInstance pi, UserData user,
+	List<BpmTaskBean> findProcessTasksByNames(ProcessInstance pi, UserDataBean user,
 			Set<String> taskNames);
 
 	/**<pre>
@@ -151,7 +151,7 @@ public interface AperteWorkflowProcessService {
 	 * @param user User Data
 	 * @return Number do recent Tasks
 	 *</pre>*/
-	Integer getRecentTasksCount(Date minDate, UserData user);
+	Integer getRecentTasksCount(Date minDate, UserDataBean user);
 
 	/**<pre>
 	 * 
@@ -162,7 +162,7 @@ public interface AperteWorkflowProcessService {
 	 * @param user User Data
 	 * @return List of BpmTaskBean
 	 *</pre>*/
-	List<BpmTaskBean> getAllTasks(UserData user);
+	List<BpmTaskBean> getAllTasks(UserDataBean user);
 
 	/**<pre>
 	 * 
@@ -175,7 +175,7 @@ public interface AperteWorkflowProcessService {
 	 * @param user new user to be assigned 
 	 *</pre>*/
 	void adminReassignProcessTask(ProcessInstance pi, BpmTaskBean BpmTaskBean,
-			UserData user);
+			UserDataBean user);
 
 	/**<pre>
 	 * 
@@ -285,7 +285,7 @@ public interface AperteWorkflowProcessService {
 	 * @return User Data
 	 * @throws AperteWsWrongArgumentException If userLogin is wrong and  User does not exists (including param null or empty values).
 	 *</pre>*/
-	UserData getSubstitutingUser(String userLogin) throws AperteWsWrongArgumentException;
+	String getSubstitutingUser(String userLogin) throws AperteWsWrongArgumentException;
 
 	/**<pre>
 	 * 

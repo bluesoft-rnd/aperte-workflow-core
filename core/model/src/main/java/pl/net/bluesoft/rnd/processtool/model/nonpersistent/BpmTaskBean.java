@@ -2,7 +2,6 @@ package pl.net.bluesoft.rnd.processtool.model.nonpersistent;
 
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 
 import java.io.Serializable;
@@ -20,7 +19,6 @@ public class BpmTaskBean extends AbstractBpmTask implements Serializable {
 
 	private String assignee;
 	private String groupId;
-	private UserData owner;
 	private String taskName;
 	private String internalTaskId;
 	private String executionId;
@@ -37,7 +35,6 @@ public class BpmTaskBean extends AbstractBpmTask implements Serializable {
 	public BpmTaskBean(BpmTask task) {
 		this.assignee = task.getAssignee();
 		this.groupId = task.getGroupId();
-		this.owner = task.getOwner();
 		this.taskName = task.getTaskName();
 		this.internalTaskId = task.getInternalTaskId();
 		this.executionId = task.getExecutionId();
@@ -112,15 +109,6 @@ public class BpmTaskBean extends AbstractBpmTask implements Serializable {
 	}
 
 	@Override
-	public UserData getOwner() {
-		return owner;
-	}
-
-	public void setOwner(UserData owner) {
-		this.owner = owner;
-	}
-
-	@Override
 	public String getTaskName() {
 		return taskName;
 	}
@@ -131,7 +119,7 @@ public class BpmTaskBean extends AbstractBpmTask implements Serializable {
 
 	@Override
 	public String getCreator() {
-		return processInstance != null ? processInstance.getCreator().getLogin() : null;
+		return processInstance != null ? processInstance.getCreatorLogin() : null;
 	}
 
 	@Override

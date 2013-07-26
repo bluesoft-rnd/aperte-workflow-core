@@ -62,7 +62,7 @@ public class MainViewController extends AbstractMainController
 				ProcessToolBpmSession bpmSession = (ProcessToolBpmSession)request.getAttribute(ProcessToolBpmSession.class.getName());
 				if(bpmSession == null)
 				{
-					bpmSession = processToolRegistry.getProcessToolSessionFactory().createSession(user, user.getRoleNames());
+					bpmSession = processToolRegistry.getProcessToolSessionFactory().createSession(user);
 					request.setAttribute(ProcessToolBpmSession.class.getName(), bpmSession);
 				}
 				

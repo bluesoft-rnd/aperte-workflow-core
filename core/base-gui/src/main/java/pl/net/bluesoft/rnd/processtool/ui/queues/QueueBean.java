@@ -6,7 +6,6 @@ import java.util.Collection;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueRight;
 
 public class QueueBean {
-
 	private String process;
 	private String name;
 	private String description;
@@ -36,5 +35,4 @@ public class QueueBean {
 	public Collection<ProcessQueueRight> getRights() {
 		return rights;
 	}
-	
 }

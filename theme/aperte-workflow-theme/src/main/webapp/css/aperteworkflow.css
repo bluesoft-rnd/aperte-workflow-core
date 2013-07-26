@@ -37,8 +37,6 @@
 			z-index: 100;
 	}
 	
-
-	
 	.dataTables_paginate.paging_bootstrap.pagination
 	{
 		font-size: 22px;
@@ -429,7 +427,6 @@
 	{
 		display: none !important;
 	}
-
 	
 	.mobile-button
 	{
@@ -751,7 +748,7 @@
     position:absolute;
 	background-image: url(../images/progress_bar/loading_animation_1.gif);
 	background-position:center; 
-	z-index:-10;
+	z-index:10;
 }
 
 .icon-white

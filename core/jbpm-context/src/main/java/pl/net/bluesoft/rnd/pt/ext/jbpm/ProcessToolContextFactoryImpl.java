@@ -3,6 +3,7 @@ package pl.net.bluesoft.rnd.pt.ext.jbpm;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
@@ -12,6 +13,7 @@ import pl.net.bluesoft.rnd.pt.ext.jbpm.service.JbpmService;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.transaction.Status;
+import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,29 +29,28 @@ import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadP
 public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory {
     private static Logger logger = Logger.getLogger(ProcessToolContextFactoryImpl.class.getName());
     private ProcessToolRegistry registry;
+    private static int counter = 0;
+    private int ver = 0;
 
     public ProcessToolContextFactoryImpl(ProcessToolRegistry registry) {
         this.registry = registry;
         initJbpmConfiguration();
+        ver = ++counter;
     }
 
     @Override
-    public <T> T withExistingOrNewContext(ReturningProcessToolContextCallback<T> callback) 
-    {
+    public <T> T withExistingOrNewContext(ReturningProcessToolContextCallback<T> callback) {
     	return withProcessToolContext(callback);
     }
 
     @Override
 	public <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback) {
-    	return withProcessToolContext(callback,false);
+    	return withProcessToolContext(callback,ExecutionType.TRANSACTION);
     }
     
     @Override
-	public <T> T withProcessToolContextReadOnly(ReturningProcessToolContextCallback<T> callback) {
-    	return withProcessToolContext(callback,true);
-    }
-    
-	public <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback, boolean readOnly) {
+	public <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback, ExecutionType type) {
+    	logger.info(">>>>>>>>> withProcessToolContext, executionType: " + type.toString() + ", threadId: " +  Thread.currentThread().getId());
 		ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(ProcessToolRegistry.Util.getAwfClassLoader());
 
@@ -72,24 +73,38 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory 
 				ProcessToolContext.Util.removeThreadProcessToolContext();
 			}
 
-			if (readOnly) {
-				return withProcessToolContextReadOnlyNoJta(callback);
+			if (ExecutionType.NO_TRANSACTION.equals(type)) {
+				return executeWithProcessToolContext(callback);
+			} else if (ExecutionType.NO_TRANSACTION_SYNCH.equals(type)) {
+				return executeWithProcessToolContextSynch(callback);
+			} else if (ExecutionType.TRANSACTION_SYNCH.equals(type)) {
+				//jbpm doesn't support external user transactions
+				//if (registry.isJta()) {
+				//	return executeWithProcessToolContextJtaSynch(callback);
+				//} else {
+					return executeWithProcessToolContextNonJtaSynch(callback);
+				//}
 			} else {
-				if (registry.isJta()) {
-					return withProcessToolContextJta(callback);
-				}
-				else {
-					return withProcessToolContextNonJta(callback);
-				}
+				//jbpm doesn't support external user transactions
+				//if (registry.isJta()) {
+				//	return executeWithProcessToolContextJta(callback);
+				//} else {
+					return executeWithProcessToolContextNonJta(callback);
+				//}
 			}
 			
 		}
 		finally {
+	    	logger.info("<<<<<<<<< withProcessToolContext: " +  Thread.currentThread().getId());
 			Thread.currentThread().setContextClassLoader(contextClassLoader);
 		}
 	}
 
-	public <T> T withProcessToolContextNonJta(ReturningProcessToolContextCallback<T> callback) 
+	private synchronized <T> T executeWithProcessToolContextNonJtaSynch(ReturningProcessToolContextCallback<T> callback) {
+		return executeWithProcessToolContextNonJta(callback);
+	}
+    
+	private <T> T executeWithProcessToolContextNonJta(ReturningProcessToolContextCallback<T> callback) 
 	{
         T result = null;
 
@@ -128,12 +143,15 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory 
         return result;
     }
 
-    public <T> T withProcessToolContextJta(ReturningProcessToolContextCallback<T> callback) {
-        T result = null;
-
+    private synchronized <T> T executeWithProcessToolContextJtaSynch(final ReturningProcessToolContextCallback<T> callback) {
+		return executeWithProcessToolContextJta(callback);
+    }
+	
+    private <T> T executeWithProcessToolContextJta(final ReturningProcessToolContextCallback<T> callback) {
+    	T result = null;
+		UserTransaction ut = null;
         try {
-			UserTransaction ut = getUserTransaction();
-
+        	ut = getUserTransaction();
             logger.fine("ut.getStatus() = " + ut.getStatus());
 
             if (ut.getStatus() == Status.STATUS_MARKED_ROLLBACK) {
@@ -171,14 +189,30 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory 
 			} finally {
                 if (session.isOpen()) session.flush();
             }
-            if (ut.getStatus() == Status.STATUS_ACTIVE) ut.commit();
+            //if (ut.getStatus() == Status.STATUS_ACTIVE) 
+			ut.commit();
         } catch (Exception e) {
+        	if (ut!=null) {
+				try {
+					ut.rollback();
+				} catch (IllegalStateException e1) {
+					e1.printStackTrace();
+				} catch (SecurityException e1) {
+					e1.printStackTrace();
+				} catch (SystemException e1) {
+					e1.printStackTrace();
+				}
+        	}
             throw new RuntimeException(e);
         }
         return result;
     }
 
-	public <T> T withProcessToolContextReadOnlyNoJta(ReturningProcessToolContextCallback<T> callback) {
+	private synchronized <T> T executeWithProcessToolContextSynch(ReturningProcessToolContextCallback<T> callback) {
+		return executeWithProcessToolContext(callback);
+	}
+    
+	private <T> T executeWithProcessToolContext(ReturningProcessToolContextCallback<T> callback) {
         T result = null;
 
 		Session session = registry.getSessionFactory().openSession();

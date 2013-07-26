@@ -22,15 +22,6 @@ import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.withContex
  * Time: 09:52
  */
 public class ProcessToolBpmSessionHelper {
-	public static ProcessToolBpmSession createSession(final ProcessToolBpmSession session, ProcessToolContext ctx, final UserData user, final Collection<String> roleNames) {
-		return withContext(ctx, new ReturningProcessToolContextCallback<ProcessToolBpmSession>() {
-			@Override
-			public ProcessToolBpmSession processWithContext(ProcessToolContext ctx) {
-				return session.createSession(user, roleNames);
-			}
-		}); 		
-	}
-
 	public static StartProcessResult startProcess(final ProcessToolBpmSession session, ProcessToolContext ctx, final String bpmDefinitionId,
 										final String externalKey, final String source) {
 		return withContext(ctx, new ReturningProcessToolContextCallback<StartProcessResult>() {
@@ -59,11 +50,11 @@ public class ProcessToolBpmSessionHelper {
 		});
 	}
 
-	public static BpmTask assignTaskFromQueue(final ProcessToolBpmSession session, ProcessToolContext ctx, final String queueName, final BpmTask task) {
+	public static BpmTask assignTaskFromQueue(final ProcessToolBpmSession session, ProcessToolContext ctx, final String queueName, final String taskId) {
 		return withContext(ctx, new ReturningProcessToolContextCallback<BpmTask>() {
 			@Override
 			public BpmTask processWithContext(ProcessToolContext ctx) {
-				return session.assignTaskFromQueue(queueName, task);
+				return session.assignTaskFromQueue(queueName, taskId);
 			}
 		});
 	}
@@ -314,44 +305,6 @@ public class ProcessToolBpmSessionHelper {
 			}
 		});
 	}
-
-//	public static String getUserLogin(ProcessToolBpmSession session, ProcessToolContext ctx, ) {}
-	public static UserData getUser(final ProcessToolBpmSession session, ProcessToolContext ctx) {
-		return withContext(ctx, new ReturningProcessToolContextCallback<UserData>() {
-			@Override
-			public UserData processWithContext(ProcessToolContext ctx) {
-				return session.getUser();
-			}
-		});
-	}
-
-	public static UserData getSubstitutingUser(final ProcessToolBpmSession session, ProcessToolContext ctx) {
-		return withContext(ctx, new ReturningProcessToolContextCallback<UserData>() {
-			@Override
-			public UserData processWithContext(ProcessToolContext ctx) {
-				return session.getSubstitutingUser();
-			}
-		});
-	}
-//	public static UserData loadOrCreateUser(ProcessToolBpmSession session, ProcessToolContext ctx, UserData userData) {}
-//	public static Collection<String> getRoleNames(ProcessToolBpmSession session, ProcessToolContext ctx, ) {}
-
-//	public static EventBusManager getEventBusManager(ProcessToolBpmSession session, ProcessToolContext ctx, ) {}
-//
-//	public static void adminCancelProcessInstance(ProcessToolBpmSession session, ProcessToolContext ctx, ProcessInstance pi) {}
-//	public static void adminReassignProcessTask(ProcessToolBpmSession session, ProcessToolContext ctx, ProcessInstance pi, BpmTask bpmTask, String userLogin) {}
-//	public static void adminCompleteTask(ProcessToolBpmSession session, ProcessToolContext ctx, ProcessInstance pi, BpmTask bpmTask, ProcessStateAction action) {}
-//
-//	public static List<String> getAvailableLogins(ProcessToolBpmSession session, ProcessToolContext ctx, String filter) {}
-//
-//	public static List<GraphElement> getProcessHistory(ProcessToolBpmSession session, ProcessToolContext ctx, ProcessInstance pi) {}
-
-//	byte[] getProcessLatestDefinition(ProcessToolBpmSession session, ProcessToolContext ctx, String bpmDefinitionKey, String processName) {}
-//	byte[] getProcessDefinition(ProcessToolBpmSession session, ProcessToolContext ctx, ProcessInstance pi) {}
-//	byte[] getProcessMapImage(ProcessToolBpmSession session, ProcessToolContext ctx, ProcessInstance pi) {}
-//
-//	String deployProcessDefinition(ProcessToolBpmSession session, ProcessToolContext ctx, String processName, String bpmDefinitionKey, InputStream definitionStream, InputStream processMapImageStream) {}
-//	
 
 	private ProcessToolBpmSessionHelper() {}
 }

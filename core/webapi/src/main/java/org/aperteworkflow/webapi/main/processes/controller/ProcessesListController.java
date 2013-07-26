@@ -38,6 +38,8 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static org.aperteworkflow.webapi.main.processes.controller.TaskViewController.getBpmSession;
+
 /**
  * Aperte process main web controller based on Spring MVC
  * 
@@ -130,19 +132,8 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                         long t1 = System.currentTimeMillis();
             			long t2 = System.currentTimeMillis();
 
-						ProcessToolBpmSession userSession = context.getBpmSession();
-
-						BpmTask task = userSession.getTaskData(taskId);
-						List<BpmTask> newTasks;
-
-						if (ctx.getUserSubstitutionDAO().isSubstitutedBy(task.getAssignee(), userSession.getUserLogin())) {
-							ProcessToolBpmSession substitutedUserSession = userSession.createSession(task.getAssignee());
-
-							newTasks = substitutedUserSession.performAction(actionName, task, false);
-						}
-						else {
-                        	newTasks = userSession.performAction(actionName, task, false);
-						}
+						BpmTask task = context.getBpmSession().getTaskData(taskId);
+						List<BpmTask> newTasks = getBpmSession(context, task.getAssignee()).performAction(actionName, task, false);
 
             			long t3 = System.currentTimeMillis();
                         

@@ -168,12 +168,12 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 	@Override
 	@WebMethod (exclude=true)
     public BpmTaskBean assignSpecificTaskFromQueue(@WebParam(name="q")final ProcessQueueBean q,
-                                               @WebParam(name="task")final BpmTaskBean task,
+                                               @WebParam(name="taskId")final String taskId,
                                                @WebParam(name="user")final UserDataBean user) {
         return withContext(new ReturningProcessToolContextCallback<BpmTaskBean>() {
             @Override
             public BpmTaskBean processWithContext(ProcessToolContext ctx) {
-                return new BpmTaskBean(fetchHibernateData(getSession(user).assignTaskFromQueue(q.getName(), task)));
+                return new BpmTaskBean(fetchHibernateData(getSession(user).assignTaskFromQueue(q.getName(), taskId)));
             }
         });
     }

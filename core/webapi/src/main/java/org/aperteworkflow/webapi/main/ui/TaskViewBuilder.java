@@ -70,8 +70,6 @@ public class TaskViewBuilder
 				.attr("class", "vaadin-widgets-view");
 		document.appendChild(widgetsNode);
 
-
-		
 		for(ProcessStateWidget widget: widgets)
 		{
 			processWidget(widget, widgetsNode);
@@ -88,7 +86,6 @@ public class TaskViewBuilder
 		scriptBuilder.append(";");
 		scriptBuilder.append("</script>");
 		printWriter.print(scriptBuilder.toString());
-		
 	}
 
     private void addVersionNumber(Document document) {
@@ -131,14 +128,7 @@ public class TaskViewBuilder
 
     private boolean isSubstitutingUser()
     {
-        List<String> substitutedUsersLogins = ctx.getUserSubstitutionDAO()
-                .getCurrentSubstitutedUserLogins(user.getLogin());
-
-        for(String substitutedUserLogin: substitutedUsersLogins)
-            if(substitutedUserLogin.equals(task.getAssignee()))
-                return true;
-
-        return false;
+        return ctx.getUserSubstitutionDAO().isSubstitutedBy(task.getAssignee(), user.getLogin());
     }
 	
 	private void processWidget(ProcessStateWidget widget, Element parent)

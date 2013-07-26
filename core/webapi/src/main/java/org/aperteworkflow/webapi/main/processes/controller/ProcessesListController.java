@@ -23,6 +23,7 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory.ExecutionType;
+import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.bpm.StartProcessResult;
 import pl.net.bluesoft.rnd.processtool.model.*;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
@@ -36,6 +37,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static org.aperteworkflow.webapi.main.processes.controller.TaskViewController.getBpmSession;
 
 /**
  * Aperte process main web controller based on Spring MVC
@@ -129,7 +132,8 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                         long t1 = System.currentTimeMillis();
             			long t2 = System.currentTimeMillis();
 
-                        List<BpmTask> newTasks = context.getBpmSession().performAction(actionName, taskId);
+						BpmTask task = context.getBpmSession().getTaskData(taskId);
+						List<BpmTask> newTasks = getBpmSession(context, task.getAssignee()).performAction(actionName, task, false);
 
             			long t3 = System.currentTimeMillis();
                         
@@ -159,7 +163,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                         return null;
                     }
                 }
-            }, ExecutionType.TRANSACTION_SYNCH );
+            }, ExecutionType.TRANSACTION_SYNCH);
 		
 		    resultBean.setNextTask(bpmTaskBean);
 

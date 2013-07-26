@@ -12,6 +12,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
+import pl.net.bluesoft.rnd.processtool.dao.UserSubstitutionDAO;
 import pl.net.bluesoft.rnd.processtool.web.domain.IProcessToolRequestContext;
 import org.aperteworkflow.webapi.main.AbstractProcessToolServletController;
 import org.aperteworkflow.webapi.main.processes.BpmTaskBean;
@@ -34,6 +36,8 @@ import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 
+import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
+
 @Controller
 public class TaskViewController extends AbstractProcessToolServletController
 {
@@ -53,6 +57,7 @@ public class TaskViewController extends AbstractProcessToolServletController
 		
 		final String queueName = request.getParameter("queueName");
 		final String taskId = request.getParameter("taskId");
+		final String userId = request.getParameter("userId");
 		
 		if(isNull(taskId))
 		{
@@ -64,6 +69,10 @@ public class TaskViewController extends AbstractProcessToolServletController
 			response.getWriter().print(messageSource.getMessage("request.performaction.error.noqueuename"));
 			return null;
 		}
+//		else if (isNull(userId)) TODO uncomment
+//		{
+//			response.getWriter().print(messageSource.getMessage("request.performaction.error.nouserid"));
+//		}
 		
 		/* Initilize request context */
 		final IProcessToolRequestContext context = this.initilizeContext(request,registry.getProcessToolSessionFactory());
@@ -79,21 +88,20 @@ public class TaskViewController extends AbstractProcessToolServletController
 		BpmTaskBean taskBean = registry.withProcessToolContext(new ReturningProcessToolContextCallback<BpmTaskBean>() {
 			@Override
 			public BpmTaskBean processWithContext(ProcessToolContext ctx) {
-				BpmTaskBean taskBean = null;
-				BpmTask task = context.getBpmSession().getTaskData(taskId);
-				BpmTask newTask = context.getBpmSession().assignTaskFromQueue(queueName, task);
-				
-				if (newTask!=null) {
-					taskBean = BpmTaskBean.createFrom(newTask, messageSource);
-				} else {
-					try {
-						response.getWriter().print(messageSource.getMessage("request.performaction.error.notask"));
-					} catch (IOException e) {
-						throw new RuntimeException(e);
-					}
+				String userId2 = context.getBpmSession().getUserLogin();//TODO remove this variable and use userId instead
+				BpmTask newTask = getBpmSession(context, userId2).assignTaskFromQueue(queueName, taskId);
+
+				if (newTask != null) {
+					return BpmTaskBean.createFrom(newTask, messageSource);
 				}
-				
-				return taskBean;
+
+				try {
+					response.getWriter().print(messageSource.getMessage("request.performaction.error.notask"));
+				}
+				catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+				return null;
 			}
 		}, ExecutionType.TRANSACTION_SYNCH);
 		
@@ -105,7 +113,21 @@ public class TaskViewController extends AbstractProcessToolServletController
 				);
 		
 		return taskBean;
-		
+	}
+
+	public static ProcessToolBpmSession getBpmSession(IProcessToolRequestContext context, String userLogin) {
+		ProcessToolBpmSession userSession = context.getBpmSession();
+
+		if (userSession.getUserLogin().equals(userLogin)) {
+			return userSession;
+		}
+
+		UserSubstitutionDAO userSubstitutionDAO = getThreadProcessToolContext().getUserSubstitutionDAO();
+
+		if (userSubstitutionDAO.isSubstitutedBy(userLogin, userSession.getUserLogin())) {
+			return userSession.createSession(userLogin);
+		}
+		throw new RuntimeException("Attempting to create session for nonsubstituted user: " + userLogin);
 	}
     
 	@RequestMapping(method = RequestMethod.POST, value = "/task/loadTask")

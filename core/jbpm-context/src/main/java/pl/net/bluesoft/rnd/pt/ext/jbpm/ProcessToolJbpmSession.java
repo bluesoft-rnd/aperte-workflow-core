@@ -231,16 +231,14 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	}
 
 	@Override
-	public BpmTask assignTaskFromQueue(String queueName, BpmTask bpmTask) {
+	public BpmTask assignTaskFromQueue(String queueName, String taskId) {
 		List<ProcessQueue> configs = getUserQueuesFromConfig();
 		List<String> names = keyFilter("name", configs);
 		if (!names.contains(queueName)) {
 			throw new ProcessToolSecurityException("queue.no.rights", queueName);
 		}
 
-		long taskId = bpmTask != null ? toJbpmTaskId(bpmTask) : 0;
-
-		Task task = jbpmService.getTaskForAssign(queueName, taskId); 
+		Task task = jbpmService.getTaskForAssign(queueName, toJbpmTaskId(taskId));
 
 		if (task == null) {
 			log.warning("No tasks found in queue: " + queueName);
@@ -263,7 +261,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 			return null;
 		}
 
-		bpmTask = getBpmTask(task, pi);
+		BpmTask bpmTask = getBpmTask(task, pi);
 
 		ProcessInstanceLog log = new ProcessInstanceLog();
 

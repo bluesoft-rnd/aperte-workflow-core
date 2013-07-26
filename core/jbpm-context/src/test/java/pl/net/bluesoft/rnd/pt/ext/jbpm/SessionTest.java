@@ -344,15 +344,15 @@ public class SessionTest extends TestCase {
 	}
 
 	private void createUser(String login, String... roles) {
-		UserData userData = new UserData(login, login, login+"@wp.pl");
-		userData = ctx.getUserDataDAO().loadOrCreateUserByLogin(userData);
-
-		if (userData.getRoles().isEmpty()) {
-			for (String role : roles) {
-				userData.addRoleName(role);
-			}
-			ctx.getUserDataDAO().saveOrUpdate(userData);
-		}
+//		UserData userData = new UserData(login, login, login+"@wp.pl");
+//		userData = ctx.getUserDataDAO().loadOrCreateUserByLogin(userData);
+//
+//		if (userData.getRoles().isEmpty()) {
+//			for (String role : roles) {
+//				userData.addRoleName(role);
+//			}
+//			ctx.getUserDataDAO().saveOrUpdate(userData);
+//		}
 	}
 
 	private VQElem onUser(String assignee, String taskName) {
@@ -472,7 +472,7 @@ public class SessionTest extends TestCase {
 		assertNotNull(queue);
 		assertTrue(queue.getProcessCount() > 0);
 
-		task = session.assignTaskFromQueue(queue.getName(), task);
+		task = session.assignTaskFromQueue(queue.getName(), task.getInternalTaskId());
 
 		assertNotNull(task);
 		assertEquals(user, task.getAssignee());
@@ -684,7 +684,7 @@ public class SessionTest extends TestCase {
 	}
 
 	private ProcessToolBpmSession createSession(String user) {
-		return getRegistry().getProcessToolSessionFactory().createSession(new UserData(user, user, user), Arrays.asList("ADMIN", user + "_ROLE"));
+		return getRegistry().getProcessToolSessionFactory().createSession(user, Arrays.asList("ADMIN", user + "_ROLE"));
 	}
 
 	@Override

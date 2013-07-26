@@ -34,7 +34,7 @@ public interface ProcessToolBpmSession {
 	List<BpmTask> performAction(String actionName, BpmTask bpmTask, boolean reloadTask);
 	List<BpmTask> performAction(ProcessStateAction action, BpmTask bpmTask);
 	BpmTask assignTaskFromQueue(String queueName);
-	BpmTask assignTaskFromQueue(String queueName, BpmTask task);
+	BpmTask assignTaskFromQueue(String queueName, String taskId);
 	void assignTaskToUser(String taskId, String userLogin);
 
     ProcessInstance getProcessData(String internalId);

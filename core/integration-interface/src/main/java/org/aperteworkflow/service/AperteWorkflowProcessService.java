@@ -96,7 +96,7 @@ public interface AperteWorkflowProcessService {
 	 * @param user User Data
 	 * @return Bpm Task with new assigned User.
 	 *</pre>*/
-	BpmTaskBean assignSpecificTaskFromQueue(ProcessQueueBean q, BpmTaskBean task,
+	BpmTaskBean assignSpecificTaskFromQueue(ProcessQueueBean q, String taskId,
 			UserDataBean user);
 
 	/**<pre>

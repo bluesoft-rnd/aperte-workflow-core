@@ -47,7 +47,7 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
     protected String substitutingUserLogin;
 
     @Autowired
-    private ProcessToolRegistry processToolRegistry;
+    private ProcessToolRegistry registry;
 
     protected AbstractProcessToolSession(String userLogin, Collection<String> roleNames, String substitutingUserLogin) {
     	SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
@@ -58,7 +58,7 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
     }
 
     protected void broadcastEvent(IEvent event) {
-        processToolRegistry.getEventBusManager().publish(event);
+        registry.getEventBusManager().publish(event);
     }
 
     protected Set<String> getPermissions(Collection<? extends IPermission> col) {
@@ -120,7 +120,7 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
 
     @Override
 	public EventBusManager getEventBusManager() {
-        return processToolRegistry.getEventBusManager();
+        return registry.getEventBusManager();
     }
 
     @Override

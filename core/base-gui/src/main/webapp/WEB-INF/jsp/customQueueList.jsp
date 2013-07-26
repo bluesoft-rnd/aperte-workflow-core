@@ -85,7 +85,8 @@
 		var bpmJson = $.post('<spring:url value="/task/claimTaskFromQueue"/>', 
 		{
 			"queueName": queueName,
-			"taskId": taskId
+			"taskId": taskId,
+			"userId": queueViewManager.currentOwnerLogin
 		}, function(newTask) 
 		{ 
 			clearAlerts();

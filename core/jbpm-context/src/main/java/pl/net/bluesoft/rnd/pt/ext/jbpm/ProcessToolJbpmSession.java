@@ -133,7 +133,6 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	public List<BpmTask> performAction(String actionName, String taskId) {
 		BpmTask task = getTaskData(taskId);
 		ProcessStateAction action = task.getCurrentProcessStateConfiguration().getProcessStateActionByName(actionName);
-
 		return doPerformAction(action, task);
 	}
 
@@ -162,35 +161,17 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		}
 
 		ProcessInstance processInstance = task.getProcessInstance();
-
 		processInstance.setSimpleAttribute("ACTION", action.getBpmName());
 		setStatus(processInstance, action);
 		addLogEntry(action, task);
 		save(processInstance);
 
-		/*Task jbpmTask = ((JbpmTask)task).getTask();
-
-		if (jbpmTask.getTaskData().getStatus() != Status.InProgress) {
-			getJbpmService().startTask(jbpmTask.getId(), userLogin);
-		}
-
-		completeTaskParams = new CompleteTaskParams(task);
-
-		try {
-			getJbpmService().completeTask(jbpmTask.getId(), userLogin, null);
-			return completeTaskParams.createdTasksForCurrentUser;
-		}
-		finally {
-			completeTaskParams = null;
-		}*/
-		
 		Task jbpmTask = ((JbpmTask)task).getTask();
 		completeTaskParams = new CompleteTaskParams(task);
 		try {
 			getJbpmService().endTask(jbpmTask.getId(), userLogin, null, jbpmTask.getTaskData().getStatus() != Status.InProgress);
 			return completeTaskParams.createdTasksForCurrentUser;
-		}
-		finally {
+		} finally {
 			completeTaskParams = null;
 		}
 	}

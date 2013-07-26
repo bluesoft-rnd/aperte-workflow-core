@@ -14,10 +14,9 @@
 		<link rel="stylesheet" type="text/css" href="<spring:url value='/css/bootstrap-datetimepicker.min.css' />" />
 		<script type="text/javascript" src="<spring:url value='js/jquery-1.9.1.min.js' />"></script>
 		<script type="text/javascript" src="<spring:url value='js/jquery-plugins.js' />"></script>
-		<script type="text/javascript" src="<spring:url value='js/jquery-plugins.js' />"></script>
+		<script type="text/javascript" src="<spring:url value='js/jquery.cookie.js' />"></script>
 		<script type="text/javascript" src="<spring:url value='js/jquery.tools.min.js' />"></script>
-		<script type="text/javascript" src="<spring:url value='js/jqModal.js' />"></script>
-		<script type="text/javascript" src="<spring:url value='js/bootstrap.min.js' />"></script>
+		<script type="text/javascript" src="<spring:url value='js/jqModal.js' />"></script> <script type="text/javascript" src="<spring:url value='js/bootstrap.min.js' />"></script>
 		<script type="text/javascript" src="<spring:url value='js/jquery.validate.min.js' />"></script>
 		<script type="text/javascript" src="<spring:url value='js/jquery.dataTables.min.js' />"></script>
 		<script type="text/javascript" src="<spring:url value='js/jquery.timer.js' />"></script>

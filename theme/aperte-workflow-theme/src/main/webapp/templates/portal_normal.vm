@@ -9,7 +9,6 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=yes"/>
 	
 	#js("$javascript_folder/jquery-1.9.1.min.js")
-	#js("$javascript_folder/jquery.cookie.js")
 	#js("$javascript_folder/jquery-plugins.js")
 	#js("$javascript_folder/jquery.tools.min.js")
 	#js("$javascript_folder/jqModal.js")
@@ -21,6 +20,7 @@
 	#js("$javascript_folder/select2.min.js")
 	#js("$javascript_folder/bootstrap-datetimepicker.min.js")
 	#js("$javascript_folder/ColReorder.js")
+	#js("$javascript_folder/jquery.cookie.js")
 	<script src="http://maps.google.com/maps/api/js?sensor=true" type="text/javascript"></script>
 	
 	$theme.include($top_head_include)

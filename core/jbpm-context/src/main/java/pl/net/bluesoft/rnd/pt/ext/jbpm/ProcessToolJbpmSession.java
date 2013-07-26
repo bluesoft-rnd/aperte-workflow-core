@@ -489,6 +489,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 			taskFilterQuery.queues(filter.getQueues());
 		}
 
+		taskFilterQuery.processBpmKey(filter.getProcessBpmKey());
 		taskFilterQuery.searchExpression(filter.getExpression());
 
 		taskFilterQuery.orderBy(filter.getSortOrderCondition(), filter.getSortOrder());

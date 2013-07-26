@@ -54,6 +54,7 @@ public class BpmTaskQuery {
 	private Collection<String> taskNames;
 	private Date createdBefore;
 	private Date createdAfter;
+	private String processBpmKey;
 	private String searchExpression;
 	private QueueOrderCondition sortField;
 	private QueueOrder sortOrder;
@@ -94,6 +95,10 @@ public class BpmTaskQuery {
 	public BpmTaskQuery createdAfter(Date createdAfter) {
 		this.createdAfter = createdAfter;
 		return this;
+	}
+
+	public void processBpmKey(String processBpmKey) {
+		this.processBpmKey = processBpmKey;
 	}
 
 	public BpmTaskQuery searchExpression(String searchExpression) {
@@ -251,8 +256,23 @@ public class BpmTaskQuery {
 			queryParameters.add(new QueryParameter("createdAfter", createdAfter));
 		}
 
+		if (hasText(processBpmKey)) {
+			sb.append(" AND process.definitionname = :processBpmKey");
+			queryParameters.add(new QueryParameter("processBpmKey", processBpmKey));
+		}
+
 		if (hasText(searchExpression)) {
-			// TODO
+			sb.append(" AND (");
+			sb.append("task_.actualowner_id LIKE '%' || :expression || '%'");
+			sb.append(" OR process.creatorLogin LIKE '%' || :expression || '%'");
+			sb.append(" OR to_char(process.createdate, 'MM-DD-YYYY HH24:MI:SS') LIKE '%' || :expression || '%'");
+			sb.append(" OR process.externalKey LIKE '%' || :expression || '%'");
+			sb.append(" OR to_char(task_.createdOn, 'MM-DD-YYYY HH24:MI:SS') LIKE '%' || :expression || '%'");
+			sb.append(" OR EXISTS(SELECT * FROM pt_process_instance_s_attr sattr JOIN pt_process_instance_attr attr ON attr.id = sattr.id");
+			sb.append("	WHERE attr.process_instance_id = process.id AND sattr.value_ LIKE '%' || :expression || '%')");
+			sb.append(')');
+
+			queryParameters.add(new QueryParameter("expression", searchExpression.trim()));
 		}
 
 		if (queryType == QueryType.LIST) {
@@ -324,6 +344,9 @@ public class BpmTaskQuery {
 				", taskNames=" + taskNames +
 				", createdBefore=" + createdBefore +
 				", createdAfter=" + createdAfter +
+				", searchExpression='" + searchExpression + '\'' +
+				", sortField=" + sortField +
+				", sortOrder=" + sortOrder +
 				", offset=" + offset +
 				", limit=" + limit +
 				'}';

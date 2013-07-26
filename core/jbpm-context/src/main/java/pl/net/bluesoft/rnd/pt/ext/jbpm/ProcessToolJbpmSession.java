@@ -208,7 +208,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	}
 
 	private void addLogEntry(ProcessStateAction action, BpmTask task) {
-		ProcessStateConfiguration state = getContext().getProcessDefinitionDAO().getProcessStateConfiguration(task);
+		ProcessStateConfiguration state = task.getCurrentProcessStateConfiguration();
 
 		ProcessInstanceLog log = new ProcessInstanceLog();
 
@@ -266,11 +266,12 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		ProcessInstanceLog log = new ProcessInstanceLog();
 
 		log.setLogType(ProcessInstanceLog.LOG_TYPE_CLAIM_PROCESS);
-		log.setState(getContext().getProcessDefinitionDAO().getProcessStateConfiguration(bpmTask));
+		log.setState(bpmTask.getCurrentProcessStateConfiguration());
 		log.setEntryDate(new Date());
 		log.setEventI18NKey("process.log.process-assigned");
 		log.setLogValue(queueName);
 		log.setUserLogin(userLogin);
+		log.setUserSubstituteLogin(substitutingUserLogin);
 		log.setExecutionId(toAwfPIId(task));
 		log.setOwnProcessInstance(pi);
 
@@ -856,9 +857,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	}
 
 	private void assignTokens(BpmTask userTask) {
-		ProcessStateConfiguration stateConfiguration = getContext().getProcessDefinitionDAO()
-				.getProcessStateConfiguration(userTask);  //TODO optymalizacja
-
+		ProcessStateConfiguration stateConfiguration = userTask.getCurrentProcessStateConfiguration();
 		Boolean isAccessibleByToken = stateConfiguration.getEnableExternalAccess();
 
 		/* Step is accessible by token, generate one */

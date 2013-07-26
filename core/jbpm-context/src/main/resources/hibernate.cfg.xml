@@ -29,7 +29,7 @@
         <property name="hibernate.search.autoregister_listeners">false</property>
 
         <property name="hibernate.connection.autocommit">false</property>
-        <!--<property name="hibernate.show_sql">true</property>-->
+        <property name="hibernate.show_sql">true</property>
 
         <!--<property name="hibernate.transaction.manager_lookup_class">org.hibernate.transaction.JBossTransactionManagerLookup</property>-->
 

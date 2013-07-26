@@ -127,12 +127,6 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public ProcessStateConfiguration getProcessStateConfiguration(BpmTask task) {
-		return task.getCurrentProcessStateConfiguration();
-	}
-
-	@Override
 	public void updateOrCreateProcessDefinitionConfig(ProcessDefinitionConfig cfg) {
 		cfg.setCreateDate(new Date());
 		cfg.setLatest(true);

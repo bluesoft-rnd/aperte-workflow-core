@@ -11,6 +11,7 @@ import pl.net.bluesoft.util.lang.cquery.func.F;
 import java.util.*;
 
 import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
+import static pl.net.bluesoft.util.lang.Strings.hasText;
 import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
 
 /**
@@ -53,6 +54,7 @@ public class BpmTaskQuery {
 	private Collection<String> taskNames;
 	private Date createdBefore;
 	private Date createdAfter;
+	private String searchExpression;
 	private QueueOrderCondition sortField;
 	private QueueOrder sortOrder;
 
@@ -91,6 +93,11 @@ public class BpmTaskQuery {
 
 	public BpmTaskQuery createdAfter(Date createdAfter) {
 		this.createdAfter = createdAfter;
+		return this;
+	}
+
+	public BpmTaskQuery searchExpression(String searchExpression) {
+		this.searchExpression = searchExpression;
 		return this;
 	}
 
@@ -242,6 +249,10 @@ public class BpmTaskQuery {
 		if (createdAfter != null) {
 			sb.append(" AND task_.createdOn >= :createdAfter");
 			queryParameters.add(new QueryParameter("createdAfter", createdAfter));
+		}
+
+		if (hasText(searchExpression)) {
+			// TODO
 		}
 
 		if (queryType == QueryType.LIST) {

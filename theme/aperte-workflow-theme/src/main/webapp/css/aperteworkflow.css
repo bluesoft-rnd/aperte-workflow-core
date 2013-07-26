@@ -18,6 +18,7 @@
 
 	.process-version
         {
+        	font-size: 10px;
           	color: gray;
             float: right;
         }
@@ -36,11 +37,7 @@
 			z-index: 100;
 	}
 	
-	.process-version
-        {
-          	color: gray;
-            float: right;
-        }
+
 	
 	.dataTables_paginate.paging_bootstrap.pagination
 	{
@@ -432,12 +429,7 @@
 	{
 		display: none !important;
 	}
-	
-	.process-version
-        {
-          	color: gray;
-            float: right;
-        }
+
 	
 	.mobile-button
 	{
@@ -892,6 +884,7 @@ button, button:hover
 
 .process-version
     {
+    	font-size: 10px;
     	color: gray;
         float: right;
     }

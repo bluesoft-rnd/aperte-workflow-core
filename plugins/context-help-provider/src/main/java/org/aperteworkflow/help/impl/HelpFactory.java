@@ -35,7 +35,7 @@ public class HelpFactory {
 	private Map<Integer, Resource> 	helpIcons = new HashMap<Integer, Resource>();
 	private String 					dictionaryName;
 
-	public HelpFactory(List<ProcessDefinitionConfig> definitions, Application application, I18NSource i18NSource, String dictionary, ContextHelp contextHelp) {
+	public HelpFactory(Application application, I18NSource i18NSource, String dictionary, ContextHelp contextHelp) {
 		this.application = application;
 		this.contextHelp = contextHelp;
 		this.dictionaryName = dictionary;

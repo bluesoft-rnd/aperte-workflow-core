@@ -131,15 +131,6 @@ public class ProcessToolBpmSessionHelper {
 		});
 	}
 
-	public static boolean isProcessRunning(final ProcessToolBpmSession session, ProcessToolContext ctx, final String internalId) {
-		return withContext(ctx, new ReturningProcessToolContextCallback<Boolean>() {
-			@Override
-			public Boolean processWithContext(ProcessToolContext ctx) {
-				return session.isProcessRunning(internalId);
-			}
-		});
-	}
-
 	public static int getTasksCount(final ProcessToolBpmSession session, ProcessToolContext ctx, final String userLogin, final QueueType... queueTypes) {
 		return withContext(ctx, new ReturningProcessToolContextCallback<Integer>() {
 			@Override

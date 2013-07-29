@@ -156,9 +156,8 @@ public class EmailChecker {
                 List<ProcessInstance> instancesByExternalKey =
                         context.getProcessInstanceDAO().findProcessInstancesByKeyword(preparedSubject, rule.getProcessCode());
                 for (ProcessInstance pi : instancesByExternalKey) {
-                    boolean running = ProcessToolBpmSessionHelper.isProcessRunning(toolBpmSession, context, pi.getInternalId());
-                    logger.fine("Found existing process for " + preparedSubject + ", ID: " + pi.getInternalId());
-                    if (running && pi.getDefinition().getBpmDefinitionKey().equals(rule.getProcessCode())) {
+					logger.fine("Found existing process for " + preparedSubject + ", ID: " + pi.getInternalId());
+                    if (pi.isProcessRunning() && pi.getDefinition().getBpmDefinitionKey().equals(rule.getProcessCode())) {
                         logger.info("Found existing and RUNNING process for " + preparedSubject + ", ID: " + pi.getInternalId());
                         existingPi = pi;
                         break;

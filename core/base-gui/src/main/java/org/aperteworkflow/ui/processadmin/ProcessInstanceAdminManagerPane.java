@@ -369,7 +369,7 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements R
                         new Runnable() {
                             @Override
                             public void run() {
-                                bpmSession.adminCancelProcessInstance(pi);
+                                bpmSession.adminCancelProcessInstance(pi.getInternalId());
                                 refreshData();
                                 Window.Notification n =
                                         new Window.Notification(getLocalizedMessage("processinstances.console.cancel-process.success"));
@@ -388,7 +388,7 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements R
                         new Runnable() {
                             @Override
                             public void run() {
-                                bpmSession.adminCompleteTask(pi, task, psa);
+                                bpmSession.adminCompleteTask(task.getInternalTaskId(), psa.getBpmName());
                                 refreshData();
                                 Window.Notification n = new Window.Notification(getLocalizedMessage("processinstances.console.force-action.success"));
                                 n.setDelayMsec(5000);
@@ -428,7 +428,7 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements R
                     new Runnable() {
                 @Override
                 public void run() {
-                    bpmSession.adminReassignProcessTask(pi, task, null);
+                    bpmSession.adminReassignProcessTask(task.getInternalTaskId(), null);
                     refreshData();
                     Window.Notification n =
                             new Window.Notification(getLocalizedMessage("processinstances.console.remove-owner.success"));
@@ -472,7 +472,7 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements R
                                         new Runnable() {
                                             @Override
                                             public void run() {
-                                                bpmSession.adminReassignProcessTask(pi, task, login);
+                                                bpmSession.adminReassignProcessTask(task.getInternalTaskId(), login);
                                                 Window mainWindow = getApplication().getMainWindow();
                                                 mainWindow.removeWindow(w);
                                                 refreshData();

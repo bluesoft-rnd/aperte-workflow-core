@@ -24,6 +24,10 @@ public class UserDataBean implements UserData {
 	public UserDataBean() {
 	}
 
+	public UserDataBean(String login) {
+		this.login = login;
+	}
+
 	public UserDataBean(UserData userData) {
 		this.login = userData.getLogin();
 		this.firstName = userData.getFirstName();

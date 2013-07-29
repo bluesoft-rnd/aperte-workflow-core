@@ -15,8 +15,6 @@ import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 @Table(name="pt_process_def_prms")
 public class ProcessDefinitionPermission extends PersistentEntity implements IPermission
 {
-	
-
 	private static final long serialVersionUID = 1L;
 
 	@ManyToOne
@@ -36,6 +34,7 @@ public class ProcessDefinitionPermission extends PersistentEntity implements IPe
 	private String roleName;
 	private String privilegeName;
 
+	@Override
 	public String getRoleName() {
 		return roleName;
 	}
@@ -44,6 +43,7 @@ public class ProcessDefinitionPermission extends PersistentEntity implements IPe
 		this.roleName = roleName;
 	}
 
+	@Override
 	public String getPrivilegeName() {
 		return privilegeName;
 	}

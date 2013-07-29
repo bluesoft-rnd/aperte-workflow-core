@@ -46,8 +46,6 @@ public interface ProcessToolBpmSession {
 	BpmTask getPastEndTask(ProcessInstanceLog log);
 	BpmTask refreshTaskData(BpmTask task);
 
-	boolean isProcessRunning(String internalId);
-
 	/** Method returns queue size for given queue type and user login. Methods is significally faster
 	 * than {@link getFilteredTasksCount} but does not provide filtering support.
 	 */
@@ -93,9 +91,9 @@ public interface ProcessToolBpmSession {
 
     EventBusManager getEventBusManager();
 
-    void adminCancelProcessInstance(ProcessInstance pi);
-    void adminReassignProcessTask(ProcessInstance pi, BpmTask bpmTask, String userLogin);
-    void adminCompleteTask(ProcessInstance pi, BpmTask bpmTask, ProcessStateAction action);
+    void adminCancelProcessInstance(String internalId);
+    void adminReassignProcessTask(String taskId, String userLogin);
+    void adminCompleteTask(String taskId, String actionName);
 
     List<String> getAvailableLogins(String filter);
 

@@ -416,7 +416,7 @@ public class BpmNotificationEngine implements IBpmNotificationService
     {
         if (!processedNotificationData.hasSender()) 
         {
-            UserData autoUser = ProcessToolContext.Util.getThreadProcessToolContext().getAutoUser();
+            UserData autoUser = getRegistry().getAutoUser();
             processedNotificationData.setSender(autoUser.getEmail());
         }
         

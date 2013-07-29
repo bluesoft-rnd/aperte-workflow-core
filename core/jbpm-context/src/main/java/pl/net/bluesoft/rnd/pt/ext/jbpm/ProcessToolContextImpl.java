@@ -232,12 +232,6 @@ public class ProcessToolContextImpl implements ProcessToolContext {
     }
 
     @Override
-    public UserData getAutoUser() {
-        return new UserDataBean(Formats.nvl(getSetting(BasicSettings.AUTO_USER_LOGIN), "system"), Formats.nvl(getSetting(BasicSettings.AUTO_USER_NAME), "System"),
-                Formats.nvl(getSetting(BasicSettings.AUTO_USER_EMAIL), "awf@bluesoft.net.pl"));
-    }
-
-    @Override
     public void updateContext(ProcessInstance processInstance) {
     }
 

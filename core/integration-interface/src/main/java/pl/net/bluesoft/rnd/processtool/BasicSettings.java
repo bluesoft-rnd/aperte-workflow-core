@@ -8,10 +8,6 @@ package pl.net.bluesoft.rnd.processtool;
  */
 public enum BasicSettings implements IProcessToolSettings 
 {
-    AUTO_USER_EMAIL("user.auto.email"),
-    AUTO_USER_NAME("user.auto.name"),
-    AUTO_USER_LOGIN("user.auto.login"),
-    
     /** Full URL to current portlet */
     ACTIVITY_PORTLET_URL("activity.portlet.url"),
     

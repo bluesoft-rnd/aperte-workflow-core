@@ -332,15 +332,6 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	}
 
 	@Override
-	public boolean isProcessRunning(String internalId) {
-		if (internalId == null) {
-			return false;
-		}
-		org.drools.runtime.process.ProcessInstance pi = getJbpmService().getProcessInstance(toJbpmPIId(internalId));
-		return pi != null && pi.getState() != org.drools.runtime.process.ProcessInstance.STATE_COMPLETED;
-	}
-
-	@Override
 	public int getTasksCount(String userLogin, QueueType... queueTypes) {
 		return getTasksCount(userLogin, Arrays.asList(queueTypes));
 	}
@@ -565,9 +556,9 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	}
 
 	@Override
-	public void adminCancelProcessInstance(ProcessInstance pi) {
-		log.severe("User: " + userLogin + " attempting to cancel process: " + pi.getInternalId());
-		pi = getProcessData(pi.getInternalId());
+	public void adminCancelProcessInstance(String internalId) {
+		log.severe("User: " + userLogin + " attempting to cancel process: " + internalId);
+		ProcessInstance pi = getProcessData(internalId);
 		getJbpmService().abortProcessInstance(toJbpmPIId(pi));
 		fillProcessAssignmentData(pi);
 		save(pi);
@@ -575,12 +566,13 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	}
 
 	@Override
-	public void adminReassignProcessTask(ProcessInstance pi, BpmTask bpmTask, String userLogin) {
+	public void adminReassignProcessTask(String taskId, String userLogin) {
+		BpmTask bpmTask = getTaskData(taskId);
+		ProcessInstance pi = bpmTask.getProcessInstance();
+
 		log.severe("User: " + userLogin + " attempting to reassign task " + toJbpmTaskId(bpmTask) + " for process: " + pi.getInternalId() + " to user: " + userLogin);
 
-		pi = getProcessData(pi.getInternalId());
-		Task task = getJbpmService().getTask(toJbpmTaskId(bpmTask));
-		if (nvl(userLogin, "").equals(nvl(getAssignee(task), ""))) {
+		if (nvl(userLogin, "").equals(nvl(bpmTask.getAssignee(), ""))) {
 			log.severe("User: " + userLogin + " has not reassigned task " + toJbpmTaskId(bpmTask) + " for process: " + pi.getInternalId() + " as the user is the same: " + userLogin);
 			return;
 		}
@@ -611,10 +603,10 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	}
 
 	@Override
-	public void adminCompleteTask(ProcessInstance pi, BpmTask bpmTask, ProcessStateAction action) {
-		log.severe("User: " + userLogin + " attempting to complete task " + toJbpmTaskId(bpmTask) + " for process: " + pi.getInternalId() + " to outcome: " + action);
-		performAction(action, bpmTask);
-		log.severe("User: " + userLogin + " has completed task " + toJbpmTaskId(bpmTask) + " for process: " + pi.getInternalId() + " to outcome: " + action);
+	public void adminCompleteTask(String taskId, String actionName) {
+		log.severe("User: " + userLogin + " attempting to complete task " + taskId + " for process: " + " to outcome: " + actionName);
+		performAction(actionName, taskId);
+		log.severe("User: " + userLogin + " has completed task " + taskId + " for process: " + " to outcome: " + actionName);
 	}
 
 	@Override

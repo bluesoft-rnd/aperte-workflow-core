@@ -70,7 +70,7 @@ public class DeadlineEngine {
                         Session session = ctx.getHibernateSession();
                         List<ProcessInstance> instances = loadProcessesWithDeadlines(session);
                         for (ProcessInstance pi : instances) {
-                            if (bpmSession.isProcessRunning(pi.getInternalId())) {
+                            if (pi.isProcessRunning()) {
                                 Set<ProcessDeadline> deadlines = pi.findAttributesByClass(ProcessDeadline.class);
                                 Collection<BpmTask> tasks = bpmSession.findProcessTasks(pi);
                                 for (ProcessDeadline pd : deadlines) {

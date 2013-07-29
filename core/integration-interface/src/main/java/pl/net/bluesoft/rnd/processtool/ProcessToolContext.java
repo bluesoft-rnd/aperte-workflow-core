@@ -42,8 +42,6 @@ public interface ProcessToolContext
     long getNextValue(ProcessInstance processInstance, String sequenceName);
     long getNextValue(String sequenceName);
 
-    UserData getAutoUser();
-
     /** Close hibernate session and process engine */
 	void close();
 

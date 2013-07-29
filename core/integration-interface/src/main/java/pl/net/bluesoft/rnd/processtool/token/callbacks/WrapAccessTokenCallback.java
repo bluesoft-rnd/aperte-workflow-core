@@ -39,7 +39,7 @@ public class WrapAccessTokenCallback implements ReturningProcessToolContextCallb
 			throw new NoUserFoundForTokenException("No user was found in system [userLogin="+accessToken.getUser()+"]");
 		
 		/* Get task associated with current token */
-		ProcessToolBpmSession autoSession = getRegistry().getProcessToolSessionFactory().createAutoSession(ctx);
+		ProcessToolBpmSession autoSession = getRegistry().getProcessToolSessionFactory().createAutoSession();
 		BpmTask task = ProcessToolBpmSessionHelper.getTaskData(autoSession, ctx, accessToken.getTaskId().toString());
 		
 		if(task == null)

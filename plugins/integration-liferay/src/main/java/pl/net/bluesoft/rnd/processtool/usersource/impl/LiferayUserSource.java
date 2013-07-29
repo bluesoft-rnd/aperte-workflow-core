@@ -1,13 +1,11 @@
 package pl.net.bluesoft.rnd.processtool.usersource.impl;
 
-import java.util.List;
-import java.util.logging.Logger;
-
-import javax.portlet.RenderRequest;
-import javax.servlet.http.HttpServletRequest;
-
+import com.liferay.portal.NoSuchUserException;
+import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.model.User;
+import com.liferay.portal.service.UserLocalServiceUtil;
+import com.liferay.portal.util.PortalUtil;
 import org.aperteworkflow.integration.liferay.utils.LiferayUserConverter;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import pl.net.bluesoft.rnd.processtool.authorization.IAuthorizationService;
@@ -17,13 +15,14 @@ import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.usersource.IPortalUserSource;
 import pl.net.bluesoft.rnd.processtool.usersource.IUserSource;
 import pl.net.bluesoft.rnd.processtool.usersource.exception.UserSourceException;
-
-import com.liferay.portal.NoSuchUserException;
-import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.model.User;
-import com.liferay.portal.service.UserLocalServiceUtil;
-import com.liferay.portal.util.PortalUtil;
 import pl.net.bluesoft.util.lang.ExpiringCache;
+
+import javax.portlet.RenderRequest;
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.logging.Logger;
+
+import static pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants.*;
 
 /**
  * {@link IUserSource} implementation for Liferay Portal
@@ -70,6 +69,12 @@ public class LiferayUserSource implements IPortalUserSource
 					catch (Exception e) {
 						throw new UserSourceException(e);
 					}
+				}
+				if (ADMIN_USER.getLogin().equals(login)) {
+					return ADMIN_USER;
+				}
+				if (SYSTEM_USER.getLogin().equals(login)) {
+					return SYSTEM_USER;
 				}
 				return null;
 			}

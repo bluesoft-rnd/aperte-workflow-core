@@ -66,8 +66,7 @@ public class FinishTasksStep implements ProcessToolProcessStep {
         for (BpmTask task : tasks)
         {
             if (allowedTaskNames.contains(task.getTaskName())) {
-                Set<ProcessStateAction> actions = ctx.getProcessDefinitionDAO().getProcessStateConfiguration(task)
-                        .getActions();
+                Set<ProcessStateAction> actions = task.getCurrentProcessStateConfiguration().getActions();
 
                 ProcessStateAction action = from(actions).first(eq("bpmName", actionToPerform));
                 bpmSession.performAction(action, task);

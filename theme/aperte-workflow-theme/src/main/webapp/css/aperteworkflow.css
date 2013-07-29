@@ -15,7 +15,14 @@
 	{
 		padding-top: 5px;
 	}
-	
+
+	.process-version
+        {
+        	font-size: 10px;
+          	color: gray;
+            float: right;
+        }
+
 	.navbar.left-menu
 	{
 		margin-right: 20px;
@@ -135,6 +142,8 @@
 	}
 	
 	
+
+
 	.nav.nav-tabs li
 	{
 		clear: left;
@@ -870,6 +879,12 @@ button, button:hover
 	border-radius: 4px;
 }
 
+.process-version
+    {
+    	font-size: 10px;
+    	color: gray;
+        float: right;
+    }
 
 .actions-view
 {

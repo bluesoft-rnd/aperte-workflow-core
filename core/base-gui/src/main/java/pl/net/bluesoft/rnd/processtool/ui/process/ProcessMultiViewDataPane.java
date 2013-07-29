@@ -136,8 +136,7 @@ public class ProcessMultiViewDataPane extends VerticalLayout implements WidgetCo
 		}
 		guiAction = null;
 
-		final ProcessStateConfiguration stateConfiguration = ctx.getProcessDefinitionDAO()
-                .getProcessStateConfiguration(task);
+		ProcessStateConfiguration stateConfiguration = task.getCurrentProcessStateConfiguration();
 
 		Label stateDescription = new Label(getMessage(stateConfiguration.getDescription()));
 		stateDescription.addStyleName("h1 color processtool-title");

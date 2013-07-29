@@ -606,7 +606,6 @@ public class HistoryListPane extends AbstractListPane implements DateRangeListen
     }
 
     private Component getProcessCurrentTasksView(ProcessInstance pi) {
-        ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
         List<BpmTask> tasks = bpmSession.findProcessTasks(pi);
         taskCount = tasks.size();
         if (tasks.isEmpty()) {
@@ -617,7 +616,7 @@ public class HistoryListPane extends AbstractListPane implements DateRangeListen
         vl.setSpacing(false);
         vl.setMargin(false);
         for (BpmTask task : tasks) {
-            ProcessStateConfiguration state = ctx.getProcessDefinitionDAO().getProcessStateConfiguration(task);
+            ProcessStateConfiguration state = task.getCurrentProcessStateConfiguration();
             vl.addComponent(createTaskComponent(task, state));
         }
         return vl;

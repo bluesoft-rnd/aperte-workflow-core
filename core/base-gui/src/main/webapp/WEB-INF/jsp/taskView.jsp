@@ -26,6 +26,31 @@
 	{
 		windowManager.addView("process-panel-view");			
 	});
+	
+	function loadCookies(queueName){
+		var selectedProcess = $.cookie("pl.net.aperteworkflow."+queueName+"Config");
+		if (!selectedProcess){
+			selectedProcess = selectAllCheckboxes(queueName);
+			saveProcessCookie(selectedProcess,queueName);
+		}
+	return selectedProcess
+	}
+	
+	function selectAllCheckboxes(viewName){
+		var list = $('input:checkbox[name='+viewName+']').map(function() {
+			return '"'+$(this).val() +'":'+ true;
+		}).get().join();
+		list = "{"+list+"}";
+		return list;
+	}
+	
+	function saveProcessCookie(selectedProcess,queueName){
+		$.cookie("pl.net.aperteworkflow."+queueName+"Config",selectedProcess);
+	}
+	
+	function parseCookie(loadedCookie){
+		return jQuery.parseJSON(loadedCookie);
+	}
 
 	function QueueView(tableObject, viewName)
 	{
@@ -181,7 +206,6 @@
 				"aaSorting": sortingOrder,
 				"bSort": true,
 				"iDisplayLength": 10,
-				"bStateSave": true,
 				"sDom": 'R<"top"t><"bottom"plr>',
 				"sAjaxSource": this.requestUrl,
 				"fnServerData": function ( sSource, aoData, fnCallback ) {

@@ -1,0 +1,115 @@
+<#assign null = "null">
+
+<h3>${messageSource.getMessage("accidents.accident.request.title")}</h3>
+
+<#assign issueTypeVal = process.getSimpleAttributeValue("issueType")!"">
+<#assign incidentTypeVal = process.getSimpleAttributeValue("incidentType")!"">
+<#assign incidentDescriptionVal = process.getSimpleAttributeValue("incidentDescription")!"">
+<#assign incidentSeverityVal = process.getSimpleAttributeValue("incidentSeverity")!"">
+
+<div>
+    <div id="warning" >${messageSource.getMessage("request.warning")}</div>
+	<table>
+		<tr>
+			<td>
+			    <label>${messageSource.getMessage("issue.type")}</label>
+		    </td>
+		    <td>
+			    <select id="issueType" class="aperte-select2" >
+			        <#assign issueTypeDictionary = dictionariesDao.fetchDictionary("issue_type")!null>
+			        <#if issueTypeDictionary != null>
+			            <#list issueTypeDictionary.sortedItems(messageSource.getLocale().toString()) as dictionaryItem>
+			                <option value="${dictionaryItem.getKey()}">${dictionaryItem.getValueForCurrentDate().getValue(messageSource.getLocale().toString())}</option>
+			            </#list>
+			        </#if>
+			    </select>
+			</td>
+		</tr>
+		<tr>
+			<td>
+			    <label>${messageSource.getMessage("incident.type")}</label>
+			</td>
+			<td>
+			    <select id="incidentType" class="aperte-select2" >
+			        <#assign incidentTypeDictionary = dictionariesDao.fetchDictionary("incident_type")!null>
+			        <#if incidentTypeDictionary != null>
+			            <#list incidentTypeDictionary.sortedItems(messageSource.getLocale().toString()) as dictionaryItem>
+			                <option value="${dictionaryItem.getKey()}">${dictionaryItem.getValueForCurrentDate().getValue(messageSource.getLocale().toString())}</option>
+			            </#list>
+			        </#if>
+			    </select>
+			</td>
+		</tr>
+		<tr>
+			<td>
+			    <label>${messageSource.getMessage("incident.description")}</label>
+			</td>
+			<td>
+				<textarea rows="4" cols="50" id="incidentDescription">${incidentDescriptionVal}</textarea>
+			</td>
+		</tr>
+		<tr>
+			<td>
+			    <label>${messageSource.getMessage("incident.severity")}</label>
+			</td>
+			<td>
+			    <select id="incidentSeverity" class="aperte-select2" >
+			        <#assign incidentSeverityDictionary = dictionariesDao.fetchDictionary("incident_severity")!null>
+			        <#if incidentSeverityDictionary != null>
+			            <#list incidentSeverityDictionary.sortedItems(messageSource.getLocale().toString()) as dictionaryItem>
+			                <option value="${dictionaryItem.getKey()}">${dictionaryItem.getValueForCurrentDate().getValue(messageSource.getLocale().toString())}</option>
+			            </#list>
+			        </#if>
+			    </select>
+			</td>
+		</tr>
+	</table>
+	
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+		$('#warning').hide();
+    	
+		var widget = new Widget('${widgetName}', '${widgetId}', '${task.internalTaskId}');
+		widget.getData = function() {return getIncidentRequestData();};
+		widget.validate = function() {return validateIncidentRequest();};
+		widget.isEnabled = false;
+		widgets.push(widget);
+		
+	    $("#issueType").select2();
+	    $("#issueType").select2("val", "${issueTypeVal}");
+
+	    $("#incidentType").select2();
+	    $("#incidentType").select2("val", "${incidentTypeVal}");
+
+	    $("#incidentSeverity").select2();
+	    $("#incidentSeverity").select2("val", "${incidentSeverityVal}");
+    });
+    
+	function validateIncidentRequest(){
+		var errors = [];
+		if(!$('#issueType').val()) {
+			$('#warning').show();
+			errors.push('${messageSource.getMessage("issue.type.empty")}');
+		}
+		return errors;
+	}
+
+	function getIncidentRequestData() {
+		var issueType = $('#issueType').val();
+        var incidentType = $('#incidentType').val();
+        var incidentDescription = $('#incidentDescription').val();
+        var incidentSeverity = $('#incidentSeverity').val();
+
+		var data = {
+            "issueType" : issueType,
+            "incidentType" : incidentType,
+            "incidentDescription" : incidentDescription,
+            "incidentSeverity" : incidentSeverity
+        };
+
+		return data;
+	}
+
+</script>

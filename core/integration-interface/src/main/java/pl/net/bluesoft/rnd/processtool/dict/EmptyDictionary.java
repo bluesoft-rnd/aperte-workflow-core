@@ -5,6 +5,7 @@ import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItem;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 
 public class EmptyDictionary implements ProcessDictionary {
@@ -46,5 +47,10 @@ public class EmptyDictionary implements ProcessDictionary {
 	@Override
 	public boolean containsKey(String key) {
 		return false;
+	}
+
+	@Override
+	public List<ProcessDictionaryItem> sortedItems(String languageCode) {
+		return Collections.emptyList();
 	}
 }

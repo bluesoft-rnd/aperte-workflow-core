@@ -1,0 +1,143 @@
+<#assign null = "null">
+
+<h4>${messageSource.getMessage("accidents.accident.request.title")}</h4>
+
+<#assign issueTypeVal = process.getSimpleAttributeValue("issueType")!"">
+<#assign incidentTypeVal = process.getSimpleAttributeValue("incidentType")!"">
+<#assign incidentDescriptionVal = process.getSimpleAttributeValue("incidentDescription")!"">
+<#assign incidentSeverityVal = process.getSimpleAttributeValue("incidentSeverity")!"">
+<#assign incidentEmployeeVal = process.getSimpleAttributeValue("incidentEmployee")!"">
+
+<div>
+    <div id="accident-warning" >${messageSource.getMessage("confirmation.warning")}</div>
+	<table>
+		<tr>
+			<td>
+			    <label for="issueType" id="issueTypeLabel">${messageSource.getMessage("issue.type")}</label>
+			</td>
+			<td>
+		        <#assign issueTypeDictionary = dictionariesDao.fetchDictionary("issue_type")!null>
+		        <#if issueTypeDictionary != null>
+		            <#list issueTypeDictionary.sortedItems(messageSource.getLocale().toString()) as dictionaryItem>
+				        <#if dictionaryItem.getKey() == issueTypeVal>
+						    <input type="text" id="issueType" name="issueType" value="${dictionaryItem.getValueForCurrentDate().getValue(messageSource.getLocale().toString())}" readonly/>
+				        </#if>
+		            </#list>
+		        </#if>
+			</td>
+		</tr>
+		<tr>
+			<td>
+			    <label for="incidentType" id="incidentTypeLabel">${messageSource.getMessage("incident.type")}</label>
+			</td>
+			<td>
+		        <#assign incidentTypeDictionary = dictionariesDao.fetchDictionary("incident_type")!null>
+		        <#if incidentTypeDictionary != null>
+		            <#list incidentTypeDictionary.sortedItems(messageSource.getLocale().toString()) as dictionaryItem>
+				        <#if dictionaryItem.getKey() == incidentTypeVal>
+						    <input type="text" id="incidentType" name="incidentType" value="${dictionaryItem.getValueForCurrentDate().getValue(messageSource.getLocale().toString())}" readonly/>
+				        </#if>
+		            </#list>
+		        </#if>
+			</td>
+		</tr>
+		<tr>
+			<td>
+			    <label>${messageSource.getMessage("incident.description")}</label>
+			</td>
+			<td>
+				<textarea rows="4" cols="50" id="incidentDescription">${incidentDescriptionVal}</textarea>
+			</td>
+		</tr>
+		<tr>
+			<td>
+			    <label for="incidentSeverity" id="incidentSeverityLabel">${messageSource.getMessage("incident.severity")}</label>
+			</td>
+			<td>
+		        <#assign incidentSeverityDictionary = dictionariesDao.fetchDictionary("incident_severity")!null>
+		        <#if incidentSeverityDictionary != null>
+		            <#list incidentSeverityDictionary.sortedItems(messageSource.getLocale().toString()) as dictionaryItem>
+				        <#if dictionaryItem.getKey() == incidentSeverityVal>
+						    <input type="text" id="incidentSeverity" name="incidentSeverity" value="${dictionaryItem.getValueForCurrentDate().getValue(messageSource.getLocale().toString())}" readonly/>
+				        </#if>
+		            </#list>
+		        </#if>
+			</td>
+		</tr>
+		<tr>
+			<td>
+			    <label for="incidentEmployee" id="incidentEmployeeLabel">${messageSource.getMessage("incident.employee")}</label>
+			</td>
+			<td>
+		        <select id="incidentEmployee" class="aperte-select2" />
+			</td>
+		</tr>
+	</table>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+		$('#warning').hide();
+    	
+	    var widget = new Widget('${widgetName}', '${widgetId}', '${task.internalTaskId}');
+        widget.getData = function() {return getConfirmationData();};
+        widget.validate = function() {return validateConfirmation();};
+        widget.isEnabled = true;
+        widgets.push(widget);
+        
+	    getEmployeeList();
+	});
+
+    function getEmployeeList() {
+        $("#incidentEmployee").select2();
+
+        var teamChooseUrl = "/aperteworkflow/dispatcher/incidentcontroler/getAvailableEmployees";
+        $.post(teamChooseUrl,{
+        	"issueType":"${issueTypeVal}",
+        	"incidentType":"${incidentTypeVal}" 
+        }, function(resultBean) {
+            if(!resultBean.data) {
+                addAlert("Problem with obtaining employees from server");
+                return;
+            }
+            console.log("resultBean status: " + resultBean.data);
+            var choosenTeam;
+            $.each(resultBean.data, function(){
+            	var name = this.name + ' ' + this.lastname + ' (' + this.email + ')';
+                var o = new Option(name, this.id);
+                $(o).html(name);
+                $("#incidentEmployee").append(o);
+            });
+            $("#incidentEmployee").select2("val", "${incidentEmployeeVal}");
+        })
+        .fail(function(request, status, error) {
+            console.log("an error was found: "+error);
+        });
+    }
+    
+	function validateConfirmation() {
+		var errors = [];
+		if(!$('#incidentEmployee').val()) {
+			$('#accident-warning').show();
+			errors.push('${messageSource.getMessage("incident.employee.empty")}');
+		}
+		return errors;
+	}
+
+	function getConfirmationData() {
+		var issueType = "${issueTypeVal}";
+        var incidentType = "${incidentTypeVal}";
+        var incidentDescription = $('#incidentDescription').val();
+        var incidentSeverity = "${incidentSeverityVal}";
+        var incidentEmployee = $('#incidentEmployee').val();
+
+		var data = {
+            "issueType" : issueType,
+            "incidentType" : incidentType,
+            "incidentDescription" : incidentDescription,
+            "incidentSeverity" : incidentSeverity,
+            "incidentEmployee" : incidentEmployee
+        };
+		return data;
+	}
+</script>

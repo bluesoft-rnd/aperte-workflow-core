@@ -13,6 +13,8 @@ import org.hibernate.annotations.CascadeType;
 import pl.net.bluesoft.rnd.processtool.model.AbstractPersistentEntity;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionary;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItem;
+import pl.net.bluesoft.util.lang.cquery.CQuery;
+import pl.net.bluesoft.util.lang.cquery.func.F;
 
 @Entity
 @Table(name = "pt_dictionary")
@@ -115,6 +117,16 @@ public class ProcessDBDictionary extends AbstractPersistentEntity implements Pro
 		return items;
 	}
 
+	public List<ProcessDictionaryItem> sortedItems(final String languageCode) {
+		return (List)CQuery.from(items.values()).orderBy(new F<ProcessDBDictionaryItem, String>() {
+			@Override
+			public String invoke(ProcessDBDictionaryItem item) {
+				return item.getValueForCurrentDate().getValue(languageCode);
+			}
+		}).toList();
+	}
+	
+	
 	public void setItems(Map<String, ProcessDBDictionaryItem> items) {
 		this.items = items;
 	}

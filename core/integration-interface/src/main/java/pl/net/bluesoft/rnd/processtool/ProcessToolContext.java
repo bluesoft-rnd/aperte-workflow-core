@@ -45,8 +45,6 @@ public interface ProcessToolContext
     /** Close hibernate session and process engine */
 	void close();
 
-    void updateContext(ProcessInstance processInstance);
-
     boolean isActive();
 
 	class Util

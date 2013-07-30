@@ -80,7 +80,7 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 				ProcessDefinitionConfig config = (ProcessDefinitionConfig)getSession().createCriteria(ProcessDefinitionConfig.class)
 						.add(Restrictions.eq(_ID, id))
 						.setFetchMode(_STATES, FetchMode.EAGER)
-						.setFetchMode(_PERMISSIONS, FetchMode.LAZY)
+						.setFetchMode(_PERMISSIONS, FetchMode.EAGER)
 						.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
 						.uniqueResult();
 

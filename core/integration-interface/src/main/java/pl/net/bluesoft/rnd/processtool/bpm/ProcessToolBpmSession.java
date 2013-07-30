@@ -37,10 +37,6 @@ public interface ProcessToolBpmSession {
 	BpmTask assignTaskFromQueue(String queueName, String taskId);
 	void assignTaskToUser(String taskId, String userLogin);
 
-    ProcessInstance getProcessData(String internalId);
-    ProcessInstance refreshProcessData(ProcessInstance processInstance);
-	void saveProcessInstance(ProcessInstance processInstance);
-
 	BpmTask getTaskData(String taskId);
 	BpmTask getPastOrActualTask(ProcessInstanceLog log);
 	BpmTask getPastEndTask(ProcessInstanceLog log);

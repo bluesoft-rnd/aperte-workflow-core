@@ -400,7 +400,7 @@ public class ProcessMultiViewDataPane extends VerticalLayout implements WidgetCo
 		for (ProcessToolActionButton action : actions) {
 			action.saveData(task);
 		}
-		ProcessToolBpmSessionHelper.saveProcessInstance(bpmSession, getCurrentContext(), task.getProcessInstance());
+		getCurrentContext().getProcessInstanceDAO().saveProcessInstance(task.getProcessInstance());
 	}
 
     @Override

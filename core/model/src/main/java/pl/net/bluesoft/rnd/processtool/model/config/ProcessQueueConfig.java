@@ -37,14 +37,16 @@ public class ProcessQueueConfig extends AbstractPersistentEntity {
 	private String description;
 	private Boolean userAdded;
 
-	@OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
+	@OneToMany(fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
 	@JoinColumn(name= "queue_id")
 	private Set<ProcessQueueRight> rights;
 
+	@Override
 	public Long getId() {
 		return id;
 	}
 
+	@Override
 	public void setId(Long id) {
 		this.id = id;
 	}

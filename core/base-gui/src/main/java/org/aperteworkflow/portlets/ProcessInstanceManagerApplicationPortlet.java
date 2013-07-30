@@ -49,7 +49,7 @@ public class ProcessInstanceManagerApplicationPortlet extends ApplicationPortlet
                                     ProcessToolBpmSession session = getRegistry().getProcessToolSessionFactory()
                                             .createSession("admin");
                                     byte[] bytes = session.getProcessMapImage(
-                                            session.getProcessData(rr.getParameter("instanceId")));
+											ctx.getProcessInstanceDAO().getProcessInstanceByInternalId(rr.getParameter("instanceId")));
                                     if (bytes != null) {
                                         resp.setContentType("image/png");
                                         resp.getPortletOutputStream().write(bytes);
@@ -60,7 +60,7 @@ public class ProcessInstanceManagerApplicationPortlet extends ApplicationPortlet
 
                                     ProcessToolBpmSession session = getRegistry().getProcessToolSessionFactory()
                                             .createSession("admin");
-                                    ProcessInstance pi = session.getProcessData(rr.getParameter("svg"));
+                                    ProcessInstance pi = ctx.getProcessInstanceDAO().getProcessInstanceByInternalId(rr.getParameter("svg"));
                                     List<GraphElement> processHistory = session.getProcessHistory(pi);
 //                                    final StringBuffer svg = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n");
                                     final StringBuffer svg = new StringBuffer("<html><body style=\"margin:0; padding:0\">\n\n");

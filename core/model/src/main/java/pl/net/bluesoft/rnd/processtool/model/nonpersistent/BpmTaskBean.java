@@ -26,7 +26,7 @@ public class BpmTaskBean extends AbstractBpmTask implements Serializable {
 	private Date finishDate;
 	private ProcessInstance processInstance;
 	private ProcessDefinitionConfig processDefinition;
-	private boolean isFinished;
+	private boolean finished;
 	private Date deadlineDate;
 
 	public BpmTaskBean() {
@@ -41,17 +41,17 @@ public class BpmTaskBean extends AbstractBpmTask implements Serializable {
 		this.createDate = task.getCreateDate();
 		this.finishDate = task.getFinishDate();
 		this.processInstance = task.getProcessInstance();
-		this.isFinished = task.isFinished();
+		this.finished = task.isFinished();
 		this.processDefinition = task.getProcessDefinition();
 	}
 
 	@Override
 	public boolean isFinished() {
-		return isFinished;
+		return finished;
 	}
 
 	public void setFinished(boolean finished) {
-		isFinished = finished;
+		this.finished = finished;
 	}
 
 	@Override

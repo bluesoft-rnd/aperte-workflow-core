@@ -109,15 +109,6 @@ public interface AperteWorkflowDataService {
 			Date startDate, Date endDate) throws AperteWsWrongArgumentException;
 
 	/**<pre>
-	 * The method creates user, or  returns existing one if logins  match each other.
-	 * 
-	 * @param ud User Informations*
-	 * @return Created user.
-	 * @return User in form of Userdata object.
-	 *</pre>*/
-	UserDataBean findOrCreateUser(UserDataBean ud);
-
-	/**<pre>
 	 * Method finds the process instance using Lucena. 
 	 * 
 	 * @param filter The keyword which is used by search engine
@@ -279,7 +270,7 @@ public interface AperteWorkflowDataService {
 	 * @return User in form of UserDataBean.
 	 * @throws AperteWsWrongArgumentException If user does not exists (including param null or empty values). 
 	 *</pre>*/
-	UserDataBean findUser(String userLogin) throws AperteWsWrongArgumentException;
+	UserDataBean getUserByLogin(String userLogin) throws AperteWsWrongArgumentException;
 
 	/**<pre>
 	 * 

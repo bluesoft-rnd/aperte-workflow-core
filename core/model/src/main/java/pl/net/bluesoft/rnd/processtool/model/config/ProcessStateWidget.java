@@ -32,7 +32,6 @@ public class ProcessStateWidget extends PersistentEntity
 	@JoinColumn(name="state_id")
 	private ProcessStateConfiguration config;
 
-
 	@ManyToOne
 	@JoinColumn(name="parent_id")
 	private ProcessStateWidget parent;
@@ -53,12 +52,9 @@ public class ProcessStateWidget extends PersistentEntity
 	private String className;
 
     private Boolean optional;
-	private Integer priority = Integer.valueOf(0);
+	private Integer priority = 0;
 
     private String generateFromCollection;
-	@Transient
-	private String generatorKey;
-
 
 	public String getName() {
 		return nvl(name, className);
@@ -86,8 +82,9 @@ public class ProcessStateWidget extends PersistentEntity
 
 	public Set<ProcessStateWidget> getChildren() 
 	{
-        if (children == null) 
-        	children = new HashSet<ProcessStateWidget>();
+        if (children == null) {
+			children = new HashSet<ProcessStateWidget>();
+		}
         
 		return children;
 	}
@@ -99,21 +96,23 @@ public class ProcessStateWidget extends PersistentEntity
 
 	public Set<ProcessStateWidgetPermission> getPermissions() 
 	{
-        if (permissions == null) 
-        	permissions = new HashSet<ProcessStateWidgetPermission>();
+        if (permissions == null) {
+			permissions = new HashSet<ProcessStateWidgetPermission>();
+		}
         
 		return permissions;
 	}
 
 	public void setPermissions(Set<ProcessStateWidgetPermission> permissions) 
 	{
-			this.permissions = permissions;
+		this.permissions = permissions;
 	}
 
 	public Set<ProcessStateWidgetAttribute> getAttributes() 
 	{
-        if (attributes == null) 
-        	attributes = new HashSet<ProcessStateWidgetAttribute>();
+        if (attributes == null) {
+			attributes = new HashSet<ProcessStateWidgetAttribute>();
+		}
         
 		return attributes;
 	}
@@ -163,15 +162,4 @@ public class ProcessStateWidget extends PersistentEntity
 	public void setGenerateFromCollection(String generateFromCollection) {
 		this.generateFromCollection = generateFromCollection;
 	}
-
-	public String getGeneratorKey() {
-		return generatorKey;
-	}
-
-	public void setGeneratorKey(String generatorKey) {
-		this.generatorKey = generatorKey;
-	}
-
-	
-
 }

@@ -226,7 +226,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 			return null;
 		}
 
-		ProcessInstance pi = getProcessData(toAwfPIId(task));
+		ProcessInstance pi = getByInternalId(toAwfPIId(task));
 
 		if (pi == null) {
 			log.warning("Process instance not found for instance id: " + toAwfPIId(task));
@@ -326,7 +326,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 			return bpmTask;
 		}
 		else {
-			ProcessInstance processInstance = getProcessData(task.getProcessInstance().getInternalId());
+			ProcessInstance processInstance = getByInternalId(task.getProcessInstance().getInternalId());
 			return getBpmTask(refreshedTask, processInstance);
 		}
 	}
@@ -517,7 +517,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	public int getRecentTasksCount(Date minDate) {
 		int count = 0;
 		Collection<ProcessInstance> instances = getContext().getProcessInstanceDAO().getUserProcessesAfterDate(userLogin, minDate);
-		for (ProcessInstance pi : instances) {
+		for (ProcessInstance pi : instances) { //TODO nonoptimal crap
 			List<BpmTask> tasks = findProcessTasks(pi, userLogin);
 			if (tasks.isEmpty() && getMostRecentProcessHistoryTask(pi, userLogin, minDate) != null) {
 				count += 1;
@@ -558,7 +558,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	@Override
 	public void adminCancelProcessInstance(String internalId) {
 		log.severe("User: " + userLogin + " attempting to cancel process: " + internalId);
-		ProcessInstance pi = getProcessData(internalId);
+		ProcessInstance pi = getByInternalId(internalId);
 		getJbpmService().abortProcessInstance(toJbpmPIId(pi));
 		fillProcessAssignmentData(pi);
 		save(pi);

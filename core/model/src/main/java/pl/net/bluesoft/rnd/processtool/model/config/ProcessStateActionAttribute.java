@@ -18,8 +18,6 @@ import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 @Entity
 @Table(name="pt_process_state_action_attr")
 public class ProcessStateActionAttribute extends PersistentEntity {
-
-
 	private static final long serialVersionUID = -4169704547904662323L;
 
 	@ManyToOne

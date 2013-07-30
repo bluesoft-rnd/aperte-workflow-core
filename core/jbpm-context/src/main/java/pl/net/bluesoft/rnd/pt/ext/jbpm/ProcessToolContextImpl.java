@@ -231,10 +231,6 @@ public class ProcessToolContextImpl implements ProcessToolContext {
         return getNextValue((String) null, sequenceName);
     }
 
-    @Override
-    public void updateContext(ProcessInstance processInstance) {
-    }
-
 	@Override
 	public void close() {
 		this.closed = true;

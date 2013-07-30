@@ -26,7 +26,6 @@ public class ProcessStatePermission extends PersistentEntity implements IPermiss
         return config;
     }
 
-
     public void setConfig(ProcessStateConfiguration config) {
         this.config = config;
     }
@@ -34,6 +33,7 @@ public class ProcessStatePermission extends PersistentEntity implements IPermiss
 	private String roleName;
 	private String privilegeName;
 
+	@Override
 	public String getRoleName() {
 		return roleName;
 	}
@@ -42,6 +42,7 @@ public class ProcessStatePermission extends PersistentEntity implements IPermiss
 		this.roleName = roleName;
 	}
 
+	@Override
 	public String getPrivilegeName() {
 		return privilegeName;
 	}

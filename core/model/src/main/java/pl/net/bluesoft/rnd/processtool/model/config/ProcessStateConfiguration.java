@@ -73,10 +73,12 @@ public class ProcessStateConfiguration extends AbstractPersistentEntity
 	private ProcessDefinitionConfig definition;
 	
 
+	@Override
 	public Long getId() {
 		return id;
 	}
 
+	@Override
 	public void setId(Long id) {
 		this.id = id;
 	}
@@ -121,15 +123,13 @@ public class ProcessStateConfiguration extends AbstractPersistentEntity
 		this.enableManualSave = enableManualSave;
 	}
 
-
 	public Set<ProcessStateWidget> getWidgets() 
 	{
-		if(widgets == null)
+		if(widgets == null) {
 			this.widgets = new HashSet<ProcessStateWidget>();
-
+		}
 		return widgets;
 	}
-
 
 	public void setWidgets(Set<ProcessStateWidget> widgets) 
 	{
@@ -139,38 +139,33 @@ public class ProcessStateConfiguration extends AbstractPersistentEntity
 
 	public Set<ProcessStateAction> getActions() 
 	{
-		if(actions == null)
+		if(actions == null) {
 			this.actions = new HashSet<ProcessStateAction>();
-
+		}
 		return actions;
 	}
 
-
-	public void setActions(Set<ProcessStateAction> actions) 
+	public void setActions(Set<ProcessStateAction> actions)
 	{
 		this.actions = actions;
 	}
 
-
 	public Set<ProcessStatePermission> getPermissions() 
 	{
-		if(permissions == null)
+		if(permissions == null) {
 			this.permissions = new HashSet<ProcessStatePermission>();
-
+		}
 		return permissions;
 	}
-
 
 	public void setPermissions(Set<ProcessStatePermission> permissions) 
 	{
 		this.permissions = permissions;
 	}
 
-
 	public ProcessDefinitionConfig getDefinition() {
 		return definition;
 	}
-
 
 	public void setDefinition(ProcessDefinitionConfig definition) {
 		this.definition = definition;
@@ -187,12 +182,11 @@ public class ProcessStateConfiguration extends AbstractPersistentEntity
 	/** Get the process state action by it's name */
 	public ProcessStateAction getProcessStateActionByName(String actionName)
 	{
-		for(ProcessStateAction action: getActions())
-			if(action.getBpmName().equals(actionName))
+		for (ProcessStateAction action : getActions()) {
+			if (action.getBpmName().equals(actionName)) {
 				return action;
-		
+			}
+		}
 		return null;
 	}
-
- 
 }

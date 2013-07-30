@@ -89,8 +89,6 @@ public class ProcessToolContextImpl implements ProcessToolContext {
                 dao = (T) getRegistry().getUserSubstitutionDAO(hibernateSession);
             }else if (ProcessInstanceSimpleAttributeDAO.class.equals(daoClass)) {
                 dao = (T) getRegistry().getProcessInstanceSimpleAttributeDAO(hibernateSession);
-            }else if (ProcessStateActionDAO.class.equals(daoClass)) {
-                dao = (T) getRegistry().getProcessStateAction(hibernateSession);
             }
             if (dao != null) {
                 daoCache.put(daoClass, dao);
@@ -127,12 +125,6 @@ public class ProcessToolContextImpl implements ProcessToolContext {
 	public ProcessInstanceSimpleAttributeDAO getProcessInstanceSimpleAttributeDAO() {
 		return getHibernateDAO(ProcessInstanceSimpleAttributeDAO.class);
 	}
-    
-    @Override
-	public ProcessStateActionDAO getProcessStateActionDAO() {
-		return getHibernateDAO(ProcessStateActionDAO.class);
-	}
-
 
     @Override
     public Session getHibernateSession() {

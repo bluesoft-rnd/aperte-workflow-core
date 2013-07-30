@@ -19,7 +19,6 @@ import pl.net.bluesoft.rnd.processtool.dao.ProcessDictionaryDAO;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceDAO;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceFilterDAO;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceSimpleAttributeDAO;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessStateActionDAO;
 import pl.net.bluesoft.rnd.processtool.dao.UserSubstitutionDAO;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
@@ -111,8 +110,6 @@ public interface ProcessToolRegistry {
     UserSubstitutionDAO getUserSubstitutionDAO(Session hibernateSession);
     
     ProcessInstanceSimpleAttributeDAO getProcessInstanceSimpleAttributeDAO(Session hibernateSession);
-    
-    ProcessStateActionDAO getProcessStateAction(Session hibernateSession);
 
 	ProcessDefinitionDAO getProcessDefinitionDAO(Session hibernateSession);
 

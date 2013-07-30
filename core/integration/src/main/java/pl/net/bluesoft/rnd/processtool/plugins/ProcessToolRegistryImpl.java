@@ -474,11 +474,6 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	}
 
 	@Override
-	public ProcessStateActionDAO getProcessStateAction(Session hibernateSession) {
-		return new ProcessStateActionDAOImpl(hibernateSession);
-	}
-
-	@Override
 	public ProcessInstanceFilterDAO getProcessInstanceFilterDAO(Session hibernateSession) {
 		return new ProcessInstanceFilterDAOImpl(hibernateSession);
 	}

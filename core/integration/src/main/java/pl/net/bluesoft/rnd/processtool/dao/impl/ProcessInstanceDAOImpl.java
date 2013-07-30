@@ -23,7 +23,6 @@ import pl.net.bluesoft.util.lang.Transformer;
 import java.util.*;
 
 import static org.hibernate.criterion.Restrictions.*;
-import static org.hibernate.criterion.Restrictions.like;
 import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 import static pl.net.bluesoft.util.lang.DateUtil.addDays;
 import static pl.net.bluesoft.util.lang.DateUtil.truncHours;
@@ -148,6 +147,7 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
 		return processInstance.getId();
 	}
 
+	@Override
 	public ProcessInstance getProcessInstance(long id) {
 		return (ProcessInstance) session.get(ProcessInstance.class, id);
 	}
@@ -187,7 +187,7 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
 			return (ProcessInstance) list.get(0);
 	}
 
-	@Override
+	@Override            //          TODO
 	public List<ProcessInstance> findProcessInstancesByKeyword(String keyword, String processType) {
 		return session.createCriteria(ProcessInstance.class)
 						.add(eq("keyword", keyword))
@@ -222,6 +222,7 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
 	}
 	
 
+	@Override
 	public void deleteProcessInstance(ProcessInstance instance) {
 		long start = System.currentTimeMillis();
 		session.delete(instance);
@@ -231,7 +232,8 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
 	
 	
 
-    public Collection<ProcessInstanceLog> getUserHistory(UserData user, Date startDate, Date endDate) {
+    @Override
+	public Collection<ProcessInstanceLog> getUserHistory(UserData user, Date startDate, Date endDate) {
     	
     	 long start = System.currentTimeMillis();
         Criteria criteria = session.createCriteria(ProcessInstanceLog.class)
@@ -240,14 +242,14 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
            
 
         if (user != null) {
-            criteria.add(Restrictions.or(Restrictions.eq("user", user), Restrictions.eq("userSubstitute", user)));
+            criteria.add(or(eq("user", user), eq("userSubstitute", user)));
         }
 
         if (startDate != null) {
-            criteria.add(Restrictions.ge("entryDate", truncHours(startDate)));
+            criteria.add(ge("entryDate", truncHours(startDate)));
         }
         if (endDate != null) {
-            criteria.add(Restrictions.le("entryDate", truncHours(addDays(endDate, 1))));
+            criteria.add(le("entryDate", truncHours(addDays(endDate, 1))));
         }
 
         criteria.createAlias("state", "s", CriteriaSpecification.LEFT_JOIN);
@@ -317,15 +319,15 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
                     .createCriteria("processLogs");
                     
                     if(minDate!=null){
-                    	criteria.add(Restrictions.gt("entryDate", minDate));
+                    	criteria.add(gt("entryDate", minDate));
                     }
                     
                     if(maxDate!=null){
-                    	criteria.add(Restrictions.le("entryDate", maxDate));
+                    	criteria.add(le("entryDate", maxDate));
                     }
            
                    criteria.createAlias("user", "u")
-                    .add(Restrictions.eq("u.id", userLogin));
+                    .add(eq("u.id", userLogin));
 
            List<Object[]> list = criteria.list();
              Collection<ProcessInstance> collect = Collections.collect(list, new Transformer<Object[], ProcessInstance>() {
@@ -446,24 +448,24 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
             }
 
             if (filter.getCreatedBefore() != null) {
-                criteria = criteria.add(Restrictions.lt("createDate", filter.getCreatedBefore()));
+                criteria = criteria.add(lt("createDate", filter.getCreatedBefore()));
             }
 
             if (filter.getCreatorLogins() != null && !filter.getCreatorLogins().isEmpty()) {
-                criteria = criteria.add(Restrictions.in("creatorLogin", filter.getCreatorLogins()));
+                criteria = criteria.add(in("creatorLogin", filter.getCreatorLogins()));
             }
 
             if (filter.getUpdatedAfter() != null) {
                 criteria = criteria
                         .createCriteria("processLogs")
-                        .add(Restrictions.gt("entryDate", filter.getUpdatedAfter()));
+                        .add(gt("entryDate", filter.getUpdatedAfter()));
             }
 
             if (filter.getNotUpdatedAfter() != null) {
                 DetachedCriteria entryDateCriteria = DetachedCriteria.forClass(ProcessInstanceLog.class).add(Restrictions.gt("entryDate", filter.getNotUpdatedAfter()));
                 criteria = criteria
                         .createCriteria("processLogs")
-                        .add(Restrictions.not(Subqueries.exists(entryDateCriteria)));
+                        .add(not(Subqueries.exists(entryDateCriteria)));
             }
 
             return criteria;

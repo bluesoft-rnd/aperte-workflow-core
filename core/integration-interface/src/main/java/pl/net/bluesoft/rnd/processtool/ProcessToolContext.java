@@ -29,7 +29,6 @@ public interface ProcessToolContext
 	Session getHibernateSession();
     UserSubstitutionDAO getUserSubstitutionDAO();
     ProcessInstanceSimpleAttributeDAO getProcessInstanceSimpleAttributeDAO();
-    ProcessStateActionDAO getProcessStateActionDAO();
 	ProcessToolSessionFactory getProcessToolSessionFactory();
 
 	ProcessDefinitionDAO getProcessDefinitionDAO();

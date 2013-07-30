@@ -9,6 +9,7 @@ import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.bpm.StartProcessResult;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
+import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.BpmTaskBean;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueueBean;
 import pl.net.bluesoft.rnd.processtool.plugins.deployment.ProcessDeployer;
@@ -316,6 +317,10 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 	}
 
 	private ProcessToolBpmSession getSession(String userLogin) {
+		UserData user = getRegistry().getUserSource().getUserByLogin(userLogin);
+		if (user == null) {
+			throw new RuntimeException("No user with login: " + userLogin);
+		}
 		return getRegistry().getProcessToolSessionFactory().createSession(userLogin);
 	}
 }

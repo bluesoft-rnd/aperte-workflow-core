@@ -99,8 +99,8 @@ public class ProcessInstance extends AbstractPersistentEntity
 
 	public ProcessInstance getRootProcessInstance() {
     	ProcessInstance parentProcess = this;
-    	while (parentProcess.getParent() != null){
-    		parentProcess = parentProcess.getParent();
+    	while (parentProcess.parent != null){
+    		parentProcess = parentProcess.parent;
     	}
     	return parentProcess;
     }
@@ -116,10 +116,14 @@ public class ProcessInstance extends AbstractPersistentEntity
 	}
 
 	public String getExternalKey() {
-		if (externalKey == null && parent != null){
-			return parent.getExternalKey();
+		ProcessInstance other = this;
+		while (true) {
+			if (other.externalKey == null && other.parent != null) {
+				other = other.parent;
+				continue;
+			}
+			return other.externalKey;
 		}
-		return externalKey;
 	}
 
 	public void setExternalKey(String externalKey) {	
@@ -315,7 +319,7 @@ public class ProcessInstance extends AbstractPersistentEntity
 	}
 
 	public String getInheritedSimpleAttributeValue(String key, String default_) {
-		for (ProcessInstance pi = this; pi != null; pi = pi.getParent()) {
+		for (ProcessInstance pi = this; pi != null; pi = pi.parent) {
 			ProcessInstanceAttribute attr = findAttributeByKey(key);
 			if (attr instanceof ProcessInstanceSimpleAttribute) {
 				return ((ProcessInstanceSimpleAttribute)attr).getValue();
@@ -340,7 +344,6 @@ public class ProcessInstance extends AbstractPersistentEntity
             addAttribute(attr = new ProcessInstanceDictionaryAttribute(dictionary));
         }
         attr.put(key, value);
-
     }
 
 	@XmlTransient
@@ -395,8 +398,7 @@ public class ProcessInstance extends AbstractPersistentEntity
 	}
 	
 	/** Method checks if the process is in running or new state */
-	public boolean isProcessRunning()
-	{
+	public boolean isProcessRunning() {
 		return status == ProcessStatus.NEW || status == ProcessStatus.RUNNING;
 	}
 
@@ -407,6 +409,6 @@ public class ProcessInstance extends AbstractPersistentEntity
 
 	/** Check if process is subprocess (has parent process) */
 	public boolean isSubprocess() {
-		return getParent() != null;
+		return parent != null;
 	}
 }

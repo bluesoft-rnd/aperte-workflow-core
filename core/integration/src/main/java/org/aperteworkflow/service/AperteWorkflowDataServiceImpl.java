@@ -13,7 +13,6 @@ import pl.net.bluesoft.rnd.processtool.hibernate.ResultsPageWrapper;
 import pl.net.bluesoft.rnd.processtool.model.*;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.BpmTaskBean;
 
@@ -49,23 +48,6 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
 	}
 
 	@Override
-	@WebMethod
-	public List<ProcessStateAction> getAllActionsListFromDefinition(
-			@WebParam(name = "definitionName") String definitionName) throws  AperteWsWrongArgumentException {
-		final ProcessDefinitionConfig definition = getActiveConfigurationByKey(definitionName);
-		return withContext(new ReturningProcessToolContextCallback<List<ProcessStateAction>>() {
-
-			@Override
-			public List<ProcessStateAction> processWithContext(ProcessToolContext ctx) {
-
-				return fetchHibernateData(ctx.getProcessStateActionDAO().getActionsListByDefinition(definition));
-			}
-		});
-	}
-
-
-
-	@Override
 	@WebMethod (exclude=true)
 	public ProcessInstance getProcessInstance(@WebParam(name="id")final long id) {
 		return withContext(new ReturningProcessToolContextCallback<ProcessInstance>() {
@@ -98,7 +80,6 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
 		});
 
 		if(processInstance==null){
-
 			AperteWrongArgumentCodes.PROCESS.throwAperteWebServiceException();
 		}
 		return processInstance;
@@ -221,7 +202,7 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
 
 	@Override
 	@WebMethod
-	public  List<ProcessInstanceSimpleAttribute> getSimpleAttributesList(@WebParam(name="internalId") String internalId) throws AperteWsWrongArgumentException {
+	public List<ProcessInstanceSimpleAttribute> getSimpleAttributesList(@WebParam(name="internalId") String internalId) throws AperteWsWrongArgumentException {
 		final ProcessInstance processInstance = getProcessInstanceByInternalId(internalId);
 		return withContext(new ReturningProcessToolContextCallback<List<ProcessInstanceSimpleAttribute>>() {
 			@Override

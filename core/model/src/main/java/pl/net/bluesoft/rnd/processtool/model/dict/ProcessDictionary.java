@@ -1,6 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.model.dict;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 
 public interface ProcessDictionary {
@@ -14,4 +15,5 @@ public interface ProcessDictionary {
 	boolean containsKey(String key);
     Collection<String> itemKeys();
     Collection<ProcessDictionaryItem> items();
+	List<ProcessDictionaryItem> sortedItems(String languageCode);
 }

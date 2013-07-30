@@ -12,11 +12,17 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.PropertyAutoWiring
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory.ExecutionType;
 
 public class JbpmStepAction {
+	
+	public String invoke(final String processInstanceId, final String stepName) throws Exception {
+		return invoke(processInstanceId, stepName, new HashMap<String, String>());
+	}
+	
 	public String invoke(final String processInstanceId, final String stepName, final Map<String, String> params) throws Exception {
         return getRegistry().withProcessToolContext(new ReturningProcessToolContextCallback<String>() {
             @Override

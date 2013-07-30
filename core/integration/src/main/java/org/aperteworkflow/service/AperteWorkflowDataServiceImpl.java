@@ -386,7 +386,7 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
         return withContext(new ReturningProcessToolContextCallback<ProcessStateConfiguration>() {
             @Override
             public ProcessStateConfiguration processWithContext(ProcessToolContext ctx) {
-                return fetchHibernateData(ctx.getProcessDefinitionDAO().getProcessStateConfiguration(task));
+                return fetchHibernateData(task.getCurrentProcessStateConfiguration());
             }
         });
     }

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<process-dictionaries>
+    <dict id="issue_type" name="Issue type" description="The type of the incident">
+		<i18n-name lang="pl" value="Rodzaj incydentu"/>
+		<entry key="incident" valueType="String">
+			<val value="Incident">
+				<i18n-value lang="pl" value="Incydent"/>
+			</val>
+		</entry>
+		<entry key="purchase" valueType="String">
+			<val value="IT Purchase">
+				<i18n-value lang="pl" value="Zakup IT"/>
+			</val>
+		</entry>
+		<entry key="other" valueType="String">
+			<val value="Other" validFrom="2011-01-01" >
+				<i18n-value lang="pl" value="Inny"/>
+			</val>
+		</entry>
+    </dict>
+    <dict id="incident_type" name="Incident type" description="The type of the incident">
+		<i18n-name lang="pl" value="Rodzaj incydentu"/>
+		<entry key="hardware" valueType="String">
+			<val value="Hardware problem">
+				<i18n-value lang="pl" value="Problem sprzętowy"/>
+			</val>
+		</entry>
+		<entry key="software" valueType="String">
+			<val value="Software problem">
+				<i18n-value lang="pl" value="Problem z oprogramowaniem"/>
+			</val>
+		</entry>
+		<entry key="mobile" valueType="String">
+			<val value="Mobile hardware problem">
+				<i18n-value lang="pl" value="Problem z sprzętem mobilnym"/>
+			</val>
+		</entry>
+		<entry key="other" valueType="String">
+			<val value="Other">
+				<i18n-value lang="pl" value="Inny"/>
+			</val>
+		</entry>
+    </dict>
+    <dict id="incident_severity" name="Incident severity" description="Incident severity">
+		<i18n-name lang="pl" value="Rodzaj incydentu"/>
+		<entry key="critical" valueType="String">
+			<val value="Critical">
+				<i18n-value lang="pl" value="Krytyczny - bloker"/>
+			</val>
+		</entry>
+		<entry key="high" valueType="String">
+			<val value="High">
+				<i18n-value lang="pl" value="Wysoki"/>
+			</val>
+		</entry>
+		<entry key="low" valueType="String">
+			<val value="Low">
+				<i18n-value lang="pl" value="Niski"/>
+			</val>
+		</entry>
+    </dict>
+</process-dictionaries>

@@ -96,8 +96,7 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
         //lookup process state configuration
 
         for (BpmTask t : nvl(processInstance.getActiveTasks(), new BpmTask[0])) {
-            ProcessStateConfiguration psc
-                    = new ProcessDefinitionDAOImpl(session).getProcessStateConfiguration(t);
+            ProcessStateConfiguration psc = t.getCurrentProcessStateConfiguration();
             if (psc != null) {
                 searchData.addSearchAttributes(new String[][]{
                                 {"state_commentary", psc.getCommentary()},

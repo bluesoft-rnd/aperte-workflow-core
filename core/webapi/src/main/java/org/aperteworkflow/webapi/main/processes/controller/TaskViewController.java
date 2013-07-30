@@ -69,10 +69,10 @@ public class TaskViewController extends AbstractProcessToolServletController
 			response.getWriter().print(messageSource.getMessage("request.performaction.error.noqueuename"));
 			return null;
 		}
-//		else if (isNull(userId)) TODO uncomment
-//		{
-//			response.getWriter().print(messageSource.getMessage("request.performaction.error.nouserid"));
-//		}
+		else if (isNull(userId))
+		{
+			response.getWriter().print(messageSource.getMessage("request.performaction.error.nouserid"));
+		}
 		
 		/* Initilize request context */
 		final IProcessToolRequestContext context = this.initilizeContext(request,registry.getProcessToolSessionFactory());
@@ -88,8 +88,7 @@ public class TaskViewController extends AbstractProcessToolServletController
 		BpmTaskBean taskBean = registry.withProcessToolContext(new ReturningProcessToolContextCallback<BpmTaskBean>() {
 			@Override
 			public BpmTaskBean processWithContext(ProcessToolContext ctx) {
-				String userId2 = context.getBpmSession().getUserLogin();//TODO remove this variable and use userId instead
-				BpmTask newTask = getBpmSession(context, userId2).assignTaskFromQueue(queueName, taskId);
+				BpmTask newTask = getBpmSession(context, userId).assignTaskFromQueue(queueName, taskId);
 
 				if (newTask != null) {
 					return BpmTaskBean.createFrom(newTask, messageSource);

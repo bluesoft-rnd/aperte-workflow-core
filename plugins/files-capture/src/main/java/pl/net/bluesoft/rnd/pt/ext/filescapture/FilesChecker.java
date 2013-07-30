@@ -104,7 +104,7 @@ public class FilesChecker {
                 Collection<BpmTask> taskList = ProcessToolBpmSessionHelper.findProcessTasks(toolBpmSession, context, existingPi);
                 for (BpmTask t : taskList) {
                     if (!hasText(rule.getProcessTaskName()) || rule.getProcessTaskName().equalsIgnoreCase(t.getTaskName())) {
-                        Set<ProcessStateAction> actions = context.getProcessDefinitionDAO().getProcessStateConfiguration(t).getActions();
+                        Set<ProcessStateAction> actions = t.getCurrentProcessStateConfiguration().getActions();
                         for (ProcessStateAction a : actions) {
                             if (rule.getRunningProcessActionName().equals(a.getBpmName())) {
 								ProcessToolBpmSessionHelper.performAction(toolBpmSession, context, a, t);

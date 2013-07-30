@@ -1,6 +1,9 @@
 package pl.net.bluesoft.rnd.processtool.model.dict;
 
+import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItem;
 import pl.net.bluesoft.rnd.pt.utils.lang.Lang2;
+import pl.net.bluesoft.util.lang.cquery.CQuery;
+import pl.net.bluesoft.util.lang.cquery.func.F;
 
 import java.util.*;
 
@@ -85,5 +88,15 @@ public class MultiLevelDictionary implements ProcessDictionary {
 	@Override
 	public boolean containsKey(String key) {
 		return itemKeys().contains(key);
+	}
+
+	@Override
+	public List<ProcessDictionaryItem> sortedItems(final String languageCode) {
+		return (List)CQuery.from(items()).orderBy(new F<ProcessDictionaryItem, String>() {
+			@Override
+			public String invoke(ProcessDictionaryItem item) {
+				return item.getValueForCurrentDate().getValue(languageCode);
+			}
+		}).toList();
 	}
 }

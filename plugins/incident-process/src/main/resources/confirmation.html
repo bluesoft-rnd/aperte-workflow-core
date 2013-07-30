@@ -26,7 +26,7 @@
 		        </#if>
 			</td>
 		</tr>
-		<tr>
+		<tr id="incidentTypeBlock">
 			<td>
 			    <label for="incidentType" id="incidentTypeLabel">${messageSource.getMessage("incident.type")}</label>
 			</td>
@@ -43,7 +43,7 @@
 		</tr>
 		<tr>
 			<td>
-			    <label>${messageSource.getMessage("incident.description")}</label>
+			    <label>${messageSource.getMessage("incident.description")}&nbsp</label>
 			</td>
 			<td>
 				<textarea rows="4" cols="50" id="incidentDescription" readonly>${incidentDescriptionVal}</textarea>
@@ -84,6 +84,13 @@
         widget.validate = function() {return validateConfirmation();};
         widget.isEnabled = true;
         widgets.push(widget);
+
+    if($("#issueType").val()=="Incident"){
+    $("#incidentTypeBlock").show();
+    }else{
+    $("#incidentTypeBlock").hide();
+    }
+
         
 	    getEmployeeList();
 	});

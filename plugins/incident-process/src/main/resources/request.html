@@ -25,8 +25,8 @@
 			    </select>
 			</td>
 		</tr>
-		<tr>
-			<td>
+		<tr id="incidentTypeBlock">
+			<td >
 			    <label>${messageSource.getMessage("incident.type")}</label>
 			</td>
 			<td>
@@ -42,7 +42,7 @@
 		</tr>
 		<tr>
 			<td>
-			    <label>${messageSource.getMessage("incident.description")}</label>
+			    <label>${messageSource.getMessage("incident.description")}&nbsp</label>
 			</td>
 			<td>
 				<textarea rows="4" cols="50" id="incidentDescription">${incidentDescriptionVal}</textarea>
@@ -70,6 +70,7 @@
 <script type="text/javascript">
     $(document).ready(function() {
 		$('#warning').hide();
+        $("#incidentTypeBlock").hide();
     	
 		var widget = new Widget('${widgetName}', '${widgetId}', '${task.internalTaskId}');
 		widget.getData = function() {return getIncidentRequestData();};
@@ -80,12 +81,27 @@
 	    $("#issueType").select2();
 	    $("#issueType").select2("val", "${issueTypeVal}");
 
+    $("#issueType").change(function() {
+    if($(this).val()=="incident"){
+    $("#incidentTypeBlock").show();
+    }else{
+    $("#incidentTypeBlock").hide();
+    }
+
+    });
+
 	    $("#incidentType").select2();
 	    $("#incidentType").select2("val", "${incidentTypeVal}");
 
 	    $("#incidentSeverity").select2();
 	    $("#incidentSeverity").select2("val", "${incidentSeverityVal}");
     });
+
+    function hideShowIncidentType(){
+
+
+    }
+
     
 	function validateIncidentRequest(){
 		var errors = [];

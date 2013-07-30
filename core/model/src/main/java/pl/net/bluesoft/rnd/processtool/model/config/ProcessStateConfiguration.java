@@ -27,6 +27,10 @@ import pl.net.bluesoft.rnd.processtool.model.AbstractPersistentEntity;
 public class ProcessStateConfiguration extends AbstractPersistentEntity 
 {
 	private static final long serialVersionUID = -4196353066985174280L;
+
+	public static final String _NAME = "name";
+	public static final String _DESCRIPTION = "description";
+	public static final String _COMMENTARY = "commentary";
 	
 	@Id
 	@GeneratedValue(generator = "idGenerator")

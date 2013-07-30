@@ -8,15 +8,16 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
 import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
-import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.config.*;
 import pl.net.bluesoft.util.lang.ExpiringCache;
+import pl.net.bluesoft.util.lang.cquery.func.F;
 
 import java.util.*;
 
 import static pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig.*;
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
+import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -35,6 +36,12 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 
 	private static final ExpiringCache<Object, List<ProcessQueueConfig>> QUEUE_CONFIGS =
 			new ExpiringCache<Object, List<ProcessQueueConfig>>(Long.MAX_VALUE);
+
+	private static final ExpiringCache<Object, Map<Long, String>> ALL_DEFINITION_DESCRIPTIONS =
+			new ExpiringCache<Object, Map<Long, String> >(Long.MAX_VALUE);
+
+	private static final ExpiringCache<Object, Map<Long, String> > ALL_STATES_DESCRIPTIONS =
+			new ExpiringCache<Object, Map<Long, String> >(Long.MAX_VALUE);
 
 	public ProcessDefinitionDAOImpl(Session session) {
 		super(session);
@@ -143,6 +150,9 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 
 		cfg.setBpmDefinitionVersion(getNextProcessVersion(cfg.getBpmDefinitionKey()));
 		getSession().saveOrUpdate(cfg);
+
+		ALL_DEFINITION_DESCRIPTIONS.clear();
+		ALL_STATES_DESCRIPTIONS.clear();
 	}
 
 
@@ -430,5 +440,46 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 						.uniqueResult();
 			}
 		});
+	}
+
+	@Override
+	public Map<Long, String> getProcessDefinitionDescriptions() {
+		return ALL_DEFINITION_DESCRIPTIONS.get(null, new ExpiringCache.NewValueCallback<Object, Map<Long, String>>() {
+			@Override
+			public Map<Long, String> getNewValue(Object key) {
+				List<Object[]> list = session.createCriteria(ProcessDefinitionConfig.class)
+						.setProjection(Projections.distinct(Projections.projectionList()
+								.add(Projections.property(_ID))
+								.add(Projections.property(_DESCRIPTION))
+						))
+						.list();
+				return (Map)from(list).toMap(atPosition(0), atPosition(1));
+			}
+		});
+	}
+
+	@Override
+	public Map<Long, String> getProcessStateDescriptions() {
+		return ALL_STATES_DESCRIPTIONS.get(null, new ExpiringCache.NewValueCallback<Object, Map<Long, String>>() {
+			@Override
+			public Map<Long, String> getNewValue(Object key) {
+				List<Object[]> list = session.createCriteria(ProcessStateConfiguration.class)
+						.setProjection(Projections.distinct(Projections.projectionList()
+								.add(Projections.property(ProcessStateConfiguration._ID))
+								.add(Projections.property(ProcessStateConfiguration._DESCRIPTION))
+						))
+						.list();
+				return (Map)from(list).toMap(atPosition(0), atPosition(1));
+			}
+		});
+	}
+
+	private static F<Object[], Object> atPosition(final int index) {
+		return new F<Object[], Object>() {
+			@Override
+			public Object invoke(Object[] x) {
+				return x[index];
+			}
+		};
 	}
 }

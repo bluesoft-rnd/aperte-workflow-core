@@ -111,7 +111,7 @@ public class DeadlineEngine {
     private void scheduleDeadline(String processInternalId, ProcessDeadline pd) {
         ProcessToolSchedulerService service = getSchedulerService();
         Date currentDate = new Date(), dueDate = pd.getDueDate();
-        if (DateUtils.isSameDay(dueDate, currentDate) || currentDate.before(dueDate) || !pd.isAlreadyProcessed()) {
+        if (DateUtils.isSameDay(dueDate, currentDate) || currentDate.before(dueDate) || !pd.isAlreadyNotified()) {
             JobDataMap dataMap = new JobDataMap();
             dataMap.put("processInstanceId", processInternalId);
             dataMap.put("deadlineAttribute", pd);
@@ -187,7 +187,7 @@ public class DeadlineEngine {
 				Map<String, UserData> notifyUsers = prepareUsersForNotification(assigneeLogin, processDeadline);
 
                 for (UserData user : notifyUsers.values()) {
-                    if (processDeadline.getSkipAssignee() != null && processDeadline.getSkipAssignee() && user.getLogin().equals(assigneeLogin)) {
+                    if (processDeadline.isSkipAssignee() && user.getLogin().equals(assigneeLogin)) {
                         logger.info("Skipping deadline signal for assignee: " + assigneeLogin);
                         continue;
                     }

@@ -755,6 +755,9 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	public String deployProcessDefinition(String processId, InputStream definitionStream, InputStream processMapImageStream) {
 		String deploymentId = jbpmService.addProcessDefinition(prepareForDeployment(processId, definitionStream));
 
+        if (deploymentId == null) {
+            return null;
+        }
 		if (processMapImageStream != null) {
 			jbpmService.getRepository().addResource(deploymentId, ProcessResourceNames.MAP_IMAGE, processMapImageStream);
 		}

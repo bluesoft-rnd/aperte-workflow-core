@@ -73,13 +73,18 @@ public class ProcessDeployer
 			String deploymentId = session.deployProcessDefinition(cfg.getBpmProcessId(),
 					new ByteArrayInputStream(newDefinition), imageStream);
 
-			logger.log(Level.INFO, "deployed new BPM Engine definition with id: " + deploymentId);
+            if (deploymentId != null) {
+                logger.log(Level.INFO, "deployed new BPM Engine definition with id: " + deploymentId);
 
-			cfg.setDeploymentId(deploymentId);
+                cfg.setDeploymentId(deploymentId);
 
-			processDefinitionDAO.updateOrCreateProcessDefinitionConfig(cfg);
+                processDefinitionDAO.updateOrCreateProcessDefinitionConfig(cfg);
 
-			logger.log(Level.INFO, "created definition with id: " + cfg.getId() + ", processId: " + cfg.getBpmProcessId());
+                logger.log(Level.INFO, "created definition with id: " + cfg.getId() + ", processId: " + cfg.getBpmProcessId());
+            }
+            else{
+                logger.log(Level.INFO, "Failed to build knowledge base, error in definition. Process has not been deployed: " + cfg.getBpmDefinitionKey());
+            }
 		}
 		else {
 			logger.warning("New process " + cfg.getBpmDefinitionKey() +

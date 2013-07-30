@@ -45,7 +45,7 @@
 	}
 	
 	function saveProcessCookie(selectedProcess,queueName){
-		$.cookie("pl.net.aperteworkflow."+queueName+"Config",selectedProcess);
+		$.cookie("pl.net.aperteworkflow."+queueName+"Config",selectedProcess,{ expires: 365 });
 	}
 	
 	function parseCookie(loadedCookie){

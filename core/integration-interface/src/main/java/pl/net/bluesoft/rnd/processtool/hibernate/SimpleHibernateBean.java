@@ -7,11 +7,15 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.model.AbstractPersistentEntity;
+import pl.net.bluesoft.util.lang.cquery.func.F;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
+
+import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
 
 /**
  * @author: amichalak@bluesoft.net.pl
@@ -120,5 +124,18 @@ public abstract class SimpleHibernateBean<T> implements HibernateBean<T> {
 			return ((AbstractPersistentEntity)object).getId();
 		}
 		throw new RuntimeException("Could not determine id for " + object.getClass().getName());
+	}
+
+	protected static Map toMap(List<Object[]> list) {
+		return (Map)from(list).toMap(atPosition(0), atPosition(1));
+	}
+
+	private static F<Object[], Object> atPosition(final int index) {
+		return new F<Object[], Object>() {
+			@Override
+			public Object invoke(Object[] x) {
+				return x[index];
+			}
+		};
 	}
 }

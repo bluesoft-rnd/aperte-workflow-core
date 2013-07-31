@@ -19,10 +19,7 @@ import pl.net.bluesoft.rnd.processtool.model.nonpersistent.BpmTaskBean;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static org.aperteworkflow.util.ContextUtil.withContext;
 import static org.aperteworkflow.util.HibernateBeanUtil.fetchHibernateData;
@@ -151,50 +148,39 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
 
 	@Override
 	@WebMethod
-	public ProcessInstanceSimpleAttribute setSimpleAttribute(@WebParam(name="key")final String key,@WebParam(name="newValue")
-	final String newValue,@WebParam(name="internalId") String internalId) throws AperteWsWrongArgumentException {
-		final ProcessInstance processInstance = getProcessInstanceByInternalId(internalId);
-		checkExistenceOfKey(internalId, key);
-		return withContext(new ReturningProcessToolContextCallback<ProcessInstanceSimpleAttribute>() {
+	public void setSimpleAttribute(@WebParam(name="key")final String key,
+															 @WebParam(name="newValue")final String newValue,
+															 @WebParam(name="internalId") final String internalId) throws AperteWsWrongArgumentException {
+		withContext(new ReturningProcessToolContextCallback<Void>() {
 			@Override
-			public ProcessInstanceSimpleAttribute processWithContext(ProcessToolContext ctx) {
-				return fetchHibernateData(ctx.getProcessInstanceSimpleAttributeDAO().setSimpleAttribute(key,  newValue, processInstance));
+			public Void processWithContext(ProcessToolContext ctx) {
+				ProcessInstance processInstance = ctx.getProcessInstanceDAO().getProcessInstanceByInternalId(internalId);
+				ctx.getProcessInstanceSimpleAttributeDAO().setSimpleAttribute(processInstance.getId(), key, newValue);
+				return null;
 			}
 		});
 	}
 
 	@Override
 	@WebMethod
-	public String getSimpleAttributeValue(@WebParam(name="key")final String key,@WebParam(name="internalId") String internalId) throws AperteWsWrongArgumentException {
-		final ProcessInstance processInstance = getProcessInstanceByInternalId(internalId);
-		checkExistenceOfKey(internalId, key);
+	public String getSimpleAttributeValue(@WebParam(name="key")final String key,@WebParam(name="internalId") final String internalId) throws AperteWsWrongArgumentException {
 		return withContext(new ReturningProcessToolContextCallback<String>() {
 			@Override
 			public String processWithContext(ProcessToolContext ctx) {
-				return ctx.getProcessInstanceSimpleAttributeDAO().getSimpleAttributeValue(key, processInstance);
+				ProcessInstance processInstance = ctx.getProcessInstanceDAO().getProcessInstanceByInternalId(internalId);
+				return ctx.getProcessInstanceSimpleAttributeDAO().getSimpleAttributeValue(processInstance.getId(), key);
 			}
 		});
 	}
 
-	private void checkExistenceOfKey(String internalId,String key) throws AperteWsWrongArgumentException{
-		List<ProcessInstanceSimpleAttribute> simpleAttributesList = getSimpleAttributesList(internalId);
-		for (ProcessInstanceSimpleAttribute processInstanceSimpleAttribute : simpleAttributesList) {
-			if (processInstanceSimpleAttribute.getKey().equals(key)){
-				return;
-			}
-		}
-		AperteWrongArgumentCodes.SIMPLE_ATTRIBUTE.throwAperteWebServiceException();
-	}
-
-
 	@Override
 	@WebMethod
-	public List<ProcessInstanceSimpleAttribute> getSimpleAttributesList(@WebParam(name="internalId") String internalId) throws AperteWsWrongArgumentException {
-		final ProcessInstance processInstance = getProcessInstanceByInternalId(internalId);
-		return withContext(new ReturningProcessToolContextCallback<List<ProcessInstanceSimpleAttribute>>() {
+	public Map<String, String> getSimpleAttributesList(@WebParam(name="internalId") final String internalId) throws AperteWsWrongArgumentException {
+		return withContext(new ReturningProcessToolContextCallback<Map<String, String>>() {
 			@Override
-			public List<ProcessInstanceSimpleAttribute> processWithContext(ProcessToolContext ctx) {
-				return fetchHibernateData(ctx.getProcessInstanceSimpleAttributeDAO().getSimpleAttributesList(processInstance));
+			public Map<String, String> processWithContext(ProcessToolContext ctx) {
+				ProcessInstance processInstance = ctx.getProcessInstanceDAO().getProcessInstanceByInternalId(internalId);
+				return fetchHibernateData(ctx.getProcessInstanceSimpleAttributeDAO().getSimpleAttributesList(processInstance.getId()));
 			}
 		});
 	}

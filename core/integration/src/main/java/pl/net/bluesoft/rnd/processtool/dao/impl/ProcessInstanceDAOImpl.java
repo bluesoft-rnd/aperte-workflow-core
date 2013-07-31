@@ -134,30 +134,22 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
 			criteria.add(le(ProcessInstanceLog._ENTRY_DATE, truncHours(addDays(endDate, 1))));
 		}
 
-		criteria.createAlias("state", "s", CriteriaSpecification.LEFT_JOIN);
-		criteria.createAlias("processInstance", "pi");
+		criteria.createAlias(ProcessInstanceLog._STATE, "s", CriteriaSpecification.LEFT_JOIN);
+		criteria.createAlias(ProcessInstanceLog._PROCESS_INSTANCE, "pi");
 		criteria.createAlias("pi.definition", "def");
-		criteria.createAlias("pi.creator", "crtr");
-		criteria.createAlias("ownProcessInstance", "ownPi");
-		criteria.createAlias("user", "u");
-		criteria.createAlias("userSubstitute", "us", CriteriaSpecification.LEFT_JOIN);
+		criteria.createAlias(ProcessInstanceLog._OWN_PROCESS_INSTANCE, "ownPi");
 
 		ProjectionList pl = Projections.projectionList()
 				.add(Projections.id(), _ID)
 				.add(Projections.property(ProcessInstanceLog._ENTRY_DATE), ProcessInstanceLog._ENTRY_DATE)
-				.add(Projections.property("eventI18NKey"), "eventI18NKey")
-				.add(Projections.property("executionId"), "executionId")
-				.add(Projections.property("additionalInfo"), "additionalInfo")
-				.add(Projections.property("u.id"), "user.id")
-				.add(Projections.property("u.login"), "user.login")
-				.add(Projections.property("u.firstName"), "user.firstName")
-				.add(Projections.property("u.lastName"), "user.lastName")
+				.add(Projections.property(ProcessInstanceLog._EVENT_I18N_KEY), ProcessInstanceLog._EVENT_I18N_KEY)
+				.add(Projections.property(ProcessInstanceLog._EXECUTION_ID), ProcessInstanceLog._EXECUTION_ID)
+				.add(Projections.property(ProcessInstanceLog._ADDITIONAL_INFO), ProcessInstanceLog._ADDITIONAL_INFO)
+				.add(Projections.property(ProcessInstanceLog._USER_LOGIN), ProcessInstanceLog._USER_LOGIN)
 				.add(Projections.property("s.id"), "state.id")
 				.add(Projections.property("s.name"), "state.name")
 				.add(Projections.property("s.description"), "state.description")
-				.add(Projections.property("us.id"), "userSubstitute.id")
-				.add(Projections.property("us.firstName"), "userSubstitute.firstName")
-				.add(Projections.property("us.lastName"), "userSubstitute.lastName")
+				.add(Projections.property(ProcessInstanceLog._USER_SUBSTITUTE_LOGIN), ProcessInstanceLog._USER_SUBSTITUTE_LOGIN)
 				.add(Projections.property("pi.id"), "processInstance.id")
 				.add(Projections.property("pi.internalId"), "processInstance.internalId")
 				.add(Projections.property("pi.externalKey"), "processInstance.externalKey")
@@ -166,8 +158,6 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
 				.add(Projections.property("def.id"), "processInstance.definition.id")
 				.add(Projections.property("def.description"), "processInstance.definition.description")
 				.add(Projections.property("def.comment"), "processInstance.definition.comment")
-				.add(Projections.property("crtr.firstName"), "processInstance.creator.firstName")
-				.add(Projections.property("crtr.lastName"), "processInstance.creator.lastName")
 				.add(Projections.property("ownPi.id"), "ownProcessInstance.id");
 
 		criteria.setProjection(pl);

@@ -453,7 +453,7 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 								.add(Projections.property(_DESCRIPTION))
 						))
 						.list();
-				return (Map)from(list).toMap(atPosition(0), atPosition(1));
+				return toMap(list);
 			}
 		});
 	}
@@ -469,17 +469,8 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 								.add(Projections.property(ProcessStateConfiguration._DESCRIPTION))
 						))
 						.list();
-				return (Map)from(list).toMap(atPosition(0), atPosition(1));
+				return toMap(list);
 			}
 		});
-	}
-
-	private static F<Object[], Object> atPosition(final int index) {
-		return new F<Object[], Object>() {
-			@Override
-			public Object invoke(Object[] x) {
-				return x[index];
-			}
-		};
 	}
 }

@@ -7,10 +7,7 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 
 import org.aperteworkflow.service.fault.AperteWsIllegalArgumentException;
@@ -307,8 +304,7 @@ public interface AperteWorkflowDataService {
 	 * @return Value of simple attribute.
 	 * @throws AperteWsWrongArgumentException If internalId is wrong and process Instance, does not exists (including param null or empty values).
 	 *</pre>*/
-	ProcessInstanceSimpleAttribute setSimpleAttribute(String key,
-			String newValue, String internalId) throws AperteWsWrongArgumentException;
+	void setSimpleAttribute(String key, String newValue, String internalId) throws AperteWsWrongArgumentException;
 
 	/**<pre> 
 	 * Method returns the attribute value of the process.
@@ -329,8 +325,7 @@ public interface AperteWorkflowDataService {
 	 * @return List of all simple attributes in process instance
 	 * @throws AperteWsWrongArgumentException If process Instance, does not exists (including param null or empty values).
 	 *</pre>*/
-	List<ProcessInstanceSimpleAttribute> getSimpleAttributesList(
-			String internalId) throws AperteWsWrongArgumentException;
+	Map<String, String> getSimpleAttributesList(String internalId) throws AperteWsWrongArgumentException;
 
 	/**<pre>
 	 * The system returns a list of process Instances based on internalId list.

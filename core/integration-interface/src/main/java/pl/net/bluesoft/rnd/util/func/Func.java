@@ -6,5 +6,5 @@ package pl.net.bluesoft.rnd.util.func;
  * @author tlipski@bluesoft.net.pl
  */
 public interface Func<R> {
-    public R invoke();
+    R invoke();
 }

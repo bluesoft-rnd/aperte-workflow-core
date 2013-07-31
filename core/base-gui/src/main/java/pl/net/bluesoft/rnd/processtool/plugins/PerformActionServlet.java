@@ -3,6 +3,7 @@ package pl.net.bluesoft.rnd.processtool.plugins;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -76,8 +77,8 @@ public class PerformActionServlet extends TokenAuthenticationServlet
 		ProcessInstance process = tokenWrapper.getTask().getProcessInstance();
 
 		ProcessActionManager processActionManager = new ProcessActionManager(ctx, tokenWrapper.getUser());
-		processActionManager.perfomAction(tokenAction, tokenWrapper.getTask());
-		
+		List<BpmTask> newTasks = processActionManager.perfomAction(tokenAction, tokenWrapper.getTask());
+
 		String taskName = tokenAction.getLabel();
 		String localizedTaskName = i18NSource.getMessage(taskName);
 		
@@ -87,12 +88,10 @@ public class PerformActionServlet extends TokenAuthenticationServlet
 				localizedTaskName, processName, tokenWrapper.getTask().getInternalProcessId()));
 		
 		ctx.getProcessInstanceDAO().refresh(process);
-		
-		
-		BpmTask newTask = process.getActiveTasks().length > 0 ? process.getActiveTasks()[0] : null;
-		if(newTask != null)
+
+		if (!newTasks.isEmpty())
 		{
-			ProcessStateConfiguration newState = newTask.getCurrentProcessStateConfiguration();
+			ProcessStateConfiguration newState = newTasks.get(0).getCurrentProcessStateConfiguration();
 			
 			String localizedNewTaskName = i18NSource.getMessage(newState.getDescription());
 			textDecorator.addText(i18NSource.getMessage("token.servlet.action.newaction", "", localizedNewTaskName));
@@ -100,9 +99,5 @@ public class PerformActionServlet extends TokenAuthenticationServlet
 		
 		/* Write to user output page */
 		out.append(textDecorator.getOutput());
-					
-		
 	}
-
-
 }

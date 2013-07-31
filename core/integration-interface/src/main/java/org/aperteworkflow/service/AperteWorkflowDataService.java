@@ -75,17 +75,6 @@ public interface AperteWorkflowDataService {
 	ProcessInstance getProcessInstanceByExternalId(String externalId);
 
 	/**<pre>
-	 * Returns the process instance, on the basis of externalId.
-	 * 
-	 *  <b>Warning! Method is exclude from WSDL!</b>
-	 * 
-	 * @param key key from pt_process_instance table
-	 * @param processType do nothing, filing this attribute, has no consequence.
-	 * @return List od Process instances.
-	 *</pre>*/
-	List<ProcessInstance> findProcessInstancesByKeyword(String key, String processType);
-
-	/**<pre>
 	 * Process deletion.
 	 * 
 	 * @param internalId InternalID from pt_process_instance table

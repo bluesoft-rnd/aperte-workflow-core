@@ -1,7 +1,6 @@
 package pl.net.bluesoft.rnd.processtool.plugins;
 
 import com.google.common.io.CharStreams;
-import org.aperteworkflow.search.SearchProvider;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -98,7 +97,6 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	private ProcessToolSessionFactory processToolSessionFactory;
 	private SessionFactory sessionFactory;
 	private PluginManager pluginManager;
-	private SearchProvider searchProvider;
 	private boolean jta;
 	private BundleContext bundleContext;
 	private String bpmDefinitionLanguage;
@@ -464,7 +462,7 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 
 	@Override
 	public ProcessInstanceDAO getProcessInstanceDAO(Session hibernateSession) {
-		return new ProcessInstanceDAOImpl(hibernateSession, searchProvider);
+		return new ProcessInstanceDAOImpl(hibernateSession);
 	}
 
 	@Override
@@ -776,14 +774,6 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	@Override
 	public boolean isJta() {
 		return jta;
-	}
-
-	public SearchProvider getSearchProvider() {
-		return searchProvider;
-	}
-
-	public void setSearchProvider(SearchProvider searchProvider) {
-		this.searchProvider = searchProvider;
 	}
 
 	@Override

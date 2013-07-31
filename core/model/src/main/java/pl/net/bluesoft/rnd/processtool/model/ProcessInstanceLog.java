@@ -20,6 +20,18 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 @Entity
 @Table(name = "pt_process_instance_log")
 public class ProcessInstanceLog extends AbstractPersistentEntity {
+	public static final String _ENTRY_DATE = "entryDate";
+	public static final String _EVENT_I18N_KEY = "eventI18NKey";
+	public static final String _ADDITIONAL_INFO = "additionalInfo";
+	public static final String _LOG_VALUE = "logValue";
+	public static final String _LOG_TYPE = "logType";
+	public static final String _EXECUTION_ID = "executionId";
+	public static final String _STATE = "state";
+	public static final String _OWN_PROCESS_INSTANCE = "ownProcessInstance";
+	public static final String _PROCESS_INSTANCE = "processInstance";
+	public static final String _USER_LOGIN = "userLogin";
+	public static final String _USER_SUBSTITUTE_LOGIN = "userSubstituteLogin";
+
 	public static final String LOG_TYPE_START_PROCESS = "START_PROCESS";
 	public static final String LOG_TYPE_CLAIM_PROCESS = "CLAIM_PROCESS";
 	public static final String LOG_TYPE_PERFORM_ACTION = "PERFORM_ACTION";

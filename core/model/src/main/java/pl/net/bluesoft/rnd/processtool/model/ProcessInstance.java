@@ -25,6 +25,19 @@ import pl.net.bluesoft.rnd.pt.utils.lang.Lang2;
 @Table(name="pt_process_instance")
 public class ProcessInstance extends AbstractPersistentEntity
 {
+	public static final String _EXTERNAL_KEY = "externalKey";
+	public static final String _INTERNAL_ID = "internalId";
+	public static final String _DEFINITION_NAME = "definitionName";
+	public static final String _STATUS = "status";
+	public static final String _CREATE_DATE = "createDate";
+	public static final String _CREATOR_LOGIN = "creatorLogin";
+	public static final String _DEFINITION = "definition";
+	public static final String _PROCESS_ATTRIBUTES = "processAttributes";
+	public static final String _PROCESS_LOGS = "processLogs";
+	public static final String _CHILDREN = "children";
+	public static final String _PARENT = "parent";
+	public static final String _OWNERS = "owners";
+
     public static final String EXTERNAL_KEY_PROPERTY = "externalKey";
 
 	@Id
@@ -48,15 +61,7 @@ public class ProcessInstance extends AbstractPersistentEntity
     @Enumerated(EnumType.STRING)
     private ProcessStatus status;
 
-    @Transient
-    private String[] assignees;
-    @Transient
-    private String[] taskQueues;
-    @Transient
-    private BpmTask[] activeTasks;
-
 	private Date createDate;
-
 	private String creatorLogin;
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -344,25 +349,7 @@ public class ProcessInstance extends AbstractPersistentEntity
             addAttribute(attr = new ProcessInstanceDictionaryAttribute(dictionary));
         }
         attr.put(key, value);
-    }
-
-	@XmlTransient
-    public String[] getAssignees() {
-        return nvl(assignees, new String[] { });
-    }
-
-    public void setAssignees(String... assignees) {
-        this.assignees = assignees;
-    }
-
-	@XmlTransient
-    public String[] getTaskQueues() {
-        return nvl(taskQueues, new String[] { });
-    }
-
-    public void setTaskQueues(String... taskQueues) {
-        this.taskQueues = taskQueues;
-    }
+	}
 
     public ProcessStatus getStatus() {
         return status;
@@ -370,15 +357,6 @@ public class ProcessInstance extends AbstractPersistentEntity
 
     public void setStatus(ProcessStatus status) {
         this.status = status;
-    }
-
-	@XmlTransient
-    public BpmTask[] getActiveTasks() {
-        return activeTasks;
-    }
-
-    public void setActiveTasks(BpmTask[] activeTasks) {
-        this.activeTasks = Lang2.noCopy(activeTasks);
     }
 
 	public Set<ProcessInstance> getChildren() {

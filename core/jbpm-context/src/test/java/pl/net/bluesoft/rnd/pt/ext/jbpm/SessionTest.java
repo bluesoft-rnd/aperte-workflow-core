@@ -731,16 +731,7 @@ public class SessionTest extends TestCase {
 
     	registry = new ProcessToolRegistryImpl();
 		registry.setBpmDefinitionLanguage("bpmn20");
-		registry.setSearchProvider(new SearchProvider() {
-			@Override
-			public void updateIndex(ProcessInstanceSearchData processInstanceSearchData) {
-			}
 
-			@Override
-			public List<Long> searchProcesses(String query, Integer offset, Integer limit, boolean onlyRunning, String[] userRoles, String assignee, String[] queues) {
-				return null;
-			}
-		});
         ProcessToolContextFactory contextFactory = new ProcessToolContextFactoryImpl(registry);
         registry.setProcessToolContextFactory(contextFactory);
 		registry.setProcessToolSessionFactory(new ProcessToolJbpmSessionFactory());

@@ -85,8 +85,6 @@ public interface ProcessToolBpmSession {
 	String getSubstitutingUserLogin();
 	Collection<String> getRoleNames();
 
-    EventBusManager getEventBusManager();
-
     void adminCancelProcessInstance(String internalId);
     void adminReassignProcessTask(String taskId, String userLogin);
     void adminCompleteTask(String taskId, String actionName);

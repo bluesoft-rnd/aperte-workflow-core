@@ -118,11 +118,6 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
     }
 
     @Override
-	public EventBusManager getEventBusManager() {
-        return registry.getEventBusManager();
-    }
-
-    @Override
 	public String getUserLogin() {
         return userLogin;
     }

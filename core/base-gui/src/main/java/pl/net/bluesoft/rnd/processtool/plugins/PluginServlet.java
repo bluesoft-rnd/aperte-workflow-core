@@ -60,9 +60,7 @@ public class PluginServlet extends HttpServlet
                                 ProcessToolContext.Util.getHomePath() + File.separator + "osgi-plugins"),
                         nvl(getServletConfig().getInitParameter("felix-cache-directory"),
                                 ProcessToolContext.Util.getHomePath() + File.separator + "felix-cache"),
-                        nvl(getServletConfig().getInitParameter("lucene-index-directory"),
-                                ProcessToolContext.Util.getHomePath() + File.separator + "lucene-index"),
-                        (ProcessToolRegistryImpl) processToolRegistry);
+						(ProcessToolRegistryImpl) processToolRegistry);
             }
         } catch (Exception e) {
             pluginHelper = null;

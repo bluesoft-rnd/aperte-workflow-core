@@ -28,7 +28,7 @@
 		<!--<property name="hibernate.transaction.factory_class">org.hibernate.ejb.transaction.JoinableCMTTransactionFactory</property> -->
 
 		<property name="current_session_context_class">thread</property>
-		<property name="hibernate.search.default.indexBase">lucene</property>
+
         <mapping resource="jbpm.repository.hbm.xml"/>
         <mapping resource="jbpm.execution.hbm.xml"/>
         <mapping resource="jbpm.history.hbm.xml"/>

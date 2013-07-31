@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * @author: amichalak@bluesoft.net.pl
  */
-public class NestedAliasToBeanResultTransformer implements ResultTransformer, Serializable {
+public class NestedAliasToBeanResultTransformer implements ResultTransformer {
     private final Class resultClass;
     private boolean isInitialized;
     private String[] aliases;
@@ -36,7 +36,8 @@ public class NestedAliasToBeanResultTransformer implements ResultTransformer, Se
         return this;
     }
 
-    public Object transformTuple(Object[] tuple, String[] aliases) {
+    @Override
+	public Object transformTuple(Object[] tuple, String[] aliases) {
         if (!isInitialized) {
             initialize(aliases);
         }
@@ -77,7 +78,8 @@ public class NestedAliasToBeanResultTransformer implements ResultTransformer, Se
         }
     }
 
-    public List transformList(List collection) {
+    @Override
+	public List transformList(List collection) {
         return collection;
     }
 

@@ -64,10 +64,6 @@
       <priority value="WARN"/>
    </category>
 
-   <category name="org.infinispan.lucene">
-      <priority value="WARN"/>
-   </category>
-
    <category name="com.mchange">
       <priority value="WARN"/>
    </category>

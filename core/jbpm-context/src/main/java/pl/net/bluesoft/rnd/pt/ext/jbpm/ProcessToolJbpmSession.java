@@ -1,7 +1,6 @@
 package pl.net.bluesoft.rnd.pt.ext.jbpm;
 
 import org.aperteworkflow.bpm.graph.GraphElement;
-import org.aperteworkflow.ui.view.ViewEvent;
 import org.aperteworkflow.util.SimpleXmlTransformer;
 import org.drools.event.process.*;
 import org.drools.runtime.process.NodeInstance;
@@ -55,7 +54,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	private static final Integer DEFAULT_OFFSET_VALUE = 0;
 	private static final Integer DEFAULT_LIMIT_VALUE = 1000;
 
-	private static final ViewEvent REFRESH_VIEW = new ViewEvent(ViewEvent.Type.ACTION_COMPLETE);
+//	private static final ViewEvent REFRESH_VIEW = new ViewEvent(ViewEvent.Type.ACTION_COMPLETE);
 
 	@AutoInject
 	private IAccessTokenFactory accessTokenFactory;
@@ -560,7 +559,6 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		log.severe("User: " + userLogin + " attempting to cancel process: " + internalId);
 		ProcessInstance pi = getByInternalId(internalId);
 		getJbpmService().abortProcessInstance(toJbpmPIId(pi));
-		fillProcessAssignmentData(pi);
 		save(pi);
 		log.severe("User: " + userLogin + " has cancelled process: " + pi.getInternalId());
 	}
@@ -578,28 +576,10 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		}
 		//this call should also take care of swimlanes
 		getJbpmService().claimTask(toJbpmTaskId(bpmTask), userLogin);
-		fillProcessAssignmentData(pi);
+
 		log.info("Process.running:" + pi.isProcessRunning());
 		save(pi);
 		log.severe("User: " + userLogin + " has reassigned task " + toJbpmTaskId(bpmTask) + " for process: " + pi.getInternalId() + " to user: " + userLogin);
-	}
-
-	private void fillProcessAssignmentData(ProcessInstance pi) {
-		Set<String> assignees = new HashSet<String>();
-		Set<String> queues = new HashSet<String>();
-		List<BpmTask> processTasks = findProcessTasks(pi);
-
-		for (BpmTask t : processTasks) {
-			if (t.getAssignee() != null) {
-				assignees.add(t.getAssignee());
-			}
-			else {
-				queues.add(t.getGroupId());
-			}
-		}
-		pi.setActiveTasks(processTasks.toArray(new BpmTask[processTasks.size()]));
-		pi.setAssignees(assignees.toArray(new String[assignees.size()]));
-		pi.setTaskQueues(queues.toArray(new String[queues.size()]));
 	}
 
 	@Override
@@ -805,7 +785,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	public void taskCreated(TaskUserEvent event) {
 		refreshDataForNativeQuery();
 
-		broadcastEvent(REFRESH_VIEW);
+//		broadcastEvent(REFRESH_VIEW);
 	}
 
 	// Handles tasks assigned during creation or picked from a queue
@@ -825,7 +805,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		refreshDataForNativeQuery();
 
 		broadcastEvent(new BpmEvent(BpmEvent.Type.ASSIGN_TASK, task, userLogin));
-		broadcastEvent(REFRESH_VIEW);
+//		broadcastEvent(REFRESH_VIEW);
 	}
 
 	private void refreshDataForNativeQuery() {
@@ -891,13 +871,11 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		/* Delete all tokens for this taskId */
 		tokenService.deleteTokensByTaskId(Long.parseLong(toAwfTaskId(completeTaskParams.task)));
 
-		fillProcessAssignmentData(completeTaskParams.task.getProcessInstance());
-
 		refreshDataForNativeQuery();
 
 		broadcastEvent(new BpmEvent(BpmEvent.Type.TASK_FINISHED, completeTaskParams.task, userLogin));
 		broadcastEvent(new BpmEvent(BpmEvent.Type.SIGNAL_PROCESS, completeTaskParams.task, nvl(substitutingUserLogin, userLogin)));
-		broadcastEvent(REFRESH_VIEW);
+//		broadcastEvent(REFRESH_VIEW);
 	}
 
 	@Override

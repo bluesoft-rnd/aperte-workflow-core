@@ -98,17 +98,6 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
 	}
 
 	@Override
-	@WebMethod (exclude=true)
-	public List<ProcessInstance> findProcessInstancesByKeyword(@WebParam(name="key")final String key, @WebParam(name="processType")final String processType) {
-		return withContext(new ReturningProcessToolContextCallback<List<ProcessInstance>>() {
-			@Override
-			public List<ProcessInstance> processWithContext(ProcessToolContext ctx) {
-				return fetchHibernateData(ctx.getProcessInstanceDAO().findProcessInstancesByKeyword(key, processType));
-			}
-		});
-	}
-
-	@Override
 	@WebMethod
 	public HashMap<String, ProcessInstance> getProcessInstanceByInternalIdMap(@WebParam(name="internalIds")final Collection<String> internalIds) {
 		return withContext(new ReturningProcessToolContextCallback<HashMap<String, ProcessInstance>>() {
@@ -134,15 +123,13 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
 
 	@Override
 	@WebMethod
-	public Collection<ProcessInstanceLog> getUserHistory(@WebParam(name="userLogin") String userLogin,
+	public Collection<ProcessInstanceLog> getUserHistory(@WebParam(name="userLogin") final String userLogin,
 														 @WebParam(name="startDate")final Date startDate,
 														 @WebParam(name="endDate")final Date endDate) throws AperteWsWrongArgumentException {
-		final UserDataBean loadUserByLogin = getUserByLogin(userLogin);
 		return withContext(new ReturningProcessToolContextCallback<Collection<ProcessInstanceLog>>() {
 			@Override
 			public Collection<ProcessInstanceLog> processWithContext(ProcessToolContext ctx)  {
-
-				return fetchHibernateData(ctx.getProcessInstanceDAO().getUserHistory(loadUserByLogin, startDate, endDate));
+				return fetchHibernateData(ctx.getProcessInstanceDAO().getUserHistory(userLogin, startDate, endDate));
 			}
 		});
 	}

@@ -8,12 +8,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -153,8 +148,8 @@ public class EmailChecker {
 
             ProcessInstance existingPi = null;
             if (rule.isLookupRunningProcesses()) {
-                List<ProcessInstance> instancesByExternalKey =
-                        context.getProcessInstanceDAO().findProcessInstancesByKeyword(preparedSubject, rule.getProcessCode());
+                List<ProcessInstance> instancesByExternalKey = Collections.emptyList();
+//				context.getProcessInstanceDAO().findProcessInstancesByKeyword(preparedSubject, rule.getProcessCode());
                 for (ProcessInstance pi : instancesByExternalKey) {
 					logger.fine("Found existing process for " + preparedSubject + ", ID: " + pi.getInternalId());
                     if (pi.isProcessRunning() && pi.getDefinition().getBpmDefinitionKey().equals(rule.getProcessCode())) {
@@ -163,7 +158,6 @@ public class EmailChecker {
                         break;
                     }
                 }
-
             }
             if (existingPi == null) {
                 if (hasText(rule.getRecipientRegexp())) {

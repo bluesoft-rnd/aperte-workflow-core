@@ -139,7 +139,6 @@ public class WidgetViewWindow extends Window
 		this.i18NSource = I18NSourceFactory.createI18NSource(locale);
 		super.setLocale(locale);
 	}
-
 	
 	public void initlizeWidget(String taskId, String widgetId)
 	{
@@ -168,25 +167,20 @@ public class WidgetViewWindow extends Window
 					ProcessToolVaadinRenderable vaadinW = (ProcessToolVaadinRenderable) widget;
 					
 					Component renderedWidget = vaadinW.render();
+
 					if(renderedWidget != null)
 					{
-
-						
 						logger.warning("add widget: "+vaadinW.getClass());
 						renderedWidget.setSizeFull();
-						WidgetViewWindow.this.addComponent(vaadinW.render());
-						
-	
+						WidgetViewWindow.this.addComponent(renderedWidget);
 					}
 				}
 				
 				isInitlized = true;
 			}
 		});
-		
 	}
 
-	
 	private ProcessToolWidget getWidget(ProcessStateWidget processStateWidget, ProcessToolContext ctx, String generatorKey, BpmTask task) 
 	{
 		ProcessToolWidget processToolWidget;
@@ -238,7 +232,6 @@ public class WidgetViewWindow extends Window
 				return o1.getPriority().compareTo(o2.getPriority());
 			}
 		});
-
 
 		for (ProcessStateWidget subW : sortedList) 
 		{
@@ -330,9 +323,4 @@ public class WidgetViewWindow extends Window
 			return false;
 		return true;
 	}
-	
-	
-	
 }
-
-

@@ -2,11 +2,11 @@ package org.aperteworkflow.webapi.main.processes;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
 
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+
+import static pl.net.bluesoft.util.lang.Formats.nvl;
 
 /**
  * Process Instance Bean
@@ -34,21 +34,19 @@ public class BpmTaskBean implements Serializable
 	
 	public static BpmTaskBean createFrom(BpmTask task, I18NSource messageSource)
 	{
-        String processExteralKey = task.getProcessInstance().getExternalKey();
-
         BpmTaskBean processBean = new BpmTaskBean();
 		processBean.setProcessName(messageSource.getMessage(task.getProcessDefinition().getDescription()));
 		processBean.setName(task.getTaskName());
-		processBean.setCode(processExteralKey == null ? task.getExecutionId() : processExteralKey);
+		processBean.setCode(nvl(task.getExternalProcessId(), task.getInternalProcessId()));
 		processBean.setCreationDate(task.getCreateDate());
 		processBean.setAssignee(task.getAssignee());
 		processBean.setCreator(task.getCreator());
 		processBean.setTaskId(task.getInternalTaskId());
-		processBean.setInternalProcessId(task.getProcessInstance().getInternalId());
+		processBean.setInternalProcessId(task.getInternalProcessId());
 		processBean.setProcessStateConfigurationId(task.getCurrentProcessStateConfiguration().getId().toString());
 		processBean.setDeadline(task.getDeadlineDate());
 		processBean.setTooltip(messageSource.getMessage(task.getProcessDefinition().getComment()));
-        processBean.setStep(messageSource.getMessage(task.getTaskName()));
+        processBean.setStep(messageSource.getMessage(task.getCurrentProcessStateConfiguration().getDescription()));
 		return processBean;
 	}
 	

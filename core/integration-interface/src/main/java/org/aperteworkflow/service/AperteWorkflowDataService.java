@@ -7,10 +7,7 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 
 import org.aperteworkflow.service.fault.AperteWsIllegalArgumentException;
@@ -62,8 +59,7 @@ public interface AperteWorkflowDataService {
 	 * @throws AperteWsWrongArgumentException If process instance does not exists (including param null or empty values).  
 	 * @return  Process instance from pt_process_instance.
 	 *</pre>*/
-	ProcessInstance getProcessInstanceByInternalId(String internalId)
-			throws AperteWsWrongArgumentException;
+	ProcessInstance getProcessInstanceByInternalId(String internalId) throws AperteWsWrongArgumentException;
 
 	/**<pre>
 	 * Returns the process instance, on the basis of externalId.
@@ -74,18 +70,6 @@ public interface AperteWorkflowDataService {
 	 * @return New Process Instance
 	 *</pre>*/
 	ProcessInstance getProcessInstanceByExternalId(String externalId);
-
-	/**<pre>
-	 * Returns the process instance, on the basis of externalId.
-	 * 
-	 *  <b>Warning! Method is exclude from WSDL!</b>
-	 * 
-	 * @param key key from pt_process_instance table
-	 * @param processType do nothing, filing this attribute, has no consequence.
-	 * @return List od Process instances.
-	 *</pre>*/
-	List<ProcessInstance> findProcessInstancesByKeyword(String key,
-			String processType);
 
 	/**<pre>
 	 * Process deletion.
@@ -107,15 +91,6 @@ public interface AperteWorkflowDataService {
 	 *</pre>*/
 	Collection<ProcessInstanceLog> getUserHistory(String userLogin,
 			Date startDate, Date endDate) throws AperteWsWrongArgumentException;
-
-	/**<pre>
-	 * The method creates user, or  returns existing one if logins  match each other.
-	 * 
-	 * @param ud User Informations*
-	 * @return Created user.
-	 * @return User in form of Userdata object.
-	 *</pre>*/
-	UserDataBean findOrCreateUser(UserDataBean ud);
 
 	/**<pre>
 	 * Method finds the process instance using Lucena. 
@@ -234,8 +209,7 @@ public interface AperteWorkflowDataService {
 	 * @param cfg ProcessDefinitionConfig only bpmDefinitionKey is taken for consideration.
 	 * @return Version of configuration.
 	 *</pre>*/
-	Collection<ProcessDefinitionConfig> getConfigurationVersions(
-			ProcessDefinitionConfig cfg);
+	Collection<ProcessDefinitionConfig> getConfigurationVersions(ProcessDefinitionConfig cfg);
 
 	/**<pre>
 	 * Method creates or updates  ProcessQueueConfig 
@@ -269,7 +243,7 @@ public interface AperteWorkflowDataService {
 	 * @param filter user login or email which data base will be searched.
 	 * @return List of all available Logins.
 	 *</pre>*/
-	List<String> getAvailableLogins(final String filter);
+	List<String> getAvailableLogins(String filter);
 
 	/**<pre>
 	 * 
@@ -279,7 +253,7 @@ public interface AperteWorkflowDataService {
 	 * @return User in form of UserDataBean.
 	 * @throws AperteWsWrongArgumentException If user does not exists (including param null or empty values). 
 	 *</pre>*/
-	UserDataBean findUser(String userLogin) throws AperteWsWrongArgumentException;
+	UserDataBean getUserByLogin(String userLogin) throws AperteWsWrongArgumentException;
 
 	/**<pre>
 	 * 
@@ -330,8 +304,7 @@ public interface AperteWorkflowDataService {
 	 * @return Value of simple attribute.
 	 * @throws AperteWsWrongArgumentException If internalId is wrong and process Instance, does not exists (including param null or empty values).
 	 *</pre>*/
-	ProcessInstanceSimpleAttribute setSimpleAttribute(String key,
-			String newValue, String internalId) throws AperteWsWrongArgumentException;
+	void setSimpleAttribute(String key, String newValue, String internalId) throws AperteWsWrongArgumentException;
 
 	/**<pre> 
 	 * Method returns the attribute value of the process.
@@ -352,8 +325,7 @@ public interface AperteWorkflowDataService {
 	 * @return List of all simple attributes in process instance
 	 * @throws AperteWsWrongArgumentException If process Instance, does not exists (including param null or empty values).
 	 *</pre>*/
-	List<ProcessInstanceSimpleAttribute> getSimpleAttributesList(
-			String internalId) throws AperteWsWrongArgumentException;
+	Map<String, String> getSimpleAttributesList(String internalId) throws AperteWsWrongArgumentException;
 
 	/**<pre>
 	 * The system returns a list of process Instances based on internalId list.
@@ -378,16 +350,5 @@ public interface AperteWorkflowDataService {
 	
 	byte[] getProcessLatestDefinition(String bpmDefinitionKey,
 			String processName) throws AperteWsIllegalArgumentException;
-
-	/**<pre>
-	 * This method returns a list of all possible actions in the process. Based on definition.
-	 * 
-	 * @param definitionName  definition Name  eg "Complaint"
-	 * @return List of all action in the Definition.
-	 * @throws AperteWsWrongArgumentException If definitionName is wrong and Definition, does not exists (including param null or empty values).
-	 *</pre>*/
-	List<ProcessStateAction> getAllActionsListFromDefinition(String definitionName)
-			throws AperteWsWrongArgumentException;
-
 }
 

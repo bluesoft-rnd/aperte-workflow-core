@@ -405,7 +405,7 @@ public class HistoryListPane extends AbstractListPane implements DateRangeListen
         if (bpmSession != null) {
             ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
             String userLogin = isHistorySuperuser ? null : bpmSession.getUserLogin();
-            Collection<ProcessInstanceLog> logs = ctx.getProcessInstanceDAO().getUserHistory(getRegistry().getUserSource().getUserByLogin(userLogin),
+            Collection<ProcessInstanceLog> logs = ctx.getProcessInstanceDAO().getUserHistory(userLogin,
                     dateRangeField.getStartDate(), dateRangeField.getEndDate());
             DateFormat dateFormat = VaadinUtility.fullDateFormat();
             for (ProcessInstanceLog log : logs) {

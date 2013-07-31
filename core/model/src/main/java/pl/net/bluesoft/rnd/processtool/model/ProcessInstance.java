@@ -25,6 +25,19 @@ import pl.net.bluesoft.rnd.pt.utils.lang.Lang2;
 @Table(name="pt_process_instance")
 public class ProcessInstance extends AbstractPersistentEntity
 {
+	public static final String _EXTERNAL_KEY = "externalKey";
+	public static final String _INTERNAL_ID = "internalId";
+	public static final String _DEFINITION_NAME = "definitionName";
+	public static final String _STATUS = "status";
+	public static final String _CREATE_DATE = "createDate";
+	public static final String _CREATOR_LOGIN = "creatorLogin";
+	public static final String _DEFINITION = "definition";
+	public static final String _PROCESS_ATTRIBUTES = "processAttributes";
+	public static final String _PROCESS_LOGS = "processLogs";
+	public static final String _CHILDREN = "children";
+	public static final String _PARENT = "parent";
+	public static final String _OWNERS = "owners";
+
     public static final String EXTERNAL_KEY_PROPERTY = "externalKey";
 
 	@Id
@@ -48,15 +61,7 @@ public class ProcessInstance extends AbstractPersistentEntity
     @Enumerated(EnumType.STRING)
     private ProcessStatus status;
 
-    @Transient
-    private String[] assignees;
-    @Transient
-    private String[] taskQueues;
-    @Transient
-    private BpmTask[] activeTasks;
-
 	private Date createDate;
-
 	private String creatorLogin;
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -99,8 +104,8 @@ public class ProcessInstance extends AbstractPersistentEntity
 
 	public ProcessInstance getRootProcessInstance() {
     	ProcessInstance parentProcess = this;
-    	while (parentProcess.getParent() != null){
-    		parentProcess = parentProcess.getParent();
+    	while (parentProcess.parent != null){
+    		parentProcess = parentProcess.parent;
     	}
     	return parentProcess;
     }
@@ -116,10 +121,14 @@ public class ProcessInstance extends AbstractPersistentEntity
 	}
 
 	public String getExternalKey() {
-		if (externalKey == null && parent != null){
-			return parent.getExternalKey();
+		ProcessInstance other = this;
+		while (true) {
+			if (other.externalKey == null && other.parent != null) {
+				other = other.parent;
+				continue;
+			}
+			return other.externalKey;
 		}
-		return externalKey;
 	}
 
 	public void setExternalKey(String externalKey) {	
@@ -315,7 +324,7 @@ public class ProcessInstance extends AbstractPersistentEntity
 	}
 
 	public String getInheritedSimpleAttributeValue(String key, String default_) {
-		for (ProcessInstance pi = this; pi != null; pi = pi.getParent()) {
+		for (ProcessInstance pi = this; pi != null; pi = pi.parent) {
 			ProcessInstanceAttribute attr = findAttributeByKey(key);
 			if (attr instanceof ProcessInstanceSimpleAttribute) {
 				return ((ProcessInstanceSimpleAttribute)attr).getValue();
@@ -340,26 +349,7 @@ public class ProcessInstance extends AbstractPersistentEntity
             addAttribute(attr = new ProcessInstanceDictionaryAttribute(dictionary));
         }
         attr.put(key, value);
-
-    }
-
-	@XmlTransient
-    public String[] getAssignees() {
-        return nvl(assignees, new String[] { });
-    }
-
-    public void setAssignees(String... assignees) {
-        this.assignees = assignees;
-    }
-
-	@XmlTransient
-    public String[] getTaskQueues() {
-        return nvl(taskQueues, new String[] { });
-    }
-
-    public void setTaskQueues(String... taskQueues) {
-        this.taskQueues = taskQueues;
-    }
+	}
 
     public ProcessStatus getStatus() {
         return status;
@@ -367,15 +357,6 @@ public class ProcessInstance extends AbstractPersistentEntity
 
     public void setStatus(ProcessStatus status) {
         this.status = status;
-    }
-
-	@XmlTransient
-    public BpmTask[] getActiveTasks() {
-        return activeTasks;
-    }
-
-    public void setActiveTasks(BpmTask[] activeTasks) {
-        this.activeTasks = Lang2.noCopy(activeTasks);
     }
 
 	public Set<ProcessInstance> getChildren() {
@@ -395,8 +376,7 @@ public class ProcessInstance extends AbstractPersistentEntity
 	}
 	
 	/** Method checks if the process is in running or new state */
-	public boolean isProcessRunning()
-	{
+	public boolean isProcessRunning() {
 		return status == ProcessStatus.NEW || status == ProcessStatus.RUNNING;
 	}
 
@@ -407,6 +387,6 @@ public class ProcessInstance extends AbstractPersistentEntity
 
 	/** Check if process is subprocess (has parent process) */
 	public boolean isSubprocess() {
-		return getParent() != null;
+		return parent != null;
 	}
 }

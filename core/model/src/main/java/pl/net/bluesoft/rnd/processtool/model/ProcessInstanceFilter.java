@@ -2,6 +2,7 @@ package pl.net.bluesoft.rnd.processtool.model;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 import javax.persistence.*;
@@ -42,6 +43,8 @@ public class ProcessInstanceFilter extends AbstractPersistentEntity {
     private QueueOrderCondition sortOrderCondition;
 
     private String expression;
+	@Transient
+	private Locale locale;
 
 	private String filterOwnerLogin;
 	
@@ -102,6 +105,14 @@ public class ProcessInstanceFilter extends AbstractPersistentEntity {
     public void setExpression(String expression) {
         this.expression = expression;
     }
+
+	public Locale getLocale() {
+		return locale;
+	}
+
+	public void setLocale(Locale locale) {
+		this.locale = locale;
+	}
 
 	public Date getCreatedAfter() {
 		return createdAfter;

@@ -452,8 +452,10 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 
                 ProcessInstanceFilter filter = new ProcessInstanceFilter();
 
-                if(searchString != null && searchString.length() > 0)
+                if(searchString != null && !searchString.isEmpty()) {
                     filter.setExpression(searchString);
+					filter.setLocale(messageSource.getLocale());
+				}
 
                 if(searchProcessKey != null)
                     filter.setProcessBpmKey(searchProcessKey);
@@ -561,6 +563,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 				}
 
                 filter.setExpression(searchString);
+				filter.setLocale(messageSource.getLocale());
 
                 JQueryDataTableColumn sortingColumn = dataTable.getFirstSortingColumn();
 

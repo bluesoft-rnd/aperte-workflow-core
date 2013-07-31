@@ -37,16 +37,10 @@ public interface ProcessToolBpmSession {
 	BpmTask assignTaskFromQueue(String queueName, String taskId);
 	void assignTaskToUser(String taskId, String userLogin);
 
-    ProcessInstance getProcessData(String internalId);
-    ProcessInstance refreshProcessData(ProcessInstance processInstance);
-	void saveProcessInstance(ProcessInstance processInstance);
-
 	BpmTask getTaskData(String taskId);
 	BpmTask getPastOrActualTask(ProcessInstanceLog log);
 	BpmTask getPastEndTask(ProcessInstanceLog log);
 	BpmTask refreshTaskData(BpmTask task);
-
-	boolean isProcessRunning(String internalId);
 
 	/** Method returns queue size for given queue type and user login. Methods is significally faster
 	 * than {@link getFilteredTasksCount} but does not provide filtering support.
@@ -91,11 +85,9 @@ public interface ProcessToolBpmSession {
 	String getSubstitutingUserLogin();
 	Collection<String> getRoleNames();
 
-    EventBusManager getEventBusManager();
-
-    void adminCancelProcessInstance(ProcessInstance pi);
-    void adminReassignProcessTask(ProcessInstance pi, BpmTask bpmTask, String userLogin);
-    void adminCompleteTask(ProcessInstance pi, BpmTask bpmTask, ProcessStateAction action);
+    void adminCancelProcessInstance(String internalId);
+    void adminReassignProcessTask(String taskId, String userLogin);
+    void adminCompleteTask(String taskId, String actionName);
 
     List<String> getAvailableLogins(String filter);
 

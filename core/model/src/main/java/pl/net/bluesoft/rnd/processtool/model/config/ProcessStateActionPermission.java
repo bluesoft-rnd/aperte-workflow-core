@@ -14,8 +14,6 @@ import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 @Entity
 @Table(name="pt_process_state_act_prms")
 public class ProcessStateActionPermission extends PersistentEntity implements IPermission{
-
-
 	private static final long serialVersionUID = -1416824019270643292L;
 	
 	@ManyToOne
@@ -35,6 +33,7 @@ public class ProcessStateActionPermission extends PersistentEntity implements IP
 	private String roleName;
 	private String privilegeName;
 
+	@Override
 	public String getRoleName() {
 		return roleName;
 	}
@@ -43,6 +42,7 @@ public class ProcessStateActionPermission extends PersistentEntity implements IP
 		this.roleName = roleName;
 	}
 
+	@Override
 	public String getPrivilegeName() {
 		return privilegeName;
 	}

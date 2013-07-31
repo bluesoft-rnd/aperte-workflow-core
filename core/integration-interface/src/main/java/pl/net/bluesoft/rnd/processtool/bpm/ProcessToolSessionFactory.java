@@ -1,6 +1,5 @@
 package pl.net.bluesoft.rnd.processtool.bpm;
 
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 
 import java.util.Collection;
@@ -15,6 +14,5 @@ public interface ProcessToolSessionFactory {
 	ProcessToolBpmSession createSession(String userLogin, Collection<String> roles);
 
     ProcessToolBpmSession createAutoSession();
-	ProcessToolBpmSession createAutoSession(ProcessToolContext ctx);
 	ProcessToolBpmSession createAutoSession(Collection<String> roles);
 }

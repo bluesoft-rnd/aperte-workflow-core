@@ -18,6 +18,7 @@ import java.util.Collection;
 @Entity
 @Table(name="pt_process_instance_s_attr")
 public class ProcessInstanceSimpleAttribute extends ProcessInstanceAttribute implements BpmVariable, Searchable {
+	public static final String _VALUE = "value";
 
     @Column(name="value_")
 	private String value;

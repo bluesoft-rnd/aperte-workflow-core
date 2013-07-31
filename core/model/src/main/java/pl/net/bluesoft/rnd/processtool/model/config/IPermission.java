@@ -10,5 +10,4 @@ public interface IPermission
 {
 	String getRoleName();
 	String getPrivilegeName();
-
 }

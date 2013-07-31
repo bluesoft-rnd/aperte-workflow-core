@@ -9,8 +9,6 @@ import pl.net.bluesoft.rnd.processtool.model.nonpersistent.BpmStepBean;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.PropertyAutoWiring;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -54,19 +52,12 @@ public class JbpmStepAction {
         catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-        ctx.updateContext(pi);
         return res;
     }
 
     private BpmStep prepareStep(ProcessInstance pi) {
 		BpmStepBean step = new BpmStepBean();
 		step.setProcessInstance(pi);
-		List<String> transitionNames = new ArrayList<String>();
-//		for (Transition transition : getActivity().getOutgoingTransitions()) {//TODO to nie ma sensu!
-//			transitionNames.add(transition.getDestination().getName());
-//		}
-		step.setOutgoingTransitions(transitionNames);
 		return step;
 	}
 }

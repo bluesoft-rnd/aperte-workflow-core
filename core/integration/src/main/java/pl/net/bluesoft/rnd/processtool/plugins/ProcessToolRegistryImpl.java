@@ -1,7 +1,6 @@
 package pl.net.bluesoft.rnd.processtool.plugins;
 
 import com.google.common.io.CharStreams;
-import org.aperteworkflow.search.SearchProvider;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -14,12 +13,14 @@ import org.springframework.stereotype.Component;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
+import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolSessionFactory;
 import pl.net.bluesoft.rnd.processtool.dao.*;
 import pl.net.bluesoft.rnd.processtool.dao.impl.*;
 import pl.net.bluesoft.rnd.processtool.dict.DictionaryLoader;
 import pl.net.bluesoft.rnd.processtool.dict.xml.ProcessDictionaries;
 import pl.net.bluesoft.rnd.processtool.event.ProcessToolEventBusManager;
+import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionary;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryPermission;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
@@ -96,7 +97,6 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	private ProcessToolSessionFactory processToolSessionFactory;
 	private SessionFactory sessionFactory;
 	private PluginManager pluginManager;
-	private SearchProvider searchProvider;
 	private boolean jta;
 	private BundleContext bundleContext;
 	private String bpmDefinitionLanguage;
@@ -462,18 +462,13 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 
 	@Override
 	public ProcessInstanceDAO getProcessInstanceDAO(Session hibernateSession) {
-		return new ProcessInstanceDAOImpl(hibernateSession, searchProvider);
+		return new ProcessInstanceDAOImpl(hibernateSession);
 	}
 
 	@Override
 	public ProcessInstanceSimpleAttributeDAO getProcessInstanceSimpleAttributeDAO(
 			Session hibernateSession) {
 		return new ProcessInstanceSimpleAttributeDAOImpl(hibernateSession);
-	}
-
-	@Override
-	public ProcessStateActionDAO getProcessStateAction(Session hibernateSession) {
-		return new ProcessStateActionDAOImpl(hibernateSession);
 	}
 
 	@Override
@@ -673,6 +668,11 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	}
 
 	@Override
+	public UserData getAutoUser() {
+		return userSource.getUserByLogin(ProcessToolBpmConstants.SYSTEM_USER.getLogin());
+	}
+
+	@Override
 	public void registerGlobalDictionaries(InputStream is) {
 		if (is != null) {
 			ProcessDictionaries dictionaries = (ProcessDictionaries) DictionaryLoader.getInstance().unmarshall(is);
@@ -774,14 +774,6 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	@Override
 	public boolean isJta() {
 		return jta;
-	}
-
-	public SearchProvider getSearchProvider() {
-		return searchProvider;
-	}
-
-	public void setSearchProvider(SearchProvider searchProvider) {
-		this.searchProvider = searchProvider;
 	}
 
 	@Override

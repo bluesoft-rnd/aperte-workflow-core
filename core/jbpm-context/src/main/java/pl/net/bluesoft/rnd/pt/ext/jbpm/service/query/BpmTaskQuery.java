@@ -6,6 +6,8 @@ import org.jbpm.task.Status;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
 import pl.net.bluesoft.rnd.processtool.model.*;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.BpmTaskBean;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 import pl.net.bluesoft.util.lang.cquery.func.F;
 
 import java.util.*;
@@ -20,6 +22,10 @@ import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
  * @author Maciej Pawlak
  */
 public class BpmTaskQuery {
+	private static final String DEADLINE_SUBQUERY =
+			"(SELECT MIN(dueDate) FROM pt_ext_pi_deadline_attr da JOIN pt_process_instance_attr pa ON pa.id = da.id " +
+			"WHERE pa.process_instance_id = process.id AND da.taskname = i18ntext_.shortText) ";
+
 	private static class QueryParameter {
 		private final String key;
 		private final Object value;
@@ -56,6 +62,7 @@ public class BpmTaskQuery {
 	private Date createdAfter;
 	private String processBpmKey;
 	private String searchExpression;
+	private Locale locale;
 	private QueueOrderCondition sortField;
 	private QueueOrder sortOrder;
 
@@ -101,8 +108,9 @@ public class BpmTaskQuery {
 		this.processBpmKey = processBpmKey;
 	}
 
-	public BpmTaskQuery searchExpression(String searchExpression) {
+	public BpmTaskQuery searchExpression(String searchExpression, Locale locale) {
 		this.searchExpression = searchExpression;
+		this.locale = locale;
 		return this;
 	}
 
@@ -111,7 +119,6 @@ public class BpmTaskQuery {
 		this.sortOrder = sortOrder;
 		return this;
 	}
-
 
 	public BpmTaskQuery page(int offset, int limit) {
 		this.offset = offset;
@@ -210,8 +217,8 @@ public class BpmTaskQuery {
 			sb.append("CASE WHEN task_.actualowner_id IS NULL THEN potowners.entity_id END as groupId, ");
 			sb.append("i18ntext_.shortText as taskName, task_.createdOn as createdOn, task_.completedOn as completedOn, ");
 			sb.append("task_.status as taskStatus, process.definition_id as definitionId, ");
-			sb.append("(SELECT MIN(dueDate) FROM pt_ext_pi_deadline_attr da JOIN pt_process_instance_attr pa ON pa.id = da.id WHERE pa.process_instance_id = process.id AND da.taskname = i18ntext_.shortText)\n" +
-					"AS taskDeadline");
+			sb.append(DEADLINE_SUBQUERY);
+			sb.append("AS taskDeadline");
 		}
 
 		sb.append(" FROM pt_process_instance process JOIN task task_ ON CAST(task_.processinstanceid AS VARCHAR(10)) = process.internalId");
@@ -220,7 +227,7 @@ public class BpmTaskQuery {
 			sb.append(" JOIN peopleassignments_potowners potowners ON potowners.task_id = task_.id");
 		}
 
-		if (taskNames != null || queryType == QueryType.LIST) {
+		if (taskNames != null || queryType == QueryType.LIST || hasText(searchExpression)) {
 			sb.append(" JOIN i18ntext i18ntext_ ON i18ntext_.task_names_id = task_.id");
 		}
 
@@ -265,14 +272,36 @@ public class BpmTaskQuery {
 			sb.append(" AND (");
 			sb.append("task_.actualowner_id LIKE '%' || :expression || '%'");
 			sb.append(" OR process.creatorLogin LIKE '%' || :expression || '%'");
-			sb.append(" OR to_char(process.createdate, 'MM-DD-YYYY HH24:MI:SS') LIKE '%' || :expression || '%'");
-			sb.append(" OR process.externalKey LIKE '%' || :expression || '%'");
-			sb.append(" OR to_char(task_.createdOn, 'MM-DD-YYYY HH24:MI:SS') LIKE '%' || :expression || '%'");
+			sb.append(" OR (CASE WHEN process.externalKey IS NOT NULL THEN process.externalKey ELSE process.internalId END) LIKE '%' || :expression || '%'");
+			sb.append(" OR to_char(task_.createdOn, 'YYYY-MM-DD HH24:MI:SS') LIKE '%' || :expression || '%'");
 			sb.append(" OR EXISTS(SELECT * FROM pt_process_instance_s_attr sattr JOIN pt_process_instance_attr attr ON attr.id = sattr.id");
 			sb.append("	WHERE attr.process_instance_id = process.id AND sattr.value_ LIKE '%' || :expression || '%')");
-			sb.append(')');
+			sb.append(" OR to_char(");
+			sb.append(DEADLINE_SUBQUERY);
+			sb.append(", 'YYYY-MM-DD HH24:MI:SS') LIKE '%' || :expression || '%'");
 
 			queryParameters.add(new QueryParameter("expression", searchExpression.trim()));
+
+			List<Long> definitionDescrKeys = getSearchKeywordMatchingIds(getThreadProcessToolContext()
+					.getProcessDefinitionDAO().getProcessDefinitionDescriptions());
+
+			if (!definitionDescrKeys.isEmpty()) {
+				sb.append(" OR process.definition_id IN (:searchProcessDefIds)");
+
+				queryParameters.add(new QueryParameter("searchProcessDefIds", definitionDescrKeys));
+			}
+
+			List<Long> stateDescrKeys = getSearchKeywordMatchingIds(getThreadProcessToolContext()
+					.getProcessDefinitionDAO().getProcessStateDescriptions());
+
+			if (!stateDescrKeys.isEmpty()) {
+				sb.append(" OR EXISTS(SELECT * FROM pt_process_state_config psc WHERE psc.id IN (:searchProcessStateIds)");
+				sb.append(" AND psc.definition_id = process.definition_id AND psc.name = i18ntext_.shortText)");
+
+				queryParameters.add(new QueryParameter("searchProcessStateIds", stateDescrKeys));
+			}
+
+			sb.append(')');
 		}
 
 		if (queryType == QueryType.LIST) {
@@ -332,6 +361,26 @@ public class BpmTaskQuery {
 			default:
 				throw new RuntimeException("Unhandled type: " + virtualQueue);
 		}
+	}
+
+	private List<Long> getSearchKeywordMatchingIds(Map<Long, String> i18NKeys) {
+		if (locale == null) {
+			return Collections.emptyList();
+		}
+
+		I18NSource i18NSource = I18NSourceFactory.createI18NSource(locale);
+		String searchExpressionLC = searchExpression.toLowerCase(locale);
+
+		List<Long> result = new ArrayList<Long>();
+
+		for (Map.Entry<Long, String> entry : i18NKeys.entrySet()) {
+			String localizedMessage = i18NSource.getMessage(entry.getValue());
+
+			if (localizedMessage.toLowerCase(locale).contains(searchExpressionLC)) {
+				result.add(entry.getKey());
+			}
+		}
+		return result;
 	}
 
 	@Override

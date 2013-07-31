@@ -1,6 +1,10 @@
 package pl.net.bluesoft.rnd.processtool.model;
 
+import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComments;
+import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessDeadline;
+
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlTransient;
 
 /**
@@ -11,7 +15,12 @@ import javax.xml.bind.annotation.XmlTransient;
 @Entity
 @Table(name="pt_process_instance_attr")
 @Inheritance(strategy=InheritanceType.JOINED)
+@XmlSeeAlso({ ProcessComments.class, ProcessDeadline.class, ProcessInstanceSimpleAttribute.class })
 public class ProcessInstanceAttribute extends PersistentEntity {
+	public static final String _KEY = "key";
+	public static final String _PROCESS_INSTANCE = "processInstance";
+	public static final String _PROCESS_INSTANCE_ID = _PROCESS_INSTANCE + "." + _ID;
+
     @Column(name="key_")
 	private String key;
 

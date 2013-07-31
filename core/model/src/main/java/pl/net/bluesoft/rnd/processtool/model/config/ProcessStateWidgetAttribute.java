@@ -13,9 +13,7 @@ import javax.xml.bind.annotation.XmlTransient;
 @Table(name="pt_process_state_widget_attr")
 public class ProcessStateWidgetAttribute extends PersistentEntity 
 {
-
 	private static final long serialVersionUID = 1L;
-
 
 	@ManyToOne
 	@JoinColumn(name="widget_id")

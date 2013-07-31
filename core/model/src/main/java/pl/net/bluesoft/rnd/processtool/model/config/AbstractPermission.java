@@ -9,7 +9,6 @@ import javax.persistence.*;
  */
 @MappedSuperclass
 public class AbstractPermission extends PersistentEntity {
-
 	private static final long serialVersionUID = 1L;
 	
 	private String roleName;

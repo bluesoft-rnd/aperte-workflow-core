@@ -1,9 +1,5 @@
 package pl.net.bluesoft.rnd.processtool.plugins.osgi;
 
-import org.apache.lucene.document.Document;
-import org.apache.lucene.search.Query;
-import org.aperteworkflow.search.ProcessInstanceSearchData;
-import org.aperteworkflow.search.SearchProvider;
 import org.osgi.framework.BundleException;
 import pl.net.bluesoft.rnd.processtool.plugins.PluginManager;
 import pl.net.bluesoft.rnd.processtool.plugins.PluginMetadata;
@@ -13,14 +9,13 @@ import pl.net.bluesoft.rnd.processtool.plugins.osgi.newfelix.NewFelixBundleServi
 import java.io.File;
 import java.io.InputStream;
 import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class PluginHelper implements PluginManager, SearchProvider {
+public class PluginHelper implements PluginManager {
     public enum State {
         STOPPED, INITIALIZING, ACTIVE
     }
@@ -34,25 +29,18 @@ public class PluginHelper implements PluginManager, SearchProvider {
 
     private FelixBundleService felixService;
 
-    private LuceneSearchService searchService = new LuceneSearchService(LOGGER);
-
     public synchronized void initialize(String pluginsDir,
-                                        String felixDir,
-                                        String luceneDir,
-                                        ProcessToolRegistryImpl registry) throws BundleException {
+										String felixDir,
+										ProcessToolRegistryImpl registry) throws BundleException {
         felixService = createFelixBundleService();
         felixService.setPluginsDir(pluginsDir.replace('/', File.separatorChar));
-        searchService.setLuceneDir(luceneDir.replace('/', File.separatorChar));
 
         registry.setPluginManager(this);
-        registry.setSearchProvider(this);
         state = State.INITIALIZING;
         LOGGER.fine("initialize.start!");
         initializeFelix(felixDir, registry);
         LOGGER.fine("initializeCheckerThread!");
         initCheckerThread();
-        LOGGER.fine("initializeSearchService!");
-        initializeSearchService();
         LOGGER.fine("initialize.end!");
         state = State.ACTIVE;
     }
@@ -112,10 +100,6 @@ public class PluginHelper implements PluginManager, SearchProvider {
         executor.schedule(createBundleInstallTask(), seconds, TimeUnit.SECONDS);
     }
 
-    private void initializeSearchService() {
-        searchService.initialize();
-    }
-
     public synchronized void stopPluginSystem() throws BundleException {
         state = State.STOPPED;
         shutdownExecutor();
@@ -149,25 +133,5 @@ public class PluginHelper implements PluginManager, SearchProvider {
     @Override
     public void uninstallPlugin(PluginMetadata pluginMetadata) {
         felixService.uninstallPlugin(pluginMetadata);
-    }
-
-    @Override
-    public void updateIndex(ProcessInstanceSearchData processInstanceSearchData) {
-        searchService.updateIndex(processInstanceSearchData);
-    }
-
-    @Override
-    public List<Long> searchProcesses(String query, Integer offset,
-                                      Integer limit, boolean onlyRunning, String[] userRoles,
-                                      String assignee, String... queues) {
-        return searchService.searchProcesses(query, offset, limit, onlyRunning, userRoles, assignee, queues);
-    }
-
-    public List<Document> search(String query, int offset, int limit, Query... addQueries) {
-        return searchService.search(query, offset, limit, addQueries);
-    }
-
-    public String getMonitorInfo() {
-        return errorMonitor.getMonitorInfo();
     }
 }

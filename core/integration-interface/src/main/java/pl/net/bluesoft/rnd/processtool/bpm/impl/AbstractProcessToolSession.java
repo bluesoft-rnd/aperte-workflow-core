@@ -14,7 +14,6 @@ import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.event.IEvent;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.*;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
@@ -119,11 +118,6 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
     }
 
     @Override
-	public EventBusManager getEventBusManager() {
-        return registry.getEventBusManager();
-    }
-
-    @Override
 	public String getUserLogin() {
         return userLogin;
     }
@@ -131,22 +125,6 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
     @Override
     public String getSubstitutingUserLogin() {
         return substitutingUserLogin;
-    }
-
-    @Override
-    public ProcessInstance getProcessData(String internalId) {
-        return getContext().getProcessInstanceDAO().getProcessInstanceByInternalId(internalId);
-    }
-
-    @Override
-	public ProcessInstance refreshProcessData(ProcessInstance pi) {
-        return getContext().getProcessInstanceDAO().refreshProcessInstance(pi);
-    }
-
-    @Override
-    public void saveProcessInstance(ProcessInstance processInstance) {
-		getContext().updateContext(processInstance);
-		getContext().getProcessInstanceDAO().saveProcessInstance(processInstance);
     }
 
     @Override

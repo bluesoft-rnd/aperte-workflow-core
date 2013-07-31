@@ -107,7 +107,7 @@ public class ProcessMultiViewDataPane extends VerticalLayout implements WidgetCo
 		setWidth(100, Sizeable.UNITS_PERCENTAGE);
 		dataWidgets.clear();
 
-		boolean processRunning = ProcessToolBpmSessionHelper.isProcessRunning(bpmSession, ctx, task.getInternalProcessId());
+		boolean processRunning = ctx.getProcessInstanceDAO().getProcessInstanceByInternalId(task.getInternalProcessId()).isProcessRunning();
 		isOwner = processRunning && !task.isFinished();
 		if (!isOwner) 
 		{
@@ -400,7 +400,7 @@ public class ProcessMultiViewDataPane extends VerticalLayout implements WidgetCo
 		for (ProcessToolActionButton action : actions) {
 			action.saveData(task);
 		}
-		ProcessToolBpmSessionHelper.saveProcessInstance(bpmSession, getCurrentContext(), task.getProcessInstance());
+		getCurrentContext().getProcessInstanceDAO().saveProcessInstance(task.getProcessInstance());
 	}
 
     @Override

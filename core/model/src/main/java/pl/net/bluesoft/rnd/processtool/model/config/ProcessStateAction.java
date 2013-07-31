@@ -18,8 +18,8 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 @Entity
 @Table(name = "pt_process_state_action")
 public class ProcessStateAction extends AbstractPersistentEntity {
-    final static public String PRIMARY_ACTION = "primary";
-    final static public String SECONDARY_ACTION = "secondary";
+    public static final String PRIMARY_ACTION = "primary";
+    public static final String SECONDARY_ACTION = "secondary";
 
 	@Id
 	@GeneratedValue(generator = "idGenerator")
@@ -50,13 +50,13 @@ public class ProcessStateAction extends AbstractPersistentEntity {
     
     private String notification;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "action_id")
-    private Set<ProcessStateActionPermission> permissions = new HashSet();
+    private Set<ProcessStateActionPermission> permissions = new HashSet<ProcessStateActionPermission>();
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "action_id")
-    private Set<ProcessStateActionAttribute> attributes = new HashSet();
+    private Set<ProcessStateActionAttribute> attributes = new HashSet<ProcessStateActionAttribute>();
 
     private String assignProcessStatus;
 

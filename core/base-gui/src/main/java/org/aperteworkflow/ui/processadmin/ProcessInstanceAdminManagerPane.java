@@ -139,8 +139,7 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements R
                 return;
             }
             List<ProcessInstance> processInstances = new ArrayList<ProcessInstance>(ProcessToolContext.Util.getThreadProcessToolContext().getProcessInstanceDAO()
-                    .searchProcesses(filter, offset, limit + 1,
-                            (Boolean) onlyActive.getValue(), null, null));
+                    .searchProcesses(filter, offset, limit + 1, (Boolean) onlyActive.getValue(), null, null));
             cnt = processInstances.size();
             if (processInstances.size() > limit) {
                 processInstances = processInstances.subList(0, limit);
@@ -369,7 +368,7 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements R
                         new Runnable() {
                             @Override
                             public void run() {
-                                bpmSession.adminCancelProcessInstance(pi);
+                                bpmSession.adminCancelProcessInstance(pi.getInternalId());
                                 refreshData();
                                 Window.Notification n =
                                         new Window.Notification(getLocalizedMessage("processinstances.console.cancel-process.success"));
@@ -388,7 +387,7 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements R
                         new Runnable() {
                             @Override
                             public void run() {
-                                bpmSession.adminCompleteTask(pi, task, psa);
+                                bpmSession.adminCompleteTask(task.getInternalTaskId(), psa.getBpmName());
                                 refreshData();
                                 Window.Notification n = new Window.Notification(getLocalizedMessage("processinstances.console.force-action.success"));
                                 n.setDelayMsec(5000);
@@ -428,7 +427,7 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements R
                     new Runnable() {
                 @Override
                 public void run() {
-                    bpmSession.adminReassignProcessTask(pi, task, null);
+                    bpmSession.adminReassignProcessTask(task.getInternalTaskId(), null);
                     refreshData();
                     Window.Notification n =
                             new Window.Notification(getLocalizedMessage("processinstances.console.remove-owner.success"));
@@ -472,7 +471,7 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements R
                                         new Runnable() {
                                             @Override
                                             public void run() {
-                                                bpmSession.adminReassignProcessTask(pi, task, login);
+                                                bpmSession.adminReassignProcessTask(task.getInternalTaskId(), login);
                                                 Window mainWindow = getApplication().getMainWindow();
                                                 mainWindow.removeWindow(w);
                                                 refreshData();

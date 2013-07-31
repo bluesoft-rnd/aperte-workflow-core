@@ -332,15 +332,13 @@ public class SessionTest extends TestCase {
 	}
 
 	private void checkFinished(ProcessInstance processInstance) {
-		processInstance = createSession("").refreshProcessData(processInstance);
+		processInstance = ctx.getProcessInstanceDAO().refreshProcessInstance(processInstance);
 		assertFalse(processInstance.isProcessRunning());
-		assertFalse(createSession("").isProcessRunning(processInstance.getInternalId()));
 	}
 
 	private void checkNotFinished(ProcessInstance processInstance) {
-		processInstance = createSession("").refreshProcessData(processInstance);
+		processInstance = ctx.getProcessInstanceDAO().refreshProcessInstance(processInstance);
 		assertTrue(processInstance.isProcessRunning());
-		assertTrue(createSession("").isProcessRunning(processInstance.getInternalId()));
 	}
 
 	private void createUser(String login, String... roles) {
@@ -482,7 +480,7 @@ public class SessionTest extends TestCase {
 	private void performAction(ProcessInstance processInstance, String user, String state, String actionName) {
 		ProcessToolBpmSession session = createSession(user);
 
-		processInstance = session.refreshProcessData(processInstance);
+		processInstance = ctx.getProcessInstanceDAO().refreshProcessInstance(processInstance);
 
 		List<BpmTask> list = session.findProcessTasks(processInstance, user, Collections.singleton(state));
 
@@ -537,13 +535,10 @@ public class SessionTest extends TestCase {
 
 	private void checkTasksByProcess(ProcessInstance processInstance, String[][] args) {
 		ProcessToolBpmSession session = createSession("admin");
-		processInstance = session.getProcessData(processInstance.getInternalId());
+		processInstance = ctx.getProcessInstanceDAO().getProcessInstanceByInternalId(processInstance.getInternalId());
 
 		List<BpmTask> list = session.findProcessTasks(processInstance);
 
-		if (args.length > 0) {
-			assertTrue(session.isProcessRunning(processInstance.getInternalId()));
-		}
 		assertEquals(args.length, list.size());
 
 		List<BpmTask> allTasks = session.getAllTasks();
@@ -624,7 +619,6 @@ public class SessionTest extends TestCase {
 		assertNull(processInstance.getParent());
 //		assertTrue(processInstance.getChildren() == null || processInstance.getChildren().isEmpty());
 
-		assertTrue(session.isProcessRunning(processInstance.getInternalId()));
 		assertTrue(processInstance.isProcessRunning());
 
 		return processInstance;
@@ -737,16 +731,7 @@ public class SessionTest extends TestCase {
 
     	registry = new ProcessToolRegistryImpl();
 		registry.setBpmDefinitionLanguage("bpmn20");
-		registry.setSearchProvider(new SearchProvider() {
-			@Override
-			public void updateIndex(ProcessInstanceSearchData processInstanceSearchData) {
-			}
 
-			@Override
-			public List<Long> searchProcesses(String query, Integer offset, Integer limit, boolean onlyRunning, String[] userRoles, String assignee, String[] queues) {
-				return null;
-			}
-		});
         ProcessToolContextFactory contextFactory = new ProcessToolContextFactoryImpl(registry);
         registry.setProcessToolContextFactory(contextFactory);
 		registry.setProcessToolSessionFactory(new ProcessToolJbpmSessionFactory());

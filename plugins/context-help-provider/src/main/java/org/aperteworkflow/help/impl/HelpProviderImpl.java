@@ -30,8 +30,7 @@ public class HelpProviderImpl implements HelpProvider {
         this.canEdit = canEdit;
         application.getMainWindow().getContent().addComponent(contextHelp);
         helpFactory = new HelpFactory(
-				cfgs,
-                application,
+				application,
                 I18NSource.ThreadUtil.getThreadI18nSource(),
 //                "step_help",
                 helpDictionaryName,

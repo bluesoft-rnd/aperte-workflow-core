@@ -12,8 +12,6 @@ import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 @Entity
 @Table(name = "pt_process_state_widget_prms")
 public class ProcessStateWidgetPermission  extends PersistentEntity implements IPermission {
-
-
 	@ManyToOne
 	@JoinColumn(name = "widget_id")
 	private ProcessStateWidget widget;
@@ -23,7 +21,6 @@ public class ProcessStateWidgetPermission  extends PersistentEntity implements I
 		return widget;
 	}
 
-
 	public void setWidget(ProcessStateWidget widget) {
 		this.widget = widget;
 	}
@@ -31,6 +28,7 @@ public class ProcessStateWidgetPermission  extends PersistentEntity implements I
 	private String roleName;
 	private String privilegeName;
 
+	@Override
 	public String getRoleName() {
 		return roleName;
 	}
@@ -39,6 +37,7 @@ public class ProcessStateWidgetPermission  extends PersistentEntity implements I
 		this.roleName = roleName;
 	}
 
+	@Override
 	public String getPrivilegeName() {
 		return privilegeName;
 	}

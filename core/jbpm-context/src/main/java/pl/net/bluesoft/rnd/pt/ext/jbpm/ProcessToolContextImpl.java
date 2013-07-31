@@ -89,8 +89,6 @@ public class ProcessToolContextImpl implements ProcessToolContext {
                 dao = (T) getRegistry().getUserSubstitutionDAO(hibernateSession);
             }else if (ProcessInstanceSimpleAttributeDAO.class.equals(daoClass)) {
                 dao = (T) getRegistry().getProcessInstanceSimpleAttributeDAO(hibernateSession);
-            }else if (ProcessStateActionDAO.class.equals(daoClass)) {
-                dao = (T) getRegistry().getProcessStateAction(hibernateSession);
             }
             if (dao != null) {
                 daoCache.put(daoClass, dao);
@@ -127,12 +125,6 @@ public class ProcessToolContextImpl implements ProcessToolContext {
 	public ProcessInstanceSimpleAttributeDAO getProcessInstanceSimpleAttributeDAO() {
 		return getHibernateDAO(ProcessInstanceSimpleAttributeDAO.class);
 	}
-    
-    @Override
-	public ProcessStateActionDAO getProcessStateActionDAO() {
-		return getHibernateDAO(ProcessStateActionDAO.class);
-	}
-
 
     @Override
     public Session getHibernateSession() {
@@ -229,16 +221,6 @@ public class ProcessToolContextImpl implements ProcessToolContext {
     @Override
     public long getNextValue(String sequenceName) {
         return getNextValue((String) null, sequenceName);
-    }
-
-    @Override
-    public UserData getAutoUser() {
-        return new UserDataBean(Formats.nvl(getSetting(BasicSettings.AUTO_USER_LOGIN), "system"), Formats.nvl(getSetting(BasicSettings.AUTO_USER_NAME), "System"),
-                Formats.nvl(getSetting(BasicSettings.AUTO_USER_EMAIL), "awf@bluesoft.net.pl"));
-    }
-
-    @Override
-    public void updateContext(ProcessInstance processInstance) {
     }
 
 	@Override

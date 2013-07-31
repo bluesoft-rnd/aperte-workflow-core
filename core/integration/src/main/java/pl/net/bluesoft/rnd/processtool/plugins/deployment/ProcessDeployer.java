@@ -57,7 +57,7 @@ public class ProcessDeployer
 		return (ProcessDefinitionConfig) xstream.fromXML(processToolConfigStream);
 	}
 
-	public void deployOrUpdateProcessDefinition(InputStream jpdlStream, ProcessDefinitionConfig cfg,
+	private void deployOrUpdateProcessDefinition(InputStream jpdlStream, ProcessDefinitionConfig cfg,
 												ProcessQueueConfig[] queues, InputStream imageStream) {
 		ProcessToolBpmSession session = createAdminSession();
 		ProcessDefinitionDAO processDefinitionDAO = processToolContext.getProcessDefinitionDAO();

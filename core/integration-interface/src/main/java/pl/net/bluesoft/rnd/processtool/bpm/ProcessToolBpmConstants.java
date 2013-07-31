@@ -1,11 +1,9 @@
 package pl.net.bluesoft.rnd.processtool.bpm;
 
-public interface ProcessToolBpmConstants {
-    String AUTO_USER_EMAIL = "user.auto.email";
-    String AUTO_USER_NAME = "user.auto.name";
-    String AUTO_USER_LOGIN = "user.auto.login";
-    String ACTIVITY_PORTLET_URL = "activity.portlet.url";
+import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.processtool.model.UserDataBean;
 
+public interface ProcessToolBpmConstants {
     String PRIVILEGE_INCLUDE = "INCLUDE";
     String PRIVILEGE_EXCLUDE = "EXCLUDE";
     String PRIVILEGE_EDIT = "EDIT";
@@ -28,17 +26,20 @@ public interface ProcessToolBpmConstants {
 
 	/** Default interval for queue refresh */
 	Integer DEFAULT_QUEUE_INTERVAL = 30000;
+
+	UserData SYSTEM_USER = new UserDataBean("system");
+	UserData ADMIN_USER = new UserDataBean("admin");
 	
 	/** Text modes enumeration type */
-	public static enum 			TextModes 
+	enum TextModes
 	{ 
 		PLAIN("text/plain; charset=UTF-8"), 
 		HTML("text/html; charset=UTF-8"), 
 		JSON("application/json");
 		
-		private String type;
+		private final String type;
 		
-		private TextModes(String type)
+		TextModes(String type)
 		{
 			this.type = type;
 		}
@@ -50,14 +51,17 @@ public interface ProcessToolBpmConstants {
 		
 		public static TextModes getTextModeType(String name)
 		{
-			if(name == null)
+			if(name == null) {
 				return null;
+			}
 			
-			for(TextModes mode: TextModes.values())
-				if(name.equals(mode.toString()))
+			for (TextModes mode : TextModes.values()) {
+				if (name.equals(mode.toString())) {
 					return mode;
+				}
+			}
 			
 			return null;
 		}
-	};
+	}
 }

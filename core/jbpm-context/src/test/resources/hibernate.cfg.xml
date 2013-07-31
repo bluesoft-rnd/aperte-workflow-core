@@ -28,7 +28,6 @@
 		<!--<property name="hibernate.transaction.factory_class">org.hibernate.ejb.transaction.JoinableCMTTransactionFactory</property> -->
 
 		<property name="current_session_context_class">thread</property>
-		<property name="hibernate.search.default.indexBase">lucene</property>
 
         <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstance"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttachmentAttribute"/>

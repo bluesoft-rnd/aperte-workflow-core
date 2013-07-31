@@ -15,30 +15,26 @@ public class ProcessDeadline extends ProcessInstanceAttribute {
     private String templateName;
     private String notifyUsersWithLogin;
     private String notifyUsersWithRole;
-    private Boolean skipAssignee;
-    private Boolean alreadyNotified = Boolean.FALSE;
+    private boolean skipAssignee;
+    private boolean alreadyNotified;
 
-    public boolean isAlreadyProcessed() {
-        return getAlreadyNotified() != null ? getAlreadyNotified().booleanValue() : false;
-    }
+	public boolean isSkipAssignee() {
+		return skipAssignee;
+	}
 
-    public Boolean getAlreadyNotified() {
-        return alreadyNotified;
-    }
+	public void setSkipAssignee(boolean skipAssignee) {
+		this.skipAssignee = skipAssignee;
+	}
 
-    public void setAlreadyNotified(Boolean alreadyNotified) {
-        this.alreadyNotified = alreadyNotified;
-    }
+	public boolean isAlreadyNotified() {
+		return alreadyNotified;
+	}
 
-    public Boolean getSkipAssignee() {
-        return skipAssignee;
-    }
+	public void setAlreadyNotified(boolean alreadyNotified) {
+		this.alreadyNotified = alreadyNotified;
+	}
 
-    public void setSkipAssignee(Boolean skipAssignee) {
-        this.skipAssignee = skipAssignee;
-    }
-
-    public String getNotifyUsersWithLogin() {
+	public String getNotifyUsersWithLogin() {
         return notifyUsersWithLogin;
     }
 

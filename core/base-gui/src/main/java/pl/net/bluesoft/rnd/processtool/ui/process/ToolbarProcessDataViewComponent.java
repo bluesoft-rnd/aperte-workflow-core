@@ -18,6 +18,8 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+
 /**
  * {@link ProcessDataMultiViewComponent} with toolabar
  * 
@@ -105,7 +107,7 @@ public class ToolbarProcessDataViewComponent extends ProcessDataMultiViewCompone
 		}
 		setShowExitWarning(getActivityApplication(), false);
 		VaadinUtility.unregisterClosingWarning(getActivityApplication().getMainWindow());
-		getBpmSession().getEventBusManager().post(new ViewEvent(Type.ACTION_COMPLETE));
+		getRegistry().getEventBusManager().post(new ViewEvent(Type.ACTION_COMPLETE));
 		getViewController().displayPreviousView();
 	}
     

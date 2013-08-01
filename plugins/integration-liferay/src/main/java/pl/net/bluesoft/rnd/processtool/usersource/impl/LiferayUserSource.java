@@ -1,6 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.usersource.impl;
 
 import com.liferay.portal.NoSuchUserException;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.model.User;
 import com.liferay.portal.service.UserLocalServiceUtil;
@@ -54,7 +55,7 @@ public class LiferayUserSource implements IPortalUserSource
 		return usersByLogin.get(login, new ExpiringCache.NewValueCallback<String, UserData>() {
 			@Override
 			public UserData getNewValue(String key) {
-				long[] companyIds = PortalUtil.getCompanyIds();
+                long[] companyIds = PortalUtil.getCompanyIds();
 
 				for (long companyId : companyIds) {
 					try {
@@ -63,7 +64,7 @@ public class LiferayUserSource implements IPortalUserSource
 							return LiferayUserConverter.convertLiferayUser(u);
 						}
 					}
-					catch (NoSuchUserException e) {
+					catch (PortalException e) {
 						// continue
 					}
 					catch (Exception e) {

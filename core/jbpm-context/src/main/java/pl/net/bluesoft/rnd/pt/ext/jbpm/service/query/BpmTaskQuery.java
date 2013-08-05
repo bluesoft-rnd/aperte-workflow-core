@@ -234,7 +234,7 @@ public class BpmTaskQuery {
 		sb.append(" WHERE 1=1");
 
 		if (owners != null) {
-			sb.append(" AND EXISTS(SELECT * FROM pt_process_instance_owners powner WHERE powner.process_id = process.id AND owners IN (:owners))");
+			sb.append(" AND EXISTS(SELECT 1 FROM pt_process_instance_owners powner WHERE powner.process_id = process.id AND owners IN (:owners))");
 			queryParameters.add(new QueryParameter("owners", owners));
 		}
 
@@ -295,7 +295,7 @@ public class BpmTaskQuery {
 					.getProcessDefinitionDAO().getProcessStateDescriptions());
 
 			if (!stateDescrKeys.isEmpty()) {
-				sb.append(" OR EXISTS(SELECT * FROM pt_process_state_config psc WHERE psc.id IN (:searchProcessStateIds)");
+				sb.append(" OR EXISTS(SELECT 1 FROM pt_process_state_config psc WHERE psc.id IN (:searchProcessStateIds)");
 				sb.append(" AND psc.definition_id = process.definition_id AND psc.name = i18ntext_.shortText)");
 
 				queryParameters.add(new QueryParameter("searchProcessStateIds", stateDescrKeys));

@@ -3,8 +3,7 @@ package pl.net.bluesoft.rnd.pt.ext.jbpm;
 import bitronix.tm.TransactionManagerServices;
 import bitronix.tm.resource.jdbc.PoolingDataSource;
 import junit.framework.TestCase;
-import org.aperteworkflow.search.ProcessInstanceSearchData;
-import org.aperteworkflow.search.SearchProvider;
+
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;

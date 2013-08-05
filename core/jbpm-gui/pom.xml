@@ -27,7 +27,7 @@
                 <configuration>
 				<webResources> 
             <resource> 
-              <directory>${project.basedir}/lib</directory> 
+              <directory>${project.basedir}/lib/target</directory> 
               <targetPath>WEB-INF/lib</targetPath> 
             </resource> 
           </webResources> 

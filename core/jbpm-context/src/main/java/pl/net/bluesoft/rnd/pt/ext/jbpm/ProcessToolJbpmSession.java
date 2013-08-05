@@ -9,6 +9,7 @@ import org.jbpm.task.event.TaskEventListener;
 import org.jbpm.task.event.entity.TaskUserEvent;
 import org.jbpm.workflow.core.node.SubProcessNode;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
+import org.jbpm.workflow.instance.node.ActionNodeInstance;
 import org.jbpm.workflow.instance.node.StartNodeInstance;
 import org.jbpm.workflow.instance.node.SubProcessNodeInstance;
 import org.jbpm.workflow.instance.node.WorkItemNodeInstance;
@@ -765,9 +766,11 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 	@Override
 	public void beforeNodeLeft(ProcessNodeLeftEvent event) {
-		if (event.getNodeInstance() instanceof WorkItemNodeInstance) {
-			copyAttributesIntoJbpm(event.getProcessInstance(), event.getNodeInstance());
+        NodeInstance nodeInstance = event.getNodeInstance();
+        if (nodeInstance instanceof WorkItemNodeInstance || nodeInstance instanceof ActionNodeInstance) {
+			copyAttributesIntoJbpm(event.getProcessInstance(), nodeInstance);
 		}
+
 	}
 
 	@Override

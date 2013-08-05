@@ -17,12 +17,20 @@
                 <directory>src/main/resources</directory>
             </resource>
         </resources>
+		
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <version>2.2</version>
                 <configuration>
+				<webResources> 
+            <resource> 
+              <directory>${project.basedir}/lib</directory> 
+              <targetPath>WEB-INF/lib</targetPath> 
+            </resource> 
+          </webResources> 
                   <warName>aperteworkflow</warName>
                 </configuration>
               </plugin>
@@ -34,9 +42,9 @@
                     <target>${project.build.compiler.target}</target>
                 </configuration>
             </plugin>
+			
         </plugins>
     </build>
-
     <dependencies>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
@@ -135,8 +143,10 @@
             <artifactId>contexthelp</artifactId>
             <version>1.3.1</version>
         </dependency>
-        
-       <dependency>
+		
+      
+		
+		<dependency>
             <groupId>org.vaadin.addons</groupId>
             <artifactId>flexibleoptiongroup</artifactId>
             <version>1.1.0</version>

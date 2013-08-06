@@ -4,7 +4,7 @@
     <parent>
         <artifactId>aperteworkflow-core</artifactId>
         <groupId>org.aperteworkflow</groupId>
-        <version>2.1-SNAPSHOT</version>
+        <version>3.0-beta1</version>
     </parent>
 
     <name>Aperte Workflow OSGi Plugins</name>
@@ -17,7 +17,7 @@
         <module>bpm-notifications</module>
         <module>cmis-widget</module>
         <module>doclist-widget</module>
-        <!-- module>drools-step</module-->
+        <module>drools-step</module>
         <module>context-help-provider</module>
         <module>email-capture</module>
         <module>files-capture</module>

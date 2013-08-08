@@ -91,7 +91,7 @@
 		<maven.dependency.version>2.7</maven.dependency.version>
 		<maven.release.version>2.4</maven.release.version>
 		<maven.bundle.plugin>2.3.7</maven.bundle.plugin>
-		<aperteworkflow.version>2.1-SNAPSHOT</aperteworkflow.version>
+		<aperteworkflow.version>3.0-beta1</aperteworkflow.version>
     </properties>
 
 	<dependencyManagement>

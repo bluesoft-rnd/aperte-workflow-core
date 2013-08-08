@@ -10,6 +10,7 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.bpm.StartProcessResult;
+import pl.net.bluesoft.rnd.processtool.bpm.impl.AbstractProcessToolSession;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
 import pl.net.bluesoft.rnd.processtool.di.ClassDependencyManager;
 import pl.net.bluesoft.rnd.processtool.model.*;
@@ -24,6 +25,8 @@ import pl.net.bluesoft.rnd.processtool.plugins.deployment.ProcessDeployer;
 import pl.net.bluesoft.rnd.processtool.token.IAccessTokenFactory;
 import pl.net.bluesoft.rnd.processtool.token.ITokenService;
 import pl.net.bluesoft.rnd.processtool.token.TokenWrapper;
+import pl.net.bluesoft.rnd.processtool.usersource.IUserSource;
+import pl.net.bluesoft.rnd.processtool.usersource.exception.UserSourceException;
 import pl.net.bluesoft.util.lang.Lang;
 import pl.net.bluesoft.util.lang.cquery.func.F;
 import pl.net.bluesoft.util.lang.cquery.func.P;
@@ -31,6 +34,7 @@ import pl.net.bluesoft.util.lang.cquery.func.P;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.util.*;
 
 import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
@@ -42,13 +46,13 @@ import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
  * Time: 11:05
  */
 public class SessionTest extends TestCase {
-	protected static ProcessToolRegistryImpl registry;
+   protected static ProcessToolRegistryImpl registry;
 	private static boolean isSetUp;
 	private ProcessToolContext ctx;
 
 	private void performSubprocessTests() {
 		checkTasksInVQs(new Object[][]{
-				{ "peter", new VQElem[][]{ { }, { }, { }, { }, { } } },
+				{ "peter", new VQElem[][]{ { }, { }, { } } },
 		});
 
 		ProcessInstance processInstance = startProcess("peter", "subprocess_assignee");
@@ -62,7 +66,7 @@ public class SessionTest extends TestCase {
 
 	private void checkQSFlow(ProcessInstance processInstance, String user, VQElem[] postFinishTasks, VQElem... alreadyCompletedTasks) {
 		checkTasksInVQs(new Object[][]{
-				{ user, new VQElem[][]{ { }, { }, { onGroup("QUEUE_NO1", "QS_Task1") }, { }, alreadyCompletedTasks } },
+				{ user, new VQElem[][]{ { }, {onGroup("QUEUE_NO1", "QS_Task1") }, alreadyCompletedTasks } },
 		});
 		checkTasksByProcess(processInstance, new String[][]{
 				{ "QS_Task1", null, "QUEUE_NO1" }
@@ -72,7 +76,7 @@ public class SessionTest extends TestCase {
 
 
 		checkTasksInVQs(new Object[][]{
-				{ user, new VQElem[][]{ { onUser(user, "QS_Task1") }, { }, { }, { }, alreadyCompletedTasks } },
+				{ user, new VQElem[][]{ { onUser(user, "QS_Task1") }, {onUser(user, "QS_Task1") }, alreadyCompletedTasks } },
 		});
 		checkTasksByProcess(processInstance, new String[][]{
 				{ "QS_Task1", user, null }
@@ -82,7 +86,7 @@ public class SessionTest extends TestCase {
 
 
 		checkTasksInVQs(new Object[][]{
-				{ user, new VQElem[][]{ postFinishTasks, { }, { }, { }, join(alreadyCompletedTasks, onUser(user, "QS_Task1"))  } },
+				{ user, new VQElem[][]{ postFinishTasks, postFinishTasks, join(alreadyCompletedTasks, onUser(user, "QS_Task1"))  } },
 		});
 		checkTasksByProcess(processInstance, new String[][]{});
 
@@ -91,7 +95,7 @@ public class SessionTest extends TestCase {
 
 	private void checkASFlow(ProcessInstance processInstance, String user, VQElem... alreadyCompletedTasks) {
 		checkTasksInVQs(new Object[][]{
-				{ user, new VQElem[][]{ { onUser(user, "AS_Task1") }, { }, { }, { }, alreadyCompletedTasks } },
+				{ user, new VQElem[][]{ { onUser(user, "AS_Task1") }, {onUser(user, "AS_Task1") }, alreadyCompletedTasks } },
 		});
 		checkTasksByProcess(processInstance, new String[][]{
 				{ "AS_Task1", user, null }
@@ -99,12 +103,11 @@ public class SessionTest extends TestCase {
 
 		performAction(processInstance, user, "AS_Task1", "end");
 
-		checkTasksInVQs(new Object[][]{
-				{ user, new VQElem[][]{ { }, { }, { }, { }, join(alreadyCompletedTasks, onUser(user, "AS_Task1")) } },
-		});
-		checkTasksByProcess(processInstance, new String[][]{});
-
-		checkFinished(processInstance);
+        checkTasksInVQs(new Object[][]{
+                { user, new VQElem[][]{ { }, { }, join(alreadyCompletedTasks, onUser(user, "AS_Task1")) } },
+        });
+        checkTasksByProcess(processInstance, new String[][]{});
+        checkFinished(processInstance);
 	}
 
 	private VQElem[] join(VQElem[] elems, VQElem elem) {
@@ -115,7 +118,7 @@ public class SessionTest extends TestCase {
 
 	private void performSubprocessUsageTest() {
 		checkTasksInVQs(new Object[][]{
-				{ "jack", new VQElem[][]{ { }, { }, { }, { }, { } } },
+				{ "jack", new VQElem[][]{ { }, { }, { } } },
 		});
 
 		ProcessInstance parentProcessInstance = startProcess("jack", "subprocess_usage");
@@ -133,27 +136,34 @@ public class SessionTest extends TestCase {
 		checkFinished(parentProcessInstance);
 	}
 
-	private ProcessInstance checkIsInSubprocess(ProcessInstance processInstance, final String bpmDefinitionKey) {
-		assertNotNull(processInstance.getChildren());
+	private ProcessInstance checkIsInSubprocess(final ProcessInstance processInstance, final String bpmDefinitionKey) {
+        final ProcessInstance[] subprocess = new ProcessInstance[1];
+        registry.getProcessToolContextFactory().withProcessToolContext(new ProcessToolContextCallback() {
+            @Override
+            public void withContext(ProcessToolContext ctx) {
+                ProcessInstance processInstanceLocal =  ctx.getProcessInstanceDAO().getProcessInstanceByInternalId(processInstance.getInternalId());
 
-		ProcessInstance subprocess = from(processInstance.getChildren()).first(new P<ProcessInstance>() {
+		assertNotNull(processInstanceLocal.getChildren());
+
+		 subprocess[0] = from(processInstanceLocal.getChildren()).first(new P<ProcessInstance>() {
 			@Override
 			public boolean invoke(ProcessInstance x) {
 				return x.isProcessRunning() && x.getDefinition().getBpmDefinitionKey().equals(bpmDefinitionKey);
 			}
 		});
+            }
+        });
 
-		return subprocess;
+		return subprocess[0];
 	}
-
 
 	//TODO weryfikacja czy wszystkie oczekiwane zdarzenia zostaly wywolane
 	private void performTest1() {
 //		Date processStartTime = DateUtil.addSeconds(new Date(), -1);
 
 		checkTasksInVQs(new Object[][]{
-				{ "john", new VQElem[][]{ { }, { }, { }, { }, { } } },
-				{ "mary", new VQElem[][]{ { }, { }, { }, { }, { } } }
+				{ "john", new VQElem[][]{ { }, { }, { } } },
+				{ "mary", new VQElem[][]{ { }, { }, { } } }
 		});
 
 		ProcessInstance processInstance = startProcess("john", "Complaint");
@@ -162,8 +172,8 @@ public class SessionTest extends TestCase {
 		checkUserHasAccessToQueues("john", "QUEUE_NO1");
 
 		checkTasksInVQs(new Object[][]{
-				{ "john", new VQElem[][]{ { onUser("john", "Complain") }, { }, { }, { }, { } } },
-				{ "mary", new VQElem[][]{ { }, { }, { }, { }, { } } }
+				{ "john", new VQElem[][]{ { onUser("john", "Complain") }, { onUser("john", "Complain")}, { } } },
+				{ "mary", new VQElem[][]{ { },  { }, { } } }
 		});
 		checkTasksByProcess(processInstance, new String[][]{
 				{ "Complain", "john", null }
@@ -177,16 +187,12 @@ public class SessionTest extends TestCase {
 		checkTasksInVQs(new Object[][]{
 				{ "john", new VQElem[][]{
 						{ },
-						{ onUser("mary", "Recomendation_1") },
-						{ onGroup("QUEUE_NO1", "Recomendation_2") },
-						{ },
+						{ onUser("mary", "Recomendation_1"),onGroup("QUEUE_NO1", "Recomendation_2") },
 						{ onUser("john", "Complain") }
 				} },
 				{ "mary", new VQElem[][]{
+						{onUser("mary", "Recomendation_1") },
 						{ },
-						{ },
-						{ },
-						{ onUser("mary", "Recomendation_1") },
 						{ }
 				} }
 		});
@@ -205,14 +211,10 @@ public class SessionTest extends TestCase {
 		checkTasksInVQs(new Object[][]{
 				{ "john", new VQElem[][]{
 						{ },
-						{ },
 						{ onGroup("QUEUE_NO1", "Recomendation_2") },
-						{ },
 						{ onUser("john", "Complain") }
 				} },
 				{ "mary", new VQElem[][]{
-						{ },
-						{ },
 						{ },
 						{ },
 						{ }
@@ -231,14 +233,10 @@ public class SessionTest extends TestCase {
 		checkTasksInVQs(new Object[][]{
 				{ "john", new VQElem[][]{
 						{ onUser("john", "Recomendation_2") },
-						{ },
-						{ },
-						{ },
+						{ onUser("john", "Recomendation_2")},
 						{ onUser("john", "Complain") }
 				} },
 				{ "mary", new VQElem[][]{
-						{ },
-						{ },
 						{ },
 						{ },
 						{ }
@@ -257,14 +255,10 @@ public class SessionTest extends TestCase {
 		checkTasksInVQs(new Object[][]{
 				{ "john", new VQElem[][]{
 						{ onUser("john", "Make_Decision") },
-						{ },
-						{ },
-						{ },
+						{ onUser("john", "Make_Decision")},
 						{ onUser("john", "Complain"), onUser("john", "Recomendation_2") }
 				} },
 				{ "mary", new VQElem[][]{
-						{ },
-						{ },
 						{ },
 						{ },
 						{ }
@@ -284,15 +278,11 @@ public class SessionTest extends TestCase {
 				{ "john", new VQElem[][]{
 						{ },
 						{ onUser("mary", "Accept") },
-						{ },
-						{ },
 						{ onUser("john", "Complain"), onUser("john", "Recomendation_2"), onUser("john", "Make_Decision") }
 				} },
 				{ "mary", new VQElem[][]{
+						{ onUser("mary", "Accept")},
 						{ },
-						{ },
-						{ },
-						{ onUser("mary", "Accept") },
 						{ }
 				} }
 		});
@@ -310,13 +300,9 @@ public class SessionTest extends TestCase {
 				{ "john", new VQElem[][]{
 						{ },
 						{ },
-						{ },
-						{ },
 						{ onUser("john", "Complain"), onUser("john", "Recomendation_2"), onUser("john", "Make_Decision") }
 				} },
 				{ "mary", new VQElem[][]{
-						{ },
-						{ },
 						{ },
 						{ },
 						{ }
@@ -330,27 +316,28 @@ public class SessionTest extends TestCase {
 		checkFinished(processInstance);
 	}
 
-	private void checkFinished(ProcessInstance processInstance) {
-		processInstance = ctx.getProcessInstanceDAO().refreshProcessInstance(processInstance);
-		assertFalse(processInstance.isProcessRunning());
+	private void checkFinished(final ProcessInstance processInstance) {
+        registry.getProcessToolContextFactory().withProcessToolContext(new ProcessToolContextCallback() {
+            @Override
+            public void withContext(ProcessToolContext ctx) {
+                ProcessInstance processInstanceLocal =  ctx.getProcessInstanceDAO().getProcessInstanceByInternalId(processInstance.getInternalId());
+                assertFalse(processInstanceLocal.isProcessRunning());
+            }
+        });
+
 	}
 
-	private void checkNotFinished(ProcessInstance processInstance) {
-		processInstance = ctx.getProcessInstanceDAO().refreshProcessInstance(processInstance);
-		assertTrue(processInstance.isProcessRunning());
+	private void checkNotFinished(final ProcessInstance processInstance) {
+        registry.getProcessToolContextFactory().withProcessToolContext(new ProcessToolContextCallback() {
+            @Override
+            public void withContext(ProcessToolContext ctx) {
+                ProcessInstance processInstanceLocal =  ctx.getProcessInstanceDAO().getProcessInstanceByInternalId(processInstance.getInternalId());
+                assertTrue(processInstanceLocal.isProcessRunning());
+            }
+        });
 	}
 
-	private void createUser(String login, String... roles) {
-//		UserData userData = new UserData(login, login, login+"@wp.pl");
-//		userData = ctx.getUserDataDAO().loadOrCreateUserByLogin(userData);
-//
-//		if (userData.getRoles().isEmpty()) {
-//			for (String role : roles) {
-//				userData.addRoleName(role);
-//			}
-//			ctx.getUserDataDAO().saveOrUpdate(userData);
-//		}
-	}
+
 
 	private VQElem onUser(String assignee, String taskName) {
 		return new VQElem(taskName, assignee, null);
@@ -360,29 +347,36 @@ public class SessionTest extends TestCase {
 		return new VQElem(taskName, null, group);
 	}
 
-	private void checkTasksInVQs(Object[][] rows) {
+	private void checkTasksInVQs(final Object[][] rows) {
+        registry.getProcessToolContextFactory().withProcessToolContext(new ProcessToolContextCallback() {
+            @Override
+            public void withContext(ProcessToolContext ctx) {
+
+
 		for (Object[] row : rows) {
 			String user = (String)row[0];
 			VQElem[][] elems = (VQElem[][])row[1];
 
-			if (elems.length != 5) {
-				throw new RuntimeException("Expected 5 elems instead of " + elems.length);
+			if (elems.length != 3) {
+				throw new RuntimeException("Expected 3 elems instead of " + elems.length);
 			}
 
 			ProcessToolBpmSession session = createSession(user);
 
 			assertEquals(elems[0].length, session.getTasksCount(user, QueueType.MY_TASKS));
 			assertEquals(elems[1].length, session.getTasksCount(user, QueueType.OWN_IN_PROGRESS));
-			assertEquals(elems[4].length, session.getTasksCount(user, QueueType.OWN_FINISHED));
+			assertEquals(elems[2].length, session.getTasksCount(user, QueueType.OWN_FINISHED));
 
 			assertEquals(elems[0].length, session.getFilteredTasksCount(createFilter(user, QueueType.MY_TASKS)));
 			assertEquals(elems[1].length, session.getFilteredTasksCount(createFilter(user, QueueType.OWN_IN_PROGRESS)));
-			assertEquals(elems[4].length, session.getFilteredTasksCount(createFilter(user, QueueType.OWN_FINISHED)));
+			assertEquals(elems[2].length, session.getFilteredTasksCount(createFilter(user, QueueType.OWN_FINISHED)));
 
 			checkVQ(elems[0], session.findFilteredTasks(createFilter(user, QueueType.MY_TASKS)));
 			checkVQ(elems[1], session.findFilteredTasks(createFilter(user, QueueType.OWN_IN_PROGRESS)));
-			checkVQ(elems[4], session.findFilteredTasks(createFilter(user, QueueType.OWN_FINISHED)));
+			checkVQ(elems[2], session.findFilteredTasks(createFilter(user, QueueType.OWN_FINISHED)));
 		}
+            }
+        });
 	}
 
 	private void checkVQ(VQElem[] elem, List<BpmTask> filteredTasks) {
@@ -403,13 +397,14 @@ public class SessionTest extends TestCase {
 	private ProcessInstanceFilter createFilter(String userLogin, QueueType... queueTypes) {
 		ProcessInstanceFilter filter = new ProcessInstanceFilter();
 		filter.setFilterOwnerLogin(userLogin);
-//		filter.setOwners(Collections.singleton(user));
-//		filter.setQueues();
 		filter.setQueueTypes(new HashSet<QueueType>(Arrays.asList(queueTypes)));
 		return filter;
 	}
 
-	private void checkTasksByProcessByUser(ProcessInstance processInstance, Object[][] rows) {
+	private void checkTasksByProcessByUser(final ProcessInstance processInstance, final Object[][] rows) {
+        registry.getProcessToolContextFactory().withProcessToolContext(new ProcessToolContextCallback() {
+            @Override
+            public void withContext(ProcessToolContext ctx) {
 		for (Object[] row : rows) {
 			String user = (String)row[0];
 			int count = (Integer)row[1];
@@ -436,58 +431,86 @@ public class SessionTest extends TestCase {
 
 			assertTrue(from(ids2).containsAll((Iterable<String>)ids1));
 		}
+            }
+        });
 	}
 
-	private void checkUserHasAccessToQueues(String user, String... queueNames) {
-		List<ProcessQueue> queues = createSession(user).getUserAvailableQueues();
+	private void checkUserHasAccessToQueues(final String user, final String... queueNames) {
+        registry.getProcessToolContextFactory().withProcessToolContext(new ProcessToolContextCallback() {
+            @Override
+            public void withContext(ProcessToolContext ctx) {
+                List<ProcessQueue> queues = createSession(user).getUserAvailableQueues();
 
-		for (String queueName : queueNames) {
-			ProcessQueue queue = byQName(queues).get(queueName);
-			assertNotNull(queue);
-		}
+                for (String queueName : queueNames) {
+                    ProcessQueue queue = byQName(queues).get(queueName);
+                    assertNotNull(queue);
+                }
+            }
+        });
+
+
+
 	}
 
 	private void checkAnyTaskExists() {
+        registry.getProcessToolContextFactory().withProcessToolContext(new ProcessToolContextCallback() {
+            @Override
+            public void withContext(ProcessToolContext ctx) {
 		List<BpmTask> allTasks = createSession("admin").getAllTasks();
 
 		assertTrue(!allTasks.isEmpty());
+            }
+        });
 	}
 
-	private void assignFromQueue(ProcessInstance processInstance, String user, String state, String queueName) {
-		ProcessToolBpmSession session = createSession(user);
+	private void assignFromQueue(final ProcessInstance processInstance, final String user, final String state, final String queueName) {
+        registry.getProcessToolContextFactory().withProcessToolContext(new ProcessToolContextCallback() {
+            @Override
+            public void withContext(ProcessToolContext ctx) {
 
-		List<BpmTask> tasks = session.findProcessTasks(processInstance, null, Collections.singleton(state));
+                ProcessToolBpmSession session = createSession(user);
 
-		assertEquals(1, tasks.size());
+                List<BpmTask> tasks = session.findProcessTasks(processInstance, null, Collections.singleton(state));
 
-		BpmTask task = tasks.get(0);
+                assertEquals(1, tasks.size());
 
-		List<ProcessQueue> queues = session.getUserAvailableQueues();
+                BpmTask task = tasks.get(0);
 
-		ProcessQueue queue = byQName(queues).get(queueName);
+                List<ProcessQueue> queues = session.getUserAvailableQueues();
 
-		assertNotNull(queue);
-		assertTrue(queue.getProcessCount() > 0);
+                ProcessQueue queue = byQName(queues).get(queueName);
 
-		task = session.assignTaskFromQueue(queue.getName(), task.getInternalTaskId());
+                assertNotNull(queue);
+                assertTrue(queue.getProcessCount() > 0);
 
-		assertNotNull(task);
-		assertEquals(user, task.getAssignee());
-		assertNull(task.getGroupId());
+                task = session.assignTaskFromQueue(queue.getName(), task.getInternalTaskId());
+
+                assertNotNull(task);
+                assertEquals(user, task.getAssignee());
+                assertNull(task.getGroupId());
+            }
+        });
 	}
 
-	private void performAction(ProcessInstance processInstance, String user, String state, String actionName) {
+	private void performAction( final ProcessInstance processInstance, final String user, final String state, final String actionName) {
+
+        registry.getProcessToolContextFactory().withProcessToolContext(new ProcessToolContextCallback() {
+            @Override
+            public void withContext(ProcessToolContext ctx) {
+                SessionTest.this.ctx = ctx;
+
+
 		ProcessToolBpmSession session = createSession(user);
 
-		processInstance = ctx.getProcessInstanceDAO().refreshProcessInstance(processInstance);
+        ProcessInstance processInstanceLocal = ctx.getProcessInstanceDAO().getProcessInstanceByInternalId(processInstance.getInternalId());
 
-		List<BpmTask> list = session.findProcessTasks(processInstance, user, Collections.singleton(state));
+		List<BpmTask> list = session.findProcessTasks(processInstanceLocal, user, Collections.singleton(state));
 
 		BpmTask task = byName(list).get(state);
 
 		assertNotNull(task);
 
-		ProcessStateAction action = getAction(processInstance, state, actionName);
+		ProcessStateAction action = getAction(processInstanceLocal, state, actionName);
 
 		assertNotNull(action);
 
@@ -497,8 +520,10 @@ public class SessionTest extends TestCase {
 
 		print("--------> AFTER " + task);
 
-		assertTrue(tasks != null && !tasks.isEmpty());
+		assertTrue(tasks != null);
 		assertTrue(user.equals(task.getAssignee()) || task.isFinished());
+            }
+        });
 	}
 
 	private Map<String, BpmTask> byName(List<BpmTask> list) {
@@ -532,11 +557,15 @@ public class SessionTest extends TestCase {
 		return action;
 	}
 
-	private void checkTasksByProcess(ProcessInstance processInstance, String[][] args) {
-		ProcessToolBpmSession session = createSession("admin");
-		processInstance = ctx.getProcessInstanceDAO().getProcessInstanceByInternalId(processInstance.getInternalId());
+	private void checkTasksByProcess(final ProcessInstance processInstance, final String[][] args) {
 
-		List<BpmTask> list = session.findProcessTasks(processInstance);
+        registry.getProcessToolContextFactory().withProcessToolContext(new ProcessToolContextCallback() {
+            @Override
+            public void withContext(ProcessToolContext ctx) {
+		ProcessToolBpmSession session = createSession("admin");
+        ProcessInstance processInstanceLocal = ctx.getProcessInstanceDAO().getProcessInstanceByInternalId(processInstance.getInternalId());
+
+		List<BpmTask> list = session.findProcessTasks(processInstanceLocal);
 
 		assertEquals(args.length, list.size());
 
@@ -565,11 +594,11 @@ public class SessionTest extends TestCase {
 			assertEquals(assignee, task.getAssignee());
 			assertEquals(groupId, task.getGroupId());
 			assertEquals(name, task.getTaskName());
-			assertEquals(processInstance.getInternalId(), String.valueOf(task.getExecutionId()));
+			assertEquals(processInstanceLocal.getInternalId(), String.valueOf(task.getExecutionId()));
 			assertNotNull(task.getCurrentProcessStateConfiguration());
 			assertFalse(task.isFinished());
 
-			List<BpmTask> tasks = session.findProcessTasks(processInstance, assignee, Collections.singleton(name));
+			List<BpmTask> tasks = session.findProcessTasks(processInstanceLocal, assignee, Collections.singleton(name));
 
 			assertEquals(1, tasks.size());
 			assertEquals(task.getInternalTaskId(), tasks.get(0).getInternalTaskId());
@@ -586,6 +615,8 @@ public class SessionTest extends TestCase {
 
 			assertTrue(byId.containsKey(task.getInternalTaskId()));
 		}
+            }
+        });
 	}
 
 	private void checkAreTheSame(BpmTask task, BpmTask task2) {
@@ -599,28 +630,33 @@ public class SessionTest extends TestCase {
 		assertEquals(task.isFinished(), task2.isFinished());
 	}
 
-	private ProcessInstance startProcess(String user, String bpmDefinitionKey) {
-		ProcessToolBpmSession session = createSession(user);
+	private ProcessInstance startProcess(final String user, final String bpmDefinitionKey) {
+        final ProcessInstance[] processInstance = new ProcessInstance[1];
+        registry.getProcessToolContextFactory().withProcessToolContext(new ProcessToolContextCallback() {
+            @Override
+            public void withContext(ProcessToolContext ctx) {
+                SessionTest.this.ctx = ctx;
+                ProcessToolBpmSession session = createSession(user);
 
-		String externalKey = "NR" + System.currentTimeMillis();
+                String externalKey = "NR" + System.currentTimeMillis();
 
-		StartProcessResult result = session.startProcess(bpmDefinitionKey, externalKey, "test");
-		ProcessInstance processInstance = result.getProcessInstance();
+                StartProcessResult result = session.startProcess(bpmDefinitionKey, externalKey, "test");
+                processInstance[0] = result.getProcessInstance();
 
-		assertNotNull(processInstance);
-		assertNotNull(processInstance.getDefinition());
-		assertEquals(bpmDefinitionKey, processInstance.getDefinitionName());
-		assertNotNull(processInstance.getInternalId());
-		assertEquals(externalKey, processInstance.getExternalKey());
-		assertNotNull(processInstance.getCreateDate());
-		assertNotNull(processInstance.getCreatorLogin());
-		assertFalse(processInstance.isSubprocess());
-		assertNull(processInstance.getParent());
-//		assertTrue(processInstance.getChildren() == null || processInstance.getChildren().isEmpty());
+                assertNotNull(processInstance[0]);
+                assertNotNull(processInstance[0].getDefinition());
+                assertEquals(bpmDefinitionKey, processInstance[0].getDefinitionName());
+                assertNotNull(processInstance[0].getInternalId());
+                assertEquals(externalKey, processInstance[0].getExternalKey());
+                assertNotNull(processInstance[0].getCreateDate());
+                assertNotNull(processInstance[0].getCreatorLogin());
+                assertFalse(processInstance[0].isSubprocess());
+                assertNull(processInstance[0].getParent());
 
-		assertTrue(processInstance.isProcessRunning());
-
-		return processInstance;
+                assertTrue(processInstance[0].isProcessRunning());
+            }
+        });
+		return processInstance[0];
 	}
 
 	private void deploy(ProcessToolContext ctx, String basePath) {
@@ -677,8 +713,27 @@ public class SessionTest extends TestCase {
 	}
 
 	private ProcessToolBpmSession createSession(String user) {
-		return getRegistry().getProcessToolSessionFactory().createSession(user, Arrays.asList("ADMIN", user + "_ROLE"));
-	}
+        ProcessToolBpmSession session = getRegistry().getProcessToolSessionFactory().createSession(user, Arrays.asList("ADMIN", user + "_ROLE"));
+
+         if(session instanceof  AbstractProcessToolSession){
+          session = injectRegistryToSession((AbstractProcessToolSession) session);
+         }
+        return session;
+    }
+
+    private ProcessToolBpmSession injectRegistryToSession(AbstractProcessToolSession session){
+            try {
+                Field field = AbstractProcessToolSession.class.getDeclaredField("registry");
+                field.setAccessible(true);
+                field.set(session,getRegistry());
+
+            } catch (NoSuchFieldException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        return session;
+    }
 
 	@Override
 	protected void setUp() throws Exception
@@ -714,9 +769,9 @@ public class SessionTest extends TestCase {
 		ds1.setAllowLocalTransactions(true);
 		ds1.setApplyTransactionTimeout(false);
 		ds1.getDriverProperties().setProperty("driverClassName", "org.postgresql.Driver");
-		ds1.getDriverProperties().setProperty("url", "jdbc:postgresql://localhost:6432/jbpm7");
+		ds1.getDriverProperties().setProperty("url", "jdbc:postgresql://localhost:5433/aperte20");
 		ds1.getDriverProperties().setProperty("user", "postgres");
-		ds1.getDriverProperties().setProperty("password", "128256");
+		ds1.getDriverProperties().setProperty("password", "postgres");
 		ds1.init();
 		ic.bind("aperte-workflow-ds", ds1);
 
@@ -730,10 +785,12 @@ public class SessionTest extends TestCase {
 
     	registry = new ProcessToolRegistryImpl();
 		registry.setBpmDefinitionLanguage("bpmn20");
-
+        UserSourceMock userSourceMock = new UserSourceMock();
+        registry.setUserSource(userSourceMock);
         ProcessToolContextFactory contextFactory = new ProcessToolContextFactoryImpl(registry);
         registry.setProcessToolContextFactory(contextFactory);
 		registry.setProcessToolSessionFactory(new ProcessToolJbpmSessionFactory());
+
 		ProcessToolRegistry.Util.setAwfClassLoader(Thread.currentThread().getContextClassLoader());
 
 		super.setUp();
@@ -783,35 +840,42 @@ public class SessionTest extends TestCase {
 		}
 	}
 
-	public void test1() {
-		registry.getProcessToolContextFactory().withProcessToolContext(new ProcessToolContextCallback() {
-			@Override
-			public void withContext(ProcessToolContext ctx) {
-				SessionTest.this.ctx = ctx;
 
-				ctx.getHibernateSession().beginTransaction();
+    public void testSubprocess() {
+        registry.getProcessToolContextFactory().withProcessToolContext(new ProcessToolContextCallback() {
+            @Override
+            public void withContext(ProcessToolContext ctx) {
+                SessionTest.this.ctx = ctx;
 
-				wipeDb();
 
-				createUser("john", "john_ROLE");
-				createUser("mary", "mary_ROLE");
-				createUser("peter", "peter_ROLE");
-				createUser("jack", "jack_ROLE");
+                wipeDb();
+                disableAlreadyExistingDefinitions();
+                deploy(ctx, "/processes/subprocess_assignee");
+                deploy(ctx, "/processes/subprocess_queue");
+                deploy(ctx, "/processes/subprocess_usage");
+            }
+        });
+                performSubprocessTests();
+                performSubprocessUsageTest();
+    }
 
-				disableAlreadyExistingDefinitions();
 
-				deploy(ctx, "/processes/subprocess_assignee");
-				deploy(ctx, "/processes/subprocess_queue");
-				deploy(ctx, "/processes/subprocess_usage");
-				deploy(ctx, "/processes/complaint");
+    public void testComplaint() {
+        registry.getProcessToolContextFactory().withProcessToolContext(new ProcessToolContextCallback() {
+            @Override
+            public void withContext(ProcessToolContext ctx) {
+                SessionTest.this.ctx = ctx;
 
-				performSubprocessTests();
-				performSubprocessUsageTest();
 
-				performTest1();
-			}
-		});
-	}
+                wipeDb();
+                disableAlreadyExistingDefinitions();
+                deploy(ctx, "/processes/complaint");
+            }
+        });
+        performTest1();
+
+
+    }
 
 	private void wipeDb() {
 		exec("delete from pt_process_instance_s_attr;");
@@ -841,4 +905,45 @@ public class SessionTest extends TestCase {
 			this.group = group;
 		}
 	}
+
+    private class UserSourceMock implements IUserSource{
+        private Map<String,UserData> userList = new HashMap<String,UserData>();
+        public UserSourceMock(){
+            userList.put("admin",createUser("admin", "admin_ROLE"));
+            userList.put("john",createUser("john", "john_ROLE"));
+            userList.put("mary",createUser("mary", "mary_ROLE"));
+            userList.put("peter",createUser("peter", "peter_ROLE"));
+            userList.put("jack",createUser("jack", "jack_ROLE"));
+        }
+        private UserData createUser(String login, String... roles) {
+            UserDataBean userData = new UserDataBean(login, login, login+"@wp.pl");
+            if (userData.getRoles().isEmpty()) {
+                for (String role : roles) {
+                    userData.addRole(role);
+                }
+            }
+            return  userData;
+        }
+
+        @Override
+        public UserData getUserByLogin(String login) throws UserSourceException {
+            return userList.get(login);
+        }
+
+        @Override
+        public UserData getUserByLogin(String login, Long companyId) throws UserSourceException {
+            return null;
+        }
+
+        @Override
+        public UserData getUserByEmail(String email) {
+            return null;
+        }
+
+        @Override
+        public List<UserData> getAllUsers() {
+            return null;
+        }
+    }
+
 }

@@ -4,7 +4,7 @@
     <parent>
         <artifactId>plugins</artifactId>
         <groupId>org.aperteworkflow</groupId>
-        <version>3.0-beta2-SNAPSHOT</version>
+        <version>3.0-beta1</version>
     </parent>
 
     <artifactId>history-view</artifactId>
@@ -31,7 +31,7 @@
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>gui-commons</artifactId>
-            <version>3.0-beta2-SNAPSHOT</version>
+            <version>3.0-beta1</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

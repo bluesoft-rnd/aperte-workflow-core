@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.aperteworkflow</groupId>
     <artifactId>plugins</artifactId>
-    <version>3.0-beta2-SNAPSHOT</version>
+    <version>3.0-beta1</version>
   </parent>
   
   <artifactId>integration-liferay</artifactId>
@@ -25,13 +25,13 @@
 	<dependency>
 	    <groupId>org.aperteworkflow</groupId>
 	    <artifactId>model</artifactId>
-	    <version>3.0-beta2-SNAPSHOT</version>
+	    <version>3.0-beta1</version>
 	    <scope>provided</scope>
 	</dependency>
 	<dependency>
 	    <groupId>org.aperteworkflow</groupId>
 	    <artifactId>integration-interface</artifactId>
-	    <version>3.0-beta2-SNAPSHOT</version>
+	    <version>3.0-beta1</version>
 	    <scope>provided</scope>
 	</dependency>
 	<dependency>

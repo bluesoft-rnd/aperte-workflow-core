@@ -4,7 +4,7 @@
     <parent>
         <artifactId>samples</artifactId>
         <groupId>org.aperteworkflow</groupId>
-        <version>3.0-beta2-SNAPSHOT</version>
+        <version>3.0-beta1</version>
     </parent>
 
     <artifactId>liferay-poc-process</artifactId>
@@ -14,7 +14,7 @@
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>integration-interface</artifactId>
-            <version>3.0-beta2-SNAPSHOT</version>
+            <version>3.0-beta1</version>
         </dependency>
     </dependencies>
 

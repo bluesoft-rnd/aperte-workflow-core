@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>org.aperteworkflow</groupId>
 		<artifactId>core</artifactId>
-		<version>3.0-beta2-SNAPSHOT</version>
+		<version>3.0-beta1</version>
 	</parent>
 	<artifactId>webapi</artifactId>
 	<name>webapi</name>
@@ -28,7 +28,7 @@
 		<dependency>
 			<groupId>org.aperteworkflow</groupId>
 			<artifactId>integration-interface</artifactId>
-			<version>3.0-beta2-SNAPSHOT</version>
+			<version>3.0-beta1</version>
 			<scope>provided</scope>
 		</dependency>
 

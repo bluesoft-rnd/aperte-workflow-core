@@ -1,4 +1,4 @@
-/*package pl.net.bluesoft.rnd.pt.ext.jbpm;
+package pl.net.bluesoft.rnd.pt.ext.jbpm;
 
 import bitronix.tm.TransactionManagerServices;
 import bitronix.tm.resource.jdbc.PoolingDataSource;
@@ -45,7 +45,7 @@ import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
  * Date: 2013-06-18
  * Time: 11:05
  */
-/*public class SessionTest extends TestCase {
+public class SessionTest extends TestCase {
    protected static ProcessToolRegistryImpl registry;
 	private static boolean isSetUp;
 	private ProcessToolContext ctx;
@@ -946,4 +946,4 @@ import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
         }
     }
 
-}*/
+}

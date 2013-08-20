@@ -3,12 +3,11 @@ package pl.net.bluesoft.rnd.processtool.bpm;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
-import pl.net.bluesoft.rnd.processtool.model.*;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
+import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -76,15 +75,6 @@ public class ProcessToolBpmSessionHelper {
 		});
 	}
 
-	public static Collection<ProcessDefinitionConfig> getAvailableConfigurations(final ProcessToolBpmSession session, ProcessToolContext ctx) {
-		return withContext(ctx, new ReturningProcessToolContextCallback<Collection<ProcessDefinitionConfig>>() {
-			@Override
-			public Collection<ProcessDefinitionConfig> processWithContext(ProcessToolContext ctx) {
-				return session.getAvailableConfigurations();
-			}
-		});
-	}
-	
 	public static Set<String> getPermissionsForWidget(final ProcessToolBpmSession session, ProcessToolContext ctx, final ProcessStateWidget widget) {
 		return withContext(ctx, new ReturningProcessToolContextCallback<Set<String>>() {
 			@Override

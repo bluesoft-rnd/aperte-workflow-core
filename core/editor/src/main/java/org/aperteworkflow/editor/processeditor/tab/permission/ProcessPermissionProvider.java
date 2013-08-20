@@ -29,7 +29,6 @@ public class ProcessPermissionProvider implements PermissionProvider {
             I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
 
             definitions = new ArrayList<PermissionDefinition>();
-            definitions.add(new PermissionDefinition("INCLUDE", messages.getMessage("process.permission.INCLUDE")));
             definitions.add(new PermissionDefinition("RUN", messages.getMessage("process.permission.RUN")));
             definitions.add(new PermissionDefinition("SEARCH", messages.getMessage("process.permission.SEARCH")));
         }

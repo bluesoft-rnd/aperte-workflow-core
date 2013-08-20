@@ -63,6 +63,7 @@ public class BpmTaskQuery {
 	private String processBpmKey;
 	private String searchExpression;
 	private Locale locale;
+	private Collection<String> excludedDefinitionIds;
 	private QueueOrderCondition sortField;
 	private QueueOrder sortOrder;
 
@@ -111,6 +112,11 @@ public class BpmTaskQuery {
 	public BpmTaskQuery searchExpression(String searchExpression, Locale locale) {
 		this.searchExpression = searchExpression;
 		this.locale = locale;
+		return this;
+	}
+
+	public BpmTaskQuery excludeDefinitionIds(Collection<String> excludedDefinitionIds) {
+		this.excludedDefinitionIds = excludedDefinitionIds;
 		return this;
 	}
 
@@ -231,6 +237,10 @@ public class BpmTaskQuery {
 			sb.append(" JOIN i18ntext i18ntext_ ON i18ntext_.task_names_id = task_.id");
 		}
 
+		if (excludedDefinitionIds != null && !excludedDefinitionIds.isEmpty()) {
+			sb.append(" JOIN pt_process_definition_config def ON def.id = process.definition_id");
+		}
+
 		sb.append(" WHERE 1=1");
 
 		if (owners != null) {
@@ -302,6 +312,12 @@ public class BpmTaskQuery {
 			}
 
 			sb.append(')');
+		}
+
+		if (excludedDefinitionIds != null && !excludedDefinitionIds.isEmpty()) {
+			sb.append(" AND (def.bpmDefinitionKey || '_' || def.bpmDefinitionVersion) NOT IN (:excludedDefinitionIds)");
+
+			queryParameters.add(new QueryParameter("excludedDefinitionIds", excludedDefinitionIds));
 		}
 
 		if (queryType == QueryType.LIST) {

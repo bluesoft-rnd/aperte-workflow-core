@@ -10,7 +10,10 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.hibernate.ResultsPageWrapper;
-import pl.net.bluesoft.rnd.processtool.model.*;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog;
+import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.processtool.model.UserDataBean;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
@@ -19,7 +22,10 @@ import pl.net.bluesoft.rnd.processtool.model.nonpersistent.BpmTaskBean;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 import static org.aperteworkflow.util.ContextUtil.withContext;
 import static org.aperteworkflow.util.HibernateBeanUtil.fetchHibernateData;
@@ -175,12 +181,12 @@ public class AperteWorkflowDataServiceImpl implements AperteWorkflowDataService 
 
 	@Override
 	@WebMethod
-	public Map<String, String> getSimpleAttributesList(@WebParam(name="internalId") final String internalId) throws AperteWsWrongArgumentException {
-		return withContext(new ReturningProcessToolContextCallback<Map<String, String>>() {
+	public HashMap<String, String> getSimpleAttributesList(@WebParam(name="internalId") final String internalId) throws AperteWsWrongArgumentException {
+		return withContext(new ReturningProcessToolContextCallback<HashMap<String, String>>() {
 			@Override
-			public Map<String, String> processWithContext(ProcessToolContext ctx) {
+			public HashMap<String, String> processWithContext(ProcessToolContext ctx) {
 				ProcessInstance processInstance = ctx.getProcessInstanceDAO().getProcessInstanceByInternalId(internalId);
-				return fetchHibernateData(ctx.getProcessInstanceSimpleAttributeDAO().getSimpleAttributesList(processInstance.getId()));
+				return new HashMap<String, String>(fetchHibernateData(ctx.getProcessInstanceSimpleAttributeDAO().getSimpleAttributesList(processInstance.getId())));
 			}
 		});
 	}

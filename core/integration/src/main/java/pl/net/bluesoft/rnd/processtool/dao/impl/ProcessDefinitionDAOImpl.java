@@ -11,13 +11,11 @@ import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.config.*;
 import pl.net.bluesoft.util.lang.ExpiringCache;
-import pl.net.bluesoft.util.lang.cquery.func.F;
 
 import java.util.*;
 
 import static pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig.*;
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
-import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -42,6 +40,10 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 
 	private static final ExpiringCache<Object, Map<Long, String> > ALL_STATES_DESCRIPTIONS =
 			new ExpiringCache<Object, Map<Long, String> >(Long.MAX_VALUE);
+
+	// null -> priviledge -> bpmDefinitionId -> roleName
+	private static final ExpiringCache<Object, Map<String, Map<String, String>>> DEFINITIONS_WITH_PRIVILEDGES =
+			new ExpiringCache<Object, Map<String, Map<String, String>>>(Long.MAX_VALUE);
 
 	public ProcessDefinitionDAOImpl(Session session) {
 		super(session);
@@ -117,6 +119,7 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 		}
 	}
 
+	@Override
 	public ProcessDefinitionConfig getCachedDefinitionById(ProcessInstance processInstance) {
 		Long definitionId = (Long)getSession().getIdentifier(processInstance.getDefinition());
 		return getCachedDefinitionById(definitionId);
@@ -472,5 +475,45 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 				return toMap(list);
 			}
 		});
+	}
+
+	@Override
+	public List<String> getNotPermittedDefinitionIds(String priviledgeName, Collection<String> roleNames) {
+		Map<String, String> rolesByDefinitionId = DEFINITIONS_WITH_PRIVILEDGES.get(null, new ExpiringCache.NewValueCallback<Object, Map<String, Map<String, String>>>() {
+			@Override
+			public Map<String, Map<String, String>> getNewValue(Object key) {
+				List<Object[]> list = session.createSQLQuery(
+						"SELECT p.privilegeName, d.bpmDefinitionKey, d.bpmDefinitionVersion, p.roleName " +
+						"FROM pt_process_definition_config d JOIN pt_process_def_prms p ON p.definition_id = d.id")
+						.list();
+
+				return groupByPriviledgeAndDefinitionId(list);
+			}
+		}).get(priviledgeName);
+
+		List<String> result = new ArrayList<String>();
+
+		for (Map.Entry<String, String> entry : rolesByDefinitionId.entrySet()) {
+			if (!hasMatchingRole(entry.getValue(), roleNames)) {
+				result.add(entry.getKey());
+			}
+		}
+		return result;
+	}
+
+	private Map<String, Map<String, String>> groupByPriviledgeAndDefinitionId(List<Object[]> list) {
+		Map<String, Map<String, String>> result = new HashMap<String, Map<String, String>>();
+
+		for (Object[] row : list) {
+			String priviledgeName = (String)row[0];
+			String bpmDefinitionId = row[1] + VERSION_SEPARATOR + row[2];
+			String roleName = (String)row[3];
+
+			if (!result.containsKey(priviledgeName)) {
+				result.put(priviledgeName, new HashMap<String, String>());
+			}
+			result.get(priviledgeName).put(bpmDefinitionId, roleName);
+		}
+		return result;
 	}
 }

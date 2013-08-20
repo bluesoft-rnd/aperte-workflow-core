@@ -14,6 +14,7 @@ import org.jbpm.workflow.instance.node.StartNodeInstance;
 import org.jbpm.workflow.instance.node.SubProcessNodeInstance;
 import org.jbpm.workflow.instance.node.WorkItemNodeInstance;
 import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent;
+import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.bpm.StartProcessResult;
 import pl.net.bluesoft.rnd.processtool.bpm.exception.ProcessToolSecurityException;
@@ -478,6 +479,11 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 		if (!filter.getQueues().isEmpty()) {
 			taskFilterQuery.queues(filter.getQueues());
+		}
+
+		if (filter.isUsePrivileges()) {
+			taskFilterQuery.excludeDefinitionIds(getContext().getProcessDefinitionDAO()
+					.getNotPermittedDefinitionIds(ProcessToolBpmConstants.PRIVILEDGE_SEARCH, getRoleNames()));
 		}
 
 		taskFilterQuery.processBpmKey(filter.getProcessBpmKey());

@@ -1,18 +1,20 @@
 package org.aperteworkflow.service;
 
-import pl.net.bluesoft.rnd.processtool.hibernate.ResultsPageWrapper;
-import pl.net.bluesoft.rnd.processtool.model.*;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
-
-import java.util.*;
-
-
 import org.aperteworkflow.service.fault.AperteWsIllegalArgumentException;
 import org.aperteworkflow.service.fault.AperteWsWrongArgumentException;
+import pl.net.bluesoft.rnd.processtool.hibernate.ResultsPageWrapper;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog;
+import pl.net.bluesoft.rnd.processtool.model.UserDataBean;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.BpmTaskBean;
+
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -325,7 +327,7 @@ public interface AperteWorkflowDataService {
 	 * @return List of all simple attributes in process instance
 	 * @throws AperteWsWrongArgumentException If process Instance, does not exists (including param null or empty values).
 	 *</pre>*/
-	Map<String, String> getSimpleAttributesList(String internalId) throws AperteWsWrongArgumentException;
+	HashMap<String, String> getSimpleAttributesList(String internalId) throws AperteWsWrongArgumentException;
 
 	/**<pre>
 	 * The system returns a list of process Instances based on internalId list.

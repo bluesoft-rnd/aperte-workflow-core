@@ -1,16 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.bpm.impl;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.logging.Logger;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
-
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.event.IEvent;
@@ -19,13 +10,13 @@ import pl.net.bluesoft.rnd.processtool.model.config.*;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueueBean;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
-import pl.net.bluesoft.util.eventbus.EventBusManager;
-import pl.net.bluesoft.util.lang.Collections;
 import pl.net.bluesoft.util.lang.Mapcar;
-import pl.net.bluesoft.util.lang.Pair;
-import pl.net.bluesoft.util.lang.Predicate;
 
-import static pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants.*;
+import java.io.Serializable;
+import java.util.*;
+import java.util.logging.Logger;
+
+import static pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants.PRIVILEGE_RUN;
 import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 import static pl.net.bluesoft.util.lang.Formats.nvl;
 
@@ -63,7 +54,7 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
     protected Set<String> getPermissions(Collection<? extends IPermission> col) {
         Set<String> res = new HashSet<String>();
         for (IPermission permission : col) {
-            if (hasMatchingRole(permission.getRoleName())) {
+            if (hasMatchingRole(permission.getRoleName(), getRoleNames())) {
                 res.add(permission.getPrivilegeName());
             }
         }
@@ -82,40 +73,8 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
 
     @Override
 	public boolean hasPermissionsForDefinitionConfig(ProcessDefinitionConfig config) {
-        if (config.getPermissions() == null || config.getPermissions().isEmpty()) {
-            return true;
-        }
-
-        Pair<Collection<ProcessDefinitionPermission>, Collection<ProcessDefinitionPermission>> pair =
-                Collections.halve(config.getPermissions(), new Predicate<ProcessDefinitionPermission>() {
-                    @Override
-                    public boolean apply(ProcessDefinitionPermission input) {
-                        return PRIVILEGE_EXCLUDE.equalsIgnoreCase(input.getPrivilegeName());
-                    }
-                });
-
-        Collection<ProcessDefinitionPermission> excludes = pair.getFirst();
-        if (!excludes.isEmpty()) {
-            ProcessDefinitionPermission permission = Collections.firstMatching(excludes, new Predicate<ProcessDefinitionPermission>() {
-                @Override
-                public boolean apply(ProcessDefinitionPermission input) {
-                    return hasMatchingRole(input.getRoleName());
-                }
-            });
-            if (permission != null) {
-                return false;
-            }
-        }
-        Collection<ProcessDefinitionPermission> includes = pair.getSecond();
-        ProcessDefinitionPermission permission = Collections.firstMatching(includes, new Predicate<ProcessDefinitionPermission>() {
-            @Override
-            public boolean apply(ProcessDefinitionPermission input) {
-                return hasMatchingRole(input.getRoleName());
-            }
-        });
-
-        return permission != null || includes.isEmpty();
-    }
+		return config.hasPriviledge(PRIVILEGE_RUN, getRoleNames());
+	}
 
     @Override
 	public String getUserLogin() {
@@ -130,24 +89,17 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
     @Override
 	public Collection<ProcessDefinitionConfig> getAvailableConfigurations() {
         Collection<ProcessDefinitionConfig> activeConfigurations = getContext().getProcessDefinitionDAO().getActiveConfigurations();
-        List<ProcessDefinitionConfig> res = new ArrayList<ProcessDefinitionConfig>();
+        List<ProcessDefinitionConfig> result = new ArrayList<ProcessDefinitionConfig>();
         for (ProcessDefinitionConfig cfg : activeConfigurations) {
-            if (cfg.getPermissions().isEmpty()) {
-                res.add(cfg);
-    		}
-            for (ProcessDefinitionPermission permission : cfg.getPermissions()) {
-                String roleName = permission.getRoleName();
-                if ("RUN".equals(permission.getPrivilegeName()) && roleName != null && hasMatchingRole(roleName)) {
-                    res.add(cfg);
-                    break;
-                }
-            }
+			if (cfg.hasPriviledge(PRIVILEGE_RUN, getRoleNames())) {
+				result.add(cfg);
+			}
         }
-        java.util.Collections.sort(res, ProcessDefinitionConfig.DEFAULT_COMPARATOR);
-        return res;
+        Collections.sort(result, ProcessDefinitionConfig.DEFAULT_COMPARATOR);
+        return result;
     }
 
-    protected List<ProcessQueue> getUserQueuesFromConfig() {
+	protected List<ProcessQueue> getUserQueuesFromConfig() {
 		return getQueuesFromConfig(getRoleNames());
     }
 
@@ -194,10 +146,6 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
 		return pq;
 	}
 
-	private boolean hasMatchingRole(String roleName) {
-		return hasMatchingRole(roleName, getRoleNames());
-    }
-
 	private static boolean hasMatchingRole(String roleName, Collection<String> roleNames) {
 		for (String role : roleNames) {
             if (role != null && role.matches(roleName)) {
@@ -211,9 +159,9 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
     public Collection<String> getRoleNames() {
 		if (roleNames == null) {
 			UserData user = getRegistry().getUserSource().getUserByLogin(userLogin);
-			roleNames = user != null ? user.getRoles() : java.util.Collections.<String>emptySet();
+			roleNames = user != null ? user.getRoles() : Collections.<String>emptySet();
 		}
-        return java.util.Collections.unmodifiableCollection(roleNames);
+        return Collections.unmodifiableCollection(roleNames);
     }
 
 	protected static ProcessToolContext getContext() {

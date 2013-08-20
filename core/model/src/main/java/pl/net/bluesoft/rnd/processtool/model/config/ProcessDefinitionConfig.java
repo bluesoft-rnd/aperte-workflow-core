@@ -4,10 +4,7 @@ import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 import pl.net.bluesoft.rnd.pt.utils.lang.Lang2;
 
 import javax.persistence.*;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
@@ -192,9 +189,9 @@ public class ProcessDefinitionConfig extends PersistentEntity {
 
     public Set<ProcessDefinitionPermission> getPermissions() 
     {
-        if (permissions == null) 
-        	permissions = new HashSet<ProcessDefinitionPermission>();
-        
+        if (permissions == null) {
+			permissions = new HashSet<ProcessDefinitionPermission>();
+		}
         return permissions;
     }
     
@@ -212,6 +209,28 @@ public class ProcessDefinitionConfig extends PersistentEntity {
     {
 		this.permissions = permissions;
     }
+
+	public boolean hasPriviledge(String priviledge, Collection<String> roleNames) {
+		if (getPermissions().isEmpty()) {
+			return true;
+		}
+		for (IPermission permission : getPermissions()) {
+			String roleName = permission.getRoleName();
+			if (priviledge.equals(permission.getPrivilegeName()) && roleName != null && hasMatchingRole(roleName, roleNames)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static boolean hasMatchingRole(String roleName, Collection<String> roleNames) {
+		for (String role : roleNames) {
+			if (role != null && role.matches(roleName)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	public static boolean hasVersion(String processId) {
 		return processId.matches("^.*" + Pattern.quote(VERSION_SEPARATOR) + "\\d+$");
@@ -233,7 +252,7 @@ public class ProcessDefinitionConfig extends PersistentEntity {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + (id == null ? 0 : id.hashCode());
 		return result;
 	}
 

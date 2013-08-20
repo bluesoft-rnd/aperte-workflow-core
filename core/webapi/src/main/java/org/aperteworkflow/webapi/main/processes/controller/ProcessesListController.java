@@ -21,9 +21,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
-import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory.ExecutionType;
-import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
+import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.StartProcessResult;
 import pl.net.bluesoft.rnd.processtool.model.*;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
@@ -440,25 +439,28 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                 adminAlertBeanList, 100, dataTable.getEcho());
 
 		long t1 = System.currentTimeMillis();
-        
+
         registry.withProcessToolContext(new ProcessToolContextCallback() {
 
             @Override
             public void withContext(ProcessToolContext ctx)
             {
         		long t0 = System.currentTimeMillis();
-        		
+
                 I18NSource messageSource = I18NSourceFactory.createI18NSource(request.getLocale());
 
                 ProcessInstanceFilter filter = new ProcessInstanceFilter();
+
+				filter.setUsePrivileges(true);
 
                 if(searchString != null && !searchString.isEmpty()) {
                     filter.setExpression(searchString);
 					filter.setLocale(messageSource.getLocale());
 				}
 
-                if(searchProcessKey != null)
-                    filter.setProcessBpmKey(searchProcessKey);
+                if(searchProcessKey != null) {
+					filter.setProcessBpmKey(searchProcessKey);
+				}
 
                 JQueryDataTableColumn sortingColumn = dataTable.getFirstSortingColumn();
 
@@ -466,7 +468,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                 filter.setSortOrder(sortingColumn.getSortedAsc() ?  QueueOrder.ASC :  QueueOrder.DESC);
 
                 long t1 = System.currentTimeMillis();
-                
+
                 Collection<BpmTask> tasks = context.getBpmSession().findFilteredTasks(filter, displayStart, displayLength);
 
                 for(BpmTask task: tasks)
@@ -483,15 +485,15 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                 pagingCollection.setiTotalRecords(totalRecords);
                 pagingCollection.setiTotalDisplayRecords(totalRecords);
                 pagingCollection.setAaData(adminAlertBeanList);
-                
+
         		long t3 = System.currentTimeMillis();
 
         		logger.log(Level.INFO, "searchTasks.withContext total: " + (t3-t0) + "ms, " +
         				"[1]: " + (t1-t0) + "ms, " +
         				"[2]: " + (t2-t1) + "ms " +
-        				"[3]: " + (t3-t2) + "ms " 
+        				"[3]: " + (t3-t2) + "ms "
         				);
-        		
+
             }
         }, ExecutionType.TRANSACTION_SYNCH);
 

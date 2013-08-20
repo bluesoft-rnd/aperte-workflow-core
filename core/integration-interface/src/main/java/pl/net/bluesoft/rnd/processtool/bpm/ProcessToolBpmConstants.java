@@ -5,7 +5,8 @@ import pl.net.bluesoft.rnd.processtool.model.UserDataBean;
 
 public interface ProcessToolBpmConstants {
     String PRIVILEGE_INCLUDE = "INCLUDE";
-    String PRIVILEGE_EXCLUDE = "EXCLUDE";
+    String PRIVILEGE_RUN = "RUN";
+	String PRIVILEDGE_SEARCH = "SEARCH";
     String PRIVILEGE_EDIT = "EDIT";
     String PRIVILEGE_VIEW = "VIEW";
 

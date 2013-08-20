@@ -8,6 +8,7 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -42,4 +43,6 @@ public interface ProcessDefinitionDAO extends HibernateBean<ProcessDefinitionCon
 
 	Map<Long, String> getProcessDefinitionDescriptions();
 	Map<Long, String> getProcessStateDescriptions();
+
+	List<String> getNotPermittedDefinitionIds(String priviledgeName, Collection<String> roleNames);
 }

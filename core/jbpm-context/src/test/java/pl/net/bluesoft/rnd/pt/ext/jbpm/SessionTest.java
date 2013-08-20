@@ -3,7 +3,6 @@ package pl.net.bluesoft.rnd.pt.ext.jbpm;
 import bitronix.tm.TransactionManagerServices;
 import bitronix.tm.resource.jdbc.PoolingDataSource;
 import junit.framework.TestCase;
-
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
@@ -680,7 +679,7 @@ public class SessionTest extends TestCase {
 
 			assertNotNull(newConfig);
 
-			Collection<ProcessDefinitionConfig> configs = createSession("admin").getAvailableConfigurations();
+			Collection<ProcessDefinitionConfig> configs = ctx.getProcessDefinitionDAO().getActiveConfigurations();
 
 			final ProcessDefinitionConfig finalNewConfig = newConfig;
 			assertTrue(from(configs).any(new P<ProcessDefinitionConfig>() {

@@ -1,15 +1,12 @@
 package pl.net.bluesoft.rnd.processtool.model;
 
+import org.hibernate.annotations.GenericGenerator;
+
+import javax.persistence.*;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
-
-import javax.persistence.*;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-
-import org.hibernate.annotations.*;
 
 @Entity
 @Table(name = "pt_pi_filters")
@@ -47,6 +44,8 @@ public class ProcessInstanceFilter extends AbstractPersistentEntity {
 	private Locale locale;
 
 	private String filterOwnerLogin;
+
+	private boolean usePrivileges;
 	
 	/** Type of the queues */
 	@ElementCollection(fetch = FetchType.LAZY)
@@ -180,6 +179,14 @@ public class ProcessInstanceFilter extends AbstractPersistentEntity {
 
 	public void setFilterOwnerLogin(String filterOwnerLogin) {
 		this.filterOwnerLogin = filterOwnerLogin;
+	}
+
+	public boolean isUsePrivileges() {
+		return usePrivileges;
+	}
+
+	public void setUsePrivileges(boolean usePrivileges) {
+		this.usePrivileges = usePrivileges;
 	}
 
 	public Set<String> getCreatorLogins() {

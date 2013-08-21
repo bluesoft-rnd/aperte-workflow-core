@@ -1,6 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.model.config;
 
-import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
+import org.hibernate.annotations.GenericGenerator;
+import pl.net.bluesoft.rnd.processtool.model.AbstractPersistentEntity;
 import pl.net.bluesoft.rnd.pt.utils.lang.Lang2;
 
 import javax.persistence.*;
@@ -17,7 +18,7 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
 @Entity
 @Table(name="pt_process_definition_config")
-public class ProcessDefinitionConfig extends PersistentEntity {
+public class ProcessDefinitionConfig extends AbstractPersistentEntity {
 	private static final long serialVersionUID = 3568533142091163609L;
 
 	public static final String _DESCRIPTION = "description";
@@ -35,6 +36,20 @@ public class ProcessDefinitionConfig extends PersistentEntity {
 	public static final String _LATEST = "latest";
 
 	public static final String VERSION_SEPARATOR = "_";
+
+	@Id
+	@GeneratedValue(generator = "idGenerator")
+	@GenericGenerator(
+			name = "idGenerator",
+			strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
+			parameters = {
+					@org.hibernate.annotations.Parameter(name = "initial_value", value = "" + 1),
+					@org.hibernate.annotations.Parameter(name = "value_column", value = "_DB_ID"),
+					@org.hibernate.annotations.Parameter(name = "sequence_name", value = "DB_SEQ_ID_PROC_QUEUE_CONF")
+			}
+	)
+	@Column(name = "id")
+	protected Long id;
 
 	private String description;
 	private String bpmDefinitionKey;
@@ -67,7 +82,15 @@ public class ProcessDefinitionConfig extends PersistentEntity {
 	 */
 	private boolean latest;
 
-    public byte[] getProcessLogo() {
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public byte[] getProcessLogo() {
         return processLogo;
     }
 

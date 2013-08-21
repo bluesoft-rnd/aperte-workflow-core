@@ -8,7 +8,6 @@ import com.vaadin.ui.*;
 import com.vaadin.ui.themes.BaseTheme;
 import com.vaadin.ui.themes.Reindeer;
 import org.aperteworkflow.portlets.ProcessInstanceManagerPortlet;
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
@@ -31,6 +30,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.aperteworkflow.util.vaadin.VaadinUtility.*;
+import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
 import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 import static pl.net.bluesoft.util.lang.FormatUtil.formatFullDate;
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
@@ -63,8 +63,6 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements R
                 refreshIcon(application, this),
                 styled(new Label(getLocalizedMessage("processinstances.console.title")), "h1")),
                 null));
-
-        addComponent(new Label(getLocalizedMessage("processinstances.console.info"), Label.CONTENT_XHTML));
 
         onlyActive.setValue(true);
         onlyActive.setImmediate(true);
@@ -138,7 +136,7 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements R
                 errorLbl.setValue(getLocalizedMessage("processinstances.console.noresults"));
                 return;
             }
-            List<ProcessInstance> processInstances = new ArrayList<ProcessInstance>(ProcessToolContext.Util.getThreadProcessToolContext().getProcessInstanceDAO()
+            List<ProcessInstance> processInstances = new ArrayList<ProcessInstance>(getThreadProcessToolContext().getProcessInstanceDAO()
                     .searchProcesses(filter, offset, limit + 1, (Boolean) onlyActive.getValue(), null, null));
             cnt = processInstances.size();
             if (processInstances.size() > limit) {
@@ -568,7 +566,7 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements R
 
 	private ComponentContainer getHistoryPane(ProcessInstance pi) {
         //refresh
-        pi = ProcessToolContext.Util.getThreadProcessToolContext().getProcessInstanceDAO().getProcessInstance(pi.getId());
+        pi = getThreadProcessToolContext().getProcessInstanceDAO().getProcessInstance(pi.getId());
 
         List<ProcessInstanceLog> processLogs = new ArrayList<ProcessInstanceLog>(pi.getProcessLogs());
         Collections.sort(processLogs, ProcessInstanceLog.DEFAULT_COMPARATOR);

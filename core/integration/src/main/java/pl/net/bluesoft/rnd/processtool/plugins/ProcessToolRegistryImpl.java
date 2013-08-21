@@ -15,6 +15,7 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolSessionFactory;
+import pl.net.bluesoft.rnd.processtool.cache.CacheProvider;
 import pl.net.bluesoft.rnd.processtool.dao.*;
 import pl.net.bluesoft.rnd.processtool.dao.impl.*;
 import pl.net.bluesoft.rnd.processtool.dict.DictionaryLoader;
@@ -52,7 +53,8 @@ import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import static pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants.*;
+import static pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants.PATTERN_MATCH_ALL;
+import static pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants.PRIVILEGE_EDIT;
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 import static pl.net.bluesoft.util.lang.Strings.hasText;
 
@@ -87,6 +89,8 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	private Map<String, Class> annotatedClasses = new HashMap<String, Class>();
 	private Map<String, byte[]> hibernateResources = new HashMap<String, byte[]>();
 	private Map<String, ClassLoader> classLoaders = new HashMap<String, ClassLoader>();
+
+	private final Map<String, CacheProvider> cacheProviders = new HashMap<String, CacheProvider>();
 
 	private Map<String, Map> caches = new HashMap<String, Map>();
 
@@ -853,6 +857,22 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 		return caches.get(cacheName);
 	}
 
+	@Override
+	public void registerCacheProvider(String cacheId, CacheProvider cacheProvider) {
+		cacheProviders.put(cacheId, cacheProvider);
+	}
+
+	@Override
+	public void unregisterCacheProvider(String cacheId) {
+		cacheProviders.remove(cacheId);
+	}
+
+	@Override
+	public Map<String, CacheProvider> getCacheProviders() {
+		return Collections.unmodifiableMap(cacheProviders);
+	}
+
+	@Override
 	public <K, V> void registerCache(String cacheName, Map<K, V> cache) {
 		caches.put(cacheName, cache);
 		logger.warning("Registered cache named: " + cacheName);

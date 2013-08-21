@@ -10,6 +10,7 @@ import org.aperteworkflow.integration.liferay.utils.LiferayUserConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import pl.net.bluesoft.rnd.processtool.authorization.IAuthorizationService;
+import pl.net.bluesoft.rnd.processtool.cache.CacheProvider;
 import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
@@ -21,9 +22,9 @@ import pl.net.bluesoft.util.lang.ExpiringCache;
 import javax.portlet.RenderRequest;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
-import java.util.logging.Logger;
 
-import static pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants.*;
+import static pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants.ADMIN_USER;
+import static pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants.SYSTEM_USER;
 
 /**
  * {@link IUserSource} implementation for Liferay Portal
@@ -31,7 +32,7 @@ import static pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants.*;
  * @author mpawlak@bluesoft.net.pl
  *
  */
-public class LiferayUserSource implements IPortalUserSource 
+public class LiferayUserSource implements IPortalUserSource, CacheProvider
 {
 	private static final ExpiringCache<String, List<UserData>> allUsers = new ExpiringCache<String, List<UserData>>(15 * 60 * 1000);
 	private static final ExpiringCache<String, UserData> usersByLogin = new ExpiringCache<String, UserData>(15 * 60 * 1000);
@@ -43,7 +44,6 @@ public class LiferayUserSource implements IPortalUserSource
     {
         SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
     }
-
 
 	@Override
 	public UserData getUserByLogin(final String login) throws UserSourceException
@@ -131,7 +131,6 @@ public class LiferayUserSource implements IPortalUserSource
 					List<UserData> users = LiferayUserConverter.convertLiferayUsers(UserLocalServiceUtil.getUsers(0, UserLocalServiceUtil.getUsersCount()));
 
 					for (UserData user : users) {
-						Logger.getLogger(LiferayUserSource.class.getName()).warning("--------> Caching user " + user.getLogin());
 						usersByLogin.put(user.getLogin(), user);
 					}
 					return users;
@@ -164,5 +163,11 @@ public class LiferayUserSource implements IPortalUserSource
 		HttpServletRequest httpRequest = PortalUtil.getHttpServletRequest(request);
 		
 		return getUserByRequest(httpRequest);
+	}
+
+	@Override
+	public void invalidateCache() {
+		allUsers.clear();
+		usersByLogin.clear();
 	}
 }

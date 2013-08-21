@@ -1,36 +1,31 @@
 package pl.net.bluesoft.rnd.processtool.plugins;
 
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory.ExecutionType;
+import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
+import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolSessionFactory;
+import pl.net.bluesoft.rnd.processtool.cache.CacheProvider;
+import pl.net.bluesoft.rnd.processtool.dao.*;
+import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolActionButton;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
+import pl.net.bluesoft.rnd.processtool.usersource.IUserSource;
+import pl.net.bluesoft.rnd.processtool.web.controller.IOsgiWebController;
+import pl.net.bluesoft.rnd.processtool.web.domain.IWidgetScriptProvider;
+import pl.net.bluesoft.rnd.util.func.Func;
+import pl.net.bluesoft.rnd.util.i18n.I18NProvider;
+import pl.net.bluesoft.util.eventbus.EventBusManager;
+
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
-
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-
-import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
-import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory.ExecutionType;
-import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
-import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolSessionFactory;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessDictionaryDAO;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceDAO;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceFilterDAO;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceSimpleAttributeDAO;
-import pl.net.bluesoft.rnd.processtool.dao.UserSubstitutionDAO;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
-import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
-import pl.net.bluesoft.rnd.processtool.usersource.IUserSource;
-import pl.net.bluesoft.rnd.processtool.web.controller.IOsgiWebController;
-import pl.net.bluesoft.rnd.processtool.web.domain.IWidgetScriptProvider;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolActionButton;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
-import pl.net.bluesoft.rnd.util.func.Func;
-import pl.net.bluesoft.rnd.util.i18n.I18NProvider;
-import pl.net.bluesoft.util.eventbus.EventBusManager;
 
 
 /**
@@ -167,6 +162,10 @@ public interface ProcessToolRegistry {
     <K, V> void registerCache(String cacheName, Map<K, V> cache);
 
     <K, V> Map<K, V> getCache(String cacheName);
+
+	void registerCacheProvider(String cacheId, CacheProvider cacheProvider);
+	void unregisterCacheProvider(String cacheId);
+	Map<String, CacheProvider> getCacheProviders();
 
     /** Get plugin controller for web invocation */
     IOsgiWebController getWebController(String controllerName);

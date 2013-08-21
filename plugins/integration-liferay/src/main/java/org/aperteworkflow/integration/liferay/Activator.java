@@ -1,10 +1,7 @@
 package org.aperteworkflow.integration.liferay;
 
-import java.util.logging.Logger;
-
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-
 import pl.net.bluesoft.rnd.processtool.authorization.IAuthorizationService;
 import pl.net.bluesoft.rnd.processtool.authorization.impl.LiferayAuthorizationService;
 import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent;
@@ -18,6 +15,8 @@ import pl.net.bluesoft.rnd.processtool.usersource.IUserSource;
 import pl.net.bluesoft.rnd.processtool.usersource.impl.LdapUsersSource;
 import pl.net.bluesoft.rnd.processtool.usersource.impl.LiferayUserSource;
 import pl.net.bluesoft.util.eventbus.EventListener;
+
+import java.util.logging.Logger;
 
 import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 
@@ -33,6 +32,7 @@ public class Activator implements BundleActivator, EventListener<BpmEvent> {
 	{
 		injectImplementation();
 		getRegistry().setUserSource(ObjectFactory.create(IUserSource.class));
+		getRegistry().registerCacheProvider("Liferay Users", (LiferayUserSource)ObjectFactory.create(IUserSource.class));
 	}
 	
 	/** Denpendency Injection */
@@ -54,6 +54,7 @@ public class Activator implements BundleActivator, EventListener<BpmEvent> {
 
 	@Override
 	public void stop(BundleContext context) throws Exception {
+		getRegistry().unregisterCacheProvider("Liferay Users");
 		getRegistry().setUserSource(null);
 	}
 

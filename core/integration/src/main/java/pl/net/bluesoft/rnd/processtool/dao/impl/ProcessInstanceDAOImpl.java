@@ -340,7 +340,6 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
 	public Collection<ProcessInstance> searchProcesses(String filter, int offset, int limit,
 													   boolean onlyRunning, String[] userRoles,
 													   String assignee, String... queues) {
-
 		long start = System.currentTimeMillis();
 
 		List<ProcessInstance> list = (List<ProcessInstance>)session.createCriteria(ProcessInstance.class)

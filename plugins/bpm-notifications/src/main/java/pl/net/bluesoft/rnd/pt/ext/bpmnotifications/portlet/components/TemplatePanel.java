@@ -9,7 +9,6 @@ import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.TemplateArgumentProvi
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import java.text.MessageFormat;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -33,8 +32,8 @@ public class TemplatePanel extends ItemEditorLayout<BpmNotificationTemplate> {
 	protected Component createItemDetailsLayout() {
 		FormLayout formLayout = new FormLayout();
 
-		formLayout.addComponent(templateName = textField(getMessage("bpmnot.template.name"), 400));
-		formLayout.addComponent(templateSender = textField(getMessage("bpmnot.sender"), 400));
+		formLayout.addComponent(templateName = textField(getMessage("bpmnot.template.name"), -1));
+		formLayout.addComponent(templateSender = textField(getMessage("bpmnot.sender"), -1));
 		formLayout.addComponent(templateSubject = textField(getMessage("bpmnot.subject"), -1));
 		formLayout.addComponent(templateBody = textArea(getMessage("bpmnot.body"), -1));
 

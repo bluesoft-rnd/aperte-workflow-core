@@ -67,16 +67,16 @@ public class NotificationPanel extends ItemEditorLayout<BpmNotificationConfig> {
 	protected Component createItemDetailsLayout() {
 		FormLayout formLayout = new FormLayout();
 
-		formLayout.addComponent(profileName = select(getMessage("bpmnot.profile"), 400));
-		formLayout.addComponent(templateName = select(getMessage("bpmnot.template"), 400));
-		formLayout.addComponent(templateArgumentProvider = select(getMessage("bpmnot.param.provider"), 400));
+		formLayout.addComponent(profileName = select(getMessage("bpmnot.profile"), -1));
+		formLayout.addComponent(templateName = select(getMessage("bpmnot.template"), -1));
+		formLayout.addComponent(templateArgumentProvider = select(getMessage("bpmnot.param.provider"), -1));
 		formLayout.addComponent(active = checkBox(getMessage("bpmnot.active")));
 		formLayout.addComponent(sendHtml = checkBox(getMessage("bpmnot.send.as.html")));
 		formLayout.addComponent(localeField = textField(getMessage("bpmnot.locale")));
 
-		processTypeRegex = textField(null, 400);
-		stateRegex = textField(null, 400);
-		lastActionRegex = textField(null, 400);
+		processTypeRegex = textField(null, -1);
+		stateRegex = textField(null, -1);
+		lastActionRegex = textField(null, -1);
 
 		selectProcess = new Button(getMessage("bpmnot.button.choose"));
 		selectState = new Button(getMessage("bpmnot.button.choose"));
@@ -96,8 +96,8 @@ public class NotificationPanel extends ItemEditorLayout<BpmNotificationConfig> {
 		formLayout.addComponent(skipNotificationWhenTriggeredByAssignee = checkBox(getMessage("bpmnot.skip.when.triggered.by.assignee")));
 
 		formLayout.addComponent(notifyTaskAssignee = checkBox(getMessage("bpmnot.notify.assignee")));
-		formLayout.addComponent(notifyEmailAddresses = textField(getMessage("bpmnot.notify.emails"), 400));
-		formLayout.addComponent(notifyUserAttributes = textField(getMessage("bpmnot.notify.users"), 400));
+		formLayout.addComponent(notifyEmailAddresses = textField(getMessage("bpmnot.notify.emails"), -1));
+		formLayout.addComponent(notifyUserAttributes = textField(getMessage("bpmnot.notify.users"), -1));
 		formLayout.addComponent(new Label(
 				getMessage("bpmnot.attribute.explanation"), Label.CONTENT_XHTML));
 

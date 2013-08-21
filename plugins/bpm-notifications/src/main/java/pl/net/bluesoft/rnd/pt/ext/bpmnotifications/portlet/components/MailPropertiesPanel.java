@@ -1,10 +1,6 @@
 package pl.net.bluesoft.rnd.pt.ext.bpmnotifications.portlet.components;
 
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.PasswordField;
-import com.vaadin.ui.TextField;
+import com.vaadin.ui.*;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.dao.BpmNotificationMailPropertiesDAO;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotificationMailProperties;
@@ -41,17 +37,17 @@ public class MailPropertiesPanel extends ItemEditorLayout<BpmNotificationMailPro
 	protected Component createItemDetailsLayout() {
 		FormLayout formLayout = new FormLayout();
 
-		formLayout.addComponent(profileName = textField("bpmnot.profile", 400));
-		formLayout.addComponent(smtpHost = textField("SMTP Host", 400));
-		formLayout.addComponent(smtpPort = textField("SMTP Port", 400));
-		formLayout.addComponent(smtpUser = textField("SMTP User", 400));
-		formLayout.addComponent(smtpPassword = passwordField("SMTP Password", 400));
+		formLayout.addComponent(profileName = textField("bpmnot.profile", -1));
+		formLayout.addComponent(smtpHost = textField("SMTP Host", -1));
+		formLayout.addComponent(smtpPort = textField("SMTP Port", 200));
+		formLayout.addComponent(smtpUser = textField("SMTP User", -1));
+		formLayout.addComponent(smtpPassword = passwordField("SMTP Password", -1));
 		formLayout.addComponent(smtpAuth = checkBox("SMTP Auth"));
-		formLayout.addComponent(smtpSocketFactoryPort = textField("SMTP Socket Factory Port", 400));
+		formLayout.addComponent(smtpSocketFactoryPort = textField("SMTP Socket Factory Port", 200));
 		formLayout.addComponent(smtpSocketFactoryClass = textField("SMTP Socket Factory Class", -1));
 		formLayout.addComponent(sslSocketFactoryClass = textField("SSL Socket Factory Class", -1));
 		formLayout.addComponent(disablePlainAuth = checkBox("Disable Plain Auth"));
-		formLayout.addComponent(transportProtocol = textField("Transport Protocol", 400));
+		formLayout.addComponent(transportProtocol = textField("Transport Protocol", -1));
 		formLayout.addComponent(startTls = checkBox("Start TLS"));
 		formLayout.addComponent(debug = checkBox("Debug"));
 

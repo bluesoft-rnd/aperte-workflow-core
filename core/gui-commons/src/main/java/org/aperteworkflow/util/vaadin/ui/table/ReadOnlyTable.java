@@ -1,5 +1,6 @@
 package org.aperteworkflow.util.vaadin.ui.table;
 
+import com.vaadin.data.Container;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.event.ItemClickEvent;
@@ -14,17 +15,24 @@ import java.util.Collection;
  * Time: 14:53
  */
 public abstract class ReadOnlyTable<T> extends Table implements Table.CellStyleGenerator {
-	protected final BeanItemContainer<T> cont;
+	protected final Container cont;
 	protected final I18NSource i18NSource;
 
-	public ReadOnlyTable(Class<T> itemClass, I18NSource i18NSource) {
-		this.cont = new BeanItemContainer<T>(itemClass);
+	protected ReadOnlyTable(Class<T> itemClass, I18NSource i18NSource) {
+		this(new BeanItemContainer<T>(itemClass), i18NSource);
+	}
+
+	protected ReadOnlyTable(Container cont, I18NSource i18NSource) {
+		this.cont = cont;
 		this.i18NSource = i18NSource;
 	}
 
 	protected void buildLayout(String width) {
 		if (width != null) {
 			setWidth(width);
+		}
+		else {
+			setSizeUndefined();
 		}
 		setPageLength(0);
 		setEditable(false);
@@ -58,14 +66,25 @@ public abstract class ReadOnlyTable<T> extends Table implements Table.CellStyleG
 
 	public void setItems(Collection<T> items) {
 		cont.removeAllItems();
-		if (items != null) {
-			cont.addAll(items);
-		}
+		addItemsIntoCont(items);
 		adjustPageLength();
 	}
 
+	protected void addItemsIntoCont(Collection<T> items) {
+		if (items != null) {
+			if (cont instanceof BeanItemContainer) {
+				((BeanItemContainer)cont).addAll(items);
+			}
+			else {
+				for (T item : items) {
+					cont.addItem(item);
+				}
+			}
+		}
+	}
+
 	public Collection<T> getItems() {
-		return cont.getItemIds();
+		return (Collection)cont.getItemIds();
 	}
 
 	protected void adjustPageLength() {

@@ -776,7 +776,6 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
         if (nodeInstance instanceof WorkItemNodeInstance || nodeInstance instanceof ActionNodeInstance) {
 			copyAttributesIntoJbpm(event.getProcessInstance(), nodeInstance);
 		}
-
 	}
 
 	@Override

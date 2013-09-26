@@ -1,26 +1,24 @@
 package org.aperteworkflow.webapi.main.ui;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.*;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
-
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
-import pl.net.bluesoft.rnd.processtool.model.config.*;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidgetAttribute;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidgetPermission;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
 import pl.net.bluesoft.rnd.processtool.web.domain.IHtmlTemplateProvider;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import pl.net.bluesoft.util.lang.DateUtil;
 
-import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.*;
 
 /**
  * Html builder for the task view 
@@ -46,10 +44,9 @@ public class TaskViewBuilder
 	private IHtmlTemplateProvider templateProvider;
 	
 	/** Builder for javascripts */
-	private StringBuilder scriptBuilder = new StringBuilder("<script type=\"text/javascript\">");
+	private StringBuilder scriptBuilder = new StringBuilder(1024);
 	
 	private int vaadinWidgetsCount = 0;
-
 
     public TaskViewBuilder()
 	{
@@ -58,6 +55,8 @@ public class TaskViewBuilder
 	
 	public void processView(PrintWriter printWriter) throws IOException
 	{
+		scriptBuilder.append("<script type=\"text/javascript\">");
+
 		Document document = Jsoup.parse("");
 
 		Element alertsNode = document.createElement("div")
@@ -83,7 +82,7 @@ public class TaskViewBuilder
 		
 		scriptBuilder.append("vaadinWidgetsCount = ");
 		scriptBuilder.append(vaadinWidgetsCount);
-		scriptBuilder.append(";");
+		scriptBuilder.append(';');
 		scriptBuilder.append("</script>");
 		printWriter.print(scriptBuilder.toString());
 	}
@@ -106,7 +105,7 @@ public class TaskViewBuilder
         document.appendChild(actionsNode);
 
         /* Check if task is finished */
-        Boolean isTaskFinished = task.isFinished();
+        boolean isTaskFinished = task.isFinished();
         if(isTaskFinished)
         {
             addCancelActionButton(actionsNode);
@@ -114,7 +113,7 @@ public class TaskViewBuilder
         }
 
         /* Check if user, who is checking the task, is the assigned person */
-        Boolean isUserAssignedToTask = user.getLogin().equals(task.getAssignee());
+        boolean isUserAssignedToTask = user.getLogin().equals(task.getAssignee());
         if(isUserAssignedToTask || isSubstitutingUser())
         {
             addSaveActionButton(actionsNode);
@@ -138,10 +137,8 @@ public class TaskViewBuilder
 		/* Sort widgets by prority */
 		List<ProcessStateWidget> children = new ArrayList<ProcessStateWidget>(widget.getChildren());
 		Collections.sort(children, new Comparator<ProcessStateWidget>() {
-
 			@Override
 			public int compare(ProcessStateWidget widget1, ProcessStateWidget widget2) {
-				// TODO Auto-generated method stub
 				return widget1.getPriority().compareTo(widget2.getPriority());
 			}
 		});
@@ -182,13 +179,13 @@ public class TaskViewBuilder
 				
 				Element aNode = parent.ownerDocument().createElement("a")
 						.attr("id", "tab_link_"+childId)
-						.attr("href", "#"+childId)
+						.attr("href", '#' +childId)
 						.attr("data-toggle", "tab")
 						.append(caption);
 				
 				liNode.appendChild(aNode);
 				
-				scriptBuilder.append("$('#tab_link_"+childId+"').on('shown', function (e) { onTabChange(e); });");
+				scriptBuilder.append("$('#tab_link_").append(childId).append("').on('shown', function (e) { onTabChange(e); });");
 				
 				/* Content element */
 				Element divTabContentNode = parent.ownerDocument().createElement("div")
@@ -202,9 +199,7 @@ public class TaskViewBuilder
 				processWidget(child, divTabContentNode);
 			}
 			
-			scriptBuilder.append("$('#"+tabId+" a:first').tab('show');");
-			
-			
+			scriptBuilder.append("$('#").append(tabId).append(" a:first').tab('show');");
 		}
 		else if(aliasName.equals("VerticalLayout"))
 		{
@@ -219,7 +214,7 @@ public class TaskViewBuilder
 		}
 		else if(widgetTemplateBody != null)
 		{
-            ProcessHtmlWidget htmlWidget = processToolRegistry.getHtmlWidget(aliasName);
+//            ProcessHtmlWidget htmlWidget = processToolRegistry.getHtmlWidget(aliasName);
             Map<String, Object> viewData = new HashMap<String, Object>();
 			viewData.put(IHtmlTemplateProvider.PROCESS_PARAMTER, task.getProcessInstance());
 			viewData.put(IHtmlTemplateProvider.TASK_PARAMTER, task);
@@ -245,7 +240,6 @@ public class TaskViewBuilder
 			{
 				processWidget(child, divContentNode);
 			}
-			
 		}
 		else
 		{
@@ -265,9 +259,8 @@ public class TaskViewBuilder
 					.attr("name", widget.getId().toString());
 			parent.appendChild(iFrameNode);
 			
-			scriptBuilder.append("$('#iframe-vaadin-" + widget.getId() + "').load(function() {onLoadIFrame($(this)); });");
+			scriptBuilder.append("$('#iframe-vaadin-").append(widget.getId()).append("').load(function() {onLoadIFrame($(this)); });");
 
-			
 			for(ProcessStateWidget child: children)
 			{
 				processWidget(child, iFrameNode);
@@ -278,13 +271,13 @@ public class TaskViewBuilder
     private Collection<String> getPrivileges(ProcessStateWidget widget)
     {
         Collection<String> privileges = new ArrayList<String>();
+
         for(ProcessStateWidgetPermission permission: widget.getPermissions())
         {
-
-            if (permission.getRoleName().contains("*") || user.hasRole(permission.getRoleName()))
-                privileges.add(permission.getPrivilegeName());
+            if (permission.getRoleName().contains("*") || user.hasRole(permission.getRoleName())) {
+				privileges.add(permission.getPrivilegeName());
+			}
         }
-
         return privileges;
     }
 
@@ -306,11 +299,10 @@ public class TaskViewBuilder
 				.attr("disabled", "true")
 				.attr("type", "button")
 				.attr("id", actionButtonId);
-			parent.appendChild(buttonNode);
+		parent.appendChild(buttonNode);
 			
-			scriptBuilder.append("$('#" + actionButtonId+"').click(function() { disableButtons(); performAction(this, '"+action.getBpmName()+
-					"', "+action.getSkipSaving()+", '"+task.getInternalTaskId()+"');  });");
-			scriptBuilder.append("$('#" + actionButtonId+"').tooltip({title: '"+i18Source.getMessage(action.getDescription())+"'});");
+		scriptBuilder.append("$('#").append(actionButtonId).append("').click(function() { disableButtons(); performAction(this, '").append(action.getBpmName()).append("', ").append(action.getSkipSaving()).append(", '").append(task.getInternalTaskId()).append("');  });");
+		scriptBuilder.append("$('#").append(actionButtonId).append("').tooltip({title: '").append(i18Source.getMessage(action.getDescription())).append("'});");
 	}
 	
 	private void addSaveActionButton(Element parent)
@@ -323,10 +315,10 @@ public class TaskViewBuilder
 				.attr("disabled", "true")
 				.attr("type", "button")
 				.attr("id", actionButtonId);
-			parent.appendChild(buttonNode);
+		parent.appendChild(buttonNode);
 			
-			scriptBuilder.append("$('#" + actionButtonId+"').click(function() { onSaveButton('"+task.getInternalTaskId()+"');  });");
-			scriptBuilder.append("$('#" + actionButtonId+"').tooltip({title: '"+i18Source.getMessage("button.save.process.desc")+"'});");
+		scriptBuilder.append("$('#").append(actionButtonId).append("').click(function() { onSaveButton('").append(task.getInternalTaskId()).append("');  });");
+		scriptBuilder.append("$('#").append(actionButtonId).append("').tooltip({title: '").append(i18Source.getMessage("button.save.process.desc")).append("'});");
 	}
 	
 	private void addCancelActionButton(Element parent)
@@ -339,23 +331,21 @@ public class TaskViewBuilder
 				.attr("disabled", "true")
 				.attr("type", "button")
 				.attr("id", actionButtonId);
-			parent.appendChild(buttonNode);
-			
-			scriptBuilder.append("$('#" + actionButtonId+"').click(function() { onCancelButton();  });");
-			scriptBuilder.append("$('#" + actionButtonId+"').tooltip({title: '"+i18Source.getMessage("button.exit")+"'});");
+		parent.appendChild(buttonNode);
+
+		scriptBuilder.append("$('#").append(actionButtonId).append("').click(function() { onCancelButton();  });");
+		scriptBuilder.append("$('#").append(actionButtonId).append("').tooltip({title: '").append(i18Source.getMessage("button.exit")).append("'});");
 	}
 
 	public TaskViewBuilder setWidgets(List<ProcessStateWidget> widgets) 
 	{
 		this.widgets = widgets;
-		
 		return this;
 	}
 
 	public TaskViewBuilder setActions(List<ProcessStateAction> actions) 
 	{
 		this.actions = actions;
-		
 		return this;
 	}
     public TaskViewBuilder setDescription(String description) {
@@ -371,7 +361,6 @@ public class TaskViewBuilder
 	public TaskViewBuilder setI18Source(I18NSource i18Source) 
 	{
 		this.i18Source = i18Source;
-		
 		return this;
 	}
 
@@ -389,7 +378,6 @@ public class TaskViewBuilder
 
     public TaskViewBuilder setCtx(ProcessToolContext ctx) {
         this.ctx = ctx;
-
         return this;
     }
 }

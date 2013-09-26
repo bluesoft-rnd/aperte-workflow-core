@@ -1,23 +1,11 @@
 package pl.net.bluesoft.rnd.processtool.application.activity;
 
-import static pl.net.bluesoft.util.lang.Formats.nvl;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import com.vaadin.ui.Component;
+import com.vaadin.ui.Window;
 import org.apache.commons.lang3.StringUtils;
-
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
-import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSessionHelper;
 import pl.net.bluesoft.rnd.processtool.event.SaveTaskEvent;
 import pl.net.bluesoft.rnd.processtool.event.ValidateTaskEvent;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
@@ -33,8 +21,12 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 import pl.net.bluesoft.util.lang.Lang;
 
-import com.vaadin.ui.Component;
-import com.vaadin.ui.Window;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants.PRIVILEGE_EDIT;
+import static pl.net.bluesoft.util.lang.Formats.nvl;
 
 /**
  * Widget view window. This window is created per parent widget which is
@@ -54,7 +46,7 @@ public class WidgetViewWindow extends Window
 	private WidgetApplication application;
 	private ProcessToolBpmSession bpmSession;
 	private WidgetFactory widgetFactory;
-	
+
 	private String bpmTaskId;
 	private Long processStateWidgetId;
 	
@@ -88,8 +80,9 @@ public class WidgetViewWindow extends Window
 		
     	/* Check for task id, we don't want to validate widget from another process view */
     	final String eventTaskId = event.getBpmTask().getInternalTaskId();
-    	if(!eventTaskId.equals(this.bpmTaskId))
-    		return; 
+    	if(!eventTaskId.equals(this.bpmTaskId)) {
+			return;
+		}
     	
 		errors.clear();
 		
@@ -97,9 +90,11 @@ public class WidgetViewWindow extends Window
 		{
 			Collection<String>  errors = widget.validateData(event.getBpmTask(), true);
 			
-			if(errors != null)
-				for(String error: errors)
+			if (errors != null) {
+				for (String error : errors) {
 					event.addError(processStateWidgetId.toString(), error);
+				}
+			}
 		}
 	}
 	
@@ -142,14 +137,14 @@ public class WidgetViewWindow extends Window
 	
 	public void initlizeWidget(String taskId, String widgetId)
 	{
-		if(isInitlized)
+		if(isInitlized) {
 			return;
-		
+		}
+
 		processStateWidgetId = Long.parseLong(widgetId);
 		bpmTaskId = taskId;
 
 		processToolRegistry.withProcessToolContext(new ProcessToolContextCallback() {
-			
 			@Override
 			public void withContext(ProcessToolContext ctx) 
 			{
@@ -160,10 +155,10 @@ public class WidgetViewWindow extends Window
 				if(task == null)
 					task = bpmSession.getHistoryTask(bpmTaskId);
 
-				ProcessToolWidget widget = getWidget(processStateWidget, ctx, "1", task);
+				ProcessToolWidget widget = getWidget(processStateWidget, "1", task);
 				if (widget instanceof ProcessToolVaadinRenderable && (!nvl(processStateWidget.getOptional(), false) || widget.hasVisibleData())) 
 				{
-					processWidgetChildren(processStateWidget, widget, ctx, "1", task);
+					processWidgetChildren(processStateWidget, widget, "1", task);
 					ProcessToolVaadinRenderable vaadinW = (ProcessToolVaadinRenderable) widget;
 					
 					Component renderedWidget = vaadinW.render();
@@ -181,14 +176,12 @@ public class WidgetViewWindow extends Window
 		});
 	}
 
-	private ProcessToolWidget getWidget(ProcessStateWidget processStateWidget, ProcessToolContext ctx, String generatorKey, BpmTask task) 
+	private ProcessToolWidget getWidget(ProcessStateWidget processStateWidget, String generatorKey, BpmTask task)
 	{
-		ProcessToolWidget processToolWidget;
 		try 
 		{
-			String widgetClassName = processStateWidget.getClassName() == null ? processStateWidget.getName() : processStateWidget.getClassName();
-			
-			processToolWidget = widgetFactory.makeWidget(widgetClassName, processStateWidget, bpmSession.getPermissionsForWidget(processStateWidget), true);
+			ProcessToolWidget processToolWidget = widgetFactory.makeWidget(
+					processStateWidget.getClassName(), processStateWidget, getPermissionsForWidget(processStateWidget, task), true);
 			
 			processToolWidget.setGeneratorKey(generatorKey);
 			processToolWidget.setTaskId(bpmTaskId);
@@ -200,23 +193,37 @@ public class WidgetViewWindow extends Window
 				dataWidget.loadData(task);
 				widgets.add(dataWidget);
 				
-				if(processToolWidget.hasPermission("EDIT"))
+				if(processToolWidget.hasPermission("EDIT")) {
 					isEditMode = true;
+				}
 			}
+			return processToolWidget;
 		}
-		catch (final Exception e) 
+		catch (Exception e)
 		{
 			FailedProcessToolWidget failedProcessToolVaadinWidget = new FailedProcessToolWidget(e);
-			failedProcessToolVaadinWidget.setContext(processStateWidget.getConfig(), processStateWidget, i18NSource, bpmSession, application,
-					ProcessToolBpmSessionHelper.getPermissionsForWidget(bpmSession, ctx, processStateWidget),
-			                         true);
-			processToolWidget = failedProcessToolVaadinWidget;
+			failedProcessToolVaadinWidget.setContext(
+					processStateWidget.getConfig(),
+					processStateWidget,
+					i18NSource,
+					bpmSession,
+					application,
+					getPermissionsForWidget(processStateWidget, task),
+					true);
+			return failedProcessToolVaadinWidget;
 		}
-		return processToolWidget;
 	}
-	
+
+	private Set<String> getPermissionsForWidget(ProcessStateWidget processStateWidget, BpmTask task) {
+		Set<String> result = bpmSession.getPermissionsForWidget(processStateWidget);
+		if (task.isFinished()) {
+			result.remove(PRIVILEGE_EDIT);
+		}
+		return result;
+	}
+
 	private void processWidgetChildren(ProcessStateWidget parentWidgetConfiguration, ProcessToolWidget parentWidgetInstance,
-			ProcessToolContext ctx, String generatorKey, BpmTask task) 
+			String generatorKey, BpmTask task)
 	{
 		Set<ProcessStateWidget> children = parentWidgetConfiguration.getChildren();
 		
@@ -237,17 +244,17 @@ public class WidgetViewWindow extends Window
 		{
 			if(StringUtils.isNotEmpty(subW.getGenerateFromCollection()))
 			{
-				generateChildren(parentWidgetInstance, ctx, subW, task);
+				generateChildren(parentWidgetInstance, subW, task);
 			} 
 			else 
 			{
 				subW.setParent(parentWidgetConfiguration);
-				addWidgetChild(parentWidgetInstance, ctx, subW, generatorKey, task);
+				addWidgetChild(parentWidgetInstance, subW, generatorKey, task);
 			}
 		}
 	}
 	
-	private void generateChildren(ProcessToolWidget parentWidgetInstance, ProcessToolContext ctx,
+	private void generateChildren(ProcessToolWidget parentWidgetInstance,
 			ProcessStateWidget subW, BpmTask task) 
 	{
 		String collection = task.getProcessInstance().getSimpleAttributeValue(subW.getGenerateFromCollection(), null);
@@ -256,18 +263,18 @@ public class WidgetViewWindow extends Window
 		String[] items = collection.split("[,; ]");
 
 		for(String item : items){
-			addWidgetChild(parentWidgetInstance, ctx, subW, item, task);
+			addWidgetChild(parentWidgetInstance, subW, item, task);
 		}
 	}
 
-	private void addWidgetChild(ProcessToolWidget parentWidgetInstance, ProcessToolContext ctx,
+	private void addWidgetChild(ProcessToolWidget parentWidgetInstance,
 			ProcessStateWidget subW, String generatorKey, BpmTask task) 
 	{
-		ProcessToolWidget widgetInstance = getWidget(subW, ctx, generatorKey, task);
+		ProcessToolWidget widgetInstance = getWidget(subW, generatorKey, task);
 		
 		if (!nvl(subW.getOptional(), false) || widgetInstance.hasVisibleData()) 
 		{
-			processWidgetChildren(subW, widgetInstance, ctx, generatorKey, task);
+			processWidgetChildren(subW, widgetInstance, generatorKey, task);
 			parentWidgetInstance.addChild(widgetInstance);
 		}
 	}

@@ -196,7 +196,7 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 				isEqual(config1.getDescription(), config2.getDescription()) &&
 				isEqual(config1.getComment(), config2.getComment()) &&
 				isEqual(config1.getDefaultStepInfoPattern(), config2.getDefaultStepInfoPattern()) &&
-//				isEqual(config1.getSupportedLocales(), config2.getSupportedLocales()) && TODO
+				isEqual(config1.getSupportedLocales(), config2.getSupportedLocales()) &&
 				Arrays.equals(config1.getProcessLogo(), config2.getProcessLogo()) &&
 				STATE_COMPARER.compare(config1.getStates(), config2.getStates()) &&
 				PERMISSION_COMPARER.compare(config1.getPermissions(), config2.getPermissions());
@@ -214,7 +214,7 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 					isEqual(state1.getCommentary(), state2.getCommentary()) &&
 					isEqual(state1.getCommentary(), state2.getCommentary()) &&
 					isEqual(state1.getEnableExternalAccess(), state2.getEnableExternalAccess()) &&
-//					isEqual(state1.getStepInfoPattern(), state2.getStepInfoPattern()) && TODO
+					isEqual(state1.getStepInfoPattern(), state2.getStepInfoPattern()) &&
 					WIDGET_COMPARER.compare(state1.getWidgets(), state2.getWidgets()) &&
 					ACTION_COMPARER.compare(state1.getActions(), state2.getActions()) &&
 					PERMISSION_COMPARER.compare(state2.getPermissions(), state1.getPermissions());

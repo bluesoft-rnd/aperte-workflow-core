@@ -41,6 +41,8 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static java.util.Collections.singletonList;
+import static java.util.Collections.sort;
 import static org.aperteworkflow.util.vaadin.VaadinUtility.htmlLabel;
 import static org.aperteworkflow.util.vaadin.VaadinUtility.styled;
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
@@ -48,7 +50,7 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 public class UserStepEditorWindow extends AbstractStepEditorWindow implements Handler, ValueChangeListener {
 
 	private static final Logger logger = Logger.getLogger(UserStepEditorWindow.class.getName());
-    private static final Action[] COMMON_ACTIONS = new Action[] {};
+    private static final Action[] COMMON_ACTIONS = {};
 
 	private HierarchicalContainer stepTreeContainer;
 	private Tree stepTree;
@@ -59,6 +61,7 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 	private TextField swimlaneField;
     private TextField descriptionField;
     private RichTextArea commentaryTextArea;
+	private TextField stepInfoField;
 	private WidgetFormWindow paramPanel;
     private PermissionEditor permissionEditor;
 
@@ -77,7 +80,7 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 	public ComponentContainer init() {
 		ComponentContainer comp = buildLayout();
 		
-		if (jsonConfig != null && jsonConfig.trim().length() > 0) {
+		if (jsonConfig != null && !jsonConfig.trim().isEmpty()) {
 			if (stepTreeContainer != null && rootItem != null) {
 				loadJSONConfig();
 			}
@@ -119,7 +122,7 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
                 PermissionDefinition perm1 = new PermissionDefinition();
                 perm1.setKey("SEARCH");
                 perm1.setDescription("editor.permissions.description.step.SEARCH");
-                return Arrays.asList(perm1);
+                return singletonList(perm1);
             }
 
             @Override
@@ -193,12 +196,12 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 
     private void prepareAvailableWidgetsComponent() {
         List<WidgetItem> availableWidgetItems = getAvailableWidgetItems();
-        Collections.sort(availableWidgetItems, new Comparator<WidgetItem>(){
+        sort(availableWidgetItems, new Comparator<WidgetItem>() {
 			@Override
 			public int compare(WidgetItem o1, WidgetItem o2) {
 				return o1.getName().compareTo(o2.getName());
 			}
-        });
+		});
         
         CssLayout pane = new CssLayout() {
             @Override
@@ -253,7 +256,7 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
             logger.log(Level.SEVERE, "Error loading available widgets", e);
         }
         for (Entry<BundleItem, Collection<WidgetItem>> entry : availableWidgets.entrySet()) {
-            final Collection<WidgetItem> widgets = entry.getValue();
+            Collection<WidgetItem> widgets = entry.getValue();
             for (WidgetItem widgetItem : widgets) {
                 widgetItems.add(widgetItem);
             }
@@ -300,6 +303,10 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
         commentaryTextArea.setNullRepresentation("");
         commentaryTextArea.setWidth("100%");
 
+		stepInfoField = new TextField();
+		stepInfoField.setNullRepresentation("");
+		stepInfoField.setWidth("100%");
+
         VerticalLayout stateLayout = new VerticalLayout();
         stateLayout.setWidth("100%");
         stateLayout.setSpacing(true);
@@ -313,6 +320,10 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
         stateLayout.addComponent(htmlLabel(messages.getMessage("field.commentary.info")));
         stateLayout.addComponent(commentaryTextArea);
 
+		stateLayout.addComponent(styled(new Label(messages.getMessage("field.stepInfo")), "h1"));
+		stateLayout.addComponent(htmlLabel(messages.getMessage("field.stepInfo.info")));
+		stateLayout.addComponent(stepInfoField);
+
         return stateLayout;
     }
 
@@ -324,7 +335,8 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
     			messages.getMessage("dialog.delete.confirm"),
     			messages.getMessage("dialog.delete.cancel"),
                 new ConfirmDialog.Listener() {
-                    public void onClose(ConfirmDialog dialog) {
+                    @Override
+					public void onClose(ConfirmDialog dialog) {
                         if (dialog.isConfirmed()) {
                             HierarchicalContainer hc = (HierarchicalContainer) stepTree.getContainerDataSource();
                             hc.removeItemRecursively(widget);
@@ -364,7 +376,7 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 
 	private Resource getResource(String pathKey) {
 		I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
-		final String path = messages.getMessage(pathKey);
+		String path = messages.getMessage(pathKey);
 		final InputStream stream = getClass().getClassLoader().getResourceAsStream(path);
 		if (stream != null) {
 			String[] pathParts = path.split("/");
@@ -403,8 +415,9 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 			assigneeField.setValue(map.get(JSONHandler.ASSIGNEE));
 			swimlaneField.setValue(map.get(JSONHandler.SWIMLANE));
 			candidateGroupsField.setValue(map.get(JSONHandler.CANDIDATE_GROUPS));
-            commentaryTextArea.setValue(map.get(JSONHandler.COMMENTARY));
             descriptionField.setValue(map.get(JSONHandler.DESCRIPTION));
+			commentaryTextArea.setValue(map.get(JSONHandler.COMMENTARY));
+			stepInfoField.setValue(map.get(JSONHandler.STEP_INFO));
 
 			for (Object widget : stepTreeContainer.getItemIds()) {
 				if (widget != rootItem) {
@@ -430,7 +443,7 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
 		stepTreeContainer.addContainerProperty("name", String.class, messages.getMessage("stepTree.name.default"));
 		stepTreeContainer.addContainerProperty("icon", Resource.class, getResource("icon.widget.default"));
 
-		final WidgetItem widgetItem = new WidgetItem(
+		WidgetItem widgetItem = new WidgetItem(
                 "ROOT",
                 messages.getMessage("stepTree.root.name"),
                 messages.getMessage("stepTree.root.description"),
@@ -484,7 +497,7 @@ public class UserStepEditorWindow extends AbstractStepEditorWindow implements Ha
         String json = JSONHandler.dumpTreeToJSON(stepTree, rootItem,
                 assigneeField.getValue(), candidateGroupsField.getValue(), swimlaneField.getValue(),
                 stepType, descriptionField.getValue(), commentaryTextArea.getValue(),
-                permissions
+				stepInfoField.getValue(), permissions
         );
         application.getJsHelper().postAndRedirectStep(url, json);
 	}

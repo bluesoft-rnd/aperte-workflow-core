@@ -5,6 +5,8 @@ import pl.net.bluesoft.rnd.pt.utils.lang.Lang2;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Main configuration for the process editor application
@@ -25,6 +27,7 @@ public class ProcessConfig implements Serializable {
 
     private byte[] processIcon;
 	private String defaultLanguage;
+	private String defaultStepInfo;
 
 
 	public List<Permission> getProcessPermissions() {
@@ -91,12 +94,28 @@ public class ProcessConfig implements Serializable {
 		this.version = version;
 	}
 
-
 	public String getDefaultLanguage() {
 		return defaultLanguage;
 	}
 
 	public void setDefaultLanguage(String defaultLanguage) {
 		this.defaultLanguage = defaultLanguage;
+	}
+
+	public String getDefaultStepInfo() {
+		return defaultStepInfo;
+	}
+
+	public void setDefaultStepInfo(String defaultStepInfo) {
+		this.defaultStepInfo = defaultStepInfo;
+	}
+
+	public Set<String> getUsedLanguages() {
+		Set<String> result = new TreeSet<String>();
+
+		for (String locale : messages.keySet()) {
+			result.add(locale.split("_")[0].trim().toLowerCase());
+		}
+		return result;
 	}
 }

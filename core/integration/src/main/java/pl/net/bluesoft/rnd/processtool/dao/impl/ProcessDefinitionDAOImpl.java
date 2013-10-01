@@ -11,6 +11,7 @@ import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.config.*;
 import pl.net.bluesoft.util.lang.ExpiringCache;
+import pl.net.bluesoft.util.lang.Lang;
 
 import java.util.*;
 
@@ -162,8 +163,7 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 	@Override
 	public boolean differsFromTheLatest(ProcessDefinitionConfig cfg) {
 		ProcessDefinitionConfig latestDefinition = getLatestDefinition(cfg);
-		// pojedyncze porownanie powinno wystarczyc, gdyby nie to, ze porownanie stanow/atrybutow jest niesymetryczne
-		return latestDefinition == null || !compareDefinitions(cfg, latestDefinition) || !compareDefinitions(latestDefinition, cfg);
+		return latestDefinition == null || !compareDefinitions(cfg, latestDefinition);
 	}
 
 	private ProcessDefinitionConfig getLatestDefinition(ProcessDefinitionConfig cfg) {
@@ -191,159 +191,166 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 		}
 	}
 
-	private boolean compareDefinitions(ProcessDefinitionConfig cfg, ProcessDefinitionConfig c) 
-	{
-		/* process name */
-		if (!cfg.getBpmDefinitionKey().equals(c.getBpmDefinitionKey())) 
-			return false;
-		
-		/* process description */
-		if (!cfg.getDescription().equals(c.getDescription())) 
-			return false;
-		
-		/* process name */
-		if (!cfg.getDescription().equals(c.getDescription()))
-			return false;
-		
-		/* process comment or task item name */
-		if (!isEqual(cfg.getComment(), c.getComment()) || !isEqual(cfg.getTaskItemClass(), c.getTaskItemClass()))
-			return false;
-		
-		/* states count */
-		if (cfg.getStates().size() != c.getStates().size()) 
-			return false;
-		
-		/* process logo */
-        if (!Arrays.equals(cfg.getProcessLogo(), c.getProcessLogo())) 
-        	return false;
-
-        
-		Map<String,ProcessStateConfiguration> oldMap = new HashMap<String,ProcessStateConfiguration>();
-		for (ProcessStateConfiguration s : cfg.getStates()) {
-			oldMap.put(s.getName(), s);
-		}
-		Map<String,ProcessStateConfiguration> newMap = new HashMap<String,ProcessStateConfiguration>();
-		for (ProcessStateConfiguration s : c.getStates()) {
-			if (!oldMap.containsKey(s.getName())) return false;
-			newMap.put(s.getName(), s);
-		}
-		for (Map.Entry<String, ProcessStateConfiguration> entry : oldMap.entrySet()) {
-			String name = entry.getKey();
-			if (!newMap.containsKey(name)) return false;
-			if (!compareStates(entry.getValue(), newMap.get(name))) return false;
-		}
-		return comparePermissions(cfg.getPermissions(), c.getPermissions());
+	private boolean compareDefinitions(ProcessDefinitionConfig config1, ProcessDefinitionConfig config2) {
+		return isEqual(config1.getBpmDefinitionKey(), config2.getBpmDefinitionKey()) &&
+				isEqual(config1.getDescription(), config2.getDescription()) &&
+				isEqual(config1.getComment(), config2.getComment()) &&
+				isEqual(config1.getDefaultStepInfoPattern(), config2.getDefaultStepInfoPattern()) &&
+//				isEqual(config1.getSupportedLocales(), config2.getSupportedLocales()) && TODO
+				Arrays.equals(config1.getProcessLogo(), config2.getProcessLogo()) &&
+				STATE_COMPARER.compare(config1.getStates(), config2.getStates()) &&
+				PERMISSION_COMPARER.compare(config1.getPermissions(), config2.getPermissions());
 	}
 
-    private boolean isEqual(String s1, String s2) {
-        return nvl(s1).equals(nvl(s2));
-    }
-    
-    private boolean isEqual(Boolean s1, Boolean s2) {
-        return nvl(s1, false).equals(nvl(s2, false));
-    }
+	private CollectionComparer<ProcessStateConfiguration> STATE_COMPARER = new CollectionComparer<ProcessStateConfiguration>() {
+		@Override
+		protected String getKey(ProcessStateConfiguration state) {
+			return state.getName();
+		}
+
+		@Override
+		protected boolean compareItems(ProcessStateConfiguration state1, ProcessStateConfiguration state2) {
+			return isEqual(state1.getDescription(), state2.getDescription()) &&
+					isEqual(state1.getCommentary(), state2.getCommentary()) &&
+					isEqual(state1.getCommentary(), state2.getCommentary()) &&
+					isEqual(state1.getEnableExternalAccess(), state2.getEnableExternalAccess()) &&
+//					isEqual(state1.getStepInfoPattern(), state2.getStepInfoPattern()) && TODO
+					WIDGET_COMPARER.compare(state1.getWidgets(), state2.getWidgets()) &&
+					ACTION_COMPARER.compare(state1.getActions(), state2.getActions()) &&
+					PERMISSION_COMPARER.compare(state2.getPermissions(), state1.getPermissions());
+		}
+	};
+
+	private CollectionComparer<ProcessStateWidget> WIDGET_COMPARER = new CollectionComparer<ProcessStateWidget>() {
+		@Override
+		protected String getKey(ProcessStateWidget widget) {
+			return widget.getName()+widget.getPriority();
+		}
+
+		@Override
+		protected boolean compareItems(ProcessStateWidget widget1, ProcessStateWidget widget2) {
+			return isEqual(widget1.getName(), widget2.getName()) &&
+					isEqual(widget1.getClassName(), widget2.getClassName()) &&
+					isEqual(widget1.getOptional(), widget2.getOptional()) &&
+					isEqual(widget1.getPriority(), widget2.getPriority()) &&
+					isEqual(widget1.getGenerateFromCollection(), widget2.getGenerateFromCollection()) &&
+					WIDGET_ATTRIBUTE_COMPARER.compare(widget1.getAttributes(), widget2.getAttributes()) &&
+					WIDGET_COMPARER.compare(widget1.getChildren(), widget2.getChildren()) &&
+					PERMISSION_COMPARER.compare(widget1.getPermissions(), widget2.getPermissions());
+
+		}
+	};
+
+	private CollectionComparer<ProcessStateAction> ACTION_COMPARER = new CollectionComparer<ProcessStateAction>() {
+		@Override
+		protected String getKey(ProcessStateAction action) {
+			return action.getBpmName();
+		}
+
+		@Override
+		protected boolean compareItems(ProcessStateAction action1, ProcessStateAction action2) {
+			return isEqual(action1.getDescription(), action2.getDescription()) &&
+					isEqual(action1.getButtonName(), action2.getButtonName()) &&
+					isEqual(action1.getBpmName(), action2.getBpmName()) &&
+					isEqual(action1.getAutohide(), action2.getAutohide()) &&
+					isEqual(action1.getSkipSaving(), action2.getSkipSaving()) &&
+					isEqual(action1.getLabel(), action2.getLabel()) &&
+					isEqual(action1.getNotification(), action2.getNotification()) &&
+					isEqual(action1.getMarkProcessImportant(), action2.getMarkProcessImportant()) &&
+					isEqual(action1.getPriority(), action2.getPriority()) &&
+					ACTION_ATTRIBUTE_COMPARER.compare(action1.getAttributes(), action2.getAttributes()) &&
+					PERMISSION_COMPARER.compare(action1.getPermissions(), action2.getPermissions());
+
+		}
+	};
+
+	private CollectionComparer<ProcessStateWidgetAttribute> WIDGET_ATTRIBUTE_COMPARER = new CollectionComparer<ProcessStateWidgetAttribute>() {
+		@Override
+		protected String getKey(ProcessStateWidgetAttribute attribute) {
+			return attribute.getName();
+		}
+
+		@Override
+		protected boolean compareItems(ProcessStateWidgetAttribute attribute1, ProcessStateWidgetAttribute attribute2) {
+			return isEqual(attribute1.getValue(), attribute2.getValue());
+		}
+	};
+
+	private CollectionComparer<ProcessStateActionAttribute> ACTION_ATTRIBUTE_COMPARER = new CollectionComparer<ProcessStateActionAttribute>() {
+		@Override
+		protected String getKey(ProcessStateActionAttribute attribute) {
+			return attribute.getName();
+		}
+
+		@Override
+		protected boolean compareItems(ProcessStateActionAttribute attribute1, ProcessStateActionAttribute attribute2) {
+			return isEqual(attribute1.getValue(), attribute2.getValue());
+		}
+	};
+
+	private CollectionComparer<IPermission> PERMISSION_COMPARER = new CollectionComparer<IPermission>() {
+		@Override
+		protected String getKey(IPermission permission) {
+			return permission.getPrivilegeName() + "|||" + permission.getRoleName();
+		}
+
+		@Override
+		protected boolean compareItems(IPermission permission1, IPermission permission2) {
+			return true;
+		}
+	};
+
+	private abstract static class CollectionComparer<T> {
+		public boolean compare(Collection<? extends T> items1, Collection<? extends T> items2) {
+			if (Lang.equals(items1, items2)) {
+				return true;
+			}
+			if (items1 == null || items2 == null || items1.size() != items2.size()) {
+				return false;
+			}
+
+			Map<String, T> oldMap = new HashMap<String,T>();
+			Map<String, T> newMap = new HashMap<String, T>();
+
+			for (T item : items1) {
+				oldMap.put(getKey(item), item);
+			}
+
+			for (T item : items2) {
+				String key = getKey(item);
+
+				if (!oldMap.containsKey(key)){
+					return false;
+				}
+				newMap.put(key, item);
+			}
+			for (Map.Entry<String, T> entry : oldMap.entrySet()) {
+				String key = entry.getKey();
+				if (!newMap.containsKey(key)) {
+					return false;
+				}
+				if (!compareItems(entry.getValue(), newMap.get(key))) {
+					return false;
+				}
+			}
+			return true;
+		}
+
+		protected abstract String getKey(T item);
+		protected abstract boolean compareItems(T item1, T item2);
+	}
+
+	private boolean isEqual(String s1, String s2) {
+		return nvl(s1).equals(nvl(s2));
+	}
+
+	private boolean isEqual(Boolean s1, Boolean s2) {
+		return nvl(s1, false).equals(nvl(s2, false));
+	}
 
 	private boolean isEqual(Integer s1, Integer s2) {
 		return nvl(s1, 0).equals(nvl(s2, 0));
 	}
-
-	private boolean compareStates(ProcessStateConfiguration newState, ProcessStateConfiguration oldState) {
-		if (newState.getActions().size() != oldState.getActions().size()) return false;
-        if (!isEqual(newState.getDescription(),oldState.getDescription())) return false;
-		if (!isEqual(newState.getCommentary(),oldState.getCommentary())) return false;
-		if (!isEqual(newState.getCommentary(),oldState.getCommentary())) return false;
-		if (!isEqual(newState.getEnableExternalAccess(),oldState.getEnableExternalAccess())) return false;
-		
-		Map<String,ProcessStateAction> newActionMap = new HashMap<String,ProcessStateAction>();
-		for (ProcessStateAction a : newState.getActions()) {
-			newActionMap.put(a.getBpmName(), a);
-		}
-		for (ProcessStateAction a : oldState.getActions()) {
-			String name = a.getBpmName();
-			if (!newActionMap.containsKey(name)) return false;
-			if (!compareActions(newActionMap.get(name), a)) return false;
-		}
-
-		Set<ProcessStateWidget> newWidgets = newState.getWidgets();
-		Set<ProcessStateWidget> oldWidgets = oldState.getWidgets();
-
-        if (!comparePermissions(oldState.getPermissions(), newState.getPermissions())) return false;
-
-		return compareWidgets(newWidgets, oldWidgets);
-	}
-
-	private boolean compareWidgets(Set<ProcessStateWidget> newWidgets, Set<ProcessStateWidget> oldWidgets) {
-		if (newWidgets.size() != oldWidgets.size()) return false;
-		Map<String,ProcessStateWidget> widgetMap = new HashMap<String,ProcessStateWidget>();
-		for (ProcessStateWidget w : newWidgets) {
-			widgetMap.put(w.getName()+w.getPriority(), w);
-		}
-		for (ProcessStateWidget w : oldWidgets) {
-			if (!widgetMap.containsKey(w.getName()+w.getPriority())) return false;
-			if (!compareWidgets(widgetMap.get(w.getName()+w.getPriority()), w)) return false;
-		}
-		return true;
-	}
-
-	private boolean compareWidgets(ProcessStateWidget newWidget, ProcessStateWidget oldWidget) {
-		if (newWidget.getAttributes().size() != oldWidget.getAttributes().size()) return false;
-		if (newWidget.getChildren().size() != oldWidget.getChildren().size()) return false;
-
-		Map<String,String> attrVals = new HashMap<String,String>();
-		for (ProcessStateWidgetAttribute a : newWidget.getAttributes()) {
-			attrVals.put(a.getName(), a.getValue());
-		}
-		for (ProcessStateWidgetAttribute a : oldWidget.getAttributes()) {
-			if (!attrVals.containsKey(a.getName()) || !isEqual(attrVals.get(a.getName()), a.getValue())) return false;
-		}
-
-		return comparePermissions(newWidget.getPermissions(), oldWidget.getPermissions()) &&
-			   compareWidgets(newWidget.getChildren(), oldWidget.getChildren());
-
-	}
-
-	private boolean compareActions(ProcessStateAction newAction, ProcessStateAction oldAction) {
-		return isEqual(newAction.getDescription(), oldAction.getDescription()) &&
-				isEqual(newAction.getButtonName(), oldAction.getButtonName()) &&
-				isEqual(newAction.getBpmName(), oldAction.getBpmName()) &&
-                isEqual(newAction.getAutohide(), oldAction.getAutohide()) &&
-                isEqual(newAction.getSkipSaving(), oldAction.getSkipSaving()) &&
-				isEqual(newAction.getLabel(), oldAction.getLabel()) &&
-				isEqual(newAction.getNotification(), oldAction.getNotification()) &&
-                isEqual(newAction.getMarkProcessImportant(), oldAction.getMarkProcessImportant()) &&
-                isEqual(newAction.getPriority(), oldAction.getPriority()) &&
-                compareAttributes(newAction.getAttributes(), oldAction.getAttributes()) &&
-				comparePermissions(newAction.getPermissions(), oldAction.getPermissions());
-
-	}
-
-    private boolean compareAttributes(Set<ProcessStateActionAttribute> attributes, Set<ProcessStateActionAttribute> attributes1) {
-        Map<String,String> attrVals = new HashMap<String,String>();
-        for (ProcessStateActionAttribute a : attributes) {
-            attrVals.put(a.getName(), a.getValue());
-        }
-        for (ProcessStateActionAttribute a : attributes1) {
-            if (!attrVals.containsKey(a.getName()) || !isEqual(attrVals.get(a.getName()), a.getValue())) return false;
-        }
-        return true;
-    }
-
-    private boolean comparePermissions(Set<? extends IPermission> newPermissions, Set<? extends IPermission> oldPermissions) 
-    {
-		if (newPermissions.size() != oldPermissions.size()) 
-			return false;
-		Set<String> permissionSet = new HashSet<String>();
-		
-		for (IPermission p : newPermissions) 
-			permissionSet.add(p.getPrivilegeName() + "|||" + p.getRoleName());
-		
-		for (IPermission p : oldPermissions) 
-			if (!permissionSet.contains(p.getPrivilegeName() + "|||" + p.getRoleName())) 
-				return false;
-
-		return true;
-	}
-
 
 	private void cleanupWidgetsTree(Set<ProcessStateWidget> widgets, ProcessStateWidget parent,
 	                                Set<ProcessStateWidget> processed) {
@@ -351,11 +358,15 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 			if (processed.contains(stateWidget)) {
 				throw new RuntimeException("Error for config, recursive process state widget tree!");
 			}
-			if (stateWidget.getPermissions() != null) for (ProcessStateWidgetPermission p : stateWidget.getPermissions()) {
-				p.setWidget(stateWidget);
+			if (stateWidget.getPermissions() != null) {
+				for (ProcessStateWidgetPermission p : stateWidget.getPermissions()) {
+					p.setWidget(stateWidget);
+				}
 			}
-			if (stateWidget.getAttributes() != null) for (ProcessStateWidgetAttribute a : stateWidget.getAttributes()) {
-				a.setWidget(stateWidget);
+			if (stateWidget.getAttributes() != null) {
+				for (ProcessStateWidgetAttribute a : stateWidget.getAttributes()) {
+					a.setWidget(stateWidget);
+				}
 			}
 			stateWidget.setParent(parent);
 			processed.add(stateWidget);
@@ -410,8 +421,8 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 	@Override
     public Collection<ProcessDefinitionConfig> getConfigurationVersions(ProcessDefinitionConfig cfg) {
         return session.createCriteria(ProcessDefinitionConfig.class)
-        						.add(Restrictions.eq(_BPM_DEFINITION_KEY, cfg.getBpmDefinitionKey()))
-                        .list();
+				.add(Restrictions.eq(_BPM_DEFINITION_KEY, cfg.getBpmDefinitionKey()))
+                .list();
     }
 
     @Override

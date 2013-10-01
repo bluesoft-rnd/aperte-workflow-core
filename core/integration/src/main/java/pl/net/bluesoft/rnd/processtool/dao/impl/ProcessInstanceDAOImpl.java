@@ -218,6 +218,24 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
 	}
 
 	@Override
+	public void saveStepInfos(Collection<StepInfo> stepInfos) {
+		for (StepInfo stepInfo : stepInfos) {
+			getSession().saveOrUpdate(stepInfo);
+		}
+	}
+
+	@Override
+	public void removeStopInfos(Collection<String> taskIds) {
+		if (taskIds.isEmpty()) {
+			return;
+		}
+
+		getSession().createQuery("delete from StepInfo si where si.taskId in (:taskIds)")
+				.setParameterList("taskIds", taskIds)
+				.executeUpdate();
+	}
+
+	@Override
 	public ResultsPageWrapper<ProcessInstance> getRecentProcesses(String userLogin, Date minDate, Integer offset, Integer limit) {
 		Session session = getSession();
 		List<ProcessInstance> instances = null;

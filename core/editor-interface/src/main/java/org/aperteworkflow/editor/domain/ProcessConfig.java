@@ -1,20 +1,18 @@
 package org.aperteworkflow.editor.domain;
 
+import pl.net.bluesoft.rnd.pt.utils.lang.Lang2;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-
-import pl.net.bluesoft.rnd.pt.utils.lang.Lang2;
 
 /**
  * Main configuration for the process editor application
  */
 public class ProcessConfig implements Serializable {
-
     private List<Permission> processPermissions;
     private List<Queue> queues;
-    
-    private String taskItemClass;
+
     private String description;
     private String comment;
     private String dictionary;
@@ -83,14 +81,6 @@ public class ProcessConfig implements Serializable {
     // TODO: Remove after tests
 	public void setDictionary(String dictionary) {
 		this.dictionary = dictionary;
-	}
-
-	public String getTaskItemClass() {
-		return taskItemClass;
-	} 
-
-	public void setTaskItemClass(String taskItemClass) {
-		this.taskItemClass = taskItemClass;
 	}
 
 	public String getVersion() {

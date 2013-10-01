@@ -48,6 +48,8 @@ public class BpmTaskDerivedBean implements BpmTask {
 	private ProcessStateConfiguration currentProcessConfiguration;
 	private boolean deadlineDatePresent;
 	private Date deadlineDate;
+	private boolean stepInfoPresent;
+	private String stepInfo;
 
 	public BpmTaskDerivedBean(BpmTask task) {
 		this.task = task;
@@ -259,6 +261,19 @@ public class BpmTaskDerivedBean implements BpmTask {
 	public void setDeadlineDate(Date deadlineDate) {
 		this.deadlineDate = deadlineDate;
 		this.deadlineDatePresent = true;
+	}
+
+	@Override
+	public String getStepInfo() {
+		if (!stepInfoPresent) {
+			setStepInfo(task.getStepInfo());
+		}
+		return stepInfo;
+	}
+
+	public void setStepInfo(String stepInfo) {
+		this.stepInfo = stepInfo;
+		this.stepInfoPresent = true;
 	}
 
 	public static List<BpmTaskDerivedBean> asBeans(List<? extends BpmTask> list) {

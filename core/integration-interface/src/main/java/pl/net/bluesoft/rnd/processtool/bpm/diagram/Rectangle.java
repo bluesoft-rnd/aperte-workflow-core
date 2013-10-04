@@ -31,6 +31,26 @@ public final class Rectangle {
 		return height;
 	}
 
+	public Point getCentre() {
+		return new Point(x + width / 2, y + height / 2);
+	}
+
+	public Point getLeftTop() {
+		return new Point(x, y);
+	}
+
+	public Point getRightTop() {
+		return new Point(x + width, y);
+	}
+
+	public Point getLeftBottom() {
+		return new Point(x, y + height);
+	}
+
+	public Point getRightBottom() {
+		return new Point(x + width, y + height);
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;

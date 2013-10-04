@@ -21,6 +21,10 @@ public final class Point {
 		return y;
 	}
 
+	public double squareOfDistance(Point p) {
+		return (x - p.x) * (x - p.x) + (y - p.y) * (y - p.y);
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;

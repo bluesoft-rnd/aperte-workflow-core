@@ -10,9 +10,7 @@ import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * User: POlszewski
@@ -44,6 +42,7 @@ public class ProcessDiagramParser extends DefaultHandler {
 		for (Transition transition : transitionsByUid.values()) {
 			transition.setSource(nodesByUid.get(sourceRefs.get(transition)));
 			transition.setTarget(nodesByUid.get(targetRefs.get(transition)));
+			fixWaypoints(transition);
 			result.addTransition(transition);
 		}
 		return result;
@@ -211,5 +210,66 @@ public class ProcessDiagramParser extends DefaultHandler {
 
 		factory.setNamespaceAware(true);
 		return factory;
+	}
+
+	public static void fixWaypoints(Transition transition) {
+		Rectangle srcBoundary = transition.getSource().getBoundary();
+		Rectangle targetBoundary = transition.getTarget().getBoundary();
+		Point first, last;
+
+		if (transition.getPointCount() > 2) {
+			first = getNearsetIntersectionPoint(srcBoundary, transition.getPoint(1));
+			last = getNearsetIntersectionPoint(targetBoundary, transition.getPoint(transition.getPointCount() - 2));
+		}
+		else {
+			first = getNearsetIntersectionPoint(srcBoundary, targetBoundary.getCentre());
+			last = getNearsetIntersectionPoint(targetBoundary, srcBoundary.getCentre());
+		}
+		transition.setPoint(0, first);
+		transition.setPoint(transition.getPoints().size() - 1, last);
+	}
+
+	public static Point getNearsetIntersectionPoint(Rectangle r, Point p) {
+		Point p2 = r.getCentre();
+		List<Point> foundPoints = new ArrayList<Point>();
+
+		intersectLines(foundPoints, r.getLeftTop(), r.getRightTop(), p, p2);
+		intersectLines(foundPoints, r.getLeftBottom(), r.getRightBottom(), p, p2);
+		intersectLines(foundPoints, r.getLeftTop(), r.getLeftBottom(), p, p2);
+		intersectLines(foundPoints, r.getRightTop(), r.getRightBottom(), p, p2);
+
+		if (foundPoints.isEmpty()) {
+			return null;
+		}
+
+		Point minDist = foundPoints.get(0);
+
+		for (int i = 1; i < foundPoints.size(); ++i) {
+			if (foundPoints.get(i).squareOfDistance(p) < minDist.squareOfDistance(p)) {
+				minDist = foundPoints.get(i);
+			}
+		}
+		return minDist;
+	}
+
+	private static void intersectLines(List<Point> result, Point p1, Point p2, Point p3, Point p4) {
+		int x1 = (int)p1.getX(), y1 = (int)p1.getY();
+		int x2 = (int)p2.getX(), y2 = (int)p2.getY();
+		int x3 = (int)p3.getX(), y3 = (int)p3.getY();
+		int x4 = (int)p4.getX(), y4 = (int)p4.getY();
+
+		int W = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+
+		if (W == 0) {
+			return;
+		}
+
+		double x = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / (double)W;
+		double y = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / (double)W;
+
+		if (Math.min(x1, x2) <= x && x <= Math.max(x1, x2) &&
+				Math.min(y1, y2) <= y && y <= Math.max(y1, y2)) {
+			result.add(new Point(x, y));
+		}
 	}
 }

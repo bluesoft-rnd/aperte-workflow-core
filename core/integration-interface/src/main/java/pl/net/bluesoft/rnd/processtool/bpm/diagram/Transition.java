@@ -57,6 +57,18 @@ public class Transition {
 		return addPoint(new Point(x, y));
 	}
 
+	public int getPointCount() {
+		return points.size();
+	}
+
+	public Point getPoint(int i) {
+		return points.get(i);
+	}
+
+	public void setPoint(int i, Point p) {
+		points.set(i, p);
+	}
+
 	public Status getStatus() {
 		return status;
 	}

@@ -4,6 +4,8 @@ import org.aperteworkflow.bpm.graph.GraphElement;
 import org.aperteworkflow.util.SimpleXmlTransformer;
 import org.drools.event.process.*;
 import org.drools.runtime.process.NodeInstance;
+import org.jbpm.process.audit.JPAProcessInstanceDbLog;
+import org.jbpm.process.audit.NodeInstanceLog;
 import org.jbpm.task.*;
 import org.jbpm.task.event.TaskEventListener;
 import org.jbpm.task.event.entity.TaskUserEvent;
@@ -17,6 +19,9 @@ import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.bpm.StartProcessResult;
+import pl.net.bluesoft.rnd.processtool.bpm.diagram.Node;
+import pl.net.bluesoft.rnd.processtool.bpm.diagram.ProcessDiagram;
+import pl.net.bluesoft.rnd.processtool.bpm.diagram.Transition;
 import pl.net.bluesoft.rnd.processtool.bpm.exception.ProcessToolSecurityException;
 import pl.net.bluesoft.rnd.processtool.bpm.impl.AbstractProcessToolSession;
 import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
@@ -41,6 +46,7 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 import pl.net.bluesoft.util.lang.Mapcar;
 import pl.net.bluesoft.util.lang.Strings;
 import pl.net.bluesoft.util.lang.Transformer;
+import pl.net.bluesoft.util.lang.cquery.func.F;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -55,6 +61,7 @@ import static pl.net.bluesoft.rnd.util.PlaceholderUtil.getUsedPlaceholderNames;
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 import static pl.net.bluesoft.util.lang.Lang.keyFilter;
 import static pl.net.bluesoft.util.lang.Strings.hasText;
+import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
 
 /**
  * jBPM session implementation
@@ -637,7 +644,11 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	}
 
 	private byte[] fetchProcessResource(ProcessInstance pi, String resourceName) {
-		String deploymentId = pi.getDefinition().getDeploymentId();
+		return fetchProcessResource(pi.getDefinition(), resourceName);
+	}
+
+	private byte[] fetchProcessResource(ProcessDefinitionConfig definition, String resourceName) {
+		String deploymentId = definition.getDeploymentId();
 		return jbpmService.getRepository().getResource(deploymentId, resourceName);
 	}
 
@@ -735,6 +746,69 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 			jbpmService.getRepository().addResource(deploymentId, ProcessResourceNames.MAP_IMAGE, processMapImageStream);
 		}
 		return deploymentId;
+	}
+
+	@Override
+	public ProcessDiagram getProcessDiagram(BpmTask task, I18NSource i18NSource) {
+		byte[] bytes = fetchProcessResource(task.getProcessDefinition(), ProcessResourceNames.DEFINITION);
+		ProcessDiagramParser parser = new ProcessDiagramParser();
+		ProcessDiagram diagram = parser.parse(new ByteArrayInputStream(bytes));
+
+		translateElements(diagram, task, i18NSource);
+		markVisitedElements(diagram, task);
+
+		return diagram;
+	}
+
+	private void translateElements(ProcessDiagram diagram, BpmTask task, I18NSource i18NSource) {
+		if (i18NSource == null) {
+			return;
+		}
+
+		for (ProcessStateConfiguration state : task.getProcessDefinition().getStates()) {
+			Node diagramNode = diagram.getNode(state.getName());
+
+			if (diagramNode != null) {
+				diagramNode.setName(i18NSource.getMessage(state.getDescription()));
+
+				for (ProcessStateAction action : state.getActions()) {
+					Transition transition = diagramNode.getOutcomingTransition(action.getBpmName());
+					if (transition != null) {
+						transition.setName(i18NSource.getMessage(action.getDescription()));
+					}
+				}
+			}
+		}
+	}
+
+	private void markVisitedElements(ProcessDiagram diagram, BpmTask task) {
+		for (NodeInstanceLog nodeInstance : getNodeInstanceLog(task)) {
+			Node diagramNode = diagram.getNode(nodeInstance.getNodeName());
+
+			if (nodeInstance.getType() == NodeInstanceLog.TYPE_ENTER) {
+				diagramNode.setStatus(Node.Status.PENDING);
+			}
+			else {
+				diagramNode.setStatus(Node.Status.VISITED);
+			}
+			for (Transition transition : diagramNode.getIncomingTransitions()) {
+				if (transition.getSource().getStatus() != Node.Status.NOT_VISITED) {
+					transition.setStatus(Transition.Status.VISITED);
+				}
+			}
+		}
+	}
+
+	private List<NodeInstanceLog> getNodeInstanceLog(BpmTask task) {
+		long processId = toJbpmPIId(task.getProcessInstance().getInternalId());
+		List<NodeInstanceLog> list = JPAProcessInstanceDbLog.findNodeInstances(processId);
+
+		return from(list).orderBy(new F<NodeInstanceLog, Date>() {
+			@Override
+			public Date invoke(NodeInstanceLog x) {
+				return x.getDate();
+			}
+		}).toList();
 	}
 
 	private JbpmService getJbpmService() {

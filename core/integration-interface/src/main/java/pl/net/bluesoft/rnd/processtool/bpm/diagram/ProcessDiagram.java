@@ -2,9 +2,10 @@ package pl.net.bluesoft.rnd.processtool.bpm.diagram;
 
 import pl.net.bluesoft.rnd.processtool.bpm.diagram.nodes.*;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * User: POlszewski
@@ -12,25 +13,33 @@ import java.util.List;
  * Time: 16:02
  */
 public class ProcessDiagram {
-	private final List<Node> nodes = new ArrayList<Node>();
-	private final List<Transition> transitions = new ArrayList<Transition>();
+	private final Map<String, Node> nodes = new LinkedHashMap<String, Node>();
+	private final Map<String, Transition> transitions = new LinkedHashMap<String, Transition>();
 
-	public List<Node> getNodes() {
-		return Collections.unmodifiableList(nodes);
+	public Collection<Node> getNodes() {
+		return Collections.unmodifiableCollection(nodes.values());
 	}
 
-	public List<Transition> getTransitions() {
-		return Collections.unmodifiableList(transitions);
+	public Collection<Transition> getTransitions() {
+		return Collections.unmodifiableCollection(transitions.values());
 	}
 
 	public ProcessDiagram addNode(Node node) {
-		nodes.add(node);
+		nodes.put(node.getId(), node);
 		return this;
 	}
 
 	public ProcessDiagram addTransition(Transition transition) {
-		transitions.add(transition);
+		transitions.put(transition.getId(), transition);
 		return this;
+	}
+
+	public Node getNode(String nodeId) {
+		return nodes.get(nodeId);
+	}
+
+	public Transition getTransition(String transitionId) {
+		return transitions.get(transitionId);
 	}
 
 	public static ProcessDiagram getSampleDiagram() {

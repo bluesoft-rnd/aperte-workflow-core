@@ -4,6 +4,8 @@ import org.aperteworkflow.bpm.graph.GraphElement;
 import org.aperteworkflow.util.SimpleXmlTransformer;
 import org.drools.event.process.*;
 import org.drools.runtime.process.NodeInstance;
+import org.jbpm.process.audit.JPAProcessInstanceDbLog;
+import org.jbpm.process.audit.NodeInstanceLog;
 import org.jbpm.task.*;
 import org.jbpm.task.event.TaskEventListener;
 import org.jbpm.task.event.entity.TaskUserEvent;
@@ -17,6 +19,9 @@ import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.bpm.StartProcessResult;
+import pl.net.bluesoft.rnd.processtool.bpm.diagram.Node;
+import pl.net.bluesoft.rnd.processtool.bpm.diagram.ProcessDiagram;
+import pl.net.bluesoft.rnd.processtool.bpm.diagram.Transition;
 import pl.net.bluesoft.rnd.processtool.bpm.exception.ProcessToolSecurityException;
 import pl.net.bluesoft.rnd.processtool.bpm.impl.AbstractProcessToolSession;
 import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
@@ -35,9 +40,13 @@ import pl.net.bluesoft.rnd.processtool.token.IAccessTokenFactory;
 import pl.net.bluesoft.rnd.processtool.token.ITokenService;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.service.JbpmService;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.service.query.BpmTaskQuery;
+import pl.net.bluesoft.rnd.util.PlaceholderUtil;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 import pl.net.bluesoft.util.lang.Mapcar;
 import pl.net.bluesoft.util.lang.Strings;
 import pl.net.bluesoft.util.lang.Transformer;
+import pl.net.bluesoft.util.lang.cquery.func.F;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -45,9 +54,14 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.logging.Level;
 
+import static pl.net.bluesoft.rnd.processtool.model.nonpersistent.BpmTaskBean.getTaskIds;
 import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+import static pl.net.bluesoft.rnd.util.PlaceholderUtil.expand;
+import static pl.net.bluesoft.rnd.util.PlaceholderUtil.getUsedPlaceholderNames;
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 import static pl.net.bluesoft.util.lang.Lang.keyFilter;
+import static pl.net.bluesoft.util.lang.Strings.hasText;
+import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
 
 /**
  * jBPM session implementation
@@ -97,6 +111,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 		try {
 			getJbpmService().startProcess(config.getBpmProcessId(), getInitialParams());
+			generateStepInfo(startProcessParams.createdTasks);
 			return new JbpmStartProcessResult(startProcessParams.newProcessInstance, startProcessParams.createdTasksForCurrentUser);
 		}
 		finally {
@@ -171,6 +186,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		completeTaskParams = new CompleteTaskParams(task);
 		try {
 			getJbpmService().endTask(jbpmTask.getId(), userLogin, null, jbpmTask.getTaskData().getStatus() != Status.InProgress);
+			generateStepInfo(completeTaskParams.createdTasks);
 			return completeTaskParams.createdTasksForCurrentUser;
 		} finally {
 			completeTaskParams = null;
@@ -178,7 +194,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	}
 
 	private void setStatus(ProcessInstance processInstance, ProcessStateAction action) {
-		if (Strings.hasText(action.getAssignProcessStatus())) {
+		if (hasText(action.getAssignProcessStatus())) {
 			String processStatus = action.getAssignProcessStatus();
 			ProcessStatus ps = processStatus.length() == 1 ? ProcessStatus.fromChar(processStatus.charAt(0)) : ProcessStatus.fromString(processStatus);
 			processInstance.setStatus(ps);
@@ -628,7 +644,11 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	}
 
 	private byte[] fetchProcessResource(ProcessInstance pi, String resourceName) {
-		String deploymentId = pi.getDefinition().getDeploymentId();
+		return fetchProcessResource(pi.getDefinition(), resourceName);
+	}
+
+	private byte[] fetchProcessResource(ProcessDefinitionConfig definition, String resourceName) {
+		String deploymentId = definition.getDeploymentId();
 		return jbpmService.getRepository().getResource(deploymentId, resourceName);
 	}
 
@@ -728,6 +748,69 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		return deploymentId;
 	}
 
+	@Override
+	public ProcessDiagram getProcessDiagram(BpmTask task, I18NSource i18NSource) {
+		byte[] bytes = fetchProcessResource(task.getProcessDefinition(), ProcessResourceNames.DEFINITION);
+		ProcessDiagramParser parser = new ProcessDiagramParser();
+		ProcessDiagram diagram = parser.parse(new ByteArrayInputStream(bytes));
+
+		translateElements(diagram, task, i18NSource);
+		markVisitedElements(diagram, task);
+
+		return diagram;
+	}
+
+	private void translateElements(ProcessDiagram diagram, BpmTask task, I18NSource i18NSource) {
+		if (i18NSource == null) {
+			return;
+		}
+
+		for (ProcessStateConfiguration state : task.getProcessDefinition().getStates()) {
+			Node diagramNode = diagram.getNode(state.getName());
+
+			if (diagramNode != null) {
+				diagramNode.setName(i18NSource.getMessage(state.getDescription()));
+
+				for (ProcessStateAction action : state.getActions()) {
+					Transition transition = diagramNode.getOutcomingTransition(action.getBpmName());
+					if (transition != null) {
+						transition.setName(i18NSource.getMessage(action.getDescription()));
+					}
+				}
+			}
+		}
+	}
+
+	private void markVisitedElements(ProcessDiagram diagram, BpmTask task) {
+		for (NodeInstanceLog nodeInstance : getNodeInstanceLog(task)) {
+			Node diagramNode = diagram.getNode(nodeInstance.getNodeName());
+
+			if (nodeInstance.getType() == NodeInstanceLog.TYPE_ENTER) {
+				diagramNode.setStatus(Node.Status.PENDING);
+			}
+			else {
+				diagramNode.setStatus(Node.Status.VISITED);
+			}
+			for (Transition transition : diagramNode.getIncomingTransitions()) {
+				if (transition.getSource().getStatus() != Node.Status.NOT_VISITED) {
+					transition.setStatus(Transition.Status.VISITED);
+				}
+			}
+		}
+	}
+
+	private List<NodeInstanceLog> getNodeInstanceLog(BpmTask task) {
+		long processId = toJbpmPIId(task.getProcessInstance().getInternalId());
+		List<NodeInstanceLog> list = JPAProcessInstanceDbLog.findNodeInstances(processId);
+
+		return from(list).orderBy(new F<NodeInstanceLog, Date>() {
+			@Override
+			public Date invoke(NodeInstanceLog x) {
+				return x.getDate();
+			}
+		}).toList();
+	}
+
 	private JbpmService getJbpmService() {
 		JbpmService.setProcessEventListener(this);
 		JbpmService.setTaskEventListener(this);
@@ -776,7 +859,6 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
         if (nodeInstance instanceof WorkItemNodeInstance || nodeInstance instanceof ActionNodeInstance) {
 			copyAttributesIntoJbpm(event.getProcessInstance(), nodeInstance);
 		}
-
 	}
 
 	@Override
@@ -795,9 +877,10 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 	@Override
 	public void taskCreated(TaskUserEvent event) {
-		refreshDataForNativeQuery();
+		BpmTask task = getBpmTask(getJbpmService().getTask(event.getTaskId()));
 
-//		broadcastEvent(REFRESH_VIEW);
+		captureTask(task, false);
+		refreshDataForNativeQuery();
 	}
 
 	// Handles tasks assigned during creation or picked from a queue
@@ -806,18 +889,125 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	public void taskClaimed(TaskUserEvent event) {
 		BpmTask task = getBpmTask(getJbpmService().getTask(event.getTaskId()));
 
-		if (completeTaskParams != null) {
-			completeTaskParams.addCreatedTask(task, userLogin.equals(event.getUserId()));
-		}
-		else if (startProcessParams != null) {
-			startProcessParams.addCreatedTask(task, userLogin.equals(event.getUserId()));
-		}
-
+		captureTask(task, userLogin.equals(event.getUserId()));
 		assignTokens(task);
 		refreshDataForNativeQuery();
 
 		broadcastEvent(new BpmEvent(BpmEvent.Type.ASSIGN_TASK, task, userLogin));
-//		broadcastEvent(REFRESH_VIEW);
+	}
+
+	private void captureTask(BpmTask task, boolean assignedToCurrentUser) {
+		if (completeTaskParams != null) {
+			completeTaskParams.addCreatedTask(task, assignedToCurrentUser);
+		}
+		else if (startProcessParams != null) {
+			startProcessParams.addCreatedTask(task, assignedToCurrentUser);
+		}
+	}
+
+	private void generateStepInfo(List<BpmTask> tasks) {
+		Map<BpmTask, List<StepInfo>> patternsByTasks = generateUnexpandedStepInfos(tasks);
+
+		if (patternsByTasks.isEmpty()) {
+			return;
+		}
+
+		List<StepInfo> stepInfos = expandStepInfos(patternsByTasks);
+
+		getContext().getProcessInstanceDAO().removeStopInfos(getTaskIds(patternsByTasks.keySet()));
+		getContext().getProcessInstanceDAO().saveStepInfos(stepInfos);
+	}
+
+	private Map<BpmTask, List<StepInfo>> generateUnexpandedStepInfos(List<BpmTask> tasks) {
+		Map<BpmTask, List<StepInfo>> result = new HashMap<BpmTask, List<StepInfo>>();
+
+		for (BpmTask task : tasks) {
+			String pattern = getStepInfoPattern(task);
+
+			if (pattern != null) {
+				String supportedLocalesStr = task.getProcessDefinition().getSupportedLocales();
+				List<StepInfo> stepInfos = new ArrayList<StepInfo>();
+
+				if (hasText(supportedLocalesStr)) {
+					String[] supportedLocales = supportedLocalesStr.split(",");
+
+					for (String supportedLocale : supportedLocales) {
+						supportedLocale = supportedLocale.trim();
+						I18NSource i18NSource = I18NSourceFactory.createI18NSource(new Locale(supportedLocale));
+
+						stepInfos.add(new StepInfo(task.getInternalTaskId(), supportedLocale, i18NSource.getMessage(pattern)));
+					}
+				}
+				else {
+					stepInfos.add(new StepInfo(task.getInternalTaskId(), null, pattern));
+				}
+				result.put(task, stepInfos);
+			}
+		}
+		return result;
+	}
+
+	private String getStepInfoPattern(BpmTask task) {
+		String stepInfoPattern = task.getCurrentProcessStateConfiguration().getStepInfoPattern();
+
+		if (!hasText(stepInfoPattern)) {
+			stepInfoPattern = task.getProcessDefinition().getDefaultStepInfoPattern();
+		}
+		return hasText(stepInfoPattern) ? stepInfoPattern : null;
+	}
+
+	private List<StepInfo> expandStepInfos(Map<BpmTask, List<StepInfo>> stepInfosByTask) {
+		Map<Long, Set<String>> attributeNamesByPI = getUsedAttributeNamesByProcessInstance(stepInfosByTask);
+		Map<Long, Map<String, String>> attributesByPI = getAttributesByProcessInstance(attributeNamesByPI);
+		List<StepInfo> result = new ArrayList<StepInfo>();
+
+		for (Map.Entry<BpmTask, List<StepInfo>> entry : stepInfosByTask.entrySet()) {
+			final Map<String, String> attributes = attributesByPI.get(entry.getKey().getRootProcessInstance().getId());
+			PlaceholderUtil.ReplacementCallback callback = new PlaceholderUtil.ReplacementCallback() {
+				@Override
+				public String getReplacement(String placeholderName) {
+					return attributes.get(placeholderName);
+				}
+			};
+
+			for (StepInfo stepInfo : entry.getValue()) {
+				stepInfo.setMessage(expand(stepInfo.getMessage(), callback));
+				result.add(stepInfo);
+			}
+		}
+		return result;
+	}
+
+	private Map<Long, Set<String>> getUsedAttributeNamesByProcessInstance(Map<BpmTask, List<StepInfo>> stepInfosByTask) {
+		Map<Long, Set<String>> result = new HashMap<Long, Set<String>>();
+
+		for (Map.Entry<BpmTask, List<StepInfo>> entry : stepInfosByTask.entrySet()) {
+			Long processId = entry.getKey().getRootProcessInstance().getId();
+			Set<String> attributes = result.get(processId);
+
+			if (attributes == null) {
+				attributes = new HashSet<String>();
+				result.put(processId, attributes);
+			}
+
+			for (StepInfo stepInfo : entry.getValue()) {
+				attributes.addAll(getUsedPlaceholderNames(stepInfo.getMessage()));
+			}
+		}
+		return result;
+	}
+
+	private Map<Long, Map<String, String>> getAttributesByProcessInstance(Map<Long, Set<String>> attributeNamesByPI) {
+		Map<Long, Map<String, String>> result = new HashMap<Long, Map<String, String>>();
+
+		for (Map.Entry<Long, Set<String>> entry : attributeNamesByPI.entrySet()) {
+			Map<String, String> attributes = getContext()
+					.getProcessInstanceSimpleAttributeDAO()
+					.getSimpleAttributeValues(entry.getKey(), entry.getValue());
+
+			result.put(entry.getKey(), attributes);
+		}
+		return result;
 	}
 
 	private void refreshDataForNativeQuery() {
@@ -973,11 +1163,13 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 	private static class TaskCapturer {
 		public final List<BpmTask> createdTasksForCurrentUser = new ArrayList<BpmTask>();
+		public final List<BpmTask> createdTasks = new ArrayList<BpmTask>();
 
 		public void addCreatedTask(BpmTask task, boolean assignedToCurrentUser) {
 			if (assignedToCurrentUser) {
 				createdTasksForCurrentUser.add(task);
 			}
+			createdTasks.add(task);
 		}
 	}
 
@@ -1055,6 +1247,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	private static class JbpmTask extends AbstractBpmTask implements Serializable {
 		private ProcessInstance processInstance;
 		private final Task task;
+		private String stepInfo;
 
 		private JbpmTask(ProcessInstance processInstance, Task task) {
 			this.processInstance = processInstance;
@@ -1135,6 +1328,15 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		@Override
 		public ProcessDefinitionConfig getProcessDefinition() {
 			return getContext().getProcessDefinitionDAO().getCachedDefinitionById(getProcessInstance());
+		}
+
+		@Override
+		public String getStepInfo() {
+			return stepInfo;
+		}
+
+		public void setStepInfo(String stepInfo) {
+			this.stepInfo = stepInfo;
 		}
 	}
 

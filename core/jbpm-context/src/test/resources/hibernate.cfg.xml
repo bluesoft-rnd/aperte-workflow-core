@@ -34,6 +34,7 @@
         <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstanceSimpleAttribute"/>
+		<mapping class="pl.net.bluesoft.rnd.processtool.model.StepInfo"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.UserAttribute"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.UserSubstitution"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.UserAttributePredicates"/>

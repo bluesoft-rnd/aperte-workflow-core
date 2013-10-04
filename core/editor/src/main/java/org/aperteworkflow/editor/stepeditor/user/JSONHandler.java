@@ -36,6 +36,7 @@ public class JSONHandler {
 	public static final String CANDIDATE_GROUPS = "candidate_groups";
     public static final String DESCRIPTION = "description";
     public static final String COMMENTARY = "commentary";
+	public static final String STEP_INFO = "stepInfo";
 
 	public static class ParsingFailedException extends Exception {
 		public ParsingFailedException(Exception e) {
@@ -76,8 +77,11 @@ public class JSONHandler {
                 resultMap.put(DESCRIPTION, map.get(DESCRIPTION).toString());
             }
             if (map.get(COMMENTARY) != null) {
-                resultMap.put(COMMENTARY, decodeAndCreateString( map.get(COMMENTARY).toString()));
+                resultMap.put(COMMENTARY, decodeAndCreateString(map.get(COMMENTARY).toString()));
             }
+			if (map.get(STEP_INFO) != null) {
+				resultMap.put(STEP_INFO, map.get(STEP_INFO).toString());
+			}
             
             if (map.containsKey(STEP_PERMISSIONS)) {
                 Collection<Map> jsonPermissions = (Collection<Map>) map.get(STEP_PERMISSIONS);
@@ -203,7 +207,7 @@ public class JSONHandler {
 
 	protected static String dumpTreeToJSON(Tree tree, WidgetItemInStep rootItem, Object assignee, 
                                            Object candidateGroups, Object swimlane, String stepName,
-                                           Object description, Object commentary,
+                                           Object description, Object commentary, Object stepInfo,
                                            Collection<Permission> permissions) {
 		I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
 		TaskConfig tc = new TaskConfig();
@@ -227,9 +231,11 @@ public class JSONHandler {
             treeMap.put(DESCRIPTION,description);
         }
         if (commentary != null) {
-            
             treeMap.put(COMMENTARY, encodeString(commentary));
         }
+		if (stepInfo != null) {
+			treeMap.put(STEP_INFO, stepInfo);
+		}
 		
         tc.setParams(treeMap);
         
@@ -245,12 +251,8 @@ public class JSONHandler {
 		return messages.getMessage("dump.failed");
 	}
 	
-	
 	public static String encodeString(Object objectToConvert){
 		byte[] bytes = objectToConvert.toString().getBytes();
 		return Base64.encodeBase64URLSafeString(bytes);
-		
-		
 	}
-
 }

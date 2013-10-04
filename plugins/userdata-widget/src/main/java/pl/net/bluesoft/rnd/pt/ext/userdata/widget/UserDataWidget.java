@@ -8,6 +8,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
@@ -107,7 +108,16 @@ public abstract class UserDataWidget
 				}
 			}
 		}
+	}
 
+	private <T extends ProcessInstanceAttribute> Collection<T> getAttributes(Class<T> cls, ProcessInstance pi) {
+		Collection<T> res = new HashSet<T>();
+		for (ProcessInstanceAttribute attr : pi.getProcessAttributes()) {
+			if (attr.getClass().isAssignableFrom(cls)) {
+				res.add((T) attr);
+			}
+		}
+		return res;
 	}
 
 	@Override

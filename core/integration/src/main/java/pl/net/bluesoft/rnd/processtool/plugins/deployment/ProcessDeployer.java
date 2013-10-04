@@ -1,5 +1,15 @@
 package pl.net.bluesoft.rnd.processtool.plugins.deployment;
 
+import com.thoughtworks.xstream.XStream;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
+import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
+import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionPermission;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
+import pl.net.bluesoft.util.lang.Strings;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -9,18 +19,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
-import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionPermission;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
-import pl.net.bluesoft.util.lang.Strings;
-
-import com.thoughtworks.xstream.XStream;
 
 import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 
@@ -132,12 +130,12 @@ public class ProcessDeployer
 		ProcessDefinitionConfig config = (ProcessDefinitionConfig) xstream
 				.fromXML(processToolConfigStream);
 
-		if (logoStream != null) {
-			byte[] logoBytes = loadBytesFromStream(logoStream);
-			if (logoBytes.length > 0) {
-				config.setProcessLogo(logoBytes);
-			}
-		}
+//		if (logoStream != null) {
+//			byte[] logoBytes = loadBytesFromStream(logoStream);
+//			if (logoBytes.length > 0) {
+//				config.setProcessLogo(logoBytes);
+//			}
+//		}
 		Collection<ProcessQueueConfig> qConfigs = (Collection<ProcessQueueConfig>) xstream.fromXML(queueConfigStream);
 		deployOrUpdateProcessDefinition(jpdlStream, config,
 				qConfigs.toArray(new ProcessQueueConfig[qConfigs.size()]),

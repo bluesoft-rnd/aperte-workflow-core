@@ -6,7 +6,6 @@
 <div class="process-tasks-view" id="task-view-processes" hidden="true">
 	<table id="processesTable" class="process-table table table-striped" border="1">
 		<thead>
-
 				<th style="width:15%;"><spring:message code="processes.list.table.process.name" /></th>
 				<th style="width:15%;"><spring:message code="processes.list.table.process.step" /></th>
 				<th style="width:20%;"><spring:message code="processes.list.table.process.code" /></th>
@@ -14,7 +13,7 @@
 				<th style="width:10%;"><spring:message code="processes.list.table.process.assignee" /></th>
 				<th style="width:10%;"><spring:message code="processes.list.table.process.creationdate" /></th>
 				<th style="width:10%;"><spring:message code="processes.list.table.process.deadline" /></th>
-
+				<th style="width:15%;"><spring:message code="processes.list.table.process.stepinfo" /></th>
 		</thead>
 		<tbody></tbody>
 	</table>
@@ -26,7 +25,6 @@
 
   	$(document).ready(function()
 	{
-	
 		var loadedProcess = loadCookies("process");
 		var parsedProcess = parseCookie(loadedProcess);
 		
@@ -38,7 +36,8 @@
 				 { "sName":"creator", "bSortable": true ,"bVisible":parsedProcess.creator,"mData": "creator" },
 				 { "sName":"assignee", "bSortable": true ,"bVisible":parsedProcess.assignee,"mData": "assignee" },
 				 { "sName":"creationDate", "bSortable": true ,"bVisible":parsedProcess.creationDate,"mData": function(object){return $.format.date(object.creationDate, 'dd-MM-yyyy, HH:mm');}},
-				 { "sName":"deadline","bVisible":true ,"bVisible":parsedProcess.deadline, "bSortable": true,"mData": function(object){return object.deadline == null ? "<spring:message code='processes.list.table.nodeadline' />" : $.format.date(object.deadline, 'dd-MM-yyyy, HH:mm');}}
+				 { "sName":"deadline","bVisible":true ,"bVisible":parsedProcess.deadline, "bSortable": true,"mData": function(object){return object.deadline == null ? "<spring:message code='processes.list.table.nodeadline' />" : $.format.date(object.deadline, 'dd-MM-yyyy, HH:mm');}},
+				 { "sName":"stepInfo", "bSortable": true ,"bVisible":parsedProcess.stepInfo, "mData":"stepInfo" }
 			 ],
 			 [[ 5, "desc" ]]
 			);
@@ -50,8 +49,6 @@
 			this.toggleColumnButton("creationDate", false);
 		}
 
-
-		
 		dataTable.enableTabletMode = function()
 		{
 			this.toggleColumnButton("creator", false);
@@ -72,13 +69,7 @@
 		}
 		
 		queueViewManager.addTableView('process', dataTable, 'task-view-processes');
-
 	});
-
-
-
-
-	
 
 	function generateNameColumn(task)
 	{
@@ -88,8 +79,7 @@
 
         return linkBody;
     }
-	
-	
+
 	function loadProcessView(processStateConfigurationId, taskId)
 	{
 		windowManager.clearProcessView();
@@ -99,18 +89,13 @@
 			"processStateConfigurationId": processStateConfigurationId,
 			"taskId": taskId
 		}, function(data) 
-		{ 
-			
+		{
 			clearAlerts();
 			windowManager.showProcessData();
 			$('#process-data-view').empty();
 			$("#process-data-view").append(data);
 			checkIfViewIsLoaded();
-			
 		});
 	}
-	
-
-
 //]]>
 </script>

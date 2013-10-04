@@ -12,7 +12,6 @@ import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSessionHelper;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
@@ -68,7 +67,7 @@ public class ProcessMultiViewDataPane extends VerticalLayout implements WidgetCo
 	
 	private WidgetFactory widgetFactory;
 
-	private static enum GuiAction {
+	private enum GuiAction {
 		ACTION_PERFORMED, SAVE_PERFORMED, ACTION_FAILED;
 	}
 
@@ -178,8 +177,6 @@ public class ProcessMultiViewDataPane extends VerticalLayout implements WidgetCo
 				e.printStackTrace(new PrintWriter(baos));
 				vl.addComponent(new Label("<pre>" + baos.toString() + "</pre>", CONTENT_XHTML));
 			}
-
-
 		}
 
 		addComponent(vl);
@@ -196,9 +193,7 @@ public class ProcessMultiViewDataPane extends VerticalLayout implements WidgetCo
 			addComponent(bottomButtonsLayout);
 		}
 	}
-	
 
-	
 	/** Metoda w przypadku wstrzymywania procesu przelacza widok na podproces
 	 * lub w przypadku zamkniecia podprocesu, na proces glowny
 	 * 
@@ -223,7 +218,6 @@ public class ProcessMultiViewDataPane extends VerticalLayout implements WidgetCo
 				return changeProcess(parentProcess);
 		}
 		
-		
 		/* Zamykany proces jest procesem glownym dla innych procesow */
 		if(isParentProcess)
 		{
@@ -239,8 +233,7 @@ public class ProcessMultiViewDataPane extends VerticalLayout implements WidgetCo
 				}
 			}
 		}
-		
-		
+
 		/* Zatrzymywany proces nie posiada ani aktywnego procesu głównego, ani
 		 * aktywnych podprocesów. Zamknij więc widok
 		 */
@@ -549,9 +542,7 @@ public class ProcessMultiViewDataPane extends VerticalLayout implements WidgetCo
 										String generatorKey, WidgetEventBus widgetEventBus) {
 		ProcessToolWidget processToolWidget;
 		try {
-			String widgetClassName = w.getClassName() == null ? w.getName() : w.getClassName();
-			
-			processToolWidget = widgetFactory.makeWidget(widgetClassName, w, ProcessToolBpmSessionHelper.getPermissionsForWidget(bpmSession, ctx, w), isOwner);
+			processToolWidget = widgetFactory.makeWidget(w.getClassName(), w, ProcessToolBpmSessionHelper.getPermissionsForWidget(bpmSession, ctx, w), isOwner);
 			processToolWidget.setGeneratorKey(generatorKey);
 			processToolWidget.setWidgetEventBus(widgetEventBus);
 			if (processToolWidget instanceof ProcessToolDataWidget) {

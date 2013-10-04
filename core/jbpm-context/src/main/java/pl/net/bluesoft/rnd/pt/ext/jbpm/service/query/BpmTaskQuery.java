@@ -157,6 +157,7 @@ public class BpmTaskQuery {
 			String status = (String)resultRow[7];
 			Long definitionId = (Long)resultRow[8];
 			Date taskDeadline = (Date)resultRow[9];
+			String stepInfo = (String)resultRow[10];
 
 			BpmTaskBean bpmTask = new BpmTaskBean();
 
@@ -171,6 +172,8 @@ public class BpmTaskQuery {
 			bpmTask.setFinished(Status.valueOf(status) == Status.Completed);
 			bpmTask.setProcessDefinition(processDefinitionDAO.getCachedDefinitionById(definitionId));
 			bpmTask.setDeadlineDate(taskDeadline);
+			bpmTask.setStepInfo(stepInfo);
+
 			result.add(bpmTask);
 		}
 		return result;
@@ -191,7 +194,8 @@ public class BpmTaskQuery {
 					.addScalar("completedOn", StandardBasicTypes.DATE)
 					.addScalar("taskStatus", StandardBasicTypes.STRING)
 					.addScalar("definitionId", StandardBasicTypes.LONG)
-					.addScalar("taskDeadline", StandardBasicTypes.DATE);
+					.addScalar("taskDeadline", StandardBasicTypes.DATE)
+					.addScalar("stepInfo", StandardBasicTypes.STRING);
 		}
 
 		for (QueryParameter parameter : queryParameters) {
@@ -213,7 +217,9 @@ public class BpmTaskQuery {
 	}
 
 	private String getQueryString(QueryType queryType, List<QueryParameter> queryParameters) {
-		StringBuilder sb = new StringBuilder("SELECT ");
+		StringBuilder sb = new StringBuilder(queryType == QueryType.COUNT ? 512 : 3 * 512);
+
+		sb.append("SELECT ");
 
 		if (queryType == QueryType.COUNT) {
 			sb.append("COUNT(*)");
@@ -224,7 +230,7 @@ public class BpmTaskQuery {
 			sb.append("i18ntext_.shortText as taskName, task_.createdOn as createdOn, task_.completedOn as completedOn, ");
 			sb.append("task_.status as taskStatus, process.definition_id as definitionId, ");
 			sb.append(DEADLINE_SUBQUERY);
-			sb.append("AS taskDeadline");
+			sb.append("AS taskDeadline, stepInfo_.message AS stepInfo");
 		}
 
 		sb.append(" FROM pt_process_instance process JOIN task task_ ON CAST(task_.processinstanceid AS VARCHAR(10)) = process.internalId");
@@ -239,6 +245,10 @@ public class BpmTaskQuery {
 
 		if (excludedDefinitionIds != null && !excludedDefinitionIds.isEmpty()) {
 			sb.append(" JOIN pt_process_definition_config def ON def.id = process.definition_id");
+		}
+
+		if (queryType == QueryType.LIST) {
+			sb.append(" LEFT JOIN pt_step_info stepInfo_ ON stepInfo_.taskId = CAST(task_.id AS VARCHAR(10))");
 		}
 
 		sb.append(" WHERE 1=1");
@@ -320,6 +330,12 @@ public class BpmTaskQuery {
 			queryParameters.add(new QueryParameter("excludedDefinitionIds", excludedDefinitionIds));
 		}
 
+		if (queryType == QueryType.LIST && locale != null) {
+			sb.append(" AND (stepInfo_.locale IS NULL OR stepInfo_.locale = :locale)");
+
+			queryParameters.add(new QueryParameter("locale", locale.getLanguage()));
+		}
+
 		if (queryType == QueryType.LIST) {
 			sb.append(" ORDER BY ").append(getOrder());
 		}
@@ -350,6 +366,8 @@ public class BpmTaskQuery {
 				return "task_.actualowner_id";
 			case SORT_BY_CREATOR_ORDER:
 				return "process.creatorLogin";
+			case SORT_BY_STEP_INFO:
+				return "stepInfo_.message";
 			default:
 				throw new RuntimeException("Unhandled order by field " + sortField);
 		}

@@ -30,6 +30,9 @@
         <label class="checkbox">
 			<input id="button-processesTable-deadline" type="checkbox" value="deadline" name="process"  onClick="toggleColumn(this, 'process','deadline');" /><spring:message code="processes.button.hide.deadline" />
         </label>
+        <label class="checkbox">
+			<input id="button-processesTable-stepInfo" type="checkbox" value="stepInfo" name="process"  onClick="toggleColumn(this, 'process','stepInfo');" /><spring:message code="processes.button.hide.stepInfo" />
+		</label>
 	</fieldset>
 	
 	<div class="process-queue-name">
@@ -54,6 +57,9 @@
         <label class="checkbox">
 			<input id="button-customQueueTable-deadline" type="checkbox" value="deadline" name="queue"  onClick="toggleColumn(this, 'queue','deadline');" /><spring:message code="processes.button.hide.deadline" />
         </label>
+        <label class="checkbox">
+			<input id="button-customQueueTable-stepInfo" type="checkbox" value="stepInfo" name="queue"  onClick="toggleColumn(this, 'queue','stepInfo');" /><spring:message code="processes.button.hide.stepInfo" />
+		</label>
 		<label class="checkbox">
 			<input id="button-customQueueTable-actions" type="checkbox" value="actions" name="queue"  onClick="toggleColumn(this, 'queue','actions');"/> <spring:message code="processes.button.hide.actions" />
         </label>
@@ -71,7 +77,7 @@
 	});
 	
 	function loadProcessesCheckboxes(queueName){
-	var loadedProcess = loadCookies("process");
+		var loadedProcess = loadCookies("process");
 		var parsedProcess = parseCookie(loadedProcess);
 		setProcessCheckboxes(parsedProcess);
 	}

@@ -1,21 +1,11 @@
 package pl.net.bluesoft.rnd.processtool.ui.widgets.impl;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
+import com.vaadin.Application;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
-
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
 import pl.net.bluesoft.rnd.processtool.di.annotations.AutoInject;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceSimpleAttribute;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidgetAttribute;
@@ -27,7 +17,10 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.event.WidgetEventBus;
 import pl.net.bluesoft.rnd.processtool.usersource.IPortalUserSource;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
-import com.vaadin.Application;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -53,19 +46,17 @@ public abstract class BaseProcessToolWidget implements ProcessToolWidget {
     @Autowired
     protected ProcessToolRegistry processToolRegistry;
 	
-	public BaseProcessToolWidget()
+	protected BaseProcessToolWidget()
 	{
     	/* init user source */
 		ObjectFactory.inject(this);
 		
 		SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
-		
 	}
 	
 	@Override
 	public void setTaskId(String taskId) {
 		this.taskId = taskId;
-		
 	}
 
 	@Override
@@ -102,11 +93,13 @@ public abstract class BaseProcessToolWidget implements ProcessToolWidget {
 		return attributes.get(key);
 	}
 
+	@Override
 	public boolean hasPermission(String... names) {
-		boolean canView = !isOwner && Arrays.asList(names).contains("VIEW");
+		boolean canView = isOwner || Arrays.asList(names).contains("VIEW");
 		for (String name : names) {
-			if (permissions.contains(name) && (isOwner || canView))
+			if (permissions.contains(name) && canView) {
 				return true;
+			}
 		}
 		return permissions.contains("*");
 	}
@@ -165,65 +158,6 @@ public abstract class BaseProcessToolWidget implements ProcessToolWidget {
 		this.bpmSession = bpmSession;
 	}
 
-	public <T extends ProcessInstanceAttribute> Collection<T> getAttributes(Class<T> cls, ProcessInstance pi) {
-		Collection<T> res = new HashSet<T>();
-		for (ProcessInstanceAttribute attr : pi.getProcessAttributes()) {
-			if (attr.getClass().isAssignableFrom(cls)) {
-				res.add((T) attr);
-			}
-		}
-		return res;
-	}
-
-	public <T extends ProcessInstanceAttribute> T getAttribute(Class<T> cls, ProcessInstance pi) {
-		Collection<T> collection = getAttributes(cls, pi);
-		if (collection.isEmpty()) {
-			return null;
-		} else {
-			return collection.iterator().next();
-		}
-	}
-
-	public<T extends ProcessInstanceAttribute> T getAttribute(Class<T> cls, String key, ProcessInstance pi) {
-		Collection<T> collection = getAttributes(cls, pi);
-		if (collection.isEmpty()) {
-			return null;
-		} else {
-			for (T t : collection) {
-				if (t.getKey().equals(key))
-				return t;
-			}
-			return null;
-		}
-	}
-
-	public String getSimpleAttribute(String key, ProcessInstance pi) {
-		Collection<ProcessInstanceSimpleAttribute> collection = getAttributes(ProcessInstanceSimpleAttribute.class, pi);
-		for (ProcessInstanceSimpleAttribute a : collection) {
-			if (a.getKey() != null && a.getKey().equals(key)) {
-				return a.getValue();
-			}
-		}
-		return null;
-	}
-
-	public void setSimpleAttribute(String key, String value, ProcessInstance pi) {
-		Collection<ProcessInstanceSimpleAttribute> collection = getAttributes(ProcessInstanceSimpleAttribute.class, pi);
-		boolean found = false;
-		for (ProcessInstanceSimpleAttribute a : collection) {
-			if (a.getKey().equals(key)) {
-				a.setValue(value);
-				found = true;
-			}
-		}
-		if (!found) {
-			ProcessInstanceSimpleAttribute processInstanceSimpleAttribute = new ProcessInstanceSimpleAttribute();
-			processInstanceSimpleAttribute.setValue(value);
-			processInstanceSimpleAttribute.setKey(key);
-			pi.addAttribute(processInstanceSimpleAttribute);
-		}
-	}
-
     @Override
     public boolean hasVisibleData() {
         return true;
@@ -238,6 +172,7 @@ public abstract class BaseProcessToolWidget implements ProcessToolWidget {
 	public void handleWidgetEvent(WidgetEvent event) {
 	}
 
+	@Override
 	public String getGeneratorKey() {
 		return generatorKey;
 	}

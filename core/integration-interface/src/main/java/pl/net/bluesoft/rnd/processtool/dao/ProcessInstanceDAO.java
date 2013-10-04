@@ -5,6 +5,7 @@ import pl.net.bluesoft.rnd.processtool.hibernate.ResultsPageWrapper;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog;
+import pl.net.bluesoft.rnd.processtool.model.StepInfo;
 
 import java.util.Collection;
 import java.util.Date;
@@ -45,4 +46,10 @@ public interface ProcessInstanceDAO extends HibernateBean<ProcessInstance> {
                                                                                     Integer offset, Integer limit);
 
 	Collection<ProcessInstance> getUserProcessesBetweenDates(String userLogin, Date minDate, Date maxDate);
+
+	void saveStepInfos(Collection<StepInfo> stepInfos);
+
+//	Map<String,String> getStepInfos(List<String> taskIds, String locale);
+
+	void removeStopInfos(Collection<String> taskId);
 }

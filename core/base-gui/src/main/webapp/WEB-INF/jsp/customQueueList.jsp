@@ -9,10 +9,11 @@
 			<tr>
 				<th style="width:15%;"><spring:message code="processes.list.table.process.name" /></th>
 				<th style="width:15%;"><spring:message code="processes.list.table.process.step" /></th>
-				<th style="width:20%;"><spring:message code="processes.list.table.process.code" /></th>
-				<th style="width:10%;"><spring:message code="processes.list.table.process.creator" /></th>
-				<th style="width:10%;"><spring:message code="processes.list.table.process.creationdate" /></th>
-				<th style="width:10%;"><spring:message code="processes.list.table.process.deadline" /></th>
+				<th style="width:12%;"><spring:message code="processes.list.table.process.code" /></th>
+				<th style="width:9%;"><spring:message code="processes.list.table.process.creator" /></th>
+				<th style="width:9%;"><spring:message code="processes.list.table.process.creationdate" /></th>
+				<th style="width:9%;"><spring:message code="processes.list.table.process.deadline" /></th>
+				<th style="width:12%;"><spring:message code="processes.list.table.process.stepinfo" /></th>
 				<th style="width:10%;"><spring:message code="processes.list.table.process.actions" /></th>
 			</tr>
 		</thead>
@@ -36,6 +37,7 @@
 				 { "sName":"creator", "bSortable": true,"bVisible":parsedCustom.creator,"mData": "creator" },
 				 { "sName":"creationDate", "bSortable": true,"bVisible":parsedCustom.creationDate,"mData": function(object){return $.format.date(object.creationDate, 'dd-MM-yyyy, HH:mm');}},
 				 { "sName":"deadline", "bSortable": true,"bVisible":parsedCustom.deadline,"mData": function(object){return object.deadline == null ? "<spring:message code='processes.list.table.nodeadline' />" : $.format.date(object.deadline, 'dd-MM-yyyy, HH:mm');}},
+				 { "sName":"stepInfo", "bSortable": true ,"bVisible":parsedCustom.stepInfo, "mData":"stepInfo" },
 				 { "sName":"actions", "bSortable": false,"bVisible":parsedCustom.actions,"mData": function(object){return generateButtons(object)}},
 			 ],
 			 [[ 5, "desc" ]]
@@ -101,8 +103,5 @@
 			console.log( "ojoj:  "+error); 
 		});
 	}
-	
-
-
 //]]>
 </script>

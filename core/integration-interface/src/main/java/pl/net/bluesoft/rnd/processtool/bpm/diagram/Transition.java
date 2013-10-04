@@ -10,12 +10,37 @@ import java.util.List;
  * Time: 16:06
  */
 public class Transition {
+	private String id;
 	private String name;
 	private final List<Point> points = new ArrayList<Point>();
+	private Status status = Status.NOT_VISITED;
+	private Node source, target;
+
+	public enum Status {
+		NOT_VISITED,
+		VISITED
+	}
 
 	public Transition() {}
 
 	public Transition(String name) {
+		this.id = name;
+		this.name = name;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
 		this.name = name;
 	}
 
@@ -30,5 +55,34 @@ public class Transition {
 
 	public Transition addPoint(double x, double y) {
 		return addPoint(new Point(x, y));
+	}
+
+	public Status getStatus() {
+		return status;
+	}
+
+	public Transition setStatus(Status status) {
+		this.status = status;
+		return this;
+	}
+
+	public Node getSource() {
+		return source;
+	}
+
+	public Transition setSource(Node source) {
+		this.source = source;
+		source.addOutcomingTransition(this);
+		return this;
+	}
+
+	public Node getTarget() {
+		return target;
+	}
+
+	public Transition setTarget(Node target) {
+		this.target = target;
+		target.addIncomingTransition(this);
+		return this;
 	}
 }

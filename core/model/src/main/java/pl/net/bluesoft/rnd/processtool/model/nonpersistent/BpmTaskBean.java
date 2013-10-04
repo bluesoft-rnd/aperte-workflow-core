@@ -6,6 +6,7 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -28,6 +29,7 @@ public class BpmTaskBean extends AbstractBpmTask implements Serializable {
 	private ProcessDefinitionConfig processDefinition;
 	private boolean finished;
 	private Date deadlineDate;
+	private String stepInfo;
 
 	public BpmTaskBean() {
 	}
@@ -43,6 +45,7 @@ public class BpmTaskBean extends AbstractBpmTask implements Serializable {
 		this.processInstance = task.getProcessInstance();
 		this.finished = task.isFinished();
 		this.processDefinition = task.getProcessDefinition();
+		this.stepInfo = task.getStepInfo();
 	}
 
 	@Override
@@ -149,11 +152,29 @@ public class BpmTaskBean extends AbstractBpmTask implements Serializable {
 		this.deadlineDate = deadlineDate;
 	}
 
+	@Override
+	public String getStepInfo() {
+		return stepInfo;
+	}
+
+	public void setStepInfo(String stepInfo) {
+		this.stepInfo = stepInfo;
+	}
+
 	public static List<BpmTaskBean> asBeans(List<? extends BpmTask> list) {
 		List<BpmTaskBean> result = new ArrayList<BpmTaskBean>();
 
 		for (BpmTask task : list) {
 			result.add(new BpmTaskBean(task));
+		}
+		return result;
+	}
+
+	public static List<String> getTaskIds(Collection<? extends BpmTask> tasks) {
+		List<String> result = new ArrayList<String>();
+
+		for (BpmTask task : tasks) {
+			result.add(task.getInternalTaskId());
 		}
 		return result;
 	}

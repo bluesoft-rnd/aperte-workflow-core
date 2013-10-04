@@ -1,9 +1,9 @@
 package pl.net.bluesoft.rnd.processtool.model;
 
-import java.util.Date;
-
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
+
+import java.util.Date;
 
 public interface BpmTask {
     boolean isFinished();
@@ -29,4 +29,6 @@ public interface BpmTask {
 
 	/** Get deadline */
 	Date getDeadlineDate();
+
+	String getStepInfo();
 }

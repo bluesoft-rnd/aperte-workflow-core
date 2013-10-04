@@ -32,7 +32,6 @@ public class ProcessDefinitionConfig extends AbstractPersistentEntity {
 	public static final String _PERMISSIONS = "permissions";
 	public static final String _PROCESS_LOGO = "processLogo";
 	public static final String _ENABLED = "enabled";
-	public static final String _TASK_ITEM_CLASS = "taskItemClass";
 	public static final String _LATEST = "latest";
 
 	public static final String VERSION_SEPARATOR = "_";
@@ -63,6 +62,9 @@ public class ProcessDefinitionConfig extends AbstractPersistentEntity {
 
 	private Date createDate;
 
+	private String defaultStepInfoPattern;
+	private String supportedLocales;
+
 	@OneToMany(cascade = {CascadeType.ALL}, fetch=FetchType.LAZY)
 	@JoinColumn(name="definition_id")
 	private Set<ProcessStateConfiguration> states = new HashSet<ProcessStateConfiguration>();
@@ -76,7 +78,6 @@ public class ProcessDefinitionConfig extends AbstractPersistentEntity {
 	
     private boolean enabled;
 
-    private String taskItemClass;
 	/**
 	 * latest definition of process with processName ensures uniqueness and versioning of definitions
 	 */
@@ -98,14 +99,6 @@ public class ProcessDefinitionConfig extends AbstractPersistentEntity {
 
     public void setProcessLogo(byte[] processLogo) {
         this.processLogo = Lang2.noCopy(processLogo);
-    }
-
-    public String getTaskItemClass() {
-        return taskItemClass;
-    }
-
-    public void setTaskItemClass(String taskItemClass) {
-        this.taskItemClass = taskItemClass;
     }
 
 	public String getDescription() {
@@ -158,6 +151,22 @@ public class ProcessDefinitionConfig extends AbstractPersistentEntity {
 
 	public void setCreateDate(Date createDate) {
 		this.createDate = createDate;
+	}
+
+	public String getDefaultStepInfoPattern() {
+		return defaultStepInfoPattern;
+	}
+
+	public void setDefaultStepInfoPattern(String defaultStepInfoPattern) {
+		this.defaultStepInfoPattern = defaultStepInfoPattern;
+	}
+
+	public String getSupportedLocales() {
+		return supportedLocales;
+	}
+
+	public void setSupportedLocales(String supportedLocales) {
+		this.supportedLocales = supportedLocales;
 	}
 
 	public String getCreatorLogin() {

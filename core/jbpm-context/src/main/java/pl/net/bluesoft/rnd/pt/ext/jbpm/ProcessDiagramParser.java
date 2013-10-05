@@ -212,7 +212,7 @@ public class ProcessDiagramParser extends DefaultHandler {
 		return factory;
 	}
 
-	public static void fixWaypoints(Transition transition) {
+	private static void fixWaypoints(Transition transition) {
 		Rectangle srcBoundary = transition.getSource().getBoundary();
 		Rectangle targetBoundary = transition.getTarget().getBoundary();
 		Point first, last;
@@ -229,7 +229,7 @@ public class ProcessDiagramParser extends DefaultHandler {
 		transition.setPoint(transition.getPoints().size() - 1, last);
 	}
 
-	public static Point getNearsetIntersectionPoint(Rectangle r, Point p) {
+	private static Point getNearsetIntersectionPoint(Rectangle r, Point p) {
 		Point p2 = r.getCentre();
 		List<Point> foundPoints = new ArrayList<Point>();
 
@@ -239,7 +239,7 @@ public class ProcessDiagramParser extends DefaultHandler {
 		intersectLines(foundPoints, r.getRightTop(), r.getRightBottom(), p, p2);
 
 		if (foundPoints.isEmpty()) {
-			return null;
+			return p;
 		}
 
 		Point minDist = foundPoints.get(0);

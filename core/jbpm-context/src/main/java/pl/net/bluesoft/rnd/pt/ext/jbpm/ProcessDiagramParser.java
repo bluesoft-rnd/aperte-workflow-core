@@ -238,10 +238,10 @@ public class ProcessDiagramParser extends DefaultHandler {
 		intersectLines(foundPoints, r.getLeftTop(), r.getLeftBottom(), p, p2);
 		intersectLines(foundPoints, r.getRightTop(), r.getRightBottom(), p, p2);
 
-		if (foundPoints.isEmpty()) {
-			return p;
-		}
+		return foundPoints.isEmpty() ? p : getNearestPoint(foundPoints, p);
+	}
 
+	private static Point getNearestPoint(List<Point> foundPoints, Point p) {
 		Point minDist = foundPoints.get(0);
 
 		for (int i = 1; i < foundPoints.size(); ++i) {

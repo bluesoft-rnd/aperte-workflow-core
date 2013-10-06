@@ -111,6 +111,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 		try {
 			getJbpmService().startProcess(config.getBpmProcessId(), getInitialParams());
+			generateExternalKey(startProcessParams.newProcessInstance);
 			generateStepInfo(startProcessParams.createdTasks);
 			return new JbpmStartProcessResult(startProcessParams.newProcessInstance, startProcessParams.createdTasksForCurrentUser);
 		}
@@ -903,6 +904,41 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		else if (startProcessParams != null) {
 			startProcessParams.addCreatedTask(task, assignedToCurrentUser);
 		}
+	}
+
+	private void generateExternalKey(ProcessInstance newProcessInstance) {
+		if (newProcessInstance.getExternalKey() != null || !hasText(newProcessInstance.getDefinition().getExternalKeyPattern())) {
+			return;
+		}
+
+		newProcessInstance.setExternalKey(expand(newProcessInstance.getDefinition().getExternalKeyPattern(), new PlaceholderUtil.ReplacementCallback() {
+			private final Map<String, Object> values = new HashMap<String, Object>();
+			@Override
+			public String getReplacement(String placeholderName) {
+				String[] parts = placeholderName.split(":");
+				String parameterName = parts[0];
+				String format = parts.length > 1 ? parts[1] : null;
+				String scope = parts.length > 2 ? parts[2] : null;
+				Object value;
+
+				if (values.containsKey(parameterName)) {
+					value = values.get(parameterName);
+				}
+				else {
+					value = generateParameterValue(parameterName, scope);
+					values.put(parameterName, value);
+				}
+				return formatParameterValue(value, format);
+			}
+		}));
+	}
+
+	private Object generateParameterValue(String parameterName, String scope) {
+		return parameterName+'_'+scope; //TODO
+	}
+
+	private String formatParameterValue(Object value, String format) {
+		return String.valueOf(value);//TODO
 	}
 
 	private void generateStepInfo(List<BpmTask> tasks) {

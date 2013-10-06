@@ -17,7 +17,6 @@ public class ProcessConfig implements Serializable {
 
     private String description;
     private String comment;
-    private String dictionary;
     private String version;
     
     // This Map should be parametrized as <Language, String> however Jackson does not support
@@ -28,6 +27,7 @@ public class ProcessConfig implements Serializable {
     private byte[] processIcon;
 	private String defaultLanguage;
 	private String defaultStepInfo;
+	private String externalKeyPattern;
 
 
 	public List<Permission> getProcessPermissions() {
@@ -77,14 +77,6 @@ public class ProcessConfig implements Serializable {
     public void setDescription(String description) {
         this.description = description;
     }
-    // TODO: Remove after tests
-	public String getDictionary() {
-		return dictionary;
-	}
-    // TODO: Remove after tests
-	public void setDictionary(String dictionary) {
-		this.dictionary = dictionary;
-	}
 
 	public String getVersion() {
 		return version;
@@ -108,6 +100,14 @@ public class ProcessConfig implements Serializable {
 
 	public void setDefaultStepInfo(String defaultStepInfo) {
 		this.defaultStepInfo = defaultStepInfo;
+	}
+
+	public String getExternalKeyPattern() {
+		return externalKeyPattern;
+	}
+
+	public void setExternalKeyPattern(String externalKeyPattern) {
+		this.externalKeyPattern = externalKeyPattern;
 	}
 
 	public Set<String> getUsedLanguages() {

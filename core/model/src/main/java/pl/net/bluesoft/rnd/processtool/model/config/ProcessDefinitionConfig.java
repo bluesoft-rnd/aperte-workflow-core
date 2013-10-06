@@ -65,6 +65,8 @@ public class ProcessDefinitionConfig extends AbstractPersistentEntity {
 	private String defaultStepInfoPattern;
 	private String supportedLocales;
 
+	private String externalKeyPattern;
+
 	@OneToMany(cascade = {CascadeType.ALL}, fetch=FetchType.LAZY)
 	@JoinColumn(name="definition_id")
 	private Set<ProcessStateConfiguration> states = new HashSet<ProcessStateConfiguration>();
@@ -167,6 +169,14 @@ public class ProcessDefinitionConfig extends AbstractPersistentEntity {
 
 	public void setSupportedLocales(String supportedLocales) {
 		this.supportedLocales = supportedLocales;
+	}
+
+	public String getExternalKeyPattern() {
+		return externalKeyPattern;
+	}
+
+	public void setExternalKeyPattern(String externalKeyPattern) {
+		this.externalKeyPattern = externalKeyPattern;
 	}
 
 	public String getCreatorLogin() {

@@ -60,11 +60,6 @@ public class ProcessConfigJSONHandler implements Serializable {
                     }
                 }
             }
-            if (processConfig.getDictionary() != null) {
-                byte[] dictionaryInBytes = processConfig.getDictionary().getBytes();
-                processConfig.setDictionary(new String(Base64.encodeBase64URLSafe(dictionaryInBytes)));
-            }
-
             // encode as JSON
             return mapper.writeValueAsString(processConfig);
         } catch (IOException e) {
@@ -96,11 +91,6 @@ public class ProcessConfigJSONHandler implements Serializable {
                     }
                 }
             }
-            if (processConfig.getDictionary() != null) {
-                byte[] codedDictionaryInBytes = processConfig.getDictionary().getBytes();
-                processConfig.setDictionary(new String(Base64.decodeBase64(codedDictionaryInBytes)));
-            }
-
             return processConfig;
         } catch (IOException e) {
             throw new RuntimeException("Failed to read ProcessConfig from JSON", e);

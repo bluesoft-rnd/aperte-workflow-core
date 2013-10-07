@@ -1,6 +1,5 @@
 package pl.net.bluesoft.rnd.processtool.bpm;
 
-import org.aperteworkflow.bpm.graph.GraphElement;
 import pl.net.bluesoft.rnd.processtool.bpm.diagram.ProcessDiagram;
 import pl.net.bluesoft.rnd.processtool.model.*;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
@@ -91,8 +90,6 @@ public interface ProcessToolBpmSession {
     void adminCompleteTask(String taskId, String actionName);
 
     List<String> getAvailableLogins(String filter);
-
-    List<GraphElement> getProcessHistory(ProcessInstance pi);
 
     byte[] getProcessLatestDefinition(String bpmDefinitionKey);
     byte[] getProcessDefinition(ProcessInstance pi);

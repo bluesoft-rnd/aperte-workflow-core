@@ -1,6 +1,5 @@
 package pl.net.bluesoft.rnd.pt.ext.jbpm;
 
-import org.aperteworkflow.bpm.graph.GraphElement;
 import org.aperteworkflow.util.SimpleXmlTransformer;
 import org.drools.event.process.*;
 import org.drools.runtime.process.NodeInstance;
@@ -621,11 +620,6 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		List<String> userIds = jbpmService.getAvailableUserLogins(filter,0,20);
 		Collections.sort(userIds);
 		return userIds;
-	}
-
-	@Override
-	public List<GraphElement> getProcessHistory(ProcessInstance pi) {
-		return null;//jbpm.getProcessHistoryProvider().getProcessHistory(pi);
 	}
 
 	@Override

@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
  * Time: 13:09
  */
 public class PlaceholderUtil {
-	private static final String REGEX = "#(\\{([a-zA-Z_]*[a-zA-Z0-9_]*)\\}|#)";
+	private static final String REGEX = "#(\\{([^}]*)\\}|#)";
 	private static final Pattern PATTERN = Pattern.compile(REGEX);
 
 	public interface ReplacementCallback {

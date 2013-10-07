@@ -43,6 +43,7 @@ import pl.net.bluesoft.rnd.pt.ext.jbpm.service.query.BpmTaskQuery;
 import pl.net.bluesoft.rnd.util.PlaceholderUtil;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
+import pl.net.bluesoft.util.lang.DateUtil;
 import pl.net.bluesoft.util.lang.Mapcar;
 import pl.net.bluesoft.util.lang.Strings;
 import pl.net.bluesoft.util.lang.Transformer;
@@ -51,6 +52,8 @@ import pl.net.bluesoft.util.lang.cquery.func.F;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.Level;
 
@@ -916,9 +919,9 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 			@Override
 			public String getReplacement(String placeholderName) {
 				String[] parts = placeholderName.split(":");
-				String parameterName = parts[0];
-				String format = parts.length > 1 ? parts[1] : null;
-				String scope = parts.length > 2 ? parts[2] : null;
+				String parameterName = parts[0].trim();
+				String format = parts.length > 1 ? parts[1].trim() : null;
+				String scope = parts.length > 2 ? parts[2].trim() : null;
 				Object value;
 
 				if (values.containsKey(parameterName)) {
@@ -934,11 +937,54 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	}
 
 	private Object generateParameterValue(String parameterName, String scope) {
-		return parameterName+'_'+scope; //TODO
+		if ("date".equals(parameterName)) {
+			return new Date();
+		}
+		if ("year".equals(parameterName)) {
+			return DateUtil.getYear(new Date());
+		}
+		if ("month".equals(parameterName)) {
+			return DateUtil.getMonth(new Date());
+		}
+		if ("day".equals(parameterName)) {
+			return DateUtil.getDay(new Date());
+		}
+		String sequenceName = getSequenceName(parameterName, scope);
+		return getContext().getNextValue(sequenceName);
+	}
+
+	private String getSequenceName(String parameterName, String scope) {
+		StringBuilder sequenceName = new StringBuilder(parameterName);
+
+		if (hasText(scope)) {
+			for (String part : from(scope.split(",")).ordered()) {
+				if ("day".equals(part)) {
+					sequenceName.append('_');
+					sequenceName.append(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+				}
+				else if ("month".equals(part)) {
+					sequenceName.append('_');
+					sequenceName.append(new SimpleDateFormat("yyyy-MM").format(new Date()));
+				}
+				else if ("year".equals(part)) {
+					sequenceName.append('_');
+					sequenceName.append(DateUtil.getYear(new Date()));
+				}
+			}
+		}
+		return sequenceName.toString();
 	}
 
 	private String formatParameterValue(Object value, String format) {
-		return String.valueOf(value);//TODO
+		if (hasText(format)) {
+			if (value instanceof Date) {
+				return new SimpleDateFormat(format).format(value);
+			}
+			if (value instanceof Number) {
+				return new DecimalFormat(format).format(value);
+			}
+		}
+		return String.valueOf(value);
 	}
 
 	private void generateStepInfo(List<BpmTask> tasks) {

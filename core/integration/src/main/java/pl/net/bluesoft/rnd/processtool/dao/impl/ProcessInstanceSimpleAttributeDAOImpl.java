@@ -6,10 +6,7 @@ import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceSimpleAttributeDAO;
 import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceSimpleAttribute;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.hibernate.criterion.Projections.projectionList;
 import static org.hibernate.criterion.Projections.property;
@@ -67,6 +64,10 @@ public class ProcessInstanceSimpleAttributeDAOImpl extends SimpleHibernateBean<P
 
 	@Override
 	public Map<String, String> getSimpleAttributeValues(Long processId, Collection<String> keys) {
+		if (keys.isEmpty()) {
+			return Collections.emptyMap();
+		}
+
 		List<Object[]> list = session.createCriteria(ProcessInstanceSimpleAttribute.class)
 				.setProjection(projectionList().add(property(_KEY)).add(property(_VALUE)))
 				.add(eq(_PROCESS_INSTANCE_ID, processId))

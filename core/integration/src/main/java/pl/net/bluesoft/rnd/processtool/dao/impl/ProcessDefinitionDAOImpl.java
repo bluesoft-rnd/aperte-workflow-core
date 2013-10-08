@@ -198,6 +198,7 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 				isEqual(config1.getDefaultStepInfoPattern(), config2.getDefaultStepInfoPattern()) &&
 				isEqual(config1.getSupportedLocales(), config2.getSupportedLocales()) &&
 				isEqual(config1.getExternalKeyPattern(), config2.getExternalKeyPattern()) &&
+				isEqual(config1.getProcessGroup(), config2.getProcessGroup()) &&
 				Arrays.equals(config1.getProcessLogo(), config2.getProcessLogo()) &&
 				STATE_COMPARER.compare(config1.getStates(), config2.getStates()) &&
 				PERMISSION_COMPARER.compare(config1.getPermissions(), config2.getPermissions());

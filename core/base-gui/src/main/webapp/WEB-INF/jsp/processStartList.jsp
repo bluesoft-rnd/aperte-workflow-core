@@ -9,13 +9,16 @@
 	</div>
 	<c:forEach var="processStart" items="${processStartList}">
 		<div class="process-start-list-row" onclick="startProcess('${processStart.bpmDefinitionKey}') ">
-			<div id="${processStart.bpmDefinitionKey}" class="process-start-name" data-toggle="tooltip" title="<spring:message code='${processStart.description}' />  v.<spring:message code='${processStart.bpmDefinitionVersion}' />"><a class="process-start-link"><spring:message code="${processStart.processName}" /></a></div>
-			<div><spring:message code="${processStart.comment}" /> </div>
+			<div id="${processStart.bpmDefinitionKey}" class="process-start-name" data-toggle="tooltip"
+				title="<spring:message code='${processStart.description}' />  v.<spring:message code='${processStart.bpmDefinitionVersion}' />">
+				<a class="process-start-link"><spring:message code="${processStart.processName}" /></a>
+			</div>
+			<div><spring:message code="${processStart.comment}" /></div>
 		</div>
 	</c:forEach>
 </div>
 
- <script type="text/javascript">
+<script type="text/javascript">
   	$(document).ready(function()
 	{
 		windowManager.addView("new-process-view");
@@ -73,5 +76,4 @@
 
 		});
     }
- 
- </script>
+</script>

@@ -87,7 +87,7 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
     }
 
     @Override
-	public Collection<ProcessDefinitionConfig> getAvailableConfigurations() {
+	public List<ProcessDefinitionConfig> getAvailableConfigurations() {
         Collection<ProcessDefinitionConfig> activeConfigurations = getContext().getProcessDefinitionDAO().getActiveConfigurations();
         List<ProcessDefinitionConfig> result = new ArrayList<ProcessDefinitionConfig>();
         for (ProcessDefinitionConfig cfg : activeConfigurations) {
@@ -95,7 +95,6 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
 				result.add(cfg);
 			}
         }
-        Collections.sort(result, ProcessDefinitionConfig.DEFAULT_COMPARATOR);
         return result;
     }
 

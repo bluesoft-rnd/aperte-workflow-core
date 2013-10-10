@@ -216,7 +216,7 @@ public class WidgetViewWindow extends Window
 
 	private Set<String> getPermissionsForWidget(ProcessStateWidget processStateWidget, BpmTask task) {
 		Set<String> result = bpmSession.getPermissionsForWidget(processStateWidget);
-		if (task.isFinished()) {
+		if (task.isFinished() || !Lang.equals(bpmSession.getUserLogin(), task.getAssignee())) {
 			result.remove(PRIVILEGE_EDIT);
 		}
 		return result;

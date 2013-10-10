@@ -16,10 +16,6 @@ import static org.aperteworkflow.util.vaadin.VaadinUtility.styled;
 public class ProcessDefinitionTab extends VerticalLayout implements DataHandler {
     private ProcessConfig processConfig;
 
-	private Label externalKeyLabel;
-	private Label externalKeyInfoLabel;
-	private TextField externalKeyField;
-
 	private Label commentLabel;
     private Label commentInfoLabel;
     private RichTextArea commentArea;
@@ -27,6 +23,14 @@ public class ProcessDefinitionTab extends VerticalLayout implements DataHandler 
     private Label descriptionLabel;
     private Label descriptionInfoLabel;
     private TextField descriptionField;
+
+	private Label externalKeyLabel;
+	private Label externalKeyInfoLabel;
+	private TextField externalKeyField;
+
+	private Label processGroupLabel;
+	private Label processGroupInfoLabel;
+	private TextField processGroupField;
 
 	public ProcessDefinitionTab() {
         initComponent();
@@ -40,13 +44,6 @@ public class ProcessDefinitionTab extends VerticalLayout implements DataHandler 
     private void initComponent() {
         I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
 
-		externalKeyLabel = styled(new Label(messages.getMessage("process.externalKeyPattern.label")), "h2");
-		externalKeyInfoLabel = htmlLabel(messages.getMessage("process.externalKeyPattern.description"));
-
-		externalKeyField = new TextField();
-		externalKeyField.setWidth("100%");
-		externalKeyField.setNullRepresentation("");
-
         descriptionLabel = styled(new Label(messages.getMessage("process.definition.description")), "h2");
         descriptionInfoLabel = htmlLabel(messages.getMessage("process.definition.description.info"));
         descriptionField = new TextField();
@@ -58,15 +55,25 @@ public class ProcessDefinitionTab extends VerticalLayout implements DataHandler 
         commentArea = new RichTextArea();
         commentArea.setNullRepresentation("");
         commentArea.setWidth("100%");
+
+		externalKeyLabel = styled(new Label(messages.getMessage("process.externalKeyPattern.label")), "h2");
+		externalKeyInfoLabel = htmlLabel(messages.getMessage("process.externalKeyPattern.description"));
+
+		externalKeyField = new TextField();
+		externalKeyField.setWidth("100%");
+		externalKeyField.setNullRepresentation("");
+
+		processGroupLabel = styled(new Label(messages.getMessage("process.processGroup.label")), "h2");
+		processGroupInfoLabel = htmlLabel(messages.getMessage("process.processGroup.description"));
+
+		processGroupField = new TextField();
+		processGroupField.setWidth("100%");
+		processGroupField.setNullRepresentation("");
     }
 
     private void initLayout() {
         setSpacing(true);
         setMargin(true);
-
-		addComponent(externalKeyLabel);
-		addComponent(externalKeyInfoLabel);
-		addComponent(externalKeyField);
 
         addComponent(descriptionLabel);
         addComponent(descriptionInfoLabel);
@@ -75,21 +82,30 @@ public class ProcessDefinitionTab extends VerticalLayout implements DataHandler 
         addComponent(commentLabel);
         addComponent(commentInfoLabel);
         addComponent(commentArea);
-    }
+
+		addComponent(externalKeyLabel);
+		addComponent(externalKeyInfoLabel);
+		addComponent(externalKeyField);
+
+		addComponent(processGroupLabel);
+		addComponent(processGroupInfoLabel);
+		addComponent(processGroupField);
+	}
 
     @Override
-    public void loadData() 
-    {
-		externalKeyField.setValue(processConfig.getExternalKeyPattern());
+    public void loadData() {
         commentArea.setValue(processConfig.getComment());
         descriptionField.setValue(processConfig.getDescription());
+		externalKeyField.setValue(processConfig.getExternalKeyPattern());
+		processGroupField.setValue(processConfig.getProcessGroup());
     }
 
     @Override
     public void saveData() {
-		processConfig.setExternalKeyPattern((String)externalKeyField.getValue());
         processConfig.setComment((String) commentArea.getValue());
         processConfig.setDescription((String) descriptionField.getValue());
+		processConfig.setExternalKeyPattern((String)externalKeyField.getValue());
+		processConfig.setProcessGroup((String)processGroupField.getValue());
     }
 
     @Override

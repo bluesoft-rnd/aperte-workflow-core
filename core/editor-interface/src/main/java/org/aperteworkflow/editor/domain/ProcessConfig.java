@@ -28,7 +28,7 @@ public class ProcessConfig implements Serializable {
 	private String defaultLanguage;
 	private String defaultStepInfo;
 	private String externalKeyPattern;
-
+	private String processGroup;
 
 	public List<Permission> getProcessPermissions() {
         return processPermissions;
@@ -109,6 +109,16 @@ public class ProcessConfig implements Serializable {
 	public void setExternalKeyPattern(String externalKeyPattern) {
 		this.externalKeyPattern = externalKeyPattern;
 	}
+
+	public String getProcessGroup() {
+		return processGroup;
+	}
+
+	public void setProcessGroup(String processGroup) {
+		this.processGroup = processGroup;
+	}
+
+	// used by modeler
 
 	public Set<String> getUsedLanguages() {
 		Set<String> result = new TreeSet<String>();

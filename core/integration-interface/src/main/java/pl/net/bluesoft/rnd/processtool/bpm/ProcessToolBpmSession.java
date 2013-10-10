@@ -75,7 +75,7 @@ public interface ProcessToolBpmSession {
 
 	int getRecentTasksCount(Date minDate);
 
-	Collection<ProcessDefinitionConfig> getAvailableConfigurations();
+	List<ProcessDefinitionConfig> getAvailableConfigurations();
     List<ProcessQueue> getUserAvailableQueues();
     Set<String> getPermissionsForWidget(ProcessStateWidget widget);
     Set<String> getPermissionsForAction(ProcessStateAction action);

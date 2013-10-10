@@ -5,7 +5,9 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
@@ -36,6 +38,7 @@ public class TaskViewBuilder
 	private I18NSource i18Source;
 	private UserData user;
     private ProcessToolContext ctx;
+    private ProcessToolBpmSession bpmSession;
 	
 	@Autowired
 	private ProcessToolRegistry processToolRegistry;
@@ -224,6 +227,7 @@ public class TaskViewBuilder
 			viewData.put(IHtmlTemplateProvider.PRIVILEGES_PARAMETER, getPrivileges(widget));
 			viewData.put(IHtmlTemplateProvider.WIDGET_ID_PARAMETER, widget.getId().toString());
             viewData.put(IHtmlTemplateProvider.DICTIONARIES_DAO_PARAMETER, ctx.getProcessDictionaryDAO());
+            viewData.put(IHtmlTemplateProvider.BPM_SESSION_PARAMETER, bpmSession);
 
             for(ProcessStateWidgetAttribute attribute: widget.getAttributes())
                 viewData.put(attribute.getName(), attribute.getValue());
@@ -379,5 +383,10 @@ public class TaskViewBuilder
     public TaskViewBuilder setCtx(ProcessToolContext ctx) {
         this.ctx = ctx;
         return this;
+    }
+    
+    public TaskViewBuilder setBpmSession(ProcessToolBpmSession bpmSession) {
+    	this.bpmSession = bpmSession;
+    	return this;
     }
 }

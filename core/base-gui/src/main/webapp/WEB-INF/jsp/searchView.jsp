@@ -1,4 +1,6 @@
 ﻿<%@ page import="org.springframework.web.servlet.support.RequestContextUtils"%>
+<%@ page import="pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig" %>
+<%@ page import="pl.net.bluesoft.rnd.processtool.ui.jsp.SearchView" %>
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
@@ -10,6 +12,9 @@
 	<div id="search-process-table">
 		<input type="text" id="search-expression-text" class="input-medium" placeholder="<spring:message code='processes.search.textarea.input' />">
 		<select id="search-process-type" class="search-process-type">
+			<%
+			SearchView.sortByLocalizedDescription(processStartList, request.getLocale());
+			%>
 			<c:forEach var="processStart" items="${processStartList}">
 				<option value="${processStart.bpmDefinitionKey}"><spring:message code="${processStart.processName}" /></option>
 			</c:forEach>

@@ -1,4 +1,9 @@
+
+<%@ page import="java.util.List" %>
+<%@ page import="java.util.Map" %>
 <%@ page import="org.springframework.web.servlet.support.RequestContextUtils"%>
+<%@ page import="pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig" %>
+<%@ page import="pl.net.bluesoft.rnd.processtool.ui.jsp.ProcessStartList" %>
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
@@ -7,15 +12,44 @@
 	<div class="process-queue-name">
 		<spring:message code="new.process.view.header" />
 	</div>
-	<c:forEach var="processStart" items="${processStartList}">
+
+<%
+List<ProcessDefinitionConfig> processStartList = (List)request.getAttribute("processStartList");
+Map<String, List<ProcessDefinitionConfig>> groups = ProcessStartList.getGroupedConfigs(processStartList, request.getLocale());
+
+for (Map.Entry<String, List<ProcessDefinitionConfig>> group : groups.entrySet()) {
+	String groupName = group.getKey();
+	List<ProcessDefinitionConfig> processList = group.getValue();
+
+	if (groupName != null) {
+%>
+	<div class="process-start-list-group"><%= groupName %></div>
+<%
+	}
+	else if (groups.size() > 1) {
+%>
+	<div class="process-start-list-group"><spring:message code='process.group.other' /></div>
+<%
+	}
+%>
+
+	<c:forEach var="processStart" items="<%= processList %>">
 		<div class="process-start-list-row" onclick="startProcess('${processStart.bpmDefinitionKey}') ">
-			<div id="${processStart.bpmDefinitionKey}" class="process-start-name" data-toggle="tooltip" title="<spring:message code='${processStart.description}' />  v.<spring:message code='${processStart.bpmDefinitionVersion}' />"><a class="process-start-link"><spring:message code="${processStart.processName}" /></a></div>
-			<div><spring:message code="${processStart.comment}" /> </div>
+			<div id="${processStart.bpmDefinitionKey}" class="process-start-name" data-toggle="tooltip"
+				title="<spring:message code='${processStart.description}' />  v. ${processStart.bpmDefinitionVersion}">
+				<a class="process-start-link"><spring:message code="${processStart.processName}" /></a>
+			</div>
+			<div><spring:message code="${processStart.comment}" /></div>
 		</div>
 	</c:forEach>
+
+<%
+}
+%>
+
 </div>
 
- <script type="text/javascript">
+<script type="text/javascript">
   	$(document).ready(function()
 	{
 		windowManager.addView("new-process-view");
@@ -73,5 +107,4 @@
 
 		});
     }
- 
- </script>
+</script>

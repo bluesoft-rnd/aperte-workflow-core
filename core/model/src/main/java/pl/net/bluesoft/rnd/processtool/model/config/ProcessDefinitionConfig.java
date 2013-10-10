@@ -67,6 +67,8 @@ public class ProcessDefinitionConfig extends AbstractPersistentEntity {
 
 	private String externalKeyPattern;
 
+	private String processGroup;
+
 	@OneToMany(cascade = {CascadeType.ALL}, fetch=FetchType.LAZY)
 	@JoinColumn(name="definition_id")
 	private Set<ProcessStateConfiguration> states = new HashSet<ProcessStateConfiguration>();
@@ -177,6 +179,14 @@ public class ProcessDefinitionConfig extends AbstractPersistentEntity {
 
 	public void setExternalKeyPattern(String externalKeyPattern) {
 		this.externalKeyPattern = externalKeyPattern;
+	}
+
+	public String getProcessGroup() {
+		return processGroup;
+	}
+
+	public void setProcessGroup(String processGroup) {
+		this.processGroup = processGroup;
 	}
 
 	public String getCreatorLogin() {

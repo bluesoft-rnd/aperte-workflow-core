@@ -21,6 +21,7 @@ public interface IHtmlTemplateProvider extends TemplateLoader
 	static final String WIDGET_ID_PARAMETER = "widgetId";
 	static final String PRIVILEGES_PARAMETER = "privileges";
     static final String DICTIONARIES_DAO_PARAMETER = "dictionariesDao";
+	static final String BPM_SESSION_PARAMETER = "bpmSession";
 
     /** Add template */
 	void addTemplate(String templateName, String template);

@@ -112,6 +112,14 @@ public abstract class Node {
 		this.status = node.status;
 		return this;
 	}
+	
+	public double getRightEdge() {
+		return boundary.getX() + boundary.getWidth();
+	}
+	
+	public double getBottomEdge() {
+		return boundary.getY() + boundary.getHeight();
+	}
 
 	public interface Visitor {
 		void visitHumanTaskNode(HumanTaskNode node);

@@ -15,6 +15,7 @@ import java.util.Map;
 public class ProcessDiagram {
 	private final Map<String, Node> nodes = new LinkedHashMap<String, Node>();
 	private final Map<String, Transition> transitions = new LinkedHashMap<String, Transition>();
+	private static final int MARGIN_SIZE = 25;
 
 	public Collection<Node> getNodes() {
 		return Collections.unmodifiableCollection(nodes.values());
@@ -40,6 +41,25 @@ public class ProcessDiagram {
 
 	public Transition getTransition(String transitionId) {
 		return transitions.get(transitionId);
+	}
+	
+	
+	public double getWidth() {
+		Node rightmost = null;
+		for(Node node : nodes.values()) {
+			if(rightmost == null || rightmost.getRightEdge() < node.getRightEdge())
+				rightmost = node;
+		}
+		return rightmost.getRightEdge() + MARGIN_SIZE;
+	}
+	
+	public double getHeight() {
+		Node lowest = null;
+		for(Node node : nodes.values()) {
+			if(lowest == null || lowest.getBottomEdge() < node.getBottomEdge())
+				lowest = node;
+		}
+		return lowest.getBottomEdge() + MARGIN_SIZE;
 	}
 
 	public static ProcessDiagram getSampleDiagram() {

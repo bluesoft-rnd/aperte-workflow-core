@@ -204,7 +204,8 @@ public class TaskViewController extends AbstractProcessToolServletController
 					.setI18Source(messageSource)
 					.setUser(context.getUser())
 					.setCtx(ctx)
-					.setTask(task);
+					.setTask(task)
+					.setBpmSession(context.getBpmSession());
 				
 				long t5 = System.currentTimeMillis();
 

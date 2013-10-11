@@ -78,6 +78,12 @@ public abstract class Node {
 		this.status = status;
 		return this;
 	}
+	
+	public boolean isActive() {
+		if(status == Status.PENDING)
+			return true;
+		return false;
+	}
 
 	public Set<Transition> getIncomingTransitions() {
 		return Collections.unmodifiableSet(incomingTransitions);

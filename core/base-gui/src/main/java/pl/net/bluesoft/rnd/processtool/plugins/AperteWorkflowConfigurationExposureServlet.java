@@ -33,7 +33,7 @@ public class AperteWorkflowConfigurationExposureServlet extends HttpServlet {
 		resp.setContentType("text/plain");
 
         Map<String,Object> res = new HashMap<String,Object>();
-        res.put("definitionLanguage", reg.getBpmDefinitionLanguage());
+        res.put("definitionLanguage", reg.getProcessToolSessionFactory().getBpmDefinitionLanguage());
 		PrintWriter out = resp.getWriter();
 		String formatString = req.getParameter("format");
 		Format format;

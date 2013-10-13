@@ -14,20 +14,20 @@ public class SchedulerActivator extends AbstractPluginActivator {
     protected void init() throws Exception {
         Properties schedulerProperties = loadProperties("quartz.properties");
 
-        registry.registerModelExtension(SchedulerProperty.class);
-        registry.commitModelExtensions();
+        registry.getDataRegistry().registerModelExtension(SchedulerProperty.class);
+        registry.getDataRegistry().commitModelExtensions();
 
         service = new QuartzSchedulerService(registry, schedulerProperties);
         service.init();
 
-        registry.registerService(ProcessToolSchedulerService.class, service, null);
+        registry.getBundleRegistry().registerService(ProcessToolSchedulerService.class, service, null);
         registry.getEventBusManager().subscribe(ScheduleJobEvent.class, service);
     }
 
     @Override
     protected void destroy() throws Exception {
         registry.getEventBusManager().unsubscribe(ScheduleJobEvent.class, service);
-        registry.removeRegisteredService(ProcessToolSchedulerService.class);
+        registry.getBundleRegistry().removeRegisteredService(ProcessToolSchedulerService.class);
         service.destroy();
     }
 }

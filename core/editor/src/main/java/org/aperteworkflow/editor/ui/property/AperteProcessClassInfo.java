@@ -4,6 +4,7 @@ import org.apache.commons.lang.StringUtils;
 import org.aperteworkflow.editor.stepeditor.user.Property;
 import org.aperteworkflow.editor.ui.permission.PermissionDefinition;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.*;
+import pl.net.bluesoft.rnd.util.AnnotationUtil;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.util.lang.Classes;
 
@@ -29,13 +30,12 @@ public class AperteProcessClassInfo {
 	
 	public AperteProcessClassInfo(Class<?> aperteClass, Set<Permission> defaultPermissions) {
 		this.aperteClass = aperteClass;
-		AliasName an = Classes.getClassAnnotation(aperteClass, AliasName.class);
 		ChildrenAllowed ca = aperteClass.getAnnotation(ChildrenAllowed.class);
 		AperteDoc classDoc = Classes.getClassAnnotation(aperteClass, AperteDoc.class);
 		List<Field> fields = Classes.getFieldsWithAnnotation(aperteClass, AutoWiredProperty.class);
 		PermissionsUsed permissionsUsed = Classes.getClassAnnotation(aperteClass, PermissionsUsed.class);
 
-		aliasName = an == null ? "" : an.name();
+		aliasName = AnnotationUtil.getAliasName(aperteClass);
 		childrenAllowed = ca == null ? false : ca.value();
         docName = null;
         docDescription = null;

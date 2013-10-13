@@ -1,11 +1,8 @@
 package pl.net.bluesoft.rnd.pt.ext.user.service;
 
-import java.util.Collection;
-
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
-
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.roles.IUserRolesManager;
@@ -15,6 +12,8 @@ import pl.net.bluesoft.rnd.processtool.roles.exception.UserWithRoleNotFoundExcep
 import pl.net.bluesoft.rnd.pt.ext.user.dao.UserRoleDAO;
 import pl.net.bluesoft.rnd.pt.ext.user.dao.UserRoleDAOImpl;
 import pl.net.bluesoft.rnd.pt.ext.user.model.PersistentUserRole;
+
+import java.util.Collection;
 
 public class AperteUserRolesManager implements IUserRolesManager 
 {
@@ -71,9 +70,9 @@ public class AperteUserRolesManager implements IUserRolesManager
 	
 	private Session getSession()
 	{
-		Session session = processToolRegistry.getSessionFactory().getCurrentSession();
+		Session session = processToolRegistry.getDataRegistry().getSessionFactory().getCurrentSession();
 		if(session == null)
-			session = processToolRegistry.getSessionFactory().openSession();
+			session = processToolRegistry.getDataRegistry().getSessionFactory().openSession();
 		
 		return session;
 	}

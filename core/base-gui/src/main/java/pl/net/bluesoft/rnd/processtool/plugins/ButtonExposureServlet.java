@@ -32,7 +32,7 @@ public class ButtonExposureServlet extends HttpServlet {
 
 		List<String> steps = new ArrayList<String>();
 
-        for (String buttonAlias : getRegistry().getAvailableButtons().keySet()) {
+        for (String buttonAlias : getRegistry().getGuiRegistry().getAvailableButtons().keySet()) {
            steps.add(buttonAlias);
         }
 

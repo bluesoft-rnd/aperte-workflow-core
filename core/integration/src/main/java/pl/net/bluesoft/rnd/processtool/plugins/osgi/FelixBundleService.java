@@ -2,7 +2,7 @@ package pl.net.bluesoft.rnd.processtool.plugins.osgi;
 
 import org.osgi.framework.BundleException;
 import pl.net.bluesoft.rnd.processtool.plugins.PluginManager;
-import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistryImpl;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 
 /**
  * User: POlszewski
@@ -10,7 +10,7 @@ import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistryImpl;
  * Time: 20:50
  */
 public interface FelixBundleService extends PluginManager {
-	void initialize(String felixDir, ProcessToolRegistryImpl registry) throws BundleException;
+	void initialize(String felixDir, ProcessToolRegistry registry) throws BundleException;
 	void setPluginsDir(String pluginsDir);
 	void stopFelix() throws BundleException;
 	void scheduledBundleInstall();

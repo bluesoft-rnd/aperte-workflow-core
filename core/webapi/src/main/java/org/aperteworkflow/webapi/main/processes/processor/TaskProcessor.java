@@ -1,12 +1,9 @@
 package org.aperteworkflow.webapi.main.processes.processor;
 
-import java.util.Collection;
-
+import com.google.common.eventbus.EventBus;
 import org.aperteworkflow.webapi.main.processes.action.domain.SaveResultBean;
 import org.aperteworkflow.webapi.main.processes.action.domain.ValidateResultBean;
 import org.aperteworkflow.webapi.main.processes.domain.HtmlWidget;
-
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.event.SaveTaskEvent;
 import pl.net.bluesoft.rnd.processtool.event.ValidateTaskEvent;
 import pl.net.bluesoft.rnd.processtool.event.beans.ErrorBean;
@@ -16,7 +13,7 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.IWidgetValidator;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
-import com.google.common.eventbus.EventBus;
+import java.util.Collection;
 
 import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 
@@ -30,16 +27,15 @@ public class TaskProcessor
 {
 	private EventBus eventBus;
 	private BpmTask task;
-	private ProcessToolContext ctx;
 	private Collection<HtmlWidget> widgets;
 	private I18NSource messageSource;
 	
-	public TaskProcessor(BpmTask task, ProcessToolContext ctx, EventBus eventBus, I18NSource messageSource, Collection<HtmlWidget> widgets)
+	public TaskProcessor(BpmTask task, EventBus eventBus, I18NSource messageSource, Collection<HtmlWidget> widgets)
 	{
 		this.eventBus = eventBus;
 		this.task = task;
-		this.ctx = ctx;
 		this.widgets = widgets;
+		this.messageSource = messageSource;
 	}
 	
 	/** Validate vaadin and html widgets. Validation is performed to all widgets and
@@ -68,9 +64,9 @@ public class TaskProcessor
 		for(HtmlWidget widgetToValidate: widgets)
 		{
 			/** Get widget definition to retrive validator class */
-			ProcessHtmlWidget processWidget = getRegistry().getHtmlWidget(widgetToValidate.getWidgetName());
+			ProcessHtmlWidget processWidget = getRegistry().getGuiRegistry().getHtmlWidget(widgetToValidate.getWidgetName());
 			if(processWidget == null)
-				throw new RuntimeException(messageSource.getMessage("process.widget.name.unknown", (String)widgetToValidate.getWidgetName()));
+				throw new RuntimeException(messageSource.getMessage("process.widget.name.unknown", widgetToValidate.getWidgetName()));
 			
 			IWidgetValidator widgetValidator = processWidget.getValidator();
 			
@@ -85,9 +81,9 @@ public class TaskProcessor
 		for(HtmlWidget widgetToSave: widgets)
 		{
 			/** Get widget definition to retrive data handler class */
-			ProcessHtmlWidget processWidget = getRegistry().getHtmlWidget(widgetToSave.getWidgetName());
+			ProcessHtmlWidget processWidget = getRegistry().getGuiRegistry().getHtmlWidget(widgetToSave.getWidgetName());
 			if(processWidget == null)
-				throw new RuntimeException(messageSource.getMessage("process.widget.name.unknown", (String)widgetToSave.getWidgetName()));
+				throw new RuntimeException(messageSource.getMessage("process.widget.name.unknown", widgetToSave.getWidgetName()));
 			
 			IWidgetDataHandler widgetDataHandler = processWidget.getDataHandler();
 			

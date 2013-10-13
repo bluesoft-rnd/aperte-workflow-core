@@ -38,7 +38,7 @@ public class NewFelixBundleService implements FelixBundleService {
 	}
 
 	@Override
-	public void initialize(String felixDir, ProcessToolRegistryImpl registry) throws BundleException {
+	public void initialize(String felixDir, ProcessToolRegistry registry) throws BundleException {
 		stopFelix();
 
 		setRegistry(registry);
@@ -113,24 +113,24 @@ public class NewFelixBundleService implements FelixBundleService {
 	 * @param registry
 	 * @param configMap
 	 */
-	private void putActivatorConfig(final ProcessToolRegistryImpl registry, Map<String, Object> configMap) {
-		ArrayList<BundleActivator> activators = new ArrayList<BundleActivator>();
+	private void putActivatorConfig(final ProcessToolRegistry registry, Map<String, Object> configMap) {
+		List<BundleActivator> activators = new ArrayList<BundleActivator>();
 		activators.add(new BundleActivator() {
 			private ProcessToolServiceBridge serviceBridge;
 
 			@Override
 			public void start(BundleContext context) throws Exception {
 				if (registry != null) {
-					registry.setOsgiBundleContext(context);
+					((BundleRegistryImpl)registry.getBundleRegistry()).setOsgiBundleContext(context);
 					serviceBridge = new FelixServiceBridge(felix);
-					registry.addServiceLoader(serviceBridge);
+					registry.getBundleRegistry().addServiceLoader(serviceBridge);
 					registerDefaultServices(context);
 				}
 			}
 
 			@Override
 			public void stop(BundleContext context) throws Exception {
-				registry.removeServiceLoader(serviceBridge);
+				registry.getBundleRegistry().removeServiceLoader(serviceBridge);
 			}
 
 			private void registerDefaultServices(BundleContext context) {
@@ -329,7 +329,7 @@ public class NewFelixBundleService implements FelixBundleService {
 
 	@Override
 	public synchronized Collection<PluginMetadata> getRegisteredPlugins() {
-		List<ProcessToolServiceBridge> serviceLoaders = registry.getServiceLoaders();
+		List<ProcessToolServiceBridge> serviceLoaders = registry.getBundleRegistry().getServiceLoaders();
 		List<PluginMetadata> registeredPlugins = new ArrayList<PluginMetadata>();
 		for (ProcessToolServiceBridge serviceBridge : serviceLoaders) {
 			try {

@@ -24,12 +24,12 @@ public class DictionaryHelpChanger
 
 	public void changeDictionaryHelp(final DictionaryChangeRequest changeRequest)
 	{
-		registry.getProcessToolContextFactory().withProcessToolContext(new ProcessToolContextCallback() 
+		registry.withProcessToolContext(new ProcessToolContextCallback()
 		{
 			@Override
 			public void withContext(ProcessToolContext ctx) 
 			{
-				ProcessDictionaryDAO dictionaryDao = registry.getProcessDictionaryDAO(ctx.getHibernateSession());
+				ProcessDictionaryDAO dictionaryDao = registry.getDataRegistry().getProcessDictionaryDAO(ctx.getHibernateSession());
 				ProcessDBDictionary dictionary = dictionaryDao.fetchDictionary(changeRequest.getDictionaryId());
 
 				if(dictionary == null)
@@ -39,7 +39,6 @@ public class DictionaryHelpChanger
 				}
 				dictionaryDao.createOrUpdateDictionaryItem(dictionary, changeRequest.getLanguageCode(), changeRequest.getDictionaryItemKey(), changeRequest.getDictionaryItemValue());
 			}
-			
 		});
 	}
 	

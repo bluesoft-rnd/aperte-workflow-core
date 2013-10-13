@@ -1,15 +1,14 @@
 package pl.net.bluesoft.rnd.util.i18n.impl;
 
-import java.text.MessageFormat;
-import java.util.Collection;
-import java.util.Locale;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
-
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.util.i18n.I18NProvider;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+
+import java.text.MessageFormat;
+import java.util.Collection;
+import java.util.Locale;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -49,7 +48,7 @@ public class DefaultI18NSource implements I18NSource
 		if(processToolRegistry == null)
 			SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
         
-		Collection<I18NProvider> i18NProviders = processToolRegistry.getI18NProviders();
+		Collection<I18NProvider> i18NProviders = processToolRegistry.getBundleRegistry().getI18NProviders();
 		//1st run - full localization e.g. _pl_PL
 		for (I18NProvider i18NProvider : i18NProviders) {
 			if (!i18NProvider.hasFullyLocalizedMessage(key, locale)) continue;

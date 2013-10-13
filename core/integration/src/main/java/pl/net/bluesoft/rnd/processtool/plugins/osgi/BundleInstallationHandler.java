@@ -1,7 +1,23 @@
 package pl.net.bluesoft.rnd.processtool.plugins.osgi;
 
-import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
-import static pl.net.bluesoft.rnd.processtool.plugins.osgi.OSGiBundleHelper.*;
+import com.thoughtworks.xstream.XStream;
+import org.osgi.framework.Bundle;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
+import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
+import pl.net.bluesoft.rnd.processtool.plugins.IBundleResourceProvider;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.rnd.processtool.plugins.deployment.ProcessDeployer;
+import pl.net.bluesoft.rnd.processtool.plugins.osgi.beans.ScriptFileNameBean;
+import pl.net.bluesoft.rnd.processtool.roles.IUserRolesManager;
+import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
+import pl.net.bluesoft.rnd.processtool.web.controller.IOsgiWebController;
+import pl.net.bluesoft.rnd.processtool.web.controller.OsgiController;
+import pl.net.bluesoft.rnd.processtool.web.domain.IWidgetScriptProvider;
+import pl.net.bluesoft.rnd.processtool.web.widgets.impl.FileWidgetJavaScriptProvider;
+import pl.net.bluesoft.rnd.util.i18n.impl.PropertiesBasedI18NProvider;
+import pl.net.bluesoft.rnd.util.i18n.impl.PropertyLoader;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,26 +29,8 @@ import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.osgi.framework.Bundle;
-
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
-import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
-import pl.net.bluesoft.rnd.processtool.plugins.IBundleResourceProvider;
-import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
-import pl.net.bluesoft.rnd.processtool.plugins.deployment.ProcessDeployer;
-import pl.net.bluesoft.rnd.processtool.plugins.osgi.beans.ScriptFileNameBean;
-import pl.net.bluesoft.rnd.processtool.roles.IUserRolesManager;
-import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
-import pl.net.bluesoft.rnd.processtool.web.controller.IOsgiWebController;
-import pl.net.bluesoft.rnd.processtool.web.controller.OsgiController;
-import pl.net.bluesoft.rnd.processtool.web.domain.IWidgetScriptProvider;
-import pl.net.bluesoft.rnd.processtool.web.widgets.impl.FileWidgetJavaScriptProvider;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
-import pl.net.bluesoft.rnd.util.i18n.impl.PropertiesBasedI18NProvider;
-import pl.net.bluesoft.rnd.util.i18n.impl.PropertyLoader;
-
-import com.thoughtworks.xstream.XStream;
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+import static pl.net.bluesoft.rnd.processtool.plugins.osgi.OSGiBundleHelper.*;
 
 /**
  * User: POlszewski
@@ -52,7 +50,7 @@ public class BundleInstallationHandler {
 	}
 
 	public synchronized void processBundleExtensions(Bundle bundle, int eventType) throws ClassNotFoundException {
-		if (registry.getProcessToolContextFactory() == null) {
+		if (registry.getDataRegistry().getProcessToolContextFactory() == null) {
 			logger.severe("No default process tool context registered! - skipping process tool context-based processing of this OSGI bundle");
 			return;
 		}
@@ -137,10 +135,10 @@ public class BundleInstallationHandler {
 				
 				if (eventType == Bundle.ACTIVE) 
 				{
-					toolRegistry.registerJavaScript(scriptFileNameBean.getFileName(), scriptProvider);
+					toolRegistry.getGuiRegistry().registerJavaScript(scriptFileNameBean.getFileName(), scriptProvider);
 				}
 				else {
-					toolRegistry.unregisterJavaScript(scriptFileNameBean.getFileName());
+					toolRegistry.getGuiRegistry().unregisterJavaScript(scriptFileNameBean.getFileName());
 				}
 			}
 			catch(Throwable e)
@@ -169,11 +167,11 @@ public class BundleInstallationHandler {
 
 				if (eventType == Bundle.ACTIVE) 
 				{
-					toolRegistry.registerHtmlView(htmlWidget.getWidgetName(), htmlWidget);
+					toolRegistry.getGuiRegistry().registerHtmlView(htmlWidget.getWidgetName(), htmlWidget);
 				}
 				else 
 				{
-					toolRegistry.unregisterHtmlView(htmlWidget.getWidgetName());
+					toolRegistry.getGuiRegistry().unregisterHtmlView(htmlWidget.getWidgetName());
 				}
 			}
 			catch(Throwable e)
@@ -182,7 +180,6 @@ public class BundleInstallationHandler {
 				forwardErrorInfoToMonitor(bundle.getSymbolicName(), e);
 			}
 		}
-		
 	}
 
     private void handleController(int eventType, OSGiBundleHelper bundleHelper,ProcessToolRegistry toolRegistry)
@@ -202,11 +199,11 @@ public class BundleInstallationHandler {
                 if (eventType == Bundle.ACTIVE)
                 {
                     IOsgiWebController controller = controllerClass.newInstance();
-                    toolRegistry.registerWebController(controllerName, controller);
+                    toolRegistry.getGuiRegistry().registerWebController(controllerName, controller);
                 }
                 else
                 {
-                    toolRegistry.unregisterWebController(controllerName);
+                    toolRegistry.getGuiRegistry().unregisterWebController(controllerName);
                 }
             }
             catch (Throwable e)
@@ -224,7 +221,7 @@ public class BundleInstallationHandler {
 		for (String propertyFileName : properties) {
 			String providerId = bundle.getBundleId() + File.separator + propertyFileName;
 			if (eventType == Bundle.ACTIVE) {
-				toolRegistry.registerI18NProvider(new PropertiesBasedI18NProvider(new PropertyLoader() {
+				toolRegistry.getBundleRegistry().registerI18NProvider(new PropertiesBasedI18NProvider(new PropertyLoader() {
 					@Override
 					public InputStream loadProperty(String path) throws IOException {
 						return getBundleResourceStream(bundle, path);
@@ -232,7 +229,7 @@ public class BundleInstallationHandler {
 				}, propertyFileName), providerId);
 			}
 			else {
-				toolRegistry.unregisterI18NProvider(providerId);
+				toolRegistry.getBundleRegistry().unregisterI18NProvider(providerId);
 			}
 		}
 	}
@@ -242,10 +239,10 @@ public class BundleInstallationHandler {
 		String[] classes = bundleHelper.getHeaderValues(STEP_ENHANCEMENT);
 		for (String cls : classes) {
 			if (eventType == Bundle.ACTIVE) {
-				toolRegistry.registerStep((Class<? extends ProcessToolProcessStep>) bundle.loadClass(cls));
+				toolRegistry.getGuiRegistry().registerStep((Class<? extends ProcessToolProcessStep>) bundle.loadClass(cls));
 			}
 			else {
-				toolRegistry.unregisterStep((Class<? extends ProcessToolProcessStep>) bundle.loadClass(cls));
+				toolRegistry.getGuiRegistry().unregisterStep((Class<? extends ProcessToolProcessStep>) bundle.loadClass(cls));
 			}
 		}
 	}
@@ -255,10 +252,10 @@ public class BundleInstallationHandler {
 		String[] classes = bundleHelper.getHeaderValues(BUTTON_ENHANCEMENT);
 		for (String cls : classes) {
 			if (eventType == Bundle.ACTIVE) {
-				toolRegistry.registerButton(bundle.loadClass(cls));
+				toolRegistry.getGuiRegistry().registerButton((Class)bundle.loadClass(cls));
 			}
 			else {
-				toolRegistry.unregisterButton(bundle.loadClass(cls));
+				toolRegistry.getGuiRegistry().unregisterButton((Class)bundle.loadClass(cls));
 			}
 		}
 	}
@@ -268,10 +265,10 @@ public class BundleInstallationHandler {
 		String[] classes = bundleHelper.getHeaderValues(WIDGET_ENHANCEMENT);
 		for (String cls : classes) {
 			if (eventType == Bundle.ACTIVE) {
-				toolRegistry.registerWidget(bundle.loadClass(cls));
+				toolRegistry.getGuiRegistry().registerWidget((Class)bundle.loadClass(cls));
 			}
 			else {
-				toolRegistry.unregisterWidget(bundle.loadClass(cls));
+				toolRegistry.getGuiRegistry().unregisterWidget((Class)bundle.loadClass(cls));
 			}
 		}
 	}
@@ -286,17 +283,17 @@ public class BundleInstallationHandler {
 		if (!classSet.isEmpty()) {
 			Class<?>[] extensions = classSet.toArray(new Class<?>[classSet.size()]);
 			boolean needUpdate = eventType == Bundle.ACTIVE
-					? toolRegistry.registerModelExtension(extensions)
-					: toolRegistry.unregisterModelExtension(extensions);
+					? toolRegistry.getDataRegistry().registerModelExtension(extensions)
+					: toolRegistry.getDataRegistry().unregisterModelExtension(extensions);
 			if (needUpdate) {
 				logger.fine("Rebuilding Hibernate session factory...");
 				try {
-					toolRegistry.commitModelExtensions();
+					toolRegistry.getDataRegistry().commitModelExtensions();
 				}
 				catch (Exception e) {
 					logger.severe("Encountered problem while updating Hibernate mappings");
 					logger.log(Level.SEVERE, e.getMessage(), e);
-					toolRegistry.unregisterModelExtension(extensions);
+					toolRegistry.getDataRegistry().unregisterModelExtension(extensions);
 				}
 			}
 			else {
@@ -323,13 +320,13 @@ public class BundleInstallationHandler {
 
 							processDeployer.deployOrUpdateProcessDefinition(
 									bundleHelper.getBundleResourceStream(basePath + "processdefinition." +
-											toolRegistry.getBpmDefinitionLanguage()),
+											toolRegistry.getProcessToolSessionFactory().getBpmDefinitionLanguage()),
 											bundleHelper.getBundleResourceStream(basePath + "processtool-config.xml"),
 									bundleHelper.getBundleResourceStream(basePath + "queues-config.xml"),
 									bundleHelper.getBundleResourceStream(basePath + "processdefinition.png"),
 									bundleHelper.getBundleResourceStream(basePath + "processdefinition-logo.png"));
 
-							getRegistry().registerI18NProvider(new PropertiesBasedI18NProvider(new PropertyLoader() {
+							getRegistry().getBundleRegistry().registerI18NProvider(new PropertiesBasedI18NProvider(new PropertyLoader() {
 								@Override
 								public InputStream loadProperty(String path) throws IOException {
 									return getBundleResourceStream(bundle, path);
@@ -344,7 +341,7 @@ public class BundleInstallationHandler {
 				});
 			}
 			else { // ignore
-				toolRegistry.unregisterI18NProvider(providerId);
+				toolRegistry.getBundleRegistry().unregisterI18NProvider(providerId);
 			}
 		}
 	}
@@ -438,11 +435,11 @@ public class BundleInstallationHandler {
 				Enumeration<URL> urls = bundle.findEntries(basePath, null, true);
 				while (urls.hasMoreElements()) {
 					String path = urls.nextElement().getPath();
-					toolRegistry.registerResource(bundle.getSymbolicName(), path);
+					toolRegistry.getBundleRegistry().registerResource(bundle.getSymbolicName(), path);
 				}
 			}
 			else {
-				toolRegistry.removeRegisteredResources(bundle.getSymbolicName());
+				toolRegistry.getBundleRegistry().removeRegisteredResources(bundle.getSymbolicName());
 			}
 		}
 	}

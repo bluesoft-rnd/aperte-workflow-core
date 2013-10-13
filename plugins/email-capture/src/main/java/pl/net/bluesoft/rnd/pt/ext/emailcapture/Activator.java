@@ -25,9 +25,9 @@ public class Activator implements BundleActivator {
 	public void start(final BundleContext context) throws Exception {
 
 		final ProcessToolRegistry toolRegistry = getRegistry(context);
-		toolRegistry.registerModelExtension(EmailCheckerConfiguration.class);
-		toolRegistry.registerModelExtension(EmailCheckerRuleConfiguration.class);
-		toolRegistry.commitModelExtensions();
+		toolRegistry.getDataRegistry().registerModelExtension(EmailCheckerConfiguration.class);
+		toolRegistry.getDataRegistry().registerModelExtension(EmailCheckerRuleConfiguration.class);
+		toolRegistry.getDataRegistry().commitModelExtensions();
 		new Thread(new Runnable() {
 
 			@Override

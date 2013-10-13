@@ -1,9 +1,9 @@
 package pl.net.bluesoft.rnd.processtool.web.domain;
 
-import java.util.Map;
-
-import pl.net.bluesoft.rnd.processtool.template.ProcessToolTemplateErrorException;
 import freemarker.cache.TemplateLoader;
+import pl.net.bluesoft.rnd.processtool.template.ProcessToolTemplateErrorException;
+
+import java.util.Map;
 
 /**
  * Configuration and template provider for html widget pages 
@@ -13,15 +13,15 @@ import freemarker.cache.TemplateLoader;
  */
 public interface IHtmlTemplateProvider extends TemplateLoader 
 {
-	static final String PROCESS_PARAMTER = "process";
-	static final String TASK_PARAMTER = "task";
-	static final String USER_PARAMTER = "user";
-	static final String MESSAGE_SOURCE_PARAMETER = "messageSource";
-	static final String WIDGET_NAME_PARAMETER = "widgetName";
-	static final String WIDGET_ID_PARAMETER = "widgetId";
-	static final String PRIVILEGES_PARAMETER = "privileges";
-    static final String DICTIONARIES_DAO_PARAMETER = "dictionariesDao";
-	static final String BPM_SESSION_PARAMETER = "bpmSession";
+	String PROCESS_PARAMTER = "process";
+	String TASK_PARAMTER = "task";
+	String USER_PARAMTER = "user";
+	String MESSAGE_SOURCE_PARAMETER = "messageSource";
+	String WIDGET_NAME_PARAMETER = "widgetName";
+	String WIDGET_ID_PARAMETER = "widgetId";
+	String PRIVILEGES_PARAMETER = "privileges";
+    String DICTIONARIES_DAO_PARAMETER = "dictionariesDao";
+	String BPM_SESSION_PARAMETER = "bpmSession";
 
     /** Add template */
 	void addTemplate(String templateName, String template);

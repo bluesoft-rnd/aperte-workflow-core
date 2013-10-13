@@ -17,9 +17,7 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolActionButton;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import pl.net.bluesoft.util.lang.Classes;
 
 import java.io.IOException;
 import java.util.*;
@@ -28,6 +26,7 @@ import java.util.logging.Logger;
 
 import static pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction.getAutowiredPropertyNames;
 import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+import static pl.net.bluesoft.rnd.util.AnnotationUtil.getAliasName;
 
 public class ActionEditorApplication extends GenericEditorApplication implements ParameterHandler, ClickListener {
 	private static final long serialVersionUID = 2136349126207525109L;
@@ -92,7 +91,7 @@ public class ActionEditorApplication extends GenericEditorApplication implements
 		buttonList = prepareButtonList(buttonType);
 		main.addComponent(buttonList);
 		if (!StringUtils.isEmpty(buttonType)) {
-			Class<? extends ProcessToolActionButton> buttonClass = getRegistry().getAvailableButtons().get(buttonType); 
+			Class<? extends ProcessToolActionButton> buttonClass = getRegistry().getGuiRegistry().getAvailableButtons().get(buttonType);
 			propertiesPanel.init(buttonClass);
 			propertiesPanel.refreshForm(true, oldActionParameters);
 			main.addComponent(propertiesPanel);
@@ -137,16 +136,18 @@ public class ActionEditorApplication extends GenericEditorApplication implements
         
         List<Item> items = new LinkedList<Item>();
         Class<? extends ProcessToolActionButton> active = null;
-		Map<String, Class<? extends ProcessToolActionButton>> availableButtons = getRegistry().getAvailableButtons();
+		Map<String, Class<? extends ProcessToolActionButton>> availableButtons = getRegistry().getGuiRegistry().getAvailableButtons();
+
 		for (Class<? extends ProcessToolActionButton> stepClass : availableButtons.values()) {
-			AliasName a = Classes.getClassAnnotation(stepClass, AliasName.class);
-			items.add(new Item(stepClass,a.name()));
+			String aliasName = getAliasName(stepClass);
+
+			items.add(new Item(stepClass, aliasName));
 			
-			if (a.name().equals(buttonType))
-				active=stepClass;
+			if (aliasName.equals(buttonType)) {
+				active = stepClass;
+			}
 		}
-		
-		
+
 		Collections.sort(items);
 	        
 	    for (Item item:items){

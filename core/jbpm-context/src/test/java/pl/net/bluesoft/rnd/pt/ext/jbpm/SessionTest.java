@@ -137,7 +137,7 @@ public class SessionTest extends TestCase {
 
 	private ProcessInstance checkIsInSubprocess(final ProcessInstance processInstance, final String bpmDefinitionKey) {
         final ProcessInstance[] subprocess = new ProcessInstance[1];
-        registry.getProcessToolContextFactory().withProcessToolContext(new ProcessToolContextCallback() {
+        registry.withProcessToolContext(new ProcessToolContextCallback() {
             @Override
             public void withContext(ProcessToolContext ctx) {
                 ProcessInstance processInstanceLocal =  ctx.getProcessInstanceDAO().getProcessInstanceByInternalId(processInstance.getInternalId());
@@ -316,7 +316,7 @@ public class SessionTest extends TestCase {
 	}
 
 	private void checkFinished(final ProcessInstance processInstance) {
-        registry.getProcessToolContextFactory().withProcessToolContext(new ProcessToolContextCallback() {
+        registry.withProcessToolContext(new ProcessToolContextCallback() {
             @Override
             public void withContext(ProcessToolContext ctx) {
                 ProcessInstance processInstanceLocal =  ctx.getProcessInstanceDAO().getProcessInstanceByInternalId(processInstance.getInternalId());
@@ -327,7 +327,7 @@ public class SessionTest extends TestCase {
 	}
 
 	private void checkNotFinished(final ProcessInstance processInstance) {
-        registry.getProcessToolContextFactory().withProcessToolContext(new ProcessToolContextCallback() {
+        registry.withProcessToolContext(new ProcessToolContextCallback() {
             @Override
             public void withContext(ProcessToolContext ctx) {
                 ProcessInstance processInstanceLocal =  ctx.getProcessInstanceDAO().getProcessInstanceByInternalId(processInstance.getInternalId());
@@ -347,7 +347,7 @@ public class SessionTest extends TestCase {
 	}
 
 	private void checkTasksInVQs(final Object[][] rows) {
-        registry.getProcessToolContextFactory().withProcessToolContext(new ProcessToolContextCallback() {
+        registry.withProcessToolContext(new ProcessToolContextCallback() {
             @Override
             public void withContext(ProcessToolContext ctx) {
 
@@ -401,7 +401,7 @@ public class SessionTest extends TestCase {
 	}
 
 	private void checkTasksByProcessByUser(final ProcessInstance processInstance, final Object[][] rows) {
-        registry.getProcessToolContextFactory().withProcessToolContext(new ProcessToolContextCallback() {
+        registry.withProcessToolContext(new ProcessToolContextCallback() {
             @Override
             public void withContext(ProcessToolContext ctx) {
 		for (Object[] row : rows) {
@@ -435,7 +435,7 @@ public class SessionTest extends TestCase {
 	}
 
 	private void checkUserHasAccessToQueues(final String user, final String... queueNames) {
-        registry.getProcessToolContextFactory().withProcessToolContext(new ProcessToolContextCallback() {
+        registry.withProcessToolContext(new ProcessToolContextCallback() {
             @Override
             public void withContext(ProcessToolContext ctx) {
                 List<ProcessQueue> queues = createSession(user).getUserAvailableQueues();
@@ -452,7 +452,7 @@ public class SessionTest extends TestCase {
 	}
 
 	private void checkAnyTaskExists() {
-        registry.getProcessToolContextFactory().withProcessToolContext(new ProcessToolContextCallback() {
+        registry.withProcessToolContext(new ProcessToolContextCallback() {
             @Override
             public void withContext(ProcessToolContext ctx) {
 		List<BpmTask> allTasks = createSession("admin").getAllTasks();
@@ -463,7 +463,7 @@ public class SessionTest extends TestCase {
 	}
 
 	private void assignFromQueue(final ProcessInstance processInstance, final String user, final String state, final String queueName) {
-        registry.getProcessToolContextFactory().withProcessToolContext(new ProcessToolContextCallback() {
+        registry.withProcessToolContext(new ProcessToolContextCallback() {
             @Override
             public void withContext(ProcessToolContext ctx) {
 
@@ -493,34 +493,33 @@ public class SessionTest extends TestCase {
 
 	private void performAction( final ProcessInstance processInstance, final String user, final String state, final String actionName) {
 
-        registry.getProcessToolContextFactory().withProcessToolContext(new ProcessToolContextCallback() {
+        registry.withProcessToolContext(new ProcessToolContextCallback() {
             @Override
             public void withContext(ProcessToolContext ctx) {
                 SessionTest.this.ctx = ctx;
 
+				ProcessToolBpmSession session = createSession(user);
 
-		ProcessToolBpmSession session = createSession(user);
+				ProcessInstance processInstanceLocal = ctx.getProcessInstanceDAO().getProcessInstanceByInternalId(processInstance.getInternalId());
 
-        ProcessInstance processInstanceLocal = ctx.getProcessInstanceDAO().getProcessInstanceByInternalId(processInstance.getInternalId());
+				List<BpmTask> list = session.findProcessTasks(processInstanceLocal, user, Collections.singleton(state));
 
-		List<BpmTask> list = session.findProcessTasks(processInstanceLocal, user, Collections.singleton(state));
+				BpmTask task = byName(list).get(state);
 
-		BpmTask task = byName(list).get(state);
+				assertNotNull(task);
 
-		assertNotNull(task);
+				ProcessStateAction action = getAction(processInstanceLocal, state, actionName);
 
-		ProcessStateAction action = getAction(processInstanceLocal, state, actionName);
+				assertNotNull(action);
 
-		assertNotNull(action);
+				print("--------> " + task);
 
-		print("--------> " + task);
+				List<BpmTask> tasks = session.performAction(action, task);
 
-		List<BpmTask> tasks = session.performAction(action, task);
+				print("--------> AFTER " + task);
 
-		print("--------> AFTER " + task);
-
-		assertTrue(tasks != null);
-		assertTrue(user.equals(task.getAssignee()) || task.isFinished());
+				assertTrue(tasks != null);
+				assertTrue(user.equals(task.getAssignee()) || task.isFinished());
             }
         });
 	}
@@ -558,7 +557,7 @@ public class SessionTest extends TestCase {
 
 	private void checkTasksByProcess(final ProcessInstance processInstance, final String[][] args) {
 
-        registry.getProcessToolContextFactory().withProcessToolContext(new ProcessToolContextCallback() {
+        registry.withProcessToolContext(new ProcessToolContextCallback() {
             @Override
             public void withContext(ProcessToolContext ctx) {
 		ProcessToolBpmSession session = createSession("admin");
@@ -631,7 +630,7 @@ public class SessionTest extends TestCase {
 
 	private ProcessInstance startProcess(final String user, final String bpmDefinitionKey) {
         final ProcessInstance[] processInstance = new ProcessInstance[1];
-        registry.getProcessToolContextFactory().withProcessToolContext(new ProcessToolContextCallback() {
+        registry.withProcessToolContext(new ProcessToolContextCallback() {
             @Override
             public void withContext(ProcessToolContext ctx) {
                 SessionTest.this.ctx = ctx;
@@ -669,7 +668,7 @@ public class SessionTest extends TestCase {
 			dao.getActiveConfigurationByKey(newConfig.getBpmDefinitionKey());
 
 			processDeployer.deployOrUpdateProcessDefinition(
-					getStream(basePath + "/processdefinition." + registry.getBpmDefinitionLanguage()),
+					getStream(basePath + "/processdefinition." + registry.getProcessToolSessionFactory().getBpmDefinitionLanguage()),
 					getStream(basePath + "/processtool-config.xml"),
 					getStream(basePath + "/queues-config.xml"),
 					getStream(basePath + "/processdefinition.png"),
@@ -783,11 +782,10 @@ public class SessionTest extends TestCase {
         new InitialContext().lookup("aperte-workflow-ds");
 
     	registry = new ProcessToolRegistryImpl();
-		registry.setBpmDefinitionLanguage("bpmn20");
         UserSourceMock userSourceMock = new UserSourceMock();
         registry.setUserSource(userSourceMock);
         ProcessToolContextFactory contextFactory = new ProcessToolContextFactoryImpl(registry);
-        registry.setProcessToolContextFactory(contextFactory);
+        registry.getDataRegistry().setProcessToolContextFactory(contextFactory);
 		registry.setProcessToolSessionFactory(new ProcessToolJbpmSessionFactory());
 
 		ProcessToolRegistry.Util.setAwfClassLoader(Thread.currentThread().getContextClassLoader());
@@ -841,7 +839,7 @@ public class SessionTest extends TestCase {
 
 
     public void testSubprocess() {
-        registry.getProcessToolContextFactory().withProcessToolContext(new ProcessToolContextCallback() {
+        registry.withProcessToolContext(new ProcessToolContextCallback() {
             @Override
             public void withContext(ProcessToolContext ctx) {
                 SessionTest.this.ctx = ctx;
@@ -860,7 +858,7 @@ public class SessionTest extends TestCase {
 
 
     public void testComplaint() {
-        registry.getProcessToolContextFactory().withProcessToolContext(new ProcessToolContextCallback() {
+        registry.withProcessToolContext(new ProcessToolContextCallback() {
             @Override
             public void withContext(ProcessToolContext ctx) {
                 SessionTest.this.ctx = ctx;

@@ -144,7 +144,7 @@ public class ProcessDeployer
 
 	private void checkRequiredFiles(InputStream jpdlStream, InputStream processToolConfigStream, InputStream queueConfigStream) {
 		if (jpdlStream == null) {
-			throw new IllegalArgumentException("processdefinition." + getRegistry().getBpmDefinitionLanguage() + " file missing");
+			throw new IllegalArgumentException("processdefinition." + getRegistry().getProcessToolSessionFactory().getBpmDefinitionLanguage() + " file missing");
 		}
 		if (processToolConfigStream == null) {
 			throw new IllegalArgumentException("processtool-config.xml file missing");

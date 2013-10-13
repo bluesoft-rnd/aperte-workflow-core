@@ -51,7 +51,7 @@ public class WidgetInfoLoader {
 
 		Map<BundleItem, Collection<WidgetItem>> availableWidgets = new HashMap<BundleItem, Collection<WidgetItem>>();
 
-        Map<String, Class<? extends ProcessToolWidget>> registeredWidgets = getRegistry().getAvailableWidgets();
+        Map<String, Class<? extends ProcessToolWidget>> registeredWidgets = getRegistry().getGuiRegistry().getAvailableWidgets();
         if (registeredWidgets == null || registeredWidgets.isEmpty()) {
             return  availableWidgets;
         }
@@ -64,7 +64,7 @@ public class WidgetInfoLoader {
             viewableWidgets.put(widgetClass.getName(), widgetClass);
         }
 
-        for(ProcessHtmlWidget htmlWidget: getRegistry().getHtmlWidgets())
+        for(ProcessHtmlWidget htmlWidget: getRegistry().getGuiRegistry().getHtmlWidgets())
             viewableWidgets.put(htmlWidget.getClass().getName(), htmlWidget.getClass());
 
         // Create sorted structure of widgets by processing their annotations

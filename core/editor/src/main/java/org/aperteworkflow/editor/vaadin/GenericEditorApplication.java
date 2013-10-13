@@ -49,8 +49,8 @@ public class GenericEditorApplication extends Application implements HttpServlet
         Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
         try {
             String providerId = "step-editor";
-            if (!getRegistry().hasI18NProvider(providerId)) {
-                getRegistry().registerI18NProvider(
+            if (!getRegistry().getBundleRegistry().hasI18NProvider(providerId)) {
+                getRegistry().getBundleRegistry().registerI18NProvider(
 						new PropertiesBasedI18NProvider(new PropertyLoader() {
 							@Override
 							public InputStream loadProperty(String path) throws IOException {

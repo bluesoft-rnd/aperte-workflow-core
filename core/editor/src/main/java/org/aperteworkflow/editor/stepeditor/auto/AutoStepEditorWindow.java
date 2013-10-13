@@ -17,11 +17,7 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
-import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
-import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import pl.net.bluesoft.util.lang.Classes;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -32,6 +28,7 @@ import java.util.logging.Logger;
 
 import static org.aperteworkflow.util.vaadin.VaadinUtility.styled;
 import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+import static pl.net.bluesoft.rnd.util.AnnotationUtil.getAliasName;
 
 public class AutoStepEditorWindow extends AbstractStepEditorWindow {
 
@@ -180,11 +177,8 @@ public class AutoStepEditorWindow extends AbstractStepEditorWindow {
 
 	
 	private Class<?> getStepClass(String stepType) {
-        Map<String,ProcessToolProcessStep> availableSteps = getRegistry().getAvailableSteps();
-        for (ProcessToolProcessStep stepInstance : availableSteps.values()) {
-            Class stepClass = stepInstance.getClass();
-            AliasName a = Classes.getClassAnnotation(stepClass, AliasName.class);
-            if (stepType.equals(a.name())) {
+        for (Class stepClass : getRegistry().getGuiRegistry().getAvailableSteps().values()) {
+            if (stepType.equals(getAliasName(stepClass))) {
             	return stepClass;
             }
         }

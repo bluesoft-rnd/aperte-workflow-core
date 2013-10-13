@@ -1,6 +1,7 @@
 package pl.net.bluesoft.rnd.pt.ext.jbpm;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory.ExecutionType;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceDAO;
 import pl.net.bluesoft.rnd.processtool.model.BpmStep;
@@ -9,11 +10,10 @@ import pl.net.bluesoft.rnd.processtool.model.nonpersistent.BpmStepBean;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.PropertyAutoWiring;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
-import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory.ExecutionType;
 
 public class JbpmStepAction {
 	
@@ -35,7 +35,7 @@ public class JbpmStepAction {
 
         ProcessInstance pi = dao.getProcessInstanceByInternalId(processInstanceId);
 
-        ProcessToolProcessStep stepInstance = getRegistry().getStep(stepName);
+        ProcessToolProcessStep stepInstance = getRegistry().getGuiRegistry().createStep(stepName);
 
         if (stepInstance == null) {
             throw new IllegalArgumentException("No step defined by name: " + stepName);

@@ -5,7 +5,6 @@ import org.mule.api.MuleMessage;
 import org.mule.api.client.LocalMuleClient;
 import pl.net.bluesoft.rnd.awf.mule.MulePluginManager;
 import pl.net.bluesoft.rnd.processtool.model.BpmStep;
-import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
@@ -39,18 +38,12 @@ public class MuleStep implements ProcessToolProcessStep {
     @AutoWiredProperty
     private Long timeout = Long.valueOf(-1);
 
-    private MulePluginManager mulePluginManager;
-
-    public MuleStep(MulePluginManager mulePluginManager) {
-        this.mulePluginManager = mulePluginManager;
-    }
-
     @Override
     public String invoke(BpmStep step, Map params) throws Exception {
         try {
             ProcessInstance processInstance = step.getProcessInstance();
             payload = params.get("payload");
-            LocalMuleClient client = mulePluginManager.getMuleContext().getClient();
+            LocalMuleClient client = MulePluginManager.instance().getMuleContext().getClient();
 //            XStream xs = new XStream();
 //            xs.registerConverter(new MyPersistentSetConverter(xs.getMapper()), XStream.PRIORITY_VERY_HIGH);
 //            xs.omitField(ProcessInstance.class, "definition");

@@ -1,15 +1,14 @@
 package org.aperteworkflow.cmis.widget;
 
-import java.util.Hashtable;
-import java.util.Properties;
-
 import org.apache.chemistry.opencmis.client.api.SessionFactory;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+
+import java.util.Hashtable;
+import java.util.Properties;
 
 public class Activator implements BundleActivator 
 {
@@ -25,7 +24,7 @@ public class Activator implements BundleActivator
 				ServiceReference reference = bundle.getBundleContext().getServiceReference(SessionFactory.class.getName());
 				SessionFactory sessionFactory = (SessionFactory)bundle.getBundleContext().getService(reference);
 
-		        registry.registerService(SessionFactory.class, sessionFactory, new Properties());
+		        registry.getBundleRegistry().registerService(SessionFactory.class, sessionFactory, new Properties());
 		        context.registerService(SessionFactory.class.getName(), sessionFactory, new Hashtable<String, String>());
 			}
 		}

@@ -13,6 +13,11 @@ import java.util.Collections;
  */
 public class ProcessToolJbpmSessionFactory implements ProcessToolSessionFactory {
 	@Override
+	public String getBpmDefinitionLanguage() {
+		return "bpmn20";
+	}
+
+	@Override
 	public ProcessToolBpmSession createSession(UserData user) {
 		return createSession(user.getLogin(), user.getRoles());
 	}

@@ -419,15 +419,9 @@ public class ProcessMultiViewDataPane extends VerticalLayout implements WidgetCo
 	}
 
 	private ProcessToolActionButton makeButton(ProcessStateAction a) {
-		try {
-			ProcessToolContext ctx = getCurrentContext();
-			ProcessToolActionButton actionButton = getRegistry().makeButton(a.getButtonName());
-			actionButton.setContext(a, bpmSession, application, i18NSource);
-			return actionButton;
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		ProcessToolActionButton actionButton = getRegistry().getGuiRegistry().createButton(a.getButtonName());
+		actionButton.setContext(a, bpmSession, application, i18NSource);
+		return actionButton;
 	}
 
 	private void processWidgetChildren(ProcessStateWidget parentWidgetConfiguration, ProcessToolWidget parentWidgetInstance,

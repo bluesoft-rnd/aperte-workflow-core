@@ -13,7 +13,7 @@ public interface ProcessToolContextFactory {
 	ProcessToolRegistry getRegistry();
 	void updateSessionFactory(SessionFactory sf);
 	
-	public enum ExecutionType {
+	enum ExecutionType {
 		NO_TRANSACTION,
 		NO_TRANSACTION_SYNCH,
 		TRANSACTION,

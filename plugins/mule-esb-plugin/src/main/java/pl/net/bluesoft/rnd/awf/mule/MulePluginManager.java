@@ -9,7 +9,6 @@ import org.mule.api.context.MuleContextBuilder;
 import org.mule.config.ConfigResource;
 import org.mule.config.DefaultMuleConfiguration;
 import org.mule.config.PropertiesMuleConfigurationFactory;
-import org.mule.config.builders.AbstractResourceConfigurationBuilder;
 import org.mule.config.spring.SpringXmlConfigurationBuilder;
 import org.mule.context.DefaultMuleContextBuilder;
 import org.mule.context.DefaultMuleContextFactory;
@@ -75,9 +74,17 @@ public class MulePluginManager {
         }
     }
 
-    public MulePluginManager() {
-
+    private MulePluginManager() {
     }
+
+	private static MulePluginManager instance;
+
+	public static MulePluginManager instance() {
+		if (instance == null) {
+			instance = new MulePluginManager();
+		}
+		return instance;
+	}
 
     public synchronized void initialize() throws MuleException {
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();

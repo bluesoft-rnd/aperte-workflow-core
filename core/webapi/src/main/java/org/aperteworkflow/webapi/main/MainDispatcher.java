@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.rnd.processtool.web.controller.ControllerMethod;
 import pl.net.bluesoft.rnd.processtool.web.controller.IOsgiWebController;
 import pl.net.bluesoft.rnd.processtool.web.controller.OsgiWebRequest;
-import pl.net.bluesoft.rnd.processtool.web.controller.ControllerMethod;
 import pl.net.bluesoft.rnd.processtool.web.domain.GenericResultBean;
 import pl.net.bluesoft.rnd.processtool.web.domain.IProcessToolRequestContext;
 
@@ -48,7 +48,7 @@ public class MainDispatcher extends AbstractProcessToolServletController
         }
 
         /* Find controller in registry */
-        final IOsgiWebController servletController = getProcessToolRegistry().getWebController(controllerName);
+        final IOsgiWebController servletController = getProcessToolRegistry().getGuiRegistry().getWebController(controllerName);
 
         if(servletController == null)
         {

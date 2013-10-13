@@ -1,18 +1,17 @@
 package pl.net.bluesoft.rnd.pt.ext.filescapture;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
-
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.pt.ext.filescapture.model.FilesCheckerConfiguration;
 import pl.net.bluesoft.rnd.pt.ext.filescapture.model.FilesCheckerRuleConfiguration;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by Agata Taraszkiewicz
@@ -32,12 +31,10 @@ public class Activator implements BundleActivator
     	SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
     	
     	
-    	processToolRegistry.registerModelExtension(FilesCheckerConfiguration.class);
-    	processToolRegistry.registerModelExtension(FilesCheckerRuleConfiguration.class);
+    	processToolRegistry.getDataRegistry().registerModelExtension(FilesCheckerConfiguration.class);
+    	processToolRegistry.getDataRegistry().registerModelExtension(FilesCheckerRuleConfiguration.class);
+    	processToolRegistry.getDataRegistry().commitModelExtensions();
 
-    	processToolRegistry.commitModelExtensions();
-//
-//        toolRegistry.commitModelExtensions();
         new Thread(new Runnable() {
 
             @Override

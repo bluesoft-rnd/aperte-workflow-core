@@ -1,14 +1,9 @@
 package pl.net.bluesoft.rnd.pt.ext.bpmnotifications;
 
-import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import org.aperteworkflow.ui.view.IViewRegistry;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent;
@@ -31,6 +26,10 @@ import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.settings.NotificationsSetting
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.templates.IMailTemplateLoader;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.templates.MailTemplateProvider;
 import pl.net.bluesoft.util.eventbus.EventListener;
+
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -63,7 +62,7 @@ public class Activator implements BundleActivator, EventListener<BpmEvent>
 		
 		schedulerActivator = new SchedulersActivator(registry);
 		
-        registry.registerService(IBpmNotificationService.class, engine, new Properties());
+        registry.getBundleRegistry().registerService(IBpmNotificationService.class, engine, new Properties());
 		registry.getEventBusManager().subscribe(BpmEvent.class, this);
 		
 		mailEventListener = new MailEventListener(engine);
@@ -113,7 +112,7 @@ public class Activator implements BundleActivator, EventListener<BpmEvent>
 	@Override
 	public void stop(BundleContext context) throws Exception {
 		ProcessToolRegistry registry = getRegistry(context);
-        registry.removeRegisteredService(IBpmNotificationService.class);
+        registry.getBundleRegistry().removeRegisteredService(IBpmNotificationService.class);
 		registry.getEventBusManager().unsubscribe(BpmEvent.class, this);
 		registry.getEventBusManager().unsubscribe(MailEvent.class, mailEventListener);
 		mailEventListener = null;

@@ -3,8 +3,6 @@ package pl.net.bluesoft.rnd.processtool.plugins;
 import com.thoughtworks.xstream.XStream;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig.Feature;
-import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 import pl.net.bluesoft.util.lang.Classes;
 
@@ -19,6 +17,7 @@ import java.util.*;
 import java.util.logging.Logger;
 
 import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+import static pl.net.bluesoft.rnd.util.AnnotationUtil.getAliasName;
 
 public class StepExposureServlet extends HttpServlet {
 	public enum Format {
@@ -40,18 +39,11 @@ public class StepExposureServlet extends HttpServlet {
 
 		List<Map<String, Object>> steps = new LinkedList<Map<String, Object>>();
 
-        Map<String,ProcessToolProcessStep> availableSteps = getRegistry().getAvailableSteps();
-        Set<Class> classes = new HashSet<Class>();
-                
-        for (ProcessToolProcessStep stepInstance : availableSteps.values()) {
-            Class stepClass = stepInstance.getClass();
-            classes.add(stepClass);
-        }
+        Set<Class> classes = new HashSet<Class>(getRegistry().getGuiRegistry().getAvailableSteps().values());
 
         for (Class stepClass : classes) {
             Map<String, Object> map = new HashMap<String, Object>();
-            AliasName a = Classes.getClassAnnotation(stepClass, AliasName.class);
-            map.put(NAME, a.name());
+            map.put(NAME, getAliasName(stepClass));
             List<Field> fields = Classes.getFieldsWithAnnotation(stepClass, AutoWiredProperty.class);
             List<Map<String, Object>> parameters = new ArrayList<Map<String, Object>>();
             if (fields != null) {

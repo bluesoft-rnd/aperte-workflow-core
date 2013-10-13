@@ -30,18 +30,18 @@ public class GlobalDictionariesActivator extends AbstractPluginActivator {
         for (Dictionary dictionary : dictionaries.getDictionaries()) {
             String dictionaryId = dictionary.getId();
             dictionaryNames.add(dictionaryId);
-            registry.registerI18NProvider(new GlobalDictionaryI18NProvider(dictionaryId, registry, properties), getDictionaryProviderId(dictionaryId));
+            registry.getBundleRegistry().registerI18NProvider(new GlobalDictionaryI18NProvider(dictionaryId, registry, properties), getDictionaryProviderId(dictionaryId));
         }
     }
 
     @Override
     protected void destroy() throws Exception {
         for (String name : dictionaryNames) {
-            registry.unregisterI18NProvider(getDictionaryProviderId(name));
+            registry.getBundleRegistry().unregisterI18NProvider(getDictionaryProviderId(name));
         }
     }
 
     private String getDictionaryProviderId(String dictionaryId) {
-        return PROVIDER_ID + "_" + dictionaryId;
+        return PROVIDER_ID + '_' + dictionaryId;
     }
 }

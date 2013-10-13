@@ -249,7 +249,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 
 				long t1 = System.currentTimeMillis();
 				
-				TaskProcessor taskSaveProcessor = new TaskProcessor(task, ctx, getEventBus(), context.getMessageSource(), widgetData);
+				TaskProcessor taskSaveProcessor = new TaskProcessor(task, getEventBus(), context.getMessageSource(), widgetData);
 
 				long t2 = System.currentTimeMillis();
 				

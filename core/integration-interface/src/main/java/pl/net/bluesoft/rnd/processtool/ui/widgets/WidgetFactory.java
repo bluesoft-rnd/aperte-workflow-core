@@ -1,16 +1,14 @@
 package pl.net.bluesoft.rnd.processtool.ui.widgets;
 
-import java.util.Set;
-
+import com.vaadin.Application;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
-
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
-import com.vaadin.Application;
+import java.util.Set;
 
 /**
  * Widget factory class. Class name is provided by process tool registry
@@ -35,24 +33,13 @@ public class WidgetFactory
 		SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
 	}
 	
-	public <T extends ProcessToolWidget> T makeWidget(String name, ProcessStateWidget processStateWidget, Set<String> permissions, boolean isOwner) 
+	public ProcessToolWidget makeWidget(String name, ProcessStateWidget processStateWidget, Set<String> permissions, boolean isOwner)
 			throws IllegalAccessException, InstantiationException 
 	{
-		Class<? extends ProcessToolWidget> aClass = processToolRegistry.getWidgetClassName(name);
-		if (aClass == null) {
-			throw new IllegalAccessException("No class nicknamed by: " + name);
-		}
-		T newWidget = (T) aClass.newInstance();
+		ProcessToolWidget newWidget = processToolRegistry.getGuiRegistry().createWidget(name);
 		
 		newWidget.setContext(processStateWidget.getConfig(), processStateWidget, i18NSource, bpmSession, application, permissions, isOwner);
-		
-		
+
 		return newWidget;
-
 	}
-	
-    public <T extends ProcessToolWidget> T makeWidget(Class<? extends ProcessToolWidget> aClass) throws IllegalAccessException, InstantiationException {
-		return (T) aClass.newInstance();
-	}
-
 }

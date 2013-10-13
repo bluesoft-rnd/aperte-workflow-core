@@ -3,7 +3,6 @@ package pl.net.bluesoft.rnd.processtool.ui.plugins;
 import com.vaadin.Application;
 import com.vaadin.terminal.ExternalResource;
 import com.vaadin.ui.*;
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.plugins.PluginManager;
 import pl.net.bluesoft.rnd.processtool.plugins.PluginMetadata;
 
@@ -45,7 +44,7 @@ public class PluginsManagerPane extends VerticalLayout {
                     public void close() throws IOException {
                         super.close();
                         final byte[] bytes = toByteArray();
-                        PluginManager pluginManager = getRegistry().getPluginManager();
+                        PluginManager pluginManager = getRegistry().getBundleRegistry().getPluginManager();
                         pluginManager.registerPlugin(filename,
                                 new ByteArrayInputStream(bytes));
                         displayBundleList();
@@ -85,7 +84,7 @@ public class PluginsManagerPane extends VerticalLayout {
 
     private void displayBundleList() {
         bundleList.removeAllComponents();
-        final PluginManager pluginManager = getRegistry().getPluginManager();
+        final PluginManager pluginManager = getRegistry().getBundleRegistry().getPluginManager();
         List<PluginMetadata> registeredPlugins = new ArrayList<PluginMetadata>(pluginManager.getRegisteredPlugins());
         Collections.sort(registeredPlugins);
 
@@ -97,7 +96,7 @@ public class PluginsManagerPane extends VerticalLayout {
                 buttonLayout.addComponent(linkButton(getLocalizedMessage("plugins.console.enable"), new Runnable() {
                     @Override
                     public void run() {
-                        getRegistry().getPluginManager().enablePlugin(metadata);
+                        getRegistry().getBundleRegistry().getPluginManager().enablePlugin(metadata);
                         String msg = getLocalizedMessage("plugins.console.enable.success");
                                                 Window.Notification n = new Window.Notification(msg);
                                                 n.setDelayMsec(-1);
@@ -110,7 +109,7 @@ public class PluginsManagerPane extends VerticalLayout {
                 buttonLayout.addComponent(linkButton(getLocalizedMessage("plugins.console.disable"), new Runnable() {
                     @Override
                     public void run() {
-                        getRegistry().getPluginManager().disablePlugin(metadata);
+                        getRegistry().getBundleRegistry().getPluginManager().disablePlugin(metadata);
                         String msg = getLocalizedMessage("plugins.console.disable.success");
                         Window.Notification n = new Window.Notification(msg);
                         n.setDelayMsec(-1);
@@ -124,7 +123,7 @@ public class PluginsManagerPane extends VerticalLayout {
                 buttonLayout.addComponent(linkButton(getLocalizedMessage("plugins.console.uninstall"), new Runnable() {
                     @Override
                     public void run() {
-                        getRegistry().getPluginManager().uninstallPlugin(metadata);
+                        getRegistry().getBundleRegistry().getPluginManager().uninstallPlugin(metadata);
                         String msg = getLocalizedMessage("plugins.console.uninstall.success");
                         Window.Notification n = new Window.Notification(msg);
                         n.setDelayMsec(-1);

@@ -8,6 +8,8 @@ import java.util.Collection;
  * @author tlipski@bluesoft.net.pl
  */
 public interface ProcessToolSessionFactory {
+	String getBpmDefinitionLanguage();
+
 	ProcessToolBpmSession createSession(UserData user);
 
 	ProcessToolBpmSession createSession(String userLogin);

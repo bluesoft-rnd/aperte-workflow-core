@@ -1,19 +1,15 @@
 package pl.net.bluesoft.awf.ext.droolsstep;
 
-import java.io.InputStream;
-import java.util.*;
-
 import pl.net.bluesoft.awf.ext.droolsstep.settings.DroolsStepSettingsProvider;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.model.BpmStep;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceSimpleAttribute;
+import pl.net.bluesoft.rnd.processtool.model.*;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 import pl.net.bluesoft.util.lang.Strings;
+
+import java.io.InputStream;
+import java.util.*;
 
 import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 
@@ -33,7 +29,7 @@ public class DroolsStep implements ProcessToolProcessStep {
         ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
         DroolsUtils.DroolsResource resource;
         if (Strings.hasText(bundleResource)) {
-            InputStream ruleStream = getRegistry().loadResource(bundleResource, ruleUrl);
+            InputStream ruleStream = getRegistry().getBundleRegistry().loadResource(bundleResource, ruleUrl);
             String fullRuleUrl = bundleResource.replace(".", "/") + "/" + ruleUrl;
             resource = new DroolsUtils.DroolsResource(fullRuleUrl, ruleStream);
         }

@@ -35,7 +35,7 @@ public class PluginHelper implements PluginManager {
         felixService = createFelixBundleService();
         felixService.setPluginsDir(pluginsDir.replace('/', File.separatorChar));
 
-        registry.setPluginManager(this);
+        registry.getBundleRegistry().setPluginManager(this);
         state = State.INITIALIZING;
         LOGGER.fine("initialize.start!");
         initializeFelix(felixDir, registry);

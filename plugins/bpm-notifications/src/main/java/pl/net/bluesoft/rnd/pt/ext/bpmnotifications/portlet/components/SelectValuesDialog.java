@@ -20,7 +20,7 @@ public abstract class SelectValuesDialog<ItemType> extends Dialog {
 
 	private ListSelect itemSelect;
 
-	public SelectValuesDialog(Class<ItemType> itemClass, String title, I18NSource i18NSource) {
+	protected SelectValuesDialog(Class<ItemType> itemClass, String title, I18NSource i18NSource) {
 		super(title);
 		this.itemClass = itemClass;
 		this.i18NSource = i18NSource;

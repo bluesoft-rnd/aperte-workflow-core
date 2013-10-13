@@ -4,7 +4,6 @@ import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
-import pl.net.bluesoft.rnd.processtool.BasicSettings;
 import pl.net.bluesoft.rnd.processtool.IProcessToolSettings;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolSessionFactory;
@@ -14,12 +13,9 @@ import pl.net.bluesoft.rnd.processtool.dict.GlobalDictionaryProvider;
 import pl.net.bluesoft.rnd.processtool.dict.ProcessDictionaryRegistry;
 import pl.net.bluesoft.rnd.processtool.hibernate.HibernateBean;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
-import pl.net.bluesoft.rnd.processtool.model.UserDataBean;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessToolSequence;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessToolSetting;
 import pl.net.bluesoft.util.eventbus.EventBusManager;
-import pl.net.bluesoft.util.lang.Formats;
 
 import java.util.HashMap;
 import java.util.List;
@@ -78,17 +74,17 @@ public class ProcessToolContextImpl implements ProcessToolContext {
         if (!daoCache.containsKey(daoClass)) {
             T dao = null;
             if (ProcessDictionaryDAO.class.equals(daoClass)) {
-                dao = (T) getRegistry().getProcessDictionaryDAO(hibernateSession);
+                dao = (T) getRegistry().getDataRegistry().getProcessDictionaryDAO(hibernateSession);
             } else if (ProcessInstanceDAO.class.equals(daoClass)) {
-                dao = (T) getRegistry().getProcessInstanceDAO(hibernateSession);
+                dao = (T) getRegistry().getDataRegistry().getProcessInstanceDAO(hibernateSession);
             } else if (ProcessInstanceFilterDAO.class.equals(daoClass)) {
-                dao = (T) getRegistry().getProcessInstanceFilterDAO(hibernateSession);
+                dao = (T) getRegistry().getDataRegistry().getProcessInstanceFilterDAO(hibernateSession);
             } else if (ProcessDefinitionDAO.class.equals(daoClass)) {
-                dao = (T) getRegistry().getProcessDefinitionDAO(hibernateSession);
+                dao = (T) getRegistry().getDataRegistry().getProcessDefinitionDAO(hibernateSession);
             } else if (UserSubstitutionDAO.class.equals(daoClass)) {
-                dao = (T) getRegistry().getUserSubstitutionDAO(hibernateSession);
+                dao = (T) getRegistry().getDataRegistry().getUserSubstitutionDAO(hibernateSession);
             }else if (ProcessInstanceSimpleAttributeDAO.class.equals(daoClass)) {
-                dao = (T) getRegistry().getProcessInstanceSimpleAttributeDAO(hibernateSession);
+                dao = (T) getRegistry().getDataRegistry().getProcessInstanceSimpleAttributeDAO(hibernateSession);
             }
             if (dao != null) {
                 daoCache.put(daoClass, dao);

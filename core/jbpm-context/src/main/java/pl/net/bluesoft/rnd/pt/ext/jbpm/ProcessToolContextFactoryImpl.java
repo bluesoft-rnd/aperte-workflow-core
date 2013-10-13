@@ -3,7 +3,6 @@ package pl.net.bluesoft.rnd.pt.ext.jbpm;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
@@ -108,7 +107,7 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory 
 	{
         T result = null;
 
-		Session session = registry.getSessionFactory().openSession();
+		Session session = registry.getDataRegistry().getSessionFactory().openSession();
 		try 
 		{
 			Transaction tx = session.beginTransaction();
@@ -161,7 +160,7 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory 
 				ut.begin();
 			}
 
-			Session session = registry.getSessionFactory().getCurrentSession();
+			Session session = registry.getDataRegistry().getSessionFactory().getCurrentSession();
 
 			try {
 				ProcessToolContext ctx = new ProcessToolContextImpl(session);
@@ -215,7 +214,7 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory 
 	private <T> T executeWithProcessToolContext(ReturningProcessToolContextCallback<T> callback) {
         T result = null;
 
-		Session session = registry.getSessionFactory().openSession();
+		Session session = registry.getDataRegistry().getSessionFactory().openSession();
 		session.setDefaultReadOnly(true);
 		try 
 		{

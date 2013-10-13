@@ -1,21 +1,20 @@
 package pl.net.bluesoft.rnd.pt.ext.user.service;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.portlet.RenderRequest;
-import javax.servlet.http.HttpServletRequest;
-
 import org.hibernate.Session;
-
 import pl.net.bluesoft.rnd.processtool.model.UserData;
-import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.usersource.IPortalUserSource;
 import pl.net.bluesoft.rnd.processtool.usersource.IUserSource;
 import pl.net.bluesoft.rnd.processtool.usersource.exception.UserSourceException;
 import pl.net.bluesoft.rnd.pt.ext.user.dao.UserDataDAO;
 import pl.net.bluesoft.rnd.pt.ext.user.dao.UserDataDAOImpl;
 import pl.net.bluesoft.rnd.pt.ext.user.model.PersistentUserData;
+
+import javax.portlet.RenderRequest;
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
+
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 
 /**
  * Standard implementation of {@link IUserSource} 
@@ -24,8 +23,6 @@ import pl.net.bluesoft.rnd.pt.ext.user.model.PersistentUserData;
  *
  */
 public class AperteUserSource implements IPortalUserSource {
-	private ProcessToolRegistry reg;
-
 	@Override
 	public UserData getUserByLogin(String login) throws UserSourceException 
 	{
@@ -65,9 +62,9 @@ public class AperteUserSource implements IPortalUserSource {
 	
 	private Session getSession()
 	{
-		Session session = reg.getSessionFactory().getCurrentSession();
+		Session session = getRegistry().getDataRegistry().getSessionFactory().getCurrentSession();
 		if(session == null)
-			session = reg.getSessionFactory().openSession();
+			session = getRegistry().getDataRegistry().getSessionFactory().openSession();
 		
 		return session;
 	}

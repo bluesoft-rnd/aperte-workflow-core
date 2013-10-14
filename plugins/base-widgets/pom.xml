@@ -139,6 +139,7 @@
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.LatestComments,
 							pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessComments,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDiagramWidget
+							pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDataBlockHtmlWidget
                         </ProcessTool-Widget-View>
                         <ProcessTool-Step-Enhancement>
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.ChooseUserWithRoleStep,

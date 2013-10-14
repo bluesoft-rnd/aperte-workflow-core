@@ -123,7 +123,8 @@
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessHistoryWidget,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.TabSheetWidget,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.VerticalLayoutWidget,
-                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.SwitchWidget
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.SwitchWidget,
+							pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDataBlockHtmlWidget
                         </ProcessTool-Widget-Enhancement>
                         <ProcessTool-Button-Enhancement>
                             pl.net.bluesoft.rnd.processtool.ui.buttons.AssignUserTaskButton,
@@ -136,7 +137,8 @@
                         </ProcessTool-Button-Enhancement>
                         <ProcessTool-I18N-Property>basewidgets-messages</ProcessTool-I18N-Property>
                         <ProcessTool-Widget-View>
-                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.LatestComments
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.LatestComments,
+							pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDataBlockHtmlWidget
                         </ProcessTool-Widget-View>
                         <ProcessTool-Step-Enhancement>
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.ChooseUserWithRoleStep,

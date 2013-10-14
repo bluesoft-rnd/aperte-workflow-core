@@ -10,11 +10,8 @@ import pl.net.bluesoft.rnd.processtool.web.widgets.impl.FileWidgetContentProvide
 @AliasName(name = "ProcessDiagramWidget")
 @WidgetGroup("html-process-widget")
 public class ProcessDiagramWidget extends ProcessHtmlWidget {
-	
 	public ProcessDiagramWidget(IBundleResourceProvider bundleResourceProvider) {
-		setWidgetName("ProcessDiagramWidget");
         setContentProvider(new FileWidgetContentProvider("process-diagram.html", bundleResourceProvider));
-		
     }
 }
 

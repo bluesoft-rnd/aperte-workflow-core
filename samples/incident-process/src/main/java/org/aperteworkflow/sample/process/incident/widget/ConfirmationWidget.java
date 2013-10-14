@@ -12,9 +12,7 @@ import pl.net.bluesoft.rnd.processtool.web.widgets.impl.FileWidgetContentProvide
 @AliasName(name = "ConfirmationWidget")
 @WidgetGroup("html-process-widget")
 public class ConfirmationWidget extends ProcessHtmlWidget {
-
     public ConfirmationWidget(IBundleResourceProvider bundleResourceProvider) {
-        setWidgetName("ConfirmationWidget");
         setContentProvider(new FileWidgetContentProvider("confirmation.html", bundleResourceProvider));
     }
 }

@@ -8,13 +8,7 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.MockWidgetValidator;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.SimpleWidgetDataHandler;
 import pl.net.bluesoft.rnd.processtool.web.domain.IWidgetContentProvider;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import pl.net.bluesoft.rnd.util.AnnotationUtil;
 
 /**
  * Widget in-memory model
@@ -49,6 +43,14 @@ public class ProcessHtmlWidget extends BaseProcessToolWidget
             descriptionKey = "widget.attribute.comment.description"
     )
     protected String comment;
+
+	protected ProcessHtmlWidget() {
+		this.widgetName = AnnotationUtil.getAliasName(getClass());
+	}
+
+	protected ProcessHtmlWidget(String widgetName) {
+		this.widgetName = widgetName;
+	}
 
     public String getComment() {
         return comment;
@@ -119,7 +121,5 @@ public class ProcessHtmlWidget extends BaseProcessToolWidget
 
     @Override
     public void addChild(ProcessToolWidget child) {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
-
 }

@@ -13,7 +13,6 @@ public class LatestComments extends ProcessHtmlWidget
 {
     public LatestComments(IBundleResourceProvider bundleResourceProvider)
     {
-        setWidgetName("LatestComments");
         setContentProvider(new FileWidgetContentProvider("latest-process-comments.html", bundleResourceProvider));
     }
 }

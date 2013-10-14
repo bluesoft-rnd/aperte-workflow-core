@@ -4,6 +4,6 @@
 <#assign processComments = process.findAttributeByClassName("pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComments")!null>
 <#if processComments != null> 
 	<#list processComments.getComments() as processComment>
-	 	${processComment.author.getRealName()} [${processComment.createTime}] : ${processComment.body}
+	 	${processComment.author} [${processComment.createTime}] : ${processComment.body}
 	</#list>
 </#if>

@@ -10,14 +10,14 @@ import pl.net.bluesoft.rnd.processtool.model.nonpersistent.BpmStepBean;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.PropertyAutoWiring;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 
 public class JbpmStepAction {
-	
-	public String invoke(final String processInstanceId, final String stepName) throws Exception {
+	public String invoke(String processInstanceId, String stepName) throws Exception {
 		return invoke(processInstanceId, stepName, new HashMap<String, String>());
 	}
 	
@@ -25,7 +25,7 @@ public class JbpmStepAction {
         return getRegistry().withProcessToolContext(new ReturningProcessToolContextCallback<String>() {
             @Override
             public String processWithContext(ProcessToolContext ctx) {
-                return doInvoke(processInstanceId, stepName, params, ctx);
+                return doInvoke(processInstanceId, stepName, params != null ? params : Collections.<String, String>emptyMap(), ctx);
             }
         }, ExecutionType.TRANSACTION_SYNCH);
 	}

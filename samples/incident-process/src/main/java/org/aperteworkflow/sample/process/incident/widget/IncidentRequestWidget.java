@@ -11,9 +11,8 @@ import pl.net.bluesoft.rnd.processtool.web.widgets.impl.FileWidgetContentProvide
  */
 @AliasName(name = "OrderWidget")
 @WidgetGroup("html-process-widget")
-public class IncidentRequestWidget extends ProcessHtmlWidget{
+public class IncidentRequestWidget extends ProcessHtmlWidget {
     public IncidentRequestWidget(IBundleResourceProvider bundleResourceProvider) {
-        setWidgetName("OrderWidget");
         setContentProvider(new FileWidgetContentProvider("request.html", bundleResourceProvider));
     }
 }

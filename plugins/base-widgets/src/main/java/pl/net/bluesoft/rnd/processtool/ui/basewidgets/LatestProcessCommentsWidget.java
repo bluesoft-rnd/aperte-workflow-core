@@ -9,7 +9,10 @@ import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComments;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinRenderable;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.*;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.ChildrenAllowed;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolVaadinWidget;
 import pl.net.bluesoft.util.lang.FormatUtil;
 
@@ -18,7 +21,7 @@ import java.util.*;
 import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 import static pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessHistoryWidget.label;
 
-@AliasName(name = "LatestComments")
+@AliasName(name = "LatestProcessCommentsWidget")
 @AperteDoc(humanNameKey="widget.latest_process_comments.name", descriptionKey="widget.latest_process_comments.description")
 @ChildrenAllowed(false)
 public class LatestProcessCommentsWidget extends BaseProcessToolVaadinWidget implements ProcessToolVaadinRenderable, ProcessToolDataWidget {

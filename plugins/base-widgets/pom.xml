@@ -47,6 +47,11 @@
             <version>${vaadin.version}</version>
             <scope>provided</scope>
         </dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-asl</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
     </dependencies>
 
     <build>
@@ -115,7 +120,6 @@
                         <Embed-Directory>lib</Embed-Directory>
                         <Embed-Transitive>true</Embed-Transitive>
                         <ProcessTool-Widget-Enhancement>
-                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.LatestProcessCommentsWidget,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.LocaleCaptureWidget,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.PanelWidget,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessCommentsWidget,
@@ -138,7 +142,7 @@
                         <ProcessTool-Widget-View>
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.LatestComments,
 							pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessComments,
-                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDiagramWidget
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDiagramWidget,
 							pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDataBlockHtmlWidget
                         </ProcessTool-Widget-View>
                         <ProcessTool-Step-Enhancement>

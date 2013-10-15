@@ -1,30 +1,22 @@
 package pl.net.bluesoft.rnd.pt.ext.bpmnotifications.step;
 
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.model.BpmStep;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
-import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComment;
-import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComments;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.IBpmNotificationService;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.EmailSender;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.IBpmNotificationService;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.NotificationData;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.TemplateData;
-import pl.net.bluesoft.util.lang.Strings;
-import pl.net.bluesoft.util.lang.cquery.func.F;
 
-import java.util.Date;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
-import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
 
 @AliasName(name = "SendMailStep")
 public class SendMailStep implements ProcessToolProcessStep {
@@ -50,8 +42,6 @@ public class SendMailStep implements ProcessToolProcessStep {
 		service.getTemplateDataProvider()
 			.addProcessData(templateData, step.getProcessInstance())
 			.addUserToNotifyData(templateData, user);
-	
-		templateData.addEntry("latestComment", getLatestComment(step.getProcessInstance()));
 		
 		NotificationData notificationData = new NotificationData()
 			.setProfileName("Default")
@@ -69,22 +59,6 @@ public class SendMailStep implements ProcessToolProcessStep {
 
         return STATUS_OK;
     }
-
-	private Object getLatestComment(ProcessInstance processInstance) {
-		ProcessComments comments = processInstance.findAttributeByClass(ProcessComments.class);
-		if (comments != null && !comments.getComments().isEmpty()) {
-			ProcessComment comment = from(comments.getComments())
-					.orderByDescending(new F<ProcessComment, Date>() {
-						@Override
-						public Date invoke(ProcessComment x) {
-							return x.getCreateTime();
-						}
-					})
-					.first();
-			return comment.getBody();
-		}
-		return null;
-	}
 
 	private UserData findUser(String recipient, ProcessInstance pi) {
 		if (recipient == null) {

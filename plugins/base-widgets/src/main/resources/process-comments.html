@@ -1,0 +1,85 @@
+<h4>${messageSource.getMessage("widget.latest_process_comments.name")}</h4>
+<#assign null = "null"/>
+
+<#assign processComments = process.findAttributeByClassName("pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComments")!null/>
+
+<div id="process_comments_list">
+    <#if processComments != null>
+        <#list processComments.getComments() as processComment>
+            ${processComment.author} [${processComment.createTime?string("yyyy-MM-dd HH:mm")}] : ${processComment.body}
+        </#list>
+    </#if>
+</div>
+
+
+<#if privileges?seq_contains("EDIT")>
+
+<button id="process_comments_button_new" onclick="process_comments_button_new_click()">Nowy</button>
+<div id="process_comments_add_form" style="display:none;">
+    <textarea id="process_comments_body" style="width:50%;"></textarea>
+    <br/>
+    <button id="process_comments_button_add" onclick="process_comments_button_add_click()">Dodaj</button>
+    <button id="process_comments_button_cancel" onclick="process_comments_button_cancel_click()">Anuluj</button>
+</div>
+
+
+<script type="text/javascript">
+    processCommentsAddedComments = [];
+
+    $(document).ready(function()
+    {
+        //$('#area-comment-warning').hide();
+
+        var widget = new Widget('${widgetName}', '${widgetId}', '${task.internalTaskId}');
+        widget.getData = function() {return getProcessCommentsData();};
+        widget.validate = function() {return validateProcessComments();};
+
+        widgets.push(widget);
+    });
+
+    function getProcessCommentsData() {
+        var commentText = $('#process_comments_added_comments').val();
+        var data = { "processCommentsAddedComments" : JSON.stringify(processCommentsAddedComments) };
+        return data;
+    }
+
+    function validateProcessComments() {
+        var errors = [];
+        return errors;
+    }
+
+    function process_comments_button_new_click() {
+        document.getElementById("process_comments_button_new").style.display="none";
+        document.getElementById("process_comments_add_form").style.display="";
+    }
+
+    function process_comments_button_add_click() {
+        var date = new Date();
+        var dateStr = date.getFullYear() + "-" +
+                    (date.getMonth() + 1) + "-" +
+                    date.getDate() + " " +
+                    date.getHours() + ":" +
+                    date.getMinutes();
+        var dateFull = dateStr + ":" + date.getSeconds();
+        var body = $('#process_comments_body').val();
+        var author = '${user.login}';
+
+        processCommentsAddedComments.push({
+            createDate: dateFull,
+            body: body,
+            author: author
+        });
+
+        var text = author + " [" + dateStr + "] : " + body + "<br/>";
+
+        $("#process_comments_list").append(text);
+
+        process_comments_button_cancel_click();
+    }
+
+    function process_comments_button_cancel_click() {
+        document.getElementById("process_comments_add_form").style.display="none";
+        document.getElementById("process_comments_button_new").style.display="";
+    }
+</script>
+</#if>

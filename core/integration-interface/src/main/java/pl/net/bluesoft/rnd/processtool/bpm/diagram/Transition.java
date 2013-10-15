@@ -78,6 +78,14 @@ public class Transition {
 		return this;
 	}
 
+	public boolean isVisited() {
+		if(Status.VISITED.equals(status)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	public Node getSource() {
 		return source;
 	}

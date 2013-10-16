@@ -23,8 +23,7 @@ import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
  */
 public class BpmTaskQuery {
 	private static final String DEADLINE_SUBQUERY =
-			"(SELECT MIN(dueDate) FROM pt_process_deadline da JOIN pt_process_instance_attr pa ON pa.id = da.id " +
-			"WHERE pa.process_instance_id = process.id AND da.taskname = i18ntext_.shortText) ";
+			"(SELECT MIN(dueDate) FROM pt_process_deadline da WHERE da.process_instance_id = process.id AND da.taskname = i18ntext_.shortText) ";
 
 	private static class QueryParameter {
 		private final String key;

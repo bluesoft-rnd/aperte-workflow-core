@@ -3,6 +3,8 @@ package pl.net.bluesoft.rnd.processtool.ui.basewidgets;
 import pl.net.bluesoft.rnd.processtool.plugins.IBundleResourceProvider;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.WidgetGroup;
 import pl.net.bluesoft.rnd.processtool.web.widgets.impl.FileWidgetContentProvider;
 
@@ -10,8 +12,30 @@ import pl.net.bluesoft.rnd.processtool.web.widgets.impl.FileWidgetContentProvide
 @AliasName(name = "ProcessDiagramWidget")
 @WidgetGroup("html-process-widget")
 public class ProcessDiagramWidget extends ProcessHtmlWidget {
+
+    @AutoWiredProperty
+    @AperteDoc(
+            humanNameKey = "widget.process_diagram.width.humanName",
+            descriptionKey = "widget.process_diagram.width.description"
+    )
+    protected String diagramWidth;
+
+    @AutoWiredProperty
+    @AperteDoc(
+            humanNameKey = "widget.process_diagram.height.humanName",
+            descriptionKey = "widget.process_diagram.height.description"
+    )
+    protected String diagramHeight;
+
+    @AutoWiredProperty
+    @AperteDoc(
+            humanNameKey = "widget.process_diagram.color.humanName",
+            descriptionKey = "widget.process_diagram.color.description"
+    )
+    protected String visitedColor;
+
 	public ProcessDiagramWidget(IBundleResourceProvider bundleResourceProvider) {
-        setContentProvider(new FileWidgetContentProvider("process-diagram.html", bundleResourceProvider));
+        setContentProvider(new FileWidgetContentProvider("process-diagram.html", bundleResourceProvider));		
     }
 }
 

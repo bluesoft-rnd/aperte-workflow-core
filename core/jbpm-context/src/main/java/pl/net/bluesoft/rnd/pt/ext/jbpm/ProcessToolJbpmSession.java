@@ -767,12 +767,16 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 			Node diagramNode = diagram.getNode(state.getName());
 
 			if (diagramNode != null) {
-				diagramNode.setName(i18NSource.getMessage(state.getDescription()));
+				if (hasText(state.getDescription())) {
+					diagramNode.setName(i18NSource.getMessage(state.getDescription()));
+				}
 
 				for (ProcessStateAction action : state.getActions()) {
 					Transition transition = diagramNode.getOutcomingTransition(action.getBpmName());
 					if (transition != null) {
-						transition.setName(i18NSource.getMessage(action.getDescription()));
+						if (hasText(state.getDescription())) {
+							transition.setName(i18NSource.getMessage(action.getDescription()));
+						}
 					}
 				}
 			}

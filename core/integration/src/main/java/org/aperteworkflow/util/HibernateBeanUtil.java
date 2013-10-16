@@ -3,6 +3,9 @@ package org.aperteworkflow.util;
 import org.hibernate.proxy.HibernateProxy;
 import pl.net.bluesoft.rnd.processtool.model.config.*;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.BpmTaskBean;
+import pl.net.bluesoft.rnd.processtool.model.processdata.AbstractProcessInstanceAttribute;
+import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComment;
+import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessDeadline;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceAttribute;
 import pl.net.bluesoft.util.lang.Lang;
 
@@ -209,10 +212,16 @@ public class HibernateBeanUtil {
 
 				permission.setAction(null);
 			}
-			else if (t instanceof ProcessInstanceAttribute) {
+			else if (t instanceof AbstractProcessInstanceAttribute) {
 				ProcessInstanceAttribute attribute = (ProcessInstanceAttribute)t;
 
 				attribute.setProcessInstance(null);
+			}
+			else if (t instanceof ProcessComment) {
+				((ProcessComment)t).setProcessInstance(null);
+			}
+			else if (t instanceof ProcessDeadline) {
+				((ProcessDeadline)t).setProcessInstance(null);
 			}
 			else if (t instanceof BpmTaskBean) {
 				BpmTaskBean bpmTask = (BpmTaskBean)t;

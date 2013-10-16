@@ -5,7 +5,6 @@ import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessDeadline;
-import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceAttribute;
 
 import java.util.Date;
 
@@ -42,12 +41,8 @@ public abstract class AbstractBpmTask implements BpmTask {
 
 	@Override
 	public Date getDeadlineDate() {
-		for (ProcessInstanceAttribute attribute : getProcessInstance().getProcessAttributes()) {
-			if (attribute instanceof ProcessDeadline) {
-				return ((ProcessDeadline)attribute).getDueDate();
-			}
-		}
-		return null;
+		ProcessDeadline deadline = getProcessInstance().getDeadline(this);
+		return deadline != null ? deadline.getDueDate() : null;
 	}
 
 	@Override

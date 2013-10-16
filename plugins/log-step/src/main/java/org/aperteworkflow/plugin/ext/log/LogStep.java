@@ -3,7 +3,7 @@ package org.aperteworkflow.plugin.ext.log;
 import com.vaadin.ui.TextArea;
 import pl.net.bluesoft.rnd.processtool.model.BpmStep;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceAttribute;
+import pl.net.bluesoft.rnd.processtool.model.processdata.AbstractProcessInstanceAttribute;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
@@ -87,7 +87,7 @@ public class LogStep implements ProcessToolProcessStep {
         while (matcher.find()) {
             String processAttributeKey = matcher.group(1);
 
-            ProcessInstanceAttribute attribute = processInstance.findAttributeByKey(processAttributeKey);
+            AbstractProcessInstanceAttribute attribute = processInstance.findAnyAttributeByKey(processAttributeKey);
             if (attribute != null) {
                 int start = matcher.start(0);
                 if (pos < start) {

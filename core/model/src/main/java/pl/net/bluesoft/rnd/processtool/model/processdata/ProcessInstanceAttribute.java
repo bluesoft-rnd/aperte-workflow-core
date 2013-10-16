@@ -13,7 +13,7 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 @Entity
 @Table(name="pt_process_instance_attr")
 @Inheritance(strategy=InheritanceType.JOINED)
-@XmlSeeAlso({ ProcessDeadline.class })
+@XmlSeeAlso({ ProcessInstanceDictionaryAttribute.class, ProcessInstanceAttachmentAttribute.class })
 public abstract class ProcessInstanceAttribute extends AbstractProcessInstanceAttribute {
 	@Id
 	@GeneratedValue(generator = "idGenerator")

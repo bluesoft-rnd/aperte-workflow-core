@@ -76,6 +76,10 @@ public class ProcessInstance extends AbstractPersistentEntity
 	@JoinColumn(name="process_instance_id")
 	private Set<ProcessComment> comments;
 
+	@OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
+	@JoinColumn(name="process_instance_id")
+	private Set<ProcessDeadline> deadlines;
+
 
 	@OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
 	@JoinColumn(name="process_instance_id")
@@ -241,6 +245,30 @@ public class ProcessInstance extends AbstractPersistentEntity
 		this.comments = comments;
 	}
 
+	public Set<ProcessDeadline> getDeadlines() {
+		if (deadlines == null) {
+			deadlines = new HashSet<ProcessDeadline>();
+		}
+		return deadlines;
+	}
+
+	public void setDeadlines(Set<ProcessDeadline> deadlines) {
+		this.deadlines = deadlines;
+	}
+
+	public ProcessDeadline getDeadline(String taskName) {
+		for (ProcessDeadline deadline : getDeadlines()) {
+			if (taskName.equals(deadline.getTaskName())) {
+				return deadline;
+			}
+		}
+		return null;
+	}
+
+	public ProcessDeadline getDeadline(BpmTask task) {
+		return getDeadline(task.getTaskName());
+	}
+
 	public ProcessDefinitionConfig getDefinition() {
 		return definition;
 	}
@@ -292,6 +320,15 @@ public class ProcessInstance extends AbstractPersistentEntity
 		return null;
 	}
 
+	public AbstractProcessInstanceAttribute findAnyAttributeByKey(String key) {
+		ProcessInstanceSimpleAttribute simpleAttribute = findSimpleAttributeByKey(key);
+
+		if (simpleAttribute != null) {
+			return simpleAttribute;
+		}
+		return findAttributeByKey(key);
+	}
+
 	private ProcessInstanceSimpleAttribute findSimpleAttributeByKey(String key) {
 		Set<ProcessInstanceSimpleAttribute> attrs = getProcessSimpleAttributes();
 		for (ProcessInstanceSimpleAttribute pia : attrs) {
@@ -301,17 +338,6 @@ public class ProcessInstance extends AbstractPersistentEntity
 		}
 		return null;
 	}
-    
-    public <T extends ProcessInstanceAttribute> Set<T> findAttributesByClass(Class<T> clazz) {
-        Set<T> result = new HashSet<T>();
-        Set<ProcessInstanceAttribute> attrs = getProcessAttributes();
-        for (ProcessInstanceAttribute pia : attrs) {
-            if (clazz.isAssignableFrom(pia.getClass())) {
-                result.add((T) pia);
-            }
-        }
-        return result;
-    }
 
     public String getSimpleAttributeValue(String key) {
         return getSimpleAttributeValue(key, null);
@@ -415,6 +441,11 @@ public class ProcessInstance extends AbstractPersistentEntity
 		for (ProcessComment comment : comments) {
 			addComment(comment);
 		}
+	}
+
+	public void addDeadline(ProcessDeadline deadline) {
+		deadline.setProcessInstance(this);
+		getDeadlines().add(deadline);
 	}
 
 	public void setAllProcessAttributes(Collection<AbstractProcessInstanceAttribute> attributes) {

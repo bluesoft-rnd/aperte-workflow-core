@@ -7,6 +7,7 @@ import pl.net.bluesoft.rnd.awf.mule.MulePluginManager;
 import pl.net.bluesoft.rnd.processtool.model.BpmStep;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceAttribute;
+import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceSimpleAttribute;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
@@ -36,7 +37,7 @@ public class MuleStep implements ProcessToolProcessStep {
     private Boolean asynchronous = false;
 
     @AutoWiredProperty
-    private Long timeout = Long.valueOf(-1);
+    private Long timeout = -1L;
 
     @Override
     public String invoke(BpmStep step, Map params) throws Exception {
@@ -64,15 +65,22 @@ public class MuleStep implements ProcessToolProcessStep {
                     Object payload = muleMessage.getPayload();
                     if (payload instanceof String) {
                         return (String)payload;
-                    } else if (payload instanceof ProcessInstanceAttribute) {
-                        ProcessInstanceAttribute pia = (ProcessInstanceAttribute) payload;
-                        ProcessInstanceAttribute attributeByKey = processInstance.findAttributeByKey(pia.getKey());
-                        if (attributeByKey != null) {
-                            processInstance.removeAttribute(attributeByKey);
-                        }
-                        processInstance.addAttribute(pia);
+                    }
+					else if (payload instanceof ProcessInstanceSimpleAttribute) {
+						ProcessInstanceSimpleAttribute pia = (ProcessInstanceSimpleAttribute) payload;
+                        processInstance.setSimpleAttribute(pia.getKey(), pia.getValue());
                         return pia.toString();
-                    } else if (payload instanceof ProcessInstanceAttribute[]) {
+                    }
+					else if (payload instanceof ProcessInstanceAttribute) {
+						ProcessInstanceAttribute pia = (ProcessInstanceAttribute) payload;
+						ProcessInstanceAttribute attributeByKey = processInstance.findAttributeByKey(pia.getKey());
+						if (attributeByKey != null) {
+							processInstance.removeAttribute(attributeByKey);
+						}
+						processInstance.addAttribute(pia);
+						return pia.toString();
+					}
+					else if (payload instanceof ProcessInstanceAttribute[]) {
                         ProcessInstanceAttribute[] pias = (ProcessInstanceAttribute[]) payload;
                         for (ProcessInstanceAttribute pia : pias) {
                             ProcessInstanceAttribute attributeByKey = processInstance.findAttributeByKey(pia.getKey());

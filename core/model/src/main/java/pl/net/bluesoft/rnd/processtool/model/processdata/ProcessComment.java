@@ -65,7 +65,6 @@ public class ProcessComment extends AbstractPersistentEntity {
 	@JoinColumn(name="process_instance_id")
 	private ProcessInstance processInstance;
 
-
 	public String getAuthor() {
 		return author;
 	}

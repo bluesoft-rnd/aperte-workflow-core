@@ -1,9 +1,5 @@
 package pl.net.bluesoft.rnd.pt.ext.deadline;
 
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
@@ -11,13 +7,7 @@ import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
-import org.quartz.JobBuilder;
-import org.quartz.JobDataMap;
-import org.quartz.JobDetail;
-import org.quartz.SchedulerException;
-import org.quartz.Trigger;
-import org.quartz.TriggerBuilder;
-
+import org.quartz.*;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
@@ -30,18 +20,17 @@ import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessDeadline;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.roles.IUserRolesManager;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.EmailSender;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.IBpmNotificationService;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.ITemplateDataProvider;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.NotificationData;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.TemplateData;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.TemplateDataProvider;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.*;
 import pl.net.bluesoft.rnd.pt.ext.sched.service.ProcessToolSchedulerService;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 import pl.net.bluesoft.util.lang.Collections;
 import pl.net.bluesoft.util.lang.Predicate;
 import pl.net.bluesoft.util.lang.Strings;
+
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
 import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
@@ -69,17 +58,20 @@ public class DeadlineEngine {
                         ProcessToolBpmSession bpmSession = getRegistry().getProcessToolSessionFactory().createAutoSession();
                         Session session = ctx.getHibernateSession();
                         List<ProcessInstance> instances = loadProcessesWithDeadlines(session);
+
                         for (ProcessInstance pi : instances) {
                             if (pi.isProcessRunning()) {
-                                Set<ProcessDeadline> deadlines = pi.findAttributesByClass(ProcessDeadline.class);
                                 Collection<BpmTask> tasks = bpmSession.findProcessTasks(pi);
-                                for (ProcessDeadline pd : deadlines) {
-                                    for (BpmTask task : tasks) {
-                                        if (task.getTaskName().equals(pd.getTaskName()) && task.getAssignee() != null) {
-                                            scheduleDeadline(pi.getInternalId(), pd);
-                                        }
-                                    }
-                                }
+
+								for (BpmTask task : tasks) {
+									if (task.getAssignee() != null) {
+										ProcessDeadline deadline = pi.getDeadline(task);
+
+										if (deadline != null) {
+											scheduleDeadline(pi.getInternalId(), deadline);
+										}
+									}
+								}
                             }
                         }
                     }
@@ -151,11 +143,11 @@ public class DeadlineEngine {
         if (pi == null) {
             throw new ProcessToolException("Unable to find process instance by internal id: " + internalId);
         }
-        Set<ProcessDeadline> deadlines = pi.findAttributesByClass(ProcessDeadline.class);
+		ProcessDeadline deadline = pi.getDeadline(task);
 
-        for (ProcessDeadline da : deadlines)
-            if (task.getTaskName().contains(da.getTaskName()))
-                scheduleDeadline(pi.getInternalId(), da);
+		if (deadline != null) {
+			scheduleDeadline(pi.getInternalId(), deadline);
+		}
     }
 
     public void handleDeadlineJob(final String processInstanceId, final ProcessDeadline processDeadline) 

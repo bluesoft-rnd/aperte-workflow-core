@@ -52,10 +52,8 @@ public class SetupDeadlineStep implements ProcessToolProcessStep {
         ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
 
         List<String> taskNames = Strings.hasText(taskName) ? Arrays.asList(taskName.split(",")) : step.getOutgoingTransitions();
-        
-        
-
         Date dueDate = extractDate("dueDate", processInstance, params);
+
         if (dueDate == null) {
             Date baseDate = extractDate("baseDate", processInstance, params);
             if (!Strings.hasText(value)) {
@@ -72,7 +70,6 @@ public class SetupDeadlineStep implements ProcessToolProcessStep {
         		cal.add(Calendar.DAY_OF_YEAR, nv);
         		
         		dueDate = cal.getTime();
-            	
             }
             else
             {
@@ -86,33 +83,24 @@ public class SetupDeadlineStep implements ProcessToolProcessStep {
             }
         }
 
-        for (String tn : taskNames) 
+        for (String taskName : taskNames)
         {
-            String attrKey = "deadline_" + tn;
-            ProcessDeadline pid = null;
-            for (ProcessInstanceAttribute attr : processInstance.getProcessAttributes()) {
-                if (attr.getKey() == null) {
-                    logger.info("Attribute key is null! Process instance: " + processInstance.getInternalId());
-                }
-                if (attrKey.equals(attr.getKey())) {
-                    pid = (ProcessDeadline) attr;
-                    break;
-                }
+            ProcessDeadline deadline = processInstance.getDeadline(taskName);
+
+            if (deadline == null) {
+                deadline = new ProcessDeadline();
+                deadline.setTaskName(taskName);
+                deadline.setProcessInstance(processInstance);
+                processInstance.addDeadline(deadline);
             }
-            if (pid == null) {
-                pid = new ProcessDeadline();
-                pid.setKey("deadline_" + tn);
-                pid.setProcessInstance(processInstance);
-                processInstance.getProcessAttributes().add(pid);
-            }
-            pid.setProfileName(profileName);
-            pid.setNotifyUsersWithLogin(notifyUsersWithLogin);
-            pid.setNotifyUsersWithRole(notifyUsersWithRole);
-            pid.setSkipAssignee("true".equalsIgnoreCase(skipAssignee));
-            pid.setTemplateName(templateName);
-            pid.setTaskName(tn);
-            pid.setAlreadyNotified(false);
-            pid.setDueDate(dueDate);
+            deadline.setProfileName(profileName);
+            deadline.setNotifyUsersWithLogin(notifyUsersWithLogin);
+            deadline.setNotifyUsersWithRole(notifyUsersWithRole);
+            deadline.setSkipAssignee("true".equalsIgnoreCase(skipAssignee));
+            deadline.setTemplateName(templateName);
+            deadline.setTaskName(taskName);
+            deadline.setAlreadyNotified(false);
+            deadline.setDueDate(dueDate);
         }
 
         ctx.getProcessInstanceDAO().saveProcessInstance(processInstance);

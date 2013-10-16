@@ -2,6 +2,7 @@ package org.aperteworkflow.editor.json;
 
 import org.apache.commons.codec.binary.Base64;
 import org.aperteworkflow.editor.domain.ProcessConfig;
+import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
@@ -32,10 +33,10 @@ public class ProcessConfigJSONHandler implements Serializable {
     }
 
     // Look out, ObjectMapper is not Serializable
-    private transient ObjectMapper mapper = new ObjectMapper();
+    private transient ObjectMapper mapper;
 
     protected ProcessConfigJSONHandler() {
-
+		this.mapper = createMapper();
     }
 
     public String toJSON(ProcessConfig processConfig) {
@@ -59,11 +60,6 @@ public class ProcessConfigJSONHandler implements Serializable {
                     }
                 }
             }
-            if (processConfig.getDictionary() != null) {
-                byte[] dictionaryInBytes = processConfig.getDictionary().getBytes();
-                processConfig.setDictionary(new String(Base64.encodeBase64URLSafe(dictionaryInBytes)));
-            }
-
             // encode as JSON
             return mapper.writeValueAsString(processConfig);
         } catch (IOException e) {
@@ -95,11 +91,6 @@ public class ProcessConfigJSONHandler implements Serializable {
                     }
                 }
             }
-            if (processConfig.getDictionary() != null) {
-                byte[] codedDictionaryInBytes = processConfig.getDictionary().getBytes();
-                processConfig.setDictionary(new String(Base64.decodeBase64(codedDictionaryInBytes)));
-            }
-
             return processConfig;
         } catch (IOException e) {
             throw new RuntimeException("Failed to read ProcessConfig from JSON", e);
@@ -108,8 +99,12 @@ public class ProcessConfigJSONHandler implements Serializable {
 
     private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException {
         in.defaultReadObject();
-        mapper = new ObjectMapper();
-    }
-    
+		mapper = createMapper();
+	}
 
+	private ObjectMapper createMapper() {
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		return mapper;
+	}
 }

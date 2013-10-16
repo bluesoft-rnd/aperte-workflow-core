@@ -46,6 +46,7 @@
         <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstanceSimpleAttribute"/>
+		<mapping class="pl.net.bluesoft.rnd.processtool.model.StepInfo"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.UserAttribute"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.UserSubstitution"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.UserAttributePredicates"/>
@@ -75,5 +76,6 @@
         <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstanceDictionaryAttribute"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstanceDictionaryItem"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.token.AccessToken"/>
+		<mapping class="pl.net.bluesoft.rnd.processtool.model.report.Report"/>
     </session-factory>
 </hibernate-configuration>

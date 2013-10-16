@@ -1,22 +1,11 @@
 package pl.net.bluesoft.rnd.processtool.model.config;
 
+import org.hibernate.annotations.GenericGenerator;
+import pl.net.bluesoft.rnd.processtool.model.AbstractPersistentEntity;
+
+import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-
-import org.hibernate.annotations.GenericGenerator;
-
-import pl.net.bluesoft.rnd.processtool.model.AbstractPersistentEntity;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -58,6 +47,8 @@ public class ProcessStateConfiguration extends AbstractPersistentEntity
 
     private Boolean enableManualSave;
 
+	private String stepInfoPattern;
+
 	@OneToMany(cascade = CascadeType.ALL, fetch=FetchType.EAGER)
 	@JoinColumn(name="state_id")
 	private Set<ProcessStateWidget> widgets = new HashSet<ProcessStateWidget>();
@@ -65,12 +56,10 @@ public class ProcessStateConfiguration extends AbstractPersistentEntity
 	@OneToMany(cascade = CascadeType.ALL, fetch=FetchType.EAGER)
 	@JoinColumn(name="state_id")
 	private Set<ProcessStateAction> actions = new HashSet<ProcessStateAction>();
-
     
     @OneToMany(cascade = CascadeType.ALL, fetch=FetchType.EAGER)
     @JoinColumn(name="state_id")
     private Set<ProcessStatePermission> permissions = new HashSet<ProcessStatePermission>();
-
 
 	@ManyToOne
 	@JoinColumn(name="definition_id")
@@ -87,47 +76,47 @@ public class ProcessStateConfiguration extends AbstractPersistentEntity
 		this.id = id;
 	}
 
-
 	public String getName() {
 		return name;
 	}
-
 
 	public void setName(String name) {
 		this.name = name;
 	}
 
-
 	public String getDescription() {
 		return description;
 	}
-
 
 	public void setDescription(String description) {
 		this.description = description;
 	}
 
-
 	public String getCommentary() {
 		return commentary;
 	}
-
 
 	public void setCommentary(String commentary) {
 		this.commentary = commentary;
 	}
 
-
 	public Boolean getEnableManualSave() {
 		return enableManualSave;
 	}
-
 
 	public void setEnableManualSave(Boolean enableManualSave) {
 		this.enableManualSave = enableManualSave;
 	}
 
-	public Set<ProcessStateWidget> getWidgets() 
+	public String getStepInfoPattern() {
+		return stepInfoPattern;
+	}
+
+	public void setStepInfoPattern(String stepInfoPattern) {
+		this.stepInfoPattern = stepInfoPattern;
+	}
+
+	public Set<ProcessStateWidget> getWidgets()
 	{
 		if(widgets == null) {
 			this.widgets = new HashSet<ProcessStateWidget>();
@@ -139,7 +128,6 @@ public class ProcessStateConfiguration extends AbstractPersistentEntity
 	{
 		this.widgets = widgets;
 	}
-
 
 	public Set<ProcessStateAction> getActions() 
 	{

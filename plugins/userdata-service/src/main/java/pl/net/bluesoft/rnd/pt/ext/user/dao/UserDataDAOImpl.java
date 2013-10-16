@@ -8,10 +8,7 @@ import pl.net.bluesoft.rnd.processtool.dao.PagedCollection;
 import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
 import pl.net.bluesoft.rnd.pt.ext.user.model.PersistentUserData;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.hibernate.criterion.Restrictions.eq;
 
@@ -80,6 +77,10 @@ public class UserDataDAOImpl extends SimpleHibernateBean<PersistentUserData> imp
 
 	private Map<String, PersistentUserData> loadUsersPageByLogin(Collection<String> logins)
 	{
+		if (logins == null || logins.isEmpty()) {
+			return Collections.emptyMap();
+		}
+
 		final List<PersistentUserData> users = findByCriteria(getDetachedCriteria()
 				.add(Restrictions.in("login", logins))
 				.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY));

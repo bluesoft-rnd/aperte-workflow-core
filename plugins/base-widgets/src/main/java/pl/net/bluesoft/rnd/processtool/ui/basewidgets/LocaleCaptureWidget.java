@@ -53,7 +53,7 @@ public class LocaleCaptureWidget extends BaseProcessToolWidget implements Proces
 	@Override
 	public void saveData(BpmTask task) {
         ProcessInstance pi = task.getProcessInstance();
-		setSimpleAttribute(localeKey, nvl(lbl.getApplication().getLocale(), Locale.getDefault()).toString(), pi);
+		pi.setSimpleAttribute(localeKey, nvl(lbl.getApplication().getLocale(), Locale.getDefault()).toString());
 	}
 
 	@Override

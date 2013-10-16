@@ -2,15 +2,16 @@ package pl.net.bluesoft.rnd.processtool.dao.impl;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Projections;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceSimpleAttributeDAO;
 import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceSimpleAttribute;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import static org.hibernate.criterion.Projections.projectionList;
+import static org.hibernate.criterion.Projections.property;
 import static org.hibernate.criterion.Restrictions.eq;
+import static org.hibernate.criterion.Restrictions.in;
 import static pl.net.bluesoft.rnd.processtool.model.ProcessInstanceSimpleAttribute.*;
 
 /**
@@ -31,9 +32,9 @@ public class ProcessInstanceSimpleAttributeDAOImpl extends SimpleHibernateBean<P
 	public Map<String, String> getSimpleAttributesList(Long processId) {
 		List<Object[]> list = session.createCriteria(ProcessInstanceSimpleAttribute.class)
 				.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-				.setProjection(Projections.projectionList()
-						.add(Projections.property(_KEY))
-						.add(Projections.property(_VALUE)))
+				.setProjection(projectionList()
+						.add(property(_KEY))
+						.add(property(_VALUE)))
 				.add(eq(_PROCESS_INSTANCE_ID, processId))
 				.list();
 
@@ -59,5 +60,25 @@ public class ProcessInstanceSimpleAttributeDAOImpl extends SimpleHibernateBean<P
 				.add(eq(_PROCESS_INSTANCE_ID, processId))
 				.add(eq(_KEY, key))
 				.uniqueResult();
+	}
+
+	@Override
+	public Map<String, String> getSimpleAttributeValues(Long processId, Collection<String> keys) {
+		if (keys.isEmpty()) {
+			return Collections.emptyMap();
+		}
+
+		List<Object[]> list = session.createCriteria(ProcessInstanceSimpleAttribute.class)
+				.setProjection(projectionList().add(property(_KEY)).add(property(_VALUE)))
+				.add(eq(_PROCESS_INSTANCE_ID, processId))
+				.add(in(_KEY, keys))
+				.list();
+
+		Map<String, String> result = new HashMap<String, String>();
+
+		for (Object[] row : list) {
+			result.put((String)row[0], (String)row[1]);
+		}
+		return result;
 	}
 }

@@ -612,7 +612,9 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
 
         if (component != null) {
             component.setImmediate(true);
-            component.setEnabled(hasPermission("EDIT"));
+			if (component instanceof Field) {
+            	component.setEnabled(hasPermission("EDIT"));
+			}
             if (component.isReadOnly() || !component.isEnabled()) {
                 component.setHeight(null);
             }
@@ -908,7 +910,7 @@ addListinersToComponents(dynamicValidationComponents);
         if (iwe.getMaxLength() != null) {
             field.setMaxLength(iwe.getMaxLength());
         }
-        if (hasText(iwe.getRegexp()) && hasText(iwe.getRegexp())) {
+        if (hasText(iwe.getRegexp())) {
             field.addValidator(new RegexpValidator(WidgetDefinitionLoader.replaceXmlEscapeCharacters(iwe.getRegexp()), iwe.getErrorKey() != null ?
                     iwe.getErrorKey() : getMessage("processdata.block.error.regexp").replaceFirst("%s", iwe.getRegexp())));
         }

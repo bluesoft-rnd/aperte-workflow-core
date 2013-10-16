@@ -369,10 +369,15 @@
 		border:1px;
 		padding: 5px;
 		box-sizing:border-box;
-		margin-bottom: 10px;
+		margin-bottom: 2px;
 		color: rgb(52, 58, 129);
 	}
 
+	.process-start-list-group
+	{
+		font-size: 18px;
+		color: black;
+	}
 }
 @media (min-width: 962px) 
 {
@@ -638,10 +643,16 @@
 		border:1px;
 		padding: 5px;
 		box-sizing:border-box;
-		margin-bottom: 10px;
+		margin-bottom: 2px;
 		color: rgb(52, 58, 129);
 	}
 
+	.process-start-list-group
+	{
+		font-size: 16px;
+		color: black;
+		padding: 8px 4px 0px;
+	}
 }
 
 .search-view

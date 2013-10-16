@@ -441,7 +441,6 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 		long t1 = System.currentTimeMillis();
 
         registry.withProcessToolContext(new ProcessToolContextCallback() {
-
             @Override
             public void withContext(ProcessToolContext ctx)
             {
@@ -476,7 +475,6 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                     BpmTaskBean processBean = BpmTaskBean.createFrom(task, messageSource);
 
                     adminAlertBeanList.add(processBean);
-
                 }
 
                 long t2 = System.currentTimeMillis();
@@ -539,14 +537,14 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 				adminAlertBeanList, 100, dataTable.getEcho());
 
 		long t1 = System.currentTimeMillis();
-		
+
 		registry.withProcessToolContext(new ProcessToolContextCallback() {
 
 			@Override
 			public void withContext(ProcessToolContext ctx)
 			{
 				long t0 = System.currentTimeMillis();
-				
+
 				I18NSource messageSource = I18NSourceFactory.createI18NSource(request.getLocale());
 
 				boolean isQueue = "queue".equals(queueType);
@@ -573,19 +571,20 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                 filter.setSortOrder(sortingColumn.getSortedAsc() ?  QueueOrder.ASC :  QueueOrder.DESC);
 
 				long t1 = System.currentTimeMillis();
-				
+
 				Collection<BpmTask> tasks = context.getBpmSession().findFilteredTasks(filter, dataTable.getPageOffset(), dataTable.getPageLength());
 
 				long t2 = System.currentTimeMillis();
 
-				for(BpmTask task: tasks)
+				for (BpmTask task : tasks)
 				{
-					BpmTaskBean processBean = BpmTaskBean.createFrom(task, messageSource);
+					BpmTaskBean taskBean = BpmTaskBean.createFrom(task, messageSource);
 
-					if(isQueue)
-						processBean.setQueueName(queueName);
+					if(isQueue) {
+						taskBean.setQueueName(queueName);
+					}
 
-					adminAlertBeanList.add(processBean);
+					adminAlertBeanList.add(taskBean);
                 }
 
 
@@ -594,14 +593,14 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 				pagingCollection.setiTotalRecords(totalRecords);
 				pagingCollection.setiTotalDisplayRecords(totalRecords);
 				pagingCollection.setAaData(adminAlertBeanList);
-				
+
 				long t4 = System.currentTimeMillis();
-				
+
 				logger.log(Level.INFO, "loadProcessesList.withContext total: " + (t4-t0) + "ms, " +
 						"[1]: " + (t1-t0) + "ms, " +
 						"[2]: " + (t2-t1) + "ms, " +
 						"[3]: " + (t3-t2) + "ms, " +
-						"[4]: " + (t4-t3) + "ms " 
+						"[4]: " + (t4-t3) + "ms "
 						);
 
 			}

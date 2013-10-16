@@ -1,10 +1,9 @@
 package pl.net.bluesoft.rnd.processtool.dao;
 
 import pl.net.bluesoft.rnd.processtool.hibernate.HibernateBean;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceSimpleAttribute;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -16,4 +15,5 @@ public interface ProcessInstanceSimpleAttributeDAO extends HibernateBean<Process
 	void setSimpleAttribute(Long processId, String key, String newValue);
 
 	Map<String, String> getSimpleAttributesList(Long processId);
+	Map<String,String> getSimpleAttributeValues(Long processId, Collection<String> keys);
 }

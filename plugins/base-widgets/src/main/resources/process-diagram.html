@@ -1,0 +1,364 @@
+<#setting number_format="computer">
+
+<#assign diagram = bpmSession.getProcessDiagram(task, messageSource)>
+
+<#assign counter = 0>
+
+<div id="process_diagram_widget">
+
+	<svg id="pdw_svg" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" version="1.1">
+		<defs>
+			<marker id="end" refX="15" refY="6" markerUnits="userSpaceOnUse" markerWidth="15" markerHeight="12" orient="auto">
+		  		<path id="arrowhead" d="M 0 1 L 15 6 L 0 11z" fill="black" stroke="black" stroke-linejoin="round" stroke-width="2" />
+		  	</marker>
+		  	<marker id="visited_end" refX="15" refY="6" markerUnits="userSpaceOnUse" markerWidth="15" markerHeight="12" orient="auto">
+		  		<path id="arrowhead" d="M 0 1 L 15 6 L 0 11z" fill="${visitedColor}" stroke="${visitedColor}" stroke-linejoin="round" stroke-width="2" />
+		  	</marker>
+	  	</defs>
+	  	<g>
+		  	<g id="pdw_diagram">
+				
+				<#list diagram.getNodes() as node>
+
+					<#assign type = node.getClass().getSimpleName()>
+					<#assign name = node.getName()>
+					<#assign x = node.getBoundary().getX()>
+					<#assign y = node.getBoundary().getY()>
+					<#assign w = node.getBoundary().getWidth()>
+					<#assign h = node.getBoundary().getHeight()>
+					<#assign bgcolor = node.getBackgroundColor()>
+					<#assign counter = counter + 1>
+
+					<#if type == "AutoTaskNode">
+						<g transform="translate(${x},${y})">
+							<#-- rectangle gradient -->
+							<defs>
+								<radialGradient id="bga${counter}" cx="10%" cy="10%" r="100%" fx="10%" fy="10%">
+									<stop offset="0%" stop-color="#ffffff" stop-opacity="1" />
+									<stop offset="100%%" stop-color="#${bgcolor}" stop-opacity="1" />
+								</radialGradient>
+							</defs>
+							<#-- rectangle -->
+							<rect class="task_rect" width="${w}" height="${h}" rx="10" ry="10" stroke="black" stroke-width="1" fill="url(#bga${counter})" />
+							<#-- gear figure -->
+							<g transform="scale(0.7,0.7) translate(8,8)">
+				            	<polygon style="opacity:1;fill:#ffffff;" stroke="#000000" points="15.392,5.064 17.954,2.502 20.347,4.895 17.786,7.455 18.729,9.732 22.353,9.732 22.353,13.115 18.731,13.115 17.788,15.392 20.351,17.955 17.958,20.347 15.397,17.786 13.12,18.729 13.12,22.353 9.737,22.353 9.737,18.731 7.46,17.788 4.897,20.35 2.506,17.958 5.066,15.397 4.124,13.12 0.5,13.12 0.5,9.737 4.121,9.737 5.065,7.461 2.503,4.898 4.895,2.506 7.455,5.066 9.732,4.125 9.732,0.5 13.116,0.5 13.116,4.121 " />
+				            	<circle style="opacity:1;fill:none;" stroke="#000000" cx="11.427" cy="11.426" r="3.714" />
+				            	<polygon style="opacity:1;fill:#ffffff;" stroke="#000000" points="21.392,11.064 23.954,8.502 26.347,10.895 23.786,13.455 24.729,15.732 28.353,15.732 28.353,19.115 24.731,19.115 23.788,21.392 26.351,23.955 23.958,26.347 21.397,23.786 19.12,24.729 19.12,28.353 15.737,28.353 15.737,24.731 13.46,23.788 10.897,26.35 8.506,23.958 11.066,21.397 10.124,19.12 6.5,19.12 6.5,15.737 10.121,15.737 11.065,13.461 8.503,10.898 10.895,8.506 13.455,11.066 15.732,10.125 15.732,6.5 19.116,6.5 19.116,10.121 " />
+				            	<circle style="opacity:1;fill:none;" stroke="#000000" cx="17.427" cy="17.426" r="3.714" />
+				            </g>
+				    		<text class="task_label" x="5" y="${h / 2 + 5}" fill="black" font-family="Arial, sans-serif" font-size="13">
+								${name}
+							</text>
+				        </g>
+
+					<#elseif type == "EndNode">
+						<#assign resizeFactor = w / 30.0>
+						<g transform="translate(${x},${y}) scale(${resizeFactor},${resizeFactor})">
+							<circle cx="16" cy="16" r="15" stroke="black" fill="white" stroke-width="3" />
+							<text class='event_label' x="${16}" y="${45}" fill="black" font-family="Arial, sans-serif" font-size="13">
+								${name}
+							</text>
+						</g>
+
+					<#elseif type == "ExclusiveGateway">
+						<g transform="translate(${x},${y})">
+							<#-- outline -->
+							<path d="M ${0.0},${h/2.0} L ${w/2.0},${0.0} L ${w},${h/2.0} L ${w/2.0},${h} z" fill="white" stroke="black" style="stroke-width:1" />
+							<#-- cross -->	
+							<g id="cross">
+								<path id="crosspath" stroke="black" fill="black" d="M 12.75,11.55 L 16.75,11.55 L 27.15,28.45 L 23.25,28.45 z" style="stroke-width:1" />
+								<path id="crosspath2" stroke="black" fill="black" d="M 12.75,28.45 L 23.25,11.55 L 27.15,11.55 L 16.75,28.45 z" style="stroke-width:1" />
+							</g>
+							<text x="${w*0.75}" y="${h}" fill="black" font-family="Arial, sans-serif" font-size="13">
+								${name}
+							</text>
+				    	</g>
+
+					<#elseif type == "HumanTaskNode">
+						<g transform="translate(${x},${y})">
+							<#-- rectangle gradient -->
+							<defs>
+								<radialGradient id="bgh${counter}" cx="10%" cy="10%" r="100%" fx="10%" fy="10%">
+									<stop offset="0%" stop-color="#ffffff" stop-opacity="1" />
+									<stop offset="100%" stop-color="#${bgcolor}" stop-opacity="1" />
+								</radialGradient>
+							</defs>
+							<#-- rectangle -->
+							<rect <#if node.isActive()>id="active_task"</#if> class="task_rect" width="${w}" height="${h}" rx="10" ry="10" stroke="black" stroke-width="1" fill="url(#bgh${counter})" />
+							<#if node.isActive()>
+								<rect width="${w+8}" height="${h+8}" rx="10" ry="10" stroke="${visitedColor}" stroke-width="5" fill="none" transform="translate(-4 -4)" />
+							</#if>
+							<#-- human figure -->
+							<g transform="scale(0.33,0.33) translate(8,8)">
+								<defs>
+									<radialGradient id="bghf${counter}" cx="30%" cy="30%" r="50%" fx="0%" fy="0%">
+										<stop offset="0%" stop-color="#ffffff" stop-opacity="1" />
+				            			<stop offset="100%" stop-color="#ffffff" stop-opacity="1" id="fill_el" />
+				            		</radialGradient>
+				            	</defs>
+				                <path fill="url(#bghf${counter}) #ffffff" stroke="#010101"
+									d="M7.757,58.934h51.667V41.758c0,0-5.114-8.586-15.527-11.328H24.751C12.313,33.384,7.575,43.037,7.575,43.037L7.757,58.934z" />
+								<path fill="none" stroke="#010101" d="M18.49,49.799v8.771" />
+								<path fill="none" stroke="#010101" d="M48.051,49.799v8.771" />
+								<circle id="circle1" fill="#010101" stroke="#010101" cx="33.845" cy="18.916" r="11.879" />
+								<path id="bg_frame2" fill="#F1F0F1" stroke="#010101"
+									d="M22.972,21.474c0,0,6.17-5.319,11.788-3.962C40.379,18.87,44.9,15.994,44.9,15.994c0.549,3.701,0.093,8.222-3.199,12.243c0,0,2.377,1.644,2.377,3.289c0,1.647,0.272,4.111-2.193,6.58c-2.465,2.465-12.061,2.741-14.801,0c-2.741-2.742-2.741-4.02-2.741-5.849c0-1.828,1.278-2.74,2.741-4.202C24.708,26.775,21.604,22.845,22.972,21.474z" />
+								
+							</g>
+
+							<text class='task_label' x="5" y="${h / 2 + 5}" fill="black" font-family="Arial, sans-serif" font-size="13">
+								${name}
+							</text>
+						</g>
+
+					<#elseif type == "IntermediateSignalNode">
+						<#assign resizeFactor = w / 30.0>
+						<g transform="translate(${x},${y}) scale(${resizeFactor},${resizeFactor})">
+							<circle cx="16" cy="16" r="15" stroke="black" fill="none" stroke-width="1" style="stroke-dasharray: 5.5, 3" />
+							<circle cx="16" cy="16" r="12" stroke="black" fill="none" stroke-width="1" style="stroke-dasharray: 4.5, 3" />
+							<circle cx="16" cy="16" r="15" stroke="black" fill="none" stroke-width="1" />
+							<circle id="frame2" cx="16" cy="16" r="12" stroke="black" fill="none" stroke-width="1" />
+							<path stroke="black" d="M 8.7124971,21.247342 L 23.333334,21.247342 L 16.022915,8.5759512 L 8.7124971,21.247342 z" style="fill:none;stroke-width:1.4;stroke-miterlimit:4;stroke-dasharray:none" />
+							<text class='event_label' x="${16}" y="${45}" fill="black" font-family="Arial, sans-serif" font-size="13">
+								${name}
+							</text>
+				        </g>
+
+					<#elseif type == "IntermediateTimerNode">
+						<#assign resizeFactor = w / 30.0>
+						<g transform="translate(${x},${y}) scale(${resizeFactor},${resizeFactor})">
+							<circle id="frame" cx="16" cy="16" r="15" stroke="black" fill="none" stroke-width="1" />
+							<circle id="frame2" cx="16" cy="16" r="12" stroke="black" fill="none" stroke-width="1" />
+							<circle id="circle" cx="16" cy="16" r="10" stroke="black" fill="none" stroke-width="1" />
+							<path id="path1" d="M 16 6 L 16 9 M 21 7 L 19.5 10 M 25 11 L 22 12.5 M 26 16 L 23 16 M 25 21 L 22 19.5 M 21 25 L 19.5 22 M 16 26 L 16 23 M 11 25 L 12.5 22 M 7 21 L 10 19.5 M 6 16 L 9 16 M 7 11 L 10 12.5 M 11 7 L 12.5 10 M 18 9 L 16 16 L 20 16" fill="none" stroke="black" />
+							<text class='event_label' x="${16}" y="${45}" fill="black" font-family="Arial, sans-serif" font-size="13">
+								${name}
+							</text>
+						</g>
+
+
+					<#elseif type == "ParallelGateway">
+						<g transform="translate(${x},${y})">
+							<#-- outline -->
+							<path d="M 0.0,${h/2.0} L ${w/2.0},${0.0} L ${w},${h/2.0} L ${w/2.0},${h} z" fill="white" stroke="black" style="stroke-width:1" />
+							<#-- cross -->
+							<path d="M ${w*0.25},${h*0.5} L ${w*0.75},${h*0.5} M ${w*0.5},${h*0.25} L ${w*0.5},${h*0.75}" stroke="black" style="fill:none;stroke-width:3" />
+							<text x="${w*0.75}" y="${h}" fill="black" font-family="Arial, sans-serif" font-size="13">
+								${name}
+							</text>
+						</g>
+
+					<#elseif type == "StartNode">
+						<#assign resizeFactor = w / 30.0>
+						<g transform="translate(${x},${y}) scale(${resizeFactor},${resizeFactor})">
+							<circle id="frame" cx="16" cy="16" r="15" stroke="black" fill="none" stroke-width="1" />
+							<text class='event_label' x="${16}" y="${45}" fill="black" font-family="Arial, sans-serif" font-size="13">
+								${name}
+							</text>
+						</g>
+
+					<#elseif type == "StartTimerNode">
+						<#assign resizeFactor = w / 30.0>
+						<g transform="translate(${x},${y}) scale(${resizeFactor},${resizeFactor})">
+					    	<circle id="frame" cx="16" cy="16" r="15" stroke="black" fill="none" stroke-width="1" />
+					    	<circle id="circle" cx="16" cy="16" r="10" stroke="black" fill="none" stroke-width="1" />
+					    	<path id="path1" d="M 16 6 L 16 9 M 21 7 L 19.5 10 M 25 11 L 22 12.5 M 26 16 L 23 16 M 25 21 L 22 19.5 M 21 25 L 19.5 22 M 16 26 L 16 23 M 11 25 L 12.5 22 M 7 21 L 10 19.5 M 6 16 L 9 16 M 7 11 L 10 12.5 M 11 7 L 12.5 10 M 18 9 L 16 16 L 20 16" fill="none" stroke="black" stroke-width="1" />
+					    	<text class='event_label' x="${16}" y="${45}" fill="black" font-family="Arial, sans-serif" font-size="13">
+								${name}
+							</text>
+					    </g>
+
+					<#elseif type == "SubprocessNode">
+						<g transform="translate(%.2f,%.2f)">", x, y))
+							<#-- rectangle gradient -->
+							<defs>
+								<radialGradient id="bgs${counter}" cx="10%" cy="10%" r="100%" fx="10%" fy="10%">
+									<stop offset="0%" stop-color="#ffffff" stop-opacity="1" />
+									<stop offset="100%%" stop-color="#${bgcolor}" stop-opacity="1" />
+								</radialGradient>
+							</defs>
+							<#--  rectangle -->
+							<rect class="task_rect" width="${w}" height="#{h}" rx="10" ry="10" stroke="black" stroke-width="1" fill="url(#bgs${counter})" />
+							<#-- plus sign with border -->
+							<g transform="translate(1)">
+								<rect x="43" y="66" width="14" height="14" fill="none" stroke="black" stroke-width="1" />
+								<path fill="none" stroke="black" d="M50 68 v10 M 45 73 h10" stroke-width="1" />
+							</g>
+							<text class='task_label' x="5" y="${h / 2 + 5}" fill="black" font-family="Arial, sans-serif" font-size="13">
+								${name}
+							</text>
+						</g>
+							    			   
+					</#if>
+
+				</#list> 
+
+				<#-- sequence flows -->
+				<#list diagram.getTransitions() as trans>
+					<#list trans.getPoints() as point>
+
+						<#if point != trans.getPoints()?first>
+							<#assign x = point.getX()>
+							<#assign y = point.getY()>
+							<#assign prev_x = prevPoint.getX()>
+							<#assign prev_y = prevPoint.getY()>
+
+							<line x1="${prev_x}" y1="${prev_y}" x2="${x}" y2="${y}" style="stroke:<#if trans.isVisited()>${visitedColor};stroke-width:4<#else>black;stroke-width:2;</#if>" 
+								<#if !(point_has_next)>marker-end="url(#<#if trans.isVisited()>visited_end<#else>end</#if>)"</#if> 
+							/>
+						</#if>
+						<#assign prevPoint = point>
+					</#list>
+
+					<#-- sequence flow labels -->
+					<#list trans.getPoints() as point>
+						<#if point != trans.getPoints()?first>
+							<#assign x = point.getX()>
+							<#assign y = point.getY()>
+							<#assign prev_x = prevPoint.getX()>
+							<#assign prev_y = prevPoint.getY()>
+
+
+							<#if prevPoint == trans.getPoints()?first>
+								<#if (prev_x == x) >
+									<#if (prev_y > y) >
+										<#-- up -->
+										<text x="${prev_x}" y="${prev_y}" fill="black" font-family="Arial, sans-serif" font-size="13"  
+											transform="translate(-5,-5),rotate(-90 ${prev_x} ${prev_y})">
+											${trans.getName()}
+										</text>
+									<#elseif (prev_y < y) >
+										<#-- down -->
+										<text x="${prev_x}" y="${prev_y}" fill="black" font-family="Arial, sans-serif" font-size="13"
+											transform="translate(5,5),rotate(90 ${prev_x} ${prev_y})">
+											${trans.getName()}
+										</text>
+									</#if>
+								<#elseif (prev_y == y) >
+									<#if (prev_x > x) >
+										<#-- left -->
+										<text x="${x}" y="${y}" fill="black" font-family="Arial, sans-serif" font-size="13" 
+											transform="translate(10,-5)">
+											${trans.getName()}
+										</text>
+									<#elseif (prev_x < x) >
+										<#-- right -->
+										<text x="${prev_x}" y="${prev_y}" fill="black" font-family="Arial, sans-serif" font-size="13" 
+											transform="translate(5,-5)">
+											${trans.getName()}
+										</text>
+									</#if>
+								</#if>
+							</#if>
+							
+						</#if>
+						<#assign prevPoint = point>
+						
+					</#list>
+				</#list>
+				
+			</g>
+		</g>
+		<#-- border -->
+		<rect id="pdw_border" rx="10" ry="10" stroke="black" stroke-width="2" style="fill:none" />
+	</svg>
+</div>
+<button type="button" onclick="showCompleteDiagram()">${messageSource.getMessage("widget.process_diagram.show_full")}</button>
+
+<script type="text/javascript">
+
+	var process_diagram_widget = document.getElementById("process_diagram_widget");
+	var resizeFactor = 0.7
+
+	// centering label under events (circles) 
+    eventLabels = document.getElementsByClassName('event_label');
+    for (var i = 0; i < eventLabels.length; i++) {
+        eventLabels[i].setAttribute("transform","translate(-"+eventLabels[i].getBoundingClientRect().width/2+",0)");
+    }
+
+    // centering and wrapping labels in tasks
+	taskLabels = document.getElementsByClassName('task_label');
+	for (var i = 0; i < taskLabels.length; i++) {
+   		label = taskLabels[i];
+		if(label.parentNode.getElementsByClassName('task_rect').length > 0) {
+			var rect = label.parentNode.getElementsByClassName('task_rect')[0];
+		} else {
+			continue;
+		}
+
+   		// if the label fits in bounding rect, center the label ...
+   		if (label.getBoundingClientRect().width < rect.getBoundingClientRect().width-10) {
+   			label.setAttribute("transform","translate("+(rect.getBoundingClientRect().width/4)+",0)");
+   		} 
+   		// ... otherwise, wrap the label into rect
+   		else {
+   			label.setAttribute("y",label.getAttribute("y")-20);
+   			var oldText = label.innerHTML.replace(/^\s+|\s+$/g, '');
+   			var newText = "";
+   			var tempText = "";
+			for (var j = 0; j < oldText.length; j++){
+			    var c = oldText.charAt(j);        
+				label.innerHTML = tempText + c;
+				if (label.getBoundingClientRect().width < rect.getBoundingClientRect().width-10) {
+					tempText += c;
+				} else {
+					newText += "<tspan x=\""+label.getAttribute("x")+"\" dy=\"13\">"+tempText+"</tspan>";
+					tempText = c;
+				}
+			}
+			newText += "<tspan x=\""+label.getAttribute("x")+"\" dy=\"13\">"+tempText+"</tspan>";
+			label.innerHTML = newText;	
+   		}
+    }
+
+
+    // showing full diagram in separate window
+	function showCompleteDiagram() {
+
+		var dWidth = ${diagram.getWidth()};
+		var dHeight = ${diagram.getHeight()};
+		var w = window.open('about:blank', 'Process Diagram', "height="+dHeight+"px,width="+dWidth+"px,scrollbars=yes");
+		w.document.write(process_diagram_widget.innerHTML);
+		var svg = w.document.getElementById("pdw_svg");
+		var border = w.document.getElementById("pdw_border");
+		var diagram = w.document.getElementById("pdw_diagram");
+		svg.setAttribute('width', dWidth*resizeFactor);
+		svg.setAttribute('height', dHeight*resizeFactor);
+		border.setAttribute('width', dWidth*resizeFactor);
+		border.setAttribute('height', dHeight*resizeFactor);
+		diagram.setAttribute("transform","scale("+resizeFactor+","+resizeFactor+")");
+	}
+
+	// showing fragment of diagram 
+	function showDiagramFragment(width, height) {
+		var process_diagram_widget = document.getElementById("process_diagram_widget");
+		var svg = document.getElementById("pdw_svg");
+		var border = document.getElementById("pdw_border");
+		var diagram = document.getElementById("pdw_diagram");
+		process_diagram_widget.style.width=width;
+		process_diagram_widget.style.height=height;
+		svg.setAttribute('width', '100%');
+		svg.setAttribute('height', '100%');
+		border.setAttribute('width', '100%');
+		border.setAttribute('height', '100%');
+		// fixLabels(document);
+		diagram.setAttribute("transform","scale("+resizeFactor+","+resizeFactor+")");
+
+		// centering on active task
+		var diagramBox = process_diagram_widget.getBoundingClientRect();
+		var box = document.getElementById("active_task").getBoundingClientRect();
+		var centerX = (box.left + 0.5 * box.width) - diagramBox.left;
+		var centerY = (box.top + 0.5 * box.height) - diagramBox.top;
+		var transX = Math.min(0,-(centerX - 0.5 * diagramBox.width));
+		var transY = Math.min(0,-(centerY - 0.5 * diagramBox.height));
+		diagram.setAttribute("transform","translate("+transX+" "+transY+"), scale("+resizeFactor+","+resizeFactor+")");
+		process_diagram_widget.style.display='none';
+		process_diagram_widget.offsetHeight;
+		process_diagram_widget.style.display='block';
+	}
+
+	showDiagramFragment("${diagramWidth}","${diagramHeight}");
+	
+</script>
+

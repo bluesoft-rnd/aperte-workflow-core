@@ -2,23 +2,18 @@ package org.aperteworkflow.portlets;
 
 import com.vaadin.terminal.gwt.server.ApplicationPortlet2;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.aperteworkflow.bpm.graph.GraphElement;
-import org.aperteworkflow.bpm.graph.StateNode;
-import org.aperteworkflow.bpm.graph.TransitionArc;
-import org.aperteworkflow.bpm.graph.TransitionArcPoint;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
-import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 
 import javax.imageio.ImageIO;
 import javax.portlet.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.List;
 import java.util.logging.Logger;
 
 import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
@@ -61,7 +56,7 @@ public class ProcessInstanceManagerApplicationPortlet extends ApplicationPortlet
                                     ProcessToolBpmSession session = getRegistry().getProcessToolSessionFactory()
                                             .createSession("admin");
                                     ProcessInstance pi = ctx.getProcessInstanceDAO().getProcessInstanceByInternalId(rr.getParameter("svg"));
-                                    List<GraphElement> processHistory = session.getProcessHistory(pi);
+
 //                                    final StringBuffer svg = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n");
                                     final StringBuffer svg = new StringBuffer("<html><body style=\"margin:0; padding:0\">\n\n");
                                     
@@ -89,34 +84,7 @@ public class ProcessInstanceManagerApplicationPortlet extends ApplicationPortlet
 
                                         String strokeStyle = "stroke:#1B59E0;stroke-width:5;opacity: 1;";
 
-                                        for (GraphElement el : processHistory) {
-                                            if (el instanceof StateNode) {
-                                                StateNode sn = (StateNode) el;
-                                                String fill = sn.isUnfinished() ? "fill:#1B59E0;fill-opacity:0.3" : "fill-opacity:0.0";
-                                                svg.append(String.format("<rect x=\"%d\" y=\"%d\" height=\"%d\" width=\"%d\"\n" +
-                                                                    " rx=\"5\" ry=\"5\"\n" +
-                                                                    " style=\"" + strokeStyle + fill + "\"/>\n",
-                                                                    sn.getX(),
-                                                                    sn.getY(),
-                                                                    sn.getHeight(),
-                                                                    sn.getWidth()));
-                                            } else if (el instanceof TransitionArc) {
-                                                TransitionArc ta = (TransitionArc) el;
-                                                TransitionArcPoint prevPoint = null;
-                                                for (TransitionArcPoint p : ta.getPath()) {
-                                                    if (prevPoint != null) {
-                                                        svg.append(String.format("<line x1=\"%d\" y1=\"%d\" x2=\"%d\" y2=\"%d\"\n" +
-                                                                "  style=\"" + strokeStyle + "\"/>\n",
-                                                                prevPoint.getX(),
-                                                                prevPoint.getY(),
-                                                                p.getX(),
-                                                                p.getY()
-                                                                ));
-                                                    }
-                                                    prevPoint = p;
-                                                }
-                                            }
-                                        }
+
                                         svg.append("</svg></body></html>");
                                         resp.setContentType("text/html");
                                         resp.getPortletOutputStream().write(svg.toString().getBytes());

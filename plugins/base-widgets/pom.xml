@@ -138,7 +138,8 @@
                         <ProcessTool-I18N-Property>basewidgets-messages</ProcessTool-I18N-Property>
                         <ProcessTool-Widget-View>
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.LatestComments,
-							pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDataBlockHtmlWidget
+							pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDataBlockHtmlWidget,
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDiagramWidget
                         </ProcessTool-Widget-View>
                         <ProcessTool-Step-Enhancement>
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.ChooseUserWithRoleStep,

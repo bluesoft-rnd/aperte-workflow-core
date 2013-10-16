@@ -1,0 +1,61 @@
+<#assign null = "null">
+
+<h4>${messageSource.getMessage("usersubstitution.widget.comment.title")}</h4>
+
+<#assign requestComment = process.getSimpleAttributeValue("substitutionRequestComment")!"">
+
+<form method="post" action="addContact.html" id="request-substitution-comment-form" class="aperte-form">
+ 	<fieldset>
+ 	    <p>
+      		<label for="area-comment">${messageSource.getMessage("usersubstitution.widget.comment.label")}</label>
+      		<textarea id="area-comment" class="textarea-comment" name="comment" minlength="2" required>${requestComment}</textarea>
+      		<div id="area-comment-warning" >${messageSource.getMessage("usersubstitution.widget.comment.warning")}</div>
+    	</p>
+ 	</fieldset>
+     
+</form>
+
+<style type="text/css" media="all">
+   .textarea-comment
+    {
+        width: 100%;
+        min-height: 100px;
+    }
+</style>
+
+<script type="text/javascript">
+	$(document).ready(function()
+	{
+		$('#area-comment-warning').hide();
+		
+		console.log( "textarea: ${widgetId}"); 
+		
+		
+		var widget = new Widget('${widgetName}', '${widgetId}', '${task.internalTaskId}');
+		widget.getData = function() {return getRequestCommentData();};
+		widget.validate = function() {return validateRequestComment();};
+		
+		widgets.push(widget);
+	});
+	
+	function validateRequestComment()
+	{
+		var errors = [];
+		
+		if(!$('#area-comment').val())
+			{
+				$('#area-comment-warning').show();
+
+				errors.push('${messageSource.getMessage("usersubstitution.widget.comment.warning")}');
+			}
+		
+		return errors;
+	}
+	
+	function getRequestCommentData()
+	{
+		var commentText = $('#area-comment').val();
+		var data = {"substitutionRequestComment" : commentText};
+		return data;
+	}
+</script>

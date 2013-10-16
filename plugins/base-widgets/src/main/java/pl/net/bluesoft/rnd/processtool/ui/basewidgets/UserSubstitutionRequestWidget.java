@@ -1,20 +1,13 @@
-package pl.net.bluesoft.rnd.pt.ext.usersubstitution.widget;
+package pl.net.bluesoft.rnd.processtool.ui.basewidgets;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Logger;
-
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
+import com.vaadin.data.Property;
+import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.data.util.MethodProperty;
+import com.vaadin.ui.*;
 import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
-import pl.net.bluesoft.rnd.processtool.event.SaveTaskEvent;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
-import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistryImpl;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinRenderable;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
@@ -26,16 +19,8 @@ import pl.net.bluesoft.util.lang.Formats;
 import pl.net.bluesoft.util.lang.Maps;
 import pl.net.bluesoft.util.lang.Strings;
 
-import com.google.common.eventbus.Subscribe;
-import com.vaadin.data.Property;
-import com.vaadin.data.util.BeanItemContainer;
-import com.vaadin.data.util.MethodProperty;
-import com.vaadin.ui.AbstractSelect;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.PopupDateField;
+import java.util.*;
+import java.util.logging.Logger;
 
 import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 

@@ -1,4 +1,4 @@
-package pl.net.bluesoft.rnd.pt.ext.usersubstitution.step;
+package pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps;
 
 import pl.net.bluesoft.rnd.processtool.model.BpmStep;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;

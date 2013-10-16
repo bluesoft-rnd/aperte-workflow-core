@@ -126,7 +126,8 @@
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessHistoryWidget,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.TabSheetWidget,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.VerticalLayoutWidget,
-                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.SwitchWidget
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.SwitchWidget,
+							pl.net.bluesoft.rnd.processtool.ui.basewidgets.UserSubstitutionRequestWidget
                         </ProcessTool-Widget-Enhancement>
                         <ProcessTool-Button-Enhancement>
                             pl.net.bluesoft.rnd.processtool.ui.buttons.AssignUserTaskButton,
@@ -142,11 +143,13 @@
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.LatestComments,
 							pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessComments,
 							pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDataBlockHtmlWidget,
-                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDiagramWidget
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDiagramWidget,
+							pl.net.bluesoft.rnd.processtool.ui.basewidgets.UserSubstitutionComment
                         </ProcessTool-Widget-View>
                         <ProcessTool-Step-Enhancement>
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.ChooseUserWithRoleStep,
-                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.FinishTasksStep
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.FinishTasksStep,
+							pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.HandleSubstitutionAcceptance
                         </ProcessTool-Step-Enhancement>
                       <!--  <ProcessTool-Widget-Script>
                         requests-scripts.js;provider:=file

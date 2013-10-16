@@ -16,6 +16,7 @@ import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.*;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolChildrenFilteringWidget;
 import pl.net.bluesoft.rnd.processtool.web.domain.IHtmlTemplateProvider;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.util.lang.DateUtil;
@@ -217,6 +218,17 @@ public class TaskViewBuilder
 				processWidget(child, divContentNode);
 			}
 		}
+		else if(aliasName.equals("SwitchWidgets")){
+			List<ProcessStateWidget> sortedList = new ArrayList<ProcessStateWidget>(children);
+			
+			ProcessStateWidget filteredChild = filterChildren(task, sortedList, widget);
+			
+			Element divContentNode = parent.ownerDocument().createElement("div")
+					.attr("id", "switch_widget"+widget.getId());
+			parent.appendChild(divContentNode);
+			
+			processWidget(filteredChild, divContentNode);
+		}
 		else if(widgetTemplateBody != null)
 		{
             ProcessHtmlWidget htmlWidget = processToolRegistry.getHtmlWidget(aliasName);
@@ -392,4 +404,30 @@ public class TaskViewBuilder
 
         return this;
     }
+    public ProcessStateWidget filterChildren(BpmTask task, List<ProcessStateWidget> sortedList, ProcessStateWidget psw) {
+    	String selectorKey = psw.getAttributeByName("selectorKey").getValue();
+    	String conditions = psw.getAttributeByName("conditions").getValue();;
+		String key = task.getProcessInstance().getSimpleAttributeValue(selectorKey);
+		if (key == null) {
+			key = task.getProcessInstance().getRootProcessInstance().getSimpleAttributeValue(selectorKey);
+		}
+		if(key == null){
+			key = task.getProcessInstance().getSimpleAttributeValue(selectorKey);
+		}
+		
+		if(key == null)
+			return null;
+		
+		String[] conditionsArray = conditions.split("[,; ]+");
+		int index = -1;
+		for (int i = 0; i < conditionsArray.length; i++) {
+			if (key.equals(conditionsArray[i].trim()))
+				index = i;
+		}
+		try {
+			return sortedList.get(index);
+		} catch (IndexOutOfBoundsException e) {
+			return null;
+		}
+	}
 }

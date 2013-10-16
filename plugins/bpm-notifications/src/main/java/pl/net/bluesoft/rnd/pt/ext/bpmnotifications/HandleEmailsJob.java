@@ -4,7 +4,6 @@ import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessDeadline;
 
 /**
  * Scheduler witch gathers notfications {@link BpmNotification} from the table, and 

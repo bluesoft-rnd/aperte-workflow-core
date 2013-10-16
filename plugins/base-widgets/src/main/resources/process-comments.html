@@ -1,6 +1,6 @@
-<h4>${messageSource.getMessage("widget.latest_process_comments.name")}</h4>
+<h4>${messageSource.getMessage("widget.process_comments.caption")}</h4>
 
-<#assign processComments = process.getComments()/>
+<#assign processComments = process.getCommentsOrderedByDate(true)/>
 
 <div id="process_comments_list">
     <#list processComments as processComment>
@@ -11,12 +11,12 @@
 
 <#if privileges?seq_contains("EDIT")>
 
-<button id="process_comments_button_new" onclick="process_comments_button_new_click()">Nowy</button>
+<button id="process_comments_button_new" onclick="process_comments_button_new_click()">${messageSource.getMessage("widget.process_comments.new")}</button>
 <div id="process_comments_add_form" style="display:none;">
     <textarea id="process_comments_body" style="width:50%;"></textarea>
     <br/>
-    <button id="process_comments_button_add" onclick="process_comments_button_add_click()">Dodaj</button>
-    <button id="process_comments_button_cancel" onclick="process_comments_button_cancel_click()">Anuluj</button>
+    <button id="process_comments_button_add" onclick="process_comments_button_add_click()">${messageSource.getMessage("widget.process_comments.add")}</button>
+    <button id="process_comments_button_cancel" onclick="process_comments_button_cancel_click()">${messageSource.getMessage("widget.process_comments.cancel")}</button>
 </div>
 
 
@@ -48,6 +48,7 @@
     function process_comments_button_new_click() {
         document.getElementById("process_comments_button_new").style.display="none";
         document.getElementById("process_comments_add_form").style.display="";
+        $('#process_comments_body').val("");
     }
 
     function process_comments_button_add_click() {
@@ -60,6 +61,10 @@
         var dateFull = dateStr + ":" + date.getSeconds();
         var body = $('#process_comments_body').val();
         var author = '${user.login}';
+
+        if (!body || /^\s*$/.test(body)) {
+            return;
+        }
 
         processCommentsAddedComments.push({
             createDate: dateFull,

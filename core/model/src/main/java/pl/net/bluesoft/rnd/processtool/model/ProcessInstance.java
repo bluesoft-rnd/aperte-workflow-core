@@ -3,9 +3,12 @@ package pl.net.bluesoft.rnd.processtool.model;
 import org.hibernate.annotations.GenericGenerator;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComment;
+import pl.net.bluesoft.util.lang.cquery.func.F;
 
 import javax.persistence.*;
 import java.util.*;
+
+import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
 
 /**
  * Entity representing process instance data. It should be persisted in appropriate database.
@@ -202,6 +205,22 @@ public class ProcessInstance extends AbstractPersistentEntity
 		}
 		return comments;
 	}
+
+	public List<ProcessComment> getCommentsOrderedByDate(boolean ascending) {
+		if (ascending) {
+			return from(getComments()).orderBy(BY_CREATE_DATE).toList();
+		}
+		else {
+			return from(getComments()).orderByDescending(BY_CREATE_DATE).toList();
+		}
+	}
+
+	private static final F<ProcessComment, Long> BY_CREATE_DATE = new F<ProcessComment, Long>() {
+		@Override
+		public Long invoke(ProcessComment x) {
+			return x.getCreateTime().getTime();
+		}
+	};
 
 	public void setComments(Set<ProcessComment> comments) {
 		this.comments = comments;

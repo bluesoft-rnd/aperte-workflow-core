@@ -1,17 +1,6 @@
 package pl.net.bluesoft.rnd.pt.ext.deadline.step;
 
-import java.lang.reflect.InvocationTargetException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Logger;
-
 import org.apache.commons.beanutils.PropertyUtils;
-
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.exception.ProcessToolException;
 import pl.net.bluesoft.rnd.processtool.model.BpmStep;
@@ -22,6 +11,12 @@ import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 import pl.net.bluesoft.util.lang.Strings;
+
+import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.logging.Logger;
 
 @AliasName(name = "SetupDeadlineStep")
 public class SetupDeadlineStep implements ProcessToolProcessStep {
@@ -72,7 +67,7 @@ public class SetupDeadlineStep implements ProcessToolProcessStep {
             
             if(useWorkingDays())
             {
-        		int nv = Integer.valueOf(Integer.valueOf(value));
+        		int nv = Integer.valueOf(value);
         		nv = getWeekOffset(cal.getTime(),nv);
         		cal.add(Calendar.DAY_OF_YEAR, nv);
         		

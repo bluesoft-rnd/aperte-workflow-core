@@ -13,21 +13,21 @@ import pl.net.bluesoft.rnd.processtool.web.widgets.impl.FileWidgetContentProvide
 @WidgetGroup("html-process-widget")
 public class ProcessDiagramWidget extends ProcessHtmlWidget {
 
-    @AutoWiredProperty
+    @AutoWiredProperty(required = true)
     @AperteDoc(
             humanNameKey = "widget.process_diagram.width.humanName",
             descriptionKey = "widget.process_diagram.width.description"
     )
     protected String diagramWidth;
 
-    @AutoWiredProperty
+    @AutoWiredProperty(required = true)
     @AperteDoc(
             humanNameKey = "widget.process_diagram.height.humanName",
             descriptionKey = "widget.process_diagram.height.description"
     )
     protected String diagramHeight;
 
-    @AutoWiredProperty
+    @AutoWiredProperty(required = true)
     @AperteDoc(
             humanNameKey = "widget.process_diagram.color.humanName",
             descriptionKey = "widget.process_diagram.color.description"

@@ -466,7 +466,7 @@ public class ProcessInstance extends AbstractPersistentEntity
 	}
 
 	public Collection<AbstractProcessInstanceAttribute> getAllProcessAttributes() {
-		Set<AbstractProcessInstanceAttribute> result = new HashSet<AbstractProcessInstanceAttribute>();
+		List<AbstractProcessInstanceAttribute> result = new ArrayList<AbstractProcessInstanceAttribute>();
 		result.addAll(processSimpleAttributes);
 		result.addAll(processAttributes);
 		return result;

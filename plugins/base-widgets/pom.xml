@@ -122,7 +122,6 @@
                         <ProcessTool-Widget-Enhancement>
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.LocaleCaptureWidget,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.PanelWidget,
-                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessCommentsWidget,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDataBlockWidget,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessHistoryWidget,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.TabSheetWidget,

@@ -180,7 +180,7 @@
             <script:script engine="groovy" >
                 <script:text>
                     System.out.println("Sending notification... ")
-                    Set comments = payload.findAttributeByKey("pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComments").getComments()
+                    Set comments = payload.getComments()
                     def comment = comments.asList().get(0)
                     String format = "&lt;p&gt;Your business card order was rejected by %s.&lt;/p&gt;"
                     format += "&lt;p&gt;Reason:\n\n %s &lt;/p&gt;"

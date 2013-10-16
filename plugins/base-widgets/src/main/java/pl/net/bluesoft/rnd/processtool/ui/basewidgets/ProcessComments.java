@@ -38,31 +38,30 @@ public class ProcessComments extends ProcessHtmlWidget {
 			String commentsJSON = data.get("processCommentsAddedComments");
 			try {
 				List<ProcessCommentBean> list = mapper.readValue(commentsJSON, type);
-				List<ProcessComment> comments = convert(list);
-
-				System.out.println(commentsJSON);
+				List<ProcessComment> comments = convert(list, task);
+				task.getProcessInstance().addComments(comments);
 			}
 			catch (IOException e) {
-				e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+				throw new RuntimeException(e);
 			}
-			// TODO
 		}
 
-		private List<ProcessComment> convert(List<ProcessCommentBean> list) {
+		private List<ProcessComment> convert(List<ProcessCommentBean> list, BpmTask task) {
 			List<ProcessComment> result = new ArrayList<ProcessComment>();
 			SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 			for (ProcessCommentBean bean : list) {
-				ProcessComment comment = convert(format, bean);
-				result.add(comment);
+				result.add(convert(bean, task, format));
 			}
 			return result;
 		}
 
-		private ProcessComment convert(SimpleDateFormat format, ProcessCommentBean bean) {
+		private ProcessComment convert(ProcessCommentBean bean, BpmTask task, SimpleDateFormat format) {
 			ProcessComment comment = new ProcessComment();
 			comment.setAuthor(bean.getAuthor());
 			comment.setBody(bean.getBody());
+			comment.setProcessState(task.getTaskName());
+			comment.setProcessInstance(task.getProcessInstance());
 			try {
 				comment.setCreateTime(format.parse(bean.getCreateDate()));
 			}

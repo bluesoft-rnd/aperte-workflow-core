@@ -3,7 +3,6 @@ package pl.net.bluesoft.rnd.processtool.ui.buttons;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComment;
-import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComments;
 import pl.net.bluesoft.rnd.processtool.ui.buttons.dialog.AddCommentDialog;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
@@ -77,21 +76,15 @@ public class CommentRequiredValidatingButton extends StandardValidatingButton {
 		if (skipAddingComment) {
 			return;
 		}
-		ProcessComment pc = dialog.getProcessComment();
-        pc.setAuthor(loggedUser);
-        pc.setAuthorSubstitute(substitutingUser);
-        pc.setCreateTime(new Date());
-        pc.setProcessState(task.getTaskName());
-        ProcessInstance pi = task.getProcessInstance().getRootProcessInstance();
-        ProcessComments comments = pi.findAttributeByClass(ProcessComments.class);
-        if (comments == null) {
-            comments = new ProcessComments();
-            comments.setProcessInstance(pi);
-            comments.setKey(ProcessComments.class.getName());
-            pi.getProcessAttributes().add(comments);
-        }
-        comments.getComments().add(pc);
-        pc.setComments(comments);
+		ProcessComment comment = dialog.getProcessComment();
+        comment.setAuthor(loggedUser);
+        comment.setAuthorSubstitute(substitutingUser);
+        comment.setCreateTime(new Date());
+        comment.setProcessState(task.getTaskName());
+
+		ProcessInstance pi = task.getProcessInstance().getRootProcessInstance();
+
+		pi.addComment(comment);
         pi.setSimpleAttribute("commentAdded", "true");
     }
 }

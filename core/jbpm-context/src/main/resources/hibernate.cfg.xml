@@ -65,7 +65,6 @@
         <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessToolSetting"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessToolSequence"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComment"/>
-        <mapping class="pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComments"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.processdata.ProcessDeadline"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionary"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItem"/>

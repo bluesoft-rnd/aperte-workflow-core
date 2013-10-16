@@ -3,6 +3,7 @@ package pl.net.bluesoft.rnd.processtool.model.processdata;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 import pl.net.bluesoft.rnd.processtool.model.AbstractPersistentEntity;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -60,9 +61,9 @@ public class ProcessComment extends AbstractPersistentEntity {
 		this.processState = processState;
 	}
 
-	@ManyToOne
-	@JoinColumn(name = "comments_id")
-	private ProcessComments comments;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name="process_instance_id")
+	private ProcessInstance processInstance;
 
 
 	public String getAuthor() {
@@ -105,11 +106,11 @@ public class ProcessComment extends AbstractPersistentEntity {
 		this.createTime = createTime;
 	}
 
-	public ProcessComments getComments() {
-		return comments;
+	public ProcessInstance getProcessInstance() {
+		return processInstance;
 	}
 
-	public void setComments(ProcessComments comments) {
-		this.comments = comments;
+	public void setProcessInstance(ProcessInstance processInstance) {
+		this.processInstance = processInstance;
 	}
 }

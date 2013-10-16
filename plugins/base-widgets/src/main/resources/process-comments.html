@@ -1,14 +1,11 @@
 <h4>${messageSource.getMessage("widget.latest_process_comments.name")}</h4>
-<#assign null = "null"/>
 
-<#assign processComments = process.findAttributeByClassName("pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComments")!null/>
+<#assign processComments = process.getComments()/>
 
 <div id="process_comments_list">
-    <#if processComments != null>
-        <#list processComments.getComments() as processComment>
-            ${processComment.author} [${processComment.createTime?string("yyyy-MM-dd HH:mm")}] : ${processComment.body}
-        </#list>
-    </#if>
+    <#list processComments as processComment>
+        ${processComment.author} [${processComment.createTime?string("yyyy-MM-dd HH:mm")}] : ${processComment.body}<br/>
+    </#list>
 </div>
 
 

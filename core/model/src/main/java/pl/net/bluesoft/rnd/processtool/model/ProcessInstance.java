@@ -1,18 +1,11 @@
 package pl.net.bluesoft.rnd.processtool.model;
 
-import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
-
-import java.util.*;
+import org.hibernate.annotations.GenericGenerator;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
+import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComment;
 
 import javax.persistence.*;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.xml.bind.annotation.XmlTransient;
-
-import org.hibernate.annotations.*;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
-import pl.net.bluesoft.rnd.pt.utils.lang.Lang2;
+import java.util.*;
 
 /**
  * Entity representing process instance data. It should be persisted in appropriate database.
@@ -71,6 +64,11 @@ public class ProcessInstance extends AbstractPersistentEntity
 	@OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
 	@JoinColumn(name="process_instance_id")
 	private Set<ProcessInstanceAttribute> processAttributes = new HashSet<ProcessInstanceAttribute>();
+
+	@OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
+	@JoinColumn(name="process_instance_id")
+	private Set<ProcessComment> comments;
+
 
 	@OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
 	@JoinColumn(name="process_instance_id")
@@ -198,6 +196,17 @@ public class ProcessInstance extends AbstractPersistentEntity
 		this.processAttributes = processAttributes;
 	}
 
+	public Set<ProcessComment> getComments() {
+		if (comments == null) {
+			comments = new HashSet<ProcessComment>();
+		}
+		return comments;
+	}
+
+	public void setComments(Set<ProcessComment> comments) {
+		this.comments = comments;
+	}
+
 	public ProcessDefinitionConfig getDefinition() {
 		return definition;
 	}
@@ -208,7 +217,7 @@ public class ProcessInstance extends AbstractPersistentEntity
 
 	public void removeAttribute(ProcessInstanceAttribute attr) {
 		attr.setProcessInstance(null);
-		processAttributes.remove(attr);
+		getProcessAttributes().remove(attr);
 		if (attr.getId() > 0) {
             if (toDelete == null) {
                 toDelete = new HashSet<ProcessInstanceAttribute>();
@@ -223,7 +232,7 @@ public class ProcessInstance extends AbstractPersistentEntity
 
 	public void addAttribute(ProcessInstanceAttribute attr) {
 		attr.setProcessInstance(this);
-		processAttributes.add(attr);
+		getProcessAttributes().add(attr);
 	}
 
 	public Set<ProcessInstanceLog> getProcessLogs() {
@@ -388,5 +397,16 @@ public class ProcessInstance extends AbstractPersistentEntity
 	/** Check if process is subprocess (has parent process) */
 	public boolean isSubprocess() {
 		return parent != null;
+	}
+
+	public void addComment(ProcessComment comment) {
+		comment.setProcessInstance(this);
+		getComments().add(comment);
+	}
+
+	public void addComments(Collection<ProcessComment> comments) {
+		for (ProcessComment comment : comments) {
+			addComment(comment);
+		}
 	}
 }

@@ -49,7 +49,5 @@ public interface ProcessInstanceDAO extends HibernateBean<ProcessInstance> {
 
 	void saveStepInfos(Collection<StepInfo> stepInfos);
 
-//	Map<String,String> getStepInfos(List<String> taskIds, String locale);
-
 	void removeStopInfos(Collection<String> taskId);
 }

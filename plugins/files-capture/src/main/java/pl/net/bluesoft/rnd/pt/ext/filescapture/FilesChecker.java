@@ -1,9 +1,18 @@
 package pl.net.bluesoft.rnd.pt.ext.filescapture;
 
-import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
-import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
-import static pl.net.bluesoft.util.lang.StringUtil.hasText;
+import org.apache.chemistry.opencmis.client.api.Folder;
+import org.aperteworkflow.cmis.widget.CmisAtomSessionFacade;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
+import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSessionHelper;
+import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
+import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceSimpleAttribute;
+import pl.net.bluesoft.rnd.pt.ext.filescapture.model.FilesCheckerConfiguration;
+import pl.net.bluesoft.rnd.pt.ext.filescapture.model.FilesCheckerRuleConfiguration;
 
+import javax.activation.MimetypesFileTypeMap;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -15,23 +24,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 
-import javax.activation.MimetypesFileTypeMap;
-
-import org.aperteworkflow.cmis.widget.CmisAtomSessionFacade;
-
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
-import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSessionHelper;
-import pl.net.bluesoft.rnd.processtool.model.BpmTask;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceSimpleAttribute;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
-import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
-import pl.net.bluesoft.rnd.pt.ext.filescapture.model.FilesCheckerConfiguration;
-import pl.net.bluesoft.rnd.pt.ext.filescapture.model.FilesCheckerRuleConfiguration;
-import pl.net.bluesoft.util.lang.StringUtil;
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
+import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 
 /**
  * Created by Agata Taraszkiewicz
@@ -120,22 +115,18 @@ public class FilesChecker {
                 CmisAtomSessionFacade sessionFacade = new CmisAtomSessionFacade();
                 String folderId = null;
 
-                for (ProcessInstanceAttribute at : existingPi.getProcessAttributes()) {
-                    if (at instanceof ProcessInstanceSimpleAttribute) {
-                        ProcessInstanceSimpleAttribute pisa = (ProcessInstanceSimpleAttribute) at;
-                        if (pisa.getKey().equals(rule.getFolderAttributeName())) {
-                            folderId = pisa.getValue();
-                            break;
-                        }
-                    }
+                for (ProcessInstanceSimpleAttribute at : existingPi.getProcessSimpleAttributes()) {
+					if (at.getKey().equals(rule.getFolderAttributeName())) {
+						folderId = at.getValue();
+						break;
+					}
                 }
-                org.apache.chemistry.opencmis.client.api.Folder mainFolder;
+                Folder mainFolder;
                 if (folderId == null) {
                     mainFolder = sessionFacade.createFolderIfNecessary(nvl(rule.getNewFolderPrefix(), "") +
                             existingPi.getInternalId(), rule.getRootFolderPath());
-                    if (StringUtil.hasText(rule.getSubFolder()))
+                    if (hasText(rule.getSubFolder()))
                         mainFolder = sessionFacade.createFolderIfNecessary(rule.getSubFolder(), mainFolder.getPath());
-//                    folderId = mainFolder.getId();
                 } else {
                     mainFolder = sessionFacade.getFolderById(folderId);
                 }

@@ -8,7 +8,12 @@ import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceDAO;
 import pl.net.bluesoft.rnd.processtool.hibernate.ResultsPageWrapper;
 import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
 import pl.net.bluesoft.rnd.processtool.hibernate.transform.NestedAliasToBeanResultTransformer;
-import pl.net.bluesoft.rnd.processtool.model.*;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog;
+import pl.net.bluesoft.rnd.processtool.model.StepInfo;
+import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceAttachmentAttribute;
+import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceAttribute;
 import pl.net.bluesoft.util.lang.Collections;
 import pl.net.bluesoft.util.lang.Transformer;
 

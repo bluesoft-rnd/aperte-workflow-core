@@ -1,14 +1,11 @@
 package pl.net.bluesoft.rnd.processtool.model;
 
-import org.hibernate.annotations.*;
+import org.hibernate.annotations.GenericGenerator;
 import pl.net.bluesoft.util.lang.Collections;
 import pl.net.bluesoft.util.lang.Predicate;
 import pl.net.bluesoft.util.lang.Transformer;
 
 import javax.persistence.*;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.Table;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -139,7 +136,7 @@ public class UserAttribute extends AbstractPersistentEntity {
 		if (attribute == null) {
 			return addInternal(new UserAttribute(key, value));
 		}
-		attribute.setValue(value);
+		attribute.value = value;
 		return attribute;
 	}
 

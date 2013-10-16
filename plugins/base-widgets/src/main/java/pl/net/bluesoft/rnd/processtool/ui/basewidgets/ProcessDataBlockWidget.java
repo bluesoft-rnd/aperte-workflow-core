@@ -25,12 +25,14 @@ import org.aperteworkflow.util.vaadin.VaadinUtility;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.dict.ProcessDictionaryRegistry;
-import pl.net.bluesoft.rnd.processtool.model.*;
+import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionary;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItem;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItemValue;
+import pl.net.bluesoft.rnd.processtool.model.processdata.*;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.ProcessDataWidgetsDefinitionEditor;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.ScriptCodeEditor;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor.ScriptUrlEditor;
@@ -83,7 +85,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
     private Map<Property, WidgetElement> boundProperties = new ConcurrentHashMap<Property, WidgetElement>();
     private Map<AbstractSelect, WidgetElement> dictContainers = new HashMap<AbstractSelect, WidgetElement>();
     private Map<AbstractSelect, WidgetElement> instanceDictContainers = new HashMap<AbstractSelect, WidgetElement>();
-    private Map<String, ProcessInstanceAttribute> processAttributes = new HashMap<String, ProcessInstanceAttribute>();
+    private Map<String, AbstractProcessInstanceAttribute> processAttributes = new HashMap<String, AbstractProcessInstanceAttribute>();
     protected WidgetsDefinitionElement widgetsDefinitionElement;
     private ProcessInstance processInstance;
     private Map<WidgetElement, Property> widgetDataSources = new HashMap<WidgetElement, Property>();
@@ -186,7 +188,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
     }
 
     @Override
-    public Collection<String> validateData(final BpmTask task, boolean skipRequired) {
+    public Collection<String> validateData(BpmTask task, boolean skipRequired) {
         final List<String> errors = new ArrayList<String>();
         new ComponentEvaluator<Property>(boundProperties) {
             @Override
@@ -213,14 +215,14 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         return errors;
     }
 
-    private ProcessInstanceAttribute fetchOrCreateAttribute(WidgetElement element) throws InstantiationException, IllegalAccessException,
+    private AbstractProcessInstanceAttribute fetchOrCreateAttribute(WidgetElement element) throws InstantiationException, IllegalAccessException,
             ClassNotFoundException, InvocationTargetException, NoSuchMethodException {
         int index = element.getBind().indexOf('.');
         String attributeName = index == -1 ? element.getBind() : element.getBind().substring(0, index);
-        ProcessInstanceAttribute attribute = processAttributes.get(attributeName);
+		AbstractProcessInstanceAttribute attribute = processAttributes.get(attributeName);
         if (attribute == null && (hasText(element.getInheritedAttributeClass()) || index == -1)) {
             attribute = hasText(element.getInheritedAttributeClass())
-                    ? (ProcessInstanceAttribute) getClass().getClassLoader().loadClass(element.getInheritedAttributeClass()).newInstance()
+                    ? (AbstractProcessInstanceAttribute) getClass().getClassLoader().loadClass(element.getInheritedAttributeClass()).newInstance()
                     : new ProcessInstanceSimpleAttribute();
             attribute.setProcessInstance(processInstance);
             attribute.setKey(attributeName);
@@ -258,7 +260,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
             @Override
             public void evaluate(Property component, WidgetElement element) throws Exception {
                 if (!component.isReadOnly()) {
-                    ProcessInstanceAttribute attribute = fetchOrCreateAttribute(element);
+					AbstractProcessInstanceAttribute attribute = fetchOrCreateAttribute(element);
                     if (component instanceof FileUploadComponent) {
                         ProcessInstanceAttachmentAttribute attachment = (ProcessInstanceAttachmentAttribute) component.getValue();
                         if (attachment==null) return;
@@ -281,7 +283,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
                 }
             }
         };
-        pi.setProcessAttributes(new HashSet<ProcessInstanceAttribute>(processAttributes.values()));
+        pi.setAllProcessAttributes(new HashSet<AbstractProcessInstanceAttribute>(processAttributes.values()));
     }
 
     @Override
@@ -293,7 +295,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
         }
         this.processInstance = task.getProcessInstance();
         processAttributes.clear();
-        for (ProcessInstanceAttribute attribute : processInstance.getProcessAttributes()) {
+        for (AbstractProcessInstanceAttribute attribute : processInstance.getAllProcessAttributes()) {
             processAttributes.put(attribute.getKey(), attribute);
         }
     }

@@ -1,23 +1,18 @@
 package pl.net.bluesoft.rnd.processtool.ui.buttons;
 
-import java.util.Collection;
-import java.util.Map;
-
+import com.vaadin.Application;
+import com.vaadin.terminal.ExternalResource;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceSimpleAttribute;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.ui.WidgetContextSupport;
-import pl.net.bluesoft.rnd.processtool.ui.buttons.dialog.YesNoDialog;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolDataWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.PropertyAutoWiring;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
-import com.vaadin.Application;
-import com.vaadin.terminal.ExternalResource;
-import com.vaadin.ui.Button;
+import java.util.Collection;
+import java.util.Map;
 
 @AliasName(name = "OpenURLButton")
 public class OpenURLButton extends StandardValidatingButton {
@@ -29,9 +24,7 @@ public class OpenURLButton extends StandardValidatingButton {
     protected void showValidationErrorsOrSave(final WidgetContextSupport support, final Map<ProcessToolDataWidget, Collection<String>> validationErrors) {
 		if(url.matches("#\\{.*\\}")){
         	String urlKey = url.replaceAll("#\\{(.*)\\}", "$1");
-        	ProcessInstanceAttribute attr = task.getProcessInstance().findAttributeByKey(urlKey);
-        	if(attr != null)
-        		url = ((ProcessInstanceSimpleAttribute)attr).getValue();
+			url = task.getProcessInstance().getSimpleAttributeValue(urlKey);
         }
         getApplication().getMainWindow().open(new ExternalResource(url), "_new");
     }

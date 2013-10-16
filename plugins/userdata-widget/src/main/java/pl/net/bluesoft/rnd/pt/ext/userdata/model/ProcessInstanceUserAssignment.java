@@ -1,7 +1,7 @@
 package pl.net.bluesoft.rnd.pt.ext.userdata.model;
 
 import pl.net.bluesoft.rnd.processtool.model.BpmVariable;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
+import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceAttribute;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;

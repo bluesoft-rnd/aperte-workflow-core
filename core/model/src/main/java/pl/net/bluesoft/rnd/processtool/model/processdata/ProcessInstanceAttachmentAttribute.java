@@ -1,17 +1,12 @@
-package pl.net.bluesoft.rnd.processtool.model;
+package pl.net.bluesoft.rnd.processtool.model.processdata;
 
 import pl.net.bluesoft.rnd.pt.utils.lang.Lang2;
 
-import javax.persistence.Basic;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Lob;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "pt_process_instance_attch")
 public class ProcessInstanceAttachmentAttribute extends ProcessInstanceAttribute {
-
     @Lob
     @Basic(fetch = FetchType.LAZY)
     private byte[] data;

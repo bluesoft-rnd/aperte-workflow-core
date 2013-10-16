@@ -5,7 +5,6 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.junit.Test;
 import pl.net.bluesoft.rnd.processtool.model.BpmStep;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceSimpleAttribute;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.BpmStepBean;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
@@ -25,8 +24,8 @@ public class LogStepTest {
     @Test
     public void testParse() throws Exception {
         ProcessInstance process = new ProcessInstance();
-        process.addAttribute(new ProcessInstanceSimpleAttribute("p1", "my-very-first-param"));
-        process.addAttribute(new ProcessInstanceSimpleAttribute("p2", "second_param_123"));
+        process.setSimpleAttribute("p1", "my-very-first-param");
+        process.setSimpleAttribute("p2", "second_param_123");
 
         Map<String, String> properties = new HashMap<String, String>();
         properties.put("message", "${p1} and ${p2} or ${something}");

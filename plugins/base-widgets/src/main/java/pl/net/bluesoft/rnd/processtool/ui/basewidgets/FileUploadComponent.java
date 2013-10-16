@@ -5,7 +5,7 @@ import com.vaadin.terminal.StreamResource;
 import com.vaadin.ui.*;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Upload.*;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttachmentAttribute;
+import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceAttachmentAttribute;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.util.lang.StringUtil;
 

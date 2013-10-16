@@ -1,9 +1,18 @@
 package pl.net.bluesoft.rnd.pt.ext.emailcapture;
 
-import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
-import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
-import static pl.net.bluesoft.util.lang.StringUtil.hasText;
+import org.aperteworkflow.cmis.widget.CmisAtomSessionFacade;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
+import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSessionHelper;
+import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
+import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceSimpleAttribute;
+import pl.net.bluesoft.rnd.pt.ext.emailcapture.model.EmailCheckerConfiguration;
+import pl.net.bluesoft.rnd.pt.ext.emailcapture.model.EmailCheckerRuleConfiguration;
 
+import javax.mail.*;
+import javax.mail.search.FlagTerm;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -13,33 +22,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 
-import javax.mail.Address;
-import javax.mail.Authenticator;
-import javax.mail.BodyPart;
-import javax.mail.Flags;
-import javax.mail.Folder;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Store;
-import javax.mail.search.FlagTerm;
-
-import org.aperteworkflow.cmis.widget.CmisAtomSessionFacade;
-
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
-import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSessionHelper;
-import pl.net.bluesoft.rnd.processtool.model.BpmTask;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceSimpleAttribute;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
-import pl.net.bluesoft.rnd.pt.ext.emailcapture.model.EmailCheckerConfiguration;
-import pl.net.bluesoft.rnd.pt.ext.emailcapture.model.EmailCheckerRuleConfiguration;
-import pl.net.bluesoft.util.lang.StringUtil;
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
+import static pl.net.bluesoft.util.lang.StringUtil.hasText;
 
 public class EmailChecker {
 
@@ -192,8 +177,8 @@ public class EmailChecker {
                 existingPi = ProcessToolBpmSessionHelper.startProcess(toolBpmSession, context, rule.getProcessCode(),
 						null, "email").getProcessInstance();
                 //save initial email data
-                existingPi.addAttribute(new ProcessInstanceSimpleAttribute("email_from", sender));
-                existingPi.addAttribute(new ProcessInstanceSimpleAttribute("email_subject", msg.getSubject()));
+                existingPi.setSimpleAttribute("email_from", sender);
+                existingPi.setSimpleAttribute("email_subject", msg.getSubject());
                 if (msg.getContent() instanceof Multipart) {
                     Multipart multipart = (Multipart) msg.getContent();
                     for (int i = 0; i < multipart.getCount(); ++i) {
@@ -202,10 +187,10 @@ public class EmailChecker {
                             logger.info("Skipping multipart attachment #" + i);
                             continue;
                         }
-                        existingPi.addAttribute(new ProcessInstanceSimpleAttribute("email_body", new String(toByteArray(part.getInputStream()))));
+                        existingPi.setSimpleAttribute("email_body", new String(toByteArray(part.getInputStream())));
                     }
                 } else {
-                    existingPi.addAttribute(new ProcessInstanceSimpleAttribute("email_body", new String(toByteArray(msg.getInputStream()))));
+                    existingPi.setSimpleAttribute("email_body", new String(toByteArray(msg.getInputStream())));
                 }
                 context.getProcessInstanceDAO().saveProcessInstance(existingPi);
                 logger.info("Started new process for rule " + rule.getId() + " on matched message " + description +
@@ -237,35 +222,24 @@ public class EmailChecker {
                 CmisAtomSessionFacade sessionFacade = new CmisAtomSessionFacade();
 
                 String folderId = null;
-                for (ProcessInstanceAttribute at : existingPi.getProcessAttributes()) {
-                    if (at instanceof ProcessInstanceSimpleAttribute) {
-                        ProcessInstanceSimpleAttribute pisa = (ProcessInstanceSimpleAttribute) at;
-                        if (pisa.getKey().equals(rule.getFolderAttributeName())) {
-                            folderId = pisa.getValue();
-                            break;
-                        }
-                    }
+                for (ProcessInstanceSimpleAttribute at : existingPi.getProcessSimpleAttributes()) {
+					if (at.getKey().equals(rule.getFolderAttributeName())) {
+						folderId = at.getValue();
+						break;
+					}
                 }
                 org.apache.chemistry.opencmis.client.api.Folder mainFolder;
                 if (folderId == null) {
                     mainFolder = sessionFacade.createFolderIfNecessary(nvl(rule.getNewFolderPrefix(), "") +
                             existingPi.getInternalId(), rule.getRootFolderPath());
-                    if (StringUtil.hasText(rule.getSubFolder()))
+                    if (hasText(rule.getSubFolder()))
                         mainFolder = sessionFacade.createFolderIfNecessary(rule.getSubFolder(), mainFolder.getPath());
                     folderId = mainFolder.getId();
-                    ProcessInstanceSimpleAttribute attr;
-                    attr = new ProcessInstanceSimpleAttribute();
-                    attr.setKey("emailSender");
-                    attr.setValue(sender);
-                    existingPi.addAttribute(attr);
-                    attr = new ProcessInstanceSimpleAttribute();
-                    attr.setKey("emailSubject");
-                    attr.setValue(subject);
-                    existingPi.addAttribute(attr);
-                    attr = new ProcessInstanceSimpleAttribute();
-                    attr.setKey(nvl(rule.getFolderAttributeName(), "emailFolderId"));
-                    attr.setValue(folderId);
-                    existingPi.addAttribute(attr);
+
+                    existingPi.setSimpleAttribute("emailSender", sender);
+                    existingPi.setSimpleAttribute("emailSubject", subject);
+                    existingPi.setSimpleAttribute(nvl(rule.getFolderAttributeName(), "emailFolderId"), folderId);
+
                     context.getProcessInstanceDAO().saveProcessInstance(existingPi);
                 } else {
                     mainFolder = sessionFacade.getFolderById(folderId);

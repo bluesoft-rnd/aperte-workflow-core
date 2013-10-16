@@ -3,8 +3,10 @@ package pl.net.bluesoft.rnd.processtool.model;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
-import javax.persistence.*;
-import java.io.Serializable;
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
 
 @MappedSuperclass
 public abstract class PersistentEntity extends AbstractPersistentEntity {
@@ -22,11 +24,13 @@ public abstract class PersistentEntity extends AbstractPersistentEntity {
     @Column(name = "id")
     protected Long id;
 
-    public Long getId() {
+    @Override
+	public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    @Override
+	public void setId(Long id) {
         this.id = id;
     }
 }

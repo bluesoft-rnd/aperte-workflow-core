@@ -2,10 +2,10 @@ package pl.net.bluesoft.rnd.processtool.model.nonpersistent;
 
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessDeadline;
+import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceAttribute;
 
 import java.util.Date;
 

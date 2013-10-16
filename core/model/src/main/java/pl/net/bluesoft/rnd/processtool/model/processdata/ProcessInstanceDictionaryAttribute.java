@@ -1,10 +1,8 @@
-package pl.net.bluesoft.rnd.processtool.model;
-
-import org.aperteworkflow.search.ProcessInstanceSearchAttribute;
-import org.aperteworkflow.search.Searchable;
+package pl.net.bluesoft.rnd.processtool.model.processdata;
 
 import javax.persistence.*;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by IntelliJ IDEA.
@@ -14,8 +12,7 @@ import java.util.*;
  */
 @Entity
 @Table(name = "pt_pi_dict_attr")
-public class ProcessInstanceDictionaryAttribute extends ProcessInstanceAttribute implements Searchable{
-
+public class ProcessInstanceDictionaryAttribute extends ProcessInstanceAttribute {
     @OneToMany(cascade = {CascadeType.ALL})
     @JoinColumn(name="dictionary_id")
     private Set<ProcessInstanceDictionaryItem> items;
@@ -35,17 +32,6 @@ public class ProcessInstanceDictionaryAttribute extends ProcessInstanceAttribute
 
     public void setItems(Set<ProcessInstanceDictionaryItem> items) {
         this.items = items;
-    }
-
-
-    @Override
-    public Collection<ProcessInstanceSearchAttribute> getAttributes() {
-        List<ProcessInstanceSearchAttribute> attrs = new ArrayList<ProcessInstanceSearchAttribute>();
-        for (ProcessInstanceDictionaryItem e : items) {
-            attrs.add(new ProcessInstanceSearchAttribute("map_key", e.getKey()));
-            attrs.add(new ProcessInstanceSearchAttribute("map_value", e.getValue()));
-        }
-        return attrs;
     }
 
     public void put(String key, String value) {

@@ -30,10 +30,10 @@
 		<property name="current_session_context_class">thread</property>
 
         <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstance"/>
-        <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttachmentAttribute"/>
-        <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceAttachmentAttribute"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceAttribute"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog"/>
-        <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstanceSimpleAttribute"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceSimpleAttribute"/>
 		<mapping class="pl.net.bluesoft.rnd.processtool.model.StepInfo"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.UserAttribute"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.UserSubstitution"/>
@@ -60,7 +60,7 @@
         <mapping class="pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemExtension"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryPermission"/>
 		<mapping class="pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryI18N"/>
-        <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstanceDictionaryAttribute"/>
-        <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstanceDictionaryItem"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceDictionaryAttribute"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceDictionaryItem"/>
 	</session-factory>
 </hibernate-configuration>

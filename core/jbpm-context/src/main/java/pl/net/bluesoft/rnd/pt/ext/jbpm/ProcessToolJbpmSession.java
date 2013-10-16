@@ -1190,9 +1190,9 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 			newProcessInstance.setStatus(ProcessStatus.NEW);
 			newProcessInstance.addOwner(creator);
 
-			newProcessInstance.addAttribute(new ProcessInstanceSimpleAttribute("creator", creator));
-			newProcessInstance.addAttribute(new ProcessInstanceSimpleAttribute("creatorName", getRegistry().getUserSource().getUserByLogin(creator).getRealName()));
-			newProcessInstance.addAttribute(new ProcessInstanceSimpleAttribute("source", source));
+			newProcessInstance.setSimpleAttribute("creator", creator);
+			newProcessInstance.setSimpleAttribute("creatorName", getRegistry().getUserSource().getUserByLogin(creator).getRealName());
+			newProcessInstance.setSimpleAttribute("source", source);
 
 			if (parentProcessInstance != null) {
 				newProcessInstance.setParent(parentProcessInstance);

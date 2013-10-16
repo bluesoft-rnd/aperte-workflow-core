@@ -1,9 +1,9 @@
 package org.aperteworkflow.util;
 
 import org.hibernate.proxy.HibernateProxy;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
 import pl.net.bluesoft.rnd.processtool.model.config.*;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.BpmTaskBean;
+import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceAttribute;
 import pl.net.bluesoft.util.lang.Lang;
 
 import javax.persistence.Transient;

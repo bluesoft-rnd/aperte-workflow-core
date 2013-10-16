@@ -1,7 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.dao;
 
 import pl.net.bluesoft.rnd.processtool.hibernate.HibernateBean;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceSimpleAttribute;
+import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceSimpleAttribute;
 
 import java.util.Collection;
 import java.util.Map;

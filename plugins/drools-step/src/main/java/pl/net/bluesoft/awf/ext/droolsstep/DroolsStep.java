@@ -2,7 +2,10 @@ package pl.net.bluesoft.awf.ext.droolsstep;
 
 import pl.net.bluesoft.awf.ext.droolsstep.settings.DroolsStepSettingsProvider;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.model.*;
+import pl.net.bluesoft.rnd.processtool.model.BpmStep;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog;
+import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceSimpleAttribute;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
@@ -41,16 +44,14 @@ public class DroolsStep implements ProcessToolProcessStep {
         }
         ProcessInstance processInstance = step.getProcessInstance();
 
-        List facts = new ArrayList();
+        List<Object> facts = new ArrayList<Object>();
         facts.add(processInstance);
-		for (ProcessInstanceAttribute attr : processInstance.getProcessAttributes()) {
-			if (attr instanceof ProcessInstanceSimpleAttribute) {
-                facts.add(attr);
-            }
+		for (ProcessInstanceSimpleAttribute attr : processInstance.getProcessSimpleAttributes()) {
+			facts.add(attr);
 		}
 
         Map<String, Object> globals = new HashMap<String, Object>();
-        HashMap resultMap = new HashMap();
+        Map<String, Object> resultMap = new HashMap<String, Object>();
         globals.put("result", resultMap);
         DroolsUtils.processRules(facts, globals, resource);
 		String logEntryVal = (String) resultMap.get("logEntry");

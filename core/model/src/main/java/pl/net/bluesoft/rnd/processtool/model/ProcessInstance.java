@@ -2,7 +2,7 @@ package pl.net.bluesoft.rnd.processtool.model;
 
 import org.hibernate.annotations.GenericGenerator;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
-import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComment;
+import pl.net.bluesoft.rnd.processtool.model.processdata.*;
 import pl.net.bluesoft.util.lang.cquery.func.F;
 
 import javax.persistence.*;
@@ -63,6 +63,10 @@ public class ProcessInstance extends AbstractPersistentEntity
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name="definition_id")
 	private ProcessDefinitionConfig definition;
+
+	@OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
+	@JoinColumn(name="process_instance_id")
+	private Set<ProcessInstanceSimpleAttribute> processSimpleAttributes = new HashSet<ProcessInstanceSimpleAttribute>();
 
 	@OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
 	@JoinColumn(name="process_instance_id")
@@ -188,6 +192,17 @@ public class ProcessInstance extends AbstractPersistentEntity
 		this.owners.remove(ownerLogin);
 	}
 
+	public Set<ProcessInstanceSimpleAttribute> getProcessSimpleAttributes() {
+		if (processSimpleAttributes == null) {
+			processSimpleAttributes = new HashSet<ProcessInstanceSimpleAttribute>();
+		}
+		return processSimpleAttributes;
+	}
+
+	public void setProcessSimpleAttributes(Set<ProcessInstanceSimpleAttribute> processSimpleAttributes) {
+		this.processSimpleAttributes = processSimpleAttributes;
+	}
+
 	public Set<ProcessInstanceAttribute> getProcessAttributes() {
 		if (processAttributes == null) {
 			processAttributes = new HashSet<ProcessInstanceAttribute>();
@@ -276,40 +291,15 @@ public class ProcessInstance extends AbstractPersistentEntity
 		}
 		return null;
 	}
-	
-    public <T extends ProcessInstanceAttribute> T findAttributeByClassName(String className) {
-        Set<ProcessInstanceAttribute> attrs = getProcessAttributes();
-        for (ProcessInstanceAttribute pia : attrs) {
-            if (className.equals(pia.getClass().getName())) {
-                return (T) pia;
-            }
-        }
-        return null;
-    }
 
-    public <T extends ProcessInstanceAttribute> T findAttributeByClass(Class<T> clazz) {
-        Set<ProcessInstanceAttribute> attrs = getProcessAttributes();
-        for (ProcessInstanceAttribute pia : attrs) {
-            if (clazz.isAssignableFrom(pia.getClass())) {
-                return (T) pia;
-            }
-        }
-        return null;
-    }
-
-	public <T extends ProcessInstanceAttribute> T findOrCreateAttribute(Class<T> attrClass) {
-		T attribute = findAttributeByClass(attrClass);
-		if(attribute == null) {
-			try {
-				attribute = attrClass.newInstance();
-				addAttribute(attribute);
-			} catch (InstantiationException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
+	private ProcessInstanceSimpleAttribute findSimpleAttributeByKey(String key) {
+		Set<ProcessInstanceSimpleAttribute> attrs = getProcessSimpleAttributes();
+		for (ProcessInstanceSimpleAttribute pia : attrs) {
+			if (pia.getKey() != null && pia.getKey().equals(key)) {
+				return pia;
 			}
 		}
-		return attribute;	
+		return null;
 	}
     
     public <T extends ProcessInstanceAttribute> Set<T> findAttributesByClass(Class<T> clazz) {
@@ -324,24 +314,19 @@ public class ProcessInstance extends AbstractPersistentEntity
     }
 
     public String getSimpleAttributeValue(String key) {
-        ProcessInstanceAttribute attr = findAttributeByKey(key);
-        return attr != null ?  ((ProcessInstanceSimpleAttribute)attr).getValue() : null;
+        return getSimpleAttributeValue(key, null);
     }
 
     public String getSimpleAttributeValue(String key, String default_) {
-        ProcessInstanceAttribute attr = findAttributeByKey(key);
-        return attr != null ? ((ProcessInstanceSimpleAttribute)attr).getValue() : default_;
+		ProcessInstanceSimpleAttribute attr = findSimpleAttributeByKey(key);
+        return attr != null ? attr.getValue() : default_;
     }
 
 	public Map<String, String> getSimpleAttributeValues() {
 		Map<String, String> result = new HashMap<String, String>();
 
-		for (ProcessInstanceAttribute attribute : getProcessAttributes()) {
-			if (attribute instanceof ProcessInstanceSimpleAttribute) {
-				ProcessInstanceSimpleAttribute simpleAttribute = (ProcessInstanceSimpleAttribute)attribute;
-
-				result.put(simpleAttribute.getKey(), simpleAttribute.getValue());
-			}
+		for (ProcessInstanceSimpleAttribute attribute : getProcessSimpleAttributes()) {
+			result.put(attribute.getKey(), attribute.getValue());
 		}
 		return result;
 	}
@@ -353,21 +338,24 @@ public class ProcessInstance extends AbstractPersistentEntity
 
 	public String getInheritedSimpleAttributeValue(String key, String default_) {
 		for (ProcessInstance pi = this; pi != null; pi = pi.parent) {
-			ProcessInstanceAttribute attr = findAttributeByKey(key);
-			if (attr instanceof ProcessInstanceSimpleAttribute) {
-				return ((ProcessInstanceSimpleAttribute)attr).getValue();
+			ProcessInstanceSimpleAttribute attr = findSimpleAttributeByKey(key);
+			if (attr != null) {
+				return attr.getValue();
 			}
 		}
 		return default_;
 	}
 
     public void setSimpleAttribute(String key, String value) {
-        ProcessInstanceSimpleAttribute attr = (ProcessInstanceSimpleAttribute)findAttributeByKey(key);
+        ProcessInstanceSimpleAttribute attr = findSimpleAttributeByKey(key);
+
         if (attr != null) {
             attr.setValue(value);
         }
         else {
-            addAttribute(new ProcessInstanceSimpleAttribute(key, value));
+			attr = new ProcessInstanceSimpleAttribute(key, value);
+			attr.setProcessInstance(this);
+			getProcessSimpleAttributes().add(attr);
         }
     }
 
@@ -427,5 +415,29 @@ public class ProcessInstance extends AbstractPersistentEntity
 		for (ProcessComment comment : comments) {
 			addComment(comment);
 		}
+	}
+
+	public void setAllProcessAttributes(Collection<AbstractProcessInstanceAttribute> attributes) {
+		Set<ProcessInstanceSimpleAttribute> simpleAttributes = new HashSet<ProcessInstanceSimpleAttribute>();
+		Set<ProcessInstanceAttribute> genericAttributes = new HashSet<ProcessInstanceAttribute>();
+
+		for (AbstractProcessInstanceAttribute attribute : attributes) {
+			if (attribute instanceof ProcessInstanceSimpleAttribute) {
+				simpleAttributes.add((ProcessInstanceSimpleAttribute)attribute);
+			}
+			else {
+				genericAttributes.add((ProcessInstanceAttribute)attribute);
+			}
+		}
+
+		processSimpleAttributes = simpleAttributes;
+		processAttributes = genericAttributes;
+	}
+
+	public Collection<AbstractProcessInstanceAttribute> getAllProcessAttributes() {
+		Set<AbstractProcessInstanceAttribute> result = new HashSet<AbstractProcessInstanceAttribute>();
+		result.addAll(processSimpleAttributes);
+		result.addAll(processAttributes);
+		return result;
 	}
 }

@@ -1,7 +1,5 @@
 package pl.net.bluesoft.rnd.processtool.model.processdata;
 
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceAttribute;
-
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import java.util.Date;

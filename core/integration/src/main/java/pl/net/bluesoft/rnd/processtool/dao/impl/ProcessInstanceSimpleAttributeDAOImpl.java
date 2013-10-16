@@ -4,7 +4,7 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceSimpleAttributeDAO;
 import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceSimpleAttribute;
+import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceSimpleAttribute;
 
 import java.util.*;
 
@@ -12,7 +12,7 @@ import static org.hibernate.criterion.Projections.projectionList;
 import static org.hibernate.criterion.Projections.property;
 import static org.hibernate.criterion.Restrictions.eq;
 import static org.hibernate.criterion.Restrictions.in;
-import static pl.net.bluesoft.rnd.processtool.model.ProcessInstanceSimpleAttribute.*;
+import static pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceSimpleAttribute.*;
 
 /**
  * @author kkolodziej@bluesoft.net.pl

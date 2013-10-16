@@ -1,33 +1,13 @@
 package pl.net.bluesoft.rnd.pt.ext.jbpm.service;
 
-import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
-import static pl.net.bluesoft.util.lang.Strings.hasText;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Logger;
-
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-
+import bitronix.tm.TransactionManagerServices;
 import org.apache.commons.io.IOUtils;
 import org.drools.KnowledgeBase;
 import org.drools.SystemEventListenerFactory;
 import org.drools.builder.KnowledgeBuilder;
 import org.drools.builder.KnowledgeBuilderFactory;
 import org.drools.builder.ResourceType;
-import org.drools.event.process.ProcessCompletedEvent;
-import org.drools.event.process.ProcessEventListener;
-import org.drools.event.process.ProcessNodeLeftEvent;
-import org.drools.event.process.ProcessNodeTriggeredEvent;
-import org.drools.event.process.ProcessStartedEvent;
-import org.drools.event.process.ProcessVariableChangedEvent;
+import org.drools.event.process.*;
 import org.drools.impl.EnvironmentFactory;
 import org.drools.io.ResourceFactory;
 import org.drools.persistence.jpa.JPAKnowledgeService;
@@ -36,6 +16,7 @@ import org.drools.runtime.EnvironmentName;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.process.ProcessInstance;
 import org.jbpm.process.audit.JPAWorkingMemoryDbLogger;
+import org.jbpm.process.audit.NodeInstanceLog;
 import org.jbpm.process.workitem.wsht.LocalHTWorkItemHandler;
 import org.jbpm.task.Task;
 import org.jbpm.task.User;
@@ -45,13 +26,22 @@ import org.jbpm.task.identity.UserGroupCallbackManager;
 import org.jbpm.task.service.ContentData;
 import org.jbpm.task.service.local.LocalTaskService;
 import org.jbpm.task.utils.OnErrorAction;
-
 import pl.net.bluesoft.rnd.processtool.IProcessToolSettings;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.JbpmStepAction;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.ProcessResourceNames;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.service.query.TaskQuery;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.service.query.UserQuery;
-import bitronix.tm.TransactionManagerServices;
+
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
+import java.util.logging.Logger;
+
+import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
+import static pl.net.bluesoft.util.lang.Strings.hasText;
 
 public class JbpmService implements ProcessEventListener, TaskEventListener {
 
@@ -273,6 +263,12 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
         // this call forces JBPM to flush awaiting task data
         getLocalTaskService().query("SELECT task.id FROM Task task ORDER BY task.id DESC", 1, 0);
     }
+
+	public List<NodeInstanceLog> getProcessLog(long processId) {
+		String hql = "SELECT nil FROM org.jbpm.process.audit.NodeInstanceLog nil WHERE nil.processInstanceId = " +
+				processId + " ORDER BY nil.date";
+		return (List)getLocalTaskService().query(hql, 10000, 0);
+	}
 
     private TaskQuery<Task> createTaskQuery() {
         return new TaskQuery<Task>(getLocalTaskService());

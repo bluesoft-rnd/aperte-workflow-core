@@ -3,7 +3,6 @@ package pl.net.bluesoft.rnd.pt.ext.jbpm;
 import org.aperteworkflow.util.SimpleXmlTransformer;
 import org.drools.event.process.*;
 import org.drools.runtime.process.NodeInstance;
-import org.jbpm.process.audit.JPAProcessInstanceDbLog;
 import org.jbpm.process.audit.NodeInstanceLog;
 import org.jbpm.task.*;
 import org.jbpm.task.event.TaskEventListener;
@@ -44,9 +43,7 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 import pl.net.bluesoft.util.lang.DateUtil;
 import pl.net.bluesoft.util.lang.Mapcar;
-import pl.net.bluesoft.util.lang.Strings;
 import pl.net.bluesoft.util.lang.Transformer;
-import pl.net.bluesoft.util.lang.cquery.func.F;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -303,7 +300,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	public BpmTask getPastEndTask(ProcessInstanceLog log) {
 		ProcessInstance pi = log.getOwnProcessInstance();
 		String endTaskName = findEndActivityName(pi);
-		if (Strings.hasText(endTaskName)) {
+		if (hasText(endTaskName)) {
 			BpmTaskBean t = new BpmTaskBean();
 			t.setProcessInstance(pi);
 			t.setAssignee(userLogin);
@@ -327,7 +324,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	@Override
 	public BpmTask getPastOrActualTask(ProcessInstanceLog log) {
 		String taskName = null;
-		if (log.getState() != null && Strings.hasText(log.getState().getName())) {
+		if (log.getState() != null && hasText(log.getState().getName())) {
 			taskName = log.getState().getName();
 		}
 		Task task = jbpmService.getPastOrActualTask(toJbpmPIId(log.getExecutionId()), log.getUserLogin(), taskName, new Date());
@@ -784,6 +781,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	}
 
 	private void markVisitedElements(ProcessDiagram diagram, BpmTask task) {
+		refreshDataForNativeQuery();
 		for (NodeInstanceLog nodeInstance : getNodeInstanceLog(task)) {
 			Node diagramNode = diagram.getNode(nodeInstance.getNodeName());
 
@@ -803,14 +801,8 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 	private List<NodeInstanceLog> getNodeInstanceLog(BpmTask task) {
 		long processId = toJbpmPIId(task.getProcessInstance().getInternalId());
-		List<NodeInstanceLog> list = JPAProcessInstanceDbLog.findNodeInstances(processId);
 
-		return from(list).orderBy(new F<NodeInstanceLog, Date>() {
-			@Override
-			public Date invoke(NodeInstanceLog x) {
-				return x.getDate();
-			}
-		}).toList();
+		return getJbpmService().getProcessLog(processId);
 	}
 
 	private JbpmService getJbpmService() {

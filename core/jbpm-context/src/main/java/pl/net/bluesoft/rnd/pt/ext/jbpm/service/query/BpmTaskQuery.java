@@ -293,8 +293,8 @@ public class BpmTaskQuery {
 			sb.append(" OR process.creatorLogin LIKE '%' || :expression || '%'");
 			sb.append(" OR (CASE WHEN process.externalKey IS NOT NULL THEN process.externalKey ELSE process.internalId END) LIKE '%' || :expression || '%'");
 			sb.append(" OR to_char(task_.createdOn, 'YYYY-MM-DD HH24:MI:SS') LIKE :expression || '%'");
-			sb.append(" OR EXISTS(SELECT 1 FROM pt_process_instance_s_attr sattr JOIN pt_process_instance_attr attr ON attr.id = sattr.id");
-			sb.append("	WHERE attr.process_instance_id = process.id AND sattr.value_ LIKE '%' || :expression || '%')");
+			sb.append(" OR EXISTS(SELECT 1 FROM pt_process_instance_s_attr attr");
+			sb.append("	WHERE attr.process_instance_id = process.id AND attr.value_ LIKE '%' || :expression || '%')");
 			sb.append(" OR to_char(");
 			sb.append(DEADLINE_SUBQUERY);
 			sb.append(", 'YYYY-MM-DD HH24:MI:SS') LIKE :expression || '%'");

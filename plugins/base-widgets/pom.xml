@@ -122,13 +122,13 @@
                         <ProcessTool-Widget-Enhancement>
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.LocaleCaptureWidget,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.PanelWidget,
-                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDataBlockWidget,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessHistoryWidget,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.TabSheetWidget,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.VerticalLayoutWidget,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.SwitchWidget,
 							pl.net.bluesoft.rnd.processtool.ui.basewidgets.UserSubstitutionRequestWidget
                         </ProcessTool-Widget-Enhancement>
+						<!-- pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDataBlockWidget, -->
                         <ProcessTool-Button-Enhancement>
                             pl.net.bluesoft.rnd.processtool.ui.buttons.AssignUserTaskButton,
                             pl.net.bluesoft.rnd.processtool.ui.buttons.CancelTaskButton,

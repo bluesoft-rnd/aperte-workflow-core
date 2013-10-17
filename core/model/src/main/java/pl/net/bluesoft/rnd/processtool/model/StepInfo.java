@@ -30,15 +30,15 @@ public class StepInfo extends AbstractPersistentEntity {
 	@Column(name = "id")
 	protected Long id;
 
-	@Column(length = 10)
-	private String taskId;
+	//@Column(length = 10)
+	private long taskId;
 	@Column(length = 10)
 	private String locale;
 	private String message;
 
 	public StepInfo() {}
 
-	public StepInfo(String taskId, String locale, String message) {
+	public StepInfo(long taskId, String locale, String message) {
 		this.taskId = taskId;
 		this.locale = locale;
 		this.message = message;
@@ -54,11 +54,11 @@ public class StepInfo extends AbstractPersistentEntity {
 		this.id = id;
 	}
 
-	public String getTaskId() {
+	public long getTaskId() {
 		return taskId;
 	}
 
-	public void setTaskId(String taskId) {
+	public void setTaskId(long taskId) {
 		this.taskId = taskId;
 	}
 

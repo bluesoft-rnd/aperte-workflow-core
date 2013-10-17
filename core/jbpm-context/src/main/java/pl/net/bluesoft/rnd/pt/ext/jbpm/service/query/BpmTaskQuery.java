@@ -247,7 +247,7 @@ public class BpmTaskQuery {
 		}
 
 		if (queryType == QueryType.LIST) {
-			sb.append(" LEFT JOIN pt_step_info stepInfo_ ON stepInfo_.taskId = CAST(task_.id AS VARCHAR(10))");
+			sb.append(" LEFT JOIN pt_step_info stepInfo_ ON stepInfo_.taskId = task_.id");
 		}
 
 		sb.append(" WHERE 1=1");

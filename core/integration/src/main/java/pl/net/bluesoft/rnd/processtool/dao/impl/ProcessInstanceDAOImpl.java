@@ -235,8 +235,14 @@ public class ProcessInstanceDAOImpl extends SimpleHibernateBean<ProcessInstance>
 			return;
 		}
 
+		List<Long> taskIdsLong = new ArrayList<Long>();
+
+		for (String taskId : taskIds) {
+			taskIdsLong.add(Long.parseLong(taskId));
+		}
+
 		getSession().createQuery("delete from StepInfo si where si.taskId in (:taskIds)")
-				.setParameterList("taskIds", taskIds)
+				.setParameterList("taskIds", taskIdsLong)
 				.executeUpdate();
 	}
 

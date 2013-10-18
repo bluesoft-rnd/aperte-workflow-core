@@ -5,7 +5,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
-
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
@@ -15,14 +14,14 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidgetAttribute;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidgetPermission;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolChildrenFilteringWidget;
 import pl.net.bluesoft.rnd.processtool.web.domain.IHtmlTemplateProvider;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
+
+import static pl.net.bluesoft.util.lang.Strings.hasText;
 
 /**
  * Html builder for the task view 
@@ -221,12 +220,14 @@ public class TaskViewBuilder
 			List<ProcessStateWidget> sortedList = new ArrayList<ProcessStateWidget>(children);
 			
 			ProcessStateWidget filteredChild = filterChildren(task, sortedList, widget);
-			
-			Element divContentNode = parent.ownerDocument().createElement("div")
-					.attr("id", "switch_widget"+widget.getId());
-			parent.appendChild(divContentNode);
-			
-			processWidget(filteredChild, divContentNode);
+
+			if (filteredChild != null) {
+				Element divContentNode = parent.ownerDocument().createElement("div")
+						.attr("id", "switch_widget" + widget.getId());
+				parent.appendChild(divContentNode);
+
+				processWidget(filteredChild, divContentNode);
+			}
 		}
 		else if(widgetTemplateBody != null)
 		{
@@ -400,29 +401,21 @@ public class TaskViewBuilder
 
     public ProcessStateWidget filterChildren(BpmTask task, List<ProcessStateWidget> sortedList, ProcessStateWidget psw) {
     	String selectorKey = psw.getAttributeByName("selectorKey").getValue();
-    	String conditions = psw.getAttributeByName("conditions").getValue();;
-		String key = task.getProcessInstance().getSimpleAttributeValue(selectorKey);
-		if (key == null) {
-			key = task.getProcessInstance().getRootProcessInstance().getSimpleAttributeValue(selectorKey);
-		}
-		if(key == null){
-			key = task.getProcessInstance().getSimpleAttributeValue(selectorKey);
-		}
-		
-		if(key == null)
+    	String conditions = psw.getAttributeByName("conditions").getValue();
+		String selectorValue = task.getProcessInstance().getInheritedSimpleAttributeValue(selectorKey);
+
+		if(!hasText(selectorValue)) {
 			return null;
+		}
 		
 		String[] conditionsArray = conditions.split("[,; ]+");
-		int index = -1;
+
 		for (int i = 0; i < conditionsArray.length; i++) {
-			if (key.equals(conditionsArray[i].trim()))
-				index = i;
+			if (selectorValue.equals(conditionsArray[i].trim())) {
+				return i < sortedList.size() ? sortedList.get(i) : null;
+			}
 		}
-		try {
-			return sortedList.get(index);
-		} catch (IndexOutOfBoundsException e) {
-			return null;
-		}
+		return null;
 	}
     
     public TaskViewBuilder setBpmSession(ProcessToolBpmSession bpmSession) {

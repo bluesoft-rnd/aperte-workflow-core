@@ -126,6 +126,7 @@
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.TabSheetWidget,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.VerticalLayoutWidget,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.SwitchWidget,
+							pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDataBlockWidget,
 							pl.net.bluesoft.rnd.processtool.ui.basewidgets.UserSubstitutionRequestWidget
                         </ProcessTool-Widget-Enhancement>
 						<!-- pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDataBlockWidget, -->

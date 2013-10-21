@@ -459,6 +459,7 @@ public class ProcessInstance extends AbstractPersistentEntity
 			else {
 				genericAttributes.add((ProcessInstanceAttribute)attribute);
 			}
+			attribute.setProcessInstance(this);
 		}
 
 		processSimpleAttributes = simpleAttributes;
@@ -467,8 +468,8 @@ public class ProcessInstance extends AbstractPersistentEntity
 
 	public Collection<AbstractProcessInstanceAttribute> getAllProcessAttributes() {
 		List<AbstractProcessInstanceAttribute> result = new ArrayList<AbstractProcessInstanceAttribute>();
-		result.addAll(processSimpleAttributes);
-		result.addAll(processAttributes);
+		result.addAll(getProcessSimpleAttributes());
+		result.addAll(getProcessAttributes());
 		return result;
 	}
 }

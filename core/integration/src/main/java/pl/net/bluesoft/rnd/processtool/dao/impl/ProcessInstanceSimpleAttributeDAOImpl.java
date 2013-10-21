@@ -4,6 +4,7 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceSimpleAttributeDAO;
 import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceSimpleAttribute;
 
 import java.util.*;
@@ -47,6 +48,8 @@ public class ProcessInstanceSimpleAttributeDAOImpl extends SimpleHibernateBean<P
 
 		if (attribute == null) {
 			attribute = new ProcessInstanceSimpleAttribute(key, newValue);
+			attribute.setProcessInstance(new ProcessInstance());
+			attribute.getProcessInstance().setId(processId);
 			session.saveOrUpdate(attribute);
 		}
 		else {

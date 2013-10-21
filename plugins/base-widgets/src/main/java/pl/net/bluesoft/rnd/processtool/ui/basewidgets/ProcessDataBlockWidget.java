@@ -252,7 +252,7 @@ public class ProcessDataBlockWidget extends BaseProcessToolVaadinWidget implemen
     public void saveData(final BpmTask task) {
         ProcessInstance pi = task.getProcessInstance();
         processAttributes.clear();
-        for (ProcessInstanceAttribute attribute : pi.getProcessAttributes()) {
+        for (AbstractProcessInstanceAttribute attribute : pi.getAllProcessAttributes()) {
             processAttributes.put(attribute.getKey(), attribute);
         }
 

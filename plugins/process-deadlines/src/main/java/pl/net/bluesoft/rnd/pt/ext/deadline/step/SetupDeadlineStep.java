@@ -5,8 +5,8 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.exception.ProcessToolException;
 import pl.net.bluesoft.rnd.processtool.model.BpmStep;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
+import pl.net.bluesoft.rnd.processtool.model.processdata.AbstractProcessInstanceAttribute;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessDeadline;
-import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceAttribute;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
@@ -145,7 +145,7 @@ public class SetupDeadlineStep implements ProcessToolProcessStep {
         }
         else if (params.containsKey(prefix + "Attribute")) {
             String[] paramValue = params.get(prefix + "Attribute").split("\\.", 2);
-            for (ProcessInstanceAttribute attr : processInstance.getProcessAttributes()) {
+            for (AbstractProcessInstanceAttribute attr : processInstance.getAllProcessAttributes()) {
                 if (attr.getKey().equals(paramValue[0])) {
                     date = (Date) PropertyUtils.getProperty(attr, paramValue.length > 1 ? paramValue[1] : "value");
                     break;

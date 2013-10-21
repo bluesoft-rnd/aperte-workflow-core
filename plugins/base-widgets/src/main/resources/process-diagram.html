@@ -302,26 +302,7 @@
    		// ... otherwise, wrap the label into rect
    		else {
    			var foreignObjectLabel = foreingObjectLabels[i];
-   			foreignObjectLabel.innerHTML = label.innerHTML;
-   			
-   			/* label.setAttribute("y",label.getAttribute("y")-20);
-   			var oldText = label.innerHTML.replace(/^\s+|\s+$/g, ' ');
-   			var newText = "";
-   			var tempText = "";
-			for (var j = 0; j < oldText.length; j++){
-			    var c = oldText.charAt(j);   
-				label.innerHTML = tempText + c;
-				if (label.getBoundingClientRect().width < rect.getBoundingClientRect().width-10) {
-					tempText += c;
-				} else {
-					newText += "<tspan x=\""+label.getAttribute("x")+"\" dy=\"13\">"+tempText+"</tspan>";
-					//newText += tempText+" ";
-					tempText = c;
-				}
-			}
-			newText += "<tspan x=\""+label.getAttribute("x")+"\" dy=\"13\">"+tempText+"</tspan>";
-			//newText += tempText; */
-			
+   			foreignObjectLabel.innerHTML = label.innerHTML;			
 			label.innerHTML = "";
    		}
     }

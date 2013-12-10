@@ -13,6 +13,7 @@ import org.jbpm.workflow.instance.node.ActionNodeInstance;
 import org.jbpm.workflow.instance.node.StartNodeInstance;
 import org.jbpm.workflow.instance.node.SubProcessNodeInstance;
 import org.jbpm.workflow.instance.node.WorkItemNodeInstance;
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
@@ -36,6 +37,7 @@ import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
 import pl.net.bluesoft.rnd.processtool.model.token.AccessToken;
 import pl.net.bluesoft.rnd.processtool.token.IAccessTokenFactory;
 import pl.net.bluesoft.rnd.processtool.token.ITokenService;
+import pl.net.bluesoft.rnd.processtool.usersource.IUserSource;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.service.JbpmService;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.service.query.BpmTaskQuery;
 import pl.net.bluesoft.rnd.util.PlaceholderUtil;
@@ -74,6 +76,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 	@AutoInject
 	private ITokenService tokenService;
+
 
 	public ProcessToolJbpmSession(String userLogin, Collection<String> roleNames, String substitutingUserLogin) {
 		super(userLogin, roleNames, substitutingUserLogin);
@@ -1157,7 +1160,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	public void taskForwarded(TaskUserEvent event) {
 	}
 
-	private static class StartProcessParams extends TaskCapturer {
+	private class StartProcessParams extends TaskCapturer {
 		public final ProcessDefinitionConfig config;
 		public final String externalKey;
 		public final String source;
@@ -1184,7 +1187,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 			newProcessInstance.addOwner(creator);
 
 			newProcessInstance.setSimpleAttribute("creator", creator);
-			newProcessInstance.setSimpleAttribute("creatorName", getRegistry().getUserSource().getUserByLogin(creator).getRealName());
+			newProcessInstance.setSimpleAttribute("creatorName", userSource.getUserByLogin(creator).getRealName());
 			newProcessInstance.setSimpleAttribute("source", source);
 
 			if (parentProcessInstance != null) {

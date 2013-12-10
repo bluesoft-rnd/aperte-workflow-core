@@ -1,5 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
 import pl.net.bluesoft.rnd.processtool.model.BpmStep;
@@ -25,15 +27,16 @@ public class ChooseUserWithRoleStep implements ProcessToolProcessStep
     @AutoWiredProperty
     private String assignePropertyName;
 
-
+    @Autowired
+    private IUserRolesManager userRolesManager;
 
     @Override
     public String invoke(BpmStep bpmStep, Map<String, String> params) throws Exception
     {
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+
         ProcessInstance processInstance = bpmStep.getProcessInstance();
         ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-
-        IUserRolesManager userRolesManager = ObjectFactory.create(IUserRolesManager.class);
 
         String role = StepUtil.extractVariable(roleName,ctx, processInstance);
 

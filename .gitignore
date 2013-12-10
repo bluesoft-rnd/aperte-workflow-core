@@ -9,3 +9,4 @@ rebel.xml
 rebel-remote.xml
 *.orig
 target
+${liferay.dir}

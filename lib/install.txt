@@ -1,0 +1,1 @@
+mvn install:install-file -Dfile=portal-service.jar -DgroupId=com.liferay.portal -DartifactId=portal-service -Dversion=6.2.0 -Dpackaging=jar

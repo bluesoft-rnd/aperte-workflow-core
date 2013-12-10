@@ -3,6 +3,9 @@ package pl.net.bluesoft.rnd.pt.ext.jbpm;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
@@ -25,14 +28,22 @@ import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadP
  * @author tlipski@bluesoft.net.pl
  * @author mpawlak@bluesoft.net.pl
  */
-public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory {
+@Component
+@Scope(value = "singleton")
+public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory
+{
     private static Logger logger = Logger.getLogger(ProcessToolContextFactoryImpl.class.getName());
+
+    @Autowired
     private ProcessToolRegistry registry;
     private static int counter = 0;
+
     private int ver = 0;
 
-    public ProcessToolContextFactoryImpl(ProcessToolRegistry registry) {
-        this.registry = registry;
+
+
+    public ProcessToolContextFactoryImpl()
+    {
         initJbpmConfiguration();
         ver = ++counter;
     }

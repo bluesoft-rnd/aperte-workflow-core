@@ -4,6 +4,8 @@ import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import pl.net.bluesoft.rnd.processtool.IProcessToolSettings;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolSessionFactory;
@@ -15,13 +17,12 @@ import pl.net.bluesoft.rnd.processtool.hibernate.HibernateBean;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessToolSequence;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessToolSetting;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.util.eventbus.EventBusManager;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 
 /**
  * Context replacement for Spring library
@@ -30,14 +31,21 @@ import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.g
  */
 public class ProcessToolContextImpl implements ProcessToolContext { 
     private Session hibernateSession;
+
     private ProcessDictionaryRegistry processDictionaryRegistry;
+
+    @Autowired
+    private ProcessToolRegistry processToolRegistry;
 
     private Map<Class<? extends HibernateBean>, HibernateBean> daoCache = new HashMap<Class<? extends HibernateBean>, HibernateBean>();
 
     private Boolean closed = false;
 
-    public ProcessToolContextImpl(Session hibernateSession) {
+    public ProcessToolContextImpl(Session hibernateSession)
+    {
         this.hibernateSession = hibernateSession;
+
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
     }
 
     private synchronized void verifyContextOpen() {
@@ -74,17 +82,17 @@ public class ProcessToolContextImpl implements ProcessToolContext {
         if (!daoCache.containsKey(daoClass)) {
             T dao = null;
             if (ProcessDictionaryDAO.class.equals(daoClass)) {
-                dao = (T) getRegistry().getDataRegistry().getProcessDictionaryDAO(hibernateSession);
+                dao = (T) processToolRegistry.getDataRegistry().getProcessDictionaryDAO(hibernateSession);
             } else if (ProcessInstanceDAO.class.equals(daoClass)) {
-                dao = (T) getRegistry().getDataRegistry().getProcessInstanceDAO(hibernateSession);
+                dao = (T) processToolRegistry.getDataRegistry().getProcessInstanceDAO(hibernateSession);
             } else if (ProcessInstanceFilterDAO.class.equals(daoClass)) {
-                dao = (T) getRegistry().getDataRegistry().getProcessInstanceFilterDAO(hibernateSession);
+                dao = (T) processToolRegistry.getDataRegistry().getProcessInstanceFilterDAO(hibernateSession);
             } else if (ProcessDefinitionDAO.class.equals(daoClass)) {
-                dao = (T) getRegistry().getDataRegistry().getProcessDefinitionDAO(hibernateSession);
+                dao = (T) processToolRegistry.getDataRegistry().getProcessDefinitionDAO(hibernateSession);
             } else if (UserSubstitutionDAO.class.equals(daoClass)) {
-                dao = (T) getRegistry().getDataRegistry().getUserSubstitutionDAO(hibernateSession);
+                dao = (T) processToolRegistry.getDataRegistry().getUserSubstitutionDAO(hibernateSession);
             }else if (ProcessInstanceSimpleAttributeDAO.class.equals(daoClass)) {
-                dao = (T) getRegistry().getDataRegistry().getProcessInstanceSimpleAttributeDAO(hibernateSession);
+                dao = (T) processToolRegistry.getDataRegistry().getProcessInstanceSimpleAttributeDAO(hibernateSession);
             }
             if (dao != null) {
                 daoCache.put(daoClass, dao);
@@ -130,12 +138,12 @@ public class ProcessToolContextImpl implements ProcessToolContext {
 
     @Override
     public ProcessToolSessionFactory getProcessToolSessionFactory() {
-        return getRegistry().getProcessToolSessionFactory();
+        return processToolRegistry.getProcessToolSessionFactory();
     }
 
     @Override
     public EventBusManager getEventBusManager() {
-        return getRegistry().getEventBusManager();
+        return processToolRegistry.getEventBusManager();
     }
 
     @Override

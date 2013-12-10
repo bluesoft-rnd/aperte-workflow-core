@@ -19,6 +19,19 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+            <version>${spring.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>org.springframework.web</artifactId>
+            <version>${spring.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>com.novell.ldap</groupId>
             <artifactId>jldap</artifactId>
             <version>4.3</version>
@@ -37,12 +50,6 @@
             <groupId>org.aperteworkflow</groupId>
             <artifactId>integration-interface</artifactId>
             <version>3.0-beta2-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.liferay.portal</groupId>
-            <artifactId>portal-service</artifactId>
-            <version>${liferay.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -73,11 +80,12 @@
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <extensions>true</extensions>
-                <version>2.1.0</version>
+                <version>${maven.bundle.version}</version>
                 <configuration>
                     <instructions>
                         <Export-Package>
-                            pl.net.bluesoft.rnd.pt.ext.userdata.model,pl.net.bluesoft.rnd.pt.ext.userdata.widget
+                            pl.net.bluesoft.rnd.pt.ext.userdata.model,
+                            pl.net.bluesoft.rnd.pt.ext.userdata.widget
                         </Export-Package>
                         <Import-Package>
                             javax.portlet;version=!,
@@ -88,14 +96,13 @@
                             pl.net.bluesoft.rnd.processtool.plugins,
                             pl.net.bluesoft.rnd.processtool.plugins.osgi,
                             pl.net.bluesoft.rnd.processtool.model,
+                            pl.net.bluesoft.rnd.processtool.model.processdata,
                             javax.persistence,
                             pl.net.bluesoft.rnd.processtool.ui.widgets,
                             com.vaadin.data,
                             com.vaadin.ui,
                             com.vaadin,
-                            pl.net.bluesoft.rnd.processtool.ui.widgets.impl,
-                            com.liferay.portal.util,
-                            com.liferay.portal.model,com.liferay.portal.service,*
+                            pl.net.bluesoft.rnd.processtool.ui.widgets.impl
                         </Import-Package>
                         <Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>
                         <Bundle-SymbolicName>pl.net.bluesoft.rnd.pt.ext.userdata</Bundle-SymbolicName>

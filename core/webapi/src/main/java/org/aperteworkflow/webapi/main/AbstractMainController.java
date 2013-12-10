@@ -1,6 +1,7 @@
 package org.aperteworkflow.webapi.main;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import pl.net.bluesoft.rnd.processtool.BasicSettings;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
@@ -28,14 +29,19 @@ public abstract class AbstractMainController<ModelAndViewType, RequestType>
 	@Autowired
 	private ProcessToolRegistry processToolRegistry;
 
+    @Autowired
+    private IPortalUserSource portalUserSource;
+
 	protected void processRequest(final ModelAndViewType modelView, final RequestType request)
 	{
+        if(processToolRegistry == null)
+            SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+
 		processToolRegistry.withProcessToolContext(new ProcessToolContextCallback() {
 			@Override
 			public void withContext(ProcessToolContext ctx)
 			{
-				IPortalUserSource userSource = ObjectFactory.create(IPortalUserSource.class);
-				UserData user = getUserByRequest(userSource, request);
+				UserData user = getUserByRequest(portalUserSource, request);
 
 		        /* No user to process, abort */
 				if(user == null) {

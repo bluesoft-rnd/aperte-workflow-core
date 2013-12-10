@@ -17,7 +17,7 @@ public class DeadlineActivator extends AbstractPluginActivator implements EventL
     protected void init() throws Exception {
         Properties pluginProperties = loadProperties("plugin.properties");
 
-        engine = new DeadlineEngine(registry, pluginProperties);
+        engine = new DeadlineEngine(pluginProperties);
         engine.init();
 
         registry.getEventBusManager().subscribe(BpmEvent.class, this);

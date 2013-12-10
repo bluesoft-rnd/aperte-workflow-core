@@ -3,6 +3,9 @@ package pl.net.bluesoft.rnd.processtool.plugins;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.dao.*;
@@ -25,6 +28,8 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
  * Date: 2013-10-09
  * Time: 21:46
  */
+@Component
+@Scope(value = "singleton")
 public class DataRegistryImpl implements DataRegistry {
 	private static final Logger logger = Logger.getLogger(DataRegistryImpl.class.getSimpleName());
 
@@ -33,6 +38,8 @@ public class DataRegistryImpl implements DataRegistry {
 	private final Map<String, ClassLoader> classLoaders = new HashMap<String, ClassLoader>();
 
 	private SessionFactory sessionFactory;
+
+    @Autowired
 	private ProcessToolContextFactory processToolContextFactory;
 
 	private boolean jta;
@@ -100,11 +107,6 @@ public class DataRegistryImpl implements DataRegistry {
 	@Override
 	public ProcessToolContextFactory getProcessToolContextFactory() {
 		return processToolContextFactory;
-	}
-
-	@Override
-	public void setProcessToolContextFactory(ProcessToolContextFactory processToolContextFactory) {
-		this.processToolContextFactory = processToolContextFactory;
 	}
 
 	@Override

@@ -34,34 +34,37 @@ public class ProcessStateConfiguration extends AbstractPersistentEntity
 	)
 	@Column(name = "id")
 	protected Long id;
-	
+
+    @Column(name = "name")
 	private String name;
-    @Column(length = 2048)
+    @Column(length = 2048, name = "description")
 	private String description;
-    @Column(length = 2048)
+    @Column(length = 2048,name = "commentary")
     private String commentary;
     
     /** Enable access to process state by token */
     @Column(name = "enable_external_access")
     private Boolean enableExternalAccess;
 
+    @Column(name = "enablemanualsave")
     private Boolean enableManualSave;
 
+    @Column(name = "stepinfopattern")
 	private String stepInfoPattern;
 
-	@OneToMany(cascade = CascadeType.ALL, fetch=FetchType.EAGER)
+	@OneToMany(targetEntity = ProcessStateWidget.class, cascade = CascadeType.ALL, fetch=FetchType.EAGER)
 	@JoinColumn(name="state_id")
 	private Set<ProcessStateWidget> widgets = new HashSet<ProcessStateWidget>();
 
-	@OneToMany(cascade = CascadeType.ALL, fetch=FetchType.EAGER)
+	@OneToMany(targetEntity = ProcessStateAction.class, cascade = CascadeType.ALL, fetch=FetchType.EAGER)
 	@JoinColumn(name="state_id")
 	private Set<ProcessStateAction> actions = new HashSet<ProcessStateAction>();
     
-    @OneToMany(cascade = CascadeType.ALL, fetch=FetchType.EAGER)
+    @OneToMany(targetEntity = ProcessStatePermission.class, cascade = CascadeType.ALL, fetch=FetchType.EAGER)
     @JoinColumn(name="state_id")
     private Set<ProcessStatePermission> permissions = new HashSet<ProcessStatePermission>();
 
-	@ManyToOne
+	@ManyToOne(targetEntity = ProcessDefinitionConfig.class)
 	@JoinColumn(name="definition_id")
 	private ProcessDefinitionConfig definition;
 	

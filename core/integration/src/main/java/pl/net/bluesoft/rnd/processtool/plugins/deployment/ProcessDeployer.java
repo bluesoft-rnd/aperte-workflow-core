@@ -1,6 +1,9 @@
 package pl.net.bluesoft.rnd.processtool.plugins.deployment;
 
 import com.thoughtworks.xstream.XStream;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
@@ -8,6 +11,7 @@ import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionPermission;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.util.lang.Strings;
 
 import java.io.ByteArrayInputStream;
@@ -20,7 +24,7 @@ import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+
 
 /**
  * Process Definition deployer
@@ -34,7 +38,13 @@ public class ProcessDeployer
 	
 	private ProcessToolContext processToolContext;
 
-	public ProcessDeployer(ProcessToolContext processToolContext) {
+    @Autowired
+    private ProcessToolRegistry processToolRegistry;
+
+	public ProcessDeployer(ProcessToolContext processToolContext)
+    {
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+
 		this.processToolContext = processToolContext;
 	}
 	
@@ -109,7 +119,7 @@ public class ProcessDeployer
 	}
 
 	private ProcessToolBpmSession createAdminSession() {
-		return getRegistry().getProcessToolSessionFactory().createSession("admin", Collections.singletonList("ADMIN"));
+		return processToolRegistry.getProcessToolSessionFactory().createSession("admin", Collections.singletonList("ADMIN"));
 	}
 
 	public void deployOrUpdateProcessDefinition(
@@ -144,7 +154,7 @@ public class ProcessDeployer
 
 	private void checkRequiredFiles(InputStream jpdlStream, InputStream processToolConfigStream, InputStream queueConfigStream) {
 		if (jpdlStream == null) {
-			throw new IllegalArgumentException("processdefinition." + getRegistry().getProcessToolSessionFactory().getBpmDefinitionLanguage() + " file missing");
+			throw new IllegalArgumentException("processdefinition." + processToolRegistry.getProcessToolSessionFactory().getBpmDefinitionLanguage() + " file missing");
 		}
 		if (processToolConfigStream == null) {
 			throw new IllegalArgumentException("processtool-config.xml file missing");

@@ -5,9 +5,9 @@ import com.vaadin.service.ApplicationContext;
 import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Window;
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
-import pl.net.bluesoft.rnd.processtool.di.annotations.AutoInject;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.usersource.IPortalUserSource;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
@@ -48,8 +48,8 @@ public abstract class GenericVaadinPortlet2BpmApplication extends Application im
     private boolean showExitWarning;
     private Locale lastLocale;
     
-    @AutoInject
-    protected IPortalUserSource userSource;
+    @Autowired
+    protected IPortalUserSource portalUserSource;
     
     protected abstract void initializePortlet();
 
@@ -93,7 +93,7 @@ public abstract class GenericVaadinPortlet2BpmApplication extends Application im
     	/* init user source */
 		ObjectFactory.inject(this);
 		
-		user = userSource.getUserByRequest(request);
+		user = portalUserSource.getUserByRequest(request);
         userRoles = user != null ? user.getRoles() : Collections.<String>emptyList();
 
         if (user == null) {

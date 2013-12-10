@@ -372,8 +372,10 @@ public class BpmNotificationEngine implements IBpmNotificationService
 	}
 
     @SuppressWarnings("unchecked")
-	public synchronized void refreshConfigIfNecessary() {
-        if (cacheUpdateTime + refrshInterval < System.currentTimeMillis()) {
+	public synchronized void refreshConfigIfNecessary()
+    {
+        if (cacheUpdateTime + refrshInterval < System.currentTimeMillis())
+        {
             Session session = ProcessToolContext.Util.getThreadProcessToolContext().getHibernateSession();
             configCache = session
                     .createCriteria(BpmNotificationConfig.class)

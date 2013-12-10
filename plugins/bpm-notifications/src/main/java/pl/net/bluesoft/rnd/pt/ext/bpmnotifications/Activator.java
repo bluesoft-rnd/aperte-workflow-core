@@ -4,6 +4,8 @@ import org.aperteworkflow.ui.view.IViewRegistry;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent;
@@ -36,6 +38,9 @@ import java.util.logging.Logger;
  */
 public class Activator implements BundleActivator, EventListener<BpmEvent> 
 {
+
+    @Autowired
+    private ProcessToolRegistry processToolRegistry;
 	
     private Logger logger = Logger.getLogger(Activator.class.getName());
 
@@ -46,9 +51,9 @@ public class Activator implements BundleActivator, EventListener<BpmEvent>
 	@Override
 	public void start(BundleContext context) throws Exception 
 	{
-		final ProcessToolRegistry registry = getRegistry(context);
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
 
-		registry.withProcessToolContext(new ProcessToolContextCallback()
+        processToolRegistry.withProcessToolContext(new ProcessToolContextCallback()
         {
 			@Override
 			public void withContext(ProcessToolContext ctx)
@@ -56,23 +61,23 @@ public class Activator implements BundleActivator, EventListener<BpmEvent>
 				injectImplementation();
 				
 				/* Init the bpm notification engine */
-				engine = new BpmNotificationEngine(registry);
+				engine = new BpmNotificationEngine(processToolRegistry);
 			}
         });
 		
-		schedulerActivator = new SchedulersActivator(registry);
-		
-        registry.getBundleRegistry().registerService(IBpmNotificationService.class, engine, new Properties());
-		registry.getEventBusManager().subscribe(BpmEvent.class, this);
+		schedulerActivator = new SchedulersActivator(processToolRegistry);
+
+        processToolRegistry.getBundleRegistry().registerService(IBpmNotificationService.class, engine, new Properties());
+        processToolRegistry.getEventBusManager().subscribe(BpmEvent.class, this);
 		
 		mailEventListener = new MailEventListener(engine);
-		registry.getEventBusManager().subscribe(MailEvent.class, mailEventListener);
+        processToolRegistry.getEventBusManager().subscribe(MailEvent.class, mailEventListener);
 		
 		/* Register scheduler for notifications sending */
 		schedulerActivator.scheduleNotificationsSend(engine);
 
-		getViewRegistry(registry).registerGenericPortletViewRenderer("admin", BpmAdminPortletRender.INSTANCE);
-		getViewRegistry(registry).registerGenericPortletViewRenderer("user", BpmAdminPortletRender.INSTANCE);
+		getViewRegistry(processToolRegistry).registerGenericPortletViewRenderer("admin", BpmAdminPortletRender.INSTANCE);
+		getViewRegistry(processToolRegistry).registerGenericPortletViewRenderer("user", BpmAdminPortletRender.INSTANCE);
 		
 	}
 	

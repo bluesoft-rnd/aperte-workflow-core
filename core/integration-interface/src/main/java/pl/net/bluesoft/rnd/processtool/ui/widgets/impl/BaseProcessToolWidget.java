@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
-import pl.net.bluesoft.rnd.processtool.di.annotations.AutoInject;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidgetAttribute;
@@ -40,7 +39,7 @@ public abstract class BaseProcessToolWidget implements ProcessToolWidget {
 	protected WidgetEventBus widgetEventBus;
 	protected String taskId;
 	
-    @AutoInject
+    @Autowired
     protected IPortalUserSource userSource;
     
     @Autowired

@@ -17,7 +17,7 @@
         <!--<property name="hibernate.format_sql">true</property>-->
         <property name="hibernate.use_outer_join">true</property>
         <property name="hibernate.bytecode.use_reflection_optimizer">true</property>
-		<property name="hibernate.dialect">org.hibernate.dialect.HSQLDialect</property>
+
 
 		<property name="hibernate.connection.datasource">java:comp/env/jdbc/aperte-workflow-ds</property>
 

@@ -7,6 +7,7 @@ import org.drools.SystemEventListenerFactory;
 import org.drools.builder.KnowledgeBuilder;
 import org.drools.builder.KnowledgeBuilderFactory;
 import org.drools.builder.ResourceType;
+import org.drools.definition.KnowledgePackage;
 import org.drools.event.process.*;
 import org.drools.impl.EnvironmentFactory;
 import org.drools.io.ResourceFactory;
@@ -135,7 +136,10 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
             if (ksession != null) {
                 KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
                 kbuilder.add(ResourceFactory.newByteArrayResource(bytes), ResourceType.BPMN2);
-                ksession.getKnowledgeBase().addKnowledgePackages(kbuilder.getKnowledgePackages());
+                Collection<KnowledgePackage> packages = kbuilder.getKnowledgePackages();
+                KnowledgeBase knowledgeBase =  ksession.getKnowledgeBase();
+
+                knowledgeBase.addKnowledgePackages(packages);
             }
         }
 

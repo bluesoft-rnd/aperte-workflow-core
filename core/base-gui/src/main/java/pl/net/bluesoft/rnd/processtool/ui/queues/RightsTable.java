@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.aperteworkflow.util.vaadin.GenericVaadinPortlet2BpmApplication;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import org.vaadin.addon.customfield.CustomField;
 
 import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
@@ -39,11 +41,18 @@ public class RightsTable extends CustomField {
 	private GenericVaadinPortlet2BpmApplication application;
 	private Window addWindow;
 	private Window addNewWindow;
+
+    @Autowired
+    private IUserRolesManager userRolesManager;
 	
 	public RightsTable(final I18NSource source, final GenericVaadinPortlet2BpmApplication application) {
 		this.source = source;
 		this.application = application;
 		table.setContainerDataSource(dataSource);
+
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+
+
 		table.setTableFieldFactory(new DefaultFieldFactory() {
 			
 			@Override
@@ -160,8 +169,7 @@ public class RightsTable extends CustomField {
     	VerticalLayout vl = new VerticalLayout();
     	vl.setMargin(true);
     	vl.setSpacing(true);
-    	
-    	IUserRolesManager userRolesManager = ObjectFactory.create(IUserRolesManager.class);
+
 		Collection<String> roleNames = userRolesManager.getRoleNamesForCompanyId(application.getUser().getCompanyId());
 		
     	BeanItemContainer<String> ds = new BeanItemContainer<String>(String.class);

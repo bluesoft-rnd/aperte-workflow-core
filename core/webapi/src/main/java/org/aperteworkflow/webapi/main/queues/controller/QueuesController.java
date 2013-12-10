@@ -25,9 +25,6 @@ import pl.net.bluesoft.rnd.processtool.userqueues.UserProcessQueuesSizeProvider.
 public class QueuesController extends AbstractProcessToolServletController
 {
 	private static Logger logger = Logger.getLogger(QueuesController.class.getName());
-
-    @Autowired
-    private ProcessToolRegistry registry;
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/queues/getUserQueues.json")
 	@ResponseBody
@@ -37,7 +34,7 @@ public class QueuesController extends AbstractProcessToolServletController
 		
 		long t0 = System.currentTimeMillis();
 		
-		final IProcessToolRequestContext context = this.initilizeContext(request, registry.getProcessToolSessionFactory());
+		final IProcessToolRequestContext context = this.initilizeContext(request, getProcessToolRegistry().getProcessToolSessionFactory());
 		final Collection<UsersQueuesDTO> userQueues = new ArrayList<UsersQueuesDTO>();
 		
 		if(!context.isUserAuthorized())
@@ -47,7 +44,7 @@ public class QueuesController extends AbstractProcessToolServletController
 
 		long t1 = System.currentTimeMillis();
 		
-		UserProcessQueuesSizeProvider userQueuesSizeProvider = new UserProcessQueuesSizeProvider(registry, context.getUser().getLogin(), context.getMessageSource());
+		UserProcessQueuesSizeProvider userQueuesSizeProvider = new UserProcessQueuesSizeProvider(getProcessToolRegistry(), context.getUser().getLogin(), context.getMessageSource());
 		Collection<UsersQueuesDTO> queues = userQueuesSizeProvider.getUserProcessQueueSize();
 		userQueues.addAll(queues);
 		

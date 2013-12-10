@@ -9,12 +9,13 @@ import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.usersource.IPortalUserSource;
 
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
+import javax.portlet.*;
+import java.io.IOException;
 
 @Controller(value = "MainViewController")
 @RequestMapping("VIEW")
-public class MainViewController extends AbstractMainController<ModelAndView, RenderRequest>
+public class MainViewController extends AbstractMainController<ModelAndView, RenderRequest>  implements
+        ResourceServingPortlet
 {
 	@RenderMapping ()
 	public ModelAndView handleMainRenderRequest(RenderRequest request, RenderResponse response, Model model)
@@ -36,7 +37,8 @@ public class MainViewController extends AbstractMainController<ModelAndView, Ren
 	}
 
 	@Override
-	protected UserData getUserByRequest(IPortalUserSource userSource, RenderRequest request) {
+	protected UserData getUserByRequest(IPortalUserSource userSource, RenderRequest request)
+    {
 		return userSource.getUserByRequest(request);
 	}
 
@@ -49,4 +51,9 @@ public class MainViewController extends AbstractMainController<ModelAndView, Ren
 	protected void setSession(ProcessToolBpmSession bpmSession, RenderRequest request) {
 		request.setAttribute(ProcessToolBpmSession.class.getName(), bpmSession);
 	}
+
+    @Override
+    public void serveResource(ResourceRequest resourceRequest, ResourceResponse resourceResponse) throws PortletException, IOException {
+
+    }
 }

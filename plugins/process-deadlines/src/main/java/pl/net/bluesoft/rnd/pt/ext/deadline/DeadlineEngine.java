@@ -8,6 +8,8 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
 import org.quartz.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
@@ -38,12 +40,17 @@ import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.g
 public class DeadlineEngine {
     private static final Logger logger = Logger.getLogger(DeadlineEngine.class.getName());
 
+    @Autowired
     private ProcessToolRegistry registry;
+
+    @Autowired
+    private IUserRolesManager userRolesManager;
 
     private Properties pluginProperties;
 
-    public DeadlineEngine(ProcessToolRegistry registry, Properties pluginProperties) throws SchedulerException {
-        this.registry = registry;
+    public DeadlineEngine(Properties pluginProperties) throws SchedulerException
+    {
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
         this.pluginProperties = pluginProperties;
     }
 
@@ -237,9 +244,9 @@ public class DeadlineEngine {
             for (String role : processDeadline.getNotifyUsersWithRole().split(",")) {
                 if (Strings.hasText(role)) 
                 {
-                	IUserRolesManager rolesManager = ObjectFactory.create(IUserRolesManager.class);
+
                 	
-                    for (UserData userWithRole : rolesManager.getUsersByRole(role)) {
+                    for (UserData userWithRole : userRolesManager.getUsersByRole(role)) {
                         notifyUsers.put(userWithRole.getLogin(), userWithRole);
                     }
                 }

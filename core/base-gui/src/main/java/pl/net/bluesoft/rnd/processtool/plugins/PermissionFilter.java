@@ -1,11 +1,10 @@
 package pl.net.bluesoft.rnd.processtool.plugins;
 
-import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.model.Role;
-import com.liferay.portal.model.User;
-import com.liferay.portal.service.UserLocalServiceUtil;
-import com.liferay.portal.util.PortalUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.processtool.roles.IUserRolesManager;
+import pl.net.bluesoft.rnd.processtool.usersource.IPortalUserSource;
 import pl.net.bluesoft.rnd.pt.utils.lang.Lang2;
 
 import javax.servlet.*;
@@ -15,8 +14,6 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -34,9 +31,24 @@ public class PermissionFilter implements Filter {
 
     private static final Collection<String> ROLE_NAMES = Arrays.asList("ADMINISTRATOR", "MODELER_USER");
 
+    @Autowired
+    private IUserRolesManager userRolesManager;
+
+    @Autowired
+    private IPortalUserSource portalUserSource;
+
+    public PermissionFilter()
+    {
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+    }
+
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-            throws IOException, ServletException {
+            throws IOException, ServletException
+    {
+        if(portalUserSource == null)
+            SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+
         HttpServletRequest req = Lang2.assumeType(request, HttpServletRequest.class);
         HttpServletResponse res = Lang2.assumeType(response, HttpServletResponse.class);
 
@@ -46,46 +58,47 @@ public class PermissionFilter implements Filter {
             return;
         }
 
-        try {
-            //check for user session
-            User userByScreenName = null;
-            //try to authorize user using Liferay API
-            long basicAuthUserId = PortalUtil.getBasicAuthUserId(req);
-            if (basicAuthUserId != 0)
-                userByScreenName  = UserLocalServiceUtil.getUserById(basicAuthUserId);
-            if (userByScreenName != null) {
-                String username = userByScreenName.getScreenName();
-                logger.info("Successfully authorized user: " + username);
-                List<Role> roles = userByScreenName.getRoles();
-                boolean found = false;
-                for (Role role : roles) {
-                    if (!role.isTeam() && ROLE_NAMES.contains(role.getName().toUpperCase())) {
-                        found = true;
-                        logger.info("Matched role " + role.getName() + " for user " + username);
-                        break;
-                    }
-                }
-                if (!found) {
-                    logger.info("User " + username + " has insufficient privileges.");
-                } else {
-                    session.setAttribute(AUTHORIZED, username);
-                    chain.doFilter(request, response);
-                    return;
-                }
+        UserData userInRequest = portalUserSource.getUserByRequest(req);
+        if(userInRequest == null)
+        {
+            logger.warning("Failed to authorize user");
 
-            } else {
-                logger.warning("Failed to authorize user");
-            }
-        } catch (PortalException e) {
-            logger.log(Level.SEVERE, e.getMessage(), e);
-            throw new ServletException(e);
-        } catch (SystemException e) {
-            logger.log(Level.SEVERE, e.getMessage(), e);
-            throw new ServletException(e);
+            res.setHeader("WWW-Authenticate", "Basic realm=\"Aperte Modeler\"");
+            res.setStatus(401);
+
+            return;
         }
-        //if we are here, then authentication has failed or no username/password has been supplied
-        res.setHeader("WWW-Authenticate", "Basic realm=\"Aperte Modeler\"");
-        res.setStatus(401);
+
+        logger.info("Successfully authorized user: " + userInRequest.getLogin());
+
+        if(isRoleExistForUser(userInRequest))
+        {
+            logger.info("Matched role for user " + userInRequest.getLogin());
+
+            session.setAttribute(AUTHORIZED, userInRequest.getLogin());
+            chain.doFilter(request, response);
+        }
+        else
+        {
+            res.setHeader("WWW-Authenticate", "Basic realm=\"Aperte Modeler\"");
+            res.setStatus(401);
+        }
+    }
+
+    private boolean isRoleExistForUser(UserData userInRequest)
+    {
+        for(String roleName: ROLE_NAMES)
+        {
+            Collection<UserData> users = userRolesManager.getUsersByRole(roleName);
+            if(users.contains(userInRequest))
+            {
+                logger.info("Matched role " + roleName + " for user " + userInRequest.getLogin());
+
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @Override

@@ -2,6 +2,8 @@ package org.aperteworkflow.webapi.main;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.aperteworkflow.webapi.context.impl.IWebProcessToolContextFactory;
+import pl.net.bluesoft.rnd.processtool.authorization.IAuthorizationService;
 import pl.net.bluesoft.rnd.processtool.web.domain.IProcessToolRequestContext;
 import org.aperteworkflow.webapi.context.impl.WebProcessToolContextFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,12 @@ public class AbstractProcessToolServletController
     
     @Autowired
     private ProcessToolRegistry processToolRegistry;
+
+    @Autowired
+    private IAuthorizationService authorizationService;
+
+    @Autowired
+    private IWebProcessToolContextFactory webProcessToolContextFactory;
     
     public AbstractProcessToolServletController() {
     	SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
@@ -34,7 +42,7 @@ public class AbstractProcessToolServletController
     
 	/** Initilize context */
 	protected IProcessToolRequestContext initilizeContext(HttpServletRequest request, ProcessToolSessionFactory sessionFactory) {
-		IProcessToolRequestContext context = WebProcessToolContextFactory.create(request, sessionFactory);
+		IProcessToolRequestContext context = webProcessToolContextFactory.create(request);
 		return context;
 	}
 	

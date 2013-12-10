@@ -1,9 +1,6 @@
 package pl.net.bluesoft.rnd.processtool.model.config;
 
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.xml.bind.annotation.XmlTransient;
 
 import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
@@ -17,11 +14,10 @@ public class ProcessDefinitionPermission extends PersistentEntity implements IPe
 {
 	private static final long serialVersionUID = 1L;
 
-	@ManyToOne
+	@ManyToOne(targetEntity = ProcessDefinitionConfig.class, fetch = FetchType.EAGER)
 	@JoinColumn(name="definition_id")
 	private ProcessDefinitionConfig definition;
 
-    @XmlTransient
     public ProcessDefinitionConfig getDefinition() {
         return definition;
     }

@@ -10,6 +10,7 @@ import pl.net.bluesoft.rnd.processtool.model.config.*;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueueBean;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.rnd.processtool.usersource.IUserSource;
 import pl.net.bluesoft.util.lang.Mapcar;
 
 import java.io.Serializable;
@@ -37,7 +38,10 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
     protected String substitutingUserLogin;
 
     @Autowired
-    private ProcessToolRegistry registry;
+    protected ProcessToolRegistry registry;
+
+    @Autowired
+    protected IUserSource userSource;
 
     protected AbstractProcessToolSession(String userLogin, Collection<String> roleNames, String substitutingUserLogin) {
     	SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
@@ -157,7 +161,7 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
 	@Override
     public Collection<String> getRoleNames() {
 		if (roleNames == null) {
-			UserData user = getRegistry().getUserSource().getUserByLogin(userLogin);
+			UserData user = userSource.getUserByLogin(userLogin);
 			roleNames = user != null ? user.getRoles() : Collections.<String>emptySet();
 		}
         return Collections.unmodifiableCollection(roleNames);

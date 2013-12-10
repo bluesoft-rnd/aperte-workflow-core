@@ -506,7 +506,10 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 
 		List<String> result = new ArrayList<String>();
 
-		for (Map.Entry<String, String> entry : rolesByDefinitionId.entrySet()) {
+        if(rolesByDefinitionId == null)
+            return result;
+
+        for (Map.Entry<String, String> entry : rolesByDefinitionId.entrySet()) {
 			if (!hasMatchingRole(entry.getValue(), roleNames)) {
 				result.add(entry.getKey());
 			}

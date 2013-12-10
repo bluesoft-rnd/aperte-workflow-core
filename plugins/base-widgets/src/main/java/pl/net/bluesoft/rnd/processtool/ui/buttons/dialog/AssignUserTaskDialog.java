@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComment;
@@ -32,6 +33,9 @@ import com.vaadin.ui.Select;
 public class AssignUserTaskDialog extends AddCommentDialog {
 	private AssigneeBean assigneeBean;
 	private String roleName;
+
+    @Autowired
+    private IUserRolesManager userRolesManager;
 
 	public class AssigneeBean {
 		private UserData assignee;
@@ -98,8 +102,7 @@ public class AssignUserTaskDialog extends AddCommentDialog {
 					/* If there role is provieded, get all users with this role */
 					if(Strings.hasText(roleName))
 					{
-						IUserRolesManager userRoleManager = ObjectFactory.create(IUserRolesManager.class);
-						allUsers = userRoleManager.getUsersByRole(roleName);
+						allUsers = userRolesManager.getUsersByRole(roleName);
 					}
 					/* Otherwise, get all users */
 					else

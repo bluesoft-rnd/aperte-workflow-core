@@ -12,17 +12,22 @@
             http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
             http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
 	
-	<context:annotation-config /> 
-	<context:component-scan base-package="org.aperteworkflow.webapi.main" />
-	
+
+
 	<!-- STATIC RESOURCES -->
 	<mvc:resources location="/css/" mapping="/css/**"></mvc:resources>
 	<mvc:resources location="/js/" mapping="/js/**"></mvc:resources>
     <mvc:resources location="/images/" mapping="/images/**"></mvc:resources>
 
+    <!-- Lazy load, becouse in servlet 3.0 and liferay 6.2, portlets and servlets can be initlize before root context -->
 	<bean class="org.springframework.web.portlet.mvc.annotation.DefaultAnnotationHandlerMapping"></bean>
-	<bean class="org.aperteworkflow.webapi.main.MainViewController"></bean>
-	<bean class="org.aperteworkflow.webapi.main.MainServletViewController"></bean>
+	<bean class="org.aperteworkflow.webapi.main.MainViewController" lazy-init="true"></bean>
+    <bean class="org.aperteworkflow.webapi.main.MainDispatcher" lazy-init="true"></bean>
+	<bean class="org.aperteworkflow.webapi.main.MainServletViewController" lazy-init="true"></bean>
+    <bean class="org.aperteworkflow.webapi.main.processes.controller.ProcessesListController" lazy-init="true"></bean>
+    <bean class="org.aperteworkflow.webapi.main.processes.controller.TaskViewController" lazy-init="true"></bean>
+    <bean class="org.aperteworkflow.webapi.main.processes.controller.UserController" lazy-init="true"></bean>
+    <bean class="org.aperteworkflow.webapi.main.queues.controller.QueuesController" lazy-init="true"></bean>
 
 	<bean id="jspViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
 		<property name="viewClass" value="org.springframework.web.servlet.view.InternalResourceView"></property>

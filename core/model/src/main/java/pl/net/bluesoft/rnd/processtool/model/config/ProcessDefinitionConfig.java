@@ -69,11 +69,11 @@ public class ProcessDefinitionConfig extends AbstractPersistentEntity {
 
 	private String processGroup;
 
-	@OneToMany(cascade = {CascadeType.ALL}, fetch=FetchType.LAZY)
+	@OneToMany(targetEntity = ProcessStateConfiguration.class,cascade = {CascadeType.ALL}, fetch=FetchType.LAZY)
 	@JoinColumn(name="definition_id")
 	private Set<ProcessStateConfiguration> states = new HashSet<ProcessStateConfiguration>();
 
-	@OneToMany(cascade = {CascadeType.ALL}, fetch=FetchType.LAZY)
+	@OneToMany(targetEntity = ProcessDefinitionPermission.class,cascade = {CascadeType.ALL}, fetch=FetchType.LAZY)
 	@JoinColumn(name="definition_id")
 	private Set<ProcessDefinitionPermission> permissions = new HashSet<ProcessDefinitionPermission>();
 

@@ -2,6 +2,8 @@ package pl.net.bluesoft.rnd.processtool.plugins;
 
 import com.google.common.io.CharStreams;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolActionButton;
@@ -27,6 +29,8 @@ import static pl.net.bluesoft.rnd.util.AnnotationUtil.getAliasName;
  * Date: 2013-10-09
  * Time: 15:32
  */
+@Component
+@Scope(value = "singleton")
 public class GuiRegistryImpl implements GuiRegistry {
 	private static final Logger logger = Logger.getLogger(GuiRegistryImpl.class.getSimpleName());
 

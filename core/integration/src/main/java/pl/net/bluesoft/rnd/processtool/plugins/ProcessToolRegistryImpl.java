@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants.PATTERN_MATCH_ALL;
@@ -51,22 +52,31 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	@Autowired
 	private DataRegistry dataRegistry;
 
+    @Autowired
+    private ProcessToolSessionFactory processToolSessionFactory;
+
+    @Autowired
+    private IUserSource userSource;
+
 	private ExecutorService executorService = Executors.newCachedThreadPool();
 	private EventBusManager eventBusManager = new ProcessToolEventBusManager(this, executorService);
 
 	private final Map<String, CacheProvider> cacheProviders = new HashMap<String, CacheProvider>();
 
-	private ProcessToolSessionFactory processToolSessionFactory;
 
-	private IUserSource userSource;
 
 	public ProcessToolRegistryImpl() {
 		Util.setInstance(this);
 	}
 
 	@PostConstruct
-	public void completeInit() {
+	public void completeInit()
+    {
+        logger.log(Level.INFO, "Pre construct ProcessToolRegistry");
 		dataRegistry.commitModelExtensions();
+
+        ProcessToolRegistry.Util.setInstance(this);
+        ProcessToolRegistry.Util.setAwfClassLoader(Thread.currentThread().getContextClassLoader());
 	}
 
 	@Override
@@ -141,10 +151,6 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 	@Override
 	public ProcessToolSessionFactory getProcessToolSessionFactory() {
 		return processToolSessionFactory;
-	}
-
-	public void setProcessToolSessionFactory(ProcessToolSessionFactory processToolSessionFactory) {
-		this.processToolSessionFactory = processToolSessionFactory;
 	}
 
 	@Override

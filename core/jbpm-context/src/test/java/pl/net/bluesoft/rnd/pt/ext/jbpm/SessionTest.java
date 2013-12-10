@@ -784,10 +784,7 @@ public class SessionTest extends TestCase {
     	registry = new ProcessToolRegistryImpl();
         UserSourceMock userSourceMock = new UserSourceMock();
         registry.setUserSource(userSourceMock);
-        ProcessToolContextFactory contextFactory = new ProcessToolContextFactoryImpl(registry);
-        registry.getDataRegistry().setProcessToolContextFactory(contextFactory);
-		registry.setProcessToolSessionFactory(new ProcessToolJbpmSessionFactory());
-
+        ProcessToolContextFactory contextFactory = new ProcessToolContextFactoryImpl();
 		ProcessToolRegistry.Util.setAwfClassLoader(Thread.currentThread().getContextClassLoader());
 
 		super.setUp();

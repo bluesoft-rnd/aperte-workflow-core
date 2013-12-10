@@ -27,7 +27,6 @@ public interface DataRegistry {
 	SessionFactory getSessionFactory();
 
 	ProcessToolContextFactory getProcessToolContextFactory();
-	void setProcessToolContextFactory(ProcessToolContextFactory processToolContextFactory);
 
 	ProcessDictionaryDAO getProcessDictionaryDAO(Session hibernateSession);
 	ProcessInstanceDAO getProcessInstanceDAO(Session hibernateSession);

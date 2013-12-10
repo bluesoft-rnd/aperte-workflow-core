@@ -8,6 +8,8 @@ import java.util.List;
 import org.aperteworkflow.editor.domain.Permission;
 import org.aperteworkflow.editor.vaadin.DataHandler;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
 import pl.net.bluesoft.rnd.processtool.roles.IUserRolesManager;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
@@ -31,8 +33,14 @@ public class PrivilegeNameEditor extends GridLayout implements PermissionWrapper
     private RoleNameComboBox roleNameComboBox;
     private Layout roleNameLayout;
 
+    @Autowired
+    private IUserRolesManager userRolesManager;
+
     public PrivilegeNameEditor(PermissionDefinition permissionDefinition) {
         super(2, 3);
+
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+
         setSpacing(true);
         this.permissionDefinition = permissionDefinition;
         initComponent();
@@ -150,8 +158,8 @@ public class PrivilegeNameEditor extends GridLayout implements PermissionWrapper
         roleNameComboBox.removeAllItems();
         roleNameComboBox.addItem(".*");
         
-        IUserRolesManager rolesManager = ObjectFactory.create(IUserRolesManager.class);
-		for (String roleName : rolesManager.getAllRolesNames()) {
+
+		for (String roleName : userRolesManager.getAllRolesNames()) {
 			roleNameComboBox.addItem(roleName);
 		}
 		roleNameLayout.removeAllComponents();

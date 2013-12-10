@@ -20,6 +20,20 @@
 	<!-- MVC ANNOTATION -->
 	<mvc:annotation-driven />
 
+    <!-- STATIC RESOURCES -->
+    <mvc:resources location="/css/" mapping="/css/**"></mvc:resources>
+    <mvc:resources location="/js/" mapping="/js/**"></mvc:resources>
+    <mvc:resources location="/images/" mapping="/images/**"></mvc:resources>
+
+
+
+    <bean id="jspViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="viewClass" value="org.springframework.web.servlet.view.InternalResourceView"></property>
+        <property name="prefix" value="/WEB-INF/jsp/"></property>
+        <property name="suffix" value=".jsp"></property>
+        <property name="order" value="1"></property>
+    </bean>
+
 	<!-- MESSAGES RESOLVER -->
 	<bean id="messageSource" class="org.aperteworkflow.webapi.messages.ReloadableResourceBundleMessageSource">
 		<property name="basenames" value="classpath*:messages,/WEB-INF/messages"/>
@@ -28,11 +42,19 @@
 	</bean>
 	
 	<bean id="processToolRegistry" class="pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistryImpl" scope="singleton"/>
+    <bean id="processToolContextFactory" class="pl.net.bluesoft.rnd.pt.ext.jbpm.ProcessToolContextFactoryImpl" scope="singleton"/>
+    <bean id="processToolSessionFactory" class="pl.net.bluesoft.rnd.pt.ext.jbpm.ProcessToolJbpmSessionFactory" scope="singleton"/>
 	<bean id="templateProvider" class="org.aperteworkflow.webapi.main.ui.TaskHtmlTemplateLoader" scope="singleton"/>
 	<bean id="guiRegistry" class="pl.net.bluesoft.rnd.processtool.plugins.GuiRegistryImpl" scope="singleton"/>
 	<bean id="bundleRegistry" class="pl.net.bluesoft.rnd.processtool.plugins.BundleRegistryImpl" scope="singleton"/>
 	<bean id="dataRegistry" class="pl.net.bluesoft.rnd.processtool.plugins.DataRegistryImpl" scope="singleton"/>
-	
+    <bean id="webProcessToolContextFactory" class="org.aperteworkflow.webapi.context.impl.WebProcessToolContextFactory" scope="singleton"/>
+
+    <bean id="portalUserSource" class="pl.net.bluesoft.rnd.processtool.usersource.impl.LiferayUserSource" scope="singleton"/>
+    <bean id="userSource" class="pl.net.bluesoft.rnd.processtool.usersource.impl.LiferayUserSource" scope="singleton"/>
+    <bean id="userRolesManager" class="pl.net.bluesoft.rnd.processtool.roles.impl.LiferayUserRolesManager" scope="singleton"/>
+    <bean id="authorizationService" class="pl.net.bluesoft.rnd.processtool.authorization.impl.LiferayAuthorizationService" scope="singleton"/>
+
 	<bean id="windowManager" class="pl.net.bluesoft.rnd.processtool.application.activity.WindowManager" scope="session">
 		<aop:scoped-proxy/>
 	</bean>

@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.aperteworkflow.util.vaadin.VaadinUtility;
 
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComment;
@@ -52,6 +53,7 @@ public class AddCommentDialog extends DialogWindow implements ClickListener
 		
 	public AddCommentDialog(ProcessComment processComment) {
 		this.processComment = processComment;
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
 	}
 	
 	public void addListener(AddCommentListener listener) {

@@ -2,6 +2,7 @@ package pl.net.bluesoft.rnd.pt.ext.userdata.widget;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 
 import javax.portlet.PortletRequest;
 
@@ -39,22 +40,47 @@ public class LiferayUserDataWidget extends UserDataWidget {
 			final PermissionChecker oldChecker = PermissionThreadLocal.getPermissionChecker();
 			try {
 				PermissionThreadLocal.setPermissionChecker(new PermissionChecker() { //TODO not the best way to do it?
-					@Override
+                    @Override
+                    public PermissionChecker clone() {
+                        return null;  //To change body of implemented methods use File | Settings | File Templates.
+                    }
+
+                    @Override
 					public long getCompanyId() {
 						return oldChecker.getCompanyId();
 					}
 
-					@Override
+                    @Override
+                    public List<Long> getGuestResourceBlockIds(long l, long l2, String s, String s2) {
+                        return null;  //To change body of implemented methods use File | Settings | File Templates.
+                    }
+
+                    @Override
+                    public List<Long> getOwnerResourceBlockIds(long l, long l2, String s, String s2) {
+                        return null;  //To change body of implemented methods use File | Settings | File Templates.
+                    }
+
+                    @Override
 					public long getOwnerRoleId() {
 						return oldChecker.getOwnerRoleId();
 					}
 
-					@Override
+                    @Override
+                    public List<Long> getResourceBlockIds(long l, long l2, long l3, String s, String s2) {
+                        return null;  //To change body of implemented methods use File | Settings | File Templates.
+                    }
+
+                    @Override
 					public long[] getRoleIds(long userId, long groupId) {
 						return oldChecker.getRoleIds(userId, groupId);
 					}
 
-					@Override
+                    @Override
+                    public User getUser() {
+                        return null;  //To change body of implemented methods use File | Settings | File Templates.
+                    }
+
+                    @Override
 					public long getUserId() {
 						return oldChecker.getUserId();
 					}
@@ -84,9 +110,15 @@ public class LiferayUserDataWidget extends UserDataWidget {
 						return true;
 					}
 
-					@Override
-					public void init(User user, boolean checkGuest) {
-						oldChecker.init(user, checkGuest);
+
+                    @Override
+                    public boolean isCheckGuest() {
+                        return false;  //To change body of implemented methods use File | Settings | File Templates.
+                    }
+
+                    @Override
+					public void init(User user) {
+						oldChecker.init(user);
 					}
 
 					@Override
@@ -109,20 +141,47 @@ public class LiferayUserDataWidget extends UserDataWidget {
 						return true;
 					}
 
-					@Override
+                    @Override
+                    public boolean isGroupAdmin(long l) {
+                        return false;  //To change body of implemented methods use File | Settings | File Templates.
+                    }
+
+                    @Override
+                    public boolean isGroupMember(long l) {
+                        return false;  //To change body of implemented methods use File | Settings | File Templates.
+                    }
+
+                    @Override
+                    public boolean isGroupOwner(long l) {
+                        return false;  //To change body of implemented methods use File | Settings | File Templates.
+                    }
+
+                    @Override
 					public boolean isOmniadmin() {
 						return true;
 					}
 
-					@Override
+                    @Override
+                    public boolean isOrganizationAdmin(long l) {
+                        return false;  //To change body of implemented methods use File | Settings | File Templates.
+                    }
+
+                    @Override
+                    public boolean isOrganizationOwner(long l) {
+                        return false;  //To change body of implemented methods use File | Settings | File Templates.
+                    }
+
+                    @Override
+                    public boolean isSignedIn() {
+                        return false;  //To change body of implemented methods use File | Settings | File Templates.
+                    }
+
+                    @Override
 					public void resetValues() {
 						oldChecker.resetValues();
 					}
 
-					@Override
-					public void setCheckGuest(boolean checkGuest) {
-						oldChecker.setCheckGuest(true);
-					}
+
 
 					@Override
 					public void setValues(PortletRequest portletRequest) {

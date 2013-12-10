@@ -9,6 +9,8 @@ import org.aperteworkflow.editor.domain.QueueRolePermission;
 import org.aperteworkflow.editor.vaadin.DataHandler;
 import org.aperteworkflow.util.vaadin.VaadinUtility;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
 import pl.net.bluesoft.rnd.processtool.roles.IUserRolesManager;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
@@ -34,9 +36,16 @@ public class SingleQueueEditor extends GridLayout implements QueueRolePermission
     private Label roleNameDescription;
     private RoleNameComboBox roleNameComboBox;
     private CssLayout rolePermissionLayout;
+
+    @Autowired
+    private IUserRolesManager userRolesManager;
     
     public SingleQueueEditor(Queue queue, QueueHandler handler) {
         super(2, 4);
+
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+
+
         this.handler = handler;
         this.queue = queue;
         initComponent();
@@ -136,8 +145,8 @@ public class SingleQueueEditor extends GridLayout implements QueueRolePermission
         roleNameComboBox.removeAllItems();
         roleNameComboBox.addItem(".*");
         
-        IUserRolesManager rolesManager = ObjectFactory.create(IUserRolesManager.class);
-		for (String roleName : rolesManager.getAllRolesNames()) {
+
+		for (String roleName : userRolesManager.getAllRolesNames()) {
 			roleNameComboBox.addItem(roleName);
 		}
 

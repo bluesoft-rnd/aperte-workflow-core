@@ -78,16 +78,20 @@
         <project.build.compiler.source>1.6</project.build.compiler.source>
         <project.build.compiler.target>1.6</project.build.compiler.target>
         <jbpm.version>5.4.0.Final</jbpm.version>
-        <spring.version>3.0.5.RELEASE</spring.version>
+        <spring.version>3.0.7.RELEASE</spring.version>
         <vaadin.version>6.8.10</vaadin.version>
 		<jackson.version>1.9.12</jackson.version>
         <hibernate.version>3.6.10.Final</hibernate.version>
-        <postgres.version>8.4-702.jdbc4</postgres.version>
+        <postgres.version>9.1-901.jdbc4</postgres.version>
         <junit.version>4.8.2</junit.version>
 		<gwt.version>2.5.0</gwt.version>
 		<gwt.plugin.version>2.5.0</gwt.plugin.version>
-        <liferay.version>6.0.6</liferay.version>
+        <tomcat.version>7.0.42</tomcat.version>
+        <servlet.api.version>3.0</servlet.api.version>
+        <portlet.api.version>2.0</portlet.api.version>
+        <liferay.version>6.2.0</liferay.version>
 		<maven.compiler.version>3.0</maven.compiler.version>
+        <maven.bundle.version>2.4.0</maven.bundle.version>
 		<maven.war.version>2.3</maven.war.version>
 		<maven.dependency.version>2.7</maven.dependency.version>
 		<maven.release.version>2.4</maven.release.version>

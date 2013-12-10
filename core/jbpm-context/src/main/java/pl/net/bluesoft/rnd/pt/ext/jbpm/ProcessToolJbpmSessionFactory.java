@@ -1,5 +1,7 @@
 package pl.net.bluesoft.rnd.pt.ext.jbpm;
 
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolSessionFactory;
@@ -11,7 +13,16 @@ import java.util.Collections;
 /**
  * @author tlipski@bluesoft.net.pl
  */
-public class ProcessToolJbpmSessionFactory implements ProcessToolSessionFactory {
+@Component
+@Scope(value = "singleton")
+public class ProcessToolJbpmSessionFactory implements ProcessToolSessionFactory
+{
+
+    public ProcessToolJbpmSessionFactory()
+    {
+
+    }
+
 	@Override
 	public String getBpmDefinitionLanguage() {
 		return "bpmn20";

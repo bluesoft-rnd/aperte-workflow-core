@@ -43,9 +43,6 @@ public class TaskViewController extends AbstractProcessToolServletController
 {
 	private static Logger logger = Logger.getLogger(TaskViewController.class.getName());
 	
-    @Autowired
-    private ProcessToolRegistry registry;
-	
 	@RequestMapping(method = RequestMethod.POST, value = "/task/claimTaskFromQueue")
 	@ResponseBody
 	public BpmTaskBean claimTaskFromQueue(final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException
@@ -75,7 +72,7 @@ public class TaskViewController extends AbstractProcessToolServletController
 		}
 		
 		/* Initilize request context */
-		final IProcessToolRequestContext context = this.initilizeContext(request,registry.getProcessToolSessionFactory());
+		final IProcessToolRequestContext context = this.initilizeContext(request,getProcessToolRegistry().getProcessToolSessionFactory());
 		
 		if(!context.isUserAuthorized())
 		{
@@ -85,7 +82,7 @@ public class TaskViewController extends AbstractProcessToolServletController
 		
 		long t1 = System.currentTimeMillis();
 
-		BpmTaskBean taskBean = registry.withProcessToolContext(new ReturningProcessToolContextCallback<BpmTaskBean>() {
+		BpmTaskBean taskBean = getProcessToolRegistry().withProcessToolContext(new ReturningProcessToolContextCallback<BpmTaskBean>() {
 			@Override
 			public BpmTaskBean processWithContext(ProcessToolContext ctx) {
 				BpmTask newTask = getBpmSession(context, userId).assignTaskFromQueue(queueName, taskId);
@@ -156,7 +153,7 @@ public class TaskViewController extends AbstractProcessToolServletController
 		long t1 = System.currentTimeMillis();
 		
 		/* Initilize request context */
-		final IProcessToolRequestContext context = this.initilizeContext(request,registry.getProcessToolSessionFactory());
+		final IProcessToolRequestContext context = this.initilizeContext(request,getProcessToolRegistry().getProcessToolSessionFactory());
 		
 		if(!context.isUserAuthorized())
 		{
@@ -165,8 +162,8 @@ public class TaskViewController extends AbstractProcessToolServletController
 		}
 
 		long t2 = System.currentTimeMillis();
-		
-		registry.withProcessToolContext(new ProcessToolContextCallback() {
+
+        getProcessToolRegistry().withProcessToolContext(new ProcessToolContextCallback() {
 			@Override
 			public void withContext(ProcessToolContext ctx) {
 				long t0 = System.currentTimeMillis();

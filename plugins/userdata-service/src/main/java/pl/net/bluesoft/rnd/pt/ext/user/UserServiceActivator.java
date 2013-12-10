@@ -14,12 +14,7 @@ import pl.net.bluesoft.rnd.pt.ext.user.service.AperteUserSource;
 public class UserServiceActivator extends AbstractPluginActivator {
     @Override
     protected void init() throws Exception {
-		ClassDependencyManager.getInstance().injectImplementation(IUserSource.class, AperteUserSource.class, true);
-		ClassDependencyManager.getInstance().injectImplementation(IPortalUserSource.class, AperteUserSource.class, true);
-		ClassDependencyManager.getInstance().injectImplementation(IDirectoryServicePropertiesProvider.class, AperteDirectoryServiceProperties.class);
-		ClassDependencyManager.getInstance().injectImplementation(IDirectoryService.class, AperteDirectoryService.class);
 
-		ClassDependencyManager.getInstance().injectImplementation(IUserRolesManager.class, AperteUserRolesManager.class);
 	}
 
     @Override

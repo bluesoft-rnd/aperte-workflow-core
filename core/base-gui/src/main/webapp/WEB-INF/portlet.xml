@@ -9,9 +9,9 @@
 		<portlet-name>aperte-acitivities-2</portlet-name>
 		<display-name>Aperte Workflow Activities Simple</display-name>
         <portlet-class>org.springframework.web.portlet.DispatcherPortlet</portlet-class>
-		<init-param>  
-		  <name>contextConfigLocation</name>  
-		  <value>/WEB-INF/spring/aperte-acitivities-portlet.xml</value>  
+		<init-param>
+		  <name>contextConfigLocation</name>
+		  <value>WEB-INF/spring/aperte-acitivities-portlet.xml</value>
 		</init-param>
 		<init-param>
 			<name>view-jsp</name>

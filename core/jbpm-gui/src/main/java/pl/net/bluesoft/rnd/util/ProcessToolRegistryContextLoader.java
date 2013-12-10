@@ -27,14 +27,7 @@ public class ProcessToolRegistryContextLoader implements ServletContextListener
         SpringBeanAutowiringSupport.processInjectionBasedOnServletContext(this, sce.getServletContext());
 
 		try {
-			ProcessToolRegistryImpl toolRegistry = (ProcessToolRegistryImpl)processToolRegistry;
-			toolRegistry.getDataRegistry().commitModelExtensions();
-			toolRegistry.getDataRegistry().setProcessToolContextFactory(new ProcessToolContextFactoryImpl(toolRegistry));
-			toolRegistry.setProcessToolSessionFactory(new ProcessToolJbpmSessionFactory());
-			sce.getServletContext().setAttribute(ProcessToolRegistry.class.getName(), toolRegistry);
 
-			ProcessToolRegistry.Util.setInstance(toolRegistry);
-			ProcessToolRegistry.Util.setAwfClassLoader(Thread.currentThread().getContextClassLoader());
 		}
 		catch (Exception e) {
 			Logger.getLogger(ProcessToolRegistryContextLoader.class.getName()).log(Level.SEVERE, e.getMessage(), e);

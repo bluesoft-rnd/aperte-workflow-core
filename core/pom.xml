@@ -18,6 +18,7 @@
         <module>base-gui</module>
         <module>integration</module>
         <module>integration-interface</module>
+        <module>integration-liferay</module>
         <module>jbpm-context</module>
         <module>jbpm-gui</module>
         <module>editor</module>

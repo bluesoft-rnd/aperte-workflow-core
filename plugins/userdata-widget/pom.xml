@@ -95,7 +95,8 @@
                             com.vaadin,
                             pl.net.bluesoft.rnd.processtool.ui.widgets.impl,
                             com.liferay.portal.util,
-                            com.liferay.portal.model,com.liferay.portal.service,*
+                            com.liferay.portal.model,
+                            com.liferay.portal.service,*
                         </Import-Package>
                         <Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>
                         <Bundle-SymbolicName>pl.net.bluesoft.rnd.pt.ext.userdata</Bundle-SymbolicName>

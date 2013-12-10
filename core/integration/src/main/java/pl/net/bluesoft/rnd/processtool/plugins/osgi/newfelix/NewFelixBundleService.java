@@ -41,7 +41,7 @@ public class NewFelixBundleService implements FelixBundleService {
 	public void initialize(String felixDir, ProcessToolRegistry registry) throws BundleException {
 		stopFelix();
 
-		setRegistry(registry);
+        this.registry = registry;
 
 		Map<String, Object> configMap = new HashMap<String, Object>();
 		putBasicConfig(configMap);
@@ -64,11 +64,6 @@ public class NewFelixBundleService implements FelixBundleService {
 	public void setPluginsDir(String pluginsDir) {
 		this.pluginsDir = pluginsDir;
 		bundleInfo.setPluginsDir(pluginsDir);
-	}
-
-	private void setRegistry(ProcessToolRegistry registry) {
-		this.registry = registry;
-		handler.setRegistry(registry);
 	}
 
 	/**

@@ -5,6 +5,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.application.activity.ActivityStandAloneApplication;
@@ -53,10 +55,10 @@ public class StandaloneWindowTab extends Window implements ParameterHandler, Cli
 	@AutoInject
 	protected ITokenService tokenService;
 	
-	@AutoInject
+	@Autowired
 	protected IPortalUserSource userSource;
 	
-	@AutoInject
+	@Autowired
 	protected IAuthorizationService authorizationService;
 	
 	private ActivityStandAloneApplication application;
@@ -87,6 +89,8 @@ public class StandaloneWindowTab extends Window implements ParameterHandler, Cli
 		
         /* Dependency Injection */
         ObjectFactory.inject(this);
+
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
 	}
 	
 	@Override

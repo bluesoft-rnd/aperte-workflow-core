@@ -2,6 +2,8 @@ package pl.net.bluesoft.rnd.processtool.plugins;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import pl.net.bluesoft.rnd.util.i18n.I18NProvider;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 import pl.net.bluesoft.rnd.util.i18n.impl.PropertiesBasedI18NProvider;
@@ -19,6 +21,8 @@ import static pl.net.bluesoft.util.lang.Strings.hasText;
  * Date: 2013-10-09
  * Time: 21:36
  */
+@Component
+@Scope(value = "singleton")
 public class BundleRegistryImpl implements BundleRegistry {
 	private static final Logger logger = Logger.getLogger(BundleRegistryImpl.class.getSimpleName());
 

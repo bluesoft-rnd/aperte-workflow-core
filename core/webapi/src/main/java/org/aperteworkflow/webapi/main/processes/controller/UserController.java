@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 @Controller
 public class UserController extends AbstractProcessToolServletController
 {
+
     /**
      * Authenticate user by given login and password
      *

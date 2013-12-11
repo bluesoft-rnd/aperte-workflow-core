@@ -44,6 +44,7 @@
 			<version>2.0</version>
 			<scope>provided</scope>
 		</dependency>
+
     </dependencies>
     <build>
         <plugins>
@@ -85,8 +86,8 @@
                             pl.net.bluesoft.rnd.pt.ext.user.service
                         </Export-Package>
                         <Import-Package>
-                            *;resolution:=optional,
-                            pl.net.bluesoft.rnd.processtool.model
+                            pl.net.bluesoft.rnd.processtool.model,
+                            *;resolution:=optional
                         </Import-Package>
                         <Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>
                         <Bundle-Activator>pl.net.bluesoft.rnd.pt.ext.user.UserServiceActivator</Bundle-Activator>

@@ -91,7 +91,7 @@
     </build>
 	    <!-- Profil dev do automatycznego kopiowania jarow do osgi -->
     <profiles>
-    
+
         <profile>
             <id>dev</id>
             <activation>

@@ -26,7 +26,7 @@ import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.g
  * @author mpawlak@bluesoft.net.pl
  * 
  */
-public class HelpContextChangerServlet extends AbstractLiferayServlet 
+public class HelpContextChangerServlet extends AbstractPortalServlet
 {
 	private static Set<String> authorizedRoles = new HashSet<String>();
 	

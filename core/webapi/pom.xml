@@ -27,11 +27,17 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.aperteworkflow</groupId>
-			<artifactId>integration-interface</artifactId>
-			<version>3.0-beta2-SNAPSHOT</version>
-			<scope>provided</scope>
-		</dependency>
+        <groupId>org.aperteworkflow</groupId>
+        <artifactId>integration-interface</artifactId>
+        <version>3.0-beta2-SNAPSHOT</version>
+        <scope>provided</scope>
+    </dependency>
+        <dependency>
+            <groupId>org.aperteworkflow</groupId>
+            <artifactId>integration-liferay</artifactId>
+            <version>3.0-beta2-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
 
 		<!-- JEE API -->
 		<dependency>
@@ -45,12 +51,6 @@
 			<artifactId>jstl</artifactId>
 			<version>1.2</version>
 		</dependency>
-        <dependency>
-            <groupId>org.aperteworkflow</groupId>
-            <artifactId>integration-liferay</artifactId>
-            <version>3.0-beta2-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
 		<!-- SPRING -->
 		<dependency>
 			<groupId>org.springframework</groupId>

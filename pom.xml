@@ -17,11 +17,14 @@
         complete BPM solution developed by BlueSoft sp. z o.o. - Polish independent software vendor.
         Project home page is available at http://www.aperteworkflow.org/</description>
 
+
+
     <modules>
         <module>core</module>
         <module>plugins</module>
         <module>utils</module>
         <module>samples</module>
+        <module>server-libs</module>
     </modules>
 
     <licenses>
@@ -89,7 +92,6 @@
         <tomcat.version>7.0.42</tomcat.version>
         <servlet.api.version>3.0</servlet.api.version>
         <portlet.api.version>2.0</portlet.api.version>
-        <liferay.version>6.2.0</liferay.version>
 		<maven.compiler.version>3.0</maven.compiler.version>
         <maven.bundle.version>2.4.0</maven.bundle.version>
 		<maven.war.version>2.3</maven.war.version>
@@ -98,6 +100,22 @@
 		<maven.bundle.plugin>2.3.7</maven.bundle.plugin>
 		<aperteworkflow.version>3.0-beta1</aperteworkflow.version>
     </properties>
+
+    <!-- Active profile for server -->
+    <profiles>
+        <profile>
+            <id>liferay-6.2</id>
+            <properties>
+                <liferay.version>6.2.0</liferay.version>
+            </properties>
+        </profile>
+        <profile>
+            <id>liferay-6.0</id>
+            <properties>
+                <liferay.version>6.0.6</liferay.version>
+            </properties>
+        </profile>
+    </profiles>
 
 	<dependencyManagement>
 		<dependencies>

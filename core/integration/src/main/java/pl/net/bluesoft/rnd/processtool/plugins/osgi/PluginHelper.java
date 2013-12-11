@@ -80,7 +80,7 @@ public class PluginHelper implements PluginManager {
         try {
             felixService.scheduledBundleInstall();
         }
-        catch (Exception e) {
+        catch (Throwable e) {
             LOGGER.log(Level.SEVERE, "Bundle install interrupted", e);
             forwardErrorInfoToMonitor("Bundle install interrupted", e);
         }
@@ -89,7 +89,7 @@ public class PluginHelper implements PluginManager {
         }
     }
 
-    private void forwardErrorInfoToMonitor(String path, Exception e) {
+    private void forwardErrorInfoToMonitor(String path, Throwable e) {
         errorMonitor.forwardErrorInfoToMonitor(path, e);
     }
 

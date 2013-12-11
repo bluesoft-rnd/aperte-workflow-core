@@ -56,6 +56,7 @@
                         <Import-Package>
                             pl.net.bluesoft.rnd.processtool.web.controller,
                             org.aperteworkflow.ui.help.datatable,
+                            org.osgi.framework,
                             *
                         </Import-Package>
                         <Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>

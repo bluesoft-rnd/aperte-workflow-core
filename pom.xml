@@ -83,7 +83,7 @@
         <jbpm.version>5.4.0.Final</jbpm.version>
         <spring.version>3.0.7.RELEASE</spring.version>
         <vaadin.version>6.8.10</vaadin.version>
-		<jackson.version>1.9.12</jackson.version>
+		<jackson.version>1.9.13</jackson.version>
         <hibernate.version>3.6.10.Final</hibernate.version>
         <postgres.version>9.2-1002-jdbc4</postgres.version>
         <junit.version>4.8.2</junit.version>

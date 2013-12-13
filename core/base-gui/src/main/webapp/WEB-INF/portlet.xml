@@ -11,7 +11,7 @@
         <portlet-class>org.springframework.web.portlet.DispatcherPortlet</portlet-class>
 		<init-param>
 		  <name>contextConfigLocation</name>
-		  <value></value>
+		  <value>/WEB-INF/spring/aperte-acitivities-portlet.xml</value>
 		</init-param>
 		<init-param>
 			<name>view-jsp</name>

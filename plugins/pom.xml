@@ -30,6 +30,8 @@
         <module>scheduler-integration</module>
         <module>global-dictionaries</module>
 		<module>external-plugins</module>
+
+        <module>../dpd-workflow</module>
 		<!-- Plugins for Aperte Reports, uncomment if you are using it. -->
 		<!-- <module>report-step</module> -->
 		<!--<module>aperte-reports-integration</module>-->

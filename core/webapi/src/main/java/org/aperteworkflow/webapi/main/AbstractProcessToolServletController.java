@@ -24,34 +24,52 @@ public class AbstractProcessToolServletController
 {
     public static final String SYSTEM_SOURCE = "System";
 
-    @Autowired
+    // You have to leave required as false for Liferay 6.2
+    @Autowired(required = false)
     private EventBus eventBus;
-    
-    @Autowired
+
+    @Autowired(required = false)
     private ProcessToolRegistry processToolRegistry;
 
-    @Autowired
+    @Autowired(required = false)
     private IAuthorizationService authorizationService;
 
-    @Autowired
+    @Autowired(required = false)
     private IWebProcessToolContextFactory webProcessToolContextFactory;
     
-    public AbstractProcessToolServletController() {
-    	SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
-    }
-    
 	/** Initilize context */
-	protected IProcessToolRequestContext initilizeContext(HttpServletRequest request, ProcessToolSessionFactory sessionFactory) {
-		IProcessToolRequestContext context = webProcessToolContextFactory.create(request);
+	protected IProcessToolRequestContext initilizeContext(HttpServletRequest request, ProcessToolSessionFactory sessionFactory)
+    {
+
+		IProcessToolRequestContext context = getWebProcessToolContextFactory().create(request);
 		return context;
 	}
 	
-	protected EventBus getEventBus() {
+	protected EventBus getEventBus()
+    {
+        if(eventBus == null)
+            SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
 		return this.eventBus;
 	}
 	
-	protected ProcessToolRegistry getProcessToolRegistry() {
-		return this.processToolRegistry;
+	protected ProcessToolRegistry getProcessToolRegistry()
+    {
+        if(processToolRegistry == null)
+            SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+        return this.processToolRegistry;
 	}
 
+    public IAuthorizationService getAuthorizationService()
+    {
+        if(authorizationService == null)
+            SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+        return authorizationService;
+    }
+
+    public IWebProcessToolContextFactory getWebProcessToolContextFactory()
+    {
+        if(webProcessToolContextFactory == null)
+            SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+        return webProcessToolContextFactory;
+    }
 }

@@ -45,9 +45,15 @@ public class ProcessDBDictionaryItem extends AbstractPersistentEntity implements
     private String key;
     private String valueType;
 
+    @OneToMany(orphanRemoval = true)
+    @Cascade(value = CascadeType.ALL)
+    @JoinColumn(name = "dictionary_item_id", nullable = true)
+    @Fetch(value = FetchMode.SELECT)
+    private List<ProcessDBDictionaryI18N> localizedDescriptions = new ArrayList<ProcessDBDictionaryI18N>();
+
     @Lob
     @Type(type = "org.hibernate.type.StringClobType")
-    private String description;
+    private String defaultDescription;
 
     @OneToMany(mappedBy = "item", fetch = FetchType.EAGER, orphanRemoval = true)
     @Cascade(value = CascadeType.ALL)
@@ -71,14 +77,6 @@ public class ProcessDBDictionaryItem extends AbstractPersistentEntity implements
         return dictionary;
     }
 
-    @Override
-	public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
 
     @Override
     public String getKey() {
@@ -134,5 +132,40 @@ public class ProcessDBDictionaryItem extends AbstractPersistentEntity implements
             }
         }
         return null;
+    }
+
+    public String getDefaultDescription() {
+        return defaultDescription;
+    }
+
+    public void setDefaultDescription(String defaultDescription) {
+        this.defaultDescription = defaultDescription;
+    }
+
+    public List<ProcessDBDictionaryI18N> getLocalizedDescriptions() {
+        return localizedDescriptions;
+    }
+
+    public void setLocalizedDescriptions(List<ProcessDBDictionaryI18N> localizedDescriptions) {
+        this.localizedDescriptions = localizedDescriptions;
+    }
+
+    @Override
+    public String getDescription(String languageCode) {
+        return ProcessDBDictionaryI18N.getLocalizedText(localizedDescriptions, languageCode, defaultDescription);
+    }
+
+
+    @Override
+    public String getDescription(Locale locale) {
+        return getDescription(locale.toString());
+    }
+
+    public void setDescription(String languageCode, String name) {
+        if (languageCode == null) {
+            this.defaultDescription = name;
+            return;
+        }
+        ProcessDBDictionaryI18N.setLocalizedText(localizedDescriptions, languageCode, name);
     }
 }

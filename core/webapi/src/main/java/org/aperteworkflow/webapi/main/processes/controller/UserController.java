@@ -38,9 +38,7 @@ public class UserController extends AbstractProcessToolServletController
             String login = request.getParameter("login");
             String password = request.getParameter("password");
 
-            IAuthorizationService authorizationService = ObjectFactory.create(IAuthorizationService.class);
-
-            UserData user = authorizationService.authenticateByLogin(login,password, request, response);
+            UserData user = getAuthorizationService().authenticateByLogin(login,password, request, response);
 
             return user.getLogin();
         }

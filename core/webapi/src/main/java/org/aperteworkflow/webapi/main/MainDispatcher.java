@@ -31,15 +31,13 @@ public class MainDispatcher extends AbstractProcessToolServletController
 {
     private static Logger logger = Logger.getLogger(MainDispatcher.class.getName());
 
-    @Autowired
-    private ProcessToolRegistry registry;
     
     @RequestMapping(value = "/dispatcher/{controllerName}/{actionName}")
     @ResponseBody
     public Object invoke(final @PathVariable String controllerName, @PathVariable String actionName, final HttpServletRequest request, final HttpServletResponse respone)
     {
         final GenericResultBean resultBean = new GenericResultBean();
-        final IProcessToolRequestContext context = this.initilizeContext(request, registry.getProcessToolSessionFactory());
+        final IProcessToolRequestContext context = this.initilizeContext(request, getProcessToolRegistry().getProcessToolSessionFactory());
 
         if(!context.isUserAuthorized())
         {
@@ -65,7 +63,7 @@ public class MainDispatcher extends AbstractProcessToolServletController
             return resultBean;
         }
 
-        return registry.withProcessToolContext(new ReturningProcessToolContextCallback<Object>() {
+        return getProcessToolRegistry().withProcessToolContext(new ReturningProcessToolContextCallback<Object>() {
             @Override
             public Object processWithContext(ProcessToolContext ctx)
             {

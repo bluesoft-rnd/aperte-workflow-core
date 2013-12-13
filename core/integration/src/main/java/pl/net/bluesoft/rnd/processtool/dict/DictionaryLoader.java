@@ -1,8 +1,8 @@
 package pl.net.bluesoft.rnd.processtool.dict;
 
 import com.thoughtworks.xstream.converters.basic.DateConverter;
-import pl.net.bluesoft.rnd.processtool.dict.xml.Dictionary;
 import pl.net.bluesoft.rnd.processtool.dict.exception.DictionaryLoadingException;
+import pl.net.bluesoft.rnd.processtool.dict.xml.Dictionary;
 import pl.net.bluesoft.rnd.processtool.dict.xml.*;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.*;
 import pl.net.bluesoft.rnd.pt.utils.xml.OXHelper;
@@ -71,8 +71,13 @@ public class DictionaryLoader extends OXHelper {
 	private static ProcessDBDictionaryItem createDbItem(DictionaryEntry entry) {
 		ProcessDBDictionaryItem dbItem = new ProcessDBDictionaryItem();
 
-		dbItem.setDescription(entry.getDescription());
-		dbItem.setKey(entry.getKey());
+		dbItem.setDefaultDescription(entry.getDescription());
+        for (DictionaryI18N localizedDescription : entry.getLocalizedDescriptions()) {
+            dbItem.setDescription(localizedDescription.getLang(), localizedDescription.getValue());
+        }
+
+
+        dbItem.setKey(entry.getKey());
 		dbItem.setValueType(entry.getValueType());
 
 		for (DictionaryEntryValue val : entry.getValues()) {

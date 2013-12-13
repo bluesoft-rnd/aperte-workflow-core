@@ -13,6 +13,8 @@ public class DictionaryEntry {
     private String key;
     @XStreamAsAttribute
     private String description;
+    @XStreamImplicit(itemFieldName = "i18n-description")
+    private List<DictionaryI18N> localizedDescriptions;
     @XStreamAsAttribute
     private String valueType;
     @XStreamImplicit
@@ -48,5 +50,13 @@ public class DictionaryEntry {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public List<DictionaryI18N> getLocalizedDescriptions() {
+        return localizedDescriptions != null ? localizedDescriptions : Collections.<DictionaryI18N>emptyList();
+    }
+
+    public void setLocalizedDescriptions(List<DictionaryI18N> localizedDescriptions) {
+        this.localizedDescriptions = localizedDescriptions;
     }
 }

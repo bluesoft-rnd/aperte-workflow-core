@@ -26,10 +26,10 @@ public abstract class AbstractMainController<ModelAndViewType, RequestType>
     public static final String IS_STANDALONE = "isStandAlone";
     public static final String QUEUE_INTERVAL = "queueInterval";
 
-	@Autowired
+	@Autowired(required = false)
 	private ProcessToolRegistry processToolRegistry;
 
-    @Autowired
+    @Autowired(required = false)
     private IPortalUserSource portalUserSource;
 
 	protected void processRequest(final ModelAndViewType modelView, final RequestType request)

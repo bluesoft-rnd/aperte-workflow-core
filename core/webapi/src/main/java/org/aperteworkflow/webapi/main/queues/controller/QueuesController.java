@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.stereotype.Component;
 import pl.net.bluesoft.rnd.processtool.web.domain.IProcessToolRequestContext;
 import org.aperteworkflow.webapi.main.AbstractProcessToolServletController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,7 @@ import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.userqueues.UserProcessQueuesSizeProvider;
 import pl.net.bluesoft.rnd.processtool.userqueues.UserProcessQueuesSizeProvider.UsersQueuesDTO;
 
-@Controller
+@Controller(value = "QueuesController")
 public class QueuesController extends AbstractProcessToolServletController
 {
 	private static Logger logger = Logger.getLogger(QueuesController.class.getName());

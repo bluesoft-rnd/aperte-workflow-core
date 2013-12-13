@@ -50,7 +50,7 @@ public class ProcessDBDictionaryItemValue extends AbstractPersistentEntity imple
 	@OneToMany(fetch = FetchType.EAGER, orphanRemoval = true)
 	@Cascade(value = CascadeType.ALL)
 	@JoinColumn(name = "dictionary_item_value_id", nullable = true)
-	private List<ProcessDBDictionaryI18N> localizedValues = new ArrayList<ProcessDBDictionaryI18N>();
+	private List<ProcessDBDictionaryI18N>    localizedValues = new ArrayList<ProcessDBDictionaryI18N>();
 
 	@OneToMany(mappedBy = "itemValue", fetch = FetchType.EAGER, orphanRemoval = true, cascade=javax.persistence.CascadeType.ALL)
     @Cascade(value = {CascadeType.ALL})

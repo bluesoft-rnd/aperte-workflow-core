@@ -201,7 +201,7 @@ public abstract class PTDictEntryProvider implements DictEntryProvider {
 			setProperty(item, entryInfo.getValueProperty(), convert(getValue(value), entryInfo.getValueType(), null));
 		}
 		if (entryInfo.getDescriptionProperty() != null) {
-			setProperty(item, entryInfo.getDescriptionProperty(), convert(pdItem.getDescription(), entryInfo.getDescriptionType(), null));
+			setProperty(item, entryInfo.getDescriptionProperty(), convert(pdItem.getDefaultDescription(), entryInfo.getDescriptionType(), null));
 		}
 		for (ExtInfo extInfo : entryInfo.getExtInfos()) {
 			Object extValue;

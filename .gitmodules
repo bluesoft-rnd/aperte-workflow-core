@@ -1,0 +1,3 @@
+[submodule "dpd-workflow"]
+	path = dpd-workflow
+	url = ssh://git@ijon/dpd_plugins

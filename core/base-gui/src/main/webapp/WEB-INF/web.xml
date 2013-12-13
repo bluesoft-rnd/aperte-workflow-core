@@ -633,24 +633,24 @@
 	  <url-pattern>/WEB-INF/servlet/view</url-pattern>  
 	</servlet-mapping>  
 	
-    <servlet>  
-	  <servlet-name>aperte-servlet</servlet-name>  
-	  <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>  
-	  <load-on-startup>5</load-on-startup>
+    <servlet>
+	  <servlet-name>aperte-servlet</servlet-name>
+	  <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+	  <load-on-startup>1</load-on-startup>
         <init-param>
             <param-name>contextConfigLocation</param-name>
-            <param-value></param-value>
+            <param-value>/WEB-INF/spring/aperte-acitivities-servlet.xml</param-value>
         </init-param>
-	</servlet>  
+	</servlet>
 	<servlet-mapping>  
-	  <servlet-name>aperte-servlet</servlet-name>  
-	  <url-pattern>/</url-pattern>  
-	</servlet-mapping> 
+	  <servlet-name>aperte-servlet</servlet-name>
+	  <url-pattern>/</url-pattern>
+	</servlet-mapping>
 
 
 
-	
-	<error-page>
+
+    <error-page>
 	    <error-code>404</error-code>
 	    <location>/error.jsp</location>
 	</error-page>

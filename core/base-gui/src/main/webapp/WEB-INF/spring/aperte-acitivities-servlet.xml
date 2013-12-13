@@ -22,8 +22,7 @@
     <mvc:annotation-driven />
     <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter"/>
     <bean class="org.springframework.web.portlet.mvc.annotation.DefaultAnnotationHandlerMapping" />
-    <context:component-scan base-package="org.aperteworkflow.webapi.main.queues.controller" annotation-config="true" />
-    <context:component-scan base-package="org.aperteworkflow.webapi.processes.controller" annotation-config="true" />
+    <context:component-scan base-package="org.aperteworkflow.webapi.main.processes.controller, org.aperteworkflow.webapi.main.queues.controller" annotation-config="true" />
 
     <bean class="org.aperteworkflow.webapi.main.MainViewController"/>
 

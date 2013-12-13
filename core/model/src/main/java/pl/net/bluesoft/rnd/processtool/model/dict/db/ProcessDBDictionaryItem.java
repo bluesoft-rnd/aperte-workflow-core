@@ -45,7 +45,7 @@ public class ProcessDBDictionaryItem extends AbstractPersistentEntity implements
     private String key;
     private String valueType;
 
-    @OneToMany(orphanRemoval = true)
+    @OneToMany(orphanRemoval = true, fetch = FetchType.EAGER)
     @Cascade(value = CascadeType.ALL)
     @JoinColumn(name = "dictionary_item_id", nullable = true)
     @Fetch(value = FetchMode.SELECT)

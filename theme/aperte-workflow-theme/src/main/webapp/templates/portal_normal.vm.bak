@@ -31,6 +31,8 @@
 
 <body class="$css_class">
 
+<a href="#main-content" id="skip-to-content">#language ("skip-to-content")</a>
+
 $theme.include($body_top_include)
 
 #dockbar()
@@ -51,6 +53,9 @@ $theme.include($body_top_include)
 
 			</h1>
 
+			<h2 class="page-title">
+				<span>$the_title</span>
+			</h2>
 		</div>
 
 		#if ($has_navigation || $is_signed_in)
@@ -59,6 +64,7 @@ $theme.include($body_top_include)
 	</header>
 
 	<div id="content">
+		<nav id="breadcrumbs">#breadcrumbs()</nav>
 
 		#if ($selectable)
 			$theme.include($content_include)

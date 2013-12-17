@@ -23,6 +23,13 @@ $editLayoutPanelWidth: 460px;
 				}
 			}
 		}
+		
+		.dockbar-user-notifications .user-notifications-count{
+			background: none;
+			color: #555555;
+			border-color: #555555; 
+		
+		}
 
 		.btn-link {
 			color: #FFF;

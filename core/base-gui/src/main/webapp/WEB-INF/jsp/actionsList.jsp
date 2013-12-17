@@ -2,6 +2,8 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
+<%@ taglib uri="http://liferay.com/tld/portlet" prefix="liferay-portlet" %>
 
 <script type="text/javascript">
 //<![CDATA[	
@@ -48,13 +50,14 @@
 		var JsonWidgetData = JSON.stringify(widgetData, null, 2);
 		
 		var state = 'OK';
-		var newBpmTask = $.getJSON('<spring:url value="/processes/saveAction.json"/>', 
+		var newBpmTask = $.getJSON('<portlet:resourceURL id="saveAction"/>',
 		{
 			"taskId": taskId,
 			"widgetData": JsonWidgetData
 		})
-		.done(function(data) 
-		{ 
+		.done(function(result)
+		{
+		    var data = result.data;
 			if(data.errors != null)
 			{
 				addAlerts(data.errors);
@@ -127,16 +130,16 @@
 			JsonWidgetData = JSON.stringify(widgetData, null, 2);
 		}
 		
-		var newBpmTask = $.getJSON('<spring:url value="/processes/performAction.json"/>', 
+		var newBpmTask = $.getJSON('<portlet:resourceURL id="performAction"/>',
 		{
 			"taskId": taskId,
 			"actionName": actionName,
 			"skipSaving": skipSaving,
 			"widgetData": JsonWidgetData
 		})
-		.done(function(data) 
+		.done(function(result)
 		{ 
-			
+			var data = result.data;
 			<!-- Errors handling -->
 			windowManager.clearErrors();
 			

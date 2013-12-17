@@ -4,6 +4,7 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 
 <div id="search-view" hidden="true" class="search-view">
 	<div class="process-queue-name">
@@ -61,8 +62,10 @@
 		  }
 		  else
 		  {
-				var requestUrl = '<spring:url value="/processes/searchTasks.json?sSearch="/>'+$('#search-expression-text').val()+
-				'&processKey='+$('#search-process-type').val();
+
+				var requestUrl = '<portlet:resourceURL id="searchTasks"/>';
+				requestUrl += "&<portlet:namespace/>sSearch=" + $('#search-expression-text').val();
+				requestUrl += "&<portlet:namespace/>processKey="+$('#search-process-type').val();
 
 				$('#searchTable').dataTable().fnReloadAjax(requestUrl);
 		  }

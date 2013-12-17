@@ -40,6 +40,9 @@
     <bean id="dataRegistry" class="pl.net.bluesoft.rnd.processtool.plugins.DataRegistryImpl" scope="singleton"/>
     <bean id="webProcessToolContextFactory" class="org.aperteworkflow.webapi.context.impl.WebProcessToolContextFactory" scope="singleton"/>
 
+    <bean id="accessTokenFactory" class="pl.net.bluesoft.rnd.processtool.token.impl.AccessTokenFactory" scope="singleton"/>
+    <bean id="tokenService" class="pl.net.bluesoft.rnd.processtool.token.impl.AccessTokenFacade" scope="singleton"/>
+
     <bean id="portalUserSource" class="pl.net.bluesoft.rnd.processtool.usersource.impl.LiferayUserSource" scope="singleton"/>
     <bean id="userSource" class="pl.net.bluesoft.rnd.processtool.usersource.impl.LiferayUserSource" scope="singleton"/>
     <bean id="userRolesManager" class="pl.net.bluesoft.rnd.processtool.roles.impl.LiferayUserRolesManager" scope="singleton"/>

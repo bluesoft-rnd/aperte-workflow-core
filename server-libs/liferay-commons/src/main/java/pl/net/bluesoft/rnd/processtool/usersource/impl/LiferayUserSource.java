@@ -19,8 +19,11 @@ import pl.net.bluesoft.rnd.processtool.usersource.IUserSource;
 import pl.net.bluesoft.rnd.processtool.usersource.exception.UserSourceException;
 import pl.net.bluesoft.util.lang.ExpiringCache;
 
+import javax.portlet.PortletRequest;
+import javax.portlet.PortletResponse;
 import javax.portlet.RenderRequest;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 import static pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants.ADMIN_USER;
@@ -159,7 +162,7 @@ public class LiferayUserSource implements IPortalUserSource, CacheProvider
 	}
 	
 	@Override
-	public UserData getUserByRequest(RenderRequest request) 
+	public UserData getUserByRequest(PortletRequest request)
 	{
 		/* Get HttpServletRequest from RenderRequest */
         Portal portal = PortalUtil.getPortal();
@@ -168,7 +171,24 @@ public class LiferayUserSource implements IPortalUserSource, CacheProvider
 		return getUserByRequest(httpRequest);
 	}
 
-	@Override
+    @Override
+    public HttpServletRequest getHttpServletRequest(PortletRequest request)
+    {
+        return PortalUtil.getHttpServletRequest(request);
+    }
+
+    @Override
+    public HttpServletRequest getOriginalHttpServletRequest(HttpServletRequest request) {
+        return PortalUtil.getOriginalServletRequest(request);
+    }
+
+    @Override
+    public HttpServletResponse getHttpServletResponse(PortletResponse response) {
+        return PortalUtil.getHttpServletResponse(response);
+    }
+
+
+    @Override
 	public void invalidateCache() {
 		allUsers.clear();
 		usersByLogin.clear();

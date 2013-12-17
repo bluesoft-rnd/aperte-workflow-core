@@ -2,6 +2,8 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
+<%@ taglib uri="http://liferay.com/tld/portlet" prefix="liferay-portlet" %>
 
 <div class="process-tasks-view" id="task-view-processes" hidden="true">
 	<table id="processesTable" class="process-table table table-striped" border="1">
@@ -84,11 +86,11 @@
 	{
 		windowManager.clearProcessView();
 		windowManager.showLoadingScreen();
-		var widgetJson = $.post('<spring:url value="/task/loadTask"/>', 
+		var widgetJson = $.post('<portlet:resourceURL id="loadTask"/>',
 		{
 			"processStateConfigurationId": processStateConfigurationId,
 			"taskId": taskId
-		}, function(data) 
+		}, function(data)
 		{
 			clearAlerts();
 			windowManager.showProcessData();

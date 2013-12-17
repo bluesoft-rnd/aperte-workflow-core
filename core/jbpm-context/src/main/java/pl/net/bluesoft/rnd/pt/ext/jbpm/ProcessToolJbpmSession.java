@@ -14,6 +14,7 @@ import org.jbpm.workflow.instance.node.StartNodeInstance;
 import org.jbpm.workflow.instance.node.SubProcessNodeInstance;
 import org.jbpm.workflow.instance.node.WorkItemNodeInstance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
@@ -71,10 +72,10 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	private static final Integer DEFAULT_OFFSET_VALUE = 0;
 	private static final Integer DEFAULT_LIMIT_VALUE = 1000;
 
-	@AutoInject
+	@Autowired
 	private IAccessTokenFactory accessTokenFactory;
 
-	@AutoInject
+    @Autowired
 	private ITokenService tokenService;
 
 
@@ -82,7 +83,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		super(userLogin, roleNames, substitutingUserLogin);
 
         /* Dependency Injection */
-		ObjectFactory.inject(this);
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
 	}
 
 	@Override

@@ -6,7 +6,9 @@
         <!-- Note: Must not be the same as servlet name. -->
         <portlet-name>aperte-acitivities-2</portlet-name>
         <instanceable>false</instanceable>
+        <remoteable>true</remoteable>
         <ajaxable>true</ajaxable>
+        <private-session-attributes>false</private-session-attributes>
     </portlet>
 
     <portlet>

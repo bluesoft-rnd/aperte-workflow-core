@@ -2,6 +2,8 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
+<%@ taglib uri="http://liferay.com/tld/portlet" prefix="liferay-portlet" %>
 
 <div class="process-panel" id="customqueue-panel-view" hidden="true">
 	<table id="customQueueTable" class="process-table table table-striped" border="1">
@@ -86,13 +88,14 @@
 		$(button).prop('disabled', true);
 		windowManager.showLoadingScreen();
 		
-		var bpmJson = $.post('<spring:url value="/task/claimTaskFromQueue"/>', 
+		var bpmJson = $.post('<portlet:resourceURL id="claimTaskFromQueue"/>',
 		{
 			"queueName": queueName,
 			"taskId": taskId,
 			"userId": queueViewManager.currentOwnerLogin
-		}, function(newTask) 
-		{ 
+		}, function(result)
+		{
+		    var newTask = result.newTask;
 			clearAlerts();
 			console.log( "task claimed, new task: "+newTask.taskId); 
 			reloadQueues();

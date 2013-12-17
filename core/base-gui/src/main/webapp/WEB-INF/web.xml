@@ -363,6 +363,9 @@
 
 	<session-config>
 		<session-timeout>60</session-timeout>
+        <cookie-config>
+            <path>/</path>
+        </cookie-config>
 	</session-config>
 
 	<servlet>
@@ -631,21 +634,32 @@
 	<servlet-mapping>  
 	  <servlet-name>aperte-acitivities-servlet</servlet-name>  
 	  <url-pattern>/WEB-INF/servlet/view</url-pattern>  
-	</servlet-mapping>  
-	
+	</servlet-mapping>
+
     <servlet>
-	  <servlet-name>aperte-servlet</servlet-name>
-	  <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
-	  <load-on-startup>1</load-on-startup>
+        <servlet-name>liferay-delegate-servlet</servlet-name>
+        <servlet-class>com.liferay.portal.kernel.servlet.PortalDelegateServlet</servlet-class>
         <init-param>
             <param-name>contextConfigLocation</param-name>
             <param-value>/WEB-INF/spring/aperte-acitivities-servlet.xml</param-value>
         </init-param>
-	</servlet>
-	<servlet-mapping>  
-	  <servlet-name>aperte-servlet</servlet-name>
-	  <url-pattern>/</url-pattern>
-	</servlet-mapping>
+        <init-param>
+            <param-name>servlet-class</param-name>
+            <param-value>org.springframework.web.servlet.DispatcherServlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>sub-context</param-name>
+            <param-value>rest</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+
+    <servlet-mapping>
+        <servlet-name>liferay-delegate-servlet</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+
 
 
 

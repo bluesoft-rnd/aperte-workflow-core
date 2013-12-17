@@ -2,6 +2,8 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
+<%@ taglib uri="http://liferay.com/tld/portlet" prefix="liferay-portlet" %>
 
 <div class="navbar left-menu">
 	  <div class="navbar-inner left-menu">
@@ -43,27 +45,27 @@
 
 
  <script type="text/javascript">
- 
+
 	var userLogin = '${aperteUser.login}';
 	var queueInterval = '${queueInterval}';
-	var reloadQueuesLoopTimer = $.timer(function() 
+	var reloadQueuesLoopTimer = $.timer(function()
 	{
        reloadQueues();
     });
-	
+
 	 $(document).ready(function()
 	{
 		windowManager.addView("outer-queues");
 		reloadQueuesLoopTimer.set({ time : queueInterval, autostart : true });
 	});
-	
+
 	function moveQueueList()
 	{
 		if($(window).width() < 479 && windowManager.mobileMode == false)
 		{
 			windowManager.mobileMode = true;
 			queueViewManager.enableMobileMode();
-			
+
 			//toggleColumnButton(2, false);
 			//toggleColumnButton(3, false);
 		}
@@ -72,16 +74,16 @@
 			windowManager.tabletMode = true;
 			queueViewManager.enableTabletMode();
 			$('#queue-view-block').appendTo('#outer-queues');
-			
+
 			//toggleColumnButton(4, false);
 			//toggleColumnButton(5, false);
 		}
-		
+
 		if($(window).width() >= 480 && windowManager.mobileMode == true)
 		{
 			windowManager.mobileMode = false;
 			queueViewManager.disableMobileMode();
-			
+
 			//toggleColumnButton(2, true);
 			//toggleColumnButton(3, true);
 		}
@@ -94,29 +96,29 @@
 			//toggleColumnButton(5, true);
 
 		}
-		
+
 	}
-	
+
 	$(window).resize(function()
 	{
 		moveQueueList();
-		
+
 	});
 
 	var oldProcessCount = -1;
-	
+
 	function reloadQueues()
 	{
 		reloadQueuesLoopTimer.pause();
 		try
 		{
+
 			console.log( "reload quueues");
-			var queuesJson = $.getJSON('<spring:url value="/queues/getUserQueues.json"/>', function(queues) 
+			var queuesJson = $.getJSON('<portlet:resourceURL id="getUserQueues"/>', function(result)
 			{ 
 				$('#queue-view-block').empty();
-		
 				
-				$.each( queues, function( ) 
+				$.each( result.queues, function( ) 
 				{
 					var currentUserLogin = this.userLogin;
 					var userQueueHeaderId = 'accordion-header-'+currentUserLogin;

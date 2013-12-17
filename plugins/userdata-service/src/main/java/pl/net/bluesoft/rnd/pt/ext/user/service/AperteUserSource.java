@@ -9,8 +9,11 @@ import pl.net.bluesoft.rnd.pt.ext.user.dao.UserDataDAO;
 import pl.net.bluesoft.rnd.pt.ext.user.dao.UserDataDAOImpl;
 import pl.net.bluesoft.rnd.pt.ext.user.model.PersistentUserData;
 
+import javax.portlet.PortletRequest;
+import javax.portlet.PortletResponse;
 import javax.portlet.RenderRequest;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,13 +55,7 @@ public class AperteUserSource implements IPortalUserSource {
 		
 		return new ArrayList<UserData>(userDao.findAll());
 	}
-	
-	@Override
-	public UserData getUserByRequest(RenderRequest request) 
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
+
 	
 	private Session getSession()
 	{
@@ -73,4 +70,25 @@ public class AperteUserSource implements IPortalUserSource {
 	public UserData getUserByRequest(HttpServletRequest request) {
 		throw new UnsupportedOperationException();
 	}
+
+    @Override
+    public UserData getUserByRequest(PortletRequest request) {
+        return null;
+    }
+
+    @Override
+    public HttpServletRequest getHttpServletRequest(PortletRequest request) {
+        return null;
+    }
+
+    @Override
+    public HttpServletRequest getOriginalHttpServletRequest(HttpServletRequest request) {
+        return null;
+    }
+
+    @Override
+    public HttpServletResponse getHttpServletResponse(PortletResponse response) {
+        return null;
+    }
+
 }

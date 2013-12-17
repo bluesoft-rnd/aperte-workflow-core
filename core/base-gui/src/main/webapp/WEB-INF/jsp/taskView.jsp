@@ -2,7 +2,7 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-
+<%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <div class="process-panel" id="process-panel-view" hidden="true">
 	<div class="process-queue-name" id="process-queue-name-id">
 		 
@@ -80,8 +80,12 @@
 			this.currentQueueType = queueType;
 			this.currentOwnerLogin = ownerLogin;
 			this.currentQueueDesc = queueDesc;
-			
-			var requestUrl = '<spring:url value="/processes/loadProcessesList.json?queueName="/>' + newQueueName + '&queueType=' + queueType + '&ownerLogin='+ownerLogin;
+
+							var requestUrl = '<portlet:resourceURL id="loadProcessesList"/>';
+            				requestUrl += "&<portlet:namespace/>queueName=" + newQueueName;
+            				requestUrl += "&<portlet:namespace/>queueType=" + queueType;
+            				requestUrl += "&<portlet:namespace/>ownerLogin=" + ownerLogin;
+
 			
 			newView.tableObject.reloadTable(requestUrl);
 			

@@ -11,6 +11,7 @@ import com.liferay.portal.model.User;
 import com.liferay.portal.security.auth.Authenticator;
 import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.util.PortalUtil;
+import org.aperteworkflow.integration.liferay.utils.LiferaySessionUtil;
 import org.aperteworkflow.integration.liferay.utils.LiferayUserConverter;
 import pl.net.bluesoft.rnd.processtool.authorization.IAuthorizationService;
 import pl.net.bluesoft.rnd.processtool.authorization.exception.AuthorizationException;
@@ -48,9 +49,19 @@ public class LiferayAuthorizationService implements IAuthorizationService
 	@Override
 	public UserData getUserByRequest(PortletRequest renderRequest)
 	{
+        String userLogin = (String)LiferaySessionUtil.getGlobalSessionAttribute(SESSION_LOGIN_ATTRIBUTE, renderRequest);
+
 		HttpServletRequest servletRequest = PortalUtil.getHttpServletRequest(renderRequest);
-		
-		return getUserByRequest(servletRequest);
+
+        UserData userData = getUserByRequest(servletRequest);
+
+        if(userData == null)
+            return null;
+
+        LiferaySessionUtil.setGlobalSessionAttribute(SESSION_LOGIN_ATTRIBUTE, userData.getLogin(), renderRequest);
+        LiferaySessionUtil.shareGlobalSessionAttribute(SESSION_LOGIN_ATTRIBUTE, renderRequest);
+
+        return userData;
 	}
 
 	@Override
@@ -63,20 +74,25 @@ public class LiferayAuthorizationService implements IAuthorizationService
 			/* Fix for wrong user in servlet request */
 			User sessionUser = getLiferayUser(servletRequest);
 			User liferayUser = PortalUtil.getUser(servletRequest);
+            Long userId = PortalUtil.getUserId(servletRequest);
+            String password = PortalUtil.getUserPassword(servletRequest);
 
-            Long companyId = (Long)servletRequest.getAttribute("COMPANY_ID");
 
             long basicAuthUserId = PortalUtil.getBasicAuthUserId(servletRequest);
             if (basicAuthUserId != 0)
                 liferayUser  = UserLocalServiceUtil.getUserById(basicAuthUserId);
 
-            if(companyId == null)
-                return null;
+
            //Object test = servletRequest.getAttribute("USER");
 
 			/* Why? Becouse you can be logged out and still have cookies in browser */
 			if(liferayUser == null)
             {
+                Long companyId = (Long)servletRequest.getAttribute("COMPANY_ID");
+
+                if(companyId == null)
+                    return null;
+
                 String userLogin = (String)session.getAttribute(SESSION_LOGIN_ATTRIBUTE);
                 try
                 {
@@ -95,6 +111,7 @@ public class LiferayAuthorizationService implements IAuthorizationService
 			if(sessionUser == null)
 				sessionUser = liferayUser;
 
+            servletRequest.setAttribute(SESSION_LOGIN_ATTRIBUTE, liferayUser.getScreenName());
             session.setAttribute(SESSION_LOGIN_ATTRIBUTE, liferayUser.getScreenName());
 
 			
@@ -129,8 +146,8 @@ public class LiferayAuthorizationService implements IAuthorizationService
             /* Safari fix */
             if(req.getCookies() == null)
                 return null;
-			
-			for (Cookie c : req.getCookies()) 
+
+			for (Cookie c : req.getCookies())
 			{
 				if ("COMPANY_ID".equals(c.getName())) {
 					companyId = c.getValue();
@@ -140,10 +157,10 @@ public class LiferayAuthorizationService implements IAuthorizationService
 					password = hexStringToStringByAscii(c.getValue());
 				}
 			}
-			
+
 			if (userId != null && password != null && companyId != null) {
 				try {
-					
+
 					KeyValuePair kvp = UserLocalServiceUtil.decryptUserId(Long.parseLong(companyId), userId, password);
 
 					userByScreenName = UserLocalServiceUtil.getUserById(Long.valueOf(kvp.getKey()));

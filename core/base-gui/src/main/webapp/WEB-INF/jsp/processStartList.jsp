@@ -7,6 +7,8 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
+<%@ taglib uri="http://liferay.com/tld/portlet" prefix="liferay-portlet" %>
 
 <div id="new-process-view" class="new-process-block" hidden="true">
 	<div class="process-queue-name">
@@ -79,13 +81,14 @@ for (Map.Entry<String, List<ProcessDefinitionConfig>> group : groups.entrySet())
 			jsonAttributes = JSON.stringify(processData, null, 2);
 		}
 		
-		var widgetJson = $.getJSON('<spring:url value="/processes/startNewProcess.json"/>', 
+		var widgetJson = $.getJSON('<portlet:resourceURL id="startNewProcess"/>',
 		{
 			"bpmDefinitionId": bpmDefinitionKey,
 			"processSimpleAttributes": jsonAttributes
 		})
-		.done(function(data) 
-		{ 
+		.done(function(result)
+		{
+		    var data = result.data;
 			<!-- Errors handling -->
 			windowManager.clearErrors();
 			

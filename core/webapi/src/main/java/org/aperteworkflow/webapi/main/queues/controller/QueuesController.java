@@ -26,8 +26,9 @@ import pl.net.bluesoft.rnd.processtool.userqueues.UserProcessQueuesSizeProvider.
 public class QueuesController extends AbstractProcessToolServletController
 {
 	private static Logger logger = Logger.getLogger(QueuesController.class.getName());
+
 	
-	@RequestMapping(method = RequestMethod.GET, value = "/queues/getUserQueues.json")
+	@RequestMapping(method = RequestMethod.GET, value = "/getUserQueues.json")
 	@ResponseBody
 	public Collection<UsersQueuesDTO> getUserQueues(final HttpServletRequest request)
 	{

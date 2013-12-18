@@ -27,12 +27,21 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Controller(value = "MainViewController")
 @RequestMapping("VIEW")
+/**
+ * Portal portlet main controller class. In case of calling servlet request, use portlet resource
+ * mapping to obtain portal specific attributes and cookies
+ */
 public class MainViewController extends AbstractMainController<ModelAndView, RenderRequest>
 
 {
+    private static final String PORTLET_JSON_RESULT_ROOT_NAME = "result";
+
+    private static Logger logger = Logger.getLogger(MainViewController.class.getName());
 
     @Autowired
     private QueuesController queuesController;
@@ -88,62 +97,88 @@ public class MainViewController extends AbstractMainController<ModelAndView, Ren
     @ResponseBody
     public ModelAndView getUserQueues(ResourceRequest request, ResourceResponse response)
     {
-        HttpServletRequest httpServletRequest = portalUserSource.getHttpServletRequest(request);
-        return  translate("queues", queuesController.getUserQueues(httpServletRequest));
+        HttpServletRequest originalHttpServletRequest = getOriginalHttpServletRequest(request);
+        return  translate(PORTLET_JSON_RESULT_ROOT_NAME, queuesController.getUserQueues(originalHttpServletRequest));
     }
 
     @ResourceMapping( "claimTaskFromQueue")
     @ResponseBody
     public ModelAndView claimTaskFromQueue(ResourceRequest request, ResourceResponse response) throws IOException, ServletException {
-        HttpServletRequest httpServletRequest = portalUserSource.getHttpServletRequest(request);
+        HttpServletRequest originalHttpServletRequest = getOriginalHttpServletRequest(request);
         HttpServletResponse httpServletResponse = portalUserSource.getHttpServletResponse(response);
-        return  translate("data", taskViewController.claimTaskFromQueue(httpServletRequest, httpServletResponse));
+        return  translate(PORTLET_JSON_RESULT_ROOT_NAME, taskViewController.claimTaskFromQueue(originalHttpServletRequest, httpServletResponse));
     }
 
     @ResourceMapping( "loadTask")
     public void loadTask(ResourceRequest request, ResourceResponse response) throws IOException, ServletException {
-        HttpServletRequest httpServletRequest = portalUserSource.getHttpServletRequest(request);
+        HttpServletRequest originalHttpServletRequest = getOriginalHttpServletRequest(request);
         HttpServletResponse httpServletResponse = portalUserSource.getHttpServletResponse(response);
-        taskViewController.loadTask(httpServletRequest, httpServletResponse);
+        taskViewController.loadTask(originalHttpServletRequest, httpServletResponse);
     }
 
     @ResourceMapping( "performAction")
     @ResponseBody
     public ModelAndView performAction(ResourceRequest request, ResourceResponse response) throws IOException, ServletException {
-        HttpServletRequest httpServletRequest = portalUserSource.getHttpServletRequest(request);
-        return  translate("data", processesListController.performAction(httpServletRequest));
+        HttpServletRequest originalHttpServletRequest = getOriginalHttpServletRequest(request);
+        return  translate(PORTLET_JSON_RESULT_ROOT_NAME, processesListController.performAction(originalHttpServletRequest));
     }
 
     @ResourceMapping( "saveAction")
     @ResponseBody
     public ModelAndView saveAction(ResourceRequest request, ResourceResponse response) throws IOException, ServletException {
-        HttpServletRequest httpServletRequest = portalUserSource.getHttpServletRequest(request);
-        return  translate("data", processesListController.saveAction(httpServletRequest));
+        HttpServletRequest originalHttpServletRequest = getOriginalHttpServletRequest(request);
+        return  translate(PORTLET_JSON_RESULT_ROOT_NAME, processesListController.saveAction(originalHttpServletRequest));
     }
 
     @ResourceMapping( "startNewProcess")
     @ResponseBody
     public ModelAndView startNewProcess(ResourceRequest request, ResourceResponse response) throws IOException, ServletException {
-        HttpServletRequest httpServletRequest = portalUserSource.getHttpServletRequest(request);
-        return  translate("data", processesListController.startNewProcess(httpServletRequest));
+        HttpServletRequest originalHttpServletRequest = getOriginalHttpServletRequest(request);
+        return  translate(PORTLET_JSON_RESULT_ROOT_NAME, processesListController.startNewProcess(originalHttpServletRequest));
     }
 
     @ResourceMapping( "searchTasks")
     @ResponseBody
     public ModelAndView searchTasks(ResourceRequest request, ResourceResponse response) throws IOException, ServletException {
-        HttpServletRequest httpServletRequest = portalUserSource.getHttpServletRequest(request);
-        return  translate("data", processesListController.searchTasks(httpServletRequest));
+        HttpServletRequest originalHttpServletRequest = getOriginalHttpServletRequest(request);
+        return  translate(PORTLET_JSON_RESULT_ROOT_NAME, processesListController.searchTasks(originalHttpServletRequest));
     }
 
 
     @ResourceMapping( "loadProcessesList")
     @ResponseBody
     public ModelAndView loadProcessesList(ResourceRequest request, ResourceResponse response) throws IOException, ServletException {
-        HttpServletRequest httpServletRequest = portalUserSource.getHttpServletRequest(request);
-        HttpServletRequest originalHttpServletRequest =  portalUserSource.getOriginalHttpServletRequest(httpServletRequest);
-        return  translate("data", processesListController.loadProcessesList(originalHttpServletRequest));
+        HttpServletRequest originalHttpServletRequest = getOriginalHttpServletRequest(request);
+
+        return  translate(PORTLET_JSON_RESULT_ROOT_NAME, processesListController.loadProcessesList(originalHttpServletRequest));
     }
 
+    /** Obtain http servlet request with additional attributes from ajax request */
+    private HttpServletRequest getOriginalHttpServletRequest(ResourceRequest request)
+    {
+        try {
+            HttpServletRequest httpServletRequest = portalUserSource.getHttpServletRequest(request);
+            HttpServletRequest originalHttpServletRequest =  portalUserSource.getOriginalHttpServletRequest(httpServletRequest);
+
+            /* Copy all attributes, becouse portlet attributes do not exist in original request */
+            while(originalHttpServletRequest.getAttributeNames().hasMoreElements())
+            {
+                String attributeName = originalHttpServletRequest.getAttributeNames().nextElement();
+                Object attributeValue =  originalHttpServletRequest.getAttribute(attributeName);
+                httpServletRequest.setAttribute(attributeName, attributeValue);
+            }
+
+            return  httpServletRequest;
+        }
+        catch(Throwable ex)
+        {
+            logger.log(Level.SEVERE, "[PORTLET CONTROLLER] Error", ex);
+            throw new RuntimeException(ex);
+        }
+
+    }
+
+    /** Translate DTO object to json in model and view, which is required for portlet resource serving */
     private ModelAndView translate(String resultName, Object result)
     {
         ModelAndView mav = new ModelAndView();
@@ -152,6 +187,7 @@ public class MainViewController extends AbstractMainController<ModelAndView, Ren
 
         mav.setView(v);
         mav.addObject(resultName, result);
+
         return mav;
     }
 

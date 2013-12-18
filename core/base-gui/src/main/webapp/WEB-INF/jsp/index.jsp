@@ -12,7 +12,7 @@
 		<link rel="stylesheet" type="text/css" href="<spring:url value='/css/bootstrap.min.css' />" />
 		<link rel="stylesheet" type="text/css" href="<spring:url value='/css/select2.css' />" />
 		<link rel="stylesheet" type="text/css" href="<spring:url value='/css/bootstrap-datetimepicker.min.css' />" />
-		<script type="text/javascript" src="<spring:url value='js/jquery-1.9.1.min.js' />"></script>
+		<script type="text/javascript" src="<spring:url value='js/jquery-1.10.2.min.js' />"></script>
 		<script type="text/javascript" src="<spring:url value='js/jquery-plugins.js' />"></script>
 		<script type="text/javascript" src="<spring:url value='js/jquery.cookie.js' />"></script>
 		<script type="text/javascript" src="<spring:url value='js/jquery.tools.min.js' />"></script>

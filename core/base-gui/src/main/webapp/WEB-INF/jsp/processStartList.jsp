@@ -86,11 +86,10 @@ for (Map.Entry<String, List<ProcessDefinitionConfig>> group : groups.entrySet())
 			"bpmDefinitionId": bpmDefinitionKey,
 			"processSimpleAttributes": jsonAttributes
 		})
-		.done(function(result)
+		.done(function(data)
 		{
 			<!-- Errors handling -->
 			windowManager.clearErrors();
-			var data = result.result;
 			
 			var errors = [];
 			$.each(data.errors, function() {

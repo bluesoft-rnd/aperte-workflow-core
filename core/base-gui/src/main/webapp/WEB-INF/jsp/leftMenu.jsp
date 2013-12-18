@@ -118,7 +118,7 @@
 			{ 
 				$('#queue-view-block').empty();
 				
-				$.each( queues.result, function( ) 
+				$.each( queues, function( ) 
 				{
 					var currentUserLogin = this.userLogin;
 					var userQueueHeaderId = 'accordion-header-'+currentUserLogin;

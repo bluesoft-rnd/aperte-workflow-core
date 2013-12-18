@@ -3,6 +3,7 @@ package org.aperteworkflow.webapi.main;
 import org.aperteworkflow.webapi.main.processes.controller.ProcessesListController;
 import org.aperteworkflow.webapi.main.processes.controller.TaskViewController;
 import org.aperteworkflow.webapi.main.queues.controller.QueuesController;
+import org.aperteworkflow.webapi.main.util.MappingJacksonJsonViewEx;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -172,7 +173,7 @@ public class MainViewController extends AbstractMainController<ModelAndView, Ren
     private ModelAndView translate(String resultName, Object result)
     {
         ModelAndView mav = new ModelAndView();
-        MappingJacksonJsonView v = new MappingJacksonJsonView();
+        MappingJacksonJsonViewEx v = new MappingJacksonJsonViewEx();
         v.setBeanName(resultName);
 
         mav.setView(v);

@@ -212,7 +212,6 @@
 				"iDisplayLength": 10,
 				"sDom": 'R<"top"t><"bottom"plr>',
 				"sAjaxSource": this.requestUrl,
-				"sAjaxDataProp": "result.aaData",
 				"fnServerData": function ( sSource, aoData, fnCallback ) {
 
 					$.ajax( {

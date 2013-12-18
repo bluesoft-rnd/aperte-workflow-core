@@ -108,11 +108,22 @@ public class TaskViewBuilder
                 .attr("class", "actions-view");
         document.appendChild(actionsNode);
 
+        Element genericActionButtons = document.createElement("div")
+                .attr("id", "actions-generic-list")
+                .attr("class", "actions-generic-view");
+
+        Element processActionButtons = document.createElement("div")
+                .attr("id", "actions-process-list")
+                .attr("class", "actions-process-view");
+
+        actionsNode.appendChild(genericActionButtons);
+        actionsNode.appendChild(processActionButtons);
+
         /* Check if task is finished */
         boolean isTaskFinished = task.isFinished();
         if(isTaskFinished)
         {
-            addCancelActionButton(actionsNode);
+            addCancelActionButton(genericActionButtons);
             return;
         }
 
@@ -120,12 +131,12 @@ public class TaskViewBuilder
         boolean isUserAssignedToTask = user.getLogin().equals(task.getAssignee());
         if(isUserAssignedToTask || isSubstitutingUser())
         {
-            addSaveActionButton(actionsNode);
+            addSaveActionButton(genericActionButtons);
             for(ProcessStateAction action: actions)
-                processAction(action, actionsNode);
+                processAction(action, processActionButtons);
         }
 
-        addCancelActionButton(actionsNode);
+        addCancelActionButton(genericActionButtons);
     }
 
 

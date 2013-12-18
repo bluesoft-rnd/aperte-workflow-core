@@ -1,6 +1,7 @@
 *.iml
 *.iws
 *.iwp
+*.ipr
 .idea/
 .settings
 .project

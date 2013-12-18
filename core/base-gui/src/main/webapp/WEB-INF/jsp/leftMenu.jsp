@@ -114,11 +114,11 @@
 		{
 
 			console.log( "reload quueues");
-			var queuesJson = $.getJSON('<portlet:resourceURL id="getUserQueues"/>', function(result)
+			var queuesJson = $.getJSON('<portlet:resourceURL id="getUserQueues"/>', function(queues)
 			{ 
 				$('#queue-view-block').empty();
 				
-				$.each( result.queues, function( ) 
+				$.each( queues.result, function( ) 
 				{
 					var currentUserLogin = this.userLogin;
 					var userQueueHeaderId = 'accordion-header-'+currentUserLogin;

@@ -88,9 +88,9 @@ for (Map.Entry<String, List<ProcessDefinitionConfig>> group : groups.entrySet())
 		})
 		.done(function(result)
 		{
-		    var data = result.data;
 			<!-- Errors handling -->
 			windowManager.clearErrors();
+			var data = result.result;
 			
 			var errors = [];
 			$.each(data.errors, function() {

@@ -57,7 +57,7 @@
 		})
 		.done(function(result)
 		{
-		    var data = result.data;
+			var data = result.result;
 			if(data.errors != null)
 			{
 				addAlerts(data.errors);
@@ -139,7 +139,7 @@
 		})
 		.done(function(result)
 		{ 
-			var data = result.data;
+			var data = result.result;
 			<!-- Errors handling -->
 			windowManager.clearErrors();
 			

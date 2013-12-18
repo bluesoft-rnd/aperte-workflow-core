@@ -7,26 +7,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.portlet.ModelAndView;
 import org.springframework.web.portlet.bind.annotation.RenderMapping;
 import org.springframework.web.portlet.bind.annotation.ResourceMapping;
-import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.json.MappingJacksonJsonView;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
-import pl.net.bluesoft.rnd.processtool.userqueues.UserProcessQueuesSizeProvider;
 import pl.net.bluesoft.rnd.processtool.usersource.IPortalUserSource;
 
 import javax.portlet.*;
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -160,15 +155,10 @@ public class MainViewController extends AbstractMainController<ModelAndView, Ren
             HttpServletRequest httpServletRequest = portalUserSource.getHttpServletRequest(request);
             HttpServletRequest originalHttpServletRequest =  portalUserSource.getOriginalHttpServletRequest(httpServletRequest);
 
-            /* Copy all attributes, becouse portlet attributes do not exist in original request */
-            while(originalHttpServletRequest.getAttributeNames().hasMoreElements())
-            {
-                String attributeName = originalHttpServletRequest.getAttributeNames().nextElement();
-                Object attributeValue =  originalHttpServletRequest.getAttribute(attributeName);
-                httpServletRequest.setAttribute(attributeName, attributeValue);
-            }
+            /* Copy all attributes, because portlet attributes do not exist in original request */
+            originalHttpServletRequest.getParameterMap().putAll(httpServletRequest.getParameterMap());
 
-            return  httpServletRequest;
+            return  originalHttpServletRequest;
         }
         catch(Throwable ex)
         {

@@ -7,7 +7,9 @@ import org.aperteworkflow.webapi.main.util.MappingJacksonJsonViewEx;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.portlet.ModelAndView;
 import org.springframework.web.portlet.bind.annotation.RenderMapping;
@@ -44,6 +46,10 @@ public class MainViewController extends AbstractMainController<ModelAndView, Ren
 
     @Autowired
     private TaskViewController taskViewController;
+
+
+    @Autowired
+    private MainDispatcher mainDispatcher;
 
     @Autowired
     private ProcessesListController processesListController;
@@ -88,6 +94,33 @@ public class MainViewController extends AbstractMainController<ModelAndView, Ren
 	protected void setSession(ProcessToolBpmSession bpmSession, RenderRequest request) {
 		request.setAttribute(ProcessToolBpmSession.class.getName(), bpmSession);
 	}
+
+    @ResourceMapping( "dispatcher")
+    @ResponseBody
+    public ModelAndView dispatcher(ResourceRequest request, ResourceResponse response) throws PortletException
+    {
+        HttpServletRequest originalHttpServletRequest = getOriginalHttpServletRequest(request);
+
+        String controller = originalHttpServletRequest.getParameter("controller");
+        String action = originalHttpServletRequest.getParameter("action");
+
+        logger.log(Level.INFO, "controllerName: "+controller+", action: "+action);
+
+        if(controller == null || controller.isEmpty())
+        {
+            logger.log(Level.SEVERE, "[ERROR] No controller paramter in dispatcher invocation!");
+            throw new PortletException("No controller paramter!");
+        }
+        else if(action == null || action.isEmpty())
+        {
+            logger.log(Level.SEVERE, "[ERROR] No action paramter in dispatcher invocation!");
+            throw new PortletException("No action paramter!");
+        }
+
+
+        return  translate(PORTLET_JSON_RESULT_ROOT_NAME,
+                mainDispatcher.invokeExternalController(controller, action, originalHttpServletRequest));
+    }
 
     @ResourceMapping( "getUserQueues")
     @ResponseBody

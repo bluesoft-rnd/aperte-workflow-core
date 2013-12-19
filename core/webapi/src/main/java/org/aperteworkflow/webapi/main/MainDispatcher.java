@@ -36,6 +36,11 @@ public class MainDispatcher extends AbstractProcessToolServletController
     @ResponseBody
     public Object invoke(final @PathVariable String controllerName, @PathVariable String actionName, final HttpServletRequest request, final HttpServletResponse respone)
     {
+          return invokeExternalController(controllerName, actionName, request);
+    }
+
+    public Object invokeExternalController(final String controllerName, final String actionName, final HttpServletRequest request)
+    {
         final GenericResultBean resultBean = new GenericResultBean();
         final IProcessToolRequestContext context = this.initilizeContext(request, getProcessToolRegistry().getProcessToolSessionFactory());
 

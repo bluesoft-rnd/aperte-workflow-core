@@ -10,4 +10,6 @@ import java.lang.annotation.*;
 @Inherited
 public @interface AliasName {
 	String name();
+    /** Type, Vaadin or HTML */
+    WidgetType type() default WidgetType.Html;
 }

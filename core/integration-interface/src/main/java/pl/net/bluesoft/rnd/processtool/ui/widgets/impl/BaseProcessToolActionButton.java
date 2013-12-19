@@ -29,6 +29,9 @@ public abstract class BaseProcessToolActionButton implements ProcessToolActionBu
 	@AutoWiredProperty
 	protected Boolean autoHide = false;
 
+    @AutoWiredProperty
+    protected String iconName;
+
 //	@AutoWiredProperty
 	protected String bpmAction;
 
@@ -245,4 +248,12 @@ public abstract class BaseProcessToolActionButton implements ProcessToolActionBu
 	public void setNotification(String notification) {
 		this.notification = notification;
 	}
+
+    public String getIconName() {
+        return iconName;
+    }
+
+    public void setIconName(String iconName) {
+        this.iconName = iconName;
+    }
 }

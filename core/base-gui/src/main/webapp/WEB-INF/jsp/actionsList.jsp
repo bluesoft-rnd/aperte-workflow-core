@@ -136,9 +136,8 @@
 			"skipSaving": skipSaving,
 			"widgetData": JsonWidgetData
 		})
-		.done(function(result)
-		{ 
-			var data = result.result;
+		.done(function(data)
+		{
 			<!-- Errors handling -->
 			windowManager.clearErrors();
 			

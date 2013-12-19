@@ -1,5 +1,5 @@
 
-@media (max-width: 961px) 
+@media (max-width: 767px)
 {
 	body
 	{
@@ -202,6 +202,7 @@
 		padding-top: 12px;
 		background: rgb(97, 158, 248);
 		margin-top: 2px;
+		width: auto;
 	}
 	
 	
@@ -408,7 +409,7 @@
 	
 
 }
-@media (min-width: 962px) 
+@media (min-width: 768px)
 {
 	.standalone-version-body
 	{
@@ -504,6 +505,7 @@
 	.queue-user-accordion
 	{
 		font-size: 16px;
+		color: white !important;
 	}
 	
 	.queue-list-row-process,
@@ -702,6 +704,16 @@
 		color: black;
 		padding: 8px 4px 0px;
 	}
+	
+	.collapse.navbar-collapse.left-menu
+	{
+		padding: 0px;
+	}
+	
+	.glyphicon:empty
+	{
+		margin-right: 5px;
+	}
 }
 
 .search-view
@@ -872,7 +884,6 @@ input[disabled], select[disabled], textarea[disabled], input[readonly], select[r
 	padding: 10px;
 	overflow: hidden;
 	color: black;
-	background-color: #f5f5f5;
 	-webkit-border-radius: 4px;
 	border-radius: 4px;
 }
@@ -897,6 +908,8 @@ button, button:hover
     	font-size: 10px;
     	color: gray;
         float: right;
+		clear: right;
+		margin-top: 10px;
     }
 
 .actions-view

@@ -17,6 +17,7 @@
 			<name>view-jsp</name>
 			<value>main</value>
 		</init-param>
+
 		<supports>
 			<mime-type>text/html</mime-type>
 		</supports>

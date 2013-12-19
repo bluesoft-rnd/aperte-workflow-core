@@ -1,6 +1,7 @@
 /* This file allows you to override default styles in one central location for easier upgrade and maintenance. */
 
 @import url(bootstrap.min.css);
+@import url(bootstrap-theme.min.css);
 @import url(bootstrap-datetimepicker.min.css);
 @import url(datepicker.css);
 @import url(select2.css);

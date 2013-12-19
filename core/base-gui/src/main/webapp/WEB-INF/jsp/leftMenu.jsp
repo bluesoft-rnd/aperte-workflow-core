@@ -5,18 +5,20 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <%@ taglib uri="http://liferay.com/tld/portlet" prefix="liferay-portlet" %>
 
-<div class="navbar left-menu">
-	  <div class="navbar-inner left-menu">
-			<div class="container">
+<div class="navbar left-menu" >
+	<nav id="mobile-collapse" class="navbar navbar-default left-menu" role="navigation">
+
 			<ul class="nav left-menu">
                       <li><a id="priv-view-link" class="left-menu-link" href="#" onclick="windowManager.previousView();"><spring:message code="navigation.previous" /></a></li>
-                    </ul>
-			  <a class="btn btn-navbar left-menu" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+            </ul>
+			  <a class="btn btn-navbar navbar-toggle left-menu" data-toggle="collapse" data-target="#mobile-collapse-inner">
+				<span class="sr-only">Toggle navigation</span>
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			  </a>
-			  <div id="mobile-collapse" class="nav-collapse collapse navbar-responsive-collapse">
+			<div id="mobile-collapse-inner" class="collapse navbar-collapse left-menu">
+
 				<div class="start-process-button" id="process-start-button" onClick="windowManager.showNewProcessPanel();">
 					<i class="icon-briefcase icon-white" ></i><spring:message code="processes.start.new.process" />
 				</div>
@@ -34,10 +36,11 @@
 
 					</div>
 				</div>
-
-			  </div><!-- /.nav-collapse -->
 			</div>
-	  </div><!-- /navbar-inner -->
+
+
+
+	</nav>
 </div>
 <div class="navigation-border" ></div>
 <div class="outer-queue-list" id="outer-queues">
@@ -69,7 +72,7 @@
 			//toggleColumnButton(2, false);
 			//toggleColumnButton(3, false);
 		}
-		if($(window).width() < 962 && windowManager.tabletMode == false)
+		if($(window).width() < 768 && windowManager.tabletMode == false)
 		{
 			windowManager.tabletMode = true;
 			queueViewManager.enableTabletMode();
@@ -87,7 +90,7 @@
 			//toggleColumnButton(2, true);
 			//toggleColumnButton(3, true);
 		}
-		if($(window).width() >= 962 && windowManager.tabletMode == true)
+		if($(window).width() >= 768 && windowManager.tabletMode == true)
 		{
 			windowManager.tabletMode = false;
 			queueViewManager.disableTabletMode();

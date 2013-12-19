@@ -110,11 +110,11 @@ public class TaskViewBuilder
 
         Element genericActionButtons = document.createElement("div")
                 .attr("id", "actions-generic-list")
-                .attr("class", "actions-generic-view");
+                .attr("class", "btn-group  pull-left actions-generic-view");
 
         Element processActionButtons = document.createElement("div")
                 .attr("id", "actions-process-list")
-                .attr("class", "actions-process-view");
+                .attr("class", "btn-group  pull-right actions-process-view");
 
         actionsNode.appendChild(genericActionButtons);
         actionsNode.appendChild(processActionButtons);
@@ -321,14 +321,31 @@ public class TaskViewBuilder
         //TODO make autohide
         else if(actionLabel.equals("hide"))
             return;
+
+        String actionType = action.getActionType();
+        if(actionType == null || actionType.isEmpty())
+            actionType = "primary";
+
+        String iconName = action.getAttributeValue(ProcessStateAction.ATTR_ICON_NAME);
+        if(iconName == null || iconName.isEmpty())
+            iconName = "arrow-right";
 		
 		Element buttonNode = parent.ownerDocument().createElement("button")
-				.appendText(i18Source.getMessage(actionLabel))
-				.attr("class", "btn aperte-button")
+				.attr("class", "btn btn-" + actionType)
 				.attr("disabled", "true")
 				.attr("type", "button")
 				.attr("id", actionButtonId);
 		parent.appendChild(buttonNode);
+
+
+
+        Element actionButtonIcon = parent.ownerDocument().createElement("span")
+                .attr("class", "glyphicon glyphicon-"+iconName);
+
+        parent.appendChild(buttonNode);
+        buttonNode.appendChild(actionButtonIcon);
+
+        buttonNode.appendText(i18Source.getMessage(actionLabel));
 			
 		scriptBuilder.append("$('#").append(actionButtonId).append("').click(function() { disableButtons(); performAction(this, '").append(action.getBpmName()).append("', ").append(action.getSkipSaving()).append(", '").append(task.getInternalTaskId()).append("');  });");
 		scriptBuilder.append("$('#").append(actionButtonId).append("').tooltip({title: '").append(i18Source.getMessage(action.getDescription())).append("'});");
@@ -339,12 +356,17 @@ public class TaskViewBuilder
 		String actionButtonId = "action-button-save";
 		
 		Element buttonNode = parent.ownerDocument().createElement("button")
-				.appendText(i18Source.getMessage("button.save.process.data"))
-				.attr("class", "btn btn-success aperte-button")
+				.attr("class", "btn btn-warning")
 				.attr("disabled", "true")
-				.attr("type", "button")
 				.attr("id", actionButtonId);
+
+        Element saveButtonIcon = parent.ownerDocument().createElement("span")
+                .attr("class", "glyphicon glyphicon-floppy-save");
+
 		parent.appendChild(buttonNode);
+        buttonNode.appendChild(saveButtonIcon);
+
+        buttonNode.appendText(i18Source.getMessage("button.save.process.data"));
 			
 		scriptBuilder.append("$('#").append(actionButtonId).append("').click(function() { onSaveButton('").append(task.getInternalTaskId()).append("');  });");
 		scriptBuilder.append("$('#").append(actionButtonId).append("').tooltip({title: '").append(i18Source.getMessage("button.save.process.desc")).append("'});");
@@ -355,12 +377,18 @@ public class TaskViewBuilder
 		String actionButtonId = "action-button-cancel";
 		
 		Element buttonNode = parent.ownerDocument().createElement("button")
-				.appendText(i18Source.getMessage("button.exit"))
-				.attr("class", "btn btn-inverse aperte-button")
+				.attr("class", "btn btn-info")
 				.attr("disabled", "true")
-				.attr("type", "button")
 				.attr("id", actionButtonId);
 		parent.appendChild(buttonNode);
+
+        Element cancelButtonIcon = parent.ownerDocument().createElement("span")
+                .attr("class", "glyphicon glyphicon-home");
+
+        parent.appendChild(buttonNode);
+        buttonNode.appendChild(cancelButtonIcon);
+
+        buttonNode.appendText(i18Source.getMessage("button.exit"));
 
 		scriptBuilder.append("$('#").append(actionButtonId).append("').click(function() { onCancelButton();  });");
 		scriptBuilder.append("$('#").append(actionButtonId).append("').tooltip({title: '").append(i18Source.getMessage("button.exit")).append("'});");

@@ -21,6 +21,8 @@ public class ProcessStateAction extends AbstractPersistentEntity {
     public static final String PRIMARY_ACTION = "primary";
     public static final String SECONDARY_ACTION = "secondary";
 
+    public static final String ATTR_ICON_NAME = "iconName";
+
 	@Id
 	@GeneratedValue(generator = "idGenerator")
 	@GenericGenerator(
@@ -174,6 +176,15 @@ public class ProcessStateAction extends AbstractPersistentEntity {
     public Set<ProcessStateActionAttribute> getAttributes() {
         if (attributes == null) attributes = new HashSet<ProcessStateActionAttribute>();
         return attributes;
+    }
+
+    public String getAttributeValue(String key)
+    {
+        for(ProcessStateActionAttribute attribute: getAttributes())
+            if(key.equals(attribute.getName()))
+                return attribute.getValue();
+
+        return null;
     }
 
     public void setAttributes(Set<ProcessStateActionAttribute> attributes) {

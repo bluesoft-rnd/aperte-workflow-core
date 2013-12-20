@@ -11,6 +11,9 @@ import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.usersource.IPortalUserSource;
 
+import javax.portlet.RenderRequest;
+import javax.servlet.http.HttpServletRequest;
+
 import static pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants.DEFAULT_QUEUE_INTERVAL;
 
 /**
@@ -18,7 +21,7 @@ import static pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants.DEFAUL
  * Date: 30.06.13
  * Time: 14:18
  */
-public abstract class AbstractMainController<ModelAndViewType, RequestType>
+public abstract class AbstractMainController<ModelAndViewType>
 {
     public static final String PROCESS_START_LIST = "processStartList";
     public static final String QUEUES_PARAMETER_NAME = "queues";
@@ -27,26 +30,27 @@ public abstract class AbstractMainController<ModelAndViewType, RequestType>
     public static final String QUEUE_INTERVAL = "queueInterval";
 
 	@Autowired(required = false)
-	private ProcessToolRegistry processToolRegistry;
+    protected ProcessToolRegistry processToolRegistry;
 
     @Autowired(required = false)
-    private IPortalUserSource portalUserSource;
+    protected IPortalUserSource portalUserSource;
 
-	protected void processRequest(final ModelAndViewType modelView, final RequestType request)
+	protected void processRequest(final ModelAndViewType modelView, final HttpServletRequest request)
 	{
-        if(processToolRegistry == null)
-            SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+
+        final UserData user = portalUserSource.getUserByRequest(request);
+
+        /* No user to process, abort */
+        if(user == null) {
+            return;
+        }
 
 		processToolRegistry.withProcessToolContext(new ProcessToolContextCallback() {
 			@Override
 			public void withContext(ProcessToolContext ctx)
 			{
-				UserData user = getUserByRequest(portalUserSource, request);
 
-		        /* No user to process, abort */
-				if(user == null) {
-					return;
-				}
 
 				addObject(modelView, USER_PARAMETER_NAME, user);
 
@@ -75,7 +79,13 @@ public abstract class AbstractMainController<ModelAndViewType, RequestType>
 
 	protected abstract void addObject(ModelAndViewType modelView, String key, Object value);
 
-	protected abstract UserData getUserByRequest(IPortalUserSource userSource, RequestType request);
-	protected abstract ProcessToolBpmSession getSession(RequestType request);
-	protected abstract void setSession(ProcessToolBpmSession bpmSession, RequestType request);
+
+    protected ProcessToolBpmSession getSession(HttpServletRequest request) {
+        return (ProcessToolBpmSession)request.getAttribute(ProcessToolBpmSession.class.getName());
+    }
+
+
+    protected void setSession(ProcessToolBpmSession bpmSession, HttpServletRequest request) {
+        request.setAttribute(ProcessToolBpmSession.class.getName(), bpmSession);
+    }
 }

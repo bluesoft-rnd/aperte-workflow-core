@@ -1,6 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.model.processdata;
 
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 import pl.net.bluesoft.rnd.processtool.model.AbstractPersistentEntity;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
@@ -25,10 +26,12 @@ public class ProcessComment extends AbstractPersistentEntity {
 					@org.hibernate.annotations.Parameter(name = "sequence_name", value = "DB_SEQ_ID_PROC_COMMENT")
 			}
 	)
+    @Index(name="idx_p_comment_id")
 	@Column(name = "id")
 	protected Long id;
 
 	@Column(name ="comment_name")
+    @Index(name="idx_p_comment_comment")
     private String comment;
 
     @Column(name = "comment_body", length = Integer.MAX_VALUE)

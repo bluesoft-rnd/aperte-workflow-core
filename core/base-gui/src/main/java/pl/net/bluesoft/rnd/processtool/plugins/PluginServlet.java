@@ -57,6 +57,8 @@ public class PluginServlet extends HttpServlet implements ServletContextListener
         {
                 pluginHelper = new PluginHelper();
 
+                LOGGER.log(Level.INFO, "[CONFIG] Aperte home path: "+ProcessToolContext.Util.getHomePath());
+
                 pluginHelper.initialize(
 						firstExistingDirectory(servletContext.getInitParameter("osgi-plugins-directory"),
                                 servletContext.getRealPath("/WEB-INF/osgi"),

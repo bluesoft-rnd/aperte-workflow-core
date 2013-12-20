@@ -3,12 +3,12 @@ package pl.net.bluesoft.rnd.processtool.model.dict.db;
 import java.util.*;
 
 import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
 import org.apache.commons.lang3.time.DateUtils;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.*;
 
 import pl.net.bluesoft.rnd.processtool.model.AbstractPersistentEntity;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItemExtension;
@@ -34,6 +34,7 @@ public class ProcessDBDictionaryItemValue extends AbstractPersistentEntity imple
 					@org.hibernate.annotations.Parameter(name = "sequence_name", value = "DB_SEQ_ID_DB_DICT_ITEM_VAL")
 			}
 	)
+    @Index(name="idx_p_dict_i_value_id")
 	@Column(name = "id")
 	protected Long id;
 
@@ -48,12 +49,12 @@ public class ProcessDBDictionaryItemValue extends AbstractPersistentEntity imple
     private String defaultValue;
 
 	@OneToMany(fetch = FetchType.EAGER, orphanRemoval = true)
-	@Cascade(value = CascadeType.ALL)
+	@Cascade(value = org.hibernate.annotations.CascadeType.ALL)
 	@JoinColumn(name = "dictionary_item_value_id", nullable = true)
 	private List<ProcessDBDictionaryI18N>    localizedValues = new ArrayList<ProcessDBDictionaryI18N>();
 
 	@OneToMany(mappedBy = "itemValue", fetch = FetchType.EAGER, orphanRemoval = true, cascade=javax.persistence.CascadeType.ALL)
-    @Cascade(value = {CascadeType.ALL})
+    @Cascade(value = org.hibernate.annotations.CascadeType.ALL)
     private Set<ProcessDBDictionaryItemExtension> extensions = new HashSet<ProcessDBDictionaryItemExtension>();
 
 	public ProcessDBDictionaryItemValue() {

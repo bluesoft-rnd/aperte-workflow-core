@@ -1,6 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.model.processdata;
 
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Index;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlSeeAlso;
@@ -8,11 +9,14 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 /**
  * Process instance attribute. This class is meant to be expanded.
  *
+ * Use table  per class inheritance strategy for better performance
+ *
  * @author tlipski@bluesoft.net.pl
+ * @author mpawlak@bluesoft.net.pl
  */
 @Entity
 @Table(name="pt_process_instance_attr")
-@Inheritance(strategy=InheritanceType.JOINED)
+@Inheritance(strategy=InheritanceType.TABLE_PER_CLASS)
 @XmlSeeAlso({ ProcessInstanceDictionaryAttribute.class, ProcessInstanceAttachmentAttribute.class })
 public abstract class ProcessInstanceAttribute extends AbstractProcessInstanceAttribute {
 	@Id
@@ -26,6 +30,7 @@ public abstract class ProcessInstanceAttribute extends AbstractProcessInstanceAt
 					@org.hibernate.annotations.Parameter(name = "sequence_name", value = "DB_SEQ_PROC_INST_ATTR")
 			}
 	)
+    @Index(name="idx_p_attribute_id")
 	@Column(name = "id")
 	protected Long id;
 

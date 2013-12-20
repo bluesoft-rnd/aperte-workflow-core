@@ -30,7 +30,7 @@
  </c:if> 
  
   <script type="text/javascript">
-  
+    var dispatcherPortlet = '<portlet:resourceURL id="dispatcher"/>';
 	var windowManager = new WindowManager();
   
   	$(document).ready(function()

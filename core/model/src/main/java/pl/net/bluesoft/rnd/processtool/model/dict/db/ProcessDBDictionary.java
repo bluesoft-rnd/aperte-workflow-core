@@ -37,8 +37,9 @@ public class ProcessDBDictionary extends AbstractPersistentEntity implements Pro
 			}
 	)
 	@Column(name = "id")
+    @Index(name="idx_p_dict_id")
 	protected Long id;
-
+    @Index(name="idx_p_dict_dict_id")
     private String dictionaryId;
     private String defaultName;
 

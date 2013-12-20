@@ -34,7 +34,7 @@ import java.util.logging.Logger;
  * Portal portlet main controller class. In case of calling servlet request, use portlet resource
  * mapping to obtain portal specific attributes and cookies
  */
-public class MainViewController extends AbstractMainController<ModelAndView, RenderRequest>
+public class MainViewController extends AbstractMainController<ModelAndView>
 
 {
     private static final String PORTLET_JSON_RESULT_ROOT_NAME = "result";
@@ -54,8 +54,6 @@ public class MainViewController extends AbstractMainController<ModelAndView, Ren
     @Autowired
     private ProcessesListController processesListController;
 
-    @Autowired(required = false)
-    private IPortalUserSource portalUserSource;
 
 	@RenderMapping ()
 	public ModelAndView handleMainRenderRequest(RenderRequest request, RenderResponse response, Model model)
@@ -66,7 +64,10 @@ public class MainViewController extends AbstractMainController<ModelAndView, Ren
         modelView.setViewName("main");
         modelView.addObject(IS_STANDALONE, false);
 
-        processRequest(modelView, request);
+
+        HttpServletRequest httpServletRequest = portalUserSource.getHttpServletRequest(request);
+
+        processRequest(modelView, httpServletRequest);
 
 
         return modelView;
@@ -79,21 +80,6 @@ public class MainViewController extends AbstractMainController<ModelAndView, Ren
 		modelView.addObject(key, value);
 	}
 
-	@Override
-	protected UserData getUserByRequest(IPortalUserSource userSource, RenderRequest request)
-    {
-		return userSource.getUserByRequest(request);
-	}
-
-	@Override
-	protected ProcessToolBpmSession getSession(RenderRequest request) {
-		return (ProcessToolBpmSession)request.getAttribute(ProcessToolBpmSession.class.getName());
-	}
-
-	@Override
-	protected void setSession(ProcessToolBpmSession bpmSession, RenderRequest request) {
-		request.setAttribute(ProcessToolBpmSession.class.getName(), bpmSession);
-	}
 
     @ResourceMapping( "dispatcher")
     @ResponseBody

@@ -1,6 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.model.config;
 
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Index;
 import pl.net.bluesoft.rnd.processtool.model.AbstractPersistentEntity;
 import pl.net.bluesoft.rnd.pt.utils.lang.Lang2;
 
@@ -47,12 +48,15 @@ public class ProcessDefinitionConfig extends AbstractPersistentEntity {
 					@org.hibernate.annotations.Parameter(name = "sequence_name", value = "DB_SEQ_ID_PROC_DEF_CONF")
 			}
 	)
+    @Index(name="idx_p_def_config_id")
 	@Column(name = "id")
 	protected Long id;
 
 	private String description;
+    @Index(name="idx_p_def_config_key")
 	private String bpmDefinitionKey;
 	private int bpmDefinitionVersion;
+    @Index(name="idx_p_def_config_d_id")
 	private String deploymentId;
 
 	@Column(name="comment_")

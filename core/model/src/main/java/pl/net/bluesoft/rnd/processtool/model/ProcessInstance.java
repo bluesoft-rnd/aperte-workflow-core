@@ -1,6 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.model;
 
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Index;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.processdata.*;
 import pl.net.bluesoft.util.lang.cquery.func.F;
@@ -47,10 +48,13 @@ public class ProcessInstance extends AbstractPersistentEntity
 					@org.hibernate.annotations.Parameter(name = "sequence_name", value = "DB_SEQ_ID_PROC_INST")
 			}
 	)
+    @Index(name="idx_pt_pk")
 	@Column(name = "id")
 	protected Long id;
-
+    @Index(name="idx_pt_externalkey")
 	private String externalKey;
+
+    @Index(name="idx_pt_internalid")
 	private String internalId;
 	private String definitionName;
 
@@ -214,6 +218,16 @@ public class ProcessInstance extends AbstractPersistentEntity
 		return processAttributes;
 	}
 
+    public ProcessInstanceAttribute getProcessAttribute(String key)
+    {
+        for (ProcessInstanceAttribute pia : getProcessAttributes()) {
+            if (pia.getKey() != null && pia.getKey().equals(key)) {
+                return pia;
+            }
+        }
+        return null;
+    }
+
 	public void setProcessAttributes(Set<ProcessInstanceAttribute> processAttributes) {
 		this.processAttributes = processAttributes;
 	}
@@ -347,6 +361,7 @@ public class ProcessInstance extends AbstractPersistentEntity
 		ProcessInstanceSimpleAttribute attr = findSimpleAttributeByKey(key);
         return attr != null ? attr.getValue() : default_;
     }
+
 
 	public Map<String, String> getSimpleAttributeValues() {
 		Map<String, String> result = new HashMap<String, String>();

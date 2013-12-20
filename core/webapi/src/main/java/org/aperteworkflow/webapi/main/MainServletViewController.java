@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 @Controller(value = "MainServletViewController")
 @RequestMapping(value ="/view")
-public class MainServletViewController extends AbstractMainController<ModelAndView, HttpServletRequest>
+public class MainServletViewController extends AbstractMainController<ModelAndView>
 {
     @RequestMapping()
 	public ModelAndView view(HttpServletRequest request, HttpServletResponse response)
@@ -30,18 +30,4 @@ public class MainServletViewController extends AbstractMainController<ModelAndVi
 		modelView.addObject(key, value);
 	}
 
-	@Override
-	protected UserData getUserByRequest(IPortalUserSource userSource, HttpServletRequest request) {
-		return userSource.getUserByRequest(request);
-	}
-
-	@Override
-	protected ProcessToolBpmSession getSession(HttpServletRequest request) {
-		return (ProcessToolBpmSession)request.getAttribute(ProcessToolBpmSession.class.getName());
-	}
-
-	@Override
-	protected void setSession(ProcessToolBpmSession bpmSession, HttpServletRequest request) {
-		request.setAttribute(ProcessToolBpmSession.class.getName(), bpmSession);
-	}
 }

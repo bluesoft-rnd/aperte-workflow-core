@@ -34,6 +34,7 @@ public class ProcessDBDictionaryItem extends AbstractPersistentEntity implements
 					@org.hibernate.annotations.Parameter(name = "sequence_name", value = "DB_SEQ_ID_DB_DICT_ITEM")
 			}
 	)
+    @Index(name="idx_p_dict_item_id")
 	@Column(name = "id")
 	protected Long id;
 
@@ -42,6 +43,7 @@ public class ProcessDBDictionaryItem extends AbstractPersistentEntity implements
     private ProcessDBDictionary dictionary;
 
     @Column(name="key_", nullable=false)
+    @Index(name="idx_p_dict_item_key")
     private String key;
     private String valueType;
 

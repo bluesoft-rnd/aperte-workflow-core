@@ -1,6 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.model;
 
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Index;
 import pl.net.bluesoft.util.lang.Collections;
 import pl.net.bluesoft.util.lang.Predicate;
 import pl.net.bluesoft.util.lang.Transformer;
@@ -25,12 +26,15 @@ public class UserAttribute extends AbstractPersistentEntity {
 					@org.hibernate.annotations.Parameter(name = "sequence_name", value = "DB_SEQ_ID_USER_ATTR")
 			}
 	)
+    @Index(name="idx_user_attribute_pk")
 	@Column(name = "id")
 	private Long id;
 
+    @Index(name="idx_user_attribute_login")
     private String userLogin;
 
     @Column(name="key_")
+    @Index(name="idx_user_attribute_key")
     private String key;
     @Column(name="value_")
     private String value;

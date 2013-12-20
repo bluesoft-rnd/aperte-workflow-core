@@ -20,6 +20,7 @@
 	#js("$javascript_folder/jquery.timer.js")
 	#js("$javascript_folder/jquery.dataTables.bootstrap.js")
 	#js("$javascript_folder/jquery.dateFormat-1.0.js")
+	#js("$javascript_folder/jquery.json-2.4.min.js")
 	#js("$javascript_folder/select2.min.js")
 	#js("$javascript_folder/bootstrap-datetimepicker.min.js")
 	#js("$javascript_folder/ColReorder.js")

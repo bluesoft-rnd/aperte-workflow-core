@@ -20,4 +20,5 @@ public class SimpleWidgetDataHandler implements IWidgetDataHandler
 			bpmTask.getProcessInstance().setSimpleAttribute(key, data.get(key));
 	}
 
+
 }

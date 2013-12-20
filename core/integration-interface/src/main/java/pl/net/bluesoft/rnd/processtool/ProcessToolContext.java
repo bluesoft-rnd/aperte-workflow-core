@@ -23,7 +23,7 @@ public interface ProcessToolContext
 	ProcessInstanceDAO getProcessInstanceDAO();
 
     ProcessInstanceFilterDAO getProcessInstanceFilterDAO();
-
+    OperationLockDAO getOperationLockDAO();
     ProcessDictionaryDAO getProcessDictionaryDAO();
 
 	Session getHibernateSession();
@@ -46,7 +46,9 @@ public interface ProcessToolContext
 
     boolean isActive();
 
-	class Util
+
+
+    class Util
 	{
 		/** We use {@link InheritableThreadLocal} because we want context to be provided for child worker threads */
         private static InheritableThreadLocal<ProcessToolContext> current = new InheritableThreadLocal<ProcessToolContext>();

@@ -4,6 +4,8 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory.ExecutionType;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolSessionFactory;
 import pl.net.bluesoft.rnd.processtool.cache.CacheProvider;
+import pl.net.bluesoft.rnd.processtool.hibernate.lock.OperationWithLock;
+import pl.net.bluesoft.rnd.processtool.model.OperationLockMode;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.usersource.IUserSource;
 import pl.net.bluesoft.util.eventbus.EventBusManager;
@@ -34,6 +36,10 @@ public interface ProcessToolRegistry {
     <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback);
     <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback, ExecutionType type);
     <T> T withExistingOrNewContext(ReturningProcessToolContextCallback<T> callback);
+    <T> T withOperationLock(final OperationWithLock<T> operation,
+                            final String lockName,
+                            final OperationLockMode mode,
+                            final  Integer expireAfterMinutes);
 
 	ProcessToolSessionFactory getProcessToolSessionFactory();
 

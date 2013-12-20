@@ -10,6 +10,8 @@ public interface ProcessToolContextFactory {
     <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback);
     <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback, ExecutionType type);
     <T> T withExistingOrNewContext(ReturningProcessToolContextCallback<T> callback);
+    /** Start process tool context without active transactions */
+    <T> T withProcessToolContextManualTransaction(ReturningProcessToolContextCallback<T> callback);
 	ProcessToolRegistry getRegistry();
 	void updateSessionFactory(SessionFactory sf);
 	

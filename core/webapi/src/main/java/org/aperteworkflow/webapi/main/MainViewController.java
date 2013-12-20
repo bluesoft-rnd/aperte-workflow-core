@@ -41,17 +41,17 @@ public class MainViewController extends AbstractMainController<ModelAndView>
 
     private static Logger logger = Logger.getLogger(MainViewController.class.getName());
 
-    @Autowired
+    @Autowired(required = false)
     private QueuesController queuesController;
 
-    @Autowired
+    @Autowired(required = false)
     private TaskViewController taskViewController;
 
 
-    @Autowired
+    @Autowired(required = false)
     private MainDispatcher mainDispatcher;
 
-    @Autowired
+    @Autowired(required = false)
     private ProcessesListController processesListController;
 
 

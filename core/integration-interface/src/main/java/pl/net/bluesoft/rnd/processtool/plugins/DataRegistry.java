@@ -34,4 +34,6 @@ public interface DataRegistry {
 	UserSubstitutionDAO getUserSubstitutionDAO(Session hibernateSession);
 	ProcessInstanceSimpleAttributeDAO getProcessInstanceSimpleAttributeDAO(Session hibernateSession);
 	ProcessDefinitionDAO getProcessDefinitionDAO(Session hibernateSession);
+
+    OperationLockDAO getOperationLockDAO(Session hibernateSession);
 }

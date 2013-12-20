@@ -335,4 +335,9 @@ public class DataRegistryImpl implements DataRegistry {
 	public ProcessDefinitionDAO getProcessDefinitionDAO(Session hibernateSession) {
 		return new ProcessDefinitionDAOImpl(hibernateSession);
 	}
+
+    @Override
+    public OperationLockDAO getOperationLockDAO(Session hibernateSession) {
+        return new OperationLockDAOImpl(hibernateSession);
+    }
 }

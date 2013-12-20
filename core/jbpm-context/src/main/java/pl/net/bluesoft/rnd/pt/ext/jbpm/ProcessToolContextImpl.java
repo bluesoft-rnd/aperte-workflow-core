@@ -94,6 +94,9 @@ public class ProcessToolContextImpl implements ProcessToolContext {
             }else if (ProcessInstanceSimpleAttributeDAO.class.equals(daoClass)) {
                 dao = (T) processToolRegistry.getDataRegistry().getProcessInstanceSimpleAttributeDAO(hibernateSession);
             }
+            else if (OperationLockDAO.class.equals(daoClass)) {
+                dao = (T) processToolRegistry.getDataRegistry().getOperationLockDAO(hibernateSession);
+            }
             if (dao != null) {
                 daoCache.put(daoClass, dao);
             }
@@ -113,6 +116,11 @@ public class ProcessToolContextImpl implements ProcessToolContext {
     @Override
     public ProcessInstanceFilterDAO getProcessInstanceFilterDAO() {
         return getHibernateDAO(ProcessInstanceFilterDAO.class);
+    }
+
+    @Override
+    public OperationLockDAO getOperationLockDAO() {
+        return getHibernateDAO(OperationLockDAO.class);
     }
 
     @Override

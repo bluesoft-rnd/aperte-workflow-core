@@ -58,6 +58,33 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory
 	public <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback) {
     	return withProcessToolContext(callback,ExecutionType.TRANSACTION);
     }
+
+    @Override
+    public <T> T withProcessToolContextManualTransaction(ReturningProcessToolContextCallback<T> callback)
+    {
+        T result = null;
+
+        Session session = registry.getDataRegistry().getSessionFactory().openSession();
+        try {
+
+            try {
+                ProcessToolContext ctx = new ProcessToolContextImpl(session);
+                ProcessToolContext.Util.setThreadProcessToolContext(ctx);
+
+                result = callback.processWithContext(ctx);
+
+                ProcessToolContext.Util.removeThreadProcessToolContext();
+            } catch (RuntimeException e) {
+                logger.log(Level.SEVERE, e.getMessage(), e);
+                throw e;
+            }
+
+        } finally {
+            session.clear();
+            session.close();
+        }
+        return result;
+    }
     
     @Override
 	public <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback, ExecutionType type) {

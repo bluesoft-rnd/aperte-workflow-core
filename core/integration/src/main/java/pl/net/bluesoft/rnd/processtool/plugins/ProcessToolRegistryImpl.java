@@ -5,6 +5,7 @@ import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
@@ -14,6 +15,11 @@ import pl.net.bluesoft.rnd.processtool.dao.ProcessDictionaryDAO;
 import pl.net.bluesoft.rnd.processtool.dict.DictionaryLoader;
 import pl.net.bluesoft.rnd.processtool.dict.xml.ProcessDictionaries;
 import pl.net.bluesoft.rnd.processtool.event.ProcessToolEventBusManager;
+import pl.net.bluesoft.rnd.processtool.hibernate.lock.ILockFacade;
+import pl.net.bluesoft.rnd.processtool.hibernate.lock.OperationLockFacade;
+import pl.net.bluesoft.rnd.processtool.hibernate.lock.OperationOptions;
+import pl.net.bluesoft.rnd.processtool.hibernate.lock.OperationWithLock;
+import pl.net.bluesoft.rnd.processtool.model.OperationLockMode;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionary;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryPermission;
@@ -114,6 +120,22 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
 		assertContextFactoryExists();
 		return dataRegistry.getProcessToolContextFactory().withProcessToolContext(callback);
 	}
+
+    @Override
+    public <T> T withOperationLock(final OperationWithLock<T> operation,
+                                   final String lockName,
+                                   final OperationLockMode mode,
+                                   final  Integer expireAfterMinutes)
+    {
+        return dataRegistry.getProcessToolContextFactory().withProcessToolContextManualTransaction(new ReturningProcessToolContextCallback<T>() {
+            @Override
+            public T processWithContext(ProcessToolContext ctx) {
+                ILockFacade lockFacade = new OperationLockFacade(ctx.getOperationLockDAO());
+                OperationOptions options = new OperationOptions(lockName, mode, expireAfterMinutes);
+                return lockFacade.performWithLock(ctx, operation, options);
+            }
+        });
+    }
 
 	@Override
 	public <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback, ProcessToolContextFactory.ExecutionType type) {

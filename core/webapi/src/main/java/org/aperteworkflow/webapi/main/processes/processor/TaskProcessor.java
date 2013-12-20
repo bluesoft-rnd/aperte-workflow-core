@@ -86,7 +86,7 @@ public class TaskProcessor
 				throw new RuntimeException(messageSource.getMessage("process.widget.name.unknown", widgetToSave.getWidgetName()));
 			
 			IWidgetDataHandler widgetDataHandler = processWidget.getDataHandler();
-			
+
 			widgetDataHandler.handleWidgetData(task, widgetToSave.getData());
 		}
 	}

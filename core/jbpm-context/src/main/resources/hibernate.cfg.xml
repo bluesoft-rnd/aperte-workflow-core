@@ -76,5 +76,6 @@
         <mapping class="pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceDictionaryItem"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.token.AccessToken"/>
 		<mapping class="pl.net.bluesoft.rnd.processtool.model.report.Report"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.OperationLock"/>
     </session-factory>
 </hibernate-configuration>

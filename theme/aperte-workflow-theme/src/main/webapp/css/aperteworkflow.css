@@ -714,6 +714,12 @@
 	{
 		margin-right: 5px;
 	}
+
+	.input[type="text"],
+	.form-control.input[type="text"]
+	{
+		height: 34px;
+	}
 }
 
 .search-view

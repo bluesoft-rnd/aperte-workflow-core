@@ -4,9 +4,11 @@ import org.aperteworkflow.webapi.main.AbstractProcessToolServletController;
 import org.aperteworkflow.webapi.main.processes.BpmTaskBean;
 import org.aperteworkflow.webapi.main.ui.TaskViewBuilder;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory.ExecutionType;
@@ -25,6 +27,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -121,12 +125,22 @@ public class TaskViewController extends AbstractProcessToolServletController
 		}
 		throw new RuntimeException("Attempting to create session for nonsubstituted user: " + userLogin);
 	}
+
+    @ExceptionHandler(Throwable.class)
+    @ResponseBody
+    public String  handleException(Throwable e) {
+
+
+
+        return "test";
+
+    }
+
     
 	@RequestMapping(method = RequestMethod.POST, value = "/task/loadTask")
 	@ResponseBody
 	public void loadTask(final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException
 	{
-        try {
             logger.info("loadTask ...");
             long t0 = System.currentTimeMillis();
 
@@ -231,11 +245,6 @@ public class TaskViewController extends AbstractProcessToolServletController
                     "[2]: " + (t2-t1) + "ms, " +
                     "[3]: " + (t3-t2) + "ms, "
                     );
-        }
-        catch(Throwable e)
-        {
-            response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, e.getLocalizedMessage());
-        }
 	}
 
 	private static final Comparator<ProcessStateWidget> BY_WIDGET_PRIORITY = new Comparator<ProcessStateWidget>() {

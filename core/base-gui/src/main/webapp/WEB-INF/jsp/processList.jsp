@@ -73,6 +73,7 @@
 		queueViewManager.addTableView('process', dataTable, 'task-view-processes');
 	});
 
+
 	function generateNameColumn(task)
 	{
 		var showOnClickCode = 'onclick="loadProcessView('+task.processStateConfigurationId+','+task.taskId+')"';
@@ -90,9 +91,6 @@
 		{
 			"processStateConfigurationId": processStateConfigurationId,
 			"taskId": taskId
-		}, function()
-		{
-
 		})
 		.done(function(data) {
 			clearAlerts();
@@ -101,8 +99,8 @@
 			$("#process-data-view").append(data);
 			checkIfViewIsLoaded();
 		})
-		.fail(function(data) {
-			console.log("fail: "+data);
+		.fail(function(data, textStatus, errorThrown) {
+			console.log("fail: "+data.statusText + " : " + textStatus + " : " + errorThrown);
 			
 		});
 	}

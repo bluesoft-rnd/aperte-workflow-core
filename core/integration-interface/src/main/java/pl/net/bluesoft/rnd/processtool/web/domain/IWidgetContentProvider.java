@@ -3,7 +3,7 @@ package pl.net.bluesoft.rnd.processtool.web.domain;
 import java.io.InputStream;
 
 /**
- * Provider interface for widget content
+ * Provider api for widget content
  * @author mpawlak@bluesoft.net.pl
  *
  */

@@ -6,7 +6,7 @@ import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.usersource.exception.UserSourceException;
 
 /**
- * User source interface 
+ * User source api
  * 
  * @author mpawlak@bluesoft.net.pl
  *

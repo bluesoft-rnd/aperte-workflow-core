@@ -90,13 +90,20 @@
 		{
 			"processStateConfigurationId": processStateConfigurationId,
 			"taskId": taskId
-		}, function(data)
+		}, function()
 		{
+
+		})
+		.done(function(data) {
 			clearAlerts();
 			windowManager.showProcessData();
 			$('#process-data-view').empty();
 			$("#process-data-view").append(data);
 			checkIfViewIsLoaded();
+		})
+		.fail(function(data) {
+			console.log("fail: "+data);
+			
 		});
 	}
 //]]>

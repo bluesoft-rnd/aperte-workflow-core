@@ -1,7 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.model.config;
 
 /**
- * Permission interface
+ * Permission api
  * 
  * @author mpawlak@bluesoft.net.pl
  *

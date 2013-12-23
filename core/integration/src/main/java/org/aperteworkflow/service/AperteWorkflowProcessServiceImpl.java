@@ -263,7 +263,7 @@ public class AperteWorkflowProcessServiceImpl implements AperteWorkflowProcessSe
 		});
 	}
 
-	//TODO GraphElement has to be an interface
+	//TODO GraphElement has to be an api
 //	@Override
 //    @WebMethod
 //    public List<GraphElement> getProcessHistory(@WebParam(name="internalId")final String internalId) throws AperteWebServiceError {

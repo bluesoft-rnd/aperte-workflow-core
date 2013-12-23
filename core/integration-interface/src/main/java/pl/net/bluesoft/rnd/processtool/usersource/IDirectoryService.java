@@ -8,7 +8,7 @@ import pl.net.bluesoft.rnd.processtool.model.UserData;
 
 
 /**
- * Ldap users source interface
+ * Ldap users source api
  * 
  * @author mpawlak@bluesoft.net.pl
  *

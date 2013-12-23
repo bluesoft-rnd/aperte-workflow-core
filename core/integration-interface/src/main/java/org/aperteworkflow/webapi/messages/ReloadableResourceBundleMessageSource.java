@@ -259,7 +259,7 @@ public class ReloadableResourceBundleMessageSource extends AbstractMessageSource
     /**
      * Set the ResourceLoader to use for loading bundle properties files. <p>The default is a
      * DefaultResourceLoader. Will get overridden by the ApplicationContext if running in a context,
-     * as it implements the ResourceLoaderAware interface. Can be manually overridden when running
+     * as it implements the ResourceLoaderAware api. Can be manually overridden when running
      * outside of an ApplicationContext.
      *
      * @see org.springframework.core.io.DefaultResourceLoader

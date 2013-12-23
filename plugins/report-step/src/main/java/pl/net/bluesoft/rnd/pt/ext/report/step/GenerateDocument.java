@@ -24,7 +24,7 @@ import pl.net.bluesoft.rnd.pt.ext.apertereportsintegration.ReportBuilder;
 
 @AliasName(name = "GenerateDocumentStep")
 /**
- * Step for generating reports using aperte reports and cmis interface
+ * Step for generating reports using aperte reports and cmis api
  * 
  * @author mpawlak@bluesoft.net.pl
  *

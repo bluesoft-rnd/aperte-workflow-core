@@ -11,7 +11,7 @@ import junit.framework.TestCase;
 public class ClassDependecyManagerTest extends TestCase 
 {
 	/**
-	 * Test: provide implementation for given interface, check if it is propertyle returned
+	 * Test: provide implementation for given api, check if it is propertyle returned
 	 */
 	public void testInjection_1()
 	{
@@ -29,7 +29,7 @@ public class ClassDependecyManagerTest extends TestCase
 	}
 	
 	/**
-	 * Test: do not provide implementation for given interface, check if exception is thrown
+	 * Test: do not provide implementation for given api, check if exception is thrown
 	 */
 	public void testInjection_2()
 	{
@@ -49,7 +49,7 @@ public class ClassDependecyManagerTest extends TestCase
 	}
 	
 	/**
-	 * Test: provide implementation 1 for given interface with priority 0, then replace it with another, with priority 1, then try
+	 * Test: provide implementation 1 for given api with priority 0, then replace it with another, with priority 1, then try
 	 * to replace it with implementation with lower priority
 	 */
 	public void testInjection_3()
@@ -86,14 +86,14 @@ public class ClassDependecyManagerTest extends TestCase
 	}
 	
 	/**
-	 * Test: provide implementation #1 for given interface #1 and implementation #2 for interface #2
+	 * Test: provide implementation #1 for given api #1 and implementation #2 for api #2
 	 */
 	public void testInjection_4()
 	{
 		ClassDependencyManager dependencyManager = ClassDependencyManager.getInstance();
 		dependencyManager.clear();
 		
-		/* Inject class #1 for interface #1 with priority 0. Check if class #1 is returned*/
+		/* Inject class #1 for api #1 with priority 0. Check if class #1 is returned*/
 		
 		dependencyManager.injectImplementation(TestDepenendencyInterface.class, TestDependnecyClass1.class, 0);
 		
@@ -102,7 +102,7 @@ public class ClassDependecyManagerTest extends TestCase
 		if(!class1.getName().equals(TestDependnecyClass1.class.getName()))
 			fail("Error. Returned class: "+class1.getName()+", expected: "+TestDependnecyClass1.class.getName());
 		
-		/* Inject class #2 for interface #2 with priority 0. Check if class #2 is returned*/
+		/* Inject class #2 for api #2 with priority 0. Check if class #2 is returned*/
 		
 		dependencyManager.injectImplementation(TestDepenendencyInterface_2.class, TestDependnecyClass1_2.class, 1);
 		

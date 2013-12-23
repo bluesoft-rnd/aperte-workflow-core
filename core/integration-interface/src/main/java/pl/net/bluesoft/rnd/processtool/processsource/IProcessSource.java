@@ -5,7 +5,7 @@ import java.util.Collection;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 
 /**
- * Process source interface
+ * Process source api
  * 
  * @author mpawlak@bluesoft.net.pl
  *

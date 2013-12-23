@@ -14,6 +14,8 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidgetAttribute;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidgetPermission;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.IWidgetDataProvider;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
 import pl.net.bluesoft.rnd.processtool.web.domain.IHtmlTemplateProvider;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
@@ -148,6 +150,8 @@ public class TaskViewBuilder
 	private void processWidget(ProcessStateWidget widget, Element parent)
 	{
 		String aliasName = widget.getClassName();
+
+        ProcessHtmlWidget processHtmlWidget = processToolRegistry.getGuiRegistry().getHtmlWidget(aliasName);
 		
 		/* Sort widgets by prority */
 		List<ProcessStateWidget> children = new ArrayList<ProcessStateWidget>(widget.getChildren());
@@ -240,7 +244,8 @@ public class TaskViewBuilder
 				processWidget(filteredChild, divContentNode);
 			}
 		}
-		else if(widgetTemplateBody != null)
+        /* HTML Widget */
+		else if(processHtmlWidget != null)
 		{
 //            ProcessHtmlWidget htmlWidget = processToolRegistry.getHtmlWidget(aliasName);
             Map<String, Object> viewData = new HashMap<String, Object>();
@@ -257,14 +262,18 @@ public class TaskViewBuilder
             for(ProcessStateWidgetAttribute attribute: widget.getAttributes())
                 viewData.put(attribute.getName(), attribute.getValue());
 
+            /* Add custom attributes from widget data providers */
+            for(IWidgetDataProvider dataProvider: processHtmlWidget.getDataProviders())
+                viewData.putAll(dataProvider.getData(task));
+
 			String processedView = templateProvider.processTemplate(aliasName, viewData);
-			
+
 			Element divContentNode = parent.ownerDocument().createElement("div")
 					.append(processedView)
 					.attr("class", "html-widget-view")
 					.attr("id", "html-"+widget.getId());
 				parent.appendChild(divContentNode);
-				
+
 			for(ProcessStateWidget child: children)
 			{
 				processWidget(child, divContentNode);
@@ -296,6 +305,11 @@ public class TaskViewBuilder
 			}
 		}
 	}
+
+    private void processHtmlWidget()
+    {
+
+    }
 
     private Collection<String> getPrivileges(ProcessStateWidget widget)
     {

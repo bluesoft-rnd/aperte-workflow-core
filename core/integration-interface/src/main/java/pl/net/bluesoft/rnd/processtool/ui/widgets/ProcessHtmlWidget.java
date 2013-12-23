@@ -10,6 +10,9 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.SimpleWidgetDataHandler;
 import pl.net.bluesoft.rnd.processtool.web.domain.IWidgetContentProvider;
 import pl.net.bluesoft.rnd.util.AnnotationUtil;
 
+import java.util.Collection;
+import java.util.LinkedList;
+
 /**
  * Widget in-memory model
  * 
@@ -20,6 +23,7 @@ public class ProcessHtmlWidget extends BaseProcessToolWidget
 {
 	private String widgetName;
 	private IWidgetDataHandler dataHandler = new SimpleWidgetDataHandler();
+    private Collection<IWidgetDataProvider> dataProviders = new LinkedList<IWidgetDataProvider>();
 	private IWidgetValidator validator = new MockWidgetValidator();
 	private IWidgetContentProvider contentProvider;
 
@@ -51,6 +55,15 @@ public class ProcessHtmlWidget extends BaseProcessToolWidget
 	protected ProcessHtmlWidget(String widgetName) {
 		this.widgetName = widgetName;
 	}
+
+    public void addDataProvider(IWidgetDataProvider widgetDataProvider)
+    {
+        this.dataProviders.add(widgetDataProvider);
+    }
+
+    public Collection<IWidgetDataProvider> getDataProviders() {
+        return dataProviders;
+    }
 
     public String getComment() {
         return comment;

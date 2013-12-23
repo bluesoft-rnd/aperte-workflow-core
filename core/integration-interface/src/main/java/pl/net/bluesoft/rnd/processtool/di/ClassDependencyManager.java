@@ -64,7 +64,7 @@ public class ClassDependencyManager
 	{
 		synchronized(instance)
 		{
-			/* Find implementaton for provided interface */
+			/* Find implementaton for provided api */
 			ImplementationBean existingImplementation = dependencies.get(patternInterface.getName());
 			
 			/* No dependency exists, create one */
@@ -82,7 +82,7 @@ public class ClassDependencyManager
 			}
 			else
 			{
-				logger.warning("New implementation ["+implementation+"] of interface "+patternInterface+" has lower priority ["+priority+
+				logger.warning("New implementation ["+implementation+"] of api "+patternInterface+" has lower priority ["+priority+
 						"] then the previus one [" +existingImplementation.getClassInstance()+"]");
 			}
 		}
@@ -90,11 +90,11 @@ public class ClassDependencyManager
 	
 	@SuppressWarnings("unchecked")
 	/**
-	 * Get the implementation of given interface
+	 * Get the implementation of given api
 	 * 
-	 * @param patternInterface interface for which the implementation is searched
+	 * @param patternInterface api for which the implementation is searched
 	 * @return class object with specified implementation
-	 * @throws IllegalArgumentException thrown if there is no implementation of given interface
+	 * @throws IllegalArgumentException thrown if there is no implementation of given api
 	 */
 	public <T> Class<? extends T> getImplementation(Class<T> patternInterface) throws IllegalArgumentException
 	{
@@ -110,16 +110,16 @@ public class ClassDependencyManager
 		} 
 		catch (ClassNotFoundException e) 
 		{
-			throw new IllegalArgumentException("There is no accessible implementation for interface: "+patternInterface, e);
+			throw new IllegalArgumentException("There is no accessible implementation for api: "+patternInterface, e);
 		}
 	}
 
 	private <T> ImplementationBean getImplementationBean(Class<T> patternInterface) {
-	/* Find implementaton for provided interface */
+	/* Find implementaton for provided api */
 		ImplementationBean existingImplementation = dependencies.get(patternInterface.getName());
 
 		if(existingImplementation == null)
-			throw new IllegalArgumentException("There is no implementation for given interface: "+patternInterface);
+			throw new IllegalArgumentException("There is no implementation for given api: "+patternInterface);
 		return existingImplementation;
 	}
 

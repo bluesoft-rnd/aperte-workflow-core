@@ -15,10 +15,10 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * The process tool interface, providing basic operations.
+ * The process tool api, providing basic operations.
  * <p/>
  * Any BPM engine supported by process tool should be
- * provided by implementing this interface.
+ * provided by implementing this api.
  *
  * @author tlipski@bluesoft.net.pl
  * @author amichalak@bluesoft.net.pl

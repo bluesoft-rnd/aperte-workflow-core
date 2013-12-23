@@ -8,7 +8,7 @@ import pl.net.bluesoft.rnd.processtool.authorization.exception.AuthorizationExce
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 
 /** 
- * Authorization service interface 
+ * Authorization service api
  * 
  * @author mpawlak@bluesoft.net.pl
  *

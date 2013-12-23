@@ -1,6 +1,7 @@
 package org.aperteworkflow.webapi.main.processes;
 
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.processtool.web.domain.AbstractResultBean;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import java.io.Serializable;
@@ -14,7 +15,7 @@ import static pl.net.bluesoft.util.lang.Formats.nvl;
  * @author mpawlak@bluesoft.net.pl
  *
  */
-public class BpmTaskBean implements Serializable
+public class BpmTaskBean extends AbstractResultBean
 {
 	private static final long serialVersionUID = 8814138252434090661L;
 	

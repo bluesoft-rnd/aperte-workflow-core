@@ -6,7 +6,7 @@ import java.util.Map;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 
 /** 
- * Widget validation interface
+ * Widget validation api
  * 
  * @author mpawlak@bluesoft.net.pl
  *

@@ -2,7 +2,7 @@ package pl.net.bluesoft.rnd.processtool.ui.dict;
 
 
 /**
- * Validation source interface
+ * Validation source api
  * 
  * @author mpawlak@bluesoft.net.pl
  *

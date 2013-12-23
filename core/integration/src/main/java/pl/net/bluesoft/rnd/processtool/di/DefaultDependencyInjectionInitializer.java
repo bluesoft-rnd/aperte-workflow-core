@@ -11,7 +11,7 @@ import pl.net.bluesoft.rnd.processtool.token.impl.AccessTokenFacade;
 import pl.net.bluesoft.rnd.processtool.token.impl.AccessTokenFactory;
 
 /**
- * This class initialize default interface implementations
+ * This class initialize default api implementations
  * 
  * @author mpawlak@bluesoft.net.pl
  *

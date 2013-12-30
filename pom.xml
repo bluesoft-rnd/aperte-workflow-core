@@ -70,9 +70,9 @@
 			<id>vaadin-addons</id>
 			<url>http://maven.vaadin.com/vaadin-addons</url>
 		</repository>
-		<repository>
-			<id>apache.releases.https</id>
-			<url>https://repository.apache.org/service/local/staging/deploy/maven2</url>
+ 		<repository>
+			<id>sonat</id>
+			<url>https://oss.sonatype.org/content/groups/public/</url>
 		</repository>
 	</repositories>
 
@@ -106,7 +106,7 @@
         <profile>
             <id>liferay-6.2</id>
             <properties>
-                <liferay.version>6.2.0</liferay.version>
+                <liferay.version>6.2.0-RC5</liferay.version>
             </properties>
         </profile>
         <profile>

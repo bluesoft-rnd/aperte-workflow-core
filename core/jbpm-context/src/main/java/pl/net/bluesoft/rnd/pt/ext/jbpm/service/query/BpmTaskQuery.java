@@ -232,7 +232,7 @@ public class BpmTaskQuery {
             sb.append("AS taskDeadline, stepInfo_.message AS stepInfo");
         }
 
-        sb.append(" FROM pt_process_instance process , task task_ ");
+        sb.append(" FROM pt_process_instance process JOIN task task_ ON CAST(task_.processinstanceid AS VARCHAR(10)) = process.internalId");
 
         if (queues != null || queryType == QueryType.LIST) {
             sb.append(" JOIN peopleassignments_potowners potowners ON potowners.task_id = task_.id");
@@ -251,7 +251,6 @@ public class BpmTaskQuery {
         }
 
         sb.append(" WHERE 1=1");
-        sb.append(" AND CAST(task_.processinstanceid AS CHAR) = process.internalId");
 
         if (owners != null) {
             sb.append(" AND EXISTS(SELECT 1 FROM pt_process_instance_owners powner WHERE powner.process_id = process.id AND owners IN (:owners))");

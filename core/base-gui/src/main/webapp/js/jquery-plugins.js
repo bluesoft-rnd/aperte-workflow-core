@@ -9,8 +9,6 @@
         return $('<div>').append(this.eq(0).clone()).html();
     };
 })(jQuery);
-
-
 /**
  * Create a cookie with the given name and value and other optional parameters.
  *

@@ -237,11 +237,9 @@ public class BpmTaskQuery {
             sb.append("AS taskDeadline, stepInfo_.message AS stepInfo");
         }
 
-<<<<<<< HEAD
-        sb.append(" FROM pt_process_instance process , Task task_ ");
-=======
-        sb.append(" FROM pt_process_instance process JOIN task task_ ON CAST(task_.processinstanceid AS VARCHAR(10)) = process.internalId");
->>>>>>> 16ace0e11acc26f480bc14e2478b407d9c74b818
+
+        sb.append(" FROM pt_process_instance process JOIN Task task_ ON CAST(task_.processinstanceid AS CHAR ) = process.internalId");
+
 
         if (queues != null || queryType == QueryType.LIST) {
             sb.append(" JOIN PeopleAssignments_PotOwners potowners ON potowners.task_id = task_.id");

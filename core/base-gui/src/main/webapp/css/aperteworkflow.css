@@ -1,5 +1,5 @@
 
-@media (max-width: 961px) 
+@media (max-width: 767px)
 {
 	body
 	{
@@ -15,12 +15,13 @@
 	{
 		padding-top: 5px;
 	}
-	
+
 	.process-version
-    {
-      	color: gray;
-        float: right;
-    }
+        {
+        	font-size: 10px;
+          	color: gray;
+            float: right;
+        }
 
 	.navbar.left-menu
 	{
@@ -141,6 +142,8 @@
 	}
 	
 	
+
+
 	.nav.nav-tabs li
 	{
 		clear: left;
@@ -199,6 +202,7 @@
 		padding-top: 12px;
 		background: rgb(97, 158, 248);
 		margin-top: 2px;
+		width: auto;
 	}
 	
 	
@@ -377,9 +381,35 @@
 	{
 		font-size: 18px;
 		color: black;
+		padding: 8px 4px 0px;
 	}
+	
+	.td-hack {
+		display: block;
+		height: 50px;
+		width: 100%;
+		display: table;
+	}
+	
+	.td-hacks-buttons
+	{
+		width: 100%;
+		position: absolute;
+	}
+	
+	tr td .btn.aperte-button.aperte-button-hide
+	{
+		overflow: hidden;
+		margin: 0px 0px 0px 12px;
+		padding: 2px 8px 2px 8px;
+		float: left;
+		overflow: hidden;
+		display: table-cell;
+	}
+	
+
 }
-@media (min-width: 962px) 
+@media (min-width: 768px)
 {
 	.standalone-version-body
 	{
@@ -475,6 +505,7 @@
 	.queue-user-accordion
 	{
 		font-size: 16px;
+		color: white !important;
 	}
 	
 	.queue-list-row-process,
@@ -550,6 +581,26 @@
 		font-size: 16px;
 		border:none;
 
+	}
+	
+	.td-hack {
+		width: 100%;
+		height: 100%;
+		position: relative;
+	}
+	
+	.td-hacks-buttons
+	{
+		top: -27px;
+		right: 0;
+		position: absolute;
+	}
+	
+	tr td .btn.aperte-button.aperte-button-hide
+	{
+		overflow: hidden;
+		margin: 0px 0px 0px 12px;
+		padding: 2px 8px 2px 8px;
 	}
 
 	.process-table td,
@@ -653,6 +704,22 @@
 		color: black;
 		padding: 8px 4px 0px;
 	}
+	
+	.collapse.navbar-collapse.left-menu
+	{
+		padding: 0px;
+	}
+	
+	.glyphicon:empty
+	{
+		margin-right: 5px;
+	}
+
+	.input[type="text"],
+	.form-control.input[type="text"]
+	{
+		height: 34px;
+	}
 }
 
 .search-view
@@ -681,29 +748,27 @@
 	background-position:center; 
 }
 
-.v-app-WidgetApplication .v-loading-indicator, 
-.v-app-WidgetApplication .v-loading-indicator-delay, 
-.v-app-WidgetApplication .v-loading-indicator-wait,
-.v-app-WidgetApplication .v-app-loading  
+.v-loading-indicator, 
+.v-loading-indicator-delay, 
+.v-loading-indicator-wait
 {
 	background-image: url(../images/progress_bar/loading_animation_2.gif) !important;
-	background-position:center; 
-	width: 90%;
-	height: 90%;
-	background-repeat: no-repeat;
-	z-index:10;
-	position:absolute;
+}
+
+.portlet .v-app .v-loading-indicator, .portlet .v-app .v-loading-indicator-delay, .portlet .v-app .v-loading-indicator-wait 
+{
+	background-image: url(../images/progress_bar/loading_animation_2.gif) !important;
  }
 
 .loader
 {
-	width: 90%;
-	height: 90%;
+	width: 100%;
+	height: 100%;
 	background-repeat: no-repeat;
     position:absolute;
 	background-image: url(../images/progress_bar/loading_animation_2.gif);
 	background-position:center; 
-	z-index:10;
+	z-index:-10;
 }
 
 .loader-2
@@ -825,7 +890,6 @@ input[disabled], select[disabled], textarea[disabled], input[readonly], select[r
 	padding: 10px;
 	overflow: hidden;
 	color: black;
-	background-color: #f5f5f5;
 	-webkit-border-radius: 4px;
 	border-radius: 4px;
 }
@@ -844,12 +908,15 @@ button, button:hover
 	background-color: white;
 	border-radius: 4px;
 }
+
 .process-version
     {
-      	color: gray;
+    	font-size: 10px;
+    	color: gray;
         float: right;
+		clear: right;
+		margin-top: 10px;
     }
-
 
 .actions-view
 {
@@ -1091,4 +1158,10 @@ button, button:hover
 	clear: left;
 	border-bottom: 1px solid #b3b3b3;
 	margin-bottom: 15px;
+}
+
+
+#heading .logo {
+    font-size: 0;
+    text-indent: -9999em;
 }

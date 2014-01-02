@@ -12,7 +12,7 @@
 <!--<h2>Aperte Workflow Maginificient Activities</h2>-->
 <c:if test="${aperteUser.login!=null}">
 
-<div class="main-view">
+<div class="apw main-view">
 	<%@include file="leftMenu.jsp" %>
 	<%@include file="taskView.jsp" %>
 	<%@include file="widgetList.jsp" %>

@@ -661,7 +661,19 @@
     </servlet-mapping>
 
 
-
+    <servlet>
+        <servlet-name>aperte-servlet</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>/WEB-INF/spring/aperte-acitivities-portlet.xml</param-value>
+        </init-param>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>aperte-servlet</servlet-name>
+        <url-pattern>/sa/*</url-pattern>
+    </servlet-mapping>
 
 
     <error-page>

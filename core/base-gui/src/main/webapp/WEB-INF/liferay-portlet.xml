@@ -11,20 +11,20 @@
         <private-session-attributes>false</private-session-attributes>
 		<header-portlet-css>/css/aperte.css</header-portlet-css>
 		<header-portlet-javascript>/js/jquery-1.10.2.min.js</header-portlet-javascript>
-		<footer-portlet-javascript>/js/jquery-plugins.js</footer-portlet-javascript>
-		<footer-portlet-javascript>/js/jquery.cookie.js</footer-portlet-javascript>
-		<footer-portlet-javascript>/js/jquery.tools.min.js</footer-portlet-javascript>
-		<footer-portlet-javascript>/js/jqModal.js</footer-portlet-javascript>
-        <footer-portlet-javascript>/js/bootstrap.min.js</footer-portlet-javascript>
-		<footer-portlet-javascript>/js/jquery.validate.min.js</footer-portlet-javascript>
-		<footer-portlet-javascript>/js/jquery.dataTables.min.js</footer-portlet-javascript>
-		<footer-portlet-javascript>/js/jquery.timer.js</footer-portlet-javascript>
-		<footer-portlet-javascript>/js/jquery.dataTables.bootstrap.js</footer-portlet-javascript>
-		<footer-portlet-javascript>/js/jquery.dateFormat-1.0.js</footer-portlet-javascript>
-		<footer-portlet-javascript>/js/select2.min.js</footer-portlet-javascript>
-		<footer-portlet-javascript>/js/bootstrap-datetimepicker.min.js</footer-portlet-javascript>
-		<footer-portlet-javascript>/js/ColReorder.js</footer-portlet-javascript>
-		<footer-portlet-javascript>/js/aperte.js</footer-portlet-javascript>
+		<header-portlet-javascript>/js/jquery.tools.min.js</header-portlet-javascript>
+		<header-portlet-javascript>/js/jqModal.js</header-portlet-javascript>
+        <header-portlet-javascript>/js/bootstrap.min.js</header-portlet-javascript>
+		<header-portlet-javascript>/js/jquery.validate.min.js</header-portlet-javascript>
+		<header-portlet-javascript>/js/jquery.dataTables.min.js</header-portlet-javascript>
+		<header-portlet-javascript>/js/jquery.timer.js</header-portlet-javascript>
+		<header-portlet-javascript>/js/jquery.dataTables.bootstrap.js</header-portlet-javascript>
+		<header-portlet-javascript>/js/jquery.dateFormat-1.0.js</header-portlet-javascript>
+		<header-portlet-javascript>/js/select2.min.js</header-portlet-javascript>
+		<header-portlet-javascript>/js/bootstrap-datetimepicker.min.js</header-portlet-javascript>
+		<header-portlet-javascript>/js/ColReorder.js</header-portlet-javascript>
+		<header-portlet-javascript>/js/aperte.js</header-portlet-javascript>
+        <header-portlet-javascript>/js/jquery-plugins.js</header-portlet-javascript>
+        <!-- header-portlet-javascript>/js/jquery.cookie.js</header-portlet-javascript -->
     </portlet>
 
     <portlet>

@@ -24,7 +24,7 @@
 	
 	$(document).ready(function()
 	{
-		windowManager.addView("process-panel-view");			
+		windowManager.addView("process-panel-view");
 	});
 	
 	function loadCookies(queueName){

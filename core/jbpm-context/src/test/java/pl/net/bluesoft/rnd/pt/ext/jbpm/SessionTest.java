@@ -878,9 +878,9 @@ public class SessionTest extends TestCase {
 		exec("delete from pt_process_instance_owners;");
 		exec("delete from pt_process_instance;");
 
-		exec("delete from i18ntext;");
-		exec("delete from peopleassignments_bas;");
-		exec("delete from peopleassignments_potowners;");
+		exec("delete from I18NText;");
+		exec("delete from PeopleAssignments_BAs;");
+		exec("delete from PeopleAssignments_PotOwners;");
 		exec("delete from task;");
 	}
 

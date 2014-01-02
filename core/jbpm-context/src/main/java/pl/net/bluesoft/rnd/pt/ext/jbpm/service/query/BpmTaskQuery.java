@@ -9,8 +9,10 @@ import pl.net.bluesoft.rnd.processtool.model.nonpersistent.BpmTaskBean;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 import pl.net.bluesoft.util.lang.cquery.func.F;
+import sun.util.logging.resources.logging;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
 import static pl.net.bluesoft.util.lang.Strings.hasText;
@@ -22,6 +24,9 @@ import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
  * @author Maciej Pawlak
  */
 public class BpmTaskQuery {
+
+    protected Logger log = Logger.getLogger(BpmTaskQuery.class.getName());
+
     private static final String DEADLINE_SUBQUERY =
             "(SELECT MIN(dueDate) FROM pt_process_deadline da WHERE da.process_instance_id = process.id AND da.taskname = i18ntext_.shortText) ";
 
@@ -232,14 +237,14 @@ public class BpmTaskQuery {
             sb.append("AS taskDeadline, stepInfo_.message AS stepInfo");
         }
 
-        sb.append(" FROM pt_process_instance process , task task_ ");
+        sb.append(" FROM pt_process_instance process , Task task_ ");
 
         if (queues != null || queryType == QueryType.LIST) {
-            sb.append(" JOIN peopleassignments_potowners potowners ON potowners.task_id = task_.id");
+            sb.append(" JOIN PeopleAssignments_PotOwners potowners ON potowners.task_id = task_.id");
         }
 
         if (taskNames != null || queryType == QueryType.LIST || hasText(searchExpression)) {
-            sb.append(" JOIN i18ntext i18ntext_ ON i18ntext_.task_names_id = task_.id");
+            sb.append(" JOIN I18NText i18ntext_ ON i18ntext_.task_names_id = task_.id");
         }
 
         if (excludedDefinitionIds != null && !excludedDefinitionIds.isEmpty()) {
@@ -339,8 +344,9 @@ public class BpmTaskQuery {
         if (queryType == QueryType.LIST) {
             sb.append(" ORDER BY ").append(getOrder());
         }
-
-        return sb.toString();
+        String txt = sb.toString();
+        log.info(txt);
+        return txt;
     }
 
     private String getOrder() {

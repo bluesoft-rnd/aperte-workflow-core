@@ -51,14 +51,15 @@
 
 	var userLogin = '${aperteUser.login}';
 	var queueInterval = '${queueInterval}';
-	var reloadQueuesLoopTimer = $.timer(function()
-	{
-       reloadQueues();
-    });
+	var reloadQueuesLoopTimer;
 
 	 $(document).ready(function()
 	{
 		windowManager.addView("outer-queues");
+		reloadQueuesLoopTimer = $.timer(function()
+        	{
+               reloadQueues();
+            });
 		reloadQueuesLoopTimer.set({ time : queueInterval, autostart : true });
 	});
 

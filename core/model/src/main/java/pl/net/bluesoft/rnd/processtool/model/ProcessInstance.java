@@ -218,6 +218,11 @@ public class ProcessInstance extends AbstractPersistentEntity
 		return processAttributes;
 	}
 
+    public ProcessInstanceAttribute getProcessAttribute(IAttributeName key)
+    {
+        return getProcessAttribute(key.value());
+    }
+
     public ProcessInstanceAttribute getProcessAttribute(String key)
     {
         for (ProcessInstanceAttribute pia : getProcessAttributes()) {
@@ -301,6 +306,34 @@ public class ProcessInstance extends AbstractPersistentEntity
             toDelete.add(attr);
         }
 	}
+
+    public void removeAttribute(IAttributeName attributeKey)
+    {
+        removeAttribute(attributeKey.value());
+    }
+
+    public void removeAttribute(String attributeKey)
+    {
+        ProcessInstanceAttribute attr = getProcessAttribute(attributeKey);
+        if(attr == null)
+            return;
+
+        removeAttribute(attr);
+    }
+
+    public void removeSimpleAttribute(IAttributeName attributeKey)
+    {
+        removeAttribute(attributeKey.value());
+    }
+
+    public void removeSimpleAttribute(String attributeKey)
+    {
+        String value = getSimpleAttributeValue(attributeKey);
+        if(value == null)
+            return;
+
+        setSimpleAttribute(attributeKey, null);
+    }
 
 	public Set<ProcessInstanceAttribute> getToDelete() {
 		return toDelete;
@@ -386,6 +419,10 @@ public class ProcessInstance extends AbstractPersistentEntity
 		}
 		return default_;
 	}
+
+    public void setSimpleAttribute(IAttributeName key, String value) {
+        setSimpleAttribute(key.value(), value);
+    }
 
     public void setSimpleAttribute(String key, String value) {
         ProcessInstanceSimpleAttribute attr = findSimpleAttributeByKey(key);

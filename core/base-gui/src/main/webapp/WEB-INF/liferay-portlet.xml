@@ -1,8 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <liferay-portlet-app>
+    <portlet id="aperte-extended-permission">
+        <!-- Note: Must not be the same as servlet name. -->
+        <portlet-name>aperte-extended-permission</portlet-name>
+        <instanceable>false</instanceable>
+        <remoteable>true</remoteable>
+        <ajaxable>true</ajaxable>
+        <private-session-attributes>false</private-session-attributes>
+        <header-portlet-css>/css/aperte.css</header-portlet-css>
+        <header-portlet-javascript>/js/jquery-1.10.2.min.js</header-portlet-javascript>
+        <header-portlet-javascript>/js/jquery.tools.min.js</header-portlet-javascript>
+        <header-portlet-javascript>/js/jquery.dataTables.min.js</header-portlet-javascript>
+    </portlet>
     <portlet>
         <!-- Matches definition in portlet.xml. -->
+
         <!-- Note: Must not be the same as servlet name. -->
         <portlet-name>aperte-acitivities-2</portlet-name>
         <instanceable>false</instanceable>

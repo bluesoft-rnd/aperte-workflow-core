@@ -7,39 +7,32 @@ import org.aperteworkflow.webapi.main.util.MappingJacksonJsonViewEx;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.portlet.ModelAndView;
 import org.springframework.web.portlet.bind.annotation.RenderMapping;
 import org.springframework.web.portlet.bind.annotation.ResourceMapping;
-import org.springframework.web.servlet.view.json.MappingJacksonJsonView;
-import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
-import pl.net.bluesoft.rnd.processtool.usersource.IPortalUserSource;
 
 import javax.portlet.*;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@Controller(value = "MainViewController")
+@Controller(value = "PortletViewController")
 @RequestMapping("VIEW")
 /**
  * Portal portlet main controller class. In case of calling servlet request, use portlet resource
  * mapping to obtain portal specific attributes and cookies
  */
-public class MainViewController extends AbstractMainController<ModelAndView>
+public class PortletViewController extends AbstractMainController<ModelAndView>
 
 {
     private static final String PORTLET_JSON_RESULT_ROOT_NAME = "result";
 
-    private static Logger logger = Logger.getLogger(MainViewController.class.getName());
+    private static Logger logger = Logger.getLogger(PortletViewController.class.getName());
 
     @Autowired(required = false)
     private QueuesController queuesController;
@@ -49,7 +42,7 @@ public class MainViewController extends AbstractMainController<ModelAndView>
 
 
     @Autowired(required = false)
-    private MainDispatcher mainDispatcher;
+    private DispatcherController mainDispatcher;
 
     @Autowired(required = false)
     private ProcessesListController processesListController;
@@ -58,7 +51,7 @@ public class MainViewController extends AbstractMainController<ModelAndView>
 	@RenderMapping ()
 	public ModelAndView handleMainRenderRequest(RenderRequest request, RenderResponse response, Model model)
     {
-		System.out.println("MainViewController.handleMainRenderRequest... ");
+		System.out.println("PortletViewController.handleMainRenderRequest... ");
 		
         ModelAndView modelView = new ModelAndView();
         modelView.setViewName("main");

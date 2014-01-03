@@ -15,7 +15,7 @@
     <mvc:resources location="/img/" mapping="/img/**"/>
 
     <context:annotation-config />
-    <bean class="org.aperteworkflow.webapi.main.MainServletViewController" />
+    <bean class="org.aperteworkflow.webapi.main.PortletViewController"/>
 
 
     <bean id="jspViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">

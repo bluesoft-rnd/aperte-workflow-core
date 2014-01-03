@@ -24,7 +24,7 @@
     <bean class="org.springframework.web.portlet.mvc.annotation.DefaultAnnotationHandlerMapping" />
     <context:component-scan base-package="org.aperteworkflow.webapi.main.processes.controller, org.aperteworkflow.webapi.main.queues.controller" annotation-config="true" />
 
-    <bean class="org.aperteworkflow.webapi.main.MainViewController"/>
+    <bean class="org.aperteworkflow.webapi.main.PortletViewController"/>
 
 
     <bean id="jspViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">

@@ -33,7 +33,7 @@
     <!-- CONFIG -->
     <context-param>
 		<param-name>contextConfigLocation</param-name>
-		<param-value>/WEB-INF/spring/webAppContext.xml</param-value>
+		<param-value>/WEB-INF/spring/rootContext.xml</param-value>
 	</context-param>
 	<security-constraint>
 		<display-name>excluded</display-name>
@@ -637,11 +637,11 @@
 	</servlet-mapping>
 
     <servlet>
-        <servlet-name>liferay-delegate-servlet</servlet-name>
+        <servlet-name>portletAjaxDispatcher</servlet-name>
         <servlet-class>com.liferay.portal.kernel.servlet.PortalDelegateServlet</servlet-class>
         <init-param>
             <param-name>contextConfigLocation</param-name>
-            <param-value>/WEB-INF/spring/aperte-acitivities-servlet.xml</param-value>
+            <param-value>/WEB-INF/spring/portletAjaxDispatcherContext.xml</param-value>
         </init-param>
         <init-param>
             <param-name>servlet-class</param-name>
@@ -656,22 +656,22 @@
 
 
     <servlet-mapping>
-        <servlet-name>liferay-delegate-servlet</servlet-name>
+        <servlet-name>portletAjaxDispatcher</servlet-name>
         <url-pattern>/</url-pattern>
     </servlet-mapping>
 
 
     <servlet>
-        <servlet-name>aperte-servlet</servlet-name>
+        <servlet-name>standalone-servlet</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
         <init-param>
             <param-name>contextConfigLocation</param-name>
-            <param-value>/WEB-INF/spring/aperte-acitivities-portlet.xml</param-value>
+            <param-value>/WEB-INF/spring/standaloneServletContext.xml</param-value>
         </init-param>
     </servlet>
     <servlet-mapping>
-        <servlet-name>aperte-servlet</servlet-name>
+        <servlet-name>standalone-servlet</servlet-name>
         <url-pattern>/sa/*</url-pattern>
     </servlet-mapping>
 

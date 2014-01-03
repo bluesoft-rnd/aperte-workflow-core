@@ -1,13 +1,11 @@
 package org.aperteworkflow.webapi.main;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
-import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.web.controller.ControllerMethod;
 import pl.net.bluesoft.rnd.processtool.web.controller.IOsgiWebController;
 import pl.net.bluesoft.rnd.processtool.web.controller.OsgiWebRequest;
@@ -27,9 +25,9 @@ import java.util.logging.Logger;
  * @author: "mpawlak@bluesoft.net.pl"
  */
 @Controller
-public class MainDispatcher extends AbstractProcessToolServletController
+public class DispatcherController extends AbstractProcessToolServletController
 {
-    private static Logger logger = Logger.getLogger(MainDispatcher.class.getName());
+    private static Logger logger = Logger.getLogger(DispatcherController.class.getName());
 
     
     @RequestMapping(value = "/dispatcher/{controllerName}/{actionName}")

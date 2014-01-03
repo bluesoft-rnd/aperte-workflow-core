@@ -4,7 +4,7 @@
 	<category name="Aperte Workflow">
 		<portlet id="ProcessTool Dictionaries"/>
 		<portlet id="ProcessTool Queues"/>
-		<portlet id="aperte-acitivities-2"/>
+		<portlet id="AperteWorkflow Activities Portlet"/>
         <portlet id="Aperte Workflow User Portlet"/>
         <portlet id="aperte-extended-permission"/>
 	</category>

@@ -4,7 +4,7 @@
     <portlet>
         <!-- Matches definition in portlet.xml. -->
         <!-- Note: Must not be the same as servlet name. -->
-        <portlet-name>aperte-acitivities-2</portlet-name>
+        <portlet-name>AperteWorkflow Activities Portlet</portlet-name>
         <instanceable>false</instanceable>
         <remoteable>true</remoteable>
         <ajaxable>true</ajaxable>

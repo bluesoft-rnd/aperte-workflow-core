@@ -6,12 +6,12 @@
              xsi:schemaLocation="http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd">
 
 	<portlet>
-		<portlet-name>aperte-acitivities-2</portlet-name>
+		<portlet-name>AperteWorkflow Activities Portlet</portlet-name>
 		<display-name>Aperte Workflow Activities Simple</display-name>
         <portlet-class>org.springframework.web.portlet.DispatcherPortlet</portlet-class>
 		<init-param>
 		  <name>contextConfigLocation</name>
-		  <value>/WEB-INF/spring/aperte-acitivities-portlet.xml</value>
+		  <value>/WEB-INF/spring/portletViewRendererContext.xml</value>
 		</init-param>
 		<init-param>
 			<name>view-jsp</name>

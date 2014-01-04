@@ -16,6 +16,11 @@
     <mvc:resources location="/img/" mapping="/img/**"/>
 
     <context:annotation-config />
+    <context:component-scan base-package="org.aperteworkflow.webapi.main" />
+
+	<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter"/>
+    <bean class="org.springframework.web.portlet.mvc.annotation.DefaultAnnotationHandlerMapping" />
+	
     <bean class="org.aperteworkflow.webapi.main.PortletViewController"/>
 
 

@@ -1,17 +1,16 @@
 package org.aperteworkflow.webapi.main;
 
+import org.aperteworkflow.webapi.tools.WebApiConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import pl.net.bluesoft.rnd.processtool.BasicSettings;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
-import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.usersource.IPortalUserSource;
 
-import javax.portlet.RenderRequest;
 import javax.servlet.http.HttpServletRequest;
 
 import static pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants.DEFAULT_QUEUE_INTERVAL;
@@ -23,17 +22,21 @@ import static pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants.DEFAUL
  */
 public abstract class AbstractMainController<ModelAndViewType>
 {
+
+
     public static final String PROCESS_START_LIST = "processStartList";
     public static final String QUEUES_PARAMETER_NAME = "queues";
-    public static final String USER_PARAMETER_NAME = "aperteUser";
     public static final String IS_STANDALONE = "isStandAlone";
     public static final String QUEUE_INTERVAL = "queueInterval";
 
 	@Autowired(required = false)
     protected ProcessToolRegistry processToolRegistry;
 
+
+
     @Autowired(required = false)
     protected IPortalUserSource portalUserSource;
+
 
 	protected void processRequest(final ModelAndViewType modelView, final HttpServletRequest request)
 	{
@@ -52,7 +55,7 @@ public abstract class AbstractMainController<ModelAndViewType>
 			{
 
 
-				addObject(modelView, USER_PARAMETER_NAME, user);
+				addObject(modelView, WebApiConstants.USER_PARAMETER_NAME, user);
 
 				ProcessToolBpmSession bpmSession = getSession(request);
 

@@ -3,7 +3,7 @@
 <liferay-portlet-app>
     <portlet id="aperte-extended-permission">
         <!-- Note: Must not be the same as servlet name. -->
-        <portlet-name>aperte-extended-permission</portlet-name>
+        <portlet-name>AperteWorkflow Permission Portlet</portlet-name>
         <instanceable>false</instanceable>
         <remoteable>true</remoteable>
         <ajaxable>true</ajaxable>

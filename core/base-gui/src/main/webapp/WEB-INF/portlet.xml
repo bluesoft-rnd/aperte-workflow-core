@@ -6,7 +6,7 @@
              xsi:schemaLocation="http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd">
 	
 	<portlet>
-		<portlet-name>aperte-extended-permission</portlet-name>
+		<portlet-name>AperteWorkflow Permission Portlet</portlet-name>
 		<display-name>Aperte Workflow Extended Permission Portlet</display-name>
         <portlet-class>org.springframework.web.portlet.DispatcherPortlet</portlet-class>
 		<init-param>

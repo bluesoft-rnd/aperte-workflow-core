@@ -16,7 +16,15 @@
     <mvc:resources location="/img/" mapping="/img/**"/>
 
     <context:annotation-config />
+	
+	<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter"/>
+    <bean class="org.springframework.web.portlet.mvc.annotation.DefaultAnnotationHandlerMapping" />
+	
+    <context:component-scan base-package="org.aperteworkflow.webapi.experm" />
+
     <bean class="org.aperteworkflow.webapi.experm.ExPermissionViewController" />
+
+
 
 
     <bean id="jspViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">

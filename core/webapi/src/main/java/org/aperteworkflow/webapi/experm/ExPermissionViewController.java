@@ -1,26 +1,22 @@
 package org.aperteworkflow.webapi.experm;
 
-import org.aperteworkflow.webapi.main.AbstractMainController;
-import org.aperteworkflow.webapi.main.MainDispatcher;
-import org.aperteworkflow.webapi.main.processes.controller.ProcessesListController;
-import org.aperteworkflow.webapi.main.processes.controller.TaskViewController;
-import org.aperteworkflow.webapi.main.queues.controller.QueuesController;
+import org.aperteworkflow.webapi.main.DispatcherController;
 import org.aperteworkflow.webapi.main.util.MappingJacksonJsonViewEx;
+import org.aperteworkflow.webapi.tools.WebApiConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import org.springframework.web.portlet.ModelAndView;
 import org.springframework.web.portlet.bind.annotation.RenderMapping;
 import org.springframework.web.portlet.bind.annotation.ResourceMapping;
+import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.usersource.IPortalUserSource;
 
 import javax.portlet.*;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,9 +26,7 @@ import java.util.logging.Logger;
  * Portal portlet main controller class. In case of calling servlet request, use portlet resource
  * mapping to obtain portal specific attributes and cookies
  */
-public class ExPermissionViewController
-
-{
+public class ExPermissionViewController {
     private static final String PORTLET_JSON_RESULT_ROOT_NAME = "result";
 
     private static Logger logger = Logger.getLogger(ExPermissionViewController.class.getName());
@@ -40,21 +34,24 @@ public class ExPermissionViewController
 
 
     @Autowired(required = false)
-    private MainDispatcher mainDispatcher;
+    private DispatcherController mainDispatcher;
 
     @Autowired(required = false)
     protected IPortalUserSource portalUserSource;
 
+
 	@RenderMapping ()
+    /**
+     * main view handler for Portlet.
+     */
 	public ModelAndView handleMainRenderRequest(RenderRequest request, RenderResponse response, Model model)
     {
 		logger.info("ExPermissionViewController.handleMainRenderRequest... ");
-		
         ModelAndView modelView = new ModelAndView();
         modelView.setViewName("ex_permission");
-
-
-
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+        UserData user = portalUserSource.getUserByRequest(request);
+        modelView.addObject(WebApiConstants.USER_PARAMETER_NAME, user);
 
         return modelView;
     }

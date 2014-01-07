@@ -1,6 +1,7 @@
 package pl.net.bluesoft.rnd.pt.ext.jbpm.service.query;
 
 import org.hibernate.SQLQuery;
+import org.hibernate.dialect.Dialect;
 import org.hibernate.type.StandardBasicTypes;
 import org.jbpm.task.Status;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
@@ -11,6 +12,7 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 import pl.net.bluesoft.util.lang.cquery.func.F;
 import sun.util.logging.resources.logging;
 
+import java.sql.Types;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -26,6 +28,7 @@ import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
 public class BpmTaskQuery {
 
     protected Logger log = Logger.getLogger(BpmTaskQuery.class.getName());
+
 
     private static final String DEADLINE_SUBQUERY =
             "(SELECT MIN(dueDate) FROM pt_process_deadline da WHERE da.process_instance_id = process.id AND da.taskname = i18ntext_.shortText) ";
@@ -57,6 +60,7 @@ public class BpmTaskQuery {
         COUNT, LIST,
     }
 
+    private Dialect hibernateDialect;
     private String user;
     private Collection<String> owners;
     private Collection<QueueType> virtualQueues;
@@ -73,6 +77,11 @@ public class BpmTaskQuery {
 
     private int offset;
     private int limit = -1;
+
+
+    public BpmTaskQuery(Dialect hibernateDialect) {
+        this.hibernateDialect = hibernateDialect;
+    }
 
     public BpmTaskQuery user(String user) {
         this.user = user;
@@ -237,8 +246,8 @@ public class BpmTaskQuery {
             sb.append("AS taskDeadline, stepInfo_.message AS stepInfo");
         }
 
-
-        sb.append(" FROM pt_process_instance process JOIN Task task_ ON CAST(task_.processinstanceid AS CHAR ) = process.internalId");
+        String castTypeName = hibernateDialect.getCastTypeName(Types.VARCHAR);
+        sb.append(" FROM pt_process_instance process JOIN Task task_ ON CAST(task_.processinstanceid AS "+castTypeName+" ) = process.internalId");
 
 
         if (queues != null || queryType == QueryType.LIST) {

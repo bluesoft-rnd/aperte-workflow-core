@@ -2,6 +2,7 @@ package pl.net.bluesoft.rnd.processtool.plugins;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.dialect.Dialect;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.dao.*;
 
@@ -21,6 +22,8 @@ public interface DataRegistry {
 
 	void addHibernateResource(String name, byte[] resource);
 	void removeHibernateResource(String name);
+
+    Dialect getHibernateDialect();
 
 	boolean isJta();
 

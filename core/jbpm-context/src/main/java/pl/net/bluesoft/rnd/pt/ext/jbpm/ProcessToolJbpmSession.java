@@ -36,6 +36,7 @@ import pl.net.bluesoft.rnd.processtool.model.nonpersistent.BpmTaskBean;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.BpmTaskDerivedBean;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
 import pl.net.bluesoft.rnd.processtool.model.token.AccessToken;
+import pl.net.bluesoft.rnd.processtool.plugins.DataRegistry;
 import pl.net.bluesoft.rnd.processtool.token.IAccessTokenFactory;
 import pl.net.bluesoft.rnd.processtool.token.ITokenService;
 import pl.net.bluesoft.rnd.processtool.usersource.IUserSource;
@@ -77,6 +78,9 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
     @Autowired
 	private ITokenService tokenService;
+
+    @Autowired
+    private DataRegistry dataRegistry;
 
 
 	public ProcessToolJbpmSession(String userLogin, Collection<String> roleNames, String substitutingUserLogin) {
@@ -353,7 +357,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 	@Override
 	public int getTasksCount(String userLogin, Collection<QueueType> queueTypes) {
-		return new BpmTaskQuery().user(userLogin).virtualQueues(queueTypes).count();
+		return new BpmTaskQuery(dataRegistry.getHibernateDialect()).user(userLogin).virtualQueues(queueTypes).count();
 	}
 
 	@Override
@@ -464,8 +468,10 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		return getFilterQuery(filter).page(offset, maxResults).list();
 	}
 
-	private BpmTaskQuery getFilterQuery(ProcessInstanceFilter filter) {
-		BpmTaskQuery taskFilterQuery = new BpmTaskQuery();
+	private BpmTaskQuery getFilterQuery(ProcessInstanceFilter filter)
+    {
+
+		BpmTaskQuery taskFilterQuery = new BpmTaskQuery(dataRegistry.getHibernateDialect());
 
    		/* Queues filter do not have owner */
 		if (filter.getFilterOwnerLogin() != null) {

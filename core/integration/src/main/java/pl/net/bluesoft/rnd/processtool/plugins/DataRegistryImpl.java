@@ -3,6 +3,8 @@ package pl.net.bluesoft.rnd.processtool.plugins;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.dialect.Dialect;
+import org.hibernate.engine.SessionFactoryImplementor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -43,6 +45,13 @@ public class DataRegistryImpl implements DataRegistry {
 	private ProcessToolContextFactory processToolContextFactory;
 
 	private boolean jta;
+
+    public Dialect getHibernateDialect()
+    {
+        Dialect dialect = ((SessionFactoryImplementor) sessionFactory).getDialect();
+
+        return dialect;
+    }
 
 	private class ExtClassLoader extends ClassLoader {
 		private ExtClassLoader(ClassLoader parent) {

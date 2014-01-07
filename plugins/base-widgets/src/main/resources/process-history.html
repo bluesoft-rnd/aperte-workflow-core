@@ -1,87 +1,63 @@
-<h4>${messageSource.getMessage("widget.process_comments.caption")}</h4>
+<#assign processLogs = process.getProcessLogs()!""/>
 
-<#assign processComments = process.getCommentsOrderedByDate(true)/>
+    <br><br>
+    <div>
+        <ul class="list-group">
+            <#list processLogs as log>
+                <li class="list-group-item">
+                    <#assign actionUser = userSource.getUserByLogin(log.getUserLogin())!""/>
+                    <#assign substitutionUserLogin = log.getUserSubstituteLogin()!""/>
+                    <h4 class="list-group-item-heading">
+                        <strong>
+                            ${log.getEntryDate()?string("dd-MM-yyyy HH:mm:ss")} :
+                        </strong>
+                        ${messageSource.getMessage(log.getEventI18NKey())}
+                        <#assign entryDescription = log.getAdditionalInfo()!log.getLogValue()!""/>
+                        <#if entryDescription != "">
+                            -  ${messageSource.getMessage(entryDescription)}
+                        </#if>
+                    </h4>
+                    <p class="list-group-item-text">
+                        <strong>${messageSource.getMessage("process.history.action.by")}: </strong>
 
-<div id="process_comments_list">
-    <#list processComments as processComment>
-        ${processComment.author} [${processComment.createTime?string("yyyy-MM-dd HH:mm")}] : ${processComment.body}<br/>
-    </#list>
-</div>
+                        ${actionUser.getRealName()} ( ${log.getUserLogin()} )
+                        <#if substitutionUserLogin != "">
+                            <#assign substitutionUser = userSource.getUserByLogin(substitutionUserLogin)!""/>
+                            ${messageSource.getMessage("process.history.subsituted.by")} :
+                            ${substitutionUser.getRealName()} ( ${substitutionUserLogin} )
+                        </#if>
+
+                    </p>
+                    <p class="list-group-item-text ">
+
+                        <#assign state = log.getState()!""/>
+                        <#if state != "">
+                            <#assign stateDesc = state.getDescription()!state.getName()!""/>
+                            <strong>${messageSource.getMessage("process.history.new.state")}:</strong>
+
+                            ${messageSource.getMessage(stateDesc)}
+                        </#if>
+                    </p>
+                </li>
+            </#list>
+        </ul>
+
+    </div>
 
 
-<#if privileges?seq_contains("EDIT")>
 
-<button id="process_comments_button_new" onclick="process_comments_button_new_click()">${messageSource.getMessage("widget.process_comments.new")}</button>
-<div id="process_comments_add_form" style="display:none;">
-    <textarea id="process_comments_body" style="width:50%;"></textarea>
-    <br/>
-    <button id="process_comments_button_add" onclick="process_comments_button_add_click()">${messageSource.getMessage("widget.process_comments.add")}</button>
-    <button id="process_comments_button_cancel" onclick="process_comments_button_cancel_click()">${messageSource.getMessage("widget.process_comments.cancel")}</button>
-</div>
-
-
-<script type="text/javascript">
-    processCommentsAddedComments = [];
+    <script type="text/javascript">
 
     $(document).ready(function()
     {
-        //$('#area-comment-warning').hide();
 
         var widget = new Widget('${widgetName}', '${widgetId}', '${task.internalTaskId}');
-        widget.getData = function() {return getProcessCommentsData();};
-        widget.validate = function() {return validateProcessComments();};
+        widget.getData = function() {};
+        widget.validate = function() {};
 
         widgets.push(widget);
     });
 
-    function getProcessCommentsData() {
-        var commentText = $('#process_comments_added_comments').val();
-        var data = { "processCommentsAddedComments" : JSON.stringify(processCommentsAddedComments) };
-        return data;
-    }
 
-    function validateProcessComments() {
-        var errors = [];
-        return errors;
-    }
 
-    function process_comments_button_new_click() {
-        document.getElementById("process_comments_button_new").style.display="none";
-        document.getElementById("process_comments_add_form").style.display="";
-        $('#process_comments_body').val("");
-    }
-
-    function process_comments_button_add_click() {
-        var date = new Date();
-        var dateStr = date.getFullYear() + "-" +
-                    (date.getMonth() + 1) + "-" +
-                    date.getDate() + " " +
-                    date.getHours() + ":" +
-                    date.getMinutes();
-        var dateFull = dateStr + ":" + date.getSeconds();
-        var body = $('#process_comments_body').val();
-        var author = '${user.login}';
-
-        if (!body || /^\s*$/.test(body)) {
-            return;
-        }
-
-        processCommentsAddedComments.push({
-            createDate: dateFull,
-            body: body,
-            author: author
-        });
-
-        var text = author + " [" + dateStr + "] : " + body + "<br/>";
-
-        $("#process_comments_list").append(text);
-
-        process_comments_button_cancel_click();
-    }
-
-    function process_comments_button_cancel_click() {
-        document.getElementById("process_comments_add_form").style.display="none";
-        document.getElementById("process_comments_button_new").style.display="";
-    }
 </script>
-</#if>

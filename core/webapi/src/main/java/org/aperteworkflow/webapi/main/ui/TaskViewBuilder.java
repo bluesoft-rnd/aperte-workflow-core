@@ -16,6 +16,7 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidgetPermission
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.IWidgetDataProvider;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
+import pl.net.bluesoft.rnd.processtool.usersource.IUserSource;
 import pl.net.bluesoft.rnd.processtool.web.domain.IHtmlTemplateProvider;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
@@ -48,6 +49,9 @@ public class TaskViewBuilder
 	
 	@Autowired
 	private IHtmlTemplateProvider templateProvider;
+
+    @Autowired
+    private IUserSource userSource;
 	
 	/** Builder for javascripts */
 	private StringBuilder scriptBuilder = new StringBuilder(1024);
@@ -252,6 +256,7 @@ public class TaskViewBuilder
 			viewData.put(IHtmlTemplateProvider.PROCESS_PARAMTER, task.getProcessInstance());
 			viewData.put(IHtmlTemplateProvider.TASK_PARAMTER, task);
 			viewData.put(IHtmlTemplateProvider.USER_PARAMTER, user);
+            viewData.put(IHtmlTemplateProvider.USER_SOURCE_PARAMTER, userSource);
 			viewData.put(IHtmlTemplateProvider.MESSAGE_SOURCE_PARAMETER, i18Source);
 			viewData.put(IHtmlTemplateProvider.WIDGET_NAME_PARAMETER, aliasName);
 			viewData.put(IHtmlTemplateProvider.PRIVILEGES_PARAMETER, getPrivileges(widget));

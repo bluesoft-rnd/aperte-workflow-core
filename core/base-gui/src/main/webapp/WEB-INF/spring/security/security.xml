@@ -13,6 +13,7 @@
 		<!-- STATIC RESOURCES -->
 		<intercept-url pattern="/css/**" access="permitAll"  requires-channel="http"/>
 		<intercept-url pattern="/images/**" access="permitAll"  requires-channel="http"/>
+        <intercept-url pattern="/fonts/**" access="permitAll"  requires-channel="http"/>
 		<intercept-url pattern="/js/**" access="permitAll"  requires-channel="http"/>
 
 		<!-- MAIN PAGE, LOGIN PAGE -->

@@ -122,7 +122,6 @@
                         <ProcessTool-Widget-Enhancement>
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.LocaleCaptureWidget,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.PanelWidget,
-                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessHistoryWidget,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.TabSheetWidget,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.VerticalLayoutWidget,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.SwitchWidget,
@@ -145,7 +144,8 @@
 							pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessComments,
 							pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDataBlockHtmlWidget,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDiagramWidget,
-							pl.net.bluesoft.rnd.processtool.ui.basewidgets.UserSubstitutionComment
+							pl.net.bluesoft.rnd.processtool.ui.basewidgets.UserSubstitutionComment,
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessHistoryWidget
                         </ProcessTool-Widget-View>
                         <ProcessTool-Step-Enhancement>
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.ChooseUserWithRoleStep,

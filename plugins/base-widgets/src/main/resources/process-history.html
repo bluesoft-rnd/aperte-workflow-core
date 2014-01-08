@@ -1,47 +1,52 @@
 <#assign processLogs = process.getProcessLogs()!""/>
 
-    <br><br>
-    <div>
-        <ul class="list-group">
-            <#list processLogs as log>
-                <li class="list-group-item">
-                    <#assign actionUser = userSource.getUserByLogin(log.getUserLogin())!""/>
-                    <#assign substitutionUserLogin = log.getUserSubstituteLogin()!""/>
-                    <h4 class="list-group-item-heading">
-                        <strong>
-                            ${log.getEntryDate()?string("dd-MM-yyyy HH:mm:ss")} :
-                        </strong>
-                        ${messageSource.getMessage(log.getEventI18NKey())}
-                        <#assign entryDescription = log.getAdditionalInfo()!log.getLogValue()!""/>
-                        <#if entryDescription != "">
-                            -  ${messageSource.getMessage(entryDescription)}
-                        </#if>
-                    </h4>
-                    <p class="list-group-item-text">
-                        <strong>${messageSource.getMessage("process.history.action.by")}: </strong>
+<div>
+    <div class="panel panel-default">
+        <div class="panel-heading">${messageSource.getMessage("widget.process_history.name")}</div>
+        <div class="panel-body form-inline">
+            <ul class="list-group">
+                <#list processLogs as log>
+                    <li class="list-group-item">
+                        <#assign actionUser = userSource.getUserByLogin(log.getUserLogin())!""/>
+                        <#assign substitutionUserLogin = log.getUserSubstituteLogin()!""/>
+                        <h4 class="list-group-item-heading">
+                            <strong>
+                                ${log.getEntryDate()?string("dd-MM-yyyy HH:mm:ss")} :
+                            </strong>
+                            ${messageSource.getMessage(log.getEventI18NKey())}
+                            <#assign entryDescription = log.getAdditionalInfo()!log.getLogValue()!""/>
+                            <#if entryDescription != "">
+                                -  ${messageSource.getMessage(entryDescription)}
+                            </#if>
+                        </h4>
+                        <p class="list-group-item-text">
+                            <strong>${messageSource.getMessage("process.history.action.by")}: </strong>
 
-                        ${actionUser.getRealName()} ( ${log.getUserLogin()} )
-                        <#if substitutionUserLogin != "">
-                            <#assign substitutionUser = userSource.getUserByLogin(substitutionUserLogin)!""/>
-                            ${messageSource.getMessage("process.history.subsituted.by")} :
-                            ${substitutionUser.getRealName()} ( ${substitutionUserLogin} )
-                        </#if>
+                            ${actionUser.getRealName()} ( ${log.getUserLogin()} )
+                            <#if substitutionUserLogin != "">
+                                <#assign substitutionUser = userSource.getUserByLogin(substitutionUserLogin)!""/>
+                                ${messageSource.getMessage("process.history.subsituted.by")} :
+                                ${substitutionUser.getRealName()} ( ${substitutionUserLogin} )
+                            </#if>
 
-                    </p>
-                    <p class="list-group-item-text ">
+                        </p>
+                        <p class="list-group-item-text ">
 
-                        <#assign state = log.getState()!""/>
-                        <#if state != "">
-                            <#assign stateDesc = state.getDescription()!state.getName()!""/>
-                            <strong>${messageSource.getMessage("process.history.new.state")}:</strong>
+                            <#assign state = log.getState()!""/>
+                            <#if state != "">
+                                <#assign stateDesc = state.getDescription()!state.getName()!""/>
+                                <strong>${messageSource.getMessage("process.history.new.state")}:</strong>
 
-                            ${messageSource.getMessage(stateDesc)}
-                        </#if>
-                    </p>
-                </li>
-            </#list>
-        </ul>
-
+                                ${messageSource.getMessage(stateDesc)}
+                            </#if>
+                        </p>
+                    </li>
+                </#list>
+            </ul>
+        </div>
     </div>
+</div>
+
+
 
 

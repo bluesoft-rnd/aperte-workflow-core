@@ -5,8 +5,57 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <%@ taglib uri="http://liferay.com/tld/portlet" prefix="liferay-portlet" %>
 
+<div class="modal fade aperte-modal" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" onClick="cancelCommentModal()" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel"><spring:message code="processes.action.button.comment.title" /></h4>
+      </div>
+      <div class="modal-body">
+		<div class="modal-errors"></div>
+			<spring:message code="processes.action.button.comment.body" />
+			
+			<textarea id="action-comment-textarea" class="modal-comment-textarea" onkeyup="checkActionCommentValue(event)" ></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" onClick="cancelCommentModal()" data-dismiss="modal"><spring:message code="processes.action.button.comment.close" /></button>
+        <button id="action-comment-button" type="button" onClick="performCommentModal()" class="btn btn-primary" disabled="true"><spring:message code="processes.action.button.comment.perform" /></button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div>
+
 <script type="text/javascript">
-//<![CDATA[	
+//<![CDATA[
+	
+	var tempButton;
+	var tempActionName;
+	var tempSkipSaving; 
+	var tempTaskId;
+	var tempCommentNeeded;
+	
+	function cancelCommentModal()
+	{
+		$('#modal-errors').empty();
+		$('#commentModal').modal('hide');
+		$('#action-comment-textarea').val('');
+		enableButtons();
+
+	}
+	
+	function performCommentModal()
+	{
+		$('#modal-errors').empty();
+		var comment = $('#action-comment-textarea').val();
+		if(!comment)
+		{
+			$('#modal-errors').append('<div class="alert"><button type="button" class="close" data-dismiss="alert">&times;</button><spring:message code="processes.action.button.comment.empty" /></div>');
+			return;
+		}
+		
+		performActionWithoutComment(tempButton, tempActionName, tempSkipSaving, tempTaskId, tempCommentNeeded, comment);
+	}
 
 	function disableButtons()
 	{
@@ -17,6 +66,15 @@
 	{
 		$('#actions-list').find('button').prop('disabled', false);
 	}
+	
+	function checkActionCommentValue(event)
+    {
+        var comment = $('#action-comment-textarea').val();
+		
+		console.log("Modal: "+(comment == ''));
+
+         $('#action-comment-button').attr("disabled", comment == '');
+    }
 	
 	function saveAction(taskId)
 	{
@@ -86,7 +144,7 @@
 	
 	function addAlert(alertMessage)
 	{
-		$('#alerts-list').append('<div class="alert"><button type="button" class="close" data-dismiss="alert">&times;</button>'+alertMessage+'</div>')
+		$('#alerts-list').append('<div class="alert"><button type="button" class="close" data-dismiss="alert">&times;</button>'+alertMessage+'</div>');
 	}
 	
 	function clearAlerts()
@@ -94,17 +152,36 @@
 		$('#alerts-list').empty();
 	}
 	
+	<!-- Check for comment required field -->
 	function performAction(button, actionName, skipSaving, commentNeeded, taskId)
 	{
-		var JsonWidgetData = "[{}]";
-		var comment = '';
 		if(commentNeeded == true)
 		{
-            if(comment == '')
-            {
-                return;
-            }
+
+			tempButton = button;
+			tempActionName = actionName;
+			tempSkipSaving = skipSaving;
+			tempTaskId = taskId;
+			tempCommentNeeded = commentNeeded;
+			
+			$('#action-comment-textarea').val('');
+			$('#commentModal').modal({
+			  keyboard: false
+			});
+			
 		}
+		else
+		{
+			performActionWithoutComment(button, actionName, skipSaving, taskId, false, '');
+		}
+		
+	}
+	
+	
+	function performActionWithoutComment(button, actionName, skipSaving, taskId, commentNeeded, comment)
+	{
+		var JsonWidgetData = "[{}]";
+
 		if(skipSaving != true)
 		{
 			clearAlerts();

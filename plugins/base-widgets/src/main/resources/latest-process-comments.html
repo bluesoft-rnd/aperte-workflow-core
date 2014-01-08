@@ -1,9 +1,16 @@
 <h4>${messageSource.getMessage("widget.latest_process_comments.name")}</h4>
 
 <#assign processComments = process.getCommentsOrderedByDate(true)/>
+<#assign commentAdded = process.getSimpleAttributeValue("commentAdded")!""/>
 
-<div id="process_comments_list">
-    <#list processComments as processComment>
-        ${processComment.author} [${processComment.createTime?string("yyyy-MM-dd HH:mm")}] : ${processComment.body}<br/>
-    </#list>
-</div>
+<#if processComments?size > 0 && commentAdded != "">
+    <div id="process_comments_list">
+        <#assign commentIteration = 0/>
+        <#list processComments as processComment>
+            <#assign commentIteration = commentIteration + 1/>
+            <#if commentIteration <= 1>
+                ${processComment.author} [${processComment.createTime?string("yyyy-MM-dd HH:mm")}] : ${processComment.body}<br/>
+            </#if>
+        </#list>
+    </div>
+</#if>

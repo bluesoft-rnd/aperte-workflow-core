@@ -126,16 +126,6 @@ public class TaskViewController extends AbstractProcessToolServletController
 		throw new RuntimeException("Attempting to create session for nonsubstituted user: " + userLogin);
 	}
 
-    @ExceptionHandler(Throwable.class)
-    @ResponseBody
-    public String  handleException(Throwable e) {
-
-
-
-        return "test";
-
-    }
-
     
 	@RequestMapping(method = RequestMethod.POST, value = "/task/loadTask")
 	@ResponseBody

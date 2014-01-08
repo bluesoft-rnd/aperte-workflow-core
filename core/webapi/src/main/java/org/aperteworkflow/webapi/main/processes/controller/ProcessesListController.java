@@ -24,6 +24,7 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory.ExecutionType;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.StartProcessResult;
 import pl.net.bluesoft.rnd.processtool.model.*;
+import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComment;
 import pl.net.bluesoft.rnd.processtool.web.domain.DataPagingBean;
 import pl.net.bluesoft.rnd.processtool.web.domain.ErrorResultBean;
 import pl.net.bluesoft.rnd.processtool.web.domain.IProcessToolRequestContext;
@@ -93,6 +94,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
             final String skipSaving = request.getParameter("skipSaving");
             final String commentNeeded = request.getParameter("commentNeeded");
             final String comment = request.getParameter("comment");
+
             if(isNull(taskId))
             {
                 resultBean.addError(SYSTEM_SOURCE, context.getMessageSource().getMessage("request.performaction.error.notaskid"));
@@ -101,6 +103,11 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
             else if(isNull(actionName))
             {
                 resultBean.addError(SYSTEM_SOURCE, context.getMessageSource().getMessage("request.performaction.error.actionName"));
+                return resultBean;
+            }
+            else if("true".equals(commentNeeded) && isNull(comment))
+            {
+                resultBean.addError(SYSTEM_SOURCE, context.getMessageSource().getMessage("request.performaction.error.noComment"));
                 return resultBean;
             }
 
@@ -131,6 +138,19 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                         List<BpmTask> newTasks = getBpmSession(context, task.getAssignee()).performAction(actionName, task, false);
 
                         long t3 = System.currentTimeMillis();
+
+                        if(comment != null && !comment.isEmpty())
+                        {
+                            ProcessComment comment = new ProcessComment();
+                            comment.setAuthor(task.getAssignee());
+                            comment.setCreateTime(new Date());
+                            comment.setProcessState(task.getTaskName());
+
+                            ProcessInstance pi = task.getProcessInstance().getRootProcessInstance();
+
+                            pi.addComment(comment);
+                            pi.setSimpleAttribute("commentAdded", "true");
+                        }
                         
                         /* Task finished or no tasks created (ie waiting for timer) */
                         if (newTasks == null || newTasks.isEmpty()) {
@@ -632,4 +652,6 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 	private static boolean isNull(String value) {
 		return value == null || value.isEmpty() || "null".equals(value);
 	}
+
+
 }

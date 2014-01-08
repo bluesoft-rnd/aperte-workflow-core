@@ -1,25 +1,30 @@
-<h4>${messageSource.getMessage("widget.process_comments.caption")}</h4>
-
 <#assign processComments = process.getCommentsOrderedByDate(true)/>
 
-<div id="process_comments_list">
-    <#list processComments as processComment>
-        ${processComment.author} [${processComment.createTime?string("yyyy-MM-dd HH:mm")}] : ${processComment.body}<br/>
-    </#list>
+<div>
+    <div class="panel panel-default">
+        <div class="panel-heading">${messageSource.getMessage("widget.process_comments.caption")}</div>
+        <div class="panel-body form-inline">
+            <div id="process_comments_list">
+                <#list processComments as processComment>
+                    ${processComment.author} [${processComment.createTime?string("yyyy-MM-dd HH:mm")}] : ${processComment.body}<br/>
+                </#list>
+            </div>
+            <#if privileges?seq_contains("EDIT")>
+                <button id="process_comments_button_new" onclick="process_comments_button_new_click()">${messageSource.getMessage("widget.process_comments.new")}</button>
+                <div id="process_comments_add_form" style="display:none;">
+                    <textarea id="process_comments_body" style="width:50%;"></textarea>
+                    <br/>
+                    <button id="process_comments_button_add" onclick="process_comments_button_add_click()">${messageSource.getMessage("widget.process_comments.add")}</button>
+                    <button id="process_comments_button_cancel" onclick="process_comments_button_cancel_click()">${messageSource.getMessage("widget.process_comments.cancel")}</button>
+                </div>
+            </#if>
+        </div>
+    </div>
 </div>
+
 
 
 <#if privileges?seq_contains("EDIT")>
-
-<button id="process_comments_button_new" onclick="process_comments_button_new_click()">${messageSource.getMessage("widget.process_comments.new")}</button>
-<div id="process_comments_add_form" style="display:none;">
-    <textarea id="process_comments_body" style="width:50%;"></textarea>
-    <br/>
-    <button id="process_comments_button_add" onclick="process_comments_button_add_click()">${messageSource.getMessage("widget.process_comments.add")}</button>
-    <button id="process_comments_button_cancel" onclick="process_comments_button_cancel_click()">${messageSource.getMessage("widget.process_comments.cancel")}</button>
-</div>
-
-
 <script type="text/javascript">
     processCommentsAddedComments = [];
 

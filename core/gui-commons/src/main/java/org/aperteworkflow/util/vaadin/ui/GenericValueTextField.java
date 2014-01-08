@@ -45,7 +45,10 @@ public class GenericValueTextField extends TextField {
 				if ("".equals(formattedValue)){
 					return null;
 				}
-				return ConvertUtils.convert(formattedValue, map.get(newDataSource.getType()));
+                Class<?> clazz =  map.get(newDataSource.getType());
+                if(clazz == null)
+                    clazz = newDataSource.getType();
+				return ConvertUtils.convert(formattedValue, clazz);
 			}
 		};
 		// primitive value problem workaround

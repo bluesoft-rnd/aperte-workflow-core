@@ -91,7 +91,8 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
             final String taskId = request.getParameter("taskId");
             final String actionName = request.getParameter("actionName");
             final String skipSaving = request.getParameter("skipSaving");
-
+            final String commentNeeded = request.getParameter("commentNeeded");
+            final String comment = request.getParameter("comment");
             if(isNull(taskId))
             {
                 resultBean.addError(SYSTEM_SOURCE, context.getMessageSource().getMessage("request.performaction.error.notaskid"));

@@ -65,6 +65,8 @@ public class ProcessStateAction extends AbstractPersistentEntity {
     private Boolean markProcessImportant = false;
 
     private Boolean skipSaving = false;
+
+    private Boolean commentNeeded = false;
     
     /** Should action be hidden for external access (e-mail shourtcuts)? */
     private Boolean hideForExternalAccess = false;
@@ -80,6 +82,7 @@ public class ProcessStateAction extends AbstractPersistentEntity {
 			"label",
 			"actionType",
 			"skipSaving",
+            "commentNeeded",
 			"markProcessImportant",
 			"priority",
 			"url",
@@ -136,6 +139,14 @@ public class ProcessStateAction extends AbstractPersistentEntity {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Boolean getCommentNeeded() {
+        return nvl(commentNeeded, false);
+    }
+
+    public void setCommentNeeded(Boolean commentNeeded) {
+        this.commentNeeded = commentNeeded;
     }
 
     public Set<ProcessStateActionPermission> getPermissions() {

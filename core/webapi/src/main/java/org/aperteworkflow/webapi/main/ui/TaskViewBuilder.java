@@ -366,7 +366,18 @@ public class TaskViewBuilder
 
         buttonNode.appendText(i18Source.getMessage(actionLabel));
 			
-		scriptBuilder.append("$('#").append(actionButtonId).append("').click(function() { disableButtons(); performAction(this, '").append(action.getBpmName()).append("', ").append(action.getSkipSaving()).append(", '").append(task.getInternalTaskId()).append("');  });");
+		scriptBuilder
+                .append("$('#")
+                .append(actionButtonId)
+                .append("').click(function() { disableButtons(); performAction(this, '")
+                .append(action.getBpmName())
+                .append("', ")
+                .append(action.getSkipSaving())
+                .append(", ")
+                .append(action.getCommentNeeded())
+                .append(", '")
+                .append(task.getInternalTaskId())
+                .append("');  });");
 		scriptBuilder.append("$('#").append(actionButtonId).append("').tooltip({title: '").append(i18Source.getMessage(action.getDescription())).append("'});");
 	}
 	

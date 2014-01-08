@@ -94,9 +94,17 @@
 		$('#alerts-list').empty();
 	}
 	
-	function performAction(button, actionName, skipSaving, taskId)
+	function performAction(button, actionName, skipSaving, commentNeeded, taskId)
 	{
 		var JsonWidgetData = "[{}]";
+		var comment = '';
+		if(commentNeeded == true)
+		{
+            if(comment == '')
+            {
+                return;
+            }
+		}
 		if(skipSaving != true)
 		{
 			clearAlerts();
@@ -134,6 +142,8 @@
 			"taskId": taskId,
 			"actionName": actionName,
 			"skipSaving": skipSaving,
+			"commentNeeded": commentNeeded,
+			"comment": comment,
 			"widgetData": JsonWidgetData
 		})
 		.done(function(data)

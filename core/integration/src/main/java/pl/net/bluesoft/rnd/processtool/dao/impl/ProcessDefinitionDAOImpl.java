@@ -256,6 +256,7 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 					isEqual(action1.getBpmName(), action2.getBpmName()) &&
 					isEqual(action1.getAutohide(), action2.getAutohide()) &&
 					isEqual(action1.getSkipSaving(), action2.getSkipSaving()) &&
+                    isEqual(action1.getCommentNeeded(), action2.getCommentNeeded()) &&
 					isEqual(action1.getLabel(), action2.getLabel()) &&
 					isEqual(action1.getNotification(), action2.getNotification()) &&
 					isEqual(action1.getMarkProcessImportant(), action2.getMarkProcessImportant()) &&

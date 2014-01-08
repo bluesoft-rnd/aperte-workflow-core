@@ -20,7 +20,8 @@
         <module>drools-step</module>
         <module>context-help-provider</module>
         <module>email-capture</module>
-        <module>files-capture</module>
+        <module>files-repository</module>
+        <!--<module>files-capture</module> -->
         <module>mule-esb-plugin</module>
         <module>log-step</module>
         <module>process-deadlines</module>

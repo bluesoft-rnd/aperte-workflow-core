@@ -7,8 +7,8 @@
         <version>3.0-beta2-SNAPSHOT</version>
     </parent>
 
-    <artifactId>files-capture</artifactId>
-    <name>files-capture</name>
+    <artifactId>files-repository</artifactId>
+    <name>files-repository</name>
     <packaging>bundle</packaging>
 
     <dependencies>
@@ -24,17 +24,6 @@
             <version>${hibernate.version}</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <artifactId>cmis-widget</artifactId>
-            <groupId>org.aperteworkflow</groupId>
-            <version>3.0-beta2-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-		    <groupId>org.apache.chemistry.opencmis</groupId>
-		    <artifactId>chemistry-opencmis-osgi-client</artifactId>
-		    <version>0.9.0-beta-1</version>
-		 </dependency>
 		<dependency>
             <groupId>org.springframework</groupId>
             <artifactId>org.springframework.web</artifactId>
@@ -57,7 +46,7 @@
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <extensions>true</extensions>
-                <version>2.1.0</version>
+                <version>${maven.bundle.plugin}</version>
                 <configuration>
                     <instructions>
                         <Export-Package>
@@ -75,7 +64,7 @@
                         </Import-Package>
                         <Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>
                         <Bundle-Activator>org.aperteworkflow.files.Activator</Bundle-Activator>
-                        <Bundle-SymbolicName>pl.net.bluesoft.rnd.pt.ext.filescapture</Bundle-SymbolicName>
+                        <Bundle-SymbolicName>org.aperteworkflow.files</Bundle-SymbolicName>
                         <Bundle-Version>0.1</Bundle-Version>
                         <Embed-Directory>lib</Embed-Directory>
                         <Embed-Transitive>true</Embed-Transitive>

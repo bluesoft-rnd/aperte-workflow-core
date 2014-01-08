@@ -4,7 +4,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <%@ taglib uri="http://liferay.com/tld/portlet" prefix="liferay-portlet" %>
-
+        DUPA
 <div class="navbar left-menu" >
 	<nav id="mobile-collapse" class="navbar navbar-default left-menu" role="navigation">
 

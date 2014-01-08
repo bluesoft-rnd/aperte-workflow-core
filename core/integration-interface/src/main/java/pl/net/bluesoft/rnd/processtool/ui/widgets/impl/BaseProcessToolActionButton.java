@@ -24,7 +24,10 @@ public abstract class BaseProcessToolActionButton implements ProcessToolActionBu
 	protected String description;
 
 	@AutoWiredProperty
-	protected Boolean skipSaving = false;
+	protected Boolean commentNeeded = false;
+
+    @AutoWiredProperty
+    protected Boolean skipSaving = false;
 
 	@AutoWiredProperty
 	protected Boolean autoHide = false;
@@ -83,6 +86,7 @@ public abstract class BaseProcessToolActionButton implements ProcessToolActionBu
 		map.put("actionType", definition.getActionType());
 		map.put("bpmAction", definition.getBpmName());
 		map.put("skipSaving", String.valueOf(definition.getSkipSaving()));
+        map.put("commentNeeded", String.valueOf(definition.getCommentNeeded()));
 		map.put("markProcessImportant", String.valueOf(definition.getMarkProcessImportant()));
 		map.put("priority", String.valueOf(definition.getPriority()));
 		map.put("url", String.valueOf(definition.getUrl()));
@@ -255,5 +259,13 @@ public abstract class BaseProcessToolActionButton implements ProcessToolActionBu
 
     public void setIconName(String iconName) {
         this.iconName = iconName;
+    }
+
+    public Boolean getCommentNeeded() {
+        return commentNeeded;
+    }
+
+    public void setCommentNeeded(Boolean commentNeeded) {
+        this.commentNeeded = commentNeeded;
     }
 }

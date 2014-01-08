@@ -67,10 +67,10 @@
 						<version>2.4</version>
 						<executions>
 							<execution>
-								<id>copy</id>
-								<phase>package</phase>
+								 <id>copy-installed</id>
+								<phase>install</phase>
 								<goals>
-									<goal>copy</goal>
+								  <goal>copy</goal>
 								</goals>
 								<configuration>
 									<artifactItems>

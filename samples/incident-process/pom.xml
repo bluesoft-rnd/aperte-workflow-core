@@ -96,11 +96,11 @@
                         <version>2.4</version>
                         <executions>
                             <execution>
-                                <id>copy</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>copy</goal>
-                                </goals>
+                               <id>copy-installed</id>
+								<phase>install</phase>
+								<goals>
+								  <goal>copy</goal>
+								</goals>
                                 <configuration>
                                     <artifactItems>
                                         <artifactItem>

@@ -2,6 +2,9 @@ package pl.net.bluesoft.rnd.processtool.plugins;
 
 import com.google.common.io.CharStreams;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
@@ -46,6 +49,9 @@ public class GuiRegistryImpl implements GuiRegistry {
 
 	@Autowired
 	private IHtmlTemplateProvider templateProvider;
+
+    @Autowired
+    private DefaultListableBeanFactory beanFactory;
 
 	@Override
 	public synchronized void registerWidget(Class<? extends ProcessToolWidget> clazz) {
@@ -122,7 +128,8 @@ public class GuiRegistryImpl implements GuiRegistry {
 	public synchronized ProcessToolProcessStep createStep(String stepName) {
 		Class<? extends ProcessToolProcessStep> clazz = steps.get(stepName);
 		checkClassFound(stepName, clazz);
-		return Classes.newInstance(clazz);
+        /* Create step with spring context */
+		return (ProcessToolProcessStep)beanFactory.createBean(clazz, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
 	}
 
 	@Override

@@ -48,7 +48,7 @@ public class ProcessComments extends ProcessHtmlWidget {
 
 		private List<ProcessComment> convert(List<ProcessCommentBean> list, BpmTask task) {
 			List<ProcessComment> result = new ArrayList<ProcessComment>();
-			SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
 			for (ProcessCommentBean bean : list) {
 				result.add(convert(bean, task, format));
@@ -58,7 +58,8 @@ public class ProcessComments extends ProcessHtmlWidget {
 
 		private ProcessComment convert(ProcessCommentBean bean, BpmTask task, SimpleDateFormat format) {
 			ProcessComment comment = new ProcessComment();
-			comment.setAuthor(bean.getAuthor());
+			comment.setAuthorLogin(bean.getAuthorLogin());
+            comment.setAuthorFullName(bean.getAuthorFullName());
 			comment.setBody(bean.getBody());
 			comment.setProcessState(task.getTaskName());
 			comment.setProcessInstance(task.getProcessInstance());
@@ -74,7 +75,8 @@ public class ProcessComments extends ProcessHtmlWidget {
 
 	public static class ProcessCommentBean {
 		private String createDate;
-		private String author;
+		private String authorLogin;
+        private String authorFullName;
 		private String body;
 
 		public String getCreateDate() {
@@ -85,12 +87,12 @@ public class ProcessComments extends ProcessHtmlWidget {
 			this.createDate = createDate;
 		}
 
-		public String getAuthor() {
-			return author;
+		public String getAuthorLogin() {
+			return authorLogin;
 		}
 
-		public void setAuthor(String author) {
-			this.author = author;
+		public void setAuthorLogin(String authorLogin) {
+			this.authorLogin = authorLogin;
 		}
 
 		public String getBody() {
@@ -100,5 +102,13 @@ public class ProcessComments extends ProcessHtmlWidget {
 		public void setBody(String body) {
 			this.body = body;
 		}
-	}
+
+        public String getAuthorFullName() {
+            return authorFullName;
+        }
+
+        public void setAuthorFullName(String authorFullName) {
+            this.authorFullName = authorFullName;
+        }
+    }
 }

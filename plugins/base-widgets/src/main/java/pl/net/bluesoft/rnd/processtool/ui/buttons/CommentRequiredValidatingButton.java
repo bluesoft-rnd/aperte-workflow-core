@@ -77,8 +77,8 @@ public class CommentRequiredValidatingButton extends StandardValidatingButton {
 			return;
 		}
 		ProcessComment comment = dialog.getProcessComment();
-        comment.setAuthor(loggedUser);
-        comment.setAuthorSubstitute(substitutingUser);
+        comment.setAuthorLogin(loggedUser);
+        comment.setSubstituteLogin(substitutingUser);
         comment.setCreateTime(new Date());
         comment.setProcessState(task.getTaskName());
 

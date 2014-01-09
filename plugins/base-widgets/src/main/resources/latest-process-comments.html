@@ -7,10 +7,15 @@
                 <#assign commentIteration = 0/>
                 <#list processComments as processComment>
                     <#assign commentIteration = commentIteration + 1/>
-                    <#if commentIteration <= 1>
+                    <#if commentIteration =< 1>
+                        <#assign substituteUser = processComment.substituteLogin!""/>
                         <li class="list-group-item alert alert-warning">
                             <h4 class="list-group-item-heading">
-                                ${processComment.author} [${processComment.createTime?string("yyyy-MM-dd HH:mm")}]
+                                ${processComment.authorFullName} (${processComment.authorLogin}) [${processComment.createTime?string("yyyy-MM-dd HH:mm")}]
+                                <#if substituteUser != "">
+                                    ${messageSource.getMessage("process.history.subsituted.by")}
+                                    ${processComment.substituteFullName} (${processComment.substituteLogin})
+                                </#if>
                             </h4>
                             <p class="list-group-item-text">
                                 ${processComment.body}

@@ -4,11 +4,16 @@
     <div class="panel panel-default">
         <div class="panel-heading">${messageSource.getMessage("widget.process_comments.caption")}</div>
         <div class="panel-body form-inline">
-            <ul class="list-group aperte-list-group">
+            <ul class="list-group aperte-list-group" id="process_comments_list">
                 <#list processComments as processComment>
+                    <#assign substituteUser = processComment.substituteLogin!""/>
                     <li class="list-group-item">
                         <h4 class="list-group-item-heading">
-                            ${processComment.author} [${processComment.createTime?string("yyyy-MM-dd HH:mm")}]
+                            ${processComment.authorFullName} (${processComment.authorLogin}) [${processComment.createTime?string("yyyy-MM-dd HH:mm")}]
+                            <#if substituteUser != "">
+                                ${messageSource.getMessage("process.history.subsituted.by")}
+                                ${processComment.substituteFullName} (${processComment.substituteLogin})
+                            </#if>
                         </h4>
                         <p class="list-group-item-text">
                             ${processComment.body}
@@ -17,12 +22,12 @@
                 </#list>
             </ul>
             <#if privileges?seq_contains("EDIT")>
-                <button id="process_comments_button_new" onclick="process_comments_button_new_click()">${messageSource.getMessage("widget.process_comments.new")}</button>
+                <button class="btn btn-info" id="process_comments_button_new" onclick="process_comments_button_new_click()">${messageSource.getMessage("widget.process_comments.new")}</button>
                 <div id="process_comments_add_form" style="display:none;">
                     <textarea id="process_comments_body" style="width:50%;"></textarea>
                     <br/>
-                    <button id="process_comments_button_add" onclick="process_comments_button_add_click()">${messageSource.getMessage("widget.process_comments.add")}</button>
-                    <button id="process_comments_button_cancel" onclick="process_comments_button_cancel_click()">${messageSource.getMessage("widget.process_comments.cancel")}</button>
+                    <button class="btn btn-info" id="process_comments_button_add" onclick="process_comments_button_add_click()">${messageSource.getMessage("widget.process_comments.add")}</button>
+                    <button class="btn btn-warning" id="process_comments_button_cancel" onclick="process_comments_button_cancel_click()">${messageSource.getMessage("widget.process_comments.cancel")}</button>
                 </div>
             </#if>
         </div>
@@ -65,14 +70,15 @@
 
     function process_comments_button_add_click() {
         var date = new Date();
-        var dateStr = date.getFullYear() + "-" +
+        var dateStr = date.getDate() + "-" +
                     (date.getMonth() + 1) + "-" +
-                    date.getDate() + " " +
+                    date.getFullYear() + " " +
                     date.getHours() + ":" +
                     date.getMinutes();
         var dateFull = dateStr + ":" + date.getSeconds();
         var body = $('#process_comments_body').val();
         var author = '${user.login}';
+        var authorFullName = '${user.realName}';
 
         if (!body || /^\s*$/.test(body)) {
             return;
@@ -81,10 +87,17 @@
         processCommentsAddedComments.push({
             createDate: dateFull,
             body: body,
-            author: author
+            authorLogin: author,
+            authorFullName: authorFullName
         });
 
-        var text = author + " [" + dateStr + "] : " + body + "<br/>";
+        var text = '<li class="list-group-item">' +
+                '<h4 class="list-group-item-heading">'+
+                authorFullName + ' (' + author + ')' +
+                " [" + dateStr + "] " +
+                '</h4><p class="list-group-item-text">'+
+                            body+
+                        '</p></li>';
 
         $("#process_comments_list").append(text);
 

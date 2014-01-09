@@ -32,7 +32,6 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 
 import javax.servlet.http.HttpServletRequest;
-import java.sql.BatchUpdateException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -141,11 +140,36 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 
                         if(comment != null && !comment.isEmpty())
                         {
+                            UserData actionPerformer = context.getUser();
+                            String taskOwner = task.getAssignee();
+
+                            String authorLogin = actionPerformer.getLogin();
+                            String authorFullName = actionPerformer.getRealName();
+
                             ProcessComment processComment = new ProcessComment();
-                            processComment.setAuthor(task.getAssignee());
                             processComment.setCreateTime(new Date());
                             processComment.setProcessState(task.getTaskName());
                             processComment.setBody(comment);
+                            processComment.setAuthorLogin(authorLogin);
+                            processComment.setAuthorFullName(authorFullName);
+
+                            /* Action performed by task owner*/
+                            if(taskOwner.equals(authorLogin))
+                            {
+                                processComment.setAuthorLogin(authorLogin);
+                                processComment.setAuthorFullName(authorFullName);
+                            }
+                            /* Action performed by substituting user */
+                            else
+                            {
+                                UserData owner = getUserSource().getUserByLogin(taskOwner);
+                                processComment.setAuthorLogin(owner.getLogin());
+                                processComment.setAuthorFullName(owner.getRealName());
+                                processComment.setSubstituteLogin(authorLogin);
+                                processComment.setSubstituteFullName(authorFullName);
+
+                            }
+
                             ProcessInstance pi = task.getProcessInstance().getRootProcessInstance();
 
                             pi.addComment(processComment);

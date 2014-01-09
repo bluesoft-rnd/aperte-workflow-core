@@ -3,6 +3,11 @@ package pl.net.bluesoft.rnd.processtool.plugins.osgi;
 import com.thoughtworks.xstream.XStream;
 import org.osgi.framework.Bundle;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
@@ -48,12 +53,18 @@ public class BundleInstallationHandler {
     @Autowired
     private IUserRolesManager userRolesManager;
 
+    @Autowired
+    private ApplicationContext applicationContext;
+
 	private ErrorMonitor errorMonitor;
 	private Logger logger;
+    private DefaultListableBeanFactory beanFactory;
 
 	public BundleInstallationHandler(ErrorMonitor errorMonitor, Logger logger)
     {
         SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+
+        this.beanFactory = (DefaultListableBeanFactory)applicationContext.getAutowireCapableBeanFactory();
 
 		this.errorMonitor = errorMonitor;
 		this.logger = logger;
@@ -70,6 +81,10 @@ public class BundleInstallationHandler {
 		if (bundleHelper.hasHeaderValues(VIEW)) {
 			handleView(eventType, bundleHelper);
 		}
+
+        if (bundleHelper.hasHeaderValues(SPRING_BEANS)) {
+            handleSpringBeans(eventType, bundleHelper);
+        }
 		
 		if (bundleHelper.hasHeaderValues(SCRIPT)) {
 			handleScript(eventType, bundleHelper);
@@ -112,6 +127,39 @@ public class BundleInstallationHandler {
 			handleBundleResources(eventType, bundleHelper);
 		}
 	}
+
+    private void handleSpringBeans(int eventType, OSGiBundleHelper bundleHelper)
+    {
+        Bundle bundle = bundleHelper.getBundle();
+        String[] springBeans = bundleHelper.getHeaderValues(SPRING_BEANS);
+
+        for (String springBean : springBeans)
+        {
+            try
+            {
+                Class<?> springBeanClass = bundle.loadClass(springBean);
+                String springBeanSimpleClassName = springBeanClass.getSimpleName();
+
+                if (eventType == Bundle.ACTIVE)
+                {
+                    beanFactory.registerBeanDefinition(springBeanSimpleClassName,
+                            BeanDefinitionBuilder.
+                                    genericBeanDefinition(springBeanClass).
+                                    setScope(BeanDefinition.SCOPE_SINGLETON).
+                                    getBeanDefinition());
+                }
+                else
+                {
+                    beanFactory.removeBeanDefinition(springBeanSimpleClassName);
+                }
+            }
+            catch(Throwable e)
+            {
+                logger.log(Level.SEVERE, e.getMessage(), e);
+                forwardErrorInfoToMonitor(bundle.getSymbolicName(), e);
+            }
+        }
+    }
 
 	private void handleScript(int eventType, OSGiBundleHelper bundleHelper)
 	{
@@ -208,7 +256,12 @@ public class BundleInstallationHandler {
                 String controllerName = controllerAnnotation.name();
                 if (eventType == Bundle.ACTIVE)
                 {
-                    IOsgiWebController controller = controllerClass.newInstance();
+                    IOsgiWebController controller =
+                            (IOsgiWebController)beanFactory.createBean(
+                                    controllerClass,
+                                    AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE,
+                                    true);
+
                     processToolRegistry.getGuiRegistry().registerWebController(controllerName, controller);
                 }
                 else

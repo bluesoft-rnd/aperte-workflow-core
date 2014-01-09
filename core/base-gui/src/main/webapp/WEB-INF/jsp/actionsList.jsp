@@ -37,16 +37,13 @@
 	
 	function cancelCommentModal()
 	{
-		$('#modal-errors').empty();
 		$('#commentModal').modal('hide');
-		$('#action-comment-textarea').val('');
-		enableButtons();
 
 	}
 	
 	function performCommentModal()
 	{
-		$('#modal-errors').empty();
+		$('#commentModal').modal('hide');
 		var comment = $('#action-comment-textarea').val();
 		if(!comment)
 		{
@@ -167,6 +164,11 @@
 			$('#action-comment-textarea').val('');
 			$('#commentModal').modal({
 			  keyboard: false
+			});
+			$('#commentModal').on('hidden.bs.modal', function (e) {
+			  	$('#modal-errors').empty();
+				$('#action-comment-textarea').val('');
+				enableButtons();
 			});
 			
 		}

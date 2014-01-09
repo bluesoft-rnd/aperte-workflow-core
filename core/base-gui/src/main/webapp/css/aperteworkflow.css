@@ -752,6 +752,11 @@
 	background: none;
 }
 
+.list-group.aperte-list-group
+{
+	margin: 0px;
+}
+
 .search-view
 {
 	overflow: hidden;

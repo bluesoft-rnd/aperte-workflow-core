@@ -4,7 +4,7 @@
     <div class="panel panel-default">
         <div class="panel-heading">${messageSource.getMessage("widget.process_history.name")}</div>
         <div class="panel-body form-inline">
-            <ul class="list-group">
+            <ul class="list-group aperte-list-group">
                 <#list processLogs as log>
                     <li class="list-group-item">
                         <#assign actionUser = userSource.getUserByLogin(log.getUserLogin())!""/>

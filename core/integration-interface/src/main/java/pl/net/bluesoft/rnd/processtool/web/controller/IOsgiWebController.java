@@ -6,6 +6,8 @@ package pl.net.bluesoft.rnd.processtool.web.controller;
  *
  * User {@link OsgiController} annotation to specyfie controller name
  *
+ * Those controllers are autowire in installation by Spring
+ *
  * @author: "mpawlak@bluesoft.net.pl"
  */
 public interface IOsgiWebController

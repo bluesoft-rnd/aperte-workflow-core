@@ -141,14 +141,14 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 
                         if(comment != null && !comment.isEmpty())
                         {
-                            ProcessComment comment = new ProcessComment();
-                            comment.setAuthor(task.getAssignee());
-                            comment.setCreateTime(new Date());
-                            comment.setProcessState(task.getTaskName());
-
+                            ProcessComment processComment = new ProcessComment();
+                            processComment.setAuthor(task.getAssignee());
+                            processComment.setCreateTime(new Date());
+                            processComment.setProcessState(task.getTaskName());
+                            processComment.setBody(comment);
                             ProcessInstance pi = task.getProcessInstance().getRootProcessInstance();
 
-                            pi.addComment(comment);
+                            pi.addComment(processComment);
                             pi.setSimpleAttribute("commentAdded", "true");
                         }
                         

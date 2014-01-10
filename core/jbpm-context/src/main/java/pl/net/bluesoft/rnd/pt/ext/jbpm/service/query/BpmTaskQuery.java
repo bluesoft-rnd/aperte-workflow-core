@@ -251,7 +251,7 @@ public class BpmTaskQuery {
 
         /* Queue or all user tasks */
         if (queues != null || queryType == QueryType.LIST || (virtualQueues != null && virtualQueues.contains(QueueType.ALL_TASKS)))
-            sb.append(" JOIN PeopleAssignments_PotOwners potowners ON potowners.task_id = task_.id");
+            sb.append(" JOIN PeopleAssignments_PotOwners potowners ON (potowners.task_id = task_.id AND potowners.entity_id = :user)");
 
 
         if (taskNames != null || queryType == QueryType.LIST || hasText(searchExpression)) {
@@ -403,7 +403,7 @@ public class BpmTaskQuery {
     private static String getVirtualQueueCondition(QueueType virtualQueue) {
         switch (virtualQueue) {
             case ALL_TASKS:
-                return "(potowners.entity_id = :user AND task_.status NOT IN ('Completed'))";
+                return "(((potowners.entity_id = :user AND task_.status NOT IN ('Reserved')) OR task_.actualowner_id = :user) AND task_.status NOT IN ('Completed'))";
             case MY_TASKS:
                 return "(task_.actualowner_id = :user AND task_.status NOT IN ('Completed'))";
             case OWN_IN_PROGRESS:

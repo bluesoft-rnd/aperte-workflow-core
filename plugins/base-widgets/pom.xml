@@ -145,12 +145,14 @@
 							pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDataBlockHtmlWidget,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDiagramWidget,
 							pl.net.bluesoft.rnd.processtool.ui.basewidgets.UserSubstitutionComment,
-                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessHistoryWidget
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessHistoryWidget,
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.ShadowStateWidget
                         </ProcessTool-Widget-View>
                         <ProcessTool-Step-Enhancement>
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.ChooseUserWithRoleStep,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.FinishTasksStep,
-							pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.HandleSubstitutionAcceptance
+							pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.HandleSubstitutionAcceptance,
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.SetProcessStateConfigurationId
                         </ProcessTool-Step-Enhancement>
                       <!--  <ProcessTool-Widget-Script>
                         requests-scripts.js;provider:=file

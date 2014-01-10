@@ -9,10 +9,7 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidgetAttribute;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidgetPermission;
+import pl.net.bluesoft.rnd.processtool.model.config.*;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.IWidgetDataProvider;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
@@ -172,8 +169,33 @@ public class TaskViewBuilder
 		
 		/* Check if widget is based on html */
 		String widgetTemplateBody = templateProvider.getTemplate(aliasName);
-		
-		if(aliasName.equals("TabSheet"))
+
+        if(aliasName.equals("ShadowStateWidget"))
+        {
+             ProcessStateWidgetAttribute processStateConfigurationIdAttribute =
+                     widget.getAttributeByName("processStateConfigurationId");
+
+            String  attributeName = processStateConfigurationIdAttribute.getValue();
+            String  processStateConfigurationId = task.getProcessInstance().getSimpleAttributeValue(attributeName);
+
+            ProcessStateConfiguration processStateConfiguration =
+                    ctx.getProcessDefinitionDAO().getCachedProcessStateConfiguration(Long.parseLong(processStateConfigurationId));
+
+
+
+            Element divContentNode = parent.ownerDocument().createElement("div")
+                    .attr("id", "vertical_layout"+widget.getId());
+            parent.appendChild(divContentNode);
+
+            for(ProcessStateWidget childWidget: processStateConfiguration.getWidgets())
+            {
+                processWidget(childWidget, divContentNode);
+            }
+
+
+        }
+
+		else if(aliasName.equals("TabSheet"))
 		{
 			String tabId = "tab_sheet_"+widget.getId();
 			String divContentId = "div_content_"+widget.getId();

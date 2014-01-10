@@ -6,7 +6,10 @@ package pl.net.bluesoft.rnd.processtool.model;
  * @author Maciej Pawlak
  *
  */
-public enum QueueType {
+public enum QueueType
+{
+    /** Tasks assigned to users and queues */
+    ALL_TASKS("activity.created.all.tasks"),
 	/** Tasks assigned to user */
 	MY_TASKS("activity.created.assigned.tasks"),
 	/** User created task, done by others */

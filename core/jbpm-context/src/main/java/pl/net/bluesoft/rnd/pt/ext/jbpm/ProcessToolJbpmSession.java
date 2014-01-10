@@ -285,8 +285,15 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	}
 
 	@Override
-	public void assignTaskToUser(String taskId, String userLogin) {
-		getJbpmService().claimTask(toJbpmTaskId(taskId), userLogin);
+	public BpmTask assignTaskToUser(String taskId, String userLogin)
+    {
+        Long bpmTaskId = toJbpmTaskId(taskId);
+		getJbpmService().claimTask(bpmTaskId, userLogin);
+        Task task = getJbpmService().getTask(bpmTaskId);
+        if (task == null) {
+            return null;
+        }
+        return getBpmTask(task);
 	}
 
 	@Override
@@ -1380,7 +1387,20 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 			return owner != null ? owner.getId() : null;
 		}
 
-		@Override
+        @Override
+        public Collection<String> getPotentialOwners()
+        {
+            Collection<OrganizationalEntity> potentialOwners = task.getPeopleAssignments().getPotentialOwners();
+            Collection<String> potentialOwnersLogins = new LinkedList<String>();
+            for (OrganizationalEntity potentialOwner : potentialOwners) {
+                if (potentialOwner instanceof User) {
+                    potentialOwnersLogins.add(potentialOwner.getId());
+                }
+            }
+            return potentialOwnersLogins;
+        }
+
+        @Override
 		public String getGroupId() {
 			if (getAssignee() != null) {
 				return null;

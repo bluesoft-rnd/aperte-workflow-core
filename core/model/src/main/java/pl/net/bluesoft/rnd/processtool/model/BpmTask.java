@@ -3,6 +3,7 @@ package pl.net.bluesoft.rnd.processtool.model;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 
+import java.util.Collection;
 import java.util.Date;
 
 public interface BpmTask {
@@ -20,6 +21,7 @@ public interface BpmTask {
     String getTaskName();
 	String getCreator();
     String getAssignee();
+    Collection<String> getPotentialOwners();
 	String getGroupId();
 
 	ProcessDefinitionConfig getProcessDefinition();

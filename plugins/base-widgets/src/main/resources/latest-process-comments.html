@@ -7,7 +7,7 @@
                 <#assign commentIteration = 0/>
                 <#list processComments as processComment>
                     <#assign commentIteration = commentIteration + 1/>
-                    <#if commentIteration =< 1>
+                    <#if commentIteration <= 1>
                         <#assign substituteUser = processComment.substituteLogin!""/>
                         <li class="list-group-item alert alert-warning">
                             <h4 class="list-group-item-heading">

@@ -249,10 +249,10 @@ public class BpmTaskQuery {
         String castTypeName = hibernateDialect.getCastTypeName(Types.VARCHAR);
         sb.append(" FROM pt_process_instance process JOIN Task task_ ON CAST(task_.processinstanceid AS "+castTypeName+" ) = process.internalId");
 
-
-        if (queues != null || queryType == QueryType.LIST) {
+        /* Queue or all user tasks */
+        if (queues != null || queryType == QueryType.LIST || (virtualQueues != null && virtualQueues.contains(QueueType.ALL_TASKS)))
             sb.append(" JOIN PeopleAssignments_PotOwners potowners ON potowners.task_id = task_.id");
-        }
+
 
         if (taskNames != null || queryType == QueryType.LIST || hasText(searchExpression)) {
             sb.append(" JOIN I18NText i18ntext_ ON i18ntext_.task_names_id = task_.id");
@@ -402,6 +402,8 @@ public class BpmTaskQuery {
 
     private static String getVirtualQueueCondition(QueueType virtualQueue) {
         switch (virtualQueue) {
+            case ALL_TASKS:
+                return "(potowners.entity_id = :user AND task_.status NOT IN ('Completed'))";
             case MY_TASKS:
                 return "(task_.actualowner_id = :user AND task_.status NOT IN ('Completed'))";
             case OWN_IN_PROGRESS:

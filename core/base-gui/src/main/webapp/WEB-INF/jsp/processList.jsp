@@ -36,7 +36,7 @@
 				 { "sName":"step", "bSortable": true ,"bVisible":parsedProcess.step, "mData": "step" },
 				 { "sName":"code", "bSortable": true ,"bVisible":parsedProcess.code, "mData": "code" },
 				 { "sName":"creator", "bSortable": true ,"bVisible":parsedProcess.creator,"mData": "creator" },
-				 { "sName":"assignee", "bSortable": true ,"bVisible":parsedProcess.assignee,"mData": "assignee" },
+				 { "sName":"assignee", "bSortable": true ,"bVisible":parsedProcess.assignee,"mData": function(object){return generateAssigneColumn(object);} },
 				 { "sName":"creationDate", "bSortable": true ,"bVisible":parsedProcess.creationDate,"mData": function(object){return $.format.date(object.creationDate, 'dd-MM-yyyy, HH:mm');}},
 				 { "sName":"deadline","bVisible":true ,"bVisible":parsedProcess.deadline, "bSortable": true,"mData": function(object){return object.deadline == null ? "<spring:message code='processes.list.table.nodeadline' />" : $.format.date(object.deadline, 'dd-MM-yyyy, HH:mm');}},
 				 { "sName":"stepInfo", "bSortable": true ,"bVisible":parsedProcess.stepInfo, "mData":"stepInfo" }
@@ -72,6 +72,18 @@
 		
 		queueViewManager.addTableView('process', dataTable, 'task-view-processes');
 	});
+	
+	function generateAssigneColumn(task)
+	{
+		if(!task.assignee)
+		{
+			return generateButtons(task);
+		}
+		else
+		{
+			return task.assignee;
+		}
+	}
 
 
 	function generateNameColumn(task)

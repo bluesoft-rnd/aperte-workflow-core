@@ -51,24 +51,22 @@ public class TaskViewController extends AbstractProcessToolServletController
 		long t0 = System.currentTimeMillis();
 		
 		final I18NSource messageSource = I18NSourceFactory.createI18NSource(request.getLocale());
-		
+
 		final String queueName = request.getParameter("queueName");
 		final String taskId = request.getParameter("taskId");
 		final String userId = request.getParameter("userId");
-		
-		if(isNull(taskId))
+
+        BpmTaskBean taskBean = new BpmTaskBean();
+
+        if(isNull(taskId))
 		{
-			response.getWriter().print(messageSource.getMessage("request.performaction.error.notaskid"));
-			return null;
-		}
-		else if(isNull(queueName))
-		{
-			response.getWriter().print(messageSource.getMessage("request.performaction.error.noqueuename"));
-			return null;
+            taskBean.addError(SYSTEM_SOURCE, messageSource.getMessage("request.performaction.error.notaskid"));
+			return taskBean;
 		}
 		else if (isNull(userId))
 		{
-			response.getWriter().print(messageSource.getMessage("request.performaction.error.nouserid"));
+            taskBean.addError(SYSTEM_SOURCE, messageSource.getMessage("request.performaction.error.nouserid"));
+            return taskBean;
 		}
 		
 		/* Initilize request context */
@@ -76,16 +74,21 @@ public class TaskViewController extends AbstractProcessToolServletController
 		
 		if(!context.isUserAuthorized())
 		{
-			response.getWriter().print(messageSource.getMessage("request.handle.error.nouser"));
-			return null;
+            taskBean.addError(SYSTEM_SOURCE, messageSource.getMessage("request.handle.error.nouser"));
+            return taskBean;
 		}
 		
 		long t1 = System.currentTimeMillis();
 
-		BpmTaskBean taskBean = getProcessToolRegistry().withProcessToolContext(new ReturningProcessToolContextCallback<BpmTaskBean>() {
+		taskBean = getProcessToolRegistry().withProcessToolContext(new ReturningProcessToolContextCallback<BpmTaskBean>() {
 			@Override
 			public BpmTaskBean processWithContext(ProcessToolContext ctx) {
-				BpmTask newTask = getBpmSession(context, userId).assignTaskFromQueue(queueName, taskId);
+                BpmTask newTask;
+                /* Task assigned from virtual queue */
+                if(isNull(queueName))
+                    newTask = getBpmSession(context, userId).assignTaskToUser(taskId, userId);
+                else
+                    newTask = getBpmSession(context, userId).assignTaskFromQueue(queueName, taskId);
 
 				if (newTask != null) {
 					return BpmTaskBean.createFrom(newTask, messageSource);

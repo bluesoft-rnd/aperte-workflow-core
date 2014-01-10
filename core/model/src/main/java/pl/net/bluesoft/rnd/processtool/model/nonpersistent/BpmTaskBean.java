@@ -5,10 +5,7 @@ import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * User: POlszewski
@@ -30,6 +27,7 @@ public class BpmTaskBean extends AbstractBpmTask implements Serializable {
 	private boolean finished;
 	private Date deadlineDate;
 	private String stepInfo;
+    private Collection<String> potentialOwners = new HashSet<String>();
 
 	public BpmTaskBean() {
 	}
@@ -46,6 +44,7 @@ public class BpmTaskBean extends AbstractBpmTask implements Serializable {
 		this.finished = task.isFinished();
 		this.processDefinition = task.getProcessDefinition();
 		this.stepInfo = task.getStepInfo();
+        this.potentialOwners.addAll(task.getPotentialOwners());
 	}
 
 	@Override
@@ -161,7 +160,15 @@ public class BpmTaskBean extends AbstractBpmTask implements Serializable {
 		this.stepInfo = stepInfo;
 	}
 
-	public static List<BpmTaskBean> asBeans(List<? extends BpmTask> list) {
+    public Collection<String> getPotentialOwners() {
+        return potentialOwners;
+    }
+
+    public void setPotentialOwners(Collection<String> potentialOwners) {
+        this.potentialOwners = potentialOwners;
+    }
+
+    public static List<BpmTaskBean> asBeans(List<? extends BpmTask> list) {
 		List<BpmTaskBean> result = new ArrayList<BpmTaskBean>();
 
 		for (BpmTask task : list) {

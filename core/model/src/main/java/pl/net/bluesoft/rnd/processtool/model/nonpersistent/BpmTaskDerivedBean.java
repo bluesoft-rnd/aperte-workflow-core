@@ -5,9 +5,7 @@ import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * User: POlszewski
@@ -50,6 +48,8 @@ public class BpmTaskDerivedBean implements BpmTask {
 	private Date deadlineDate;
 	private boolean stepInfoPresent;
 	private String stepInfo;
+    private Collection<String> potentialOwners = new HashSet<String>();
+    private boolean potentialOwnersPresent;
 
 	public BpmTaskDerivedBean(BpmTask task) {
 		this.task = task;
@@ -276,7 +276,21 @@ public class BpmTaskDerivedBean implements BpmTask {
 		this.stepInfoPresent = true;
 	}
 
-	public static List<BpmTaskDerivedBean> asBeans(List<? extends BpmTask> list) {
+
+    public Collection<String> getPotentialOwners()
+    {
+        if (!potentialOwnersPresent) {
+            setPotentialOwners(task.getPotentialOwners());
+        }
+        return potentialOwners;
+    }
+
+    public void setPotentialOwners(Collection<String> potentialOwners) {
+        this.potentialOwners = potentialOwners;
+        this.potentialOwnersPresent = true;
+    }
+
+    public static List<BpmTaskDerivedBean> asBeans(List<? extends BpmTask> list) {
 		List<BpmTaskDerivedBean> result = new ArrayList<BpmTaskDerivedBean>();
 
 		for (BpmTask task : list) {

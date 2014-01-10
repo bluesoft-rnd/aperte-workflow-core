@@ -126,16 +126,20 @@ public class TaskViewBuilder
         actionsNode.appendChild(processActionButtons);
 
         /* Check if task is finished */
-        boolean isTaskFinished = task.isFinished();
-        if(isTaskFinished)
+        if(isTaskFinished())
         {
             addCancelActionButton(genericActionButtons);
             return;
         }
 
+        /* Check if task is from queue */
+        if(isTaskHasNoOwner() && hasUserRightsToTask())
+        {
+            addClaimActionButton(genericActionButtons);
+        }
+
         /* Check if user, who is checking the task, is the assigned person */
-        boolean isUserAssignedToTask = user.getLogin().equals(task.getAssignee());
-        if(isUserAssignedToTask || isSubstitutingUser())
+        if(isUserAssignedToTask() || isSubstitutingUser())
         {
             addSaveActionButton(genericActionButtons);
             for(ProcessStateAction action: actions)
@@ -320,6 +324,9 @@ public class TaskViewBuilder
     {
         Collection<String> privileges = new ArrayList<String>();
 
+        if(!isUserAssignedToTask())
+            return privileges;
+
         for(ProcessStateWidgetPermission permission: widget.getPermissions())
         {
             if (permission.getRoleName().contains("*") || user.hasRole(permission.getRoleName())) {
@@ -424,6 +431,35 @@ public class TaskViewBuilder
 		scriptBuilder.append("$('#").append(actionButtonId).append("').tooltip({title: '").append(i18Source.getMessage("button.exit")).append("'});");
 	}
 
+    private void addClaimActionButton(Element parent)
+    {
+        String actionButtonId = "action-button-claim";
+
+        Element buttonNode = parent.ownerDocument().createElement("button")
+                .attr("class", "btn btn-warning")
+                .attr("disabled", "true")
+                .attr("id", actionButtonId);
+        parent.appendChild(buttonNode);
+
+        Element cancelButtonIcon = parent.ownerDocument().createElement("span")
+                .attr("class", "glyphicon glyphicon-download");
+
+        parent.appendChild(buttonNode);
+        buttonNode.appendChild(cancelButtonIcon);
+
+        buttonNode.appendText(i18Source.getMessage("button.claim"));
+
+        Long processStateConfigurationId = task.getCurrentProcessStateConfiguration().getId();
+
+        scriptBuilder.append("$('#").append(actionButtonId)
+                .append("').click(function() { claimTaskFromQueue('#action-button-claim','null', '")
+                .append(processStateConfigurationId).append("','")
+                .append(task.getInternalTaskId())
+                .append("'); });")
+                .append("$('#").append(actionButtonId)
+                .append("').tooltip({title: '").append(i18Source.getMessage("button.exit")).append("'});");
+    }
+
 	public TaskViewBuilder setWidgets(List<ProcessStateWidget> widgets) 
 	{
 		this.widgets = widgets;
@@ -490,6 +526,30 @@ public class TaskViewBuilder
     public TaskViewBuilder setBpmSession(ProcessToolBpmSession bpmSession) {
     	this.bpmSession = bpmSession;
     	return this;
+    }
+
+    private boolean hasUserRightsToTask()
+    {
+        for(String potentialOwnerLogin: task.getPotentialOwners())
+            if(potentialOwnerLogin.equals(user.getLogin()))
+                return true;
+
+        return false;
+    }
+
+    private boolean isTaskHasNoOwner()
+    {
+        return task.getAssignee() == null || task.getAssignee().isEmpty();
+    }
+
+    private boolean isTaskFinished()
+    {
+        return task.isFinished();
+    }
+
+    private boolean isUserAssignedToTask()
+    {
+        return user.getLogin().equals(task.getAssignee());
     }
 
 }

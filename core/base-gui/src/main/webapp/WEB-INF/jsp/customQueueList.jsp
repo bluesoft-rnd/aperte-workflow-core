@@ -75,9 +75,9 @@
 	function generateButtons(task)
 	{
 		var linkBody = '';
-		if(task.queueName)
+		if(task.queueName || !task.assignee)
 		{
-			linkBody += '<button id="link-'+task.queueName+'" class="btn aperte-button aperte-button-hide" type="button" data-toggle="tooltip" title="<spring:message code="activity.tasks.task-claim-details" />" onclick="claimTaskFromQueue(this, \''+task.queueName+'\','+task.processStateConfigurationId+','+task.taskId+'); "><spring:message code="activity.tasks.task-claim" /></a>';
+			linkBody += '<button id="link-'+task.queueName+'" class="btn btn-default btn-sm" type="button" data-toggle="tooltip" title="<spring:message code="activity.tasks.task.claim.details" />" onclick="claimTaskFromQueue(this, \''+task.queueName+'\','+task.processStateConfigurationId+','+task.taskId+'); "><spring:message code="activity.tasks.task.claim" /></a>';
 		}
 		
 		return linkBody;
@@ -93,13 +93,12 @@
 			"queueName": queueName,
 			"taskId": taskId,
 			"userId": queueViewManager.currentOwnerLogin
-		}, function(result)
+		}, function(task)
 		{
-		    var newTask = result.newTask;
 			clearAlerts();
-			console.log( "task claimed, new task: "+newTask.taskId); 
+			console.log( "task claimed, new task: "+task.taskId); 
 			reloadQueues();
-			loadProcessView(processStateConfigurationId, newTask.taskId);
+			loadProcessView(processStateConfigurationId, task.taskId);
 		})
 		.fail(function(request, status, error) 
 		{	

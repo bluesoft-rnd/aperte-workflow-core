@@ -102,6 +102,7 @@ public class UserProcessQueuesSizeProvider
 		UsersQueuesDTO userQueueSize = new UsersQueuesDTO(currentUserLogin);
 		
 		/* Create organized tasks filters */
+        queuesFilters.add(filterFactory.createAllTasksFilter(userLogin));
 		queuesFilters.add(filterFactory.createMyTasksFilter(userLogin));
 		queuesFilters.add(filterFactory.createMyTasksInProgress(userLogin));
 		queuesFilters.add(filterFactory.createMyClosedTasksFilter(userLogin));

@@ -12,6 +12,10 @@ import static pl.net.bluesoft.rnd.processtool.model.QueueType.*;
  */
 public class ProcessInstanceFilterFactory 
 {
+    public ProcessInstanceFilter createAllTasksFilter(String userLogin) {
+        return getProcessInstanceFilter(userLogin, "activity.created.all.tasks", ALL_TASKS);
+    }
+
 	public ProcessInstanceFilter createMyTasksFilter(String userLogin) {
 		return getProcessInstanceFilter(userLogin, "activity.created.assigned.tasks", MY_TASKS);
 	}
@@ -43,6 +47,12 @@ public class ProcessInstanceFilterFactory
 	{
 		return getProcessInstanceFilter(substitutedUserLogin, "activity.subst.created.closed.tasks", OWN_FINISHED);
 	}
+
+    /** Methods creates new filter which returns user closed tasks */
+    public ProcessInstanceFilter createAllTaskForSubstitutedUser(String substitutedUserLogin)
+    {
+        return getProcessInstanceFilter(substitutedUserLogin, "activity.subst.all.tasks", ALL_TASKS);
+    }
 
 	/** Methods creates new filter which returns user closed tasks */
 	public ProcessInstanceFilter createOtherUserTaskForSubstitutedUser(String substitutedUserLogin)

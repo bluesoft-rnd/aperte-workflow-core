@@ -39,7 +39,6 @@ public class SetProcessStateConfigurationId implements ProcessToolProcessStep
     @Override
     public String invoke(BpmStep bpmStep, Map<String, String> params) throws Exception
     {
-        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
 
         ProcessInstance processInstance = bpmStep.getProcessInstance();
         if(lookInParentProcess)

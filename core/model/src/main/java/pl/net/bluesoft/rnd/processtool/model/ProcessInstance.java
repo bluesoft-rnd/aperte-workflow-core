@@ -390,6 +390,10 @@ public class ProcessInstance extends AbstractPersistentEntity
         return getSimpleAttributeValue(key, null);
     }
 
+    public String getSimpleAttributeValue(IAttributeName attributeName) {
+        return getSimpleAttributeValue(attributeName.value(), null);
+    }
+
     public String getSimpleAttributeValue(String key, String default_) {
 		ProcessInstanceSimpleAttribute attr = findSimpleAttributeByKey(key);
         return attr != null ? attr.getValue() : default_;

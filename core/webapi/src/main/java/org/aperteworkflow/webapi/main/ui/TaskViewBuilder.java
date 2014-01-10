@@ -8,6 +8,7 @@ import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.*;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
@@ -78,7 +79,7 @@ public class TaskViewBuilder
 
 		for(ProcessStateWidget widget: widgets)
 		{
-			processWidget(widget, widgetsNode);
+			processWidget(widget, widgetsNode, task.getProcessInstance());
 		}
 
         addActionButtons(document);
@@ -152,7 +153,7 @@ public class TaskViewBuilder
         return ctx.getUserSubstitutionDAO().isSubstitutedBy(task.getAssignee(), user.getLogin());
     }
 	
-	private void processWidget(ProcessStateWidget widget, Element parent)
+	private void processWidget(ProcessStateWidget widget, Element parent, ProcessInstance processInstance)
 	{
 		String aliasName = widget.getClassName();
 
@@ -176,7 +177,7 @@ public class TaskViewBuilder
                      widget.getAttributeByName("processStateConfigurationId");
 
             String  attributeName = processStateConfigurationIdAttribute.getValue();
-            String  processStateConfigurationId = task.getProcessInstance().getSimpleAttributeValue(attributeName);
+            String  processStateConfigurationId = processInstance.getRootProcessInstance().getSimpleAttributeValue(attributeName);
 
             ProcessStateConfiguration processStateConfiguration =
                     ctx.getProcessDefinitionDAO().getCachedProcessStateConfiguration(Long.parseLong(processStateConfigurationId));
@@ -189,7 +190,7 @@ public class TaskViewBuilder
 
             for(ProcessStateWidget childWidget: processStateConfiguration.getWidgets())
             {
-                processWidget(childWidget, divContentNode);
+                processWidget(childWidget, divContentNode, processInstance.getRootProcessInstance());
             }
 
 
@@ -245,7 +246,7 @@ public class TaskViewBuilder
 				if(isFirst)
 					isFirst = false;
 				
-				processWidget(child, divTabContentNode);
+				processWidget(child, divTabContentNode, processInstance);
 			}
 			
 			scriptBuilder.append("$('#").append(tabId).append(" a:first').tab('show');");
@@ -258,7 +259,7 @@ public class TaskViewBuilder
 			
 			for(ProcessStateWidget child: children)
 			{
-				processWidget(child, divContentNode);
+				processWidget(child, divContentNode, processInstance);
 			}
 		}
 		else if(aliasName.equals("SwitchWidgets")){
@@ -271,7 +272,7 @@ public class TaskViewBuilder
 						.attr("id", "switch_widget" + widget.getId());
 				parent.appendChild(divContentNode);
 
-				processWidget(filteredChild, divContentNode);
+				processWidget(filteredChild, divContentNode, processInstance);
 			}
 		}
         /* HTML Widget */
@@ -279,7 +280,7 @@ public class TaskViewBuilder
 		{
 //            ProcessHtmlWidget htmlWidget = processToolRegistry.getHtmlWidget(aliasName);
             Map<String, Object> viewData = new HashMap<String, Object>();
-			viewData.put(IHtmlTemplateProvider.PROCESS_PARAMTER, task.getProcessInstance());
+			viewData.put(IHtmlTemplateProvider.PROCESS_PARAMTER, processInstance);
 			viewData.put(IHtmlTemplateProvider.TASK_PARAMTER, task);
 			viewData.put(IHtmlTemplateProvider.USER_PARAMTER, user);
             viewData.put(IHtmlTemplateProvider.USER_SOURCE_PARAMTER, userSource);
@@ -307,7 +308,7 @@ public class TaskViewBuilder
 
 			for(ProcessStateWidget child: children)
 			{
-				processWidget(child, divContentNode);
+				processWidget(child, divContentNode, processInstance);
 			}
 		}
 		else
@@ -332,7 +333,7 @@ public class TaskViewBuilder
 
 			for(ProcessStateWidget child: children)
 			{
-				processWidget(child, iFrameNode);
+				processWidget(child, iFrameNode, processInstance);
 			}
 		}
 	}

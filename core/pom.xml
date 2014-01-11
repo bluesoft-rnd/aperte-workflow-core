@@ -13,16 +13,16 @@
     <artifactId>core</artifactId>
 
     <modules>
-        <module>model</module>
-        <module>gui-commons</module>
+        <!-- module>model</module -->
+        <!-- module>gui-commons</module -->
         <module>base-gui</module>
-        <module>integration</module>
-        <module>integration-interface</module>
-        <module>jbpm-context</module>
+        <!-- module>integration</module -->
+        <!-- module>integration-interface</module -->
+        <!-- module>jbpm-context</module -->
         <module>jbpm-gui</module>
-        <module>editor</module>
-        <module>editor-interface</module>
-        <module>webapi</module>
+        <!-- module>editor</module -->
+        <!-- module>editor-interface</module -->
+        <!-- module>webapi</module -->
 
     </modules>
 

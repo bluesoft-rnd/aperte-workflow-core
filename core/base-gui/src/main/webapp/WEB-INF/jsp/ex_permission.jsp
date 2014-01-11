@@ -10,23 +10,7 @@
 
 <c:if test="${aperteUser.login!=null}">
     <div class="apw apw_ex_perm">
-        <table>
-            <thead>
-                <tr>
-                    <td> Kategoria </td>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td> Test </td>
-                </tr>
-            </tbody>
-            <tfoot>
-                <tr>
-                    <td> Test </td>
-                </tr>
-            </tfoot>
-        </table>
+        <%@include file="ex_perm/main.jsp" %>
     </div>
      <script type="text/javascript">
         var dispatcherPortlet = '<portlet:resourceURL id="dispatcher"/>';

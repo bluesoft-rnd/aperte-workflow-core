@@ -53,6 +53,7 @@ public class ExPermissionViewController {
         UserData user = portalUserSource.getUserByRequest(request);
         modelView.addObject(WebApiConstants.USER_PARAMETER_NAME, user);
 
+
         return modelView;
     }
 

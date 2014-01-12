@@ -14,6 +14,7 @@
         <header-portlet-javascript>/js/jquery.dataTables.min.js</header-portlet-javascript>
         <header-portlet-css>/js/jstree/themes/default/style.min.css</header-portlet-css>
         <header-portlet-javascript>/js/jstree/jstree.js</header-portlet-javascript>
+        <header-portlet-javascript>/js/select2.min.js</header-portlet-javascript>
     </portlet>
     <portlet>
         <!-- Matches definition in portlet.xml. -->

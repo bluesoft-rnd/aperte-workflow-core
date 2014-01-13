@@ -589,6 +589,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                 ProcessInstanceFilter filter = new ProcessInstanceFilter();
                 if (isQueue) {
                     filter.addQueue(queueName);
+                    filter.setFilterOwnerLogin(queueName);
                 } else if ("process".equals(queueType)) {
                     filter.addOwner(ownerLogin);
                     filter.setFilterOwnerLogin(ownerLogin);

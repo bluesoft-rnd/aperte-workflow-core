@@ -151,9 +151,11 @@
                         <ProcessTool-Step-Enhancement>
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.ChooseUserWithRoleStep,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.FinishTasksStep,
-							pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.HandleSubstitutionAcceptance,
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.HandleSubstitutionAcceptance,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.SetProcessStateConfigurationId,
-                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.SetVariablesStep
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.SetVariablesStep,
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.CopyVariablesStep,
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.LogStep
                         </ProcessTool-Step-Enhancement>
                       <!--  <ProcessTool-Widget-Script>
                         requests-scripts.js;provider:=file

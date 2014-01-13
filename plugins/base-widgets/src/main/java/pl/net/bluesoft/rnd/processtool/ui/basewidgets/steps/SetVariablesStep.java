@@ -42,7 +42,7 @@ public class SetVariablesStep implements ProcessToolProcessStep {
     		if(assignment[1].startsWith("\"") && assignment[1].endsWith("\""))
     			assignment[1] = assignment[1].substring(1, assignment[1].length() - 1);
 
-            String key = assignment[1];
+            String key = assignment[0];
             String value = assignment[1];
             pi.setSimpleAttribute(key, value);
 

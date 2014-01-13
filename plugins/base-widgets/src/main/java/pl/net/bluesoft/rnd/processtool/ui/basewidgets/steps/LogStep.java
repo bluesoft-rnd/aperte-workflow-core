@@ -1,4 +1,4 @@
-package org.aperteworkflow.plugin.ext.log;
+package pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps;
 
 import com.vaadin.ui.TextArea;
 import pl.net.bluesoft.rnd.processtool.model.BpmStep;
@@ -66,7 +66,8 @@ public class LogStep implements ProcessToolProcessStep {
                 DEFAULT_LOGGER.log(Level.SEVERE, "Logger level " + loggerLevel + " is invalid, using INFO", e);
             }
         }
-
+        ProcessInstance dbProcessInstance = step.getProcessInstance();
+        Map<String, String> attMap = dbProcessInstance.getSimpleAttributeValues();
         String parsedMessage = parseLogMessage(message, step.getProcessInstance());
         usedLogger.log(usedLevel, parsedMessage);
         return parsedMessage;

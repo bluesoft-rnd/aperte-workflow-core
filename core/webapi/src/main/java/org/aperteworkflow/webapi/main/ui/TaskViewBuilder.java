@@ -1,5 +1,6 @@
 package org.aperteworkflow.webapi.main.ui;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -79,7 +80,14 @@ public class TaskViewBuilder
 
 		for(ProcessStateWidget widget: widgets)
 		{
-			processWidget(widget, widgetsNode, task.getProcessInstance());
+            WidgetHierarchyBean childBean = new WidgetHierarchyBean()
+                    .setParent(widgetsNode)
+                    .setWidget(widget)
+                    .setProcessInstance(task.getProcessInstance())
+                    .setForcePrivileges(false)
+                    .setPrivileges(new ArrayList<String>());
+
+			processWidget(childBean);
 		}
 
         addActionButtons(document);
@@ -153,8 +161,12 @@ public class TaskViewBuilder
         return ctx.getUserSubstitutionDAO().isSubstitutedBy(task.getAssignee(), user.getLogin());
     }
 	
-	private void processWidget(ProcessStateWidget widget, Element parent, ProcessInstance processInstance)
+	private void processWidget(WidgetHierarchyBean widgetHierarchyBean)
 	{
+        ProcessStateWidget widget = widgetHierarchyBean.getWidget();
+        ProcessInstance processInstance = widgetHierarchyBean.getProcessInstance();
+        Element parent =  widgetHierarchyBean.getParent();
+
 		String aliasName = widget.getClassName();
 
         ProcessHtmlWidget processHtmlWidget = processToolRegistry.getGuiRegistry().getHtmlWidget(aliasName);
@@ -176,6 +188,11 @@ public class TaskViewBuilder
              ProcessStateWidgetAttribute processStateConfigurationIdAttribute =
                      widget.getAttributeByName("processStateConfigurationId");
 
+            ProcessStateWidgetAttribute forcePrivilegesAttribute =
+                    widget.getAttributeByName("forcePrivileges");
+
+            Boolean forcePrivileges = Boolean.parseBoolean(forcePrivilegesAttribute.getValue());
+
             String  attributeName = processStateConfigurationIdAttribute.getValue();
             String  processStateConfigurationId = processInstance.getRootProcessInstance().getSimpleAttributeValue(attributeName);
 
@@ -190,7 +207,14 @@ public class TaskViewBuilder
 
             for(ProcessStateWidget childWidget: processStateConfiguration.getWidgets())
             {
-                processWidget(childWidget, divContentNode, processInstance.getRootProcessInstance());
+                WidgetHierarchyBean childBean = new WidgetHierarchyBean()
+                        .setParent(divContentNode)
+                        .setWidget(childWidget)
+                        .setProcessInstance(processInstance.getRootProcessInstance())
+                        .setForcePrivileges(forcePrivileges)
+                        .setPrivileges(getPrivileges(widget));
+
+                processWidget(childBean);
             }
 
 
@@ -245,8 +269,15 @@ public class TaskViewBuilder
 				
 				if(isFirst)
 					isFirst = false;
+
+                WidgetHierarchyBean childBean = new WidgetHierarchyBean()
+                        .setParent(divTabContentNode)
+                        .setWidget(child)
+                        .setProcessInstance(processInstance)
+                        .setForcePrivileges(widgetHierarchyBean.isForcePrivileges())
+                        .setPrivileges(widgetHierarchyBean.getPrivileges());
 				
-				processWidget(child, divTabContentNode, processInstance);
+				processWidget(childBean);
 			}
 			
 			scriptBuilder.append("$('#").append(tabId).append(" a:first').tab('show');");
@@ -259,7 +290,14 @@ public class TaskViewBuilder
 			
 			for(ProcessStateWidget child: children)
 			{
-				processWidget(child, divContentNode, processInstance);
+                WidgetHierarchyBean childBean = new WidgetHierarchyBean()
+                        .setParent(divContentNode)
+                        .setWidget(child)
+                        .setProcessInstance(processInstance)
+                        .setForcePrivileges(widgetHierarchyBean.isForcePrivileges())
+                        .setPrivileges(widgetHierarchyBean.getPrivileges());
+
+				processWidget(childBean);
 			}
 		}
 		else if(aliasName.equals("SwitchWidgets")){
@@ -272,13 +310,25 @@ public class TaskViewBuilder
 						.attr("id", "switch_widget" + widget.getId());
 				parent.appendChild(divContentNode);
 
-				processWidget(filteredChild, divContentNode, processInstance);
+                WidgetHierarchyBean childBean = new WidgetHierarchyBean()
+                        .setParent(divContentNode)
+                        .setWidget(filteredChild)
+                        .setProcessInstance(processInstance)
+                        .setForcePrivileges(widgetHierarchyBean.isForcePrivileges())
+                        .setPrivileges(widgetHierarchyBean.getPrivileges());
+
+				processWidget(childBean);
 			}
 		}
         /* HTML Widget */
 		else if(processHtmlWidget != null)
 		{
-//            ProcessHtmlWidget htmlWidget = processToolRegistry.getHtmlWidget(aliasName);
+            Collection<String> privileges;
+            if(widgetHierarchyBean.isForcePrivileges())
+                privileges = widgetHierarchyBean.getPrivileges();
+            else
+                privileges = getPrivileges(widget);
+
             Map<String, Object> viewData = new HashMap<String, Object>();
 			viewData.put(IHtmlTemplateProvider.PROCESS_PARAMTER, processInstance);
 			viewData.put(IHtmlTemplateProvider.TASK_PARAMTER, task);
@@ -286,7 +336,7 @@ public class TaskViewBuilder
             viewData.put(IHtmlTemplateProvider.USER_SOURCE_PARAMTER, userSource);
 			viewData.put(IHtmlTemplateProvider.MESSAGE_SOURCE_PARAMETER, i18Source);
 			viewData.put(IHtmlTemplateProvider.WIDGET_NAME_PARAMETER, aliasName);
-			viewData.put(IHtmlTemplateProvider.PRIVILEGES_PARAMETER, getPrivileges(widget));
+			viewData.put(IHtmlTemplateProvider.PRIVILEGES_PARAMETER, privileges);
 			viewData.put(IHtmlTemplateProvider.WIDGET_ID_PARAMETER, widget.getId().toString());
             viewData.put(IHtmlTemplateProvider.DICTIONARIES_DAO_PARAMETER, ctx.getProcessDictionaryDAO());
             viewData.put(IHtmlTemplateProvider.BPM_SESSION_PARAMETER, bpmSession);
@@ -308,7 +358,14 @@ public class TaskViewBuilder
 
 			for(ProcessStateWidget child: children)
 			{
-				processWidget(child, divContentNode, processInstance);
+                WidgetHierarchyBean childBean = new WidgetHierarchyBean()
+                        .setParent(divContentNode)
+                        .setWidget(child)
+                        .setProcessInstance(processInstance)
+                        .setForcePrivileges(widgetHierarchyBean.isForcePrivileges())
+                        .setPrivileges(widgetHierarchyBean.getPrivileges());
+
+				processWidget(childBean);
 			}
 		}
 		else
@@ -333,14 +390,70 @@ public class TaskViewBuilder
 
 			for(ProcessStateWidget child: children)
 			{
-				processWidget(child, iFrameNode, processInstance);
+                WidgetHierarchyBean childBean = new WidgetHierarchyBean()
+                        .setParent(iFrameNode)
+                        .setWidget(child)
+                        .setProcessInstance(processInstance)
+                        .setForcePrivileges(widgetHierarchyBean.isForcePrivileges())
+                        .setPrivileges(widgetHierarchyBean.getPrivileges());
+
+				processWidget(childBean);
 			}
 		}
 	}
 
-    private void processHtmlWidget()
+    private static class WidgetHierarchyBean
     {
+        private ProcessStateWidget widget;
+        private Element parent;
+        private ProcessInstance processInstance;
+        private boolean forcePrivileges;
+        private Collection<String> privileges;
 
+        public ProcessStateWidget getWidget() {
+            return widget;
+        }
+
+        public WidgetHierarchyBean setWidget(ProcessStateWidget widget) {
+            this.widget = widget;
+            return this;
+        }
+
+        public Element getParent() {
+            return parent;
+        }
+
+        public WidgetHierarchyBean setParent(Element parent) {
+            this.parent = parent;
+            return this;
+        }
+
+        public ProcessInstance getProcessInstance() {
+            return processInstance;
+        }
+
+        public WidgetHierarchyBean setProcessInstance(ProcessInstance processInstance) {
+            this.processInstance = processInstance;
+            return this;
+        }
+
+        public boolean isForcePrivileges() {
+            return forcePrivileges;
+        }
+
+        public WidgetHierarchyBean setForcePrivileges(boolean forcePrivileges) {
+            this.forcePrivileges = forcePrivileges;
+            return this;
+        }
+
+        public Collection<String> getPrivileges() {
+            return privileges;
+        }
+
+        public WidgetHierarchyBean setPrivileges(Collection<String> privileges) {
+            this.privileges = privileges;
+            return this;
+        }
     }
 
     private Collection<String> getPrivileges(ProcessStateWidget widget)

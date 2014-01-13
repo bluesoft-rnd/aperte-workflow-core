@@ -36,6 +36,13 @@ public class ShadowStateWidget extends ProcessHtmlWidget
     )
     private String processStateConfigurationId;
 
+    @AutoWiredProperty(required = true)
+    @AperteDoc(
+            humanNameKey = "widget.shadow.widget.property.forcePrivileges.name",
+            descriptionKey = "widget.shadow.widget.property.forcePrivileges.description"
+    )
+    private Boolean forcePrivileges;
+
 	public ShadowStateWidget(IBundleResourceProvider bundleResourceProvider) {
 
 	}

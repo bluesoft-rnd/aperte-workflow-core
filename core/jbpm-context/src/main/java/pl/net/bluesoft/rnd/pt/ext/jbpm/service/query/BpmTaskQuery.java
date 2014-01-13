@@ -251,7 +251,10 @@ public class BpmTaskQuery {
 
         /* Queue or all user tasks */
         if (queues != null || queryType == QueryType.LIST || (virtualQueues != null && virtualQueues.contains(QueueType.ALL_TASKS)))
+        {
             sb.append(" JOIN PeopleAssignments_PotOwners potowners ON (potowners.task_id = task_.id AND potowners.entity_id = :user)");
+            queryParameters.add(new QueryParameter("user", user));
+        }
 
 
         if (taskNames != null || queryType == QueryType.LIST || hasText(searchExpression)) {

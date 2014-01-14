@@ -45,7 +45,8 @@
                         <!--<Implementation-Build>${buildNumber}</Implementation-Build>-->
                         <Export-Package>
                             pl.net.bluesoft.rnd.pt.dict.global.i18n,
-							pl.net.bluesoft.rnd.pt.dict.global.xml
+							pl.net.bluesoft.rnd.pt.dict.global.xml,
+                            pl.net.bluesoft.rnd.pt.dict.global
                         </Export-Package>
                         <Import-Package>
                             *;resolution:=optional,
@@ -63,6 +64,9 @@
                         <Embed-Directory>lib</Embed-Directory>
                         <Embed-Transitive>true</Embed-Transitive>
                         <ProcessTool-Global-Dictionary>pl.net.bluesoft.rnd.pt.dict.global</ProcessTool-Global-Dictionary>
+                        <ProcessTool-Controller>
+                            pl.net.bluesoft.rnd.pt.dict.global.DictionaryService
+                        </ProcessTool-Controller>
                     </instructions>
                 </configuration>
             </plugin>

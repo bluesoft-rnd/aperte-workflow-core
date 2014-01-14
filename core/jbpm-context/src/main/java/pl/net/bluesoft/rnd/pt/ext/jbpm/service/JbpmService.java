@@ -317,6 +317,14 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
                 .first();
     }
 
+    public Task getPastOrActualTask(long processId, String taskName) {
+        return createTaskQuery()
+                .processInstanceId(processId)
+                .activityName(taskName)
+                .orderByCompleteDate()
+                .first();
+    }
+
     public List<Task> getTasks(long processId, String userLogin, Collection<String> taskNames) {
         return createTaskQuery()
                 .processInstanceId(processId)

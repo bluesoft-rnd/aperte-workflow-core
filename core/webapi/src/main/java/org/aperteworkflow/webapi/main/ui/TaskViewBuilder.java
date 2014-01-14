@@ -8,10 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
+import pl.net.bluesoft.rnd.processtool.filters.factory.QueuesNameUtil;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.*;
+import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.IWidgetDataProvider;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
@@ -666,8 +668,11 @@ public class TaskViewBuilder
 
     private boolean hasUserRightsToTask()
     {
-        for(String potentialOwnerLogin: task.getPotentialOwners())
-            if(potentialOwnerLogin.equals(user.getLogin()))
+        if(task.getPotentialOwners().contains(user.getLogin()))
+            return true;
+
+        for(ProcessQueue processQueue:  bpmSession.getUserAvailableQueues())
+            if(task.getQueues().contains(processQueue.getName()))
                 return true;
 
         return false;

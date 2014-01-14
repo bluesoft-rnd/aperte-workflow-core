@@ -28,6 +28,7 @@ public class BpmTaskBean extends AbstractBpmTask implements Serializable {
 	private Date deadlineDate;
 	private String stepInfo;
     private Collection<String> potentialOwners = new HashSet<String>();
+    private Collection<String> queues = new HashSet<String>();
 
 	public BpmTaskBean() {
 	}
@@ -45,6 +46,7 @@ public class BpmTaskBean extends AbstractBpmTask implements Serializable {
 		this.processDefinition = task.getProcessDefinition();
 		this.stepInfo = task.getStepInfo();
         this.potentialOwners.addAll(task.getPotentialOwners());
+        this.queues.addAll(task.getQueues());
 	}
 
 	@Override
@@ -162,6 +164,14 @@ public class BpmTaskBean extends AbstractBpmTask implements Serializable {
 
     public Collection<String> getPotentialOwners() {
         return potentialOwners;
+    }
+
+    public Collection<String> getQueues() {
+        return queues;
+    }
+
+    public void setQueues(Collection<String> queues) {
+        this.queues = queues;
     }
 
     public void setPotentialOwners(Collection<String> potentialOwners) {

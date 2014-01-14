@@ -50,6 +50,8 @@ public class BpmTaskDerivedBean implements BpmTask {
 	private String stepInfo;
     private Collection<String> potentialOwners = new HashSet<String>();
     private boolean potentialOwnersPresent;
+    private Collection<String> queues = new HashSet<String>();
+    private boolean queuesPresent;
 
 	public BpmTaskDerivedBean(BpmTask task) {
 		this.task = task;
@@ -285,9 +287,24 @@ public class BpmTaskDerivedBean implements BpmTask {
         return potentialOwners;
     }
 
+
     public void setPotentialOwners(Collection<String> potentialOwners) {
         this.potentialOwners = potentialOwners;
         this.potentialOwnersPresent = true;
+    }
+
+    public Collection<String> getQueues()
+    {
+        if (!queuesPresent) {
+            setQueues(task.getQueues());
+        }
+        return queues;
+    }
+
+
+    public void setQueues(Collection<String> queues) {
+        this.queues = queues;
+        this.queuesPresent = true;
     }
 
     public static List<BpmTaskDerivedBean> asBeans(List<? extends BpmTask> list) {

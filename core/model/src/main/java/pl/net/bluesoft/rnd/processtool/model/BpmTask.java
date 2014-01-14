@@ -22,6 +22,7 @@ public interface BpmTask {
 	String getCreator();
     String getAssignee();
     Collection<String> getPotentialOwners();
+    Collection<String> getQueues();
 	String getGroupId();
 
 	ProcessDefinitionConfig getProcessDefinition();

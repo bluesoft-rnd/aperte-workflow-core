@@ -177,6 +177,7 @@ public class LiferayUserRolesManager implements IUserRolesManager
     /** Find Liferay role by given name. The role is searched in all company ids */
     protected Role getRoleByName(String roleName) throws RoleNotFoundException
     {
+
         try
         {
     		/* Search for role in all companies. There is commonly only one company in system */
@@ -184,17 +185,21 @@ public class LiferayUserRolesManager implements IUserRolesManager
             for (int i = 0; i < companyIds.length; ++i)
             {
                 long companyId = companyIds[i];
-                Role role = RoleLocalServiceUtil.getRole(companyId, roleName);
 
-                if(role != null)
-                    return role;
+                try
+                {
+                    Role role = RoleLocalServiceUtil.getRole(companyId, roleName);
+
+                    if(role != null)
+                        return role;
+                }
+                catch(NoSuchRoleException ex)
+                {
+                    throw new RoleNotFoundException("No role found with given name: "+roleName);
+                }
             }
 
 	        /* No role with given name found, throw exception */
-            throw new RoleNotFoundException("No role found with given name: "+roleName);
-        }
-        catch(NoSuchRoleException ex)
-        {
             throw new RoleNotFoundException("No role found with given name: "+roleName);
         }
         catch (PortalException e)

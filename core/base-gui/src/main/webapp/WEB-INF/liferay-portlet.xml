@@ -1,160 +1,149 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <liferay-portlet-app>
-    <portlet id="aperte-extended-permission">
-        <!-- Note: Must not be the same as servlet name. -->
-        <portlet-name>AperteWorkflow Permission Portlet</portlet-name>
-        <instanceable>false</instanceable>
-        <remoteable>true</remoteable>
-        <ajaxable>true</ajaxable>
-        <private-session-attributes>false</private-session-attributes>
-        <header-portlet-css>/css/aperte.css</header-portlet-css>
-        <header-portlet-javascript>/js/jquery-1.10.2.min.js</header-portlet-javascript>        
-		<header-portlet-javascript>/js/bootstrap.min.js</header-portlet-javascript>        
-        <header-portlet-javascript>/js/jquery.dataTables.min.js</header-portlet-javascript>
-        <header-portlet-css>/js/jstree/themes/default/style.min.css</header-portlet-css>
-        <header-portlet-javascript>/js/jstree/jstree.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/select2.min.js</header-portlet-javascript>
-    </portlet>
-    <portlet>
-        <!-- Matches definition in portlet.xml. -->
-
-        <!-- Note: Must not be the same as servlet name. -->
-
-        <portlet-name>AperteWorkflow Activities Portlet</portlet-name>
-        <instanceable>false</instanceable>
-        <remoteable>true</remoteable>
-        <ajaxable>true</ajaxable>
-        <private-session-attributes>false</private-session-attributes>
-		<header-portlet-css>/css/aperte.css</header-portlet-css>
-		<header-portlet-javascript>/js/jquery-1.10.2.min.js</header-portlet-javascript>
-		<header-portlet-javascript>/js/jqModal.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/bootstrap.min.js</header-portlet-javascript>
-		<header-portlet-javascript>/js/jquery.dataTables.min.js</header-portlet-javascript>
-		<header-portlet-javascript>/js/jquery.timer.js</header-portlet-javascript>
-		<header-portlet-javascript>/js/jquery.dataTables.bootstrap.js</header-portlet-javascript>
-		<header-portlet-javascript>/js/jquery.dateFormat-1.0.js</header-portlet-javascript>
-		<header-portlet-javascript>/js/select2.min.js</header-portlet-javascript>
-		<header-portlet-javascript>/js/bootstrap-datetimepicker.min.js</header-portlet-javascript>
-		<header-portlet-javascript>/js/colReorder.js</header-portlet-javascript>
-		<header-portlet-javascript>/js/aperte.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/jquery-plugins.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/jquery.json-2.4.min.js</header-portlet-javascript>
-
-        <!-- header-portlet-javascript>/js/jquery.cookie.js</header-portlet-javascript -->
-    </portlet>
-
-    <portlet>
-        <!-- Matches definition in portlet.xml. -->
-        <!-- Note: Must not be the same as servlet name. -->
-        <portlet-name>ProcessTool Queues</portlet-name>
-        <instanceable>false</instanceable>
-        <ajaxable>false</ajaxable>
-        <header-portlet-javascript>/js/jquery.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/jquery-ui-1.8.4.custom.min.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/jquery.ui.selectmenu.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/awf_functions.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/refresher.js</header-portlet-javascript>
-    </portlet>
-
-    <portlet>
-        <!-- Matches definition in portlet.xml. -->
-        <!-- Note: Must not be the same as servlet name. -->
-        <portlet-name>ProcessTool Dictionaries</portlet-name>
-        <instanceable>false</instanceable>
-        <ajaxable>false</ajaxable>
-        <header-portlet-javascript>/js/jquery.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/jquery-ui-1.8.4.custom.min.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/jquery.ui.selectmenu.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/awf_functions.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/refresher.js</header-portlet-javascript>
-    </portlet>
-
-    <portlet>
-        <!-- Matches definition in portlet.xml. -->
-        <!-- Note: Must not be the same as servlet name. -->
-        <portlet-name>Aperte Workflow Plugin Manager</portlet-name>
-        <instanceable>false</instanceable>
-        <ajaxable>false</ajaxable>
-        <control-panel-entry-category>portal</control-panel-entry-category>
-        <control-panel-entry-weight>0.5</control-panel-entry-weight>
-        <header-portlet-javascript>/js/jquery.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/jquery-ui-1.8.4.custom.min.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/jquery.ui.selectmenu.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/awf_functions.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/refresher.js</header-portlet-javascript>
-    </portlet>
-
-    <portlet>
-        <!-- Matches definition in portlet.xml. -->
-        <!-- Note: Must not be the same as servlet name. -->
-        <portlet-name>Aperte Workflow Process Definition Manager</portlet-name>
-        <instanceable>false</instanceable>
-        <ajaxable>false</ajaxable>
-        <control-panel-entry-category>portal</control-panel-entry-category>
-        <control-panel-entry-weight>0.6</control-panel-entry-weight>
-        <header-portlet-javascript>/js/jquery.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/jquery-ui-1.8.4.custom.min.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/jquery.ui.selectmenu.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/awf_functions.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/refresher.js</header-portlet-javascript>
-    </portlet>
-
-    <portlet>
-        <!-- Matches definition in portlet.xml. -->
-        <!-- Note: Must not be the same as servlet name. -->
-        <portlet-name>Aperte Workflow Process Instance Manager</portlet-name>
-        <instanceable>false</instanceable>
-        <ajaxable>false</ajaxable>
-        <control-panel-entry-category>portal</control-panel-entry-category>
-        <control-panel-entry-weight>0.7</control-panel-entry-weight>
-        <header-portlet-javascript>/js/jquery.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/jquery-ui-1.8.4.custom.min.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/jquery.ui.selectmenu.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/awf_functions.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/refresher.js</header-portlet-javascript>
-    </portlet>
-
-    <portlet>
-        <!-- Matches definition in portlet.xml. -->
-        <!-- Note: Must not be the same as servlet name. -->
-        <portlet-name>AperteWorkflow User Substitutions</portlet-name>
-        <instanceable>false</instanceable>
-        <ajaxable>false</ajaxable>
-        <control-panel-entry-category>portal</control-panel-entry-category>
-        <control-panel-entry-weight>0.8</control-panel-entry-weight>
-        <header-portlet-javascript>/js/jquery.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/jquery-ui-1.8.4.custom.min.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/jquery.ui.selectmenu.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/awf_functions.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/refresher.js</header-portlet-javascript>
-    </portlet>
-
-    <portlet>
-        <!-- Matches definition in portlet.xml. -->
-        <!-- Note: Must not be the same as servlet name. -->
-        <portlet-name>Aperte Workflow Admin Portlet</portlet-name>
-        <instanceable>false</instanceable>
-        <ajaxable>false</ajaxable>
-        <control-panel-entry-category>portal</control-panel-entry-category>
-        <control-panel-entry-weight>0.9</control-panel-entry-weight>
-        <header-portlet-javascript>/js/jquery.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/jquery-ui-1.8.4.custom.min.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/jquery.ui.selectmenu.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/awf_functions.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/refresher.js</header-portlet-javascript>
-    </portlet>
-
-    <portlet>
-        <!-- Matches definition in portlet.xml. -->
-        <!-- Note: Must not be the same as servlet name. -->
-        <portlet-name>Aperte Workflow User Portlet</portlet-name>
-        <instanceable>true</instanceable>
-        <ajaxable>false</ajaxable>
-        <header-portlet-javascript>/js/jquery.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/jquery-ui-1.8.4.custom.min.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/jquery.ui.selectmenu.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/awf_functions.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/refresher.js</header-portlet-javascript>
-    </portlet>
+	<portlet id="aperte-extended-permission">
+		<!-- Note: Must not be the same as servlet name. -->
+		<portlet-name>AperteWorkflow Permission Portlet</portlet-name>
+		<instanceable>false</instanceable>
+		<remoteable>true</remoteable>
+		<ajaxable>true</ajaxable>
+		<private-session-attributes>false</private-session-attributes>
+		<header-portlet-css>/sa/css/aperte.css</header-portlet-css>
+		<header-portlet-javascript>/sa/js/jquery-1.10.2.min.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/bootstrap.min.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/jquery.dataTables.min.js</header-portlet-javascript>
+		<header-portlet-css>/sa/js/jstree/themes/default/style.min.css</header-portlet-css>
+		<header-portlet-javascript>/sa/js/jstree/jstree.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/select2.min.js</header-portlet-javascript>
+	</portlet>
+	<portlet>
+		<!-- Matches definition in portlet.xml. -->
+		<!-- Note: Must not be the same as servlet name. -->
+		<portlet-name>AperteWorkflow Activities Portlet</portlet-name>
+		<instanceable>false</instanceable>
+		<remoteable>true</remoteable>
+		<ajaxable>true</ajaxable>
+		<private-session-attributes>false</private-session-attributes>
+		<header-portlet-css>/sa/css/aperte.css</header-portlet-css>
+		<header-portlet-javascript>/sa/js/jquery-1.10.2.min.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/jqModal.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/bootstrap.min.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/jquery.dataTables.min.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/jquery.timer.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/jquery.dataTables.bootstrap.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/jquery.dateFormat-1.0.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/select2.min.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/bootstrap-datetimepicker.min.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/colReorder.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/aperte.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/jquery-plugins.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/jquery.json-2.4.min.js</header-portlet-javascript>
+		<!-- header-portlet-javascript>/sa/js/jquery.cookie.js</header-portlet-javascript -->
+	</portlet>
+	<portlet>
+		<!-- Matches definition in portlet.xml. -->
+		<!-- Note: Must not be the same as servlet name. -->
+		<portlet-name>ProcessTool Queues</portlet-name>
+		<instanceable>false</instanceable>
+		<ajaxable>false</ajaxable>
+		<header-portlet-javascript>/sa/js/jquery.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/jquery-ui-1.8.4.custom.min.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/jquery.ui.selectmenu.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/awf_functions.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/refresher.js</header-portlet-javascript>
+	</portlet>
+	<portlet>
+		<!-- Matches definition in portlet.xml. -->
+		<!-- Note: Must not be the same as servlet name. -->
+		<portlet-name>ProcessTool Dictionaries</portlet-name>
+		<instanceable>false</instanceable>
+		<ajaxable>false</ajaxable>
+		<header-portlet-javascript>/sa/js/jquery.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/jquery-ui-1.8.4.custom.min.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/jquery.ui.selectmenu.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/awf_functions.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/refresher.js</header-portlet-javascript>
+	</portlet>
+	<portlet>
+		<!-- Matches definition in portlet.xml. -->
+		<!-- Note: Must not be the same as servlet name. -->
+		<portlet-name>Aperte Workflow Plugin Manager</portlet-name>
+		<instanceable>false</instanceable>
+		<ajaxable>false</ajaxable>
+		<control-panel-entry-category>portal</control-panel-entry-category>
+		<control-panel-entry-weight>0.5</control-panel-entry-weight>
+		<header-portlet-javascript>/sa/js/jquery.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/jquery-ui-1.8.4.custom.min.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/jquery.ui.selectmenu.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/awf_functions.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/refresher.js</header-portlet-javascript>
+	</portlet>
+	<portlet>
+		<!-- Matches definition in portlet.xml. -->
+		<!-- Note: Must not be the same as servlet name. -->
+		<portlet-name>Aperte Workflow Process Definition Manager</portlet-name>
+		<instanceable>false</instanceable>
+		<ajaxable>false</ajaxable>
+		<control-panel-entry-category>portal</control-panel-entry-category>
+		<control-panel-entry-weight>0.6</control-panel-entry-weight>
+		<header-portlet-javascript>/sa/js/jquery.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/jquery-ui-1.8.4.custom.min.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/jquery.ui.selectmenu.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/awf_functions.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/refresher.js</header-portlet-javascript>
+	</portlet>
+	<portlet>
+		<!-- Matches definition in portlet.xml. -->
+		<!-- Note: Must not be the same as servlet name. -->
+		<portlet-name>Aperte Workflow Process Instance Manager</portlet-name>
+		<instanceable>false</instanceable>
+		<ajaxable>false</ajaxable>
+		<control-panel-entry-category>portal</control-panel-entry-category>
+		<control-panel-entry-weight>0.7</control-panel-entry-weight>
+		<header-portlet-javascript>/sa/js/jquery.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/jquery-ui-1.8.4.custom.min.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/jquery.ui.selectmenu.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/awf_functions.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/refresher.js</header-portlet-javascript>
+	</portlet>
+	<portlet>
+		<!-- Matches definition in portlet.xml. -->
+		<!-- Note: Must not be the same as servlet name. -->
+		<portlet-name>AperteWorkflow User Substitutions</portlet-name>
+		<instanceable>false</instanceable>
+		<ajaxable>false</ajaxable>
+		<control-panel-entry-category>portal</control-panel-entry-category>
+		<control-panel-entry-weight>0.8</control-panel-entry-weight>
+		<header-portlet-javascript>/sa/js/jquery.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/jquery-ui-1.8.4.custom.min.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/jquery.ui.selectmenu.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/awf_functions.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/refresher.js</header-portlet-javascript>
+	</portlet>
+	<portlet>
+		<!-- Matches definition in portlet.xml. -->
+		<!-- Note: Must not be the same as servlet name. -->
+		<portlet-name>Aperte Workflow Admin Portlet</portlet-name>
+		<instanceable>false</instanceable>
+		<ajaxable>false</ajaxable>
+		<control-panel-entry-category>portal</control-panel-entry-category>
+		<control-panel-entry-weight>0.9</control-panel-entry-weight>
+		<header-portlet-javascript>/sa/js/jquery.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/jquery-ui-1.8.4.custom.min.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/jquery.ui.selectmenu.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/awf_functions.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/refresher.js</header-portlet-javascript>
+	</portlet>
+	<portlet>
+		<!-- Matches definition in portlet.xml. -->
+		<!-- Note: Must not be the same as servlet name. -->
+		<portlet-name>Aperte Workflow User Portlet</portlet-name>
+		<instanceable>true</instanceable>
+		<ajaxable>false</ajaxable>
+		<header-portlet-javascript>/sa/js/jquery.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/jquery-ui-1.8.4.custom.min.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/jquery.ui.selectmenu.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/awf_functions.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/refresher.js</header-portlet-javascript>
+	</portlet>
 </liferay-portlet-app>

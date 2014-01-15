@@ -13,10 +13,7 @@
 		  <name>contextConfigLocation</name>
 		  <value>/WEB-INF/spring/aperte-ex-permission-portlet.xml</value>
 		</init-param>
-		<init-param>
-			<name>view-jsp</name>
-			<value>ex_permission</value>
-		</init-param>
+
 
 		<supports>
 			<mime-type>text/html</mime-type>

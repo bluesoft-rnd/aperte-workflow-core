@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.roles.IUserRolesManager;
+import pl.net.bluesoft.rnd.processtool.roles.exception.RoleNotFoundException;
 import pl.net.bluesoft.rnd.processtool.usersource.IPortalUserSource;
 import pl.net.bluesoft.rnd.pt.utils.lang.Lang2;
 
@@ -89,12 +90,19 @@ public class PermissionFilter implements Filter {
     {
         for(String roleName: ROLE_NAMES)
         {
-            Collection<UserData> users = userRolesManager.getUsersByRole(roleName);
-            if(users.contains(userInRequest))
+            try
             {
-                logger.info("Matched role " + roleName + " for user " + userInRequest.getLogin());
+                Collection<UserData> users = userRolesManager.getUsersByRole(roleName);
+                if(users.contains(userInRequest))
+                {
+                    logger.info("Matched role " + roleName + " for user " + userInRequest.getLogin());
 
-                return true;
+                    return true;
+                }
+            }
+            catch(RoleNotFoundException ex)
+            {
+
             }
         }
 

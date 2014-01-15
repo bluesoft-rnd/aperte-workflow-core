@@ -68,6 +68,13 @@
                         <Bundle-Version>0.1</Bundle-Version>
                         <Embed-Directory>lib</Embed-Directory>
                         <Embed-Transitive>true</Embed-Transitive>
+                        <ProcessTool-I18N-Property>filesrepository-messages</ProcessTool-I18N-Property>
+                        <ProcessTool-Widget-View>
+                            org.aperteworkflow.files.widget.FileRepositoryWidget
+                        </ProcessTool-Widget-View>
+                        <ProcessTool-Controller>
+                            org.aperteworkflow.files.controller.FilesController
+                        </ProcessTool-Controller>
                         <!--<ProcessTool-Model-Enhancement>-->
                         <!--pl.net.bluesoft.rnd.pt.ext.filescapture.model.FilesCheckerConfiguration-->
                         <!--</ProcessTool-Model-Enhancement>-->

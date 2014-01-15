@@ -5,9 +5,6 @@
 
 	<display-name>AperteWorkflow</display-name>
     <listener>
-        <listener-class>com.liferay.portal.kernel.servlet.SecurePluginContextListener</listener-class>
-    </listener>
-    <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>
     <listener>

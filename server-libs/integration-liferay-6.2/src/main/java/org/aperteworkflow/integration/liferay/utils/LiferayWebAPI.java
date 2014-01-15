@@ -1,7 +1,6 @@
 package org.aperteworkflow.integration.liferay.utils;
 
 import com.liferay.portal.kernel.util.CookieKeys;
-import com.liferay.portal.kernel.util.CookieUtil;
 import com.liferay.portal.util.PortalUtil;
 import org.aperteworkflow.ui.view.IWebAPI;
 

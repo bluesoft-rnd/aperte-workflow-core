@@ -26,7 +26,7 @@ import static pl.net.bluesoft.util.lang.Formats.nvl;
  * @author mpawlak@bluesoft.net.pl
  */
 public abstract class AbstractProcessToolSession implements ProcessToolBpmSession, Serializable {
-    protected Logger log = Logger.getLogger(ProcessToolBpmSession.class.getName());
+    protected static Logger log = Logger.getLogger(ProcessToolBpmSession.class.getName());
 
     /**
      * User and role names are provided externally, e.g. from Liferay.

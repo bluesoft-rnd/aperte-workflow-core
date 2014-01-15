@@ -48,11 +48,14 @@ public class ExPermissionViewController {
     {
 		logger.info("ExPermissionViewController.handleMainRenderRequest... ");
         ModelAndView modelView = new ModelAndView();
-        modelView.setViewName("ex_permission");
         SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
         UserData user = portalUserSource.getUserByRequest(request);
         modelView.addObject(WebApiConstants.USER_PARAMETER_NAME, user);
-
+        if(user == null || user.getLogin() == null){
+            modelView.setViewName("login");
+        }else{
+            modelView.setViewName("ex_permission");
+        }
 
         return modelView;
     }

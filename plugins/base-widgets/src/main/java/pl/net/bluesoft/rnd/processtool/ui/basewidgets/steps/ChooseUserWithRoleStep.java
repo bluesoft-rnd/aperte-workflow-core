@@ -38,9 +38,7 @@ public class ChooseUserWithRoleStep implements ProcessToolProcessStep
         ProcessInstance processInstance = bpmStep.getProcessInstance();
         ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
 
-        String role = StepUtil.extractVariable(roleName,ctx, processInstance);
-
-        UserData user = userRolesManager.getFirstUserWithRole(role);
+        UserData user = userRolesManager.getFirstUserWithRole(roleName);
 
         if(user == null)
             throw new RuntimeException("No user with role: "+roleName);

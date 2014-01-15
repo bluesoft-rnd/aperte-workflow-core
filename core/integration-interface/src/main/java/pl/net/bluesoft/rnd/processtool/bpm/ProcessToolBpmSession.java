@@ -56,6 +56,8 @@ public interface ProcessToolBpmSession {
 	int getFilteredTasksCount(ProcessInstanceFilter filter);
 
 	BpmTask getHistoryTask(String taskId);
+    BpmTask getLastHistoryTaskByName(Long internalProcessId, String stepName);
+
 	List<BpmTask> getAllTasks();
 
 	List<BpmTask> findUserTasks(ProcessInstance processInstance);

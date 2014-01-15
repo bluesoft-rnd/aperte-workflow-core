@@ -377,7 +377,12 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		return getBpmTask(getJbpmService().getTask(toJbpmTaskId(taskId)));
 	}
 
-	@Override
+    @Override
+    public BpmTask getLastHistoryTaskByName(Long internalProcessId, String stepName) {
+        return getBpmTask(JbpmService.getInstance().getPastOrActualTask(internalProcessId, stepName));
+    }
+
+    @Override
 	public List<BpmTask> getAllTasks() {
 		List<Task> tasks = getJbpmService().getTasks();
 		return getBpmTasks(tasks);
@@ -1394,6 +1399,18 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
             Collection<String> potentialOwnersLogins = new LinkedList<String>();
             for (OrganizationalEntity potentialOwner : potentialOwners) {
                 if (potentialOwner instanceof User) {
+                    potentialOwnersLogins.add(potentialOwner.getId());
+                }
+            }
+            return potentialOwnersLogins;
+        }
+
+        public Collection<String> getQueues()
+        {
+            Collection<OrganizationalEntity> potentialOwners = task.getPeopleAssignments().getPotentialOwners();
+            Collection<String> potentialOwnersLogins = new LinkedList<String>();
+            for (OrganizationalEntity potentialOwner : potentialOwners) {
+                if (potentialOwner instanceof Group) {
                     potentialOwnersLogins.add(potentialOwner.getId());
                 }
             }

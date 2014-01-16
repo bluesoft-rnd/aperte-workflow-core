@@ -15,7 +15,24 @@
 		<header-portlet-css>/sa/js/jstree/themes/default/style.min.css</header-portlet-css>
 		<header-portlet-javascript>/sa/js/jstree/jstree.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/select2.min.js</header-portlet-javascript>
+        <header-portlet-javascript>/sa/js/jquery.json-2.4.min.js</header-portlet-javascript>
 	</portlet>
+    <portlet id="aperte-demand-registry">
+        <!-- Note: Must not be the same as servlet name. -->
+        <portlet-name>AperteWorkflow Demand Registry</portlet-name>
+        <instanceable>false</instanceable>
+        <remoteable>true</remoteable>
+        <ajaxable>true</ajaxable>
+        <private-session-attributes>false</private-session-attributes>
+        <header-portlet-css>/sa/css/aperte.css</header-portlet-css>
+        <header-portlet-javascript>/sa/js/jquery-1.10.2.min.js</header-portlet-javascript>
+        <header-portlet-javascript>/sa/js/bootstrap.min.js</header-portlet-javascript>
+        <header-portlet-javascript>/sa/js/jquery.dataTables.min.js</header-portlet-javascript>
+        <header-portlet-css>/sa/js/jstree/themes/default/style.min.css</header-portlet-css>
+        <header-portlet-javascript>/sa/js/jstree/jstree.js</header-portlet-javascript>
+        <header-portlet-javascript>/sa/js/select2.min.js</header-portlet-javascript>
+        <header-portlet-javascript>/sa/js/jquery.json-2.4.min.js</header-portlet-javascript>
+    </portlet>
 	<portlet>
 		<!-- Matches definition in portlet.xml. -->
 		<!-- Note: Must not be the same as servlet name. -->

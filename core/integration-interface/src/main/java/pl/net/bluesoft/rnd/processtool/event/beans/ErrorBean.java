@@ -10,8 +10,16 @@ public class ErrorBean
 {
 	private String source;
 	private String message;
-	
-	public String getSource() {
+
+    public ErrorBean() {
+    }
+
+    public ErrorBean(String source, String message) {
+        this.source = source;
+        this.message = message;
+    }
+
+    public String getSource() {
 		return source;
 	}
 	public void setSource(String source) {

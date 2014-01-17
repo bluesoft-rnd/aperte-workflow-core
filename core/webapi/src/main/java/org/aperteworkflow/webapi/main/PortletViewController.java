@@ -3,7 +3,9 @@ package org.aperteworkflow.webapi.main;
 import org.aperteworkflow.webapi.main.processes.controller.ProcessesListController;
 import org.aperteworkflow.webapi.main.processes.controller.TaskViewController;
 import org.aperteworkflow.webapi.main.queues.controller.QueuesController;
+import org.aperteworkflow.webapi.main.ui.TaskViewBuilder;
 import org.aperteworkflow.webapi.main.util.MappingJacksonJsonViewEx;
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,11 +15,38 @@ import org.springframework.web.portlet.ModelAndView;
 import org.springframework.web.portlet.bind.annotation.RenderMapping;
 import org.springframework.web.portlet.bind.annotation.ResourceMapping;
 
+import freemarker.cache.ClassTemplateLoader;
+import freemarker.cache.TemplateLoader;
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
+
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
+import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceDAO;
+import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceSimpleAttributeDAO;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog;
+import pl.net.bluesoft.rnd.processtool.model.processdata.AbstractProcessInstanceAttribute;
+import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComment;
+import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceAttribute;
+import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceSimpleAttribute;
+import pl.net.bluesoft.rnd.processtool.web.domain.IHtmlTemplateProvider;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
+
 import javax.portlet.*;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -33,7 +62,9 @@ public class PortletViewController extends AbstractMainController<ModelAndView>
     private static final String PORTLET_JSON_RESULT_ROOT_NAME = "result";
 
     private static Logger logger = Logger.getLogger(PortletViewController.class.getName());
-
+    private Map<String, Object> viewData = new HashMap<String, Object>();
+   
+    
     @Autowired(required = false)
     private QueuesController queuesController;
 
@@ -79,10 +110,11 @@ public class PortletViewController extends AbstractMainController<ModelAndView>
     public ModelAndView dispatcher(ResourceRequest request, ResourceResponse response) throws PortletException
     {
         HttpServletRequest originalHttpServletRequest = getOriginalHttpServletRequest(request);
-
+        
         String controller = originalHttpServletRequest.getParameter("controller");
         String action = originalHttpServletRequest.getParameter("action");
-
+        //final Long processId = Long.parseLong(originalHttpServletRequest.getParameter("processId"));
+       
         logger.log(Level.INFO, "controllerName: "+controller+", action: "+action);
 
         if(controller == null || controller.isEmpty())
@@ -95,10 +127,16 @@ public class PortletViewController extends AbstractMainController<ModelAndView>
             logger.log(Level.SEVERE, "[ERROR] No action paramter in dispatcher invocation!");
             throw new PortletException("No action paramter!");
         }
-
-
-        return  translate(PORTLET_JSON_RESULT_ROOT_NAME,
+        if (!action.equals("print"))
+        {
+        	return  translate(PORTLET_JSON_RESULT_ROOT_NAME,
                 mainDispatcher.invokeExternalController(controller, action, originalHttpServletRequest));
+        }
+        else
+        {
+            final Long processId = Long.parseLong(originalHttpServletRequest.getParameter("processId"));
+        	return translate(PORTLET_JSON_RESULT_ROOT_NAME, print(processId, originalHttpServletRequest));
+        }
     }
 
     @ResourceMapping( "getUserQueues")
@@ -193,5 +231,56 @@ public class PortletViewController extends AbstractMainController<ModelAndView>
 
         return mav;
     }
+    
+    private String print(final Long processId, final HttpServletRequest request){
 
+		final I18NSource messageSource = I18NSourceFactory.createI18NSource(request.getLocale());
+		Configuration cfg = new Configuration();
+		Template template;
+		StringWriter sw = new StringWriter();
+    	
+    	processToolRegistry.withProcessToolContext(new ProcessToolContextCallback() 
+    	{
+			@Override
+			public void withContext(ProcessToolContext context) 
+			{	
+				ProcessToolContext ctx = context; 
+				ProcessInstanceDAO processInstanceDAO = ctx.getProcessInstanceDAO();
+				ProcessInstance pi = processInstanceDAO.getProcessInstance(processId);
+				
+				Map<String,String> allAttributeMap = new HashMap<String,String>();
+				Set<ProcessInstanceSimpleAttribute> simpleAttributes = pi.getProcessSimpleAttributes();
+				
+				for (ProcessInstanceSimpleAttribute p : simpleAttributes){
+					allAttributeMap.put(p.getKey(), p.getValue());
+				}
+				
+				viewData.put(IHtmlTemplateProvider.PROCESS_PARAMTER, pi);
+				viewData.put("capexDictionary", ctx.getProcessDictionaryDAO().fetchDictionary("capexes"));
+				viewData.put("fixedAssetsGroupsDictionary", ctx.getProcessDictionaryDAO().fetchDictionary("fixed_assets_group"));
+				viewData.put("costAccountDictionary", ctx.getProcessDictionaryDAO().fetchDictionary("cost_accounts"));
+				viewData.put("demand", pi.getProcessAttribute("demand"));
+				viewData.put("attributes", pi.getProcessSimpleAttributes());
+				viewData.put("comments", new ArrayList<ProcessComment>(pi.getCommentsOrderedByDate(false)));
+				viewData.put("processLogs", new ArrayList<ProcessInstanceLog>(pi.getProcessLogs()));
+			}
+		});
+    	
+    	viewData.put(IHtmlTemplateProvider.MESSAGE_SOURCE_PARAMETER, messageSource);
+    	
+    	TemplateLoader templateLoader = new ClassTemplateLoader(getClass(), "/");
+    	cfg.setTemplateLoader( templateLoader );
+    	
+    	try {
+			template = cfg.getTemplate("print-process-instance.html", "UTF-8");
+			template.process(viewData, sw);
+			
+		}catch (IOException e) {
+			 logger.log(Level.SEVERE, "[PORTLET CONTROLLER] Error", e);
+		}catch (TemplateException e) {
+			 logger.log(Level.SEVERE, "[PORTLET CONTROLLER] Error", e);
+		}
+    	sw.flush();
+    	return sw.toString();
+    }
 }

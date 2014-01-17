@@ -17,6 +17,7 @@
 		<header-portlet-javascript>/sa/js/select2.min.js</header-portlet-javascript>
         <header-portlet-javascript>/sa/js/jquery.json-2.4.min.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/bootstrap-datepicker.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/locales/bootstrap-datepicker.pl.js</header-portlet-javascript>		
 	</portlet>
     <portlet id="aperte-demand-registry">
         <!-- Note: Must not be the same as servlet name. -->
@@ -34,6 +35,7 @@
         <header-portlet-javascript>/sa/js/select2.min.js</header-portlet-javascript>
         <header-portlet-javascript>/sa/js/jquery.json-2.4.min.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/bootstrap-datepicker.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/locales/bootstrap-datepicker.pl.js</header-portlet-javascript>		
     </portlet>
 	<portlet>
 		<!-- Matches definition in portlet.xml. -->
@@ -51,12 +53,13 @@
 		<header-portlet-javascript>/sa/js/jquery.timer.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/jquery.dataTables.bootstrap.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/jquery.dateFormat-1.0.js</header-portlet-javascript>
-		<header-portlet-javascript>/sa/js/select2.min.js</header-portlet-javascript>
-		<header-portlet-javascript>/sa/js/bootstrap-datepicker.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/select2.min.js</header-portlet-javascript>		
 		<header-portlet-javascript>/sa/js/colReorder.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/aperte.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/jquery-plugins.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/jquery.json-2.4.min.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/bootstrap-datepicker.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/locales/bootstrap-datepicker.pl.js</header-portlet-javascript>		
 		<!-- header-portlet-javascript>/sa/js/jquery.cookie.js</header-portlet-javascript -->
 	</portlet>
 	<portlet>

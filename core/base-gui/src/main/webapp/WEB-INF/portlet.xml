@@ -13,8 +13,6 @@
 		  <name>contextConfigLocation</name>
 		  <value>/WEB-INF/spring/aperte-ex-permission-portlet.xml</value>
 		</init-param>
-
-
 		<supports>
 			<mime-type>text/html</mime-type>
 		</supports>
@@ -30,10 +28,8 @@
         <portlet-class>org.springframework.web.portlet.DispatcherPortlet</portlet-class>
         <init-param>
             <name>contextConfigLocation</name>
-            <value>/WEB-INF/spring/aperte-demand-registry.xml</value>
+            <value>/WEB-INF/spring/aperte-demand-registry-portlet.xml</value>
         </init-param>
-
-
         <supports>
             <mime-type>text/html</mime-type>
         </supports>

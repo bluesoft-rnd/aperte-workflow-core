@@ -16,6 +16,7 @@
 		<header-portlet-javascript>/sa/js/jstree/jstree.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/select2.min.js</header-portlet-javascript>
         <header-portlet-javascript>/sa/js/jquery.json-2.4.min.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/bootstrap-datetimepicker.min.js</header-portlet-javascript>
 	</portlet>
     <portlet id="aperte-demand-registry">
         <!-- Note: Must not be the same as servlet name. -->
@@ -32,6 +33,7 @@
         <header-portlet-javascript>/sa/js/jstree/jstree.js</header-portlet-javascript>
         <header-portlet-javascript>/sa/js/select2.min.js</header-portlet-javascript>
         <header-portlet-javascript>/sa/js/jquery.json-2.4.min.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/bootstrap-datetimepicker.min.js</header-portlet-javascript>
     </portlet>
 	<portlet>
 		<!-- Matches definition in portlet.xml. -->

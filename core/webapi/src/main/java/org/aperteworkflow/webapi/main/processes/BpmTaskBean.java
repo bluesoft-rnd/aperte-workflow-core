@@ -22,6 +22,7 @@ public class BpmTaskBean extends AbstractResultBean
 	private String name;
 	private String processName;
 	private String code;
+    private String businessStatus;
 	private String creator;
 	private String assignee;
 	private Date creationDate;
@@ -37,6 +38,14 @@ public class BpmTaskBean extends AbstractResultBean
 	public static BpmTaskBean createFrom(BpmTask task, I18NSource messageSource)
 	{
         BpmTaskBean processBean = new BpmTaskBean();
+        String processStatusCode = task.getProcessInstance().getBusinessStatus();
+        String processStatus;
+        if(processStatusCode == null)
+            processStatus = "";
+        else
+            processStatus =  task.getProcessDefinition().getBpmDefinitionKey()+"."+processStatusCode;
+
+
 		processBean.processName = messageSource.getMessage(task.getProcessDefinition().getDescription());
 		processBean.name = task.getTaskName();
 		processBean.code = nvl(task.getExternalProcessId(), task.getInternalProcessId());
@@ -45,6 +54,7 @@ public class BpmTaskBean extends AbstractResultBean
 		processBean.creator = task.getCreator();
 		processBean.taskId = task.getInternalTaskId();
 		processBean.internalProcessId = task.getInternalProcessId();
+        processBean.businessStatus = messageSource.getMessage(processStatus);
 		processBean.processStateConfigurationId = task.getCurrentProcessStateConfiguration().getId().toString();
 		processBean.deadline = task.getDeadlineDate();
 		processBean.tooltip = messageSource.getMessage(task.getProcessDefinition().getComment());
@@ -53,7 +63,15 @@ public class BpmTaskBean extends AbstractResultBean
 		return processBean;
 	}
 
-	public String getName() {
+    public String getBusinessStatus() {
+        return businessStatus;
+    }
+
+    public void setBusinessStatus(String businessStatus) {
+        this.businessStatus = businessStatus;
+    }
+
+    public String getName() {
 		return name;
 	}
 

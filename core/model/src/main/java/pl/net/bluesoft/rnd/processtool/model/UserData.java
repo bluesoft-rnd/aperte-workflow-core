@@ -1,5 +1,8 @@
 package pl.net.bluesoft.rnd.processtool.model;
 
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -20,6 +23,8 @@ public interface UserData {
 	String getEmail();
 	String getJobTitle();
 	Long getCompanyId();
+    Object getAttribute(String key);
+    Map<String, Object> getAttributes();
 
 	Set<String> getRoles();
 	boolean hasRole(String roleName);

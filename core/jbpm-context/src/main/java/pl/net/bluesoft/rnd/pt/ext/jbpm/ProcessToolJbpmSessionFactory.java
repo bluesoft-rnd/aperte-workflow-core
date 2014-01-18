@@ -9,6 +9,8 @@ import pl.net.bluesoft.rnd.processtool.model.UserData;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -17,7 +19,7 @@ import java.util.Collections;
 @Scope(value = "singleton")
 public class ProcessToolJbpmSessionFactory implements ProcessToolSessionFactory
 {
-
+    private static final Logger logger = Logger.getLogger(ProcessToolJbpmSessionFactory.class.getName());
     public ProcessToolJbpmSessionFactory()
     {
 
@@ -29,7 +31,14 @@ public class ProcessToolJbpmSessionFactory implements ProcessToolSessionFactory
 	}
 
 	@Override
-	public ProcessToolBpmSession createSession(UserData user) {
+	public ProcessToolBpmSession createSession(UserData user)
+    {
+        if(user == null)
+        {
+            logger.log(Level.SEVERE, "There is no user in Aperte Process Context!");
+            return null;
+        }
+
 		return createSession(user.getLogin(), user.getRoles());
 	}
 

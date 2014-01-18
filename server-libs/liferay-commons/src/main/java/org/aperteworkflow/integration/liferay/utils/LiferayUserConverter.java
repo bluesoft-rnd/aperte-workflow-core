@@ -1,7 +1,10 @@
 package org.aperteworkflow.integration.liferay.utils;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.UserDataBean;
@@ -21,6 +24,8 @@ import com.liferay.portal.service.RoleLocalServiceUtil;
  */
 public class LiferayUserConverter 
 {
+    private static final String APERTE_PREFIX_ATTRIBUTE = "aperte";
+
     public static UserData convertLiferayUser(User user) throws SystemException {
         if (user == null) {
             return null;
@@ -32,18 +37,34 @@ public class LiferayUserConverter
         ud.setLastName(user.getLastName());
         ud.setJobTitle(user.getJobTitle());
         ud.setCompanyId(user.getCompanyId());
+
         for (Role role : user.getRoles()) 
         {
             ud.addRole(role.getName());
         }
         setGroupRoles(ud, user);
+
+        Map<String, Serializable> customAttributes = user.getExpandoBridge().getAttributes();
+        Map<String, Object> attributes = new HashMap<String, Object>();
+
+        for(Map.Entry<String, Serializable> entry:  customAttributes.entrySet())
+        {
+            String attributeKey = entry.getKey();
+            Serializable value = entry.getValue();
+
+            if(attributeKey.contains(APERTE_PREFIX_ATTRIBUTE))
+                attributes.put(attributeKey, value);
+        }
+
+        ud.setAttributes(attributes);
         return ud;
     }
     
     public static List<UserData> convertLiferayUsers(List<User> liferayUsers) throws SystemException
     {
     	List<UserData> users = new ArrayList<UserData>(liferayUsers.size());
-        for (User liferayUser : liferayUsers) {
+        for (User liferayUser : liferayUsers)
+        {
             users.add(convertLiferayUser(liferayUser));
         }
         return users;

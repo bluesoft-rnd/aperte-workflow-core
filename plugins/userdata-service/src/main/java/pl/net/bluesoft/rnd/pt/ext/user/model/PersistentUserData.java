@@ -6,6 +6,7 @@ import pl.net.bluesoft.rnd.processtool.model.UserData;
 
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import static pl.net.bluesoft.util.lang.FormatUtil.join;
@@ -153,7 +154,17 @@ public class PersistentUserData extends AbstractPersistentEntity implements User
 		return companyId;
 	}
 
-	public void setCompanyId(Long companyId) {
+    @Override
+    public Object getAttribute(String key) {
+        return null;
+    }
+
+    @Override
+    public Map<String, Object> getAttributes() {
+        return null;
+    }
+
+    public void setCompanyId(Long companyId) {
 		this.companyId = companyId;
 	}
 

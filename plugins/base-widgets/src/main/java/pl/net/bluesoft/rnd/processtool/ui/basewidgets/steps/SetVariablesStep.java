@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 @AliasName(name = "SetVariablesStep")
 public class SetVariablesStep implements ProcessToolProcessStep {
 	
-	@AutoWiredProperty
+	@AutoWiredProperty(required = true)
 	private String query;
 	
 	@AutoWiredProperty

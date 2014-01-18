@@ -238,23 +238,23 @@ public class PortletViewController extends AbstractMainController<ModelAndView>
 		Configuration cfg = new Configuration();
 		Template template;
 		StringWriter sw = new StringWriter();
-    	
-    	processToolRegistry.withProcessToolContext(new ProcessToolContextCallback() 
+
+    	processToolRegistry.withProcessToolContext(new ProcessToolContextCallback()
     	{
 			@Override
-			public void withContext(ProcessToolContext context) 
-			{	
-				ProcessToolContext ctx = context; 
+			public void withContext(ProcessToolContext context)
+			{
+				ProcessToolContext ctx = context;
 				ProcessInstanceDAO processInstanceDAO = ctx.getProcessInstanceDAO();
 				ProcessInstance pi = processInstanceDAO.getProcessInstance(processId);
-				
+
 				Map<String,String> allAttributeMap = new HashMap<String,String>();
 				Set<ProcessInstanceSimpleAttribute> simpleAttributes = pi.getProcessSimpleAttributes();
-				
+
 				for (ProcessInstanceSimpleAttribute p : simpleAttributes){
 					allAttributeMap.put(p.getKey(), p.getValue());
 				}
-				
+
 				viewData.put(IHtmlTemplateProvider.PROCESS_PARAMTER, pi);
 				viewData.put("capexDictionary", ctx.getProcessDictionaryDAO().fetchDictionary("capexes"));
 				viewData.put("fixedAssetsGroupsDictionary", ctx.getProcessDictionaryDAO().fetchDictionary("fixed_assets_group"));
@@ -265,16 +265,16 @@ public class PortletViewController extends AbstractMainController<ModelAndView>
 				viewData.put("processLogs", new ArrayList<ProcessInstanceLog>(pi.getProcessLogs()));
 			}
 		});
-    	
+
     	viewData.put(IHtmlTemplateProvider.MESSAGE_SOURCE_PARAMETER, messageSource);
-    	
+
     	TemplateLoader templateLoader = new ClassTemplateLoader(getClass(), "/");
     	cfg.setTemplateLoader( templateLoader );
-    	
+
     	try {
 			template = cfg.getTemplate("print-process-instance.html", "UTF-8");
 			template.process(viewData, sw);
-			
+
 		}catch (IOException e) {
 			 logger.log(Level.SEVERE, "[PORTLET CONTROLLER] Error", e);
 		}catch (TemplateException e) {

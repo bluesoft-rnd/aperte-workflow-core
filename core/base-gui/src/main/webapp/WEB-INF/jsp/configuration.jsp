@@ -15,6 +15,9 @@
         <label class="checkbox">
 			<input id="button-processesTable-step" type="checkbox" value="step" name="process" onClick="toggleColumn(this, 'process','step');" /><spring:message code="processes.button.hide.step" />
         </label>
+		<label class="checkbox">
+			<input id="button-processesTable-businessStatus" type="checkbox" value="businessStatus" name="process" onClick="toggleColumn(this, 'process','businessStatus');" /><spring:message code="processes.button.hide.businessStatus" />
+        </label>
         <label class="checkbox">
 			<input id="button-processesTable-code" type="checkbox" value="code" name="process" onClick="toggleColumn(this, 'process','code');" /><spring:message code="processes.button.hide.processcode" />
         </label>
@@ -44,6 +47,9 @@
         </label>
         <label class="checkbox">
 			<input id="button-customQueueTable-step" type="checkbox" value="step" name="queue" onClick="toggleColumn(this, 'queue','step');" /><spring:message code="processes.button.hide.step" />
+        </label>
+		<label class="checkbox">
+			<input id="button-customQueueTable-businessStatus" type="checkbox" value="businessStatus" name="queue" onClick="toggleColumn(this, 'queue','businessStatus');" /><spring:message code="processes.button.businessStatus.step" />
         </label>
         <label class="checkbox">
 			<input id="button-customQueueTable-code" type="checkbox" value="code" name="queue" onClick="toggleColumn(this, 'queue','code');" /><spring:message code="processes.button.hide.processcode" />

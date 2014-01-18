@@ -9,8 +9,9 @@
 	<table id="customQueueTable" class="process-table table table-striped" border="1">
 		<thead>
 			<tr>
-				<th style="width:15%;"><spring:message code="processes.list.table.process.name" /></th>
-				<th style="width:15%;"><spring:message code="processes.list.table.process.step" /></th>
+				<th style="width:10%;"><spring:message code="processes.list.table.process.name" /></th>
+				<th style="width:10%;"><spring:message code="processes.list.table.process.step" /></th>
+				<th style="width:10%;"><spring:message code="processes.list.table.process.businessStatus" /></th>
 				<th style="width:12%;"><spring:message code="processes.list.table.process.code" /></th>
 				<th style="width:9%;"><spring:message code="processes.list.table.process.creator" /></th>
 				<th style="width:9%;"><spring:message code="processes.list.table.process.creationdate" /></th>
@@ -35,6 +36,7 @@
 			[
 				 { "sName":"name", "bSortable": true,"bVisible":parsedCustom.name,"mData": function(object){return generateNameColumn(object);}},
 				 { "sName":"step", "bSortable": true,"bVisible":parsedCustom.step, "mData": "step" },
+				 { "sName":"businessStatus", "bSortable": true ,"bVisible":parsedCustom.step, "mData": "businessStatus" },
 				 { "sName":"code", "bSortable": true,"bVisible":parsedCustom.code, "mData": "code" },
 				 { "sName":"creator", "bSortable": true,"bVisible":parsedCustom.creator,"mData": "creator" },
 				 { "sName":"creationDate", "bSortable": true,"bVisible":parsedCustom.creationDate,"mData": function(object){return $.format.date(object.creationDate, 'dd-MM-yyyy, HH:mm');}},

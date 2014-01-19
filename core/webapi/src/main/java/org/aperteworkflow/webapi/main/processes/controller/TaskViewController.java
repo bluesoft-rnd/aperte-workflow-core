@@ -140,17 +140,11 @@ public class TaskViewController extends AbstractProcessToolServletController
             final I18NSource messageSource = I18NSourceFactory.createI18NSource(request.getLocale());
 
             /* Get process state configuration db id */
-            final String processStateConfigurationId = request.getParameter("processStateConfigurationId");
             final String taskId = request.getParameter("taskId");
 
             if(isNull(taskId))
             {
                 response.getWriter().print(messageSource.getMessage("request.performaction.error.notaskid"));
-                return;
-            }
-            else if(isNull(processStateConfigurationId))
-            {
-                response.getWriter().print(messageSource.getMessage("request.performaction.error.nocofnigurationid"));
                 return;
             }
 
@@ -179,7 +173,7 @@ public class TaskViewController extends AbstractProcessToolServletController
 
                     long t1 = System.currentTimeMillis();
 
-                    ProcessStateConfiguration config = ctx.getProcessDefinitionDAO().getCachedProcessStateConfiguration(Long.parseLong(processStateConfigurationId));
+                    ProcessStateConfiguration config = task.getCurrentProcessStateConfiguration();
                     String processDescription = messageSource.getMessage(config.getDefinition().getDescription());
                     String processVersion = String.valueOf(config.getDefinition().getBpmDefinitionVersion());
 

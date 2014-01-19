@@ -102,20 +102,19 @@
 
 	function generateNameColumn(task)
 	{
-		var showOnClickCode = 'onclick="loadProcessView('+task.processStateConfigurationId+','+task.taskId+')"';
+		var showOnClickCode = 'onclick="loadProcessView('+task.taskId+')"';
 		
 	    var linkBody = '<a class="process-view-link" data-toggle="tooltip" title="'+task.tooltip+'" '+showOnClickCode+' ">' + task.processName + '</a>';
 
         return linkBody;
     }
 
-	function loadProcessView(processStateConfigurationId, taskId)
+	function loadProcessView(taskId)
 	{
 		windowManager.clearProcessView();
 		windowManager.showLoadingScreen();
 		var widgetJson = $.post('<portlet:resourceURL id="loadTask"/>',
 		{
-			"processStateConfigurationId": processStateConfigurationId,
 			"taskId": taskId
 		})
 		.done(function(data) {

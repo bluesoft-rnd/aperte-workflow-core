@@ -44,7 +44,7 @@
 				 { "sName":"stepInfo", "bSortable": true ,"bVisible":parsedCustom.stepInfo, "mData":"stepInfo" },
 				 { "sName":"actions", "bSortable": false,"bVisible":parsedCustom.actions,"mData": function(object){return generateButtons(object)}},
 			 ],
-			 [[ 5, "desc" ]]
+			 [[ 6, "desc" ]]
 			);
 			
 		queueViewManager.addTableView('queue', dataTable, 'customqueue-panel-view');

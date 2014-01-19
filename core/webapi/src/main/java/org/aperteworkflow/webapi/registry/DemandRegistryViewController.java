@@ -12,6 +12,8 @@ import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import org.springframework.web.portlet.ModelAndView;
 import org.springframework.web.portlet.bind.annotation.RenderMapping;
 import org.springframework.web.portlet.bind.annotation.ResourceMapping;
+import pl.net.bluesoft.rnd.processtool.BasicSettings;
+import pl.net.bluesoft.rnd.processtool.ISettingsProvider;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.usersource.IPortalUserSource;
 
@@ -42,6 +44,9 @@ public class DemandRegistryViewController {
     @Autowired(required = false)
     protected IPortalUserSource portalUserSource;
 
+    @Autowired(required = false)
+    protected ISettingsProvider settingsProvider;
+
 
 	@RenderMapping ()
     /**
@@ -52,8 +57,14 @@ public class DemandRegistryViewController {
 		logger.info("ExPermissionViewController.handleMainRenderRequest... ");
         ModelAndView modelView = new ModelAndView();
         SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+
+        String aperteActivitiesPortletUrl = settingsProvider.getSetting(BasicSettings.ACTIVITY_PORTLET_URL);
+        modelView.addObject(WebApiConstants.APERTE_PORTLET_URL, aperteActivitiesPortletUrl);
+
         UserData user = portalUserSource.getUserByRequest(request);
         modelView.addObject(WebApiConstants.USER_PARAMETER_NAME, user);
+
+
         if(user == null || user.getLogin() == null){
             modelView.setViewName("login");
         }else{

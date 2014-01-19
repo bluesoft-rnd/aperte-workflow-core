@@ -46,8 +46,6 @@
                       windowManager.showProcessList();
               </c:otherwise>
         </c:choose>
-
-		externalTaskId
 		
 
 		reloadQueues();

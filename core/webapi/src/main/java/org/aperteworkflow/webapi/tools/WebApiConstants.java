@@ -9,4 +9,5 @@ package org.aperteworkflow.webapi.tools;
  */
 public  class WebApiConstants {
     public static final String USER_PARAMETER_NAME = "aperteUser";
+    public static final String APERTE_PORTLET_URL = "apertePortletUrl";
 }

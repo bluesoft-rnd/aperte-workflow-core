@@ -41,6 +41,7 @@
     <bean id="dataRegistry" class="pl.net.bluesoft.rnd.processtool.plugins.DataRegistryImpl" scope="singleton"/>
     <bean id="webProcessToolContextFactory" class="org.aperteworkflow.webapi.context.impl.WebProcessToolContextFactory" scope="singleton"/>
 
+    <bean id="settingsProvider" class="pl.net.bluesoft.rnd.processtool.AperteSettingsProvider" scope="singleton"/>
     <bean id="accessTokenFactory" class="pl.net.bluesoft.rnd.processtool.token.impl.AccessTokenFactory" scope="singleton"/>
     <bean id="tokenService" class="pl.net.bluesoft.rnd.processtool.token.impl.AccessTokenFacade" scope="singleton"/>
 

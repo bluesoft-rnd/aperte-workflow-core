@@ -60,6 +60,7 @@ public class PortletViewController extends AbstractMainController<ModelAndView>
 
 {
     private static final String PORTLET_JSON_RESULT_ROOT_NAME = "result";
+    private static final String PORTLET_PARAMTER_TASK_ID = "taskId";
 
     private static Logger logger = Logger.getLogger(PortletViewController.class.getName());
     private Map<String, Object> viewData = new HashMap<String, Object>();
@@ -89,6 +90,15 @@ public class PortletViewController extends AbstractMainController<ModelAndView>
 
 
         HttpServletRequest httpServletRequest = portalUserSource.getHttpServletRequest(request);
+        HttpServletRequest originalHttpServletRequest =portalUserSource.getOriginalHttpServletRequest(httpServletRequest);
+
+        /* Start from task view */
+        String showTaskId = originalHttpServletRequest.getParameter(PORTLET_PARAMTER_TASK_ID);
+        if(showTaskId != null)
+        {
+            Long taskId = Long.parseLong(showTaskId);
+            modelView.addObject(EXTERNAL_TASK_ID, taskId);
+        }
 
         processRequest(modelView, httpServletRequest);
 

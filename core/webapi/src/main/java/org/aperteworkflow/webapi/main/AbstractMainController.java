@@ -28,6 +28,7 @@ public abstract class AbstractMainController<ModelAndViewType>
     public static final String QUEUES_PARAMETER_NAME = "queues";
     public static final String IS_STANDALONE = "isStandAlone";
     public static final String QUEUE_INTERVAL = "queueInterval";
+    public static final String EXTERNAL_TASK_ID = "externalTaskId";
 
 	@Autowired(required = false)
     protected ProcessToolRegistry processToolRegistry;

@@ -37,6 +37,17 @@
 	{
 		windowManager.addView("error-screen");
 		windowManager.addView("loading-screen");
+		<c:choose>
+              <c:when test="${externalTaskId!=null}">
+                     loadProcessView("${externalTaskId}");
+              </c:when>
+
+              <c:otherwise>
+                      windowManager.showProcessList();
+              </c:otherwise>
+        </c:choose>
+
+		externalTaskId
 		
 
 		reloadQueues();

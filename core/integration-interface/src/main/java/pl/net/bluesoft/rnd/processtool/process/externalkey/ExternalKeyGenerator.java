@@ -15,7 +15,6 @@ import static pl.net.bluesoft.util.lang.Strings.hasText;
  * @author mpawlak@bluesoft.net.pl
  */
 public class ExternalKeyGenerator {
-    public static final String PLACEHOLDER_COMPANY = "company";
 
     public static final String PLACEHOLDER_YEAR = "year";
     public static final String PLACEHOLDER_MONTH = "month";
@@ -36,14 +35,14 @@ public class ExternalKeyGenerator {
         this.sequenceScope = sequenceScope;
     }
 
-    public String getNumber(IExternalKeyAbbreviationProvider abbreviationProvider, Mode mode) {
-        return PatternUtil.substitute(processNumberPattern, getArguments(abbreviationProvider, mode));
+    public String getNumber(Mode mode, Map<String, String> externalArguments) {
+        return PatternUtil.substitute(processNumberPattern, getArguments(mode, externalArguments));
     }
 
-    private Map<String, Object> getArguments(IExternalKeyAbbreviationProvider abbreviationProvider, Mode mode) {
+    private Map<String, Object> getArguments(Mode mode, Map<String, String> externalArguments) {
         Map<String, Object> arguments = new HashMap<String, Object>();
+        arguments.putAll(externalArguments);
 
-        arguments.put(PLACEHOLDER_COMPANY, abbreviationProvider.getAbbreviation());
         arguments.put(PLACEHOLDER_YEAR, getYear(new Date()));
 
         if (mode == Mode.FINAL) {

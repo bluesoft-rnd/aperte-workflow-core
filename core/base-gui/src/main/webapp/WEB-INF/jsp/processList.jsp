@@ -8,8 +8,9 @@
 <div class="process-tasks-view" id="task-view-processes" hidden="true">
 	<table id="processesTable" class="process-table table table-striped" border="1">
 		<thead>
-				<th style="width:15%;"><spring:message code="processes.list.table.process.name" /></th>
-				<th style="width:15%;"><spring:message code="processes.list.table.process.step" /></th>
+				<th style="width:10%;"><spring:message code="processes.list.table.process.name" /></th>
+				<th style="width:10%;"><spring:message code="processes.list.table.process.step" /></th>
+				<th style="width:10%;"><spring:message code="processes.list.table.process.businessStatus" /></th>
 				<th style="width:20%;"><spring:message code="processes.list.table.process.code" /></th>
 				<th style="width:10%;"><spring:message code="processes.list.table.process.creator" /></th>
 				<th style="width:10%;"><spring:message code="processes.list.table.process.assignee" /></th>
@@ -34,6 +35,7 @@
 			[
 				 { "sName":"name", "bSortable": true ,"bVisible":parsedProcess.name, "mData": function(object){return generateNameColumn(object);}},
 				 { "sName":"step", "bSortable": true ,"bVisible":parsedProcess.step, "mData": "step" },
+				 { "sName":"businessStatus", "bSortable": true ,"bVisible":parsedProcess.step, "mData": function(object){return generateStatusColumn(object);}},
 				 { "sName":"code", "bSortable": true ,"bVisible":parsedProcess.code, "mData": "code" },
 				 { "sName":"creator", "bSortable": true ,"bVisible":parsedProcess.creator,"mData": "creator" },
 				 { "sName":"assignee", "bSortable": true ,"bVisible":parsedProcess.assignee,"mData": function(object){return generateAssigneColumn(object);} },
@@ -41,7 +43,7 @@
 				 { "sName":"deadline","bVisible":true ,"bVisible":parsedProcess.deadline, "bSortable": true,"mData": function(object){return object.deadline == null ? "<spring:message code='processes.list.table.nodeadline' />" : $.format.date(object.deadline, 'dd-MM-yyyy, HH:mm');}},
 				 { "sName":"stepInfo", "bSortable": true ,"bVisible":parsedProcess.stepInfo, "mData":"stepInfo" }
 			 ],
-			 [[ 5, "desc" ]]
+			 [[ 6, "desc" ]]
 			);
 		
 		dataTable.enableMobileMode = function()
@@ -72,6 +74,18 @@
 		
 		queueViewManager.addTableView('process', dataTable, 'task-view-processes');
 	});
+	
+	function generateStatusColumn(task)
+	{
+		if(!task.businessStatus)
+		{
+			return "";
+		}
+		else
+		{
+			return task.businessStatus;
+		}
+	}
 	
 	function generateAssigneColumn(task)
 	{

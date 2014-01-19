@@ -13,7 +13,8 @@ import java.text.SimpleDateFormat;
  */
 public class LocalizedFormats {
 	public static String getLongDateFormatStr(I18NSource i18NSource) {
-		return i18NSource.getMessage("format.long.date");
+		 String d= i18NSource.getMessage("format.long.date");
+		return "dd-MM-yyyy HH:mm";
 	}
 
 	public static String getShortDateFormatStr(I18NSource i18NSource) {

@@ -1,8 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.model;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.io.Serializable;
+import java.util.*;
 
 import static pl.net.bluesoft.util.lang.FormatUtil.join;
 
@@ -18,6 +17,7 @@ public class UserDataBean implements UserData {
 	private String email;
 	private String jobTitle;
 	private Long companyId;
+    private Map<String, Object> attributes;
 
 	private Set<String> roles = new HashSet<String>();
 
@@ -36,7 +36,10 @@ public class UserDataBean implements UserData {
 		this.jobTitle = userData.getJobTitle();
 		this.companyId = userData.getCompanyId();
 		this.roles.addAll(userData.getRoles());
+        this.attributes.putAll(userData.getAttributes());
 	}
+
+
 
 	public UserDataBean(String login, String realName, String email) {
 		this.login = login;
@@ -59,7 +62,11 @@ public class UserDataBean implements UserData {
 		this.lastName = lastName;
 	}
 
-	@Override
+    public void setAttributes(Map<String, Object> attributes) {
+        this.attributes = attributes;
+    }
+
+    @Override
 	public Set<String> getRoles() {
 		return Collections.unmodifiableSet(roles);
 	}
@@ -128,7 +135,17 @@ public class UserDataBean implements UserData {
 		return companyId;
 	}
 
-	public void setCompanyId(Long companyId) {
+    @Override
+    public Object getAttribute(String key) {
+        return attributes.get(key);
+    }
+
+    @Override
+    public Map<String, Object> getAttributes() {
+        return attributes;
+    }
+
+    public void setCompanyId(Long companyId) {
 		this.companyId = companyId;
 	}
 

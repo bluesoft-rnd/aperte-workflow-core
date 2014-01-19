@@ -21,10 +21,12 @@ import pl.net.bluesoft.util.lang.ExpiringCache;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
-import javax.portlet.RenderRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants.ADMIN_USER;
 import static pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants.SYSTEM_USER;

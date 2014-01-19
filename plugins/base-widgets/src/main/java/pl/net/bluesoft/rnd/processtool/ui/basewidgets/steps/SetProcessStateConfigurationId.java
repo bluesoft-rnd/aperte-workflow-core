@@ -24,10 +24,10 @@ import java.util.Map;
 @AliasName(name = "SetProcessStateConfigurationId")
 public class SetProcessStateConfigurationId implements ProcessToolProcessStep
 {
-    @AutoWiredProperty
+    @AutoWiredProperty(required = true)
     private String stepName;
 
-    @AutoWiredProperty
+    @AutoWiredProperty(required = true)
     private String attributeName;
 
     @AutoWiredProperty

@@ -135,4 +135,9 @@ public class ProcessHtmlWidget extends BaseProcessToolWidget
     @Override
     public void addChild(ProcessToolWidget child) {
     }
+
+    public boolean hasContnet()
+    {
+        return contentProvider != null;
+    }
 }

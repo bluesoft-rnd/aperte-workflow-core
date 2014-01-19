@@ -58,8 +58,14 @@ public class ProcessInstance extends AbstractPersistentEntity
 	private String internalId;
 	private String definitionName;
 
+    /** Technical process status */
     @Enumerated(EnumType.STRING)
     private ProcessStatus status;
+
+    /** Business process status */
+    @Index(name="idx_pt_business_status")
+    @Column(name = "business_status", nullable = true)
+    private String businessStatus;
 
 	private Date createDate;
 	private String creatorLogin;
@@ -188,7 +194,15 @@ public class ProcessInstance extends AbstractPersistentEntity
 		this.owners = ownersLogins;
 	}
 
-	public void addOwner(String ownerLogin) {
+    public String getBusinessStatus() {
+        return businessStatus;
+    }
+
+    public void setBusinessStatus(String businessStatus) {
+        this.businessStatus = businessStatus;
+    }
+
+    public void addOwner(String ownerLogin) {
 		this.owners.add(ownerLogin);
 	}
 

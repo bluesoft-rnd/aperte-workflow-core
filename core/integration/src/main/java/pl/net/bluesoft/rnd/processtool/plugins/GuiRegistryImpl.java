@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -153,6 +154,12 @@ public class GuiRegistryImpl implements GuiRegistry {
 	public synchronized void registerHtmlView(String widgetName,ProcessHtmlWidget processHtmlWidget)
 	{
 		htmlWidgets.put(widgetName, processHtmlWidget);
+
+        if(!processHtmlWidget.hasContnet())
+        {
+            logger.log(Level.INFO, "Widget "+processHtmlWidget.getWidgetName()+" has no content");
+            return;
+        }
 
 		try
 		{

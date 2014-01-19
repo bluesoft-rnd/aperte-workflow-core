@@ -6,6 +6,8 @@ import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Window;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
@@ -63,6 +65,9 @@ public abstract class GenericVaadinPortlet2BpmApplication extends Application im
         final Window mainWindow = new Window();
         setMainWindow(mainWindow);
         ApplicationContext applicationContext = getContext();
+        
+        
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
         if (applicationContext instanceof PortletApplicationContext2) 
         {
             PortletApplicationContext2 portletCtx = (PortletApplicationContext2) applicationContext;

@@ -566,4 +566,6 @@ sun.reflect,
 sun.rmi.rmic,
 sun.security.util,
 sun.tools.javac,
-pl.net.bluesoft.rnd.processtool.event.beans
+pl.net.bluesoft.rnd.processtool.event.beans,
+freemarker.template,
+freemarker.cache

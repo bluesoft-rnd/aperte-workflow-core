@@ -127,15 +127,10 @@ public class PortletViewController extends AbstractMainController<ModelAndView>
             logger.log(Level.SEVERE, "[ERROR] No action paramter in dispatcher invocation!");
             throw new PortletException("No action paramter!");
         }
-        if (!action.equals("print"))
+        else
         {
         	return  translate(PORTLET_JSON_RESULT_ROOT_NAME,
                 mainDispatcher.invokeExternalController(controller, action, originalHttpServletRequest));
-        }
-        else
-        {
-            final Long processId = Long.parseLong(originalHttpServletRequest.getParameter("processId"));
-        	return translate(PORTLET_JSON_RESULT_ROOT_NAME, print(processId, originalHttpServletRequest));
         }
     }
 
@@ -230,57 +225,5 @@ public class PortletViewController extends AbstractMainController<ModelAndView>
         mav.addObject(resultName, result);
 
         return mav;
-    }
-    
-    private String print(final Long processId, final HttpServletRequest request){
-
-		final I18NSource messageSource = I18NSourceFactory.createI18NSource(request.getLocale());
-		Configuration cfg = new Configuration();
-		Template template;
-		StringWriter sw = new StringWriter();
-    	
-    	processToolRegistry.withProcessToolContext(new ProcessToolContextCallback() 
-    	{
-			@Override
-			public void withContext(ProcessToolContext context) 
-			{	
-				ProcessToolContext ctx = context; 
-				ProcessInstanceDAO processInstanceDAO = ctx.getProcessInstanceDAO();
-				ProcessInstance pi = processInstanceDAO.getProcessInstance(processId);
-				
-				Map<String,String> allAttributeMap = new HashMap<String,String>();
-				Set<ProcessInstanceSimpleAttribute> simpleAttributes = pi.getProcessSimpleAttributes();
-				
-				for (ProcessInstanceSimpleAttribute p : simpleAttributes){
-					allAttributeMap.put(p.getKey(), p.getValue());
-				}
-				
-				viewData.put(IHtmlTemplateProvider.PROCESS_PARAMTER, pi);
-				viewData.put("capexDictionary", ctx.getProcessDictionaryDAO().fetchDictionary("capexes"));
-				viewData.put("fixedAssetsGroupsDictionary", ctx.getProcessDictionaryDAO().fetchDictionary("fixed_assets_group"));
-				viewData.put("costAccountDictionary", ctx.getProcessDictionaryDAO().fetchDictionary("cost_accounts"));
-				viewData.put("demand", pi.getProcessAttribute("demand"));
-				viewData.put("attributes", pi.getProcessSimpleAttributes());
-				viewData.put("comments", new ArrayList<ProcessComment>(pi.getCommentsOrderedByDate(false)));
-				viewData.put("processLogs", new ArrayList<ProcessInstanceLog>(pi.getProcessLogs()));
-			}
-		});
-    	
-    	viewData.put(IHtmlTemplateProvider.MESSAGE_SOURCE_PARAMETER, messageSource);
-    	
-    	TemplateLoader templateLoader = new ClassTemplateLoader(getClass(), "/");
-    	cfg.setTemplateLoader( templateLoader );
-    	
-    	try {
-			template = cfg.getTemplate("print-process-instance.html", "UTF-8");
-			template.process(viewData, sw);
-			
-		}catch (IOException e) {
-			 logger.log(Level.SEVERE, "[PORTLET CONTROLLER] Error", e);
-		}catch (TemplateException e) {
-			 logger.log(Level.SEVERE, "[PORTLET CONTROLLER] Error", e);
-		}
-    	sw.flush();
-    	return sw.toString();
     }
 }

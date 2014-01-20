@@ -39,16 +39,32 @@ public class BpmTaskBean extends AbstractResultBean
 	{
         BpmTaskBean processBean = new BpmTaskBean();
         String processStatusCode = task.getProcessInstance().getBusinessStatus();
-        String processStatus;
-        if(processStatusCode == null)
-            processStatus = "";
-        else
+        String processStatus = "";
+
+        if(processStatusCode != null)
+        {
             processStatus =  task.getProcessDefinition().getBpmDefinitionKey()+"."+processStatusCode;
+        }
+        else if(processStatusCode == null && task.getProcessInstance().getRootProcessInstance() != null)
+        {
+            processStatusCode =  task.getProcessInstance().getRootProcessInstance().getBusinessStatus();
+            if(processStatusCode != null)
+                processStatus =  task.getProcessInstance().getRootProcessInstance().getDefinition().getBpmDefinitionKey()+"."+processStatusCode;
+        }
+        else
+            processStatus =  "";
+
+        String processCode = task.getProcessInstance().getExternalKey();
+        if(processCode == null && task.getProcessInstance().getRootProcessInstance() != null)
+            processCode = task.getProcessInstance().getRootProcessInstance().getExternalKey();
+
+        if(processCode == null)
+            processCode = task.getProcessInstance().getInternalId();
 
 
 		processBean.processName = messageSource.getMessage(task.getProcessDefinition().getDescription());
 		processBean.name = task.getTaskName();
-		processBean.code = nvl(task.getExternalProcessId(), task.getInternalProcessId());
+		processBean.code = nvl(processCode);
 		processBean.creationDate = task.getCreateDate();
 		processBean.assignee = task.getAssignee();
 		processBean.creator = task.getCreator();

@@ -20,9 +20,9 @@ public class DefaultI18NSource implements I18NSource
 
 	private Locale locale;
 
-    public DefaultI18NSource() 
+    public DefaultI18NSource()
     {
-    	
+
     }
 
     public DefaultI18NSource(Locale locale) {
@@ -47,7 +47,7 @@ public class DefaultI18NSource implements I18NSource
 	{
 		if(processToolRegistry == null)
 			SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
-        
+
 		Collection<I18NProvider> i18NProviders = processToolRegistry.getBundleRegistry().getI18NProviders();
 		//1st run - full localization e.g. _pl_PL
 		for (I18NProvider i18NProvider : i18NProviders) {

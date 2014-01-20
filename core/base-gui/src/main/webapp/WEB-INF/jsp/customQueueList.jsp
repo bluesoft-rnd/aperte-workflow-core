@@ -98,9 +98,8 @@
 		}, function(task)
 		{
 			clearAlerts();
-			console.log( "task claimed, new task: "+task.taskId); 
 			reloadQueues();
-			loadProcessView(processStateConfigurationId, task.taskId);
+			loadProcessView(task.taskId);
 		})
 		.fail(function(request, status, error) 
 		{	

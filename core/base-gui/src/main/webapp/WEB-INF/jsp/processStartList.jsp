@@ -100,8 +100,7 @@ for (Map.Entry<String, List<ProcessDefinitionConfig>> group : groups.entrySet())
 			if(errors.length > 0) { return; }
 			
 			if (data.taskId!=null) {
-				console.log( "processStateConfigurationId: "+data.processStateConfigurationId ); 
-				loadProcessView(data.processStateConfigurationId, data.taskId);
+				loadProcessView(data.taskId);
 			} else {
 				windowManager.showNewProcessPanel();
 			}

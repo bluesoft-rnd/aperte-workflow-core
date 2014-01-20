@@ -14,7 +14,13 @@ import javax.persistence.*;
 
 @Entity
 @Table(name="pt_process_instance_s_attr")
-
+@org.hibernate.annotations.Table(
+        appliesTo="pt_process_instance_s_attr",
+        indexes = {
+                @Index(name = "idx_p_s_attribute_process_id_key",
+                        columnNames = {"process_instance_id", "value_"}
+                )
+        })
 public class ProcessInstanceSimpleAttribute extends AbstractProcessInstanceAttribute implements BpmVariable {
 	public static final String _VALUE = "value";
 

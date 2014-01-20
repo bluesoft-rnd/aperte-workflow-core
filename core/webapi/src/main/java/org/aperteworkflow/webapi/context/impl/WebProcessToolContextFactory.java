@@ -31,6 +31,9 @@ public class WebProcessToolContextFactory implements IWebProcessToolContextFacto
     @Autowired
     private IAuthorizationService authorizationService;
 
+    @Autowired
+    private I18NSourceFactory i18NSourceFactory;
+
     public WebProcessToolContextFactory()
     {
         SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
@@ -47,8 +50,8 @@ public class WebProcessToolContextFactory implements IWebProcessToolContextFacto
 			final UserData user = authorizationService.getUserByRequest(request);
 			
 			processToolContext.setUser(user);
-			
-			I18NSource messageSource = I18NSourceFactory.createI18NSource(request.getLocale());
+
+			I18NSource messageSource = i18NSourceFactory.createI18NSource(request.getLocale());
 			processToolContext.setMessageSource(messageSource);
 			
 			ProcessToolBpmSession bpmSession = (ProcessToolBpmSession)context.getAttribute(ProcessToolBpmSession.class.getName());

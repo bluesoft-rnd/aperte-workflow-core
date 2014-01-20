@@ -2,6 +2,8 @@ package org.aperteworkflow.portlets;
 
 import com.vaadin.terminal.gwt.server.ApplicationPortlet2;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
@@ -25,9 +27,14 @@ public class ProcessInstanceManagerApplicationPortlet extends ApplicationPortlet
 
     private static final Logger logger = Logger.getLogger(ProcessInstanceManagerApplicationPortlet.class.getName());
 
+    @Autowired
+    private I18NSourceFactory i18NSourceFactory;
+
     @Override
     protected void handleRequest(final PortletRequest request, final PortletResponse response) throws PortletException, IOException {
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+
         Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
         try {
             getRegistry().withProcessToolContext(new ProcessToolContextCallback() {
@@ -35,7 +42,7 @@ public class ProcessInstanceManagerApplicationPortlet extends ApplicationPortlet
                 public void withContext(ProcessToolContext ctx) {
                     try {
                         try {
-                            I18NSource.ThreadUtil.setThreadI18nSource(I18NSourceFactory.createI18NSource(request.getLocale()));
+                            I18NSource.ThreadUtil.setThreadI18nSource(i18NSourceFactory.createI18NSource(request.getLocale()));
                             if (request instanceof ResourceRequest) {
                                 ResourceRequest rr = (ResourceRequest) request;
                                 ResourceResponse resp = (ResourceResponse) response;

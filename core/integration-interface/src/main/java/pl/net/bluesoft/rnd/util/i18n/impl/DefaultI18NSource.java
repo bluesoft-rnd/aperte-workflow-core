@@ -29,6 +29,7 @@ public class DefaultI18NSource implements I18NSource
         this.locale = locale;
     }
 
+
     public Locale getLocale() {
 		return locale;
 	}

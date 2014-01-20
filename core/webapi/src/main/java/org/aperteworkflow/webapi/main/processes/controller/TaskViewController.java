@@ -49,8 +49,11 @@ public class TaskViewController extends AbstractProcessToolServletController
 	{
 		logger.info("claimTaskFromQueue ...");
 		long t0 = System.currentTimeMillis();
+
+        		/* Initilize request context */
+        final IProcessToolRequestContext context = this.initilizeContext(request,getProcessToolRegistry().getProcessToolSessionFactory());
 		
-		final I18NSource messageSource = I18NSourceFactory.createI18NSource(request.getLocale());
+		final I18NSource messageSource = context.getMessageSource();
 
 		final String queueName = request.getParameter("queueName");
 		final String taskId = request.getParameter("taskId");
@@ -69,8 +72,7 @@ public class TaskViewController extends AbstractProcessToolServletController
             return taskBean;
 		}
 		
-		/* Initilize request context */
-		final IProcessToolRequestContext context = this.initilizeContext(request,getProcessToolRegistry().getProcessToolSessionFactory());
+
 		
 		if(!context.isUserAuthorized())
 		{

@@ -405,10 +405,10 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements R
             hl.addComponent(new Label(getLocalizedMessage("processinstances.console.entry.no-owner")));
 
         hl.setSizeUndefined();
-        hl.addComponent(linkButton(getLocalizedMessage("processinstances.console.entry.change-owner"), new Runnable() {
+        hl.addComponent(linkButton(getLocalizedMessage("processinstances.console.entry.change.owner"), new Runnable() {
             @Override
             public void run() {
-                Window w = new Window(getLocalizedMessage("processinstances.console.entry.change-owner.title"));
+                Window w = new Window(getLocalizedMessage("processinstances.console.entry.change.owner.title"));
                 w.setModal(true);
                 w.setWidth("400px");
                 w.center();
@@ -446,8 +446,8 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements R
 
             setWidth("100%");
             setSpacing(true);
-            addComponent(styled(new Label(getLocalizedMessage("processinstances.console.entry.change-owner.title")), "h2"));
-            addComponent(styled(new Label(getLocalizedMessage("processinstances.console.entry.change-owner.info")), "h2"));
+            addComponent(styled(new Label(getLocalizedMessage("processinstances.console.entry.change.owner.title")), "h2"));
+            addComponent(styled(new Label(getLocalizedMessage("processinstances.console.entry.change.owner.info")), "h2"));
 
             addComponent(smallSearchField);
             addComponent(results);

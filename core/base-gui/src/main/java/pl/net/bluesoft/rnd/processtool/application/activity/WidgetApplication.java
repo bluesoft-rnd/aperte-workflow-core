@@ -46,6 +46,9 @@ public class WidgetApplication extends Application  implements HttpServletReques
     
     @Autowired
     private WindowManager windowManager;
+
+    @Autowired
+    private I18NSourceFactory i18NSourceFactory;
     
     private Window blankWindow;
     
@@ -54,7 +57,7 @@ public class WidgetApplication extends Application  implements HttpServletReques
     
     public WidgetApplication()
     {
-    	this.i18NSource = I18NSourceFactory.createI18NSource(Locale.getDefault());
+    	this.i18NSource = i18NSourceFactory.createI18NSource(Locale.getDefault());
     }
 
 	@Override
@@ -81,7 +84,7 @@ public class WidgetApplication extends Application  implements HttpServletReques
 			return null;
 		}
 		if(i18NSource == null) {
-			this.i18NSource = I18NSourceFactory.createI18NSource(Locale.getDefault());
+			this.i18NSource = i18NSourceFactory.createI18NSource(Locale.getDefault());
 		}
 
 		if(bpmSession == null) {
@@ -160,7 +163,7 @@ public class WidgetApplication extends Application  implements HttpServletReques
 							request.getSession().setAttribute(ProcessToolBpmSession.class.getName(), bpmSession);
 						}
 						
-						WidgetApplication.this.i18NSource = I18NSourceFactory.createI18NSource(request.getLocale());
+						WidgetApplication.this.i18NSource = i18NSourceFactory.createI18NSource(request.getLocale());
 					}
 				});
 			}

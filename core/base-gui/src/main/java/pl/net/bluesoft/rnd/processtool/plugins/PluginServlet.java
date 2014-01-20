@@ -62,6 +62,8 @@ public class PluginServlet extends HttpServlet implements ServletContextListener
                 pluginHelper.initialize(
 						firstExistingDirectory(servletContext.getInitParameter("osgi-plugins-directory"),
                                 servletContext.getRealPath("/WEB-INF/osgi"),
+                                System.getProperty("aperte.osgi.dir")
+                                ,
                                 ProcessToolContext.Util.getHomePath() + File.separator + "osgi-plugins"),
                         nvl(servletContext.getInitParameter("felix-cache-directory"),
                                 ProcessToolContext.Util.getHomePath() + File.separator + "felix-cache"),

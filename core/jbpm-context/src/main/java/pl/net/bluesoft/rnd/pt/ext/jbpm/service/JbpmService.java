@@ -27,7 +27,9 @@ import org.jbpm.task.identity.UserGroupCallbackManager;
 import org.jbpm.task.service.ContentData;
 import org.jbpm.task.service.local.LocalTaskService;
 import org.jbpm.task.utils.OnErrorAction;
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.net.bluesoft.rnd.processtool.IProcessToolSettings;
+import pl.net.bluesoft.rnd.processtool.ISettingsProvider;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.JbpmStepAction;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.ProcessResourceNames;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.service.query.TaskQuery;
@@ -47,6 +49,9 @@ import static pl.net.bluesoft.util.lang.Strings.hasText;
 public class JbpmService implements ProcessEventListener, TaskEventListener {
 
     protected Logger log = Logger.getLogger(JbpmService.class.getName());
+
+    @Autowired(required = false)
+    protected ISettingsProvider settingsProvider;
 
     private static final int MAX_PROC_DEF_LENGTH = 1024;
     private static final IProcessToolSettings KSESSION_ID = new IProcessToolSettings() {

@@ -19,6 +19,6 @@ import pl.net.bluesoft.rnd.processtool.web.widgets.impl.FileWidgetContentProvide
 @ChildrenAllowed(false)
 public class FileRepositoryWidget extends ProcessHtmlWidget {
     public FileRepositoryWidget(IBundleResourceProvider bundleResourceProvider) {
-        setContentProvider(new FileWidgetContentProvider("file-repository.html", bundleResourceProvider));
+        setContentProvider(new FileWidgetContentProvider("files-repository-widget.html", bundleResourceProvider));
     }
 }

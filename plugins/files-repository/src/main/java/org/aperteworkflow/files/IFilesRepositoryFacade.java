@@ -16,7 +16,7 @@ import java.util.Collection;
 public interface IFilesRepositoryFacade {
     public Long uploadFile(InputStream inputStream, Long processInstanceId, String fileName, String fileDescription, String creatorLogin) throws UploadFileException;
 
-    void deleteFile(Long processInstanceId, Long fileRepositoryItemId) throws DeleteFileException;
+    void deleteFile(Long processInstanceId, Long filesRepositoryItemId) throws DeleteFileException;
 
     public OutputStream downloadFile(Long processInstanceId, Long fileId) throws DownloadFileException;
 

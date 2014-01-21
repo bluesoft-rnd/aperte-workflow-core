@@ -67,15 +67,15 @@ public class FilesRepositoryFacade implements IFilesRepositoryFacade {
     }
 
     @Override
-    public void deleteFile(Long processInstanceId, Long fileRepositoryItemId) throws DeleteFileException {
-        FilesRepositoryItem filesRepositoryItem = getFilesRepositoryItemDAO().getItemById(fileRepositoryItemId);
+    public void deleteFile(Long processInstanceId, Long filesRepositoryItemId) throws DeleteFileException {
+        FilesRepositoryItem filesRepositoryItem = getFilesRepositoryItemDAO().getItemById(filesRepositoryItemId);
         if (filesRepositoryItem == null) {
-            throw new DeleteFileException("File item with id=[" + fileRepositoryItemId + "] not found.");
+            throw new DeleteFileException("File item with id=[" + filesRepositoryItemId + "] not found.");
         }
         if (filesRepositoryItem.getProcessInstance() == null || !filesRepositoryItem.getProcessInstance().getId().equals(processInstanceId)) {
             throw new DeleteFileException("File from repository. File item is not connected to processInstanceId=[" + processInstanceId + "].");
         }
-        getFilesRepositoryItemDAO().deleteById(fileRepositoryItemId);
+        getFilesRepositoryItemDAO().deleteById(filesRepositoryItemId);
         try {
             getFilesRepositoryStorageDAO().deleteFileFromStorage(new File(filesRepositoryItem.getRelativePath()));
         } catch (IOException e) {

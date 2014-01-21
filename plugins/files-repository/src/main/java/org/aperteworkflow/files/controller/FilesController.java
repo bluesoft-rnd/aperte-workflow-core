@@ -4,7 +4,9 @@ import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.aperteworkflow.files.IFilesRepositoryFacade;
+import org.aperteworkflow.files.exceptions.DeleteFileException;
 import org.aperteworkflow.files.model.FilesRepositoryItem;
+import org.aperteworkflow.files.model.FilesRepositoryItemDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.usersource.IPortalUserSource;
@@ -16,6 +18,7 @@ import pl.net.bluesoft.rnd.processtool.web.domain.GenericResultBean;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,6 +28,9 @@ import java.util.logging.Logger;
 public class FilesController implements IOsgiWebController {
 
     private static Logger logger = Logger.getLogger(FilesController.class.getName());
+
+    private static final String PROCESS_INSTANCE_ID_REQ_PARAM_NAME = "processInstanceId";
+    private static final String FILES_REPOSITORY_ITEM_ID_REQ_PARAM_NAME = "filesRepositoryItemId";
 
     @Autowired
     protected IFilesRepositoryFacade filesRepoFacade;
@@ -81,8 +87,37 @@ public class FilesController implements IOsgiWebController {
         HttpServletRequest request = invocation.getRequest();
         Long processInstanceId = getProcessInstanceId(request);
         Collection<FilesRepositoryItem> fileRepoItems = filesRepoFacade.getFilesList(processInstanceId);
-        result.setData(fileRepoItems);
+        Collection<FilesRepositoryItemDTO> filesRepoItemsDTO = new ArrayList<FilesRepositoryItemDTO>();
+        for(FilesRepositoryItem frItem : fileRepoItems) {
+            filesRepoItemsDTO.add(new FilesRepositoryItemDTO(frItem));
+        }
+        result.setData(filesRepoItemsDTO);
         return result;
+    }
+
+    @ControllerMethod(action = "deleteFile")
+    public GenericResultBean deleteFile(final OsgiWebRequest invocation) {
+        GenericResultBean result = new GenericResultBean();
+        HttpServletRequest request = invocation.getRequest();
+        Long processInstanceId = getProcessInstanceId(request);
+        Long filesRepositoryItemId = getFilesRepositoryItemId(request);
+        try {
+            filesRepoFacade.deleteFile(processInstanceId, filesRepositoryItemId);
+            result.setData("File for repo item id=[" + filesRepositoryItemId + "] successfully deleted.");
+        } catch (DeleteFileException e) {
+            logger.log(Level.SEVERE, "[FILES_REPOSITORY] Cannot delete requested file for repo item id=[" + filesRepositoryItemId + "]", e);
+            result.addError("Cannot delete requested file for repo item id=[" + filesRepositoryItemId + "]", e.getMessage());
+        }
+        return result;
+    }
+
+    private Long getFilesRepositoryItemId(HttpServletRequest request) {
+        String filesRepositoryItemIdStr = request.getParameter(FILES_REPOSITORY_ITEM_ID_REQ_PARAM_NAME);
+        Long filesRepositoryItemId = filesRepositoryItemIdStr != null ? Long.valueOf(filesRepositoryItemIdStr) : null;
+        if(filesRepositoryItemId == null) {
+            throw new RuntimeException("FilesRepositoryItem ID not provided in request!");
+        }
+        return filesRepositoryItemId;
     }
 
     private String getCreatorLogin(HttpServletRequest request) {
@@ -91,10 +126,10 @@ public class FilesController implements IOsgiWebController {
     }
 
     private Long getProcessInstanceId(HttpServletRequest request) {
-        String processInstanceIdStr = request.getParameter("processInstanceId");
+        String processInstanceIdStr = request.getParameter(PROCESS_INSTANCE_ID_REQ_PARAM_NAME);
         Long processInstanceId = processInstanceIdStr != null ? Long.valueOf(processInstanceIdStr) : null;
         if(processInstanceId == null) {
-            throw new RuntimeException("Process instance ID not provided!");
+            throw new RuntimeException("Process instance ID not provided in request!");
         }
         return processInstanceId;
     }

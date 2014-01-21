@@ -36,6 +36,7 @@ public class ProcessInstanceLog extends AbstractPersistentEntity {
 	public static final String LOG_TYPE_CLAIM_PROCESS = "CLAIM_PROCESS";
 	public static final String LOG_TYPE_PERFORM_ACTION = "PERFORM_ACTION";
 	public static final String LOG_TYPE_INFO = "INFO";
+    public static final String LOG_TYPE_PROCESS_CHANGE = "PROCESS_CHANGE";
 
 	@Id
 	@GeneratedValue(generator = "idGenerator")
@@ -63,7 +64,11 @@ public class ProcessInstanceLog extends AbstractPersistentEntity {
     @Column(length = Integer.MAX_VALUE)
 	private String additionalInfo;
 
+    @Lob
+    @Type(type = "org.hibernate.type.StringClobType")
+    @Column(length = Integer.MAX_VALUE)
 	private String logValue;
+
 	private String logType;
 	private String executionId;
 

@@ -3,9 +3,12 @@ package pl.net.bluesoft.rnd.processtool.ui.basewidgets.datahandler;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessVaaadinHistoryWidget;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.HandlingResult;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.IWidgetDataHandler;
 
 import java.text.SimpleDateFormat;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -32,8 +35,9 @@ public class HistoryDataHandler implements IWidgetDataHandler
     }
 
     @Override
-    public void handleWidgetData(BpmTask task, Map<String, String> data)
+    public Collection<HandlingResult> handleWidgetData(BpmTask task, Map<String, String> data)
     {
+        return new LinkedList<HandlingResult>();
     }
 
 //    //TODO refactor & reuse common code with ProcessInstanceAdminManagerPane

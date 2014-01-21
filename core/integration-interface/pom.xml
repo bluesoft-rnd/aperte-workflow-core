@@ -103,7 +103,11 @@
 			<version>14.0.1</version>
 			<scope>provided</scope>
 		</dependency>
-		
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
 		<dependency>
             <groupId>org.freemarker</groupId>
             <artifactId>freemarker</artifactId>

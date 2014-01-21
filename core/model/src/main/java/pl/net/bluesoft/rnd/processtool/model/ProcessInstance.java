@@ -362,6 +362,17 @@ public class ProcessInstance extends AbstractPersistentEntity
 		return processLogs;
 	}
 
+    public List<ProcessInstanceLog> getProcessLogsSortedByDate() {
+        List<ProcessInstanceLog> list = new ArrayList<ProcessInstanceLog>(processLogs);
+        Collections.sort(list, new Comparator<ProcessInstanceLog>() {
+            @Override
+            public int compare(ProcessInstanceLog o1, ProcessInstanceLog o2) {
+                return o1.getEntryDate().compareTo(o2.getEntryDate());
+            }
+        });
+        return list;
+    }
+
 	public void setProcessLogs(Set<ProcessInstanceLog> processLogs) {
 		this.processLogs = processLogs;
 	}

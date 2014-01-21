@@ -7,13 +7,13 @@ import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 
 /**
  * Widget data handler
- * 
+ *
  * @author mpawlak@bluesoft.net.pl
  *
  */
-public interface IWidgetDataHandler 
+public interface IWidgetDataHandler
 {
-	/** Handle widget data change */
-	void handleWidgetData(BpmTask task, Map<String, String> data);
+    /** Handle widget data change */
+    Collection<HandlingResult> handleWidgetData(BpmTask task, Map<String, String> data);
 
 }

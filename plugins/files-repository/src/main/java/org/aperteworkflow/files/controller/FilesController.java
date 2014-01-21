@@ -3,8 +3,11 @@ package org.aperteworkflow.files.controller;
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.io.IOUtils;
 import org.aperteworkflow.files.IFilesRepositoryFacade;
 import org.aperteworkflow.files.exceptions.DeleteFileException;
+import org.aperteworkflow.files.exceptions.DownloadFileException;
+import org.aperteworkflow.files.model.FileItemContent;
 import org.aperteworkflow.files.model.FilesRepositoryItem;
 import org.aperteworkflow.files.model.FilesRepositoryItemDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +19,12 @@ import pl.net.bluesoft.rnd.processtool.web.controller.OsgiController;
 import pl.net.bluesoft.rnd.processtool.web.controller.OsgiWebRequest;
 import pl.net.bluesoft.rnd.processtool.web.domain.GenericResultBean;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -68,6 +76,7 @@ public class FilesController implements IOsgiWebController {
                         } else {
                             logger.log(Level.WARNING, "[FILES_REPOSITORY] Not all parameters provided when calling filescontroller.uploadFile. All of [processInstanceId, fileName, fileInputStream, creatorLogin] are required.");
                         }
+                        fileInputStream.close();
                     }
                 }
             } else {
@@ -88,7 +97,7 @@ public class FilesController implements IOsgiWebController {
         Long processInstanceId = getProcessInstanceId(request);
         Collection<FilesRepositoryItem> fileRepoItems = filesRepoFacade.getFilesList(processInstanceId);
         Collection<FilesRepositoryItemDTO> filesRepoItemsDTO = new ArrayList<FilesRepositoryItemDTO>();
-        for(FilesRepositoryItem frItem : fileRepoItems) {
+        for (FilesRepositoryItem frItem : fileRepoItems) {
             filesRepoItemsDTO.add(new FilesRepositoryItemDTO(frItem));
         }
         result.setData(filesRepoItemsDTO);
@@ -103,7 +112,12 @@ public class FilesController implements IOsgiWebController {
         Long filesRepositoryItemId = getFilesRepositoryItemId(request);
         try {
             filesRepoFacade.deleteFile(processInstanceId, filesRepositoryItemId);
-            result.setData("File for repo item id=[" + filesRepositoryItemId + "] successfully deleted.");
+            Collection<FilesRepositoryItem> fileRepoItems = filesRepoFacade.getFilesList(processInstanceId);
+            Collection<FilesRepositoryItemDTO> filesRepoItemsDTO = new ArrayList<FilesRepositoryItemDTO>();
+            for (FilesRepositoryItem frItem : fileRepoItems) {
+                filesRepoItemsDTO.add(new FilesRepositoryItemDTO(frItem));
+            }
+            result.setData(filesRepoItemsDTO);
         } catch (DeleteFileException e) {
             logger.log(Level.SEVERE, "[FILES_REPOSITORY] Cannot delete requested file for repo item id=[" + filesRepositoryItemId + "]", e);
             result.addError("Cannot delete requested file for repo item id=[" + filesRepositoryItemId + "]", e.getMessage());
@@ -111,10 +125,45 @@ public class FilesController implements IOsgiWebController {
         return result;
     }
 
+    @ControllerMethod(action = "downloadFile")
+    public GenericResultBean downloadFile(final OsgiWebRequest invocation) {
+        GenericResultBean result = new GenericResultBean();
+        HttpServletRequest request = invocation.getRequest();
+        Long processInstanceId = getProcessInstanceId(request);
+        Long filesRepositoryItemId = getFilesRepositoryItemId(request);
+        FileItemContent content = null;
+        try {
+            content = filesRepoFacade.downloadFile(processInstanceId, filesRepositoryItemId);
+        } catch (DownloadFileException e) {
+            logger.log(Level.SEVERE, "[FILES_REPOSITORY] Cannot download requested file from repository for item id=[" + filesRepositoryItemId + "] and processInstanceId=[" + processInstanceId + "].", e);
+            result.addError("Cannot download requested file from repository for item id=[" + filesRepositoryItemId + "] and processInstanceId=[" + processInstanceId + "].", e.getMessage());
+            return result;
+        }
+        HttpServletResponse response = invocation.getResponse();
+        try {
+            sendInResponseOutputStream(response, content);
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "[FILES_REPOSITORY] Cannot download requested file from repository for item id=[" + filesRepositoryItemId + "] and processInstanceId=[" + processInstanceId + "].", e);
+            result.addError("Cannot download requested file from repository for item id=[" + filesRepositoryItemId + "] and processInstanceId=[" + processInstanceId + "].", e.getMessage());
+            return result;
+        }
+        return result;
+    }
+
+    private void sendInResponseOutputStream(HttpServletResponse response,
+                                                    FileItemContent content) throws IOException {
+
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + content.getName() + "\"");
+        response.setContentType(content.getDocumentContentType());
+        ServletOutputStream soutStream = response.getOutputStream();
+        IOUtils.write(content.getBytes(), soutStream);
+        soutStream.close();
+    }
+
     private Long getFilesRepositoryItemId(HttpServletRequest request) {
         String filesRepositoryItemIdStr = request.getParameter(FILES_REPOSITORY_ITEM_ID_REQ_PARAM_NAME);
         Long filesRepositoryItemId = filesRepositoryItemIdStr != null ? Long.valueOf(filesRepositoryItemIdStr) : null;
-        if(filesRepositoryItemId == null) {
+        if (filesRepositoryItemId == null) {
             throw new RuntimeException("FilesRepositoryItem ID not provided in request!");
         }
         return filesRepositoryItemId;
@@ -128,7 +177,7 @@ public class FilesController implements IOsgiWebController {
     private Long getProcessInstanceId(HttpServletRequest request) {
         String processInstanceIdStr = request.getParameter(PROCESS_INSTANCE_ID_REQ_PARAM_NAME);
         Long processInstanceId = processInstanceIdStr != null ? Long.valueOf(processInstanceIdStr) : null;
-        if(processInstanceId == null) {
+        if (processInstanceId == null) {
             throw new RuntimeException("Process instance ID not provided in request!");
         }
         return processInstanceId;

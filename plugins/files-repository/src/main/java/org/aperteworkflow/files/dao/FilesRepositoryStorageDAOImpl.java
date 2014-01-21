@@ -3,6 +3,7 @@ package org.aperteworkflow.files.dao;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.aperteworkflow.files.dao.config.FilesRepositoryStorageConfig;
+import org.aperteworkflow.files.model.FileItemContent;
 
 import java.io.*;
 
@@ -23,11 +24,13 @@ public class FilesRepositoryStorageDAOImpl implements FilesRepositoryStorageDAO 
     }
 
     private File saveInputStreamToFile(InputStream inputStream, String relativeFilePath) throws IOException {
-        String filePath = config.getStorageRootDirPath() + File.separator + relativeFilePath;
+        String filePath = prepareStoragePath(relativeFilePath);
         File file = new File(filePath);
         OutputStream outputStream =
-                new FileOutputStream(file);
+                FileUtils.openOutputStream(file);
         IOUtils.copyLarge(inputStream, outputStream);
+        outputStream.flush();
+        outputStream.close();
         return file;
     }
 
@@ -38,12 +41,20 @@ public class FilesRepositoryStorageDAOImpl implements FilesRepositoryStorageDAO 
     }
 
     @Override
-    public File loadFileFromStorage(String relativeFilePath) {
-        String filePath = config.getStorageRootDirPath() + File.separator + relativeFilePath;
-        return new File(filePath);
+    public FileItemContent loadFileFromStorage(String relativeFilePath) throws IOException {
+        String filePath = prepareStoragePath(relativeFilePath);
+        File file = new File(filePath);
+        FileItemContent content = new FileItemContent();
+        content.setName(file.getName());
+        content.setBytes(IOUtils.toByteArray(new FileInputStream(file)));
+        return content;
     }
 
-     @Override
+    private String prepareStoragePath(String relativeFilePath) {
+        return config.getStorageRootDirPath() + File.separator + relativeFilePath;
+    }
+
+    @Override
     public String getRelativeFilePath(File file) {
             String storageRootPath = config.getStorageRootDirPath();
             return file.getAbsolutePath().replace(storageRootPath, "");

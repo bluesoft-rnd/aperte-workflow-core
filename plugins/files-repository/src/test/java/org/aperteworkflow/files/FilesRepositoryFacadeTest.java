@@ -8,6 +8,7 @@ import org.aperteworkflow.files.dao.FilesRepositoryStorageDAOImpl;
 import org.aperteworkflow.files.dao.config.FilesRepositoryConfigFactory;
 import org.aperteworkflow.files.dao.config.FilesRepositoryStorageConfig;
 import org.aperteworkflow.files.exceptions.UploadFileException;
+import org.aperteworkflow.files.model.FileItemContent;
 import org.aperteworkflow.files.model.FilesRepositoryItem;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -19,8 +20,7 @@ import pl.net.bluesoft.rnd.processtool.dao.impl.ProcessInstanceDAOImpl;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 
 import javax.naming.NamingException;
-import java.io.File;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -97,23 +97,24 @@ public class FilesRepositoryFacadeTest {
     }
 
     @Test
-    public void testUploadFile() throws UploadFileException {
+    public void testUploadFile() throws UploadFileException, IOException {
         FilesRepositoryItem item1 = new FilesRepositoryItem();
         item1.setProcessInstance(exProcessInstance);
         item1.setName("ExampleFile.txt");
         item1.setDescription("Description of ExampleFile.txt");
         InputStream inputStream = IOUtils.toInputStream("File content");
-
         Long newItemId = filesRepoFacade.uploadFile(inputStream, item1.getProcessInstance().getId(), item1.getName(), item1.getDescription(), CREATOR_LOGIN);
+        inputStream.close();
+
         FilesRepositoryItem newItem = frItemDAO.getItemById(newItemId);
-        File newFile = frStorageDAO.loadFileFromStorage(newItem.getRelativePath());
+        FileItemContent content = frStorageDAO.loadFileFromStorage(newItem.getRelativePath());
 
         Assert.assertArrayEquals("Old and new item properties doesn't equals", new String[]{item1.getName(), item1.getDescription()}
                 , new String[]{newItem.getName(), newItem.getDescription()});
         Assert.assertNotNull(newItem.getRelativePath());
         Assert.assertNotNull("CreatorLogin of new item has been not set", newItem.getCreatorLogin());
         Assert.assertNotNull("CreatedDate of new item has been not set", newItem.getCreateDate());
-        Assert.assertEquals(frStorageDAO.getRelativeFilePath(newFile), newItem.getRelativePath());
+        // TODO Assert.assertArrayEquals("File content is not the same!", content.getBytes(), IOUtils.toByteArray(inputStream));
     }
 
     @Test

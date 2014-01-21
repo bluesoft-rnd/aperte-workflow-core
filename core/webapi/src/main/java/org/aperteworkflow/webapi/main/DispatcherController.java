@@ -32,12 +32,12 @@ public class DispatcherController extends AbstractProcessToolServletController
     
     @RequestMapping(value = "/dispatcher/{controllerName}/{actionName}")
     @ResponseBody
-    public Object invoke(final @PathVariable String controllerName, @PathVariable String actionName, final HttpServletRequest request, final HttpServletResponse respone)
+    public Object invoke(final @PathVariable String controllerName, @PathVariable String actionName, final HttpServletRequest request, final HttpServletResponse response)
     {
-          return invokeExternalController(controllerName, actionName, request);
+          return invokeExternalController(controllerName, actionName, request, response);
     }
 
-    public Object invokeExternalController(final String controllerName, final String actionName, final HttpServletRequest request)
+    public Object invokeExternalController(final String controllerName, final String actionName, final HttpServletRequest request, final HttpServletResponse response)
     {
         final GenericResultBean resultBean = new GenericResultBean();
         final IProcessToolRequestContext context = this.initilizeContext(request, getProcessToolRegistry().getProcessToolSessionFactory());
@@ -73,7 +73,7 @@ public class DispatcherController extends AbstractProcessToolServletController
                 OsgiWebRequest controllerInvocation = new OsgiWebRequest();
                 controllerInvocation.setProcessToolRequestContext(context);
                 controllerInvocation.setRequest(request);
-
+                controllerInvocation.setResponse(response);
                 try {
                     Object result = controllerMethod.invoke(servletController, controllerInvocation);
                     return result;

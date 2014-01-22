@@ -55,7 +55,6 @@
 		<header-portlet-javascript>/sa/js/jquery.dateFormat-1.0.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/select2.min.js</header-portlet-javascript>		
 		<header-portlet-javascript>/sa/js/colReorder.js</header-portlet-javascript>
-		<header-portlet-javascript>/sa/js/aperte.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/jquery-plugins.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/jquery.json-2.4.min.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/bootstrap-datepicker.js</header-portlet-javascript>

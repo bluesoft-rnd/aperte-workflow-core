@@ -10,7 +10,7 @@ public class DownloadFileException extends Throwable {
         super(message);
     }
 
-    public DownloadFileException(String message, FileNotFoundException cause) {
+    public DownloadFileException(String message, Throwable cause) {
         super(message, cause);
     }
 }

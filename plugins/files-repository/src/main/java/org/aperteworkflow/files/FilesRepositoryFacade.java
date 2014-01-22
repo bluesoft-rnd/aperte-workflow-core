@@ -62,15 +62,15 @@ public class FilesRepositoryFacade implements IFilesRepositoryFacade {
     }
 
     @Override
-    public Long uploadFile(InputStream inputStream, Long processInstanceId, String fileName, String fileDescription, String creatorLogin) throws UploadFileException {
-        Long result;
+    public FilesRepositoryItem uploadFile(InputStream inputStream, Long processInstanceId, String fileName, String fileDescription, String creatorLogin) throws UploadFileException {
+        FilesRepositoryItem result;
         String filePath = prepareFilePath(processInstanceId, fileName);
         try {
             getFilesRepositoryStorageDAO().uploadFileToStorage(inputStream, filePath);
         } catch (IOException e) {
             throw new UploadFileException("Cannot write file to storage", e);
         }
-        result = getFilesRepositoryItemDAO().addItem(processInstanceId, fileName, fileDescription, filePath, creatorLogin).getId();
+        result = getFilesRepositoryItemDAO().addItem(processInstanceId, fileName, fileDescription, filePath, creatorLogin);
         return result;
     }
 

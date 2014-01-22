@@ -22,8 +22,6 @@ import pl.net.bluesoft.rnd.processtool.web.domain.GenericResultBean;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -50,7 +48,6 @@ public class FilesController implements IOsgiWebController {
     public GenericResultBean uploadFile(final OsgiWebRequest invocation) {
         GenericResultBean result = new GenericResultBean();
 
-        Long uploadedFileId = null;
         HttpServletRequest request = invocation.getRequest();
         try {
             //process only if its multipart content
@@ -71,8 +68,8 @@ public class FilesController implements IOsgiWebController {
                         Long processInstanceId = getProcessInstanceId(request);
                         String creatorLogin = getCreatorLogin(request);
                         if (processInstanceId != null && fileName != null && fileName.length() > 0 && fileInputStream != null && creatorLogin != null && creatorLogin.length() > 0) {
-                            uploadedFileId = filesRepoFacade.uploadFile(fileInputStream, processInstanceId, fileName, fileDescription, creatorLogin);
-                            result.setData(uploadedFileId);
+                            FilesRepositoryItem frItem = filesRepoFacade.uploadFile(fileInputStream, processInstanceId, fileName, fileDescription, creatorLogin);
+                            result.setData(new FilesRepositoryItemDTO(frItem));
                         } else {
                             logger.log(Level.WARNING, "[FILES_REPOSITORY] Not all parameters provided when calling filescontroller.uploadFile. All of [processInstanceId, fileName, fileInputStream, creatorLogin] are required.");
                         }
@@ -151,7 +148,7 @@ public class FilesController implements IOsgiWebController {
     }
 
     private void sendInResponseOutputStream(HttpServletResponse response,
-                                                    FileItemContent content) throws IOException {
+                                            FileItemContent content) throws IOException {
 
         response.setHeader("Content-Disposition", "attachment; filename=\"" + content.getName() + "\"");
         response.setContentType(content.getDocumentContentType());

@@ -103,7 +103,7 @@ public class FilesRepositoryFacadeTest {
         item1.setName("ExampleFile.txt");
         item1.setDescription("Description of ExampleFile.txt");
         InputStream inputStream = IOUtils.toInputStream("File content");
-        Long newItemId = filesRepoFacade.uploadFile(inputStream, item1.getProcessInstance().getId(), item1.getName(), item1.getDescription(), CREATOR_LOGIN);
+        Long newItemId = filesRepoFacade.uploadFile(inputStream, item1.getProcessInstance().getId(), item1.getName(), item1.getDescription(), CREATOR_LOGIN).getId();
         IOUtils.closeQuietly(inputStream);
 
         FilesRepositoryItem newItem = frItemDAO.getItemById(newItemId);

@@ -15,7 +15,7 @@ import java.util.Collection;
  * @author pwysocki@bluesoft.net.pl
  */
 public interface IFilesRepositoryFacade {
-    Long uploadFile(InputStream inputStream, Long processInstanceId, String fileName, String fileDescription, String creatorLogin) throws UploadFileException;
+    FilesRepositoryItem uploadFile(InputStream inputStream, Long processInstanceId, String fileName, String fileDescription, String creatorLogin) throws UploadFileException;
 
     void deleteFile(Long processInstanceId, Long filesRepositoryItemId) throws DeleteFileException;
 

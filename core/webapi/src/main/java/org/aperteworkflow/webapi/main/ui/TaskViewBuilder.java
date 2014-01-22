@@ -70,11 +70,7 @@ public class TaskViewBuilder
 
 		Document document = Jsoup.parse("");
 
-		Element alertsNode = document.createElement("div")
-				.attr("id", "alerts-list")
-				.attr("class", "process-alerts");
-		document.appendChild(alertsNode);
-		
+
 		Element widgetsNode = document.createElement("div")
 				.attr("id", "vaadin-widgets")
 				.attr("class", "vaadin-widgets-view");

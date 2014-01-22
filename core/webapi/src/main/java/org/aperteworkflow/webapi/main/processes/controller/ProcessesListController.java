@@ -639,7 +639,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                 );
 
             }
-        }, ExecutionType.TRANSACTION);
+        }, ExecutionType.NO_TRANSACTION);
 
 		long t2 = System.currentTimeMillis();
 

@@ -50,9 +50,6 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
 
     protected Logger log = Logger.getLogger(JbpmService.class.getName());
 
-    @Autowired(required = false)
-    protected ISettingsProvider settingsProvider;
-
     private static final int MAX_PROC_DEF_LENGTH = 1024;
     private static final IProcessToolSettings KSESSION_ID = new IProcessToolSettings() {
         @Override
@@ -73,6 +70,7 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
     private org.jbpm.task.TaskService client;
     private StatefulKnowledgeSession ksession;
     private JbpmRepository repository;
+    private KnowledgeBase knowledgeBase;
 
     private static JbpmService instance;
 
@@ -142,9 +140,9 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
                 KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
                 kbuilder.add(ResourceFactory.newByteArrayResource(bytes), ResourceType.BPMN2);
                 Collection<KnowledgePackage> packages = kbuilder.getKnowledgePackages();
-                KnowledgeBase knowledgeBase =  ksession.getKnowledgeBase();
-
-                knowledgeBase.addKnowledgePackages(packages);
+                KnowledgeBase knowledgeBaseSession =  ksession.getKnowledgeBase();
+                knowledgeBaseSession.addKnowledgePackages(packages);
+                if (knowledgeBase!=null) knowledgeBase.addKnowledgePackages(packages);
             }
         }
 
@@ -152,44 +150,51 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
     }
 
     private KnowledgeBase getKnowledgeBase() {
-        KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+        if (knowledgeBase==null) {
+            synchronized(JbpmService.class) {
+                if (knowledgeBase==null) {
+                    KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
 
-        try {
-			Thread.currentThread().getContextClassLoader().loadClass(JbpmStepAction.class.getName());
-		} catch (ClassNotFoundException e) {
-			log.warning("JbpmStepAction.class was not found");
-		}
-        
-        if (getRepository() != null) {
-            for (byte[] resource : getValidResources()) {
-                kbuilder.add(ResourceFactory.newByteArrayResource(resource), ResourceType.BPMN2);
+                    try {
+                        Thread.currentThread().getContextClassLoader().loadClass(JbpmStepAction.class.getName());
+                    } catch (ClassNotFoundException e) {
+                        log.warning("JbpmStepAction.class was not found");
+                    }
+
+                    if (getRepository() != null) {
+                        for (byte[] resource : getValidResources()) {
+                            kbuilder.add(ResourceFactory.newByteArrayResource(resource), ResourceType.BPMN2);
+                        }
+                    }
+
+                    knowledgeBase = kbuilder.newKnowledgeBase();
+                }
             }
         }
-
-        return kbuilder.newKnowledgeBase();
+        return knowledgeBase;
     }
-    
+
     private List<byte[]> getValidResources() {
-    	List<byte[]> validResources = new ArrayList<byte[]>();
+        List<byte[]> validResources = new ArrayList<byte[]>();
         for (byte[] resource : getRepository().getAllResources("bpmn")) {
-    		if (isValidResource(resource)) validResources.add(resource);
+            if (isValidResource(resource)) validResources.add(resource);
         }
         return validResources;
     }
 
     private boolean isValidResource(byte[] resource) {
-    	KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
-    	kbuilder.add(ResourceFactory.newByteArrayResource(resource), ResourceType.BPMN2);
-    	boolean isOK = true;
-    	try {
-			kbuilder.newKnowledgeBase();
-		} catch (Exception e) {
-			isOK = false;
-			log.info("The following process definition contains errors and was not loaded:\n" + new String(resource).substring(0, Math.min(MAX_PROC_DEF_LENGTH, resource.length-1)) + "...");
-		}
-		return isOK;
+        KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+        kbuilder.add(ResourceFactory.newByteArrayResource(resource), ResourceType.BPMN2);
+        boolean isOK = true;
+        try {
+            kbuilder.newKnowledgeBase();
+        } catch (Exception e) {
+            isOK = false;
+            log.info("The following process definition contains errors and was not loaded:\n" + new String(resource).substring(0, Math.min(MAX_PROC_DEF_LENGTH, resource.length-1)) + "...");
+        }
+        return isOK;
     }
-    
+
     private void loadSession(int sessionId) {
         KnowledgeBase kbase = getKnowledgeBase();
 
@@ -225,6 +230,11 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
         return ksession;
     }
 
+    public void reloadSession() {
+        ksession = null;
+        getSession();
+    }
+
     private org.jbpm.task.TaskService getSessionTaskService() {
         getSession(); // ensure session is created before task service
         return client;
@@ -240,14 +250,17 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
     // process operations
 
     public Task getTask(long taskId) {
+        log.info("JBPMService getTask: " + taskId);
         return getSessionTaskService().getTask(taskId);
     }
 
     public void claimTask(long taskId, String userLogin) {
+        log.info("JBPMService claimTask: " +  taskId + ", userLogin: " + userLogin);
         getSessionTaskService().claim(taskId, userLogin);
     }
 
     public void endTask(long taskId, String userLogin, ContentData outputData, boolean startNeeded) {
+        log.info("JBPMService endTask: " + taskId + ", userLogin: " + userLogin);
         if (startNeeded) {
             getSessionTaskService().start(taskId, userLogin);
         }
@@ -255,14 +268,17 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
     }
 
     public ProcessInstance getProcessInstance(long processId) {
+        log.info("JBPMService getProcessInstance: " + processId);
         return getSession().getProcessInstance(processId);
     }
 
     public void startProcess(String processId, Map<String,Object> parameters) {
+        log.info("JBPMService startProcess: " + processId);
         getSession().startProcess(processId, parameters);
     }
 
     public void abortProcessInstance(long processId) {
+        log.info("JBPMService abortProcessInstance: " + processId);
         getSession().abortProcessInstance(processId);
     }
 
@@ -273,11 +289,11 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
         getLocalTaskService().query("SELECT task.id FROM Task task ORDER BY task.id DESC", 1, 0);
     }
 
-	public List<NodeInstanceLog> getProcessLog(long processId) {
-		String hql = "SELECT nil FROM org.jbpm.process.audit.NodeInstanceLog nil WHERE nil.processInstanceId = " +
-				processId + " ORDER BY nil.date";
-		return (List)getLocalTaskService().query(hql, 10000, 0);
-	}
+    public List<NodeInstanceLog> getProcessLog(long processId) {
+        String hql = "SELECT nil FROM org.jbpm.process.audit.NodeInstanceLog nil WHERE nil.processInstanceId = " +
+                processId + " ORDER BY nil.date";
+        return (List)getLocalTaskService().query(hql, 10000, 0);
+    }
 
     private TaskQuery<Task> createTaskQuery() {
         return new TaskQuery<Task>(getLocalTaskService());

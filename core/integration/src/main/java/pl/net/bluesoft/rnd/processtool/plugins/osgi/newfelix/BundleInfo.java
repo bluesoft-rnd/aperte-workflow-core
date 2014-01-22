@@ -304,6 +304,11 @@ class BundleInfo {
 	}
 
 	public String getInstallationStatus() {
+        if (!getNotInstalledPlugins().isEmpty()) {
+            logger.info("UNABLE TO INSTALL BUNDLES:\n");
+            logger.info(from(getNotInstalledPlugins()).toString("\n\t", "\t", "\n"));
+        }
+
 		if (getAffectedBundlePaths().isEmpty()) {
 			return null;
 		}

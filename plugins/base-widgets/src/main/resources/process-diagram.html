@@ -340,16 +340,22 @@
 		diagram.setAttribute("transform","scale("+resizeFactor+","+resizeFactor+")");
 
 		// centering on active task
-		var diagramBox = process_diagram_widget.getBoundingClientRect();
-		var box = document.getElementById("active_task").getBoundingClientRect();
-		var centerX = (box.left + 0.5 * box.width) - diagramBox.left;
-		var centerY = (box.top + 0.5 * box.height) - diagramBox.top;
-		var transX = Math.min(0,-(centerX - 0.5 * diagramBox.width));
-		var transY = Math.min(0,-(centerY - 0.5 * diagramBox.height));
-		diagram.setAttribute("transform","translate("+transX+" "+transY+"), scale("+resizeFactor+","+resizeFactor+")");
-		process_diagram_widget.style.display='none';
-		process_diagram_widget.offsetHeight;
-		process_diagram_widget.style.display='block';
+
+            var diagramBox = process_diagram_widget.getBoundingClientRect();
+            var activeTask = document.getElementById("active_task");
+            if(activeTask)
+            {
+                var box = activeTask.getBoundingClientRect();
+                var centerX = (box.left + 0.5 * box.width) - diagramBox.left;
+                var centerY = (box.top + 0.5 * box.height) - diagramBox.top;
+                var transX = Math.min(0,-(centerX - 0.5 * diagramBox.width));
+                var transY = Math.min(0,-(centerY - 0.5 * diagramBox.height));
+                diagram.setAttribute("transform","translate("+transX+" "+transY+"), scale("+resizeFactor+","+resizeFactor+")");
+                process_diagram_widget.style.display='none';
+                process_diagram_widget.offsetHeight;
+                process_diagram_widget.style.display='block';
+            }
+
 	}
 
 	showDiagramFragment("${diagramWidth}","${diagramHeight}");

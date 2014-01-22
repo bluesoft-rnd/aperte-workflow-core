@@ -3,9 +3,8 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
+
 <div id="process-data-view" class="process-data-view" hidden="true">
-	<div id="alerts-list" class="process-alerts">
-	</div>
 	<div id="vaadin-widgets" class="vaadin-widgets-view">
 
 	</div>	
@@ -44,6 +43,7 @@
 		this.data = data;
 		this.widgetName = widgetName;
 	}
+
 	
 	
 	function onLoadIFrame(iframe)

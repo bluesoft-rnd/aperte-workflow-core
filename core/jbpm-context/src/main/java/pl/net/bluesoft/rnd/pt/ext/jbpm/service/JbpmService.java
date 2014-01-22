@@ -41,7 +41,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
@@ -50,9 +49,6 @@ import static pl.net.bluesoft.util.lang.Strings.hasText;
 public class JbpmService implements ProcessEventListener, TaskEventListener {
 
     protected Logger log = Logger.getLogger(JbpmService.class.getName());
-
-    @Autowired(required = false)
-    protected ISettingsProvider settingsProvider;
 
     private static final int MAX_PROC_DEF_LENGTH = 1024;
     private static final IProcessToolSettings KSESSION_ID = new IProcessToolSettings() {
@@ -234,7 +230,7 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
         return ksession;
     }
 
-    private void reloadSession() {
+    public void reloadSession() {
         ksession = null;
         getSession();
     }
@@ -255,75 +251,35 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
 
     public Task getTask(long taskId) {
         log.info("JBPMService getTask: " + taskId);
-        Task result = null;
-        try {
-            result = getSessionTaskService().getTask(taskId);
-        } catch (Exception ex) {
-            log.log(Level.SEVERE,"JBPMService getTask ERROR", ex);
-            reloadSession();
-            result = getSessionTaskService().getTask(taskId);
-        }
-        return result;
+        return getSessionTaskService().getTask(taskId);
     }
 
     public void claimTask(long taskId, String userLogin) {
         log.info("JBPMService claimTask: " +  taskId + ", userLogin: " + userLogin);
-        try {
-            getSessionTaskService().claim(taskId, userLogin);
-        } catch (Exception ex) {
-            log.log(Level.SEVERE,"JBPMService claimTask ERROR", ex);
-            reloadSession();
-            getSessionTaskService().claim(taskId, userLogin);
-        }
+        getSessionTaskService().claim(taskId, userLogin);
     }
 
     public void endTask(long taskId, String userLogin, ContentData outputData, boolean startNeeded) {
         log.info("JBPMService endTask: " + taskId + ", userLogin: " + userLogin);
-        try {
-            if (startNeeded) {
-                getSessionTaskService().start(taskId, userLogin);
-            }
-            getSessionTaskService().complete(taskId, userLogin, outputData);
-        } catch (Exception ex) {
-            log.log(Level.SEVERE, "JBPMService endTask ERROR", ex);
-            reloadSession();
-            if (startNeeded) {
-                getSessionTaskService().start(taskId, userLogin);
-            }
-            getSessionTaskService().complete(taskId, userLogin, outputData);
+        if (startNeeded) {
+            getSessionTaskService().start(taskId, userLogin);
         }
+        getSessionTaskService().complete(taskId, userLogin, outputData);
     }
 
     public ProcessInstance getProcessInstance(long processId) {
         log.info("JBPMService getProcessInstance: " + processId);
-        ProcessInstance result = null;
-        try {
-            result = getSession().getProcessInstance(processId);
-        } catch (Exception ex) {
-            log.log(Level.SEVERE,"JBPMService getProcessInstance ERROR", ex);
-            result = getSession().getProcessInstance(processId);
-        }
-        return result;
+        return getSession().getProcessInstance(processId);
     }
 
     public void startProcess(String processId, Map<String,Object> parameters) {
         log.info("JBPMService startProcess: " + processId);
-        try {
-            getSession().startProcess(processId, parameters);
-        } catch (Exception ex) {
-            log.log(Level.SEVERE,"JBPMService startProcess ERROR", ex);
-            getSession().startProcess(processId, parameters);
-        }
+        getSession().startProcess(processId, parameters);
     }
 
     public void abortProcessInstance(long processId) {
         log.info("JBPMService abortProcessInstance: " + processId);
-        try {
-            getSession().abortProcessInstance(processId);
-        } catch (Exception ex) {
-            log.log(Level.SEVERE,"JBPMService abortProcessInstance ERROR", ex);
-            getSession().abortProcessInstance(processId);
-        }
+        getSession().abortProcessInstance(processId);
     }
 
     // queries

@@ -2,6 +2,7 @@ package org.aperteworkflow.files;
 
 import org.aperteworkflow.files.exceptions.DeleteFileException;
 import org.aperteworkflow.files.exceptions.DownloadFileException;
+import org.aperteworkflow.files.exceptions.UpdateDescriptionException;
 import org.aperteworkflow.files.exceptions.UploadFileException;
 import org.aperteworkflow.files.model.FileItemContent;
 import org.aperteworkflow.files.model.FilesRepositoryItem;
@@ -23,4 +24,5 @@ public interface IFilesRepositoryFacade {
 
     Collection<FilesRepositoryItem> getFilesList(Long processInstanceId);
 
+    void updateDescription(Long processInstanceId, Long filesRepositoryItemId, String fileDescription) throws UpdateDescriptionException;
 }

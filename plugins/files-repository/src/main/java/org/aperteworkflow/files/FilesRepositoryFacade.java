@@ -9,6 +9,7 @@ import org.aperteworkflow.files.dao.config.FilesRepositoryConfigFactoryImpl;
 import org.aperteworkflow.files.dao.config.FilesRepositoryStorageConfig;
 import org.aperteworkflow.files.exceptions.DeleteFileException;
 import org.aperteworkflow.files.exceptions.DownloadFileException;
+import org.aperteworkflow.files.exceptions.UpdateDescriptionException;
 import org.aperteworkflow.files.exceptions.UploadFileException;
 import org.aperteworkflow.files.model.FileItemContent;
 import org.aperteworkflow.files.model.FilesRepositoryItem;
@@ -96,26 +97,38 @@ public class FilesRepositoryFacade implements IFilesRepositoryFacade {
     }
 
     @Override
-    public FileItemContent downloadFile(Long processInstanceId, Long fileRepositoryItemId) throws DownloadFileException {
-        FilesRepositoryItem filesRepositoryItem = getFilesRepositoryItemDAO().getItemById(fileRepositoryItemId);
+    public FileItemContent downloadFile(Long processInstanceId, Long filesRepositoryItemId) throws DownloadFileException {
+        FilesRepositoryItem filesRepositoryItem = getFilesRepositoryItemDAO().getItemById(filesRepositoryItemId);
         if (filesRepositoryItem == null) {
-            throw new DownloadFileException("File item with id=[" + fileRepositoryItemId + "] not found.");
+            throw new DownloadFileException("File item with id=[" + filesRepositoryItemId + "] not found.");
         }
         if (filesRepositoryItem.getProcessInstance() == null || !filesRepositoryItem.getProcessInstance().getId().equals(processInstanceId)) {
-            throw new DownloadFileException("File item is not connected to process instance. ProcessInstanceId=[" + processInstanceId + "] and fileRepositoryItemId=["+fileRepositoryItemId+"].");
+            throw new DownloadFileException("File item is not connected to process instance. ProcessInstanceId=[" + processInstanceId + "] and filesRepositoryItemId=["+filesRepositoryItemId+"].");
         }
         try {
             FileItemContent content = getFilesRepositoryStorageDAO().loadFileFromStorage(filesRepositoryItem.getRelativePath());
             content.setName(filesRepositoryItem.getName());
             return content;
         } catch (IOException e) {
-            throw new DownloadFileException("File item download problem for processInstanceId=[" + processInstanceId + "] and fileRepositoryItemId=["+fileRepositoryItemId+"].");
+            throw new DownloadFileException("File item download problem for processInstanceId=[" + processInstanceId + "] and filesRepositoryItemId=["+filesRepositoryItemId+"].");
         }
     }
 
     @Override
     public Collection<FilesRepositoryItem> getFilesList(Long processInstanceId) {
         return getFilesRepositoryItemDAO().getItemsFor(processInstanceId);
+    }
+
+    @Override
+    public void updateDescription(Long processInstanceId, Long filesRepositoryItemId, String fileDescription) throws UpdateDescriptionException {
+        FilesRepositoryItem filesRepositoryItem = getFilesRepositoryItemDAO().getItemById(filesRepositoryItemId);
+        if (filesRepositoryItem == null) {
+            throw new UpdateDescriptionException("File item with id=[" + filesRepositoryItemId + "] not found.");
+        }
+        if (filesRepositoryItem.getProcessInstance() == null || !filesRepositoryItem.getProcessInstance().getId().equals(processInstanceId)) {
+            throw new UpdateDescriptionException("File item is not connected to process instance. ProcessInstanceId=[" + processInstanceId + "] and fileRepositoryItemId=["+filesRepositoryItemId+"].");
+        }
+        getFilesRepositoryItemDAO().updateDescriptionById(filesRepositoryItemId, fileDescription);
     }
 
 }

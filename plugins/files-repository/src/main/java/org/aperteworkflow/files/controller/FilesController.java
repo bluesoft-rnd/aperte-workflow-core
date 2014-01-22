@@ -7,6 +7,7 @@ import org.apache.commons.io.IOUtils;
 import org.aperteworkflow.files.IFilesRepositoryFacade;
 import org.aperteworkflow.files.exceptions.DeleteFileException;
 import org.aperteworkflow.files.exceptions.DownloadFileException;
+import org.aperteworkflow.files.exceptions.UpdateDescriptionException;
 import org.aperteworkflow.files.model.FileItemContent;
 import org.aperteworkflow.files.model.FilesRepositoryItem;
 import org.aperteworkflow.files.model.FilesRepositoryItemDTO;
@@ -33,6 +34,7 @@ import java.util.logging.Logger;
 @OsgiController(name = "filescontroller")
 public class FilesController implements IOsgiWebController {
 
+    public static final String FILE_DESCRIPTION_PARAM_NAME = "fileDescription";
     private static Logger logger = Logger.getLogger(FilesController.class.getName());
 
     private static final String PROCESS_INSTANCE_ID_REQ_PARAM_NAME = "processInstanceId";
@@ -147,6 +149,23 @@ public class FilesController implements IOsgiWebController {
         return result;
     }
 
+    @ControllerMethod(action = "updateDescription")
+    public GenericResultBean updateDescription(final OsgiWebRequest invocation) {
+        GenericResultBean result = new GenericResultBean();
+        HttpServletRequest request = invocation.getRequest();
+        Long processInstanceId = getProcessInstanceId(request);
+        Long filesRepositoryItemId = getFilesRepositoryItemId(request);
+        String fileDescription = getFileRepositoryItemDescription(request);
+        try {
+            filesRepoFacade.updateDescription(processInstanceId, filesRepositoryItemId, fileDescription);
+        } catch (UpdateDescriptionException e) {
+            logger.log(Level.SEVERE, "[FILES_REPOSITORY] Cannot modify description of file in repository with item id=[" + filesRepositoryItemId + "] and processInstanceId=[" + processInstanceId + "].", e);
+            result.addError("Cannot modify description of file in repository with item id=[" + filesRepositoryItemId + "] and processInstanceId=[" + processInstanceId + "].", e.getMessage());
+            return result;
+        }
+        return result;
+    }
+
     private void sendInResponseOutputStream(HttpServletResponse response,
                                             FileItemContent content) throws IOException {
 
@@ -178,6 +197,11 @@ public class FilesController implements IOsgiWebController {
             throw new RuntimeException("Process instance ID not provided in request!");
         }
         return processInstanceId;
+    }
+
+    private String getFileRepositoryItemDescription(HttpServletRequest request) {
+        String fileDescription = request.getParameter(FILE_DESCRIPTION_PARAM_NAME);
+        return fileDescription;
     }
 
 }

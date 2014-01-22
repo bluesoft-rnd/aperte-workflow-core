@@ -5,12 +5,15 @@ import static pl.net.bluesoft.util.lang.Strings.hasText;
 
 import java.net.ConnectException;
 import java.net.URL;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -56,6 +59,7 @@ import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.sessions.IMailSessionProvider
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.settings.NotificationsSettingsProvider;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.templates.IMailTemplateLoader;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 import pl.net.bluesoft.util.lang.Strings;
 
 /**
@@ -171,16 +175,51 @@ public class BpmNotificationEngine implements IBpmNotificationService
 	    	/* Get all notifications waiting to be sent */
 	    	Collection<BpmNotification> notificationsToSend = NotificationsFacade.getNotificationsToSend();
 	    	
+	    	/* Get all notifications waiting to be sent */
+	    	Collection<BpmNotification> notificationsToSendForGrouping = NotificationsFacade.getNotificationsForGrouping();
+	    	notificationsToSend.addAll(notificationsToSendForGrouping);
+	    	
 	    	logger.info("[NOTIFICATIONS JOB] "+notificationsToSend.size()+" notifications waiting to be sent...");
+	    	
+	    	Map<String,BpmNotification> notificationsToSendMap = new HashMap<String, BpmNotification>();
 	    	
 	    	for(BpmNotification notification: notificationsToSend)
 	    	{
+	    		if (notification.isGroupNotifications()){
+	    			BpmNotification groupedNotif = notificationsToSendMap.get(notification.getRecipient());
+	    			
+	    			if (groupedNotif != null ){
+	    			
+	    				notificationsToSendMap.remove(groupedNotif.getRecipient());
+	    				String body = groupedNotif.getBody();
+	    				groupedNotif.setSubject("Aperte Workflow - zbiorcze powiadomienie");
+		    			
+		    			body += "</br>-----------</br>" + notification.getSubject();
+		    			groupedNotif.setBody(body);
+		    			
+		    			notificationsToSendMap.put(groupedNotif.getRecipient(), groupedNotif);
+		    			NotificationsFacade.removeNotification(notification);
+	    			}
+	    			else{
+	    				notification.setBody(notification.getSubject());
+	    				notificationsToSendMap.put(notification.getRecipient(), notification);
+	    				NotificationsFacade.removeNotification(notification);
+	    			}
+	    		}
+	    		else{
+	    			notificationsToSendMap.put(Long.toString(notification.getNotificationCreated().getTime()), notification);
+	    			NotificationsFacade.removeNotification(notification);
+	    		}
+	    	}
+	    	
+	    	for(BpmNotification notification: notificationsToSendMap.values())
+	    	{	
 	    		try
 	    		{
 	    			sendNotification(notification);
 	    			
 	    			/* Notification was sent, so remove it from te queue */
-	    			NotificationsFacade.removeNotification(notification);
+	    			//NotificationsFacade.removeNotification(notification);
 	    		}
 	    		catch(ConnectException ex)
 	    		{
@@ -416,6 +455,8 @@ public class BpmNotificationEngine implements IBpmNotificationService
      */
     public void addNotificationToSend(ProcessedNotificationData processedNotificationData) throws Exception 
     {
+    	final I18NSource messageSource = I18NSourceFactory.createI18NSource(Locale.getDefault());
+    	
         if (!processedNotificationData.hasSender()) 
         {
             UserData autoUser = getRegistry().getAutoUser();
@@ -436,7 +477,31 @@ public class BpmNotificationEngine implements IBpmNotificationService
         notification.setRecipient(processedNotificationData.getRecipient().getEmail());
         notification.setSendAsHtml(processedNotificationData.isSendAsHtml());
         notification.setProfileName(processedNotificationData.getProfileName());
+        String isGroup = null;
         
+        try{
+        	isGroup = processedNotificationData.getRecipient().getAttribute(messageSource.getMessage("bpmnot.notify.liferay.groupingCheckbox")).toString();
+        
+        }catch(Exception e){
+        	logger.log(Level.SEVERE, "Add custom field true/false for grouping notifications. Property: bpmnot.notify.liferay.groupingCheckbox=key", e);
+        }
+        
+        if(isGroup == null){
+        	notification.setGroupNotifications(false);
+        }
+        
+        if (notification.isGroupNotifications()){
+        	Date d = (Date)processedNotificationData.getRecipient().getAttribute(messageSource.getMessage("bpmnot.notify.liferay.groupingSendHour"));
+        	Calendar cal = Calendar.getInstance();
+    		cal.set(Calendar.SECOND, d.getSeconds());
+    		cal.set(Calendar.HOUR_OF_DAY, d.getHours());
+    		cal.set(Calendar.MINUTE, d.getHours());
+    		
+    		//int time = cal.get(Calendar.HOUR_OF_DAY) * 3600 + cal.get(Calendar.MINUTE) * 60 + cal.get(Calendar.SECOND);
+	        
+	        notification.setSendAfterHour(cal.getTime());
+        }
+       
         StringBuilder attachmentsString = new StringBuilder();
         int attachmentsSize = processedNotificationData.getAttachments().size();
         for(String attachment: processedNotificationData.getAttachments())

@@ -60,6 +60,11 @@
 		<header-portlet-javascript>/sa/js/bootstrap-datepicker.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/locales/bootstrap-datepicker.pl.js</header-portlet-javascript>		
 		<!-- header-portlet-javascript>/sa/js/jquery.cookie.js</header-portlet-javascript -->
+		<header-portlet-javascript>/sa/js/jquery-ui.min.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/jquery.fileupload.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/jquery.fileupload-process.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/jquery.fileupload-validate.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/jquery.iframe-transport.js</header-portlet-javascript>
 	</portlet>
 	<portlet>
 		<!-- Matches definition in portlet.xml. -->

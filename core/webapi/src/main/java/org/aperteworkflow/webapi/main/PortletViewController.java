@@ -138,8 +138,9 @@ public class PortletViewController extends AbstractMainController<ModelAndView>
         }
         else
         {
+            HttpServletResponse httpServletResponse = getHttpServletResponse(response);
         	return  translate(PORTLET_JSON_RESULT_ROOT_NAME,
-                mainDispatcher.invokeExternalController(controller, action, originalHttpServletRequest));
+                mainDispatcher.invokeExternalController(controller, action, originalHttpServletRequest, httpServletResponse));
         }
     }
 
@@ -221,6 +222,18 @@ public class PortletViewController extends AbstractMainController<ModelAndView>
             throw new RuntimeException(ex);
         }
 
+    }
+
+    /**
+     * Obtain http servlet response from ajax request
+     */
+    private HttpServletResponse getHttpServletResponse(ResourceResponse response) {
+        try {
+            return portalUserSource.getHttpServletResponse(response);
+        } catch (Throwable ex) {
+            logger.log(Level.SEVERE, "[PORTLET CONTROLLER] Error", ex);
+            throw new RuntimeException(ex);
+        }
     }
 
     /** Translate DTO object to json in model and view, which is required for portlet resource serving */

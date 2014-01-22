@@ -12,6 +12,7 @@ public class FilesRepositoryItemDTO {
     private String name;
     private String description;
     private String createDate;
+    private String creatorLogin;
 
     public FilesRepositoryItemDTO(FilesRepositoryItem frItem) {
         setId(frItem.getId());
@@ -19,6 +20,7 @@ public class FilesRepositoryItemDTO {
         setName(frItem.getName());
         setDescription(frItem.getDescription());
         setCreateDate(Formats.formatFullDate(frItem.getCreateDate()));
+        setCreatorLogin(frItem.getCreatorLogin());
     }
 
     public Long getId() {
@@ -60,4 +62,8 @@ public class FilesRepositoryItemDTO {
     public void setCreateDate(String createDate) {
         this.createDate = createDate;
     }
+
+    public String getCreatorLogin() { return creatorLogin; }
+
+    public void setCreatorLogin(String creatorLogin) { this.creatorLogin = creatorLogin; }
 }

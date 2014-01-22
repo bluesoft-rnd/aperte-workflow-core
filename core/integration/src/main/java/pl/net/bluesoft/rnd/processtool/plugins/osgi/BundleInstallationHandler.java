@@ -23,6 +23,7 @@ import pl.net.bluesoft.rnd.processtool.web.controller.IOsgiWebController;
 import pl.net.bluesoft.rnd.processtool.web.controller.OsgiController;
 import pl.net.bluesoft.rnd.processtool.web.domain.IWidgetScriptProvider;
 import pl.net.bluesoft.rnd.processtool.web.widgets.impl.FileWidgetJavaScriptProvider;
+import pl.net.bluesoft.rnd.util.AnnotationUtil;
 import pl.net.bluesoft.rnd.util.i18n.impl.PropertiesBasedI18NProvider;
 import pl.net.bluesoft.rnd.util.i18n.impl.PropertyLoader;
 
@@ -77,14 +78,14 @@ public class BundleInstallationHandler {
 		}
 
 		OSGiBundleHelper bundleHelper = new OSGiBundleHelper(bundle);
-		
-		if (bundleHelper.hasHeaderValues(VIEW)) {
-			handleView(eventType, bundleHelper);
-		}
 
         if (bundleHelper.hasHeaderValues(SPRING_BEANS)) {
             handleSpringBeans(eventType, bundleHelper);
         }
+
+		if (bundleHelper.hasHeaderValues(VIEW)) {
+			handleView(eventType, bundleHelper);
+		}
 		
 		if (bundleHelper.hasHeaderValues(SCRIPT)) {
 			handleScript(eventType, bundleHelper);
@@ -218,18 +219,20 @@ public class BundleInstallationHandler {
 		{
 			try
 			{
-                ProcessHtmlWidget htmlWidget = (ProcessHtmlWidget)bundle
-                        .loadClass(widgetClass)
-                        .getConstructor(IBundleResourceProvider.class)
-                        .newInstance(bundleHelper);
+                Class<?> clazz = bundle.loadClass(widgetClass);
+                String widgetName =  AnnotationUtil.getAliasName(clazz);
 
 				if (eventType == Bundle.ACTIVE) 
 				{
-                    processToolRegistry.getGuiRegistry().registerHtmlView(htmlWidget.getWidgetName(), htmlWidget);
+                    ProcessHtmlWidget htmlWidget = (ProcessHtmlWidget)clazz
+                            .getConstructor(IBundleResourceProvider.class)
+                            .newInstance(bundleHelper);
+
+                    processToolRegistry.getGuiRegistry().registerHtmlView(widgetName, htmlWidget);
 				}
 				else 
 				{
-                    processToolRegistry.getGuiRegistry().unregisterHtmlView(htmlWidget.getWidgetName());
+                    processToolRegistry.getGuiRegistry().unregisterHtmlView(widgetName);
 				}
 			}
 			catch(Throwable e)

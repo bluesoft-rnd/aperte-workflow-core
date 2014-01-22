@@ -182,7 +182,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                             return null;
                         }
 
-                        I18NSource messageSource = I18NSourceFactory.createI18NSource(request.getLocale());
+                        I18NSource messageSource = context.getMessageSource();
                         BpmTaskBean processBean = BpmTaskBean.createFrom(newTasks.get(0), messageSource);
 
                         long t4 = System.currentTimeMillis();
@@ -486,7 +486,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
             public void withContext(ProcessToolContext ctx) {
                 long t0 = System.currentTimeMillis();
 
-                I18NSource messageSource = I18NSourceFactory.createI18NSource(request.getLocale());
+                I18NSource messageSource = context.getMessageSource();
 
                 ProcessInstanceFilter filter = new ProcessInstanceFilter();
 
@@ -583,7 +583,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
             public void withContext(ProcessToolContext ctx) {
                 long t0 = System.currentTimeMillis();
 
-                I18NSource messageSource = I18NSourceFactory.createI18NSource(request.getLocale());
+                I18NSource messageSource = context.getMessageSource();
 
                 boolean isQueue = "queue".equals(queueType);
 

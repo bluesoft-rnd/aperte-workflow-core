@@ -60,6 +60,9 @@ public class StandaloneWindowTab extends Window implements ParameterHandler, Cli
 	
 	@Autowired
 	protected IAuthorizationService authorizationService;
+
+    @Autowired
+    private I18NSourceFactory i18NSourceFactory;
 	
 	private ActivityStandAloneApplication application;
 	
@@ -221,7 +224,7 @@ public class StandaloneWindowTab extends Window implements ParameterHandler, Cli
 			setLocale(Locale.getDefault());
 		}
 		
-		I18NSource.ThreadUtil.setThreadI18nSource(I18NSourceFactory.createI18NSource(request.getLocale()));
+		I18NSource.ThreadUtil.setThreadI18nSource(i18NSourceFactory.createI18NSource(request.getLocale()));
 	}
 	
 	/** Render main view {@link ActivitySimplePanel} */
@@ -293,7 +296,7 @@ public class StandaloneWindowTab extends Window implements ParameterHandler, Cli
 	public void setLocale(Locale locale) {
 		super.setLocale(locale);
 		this.locale = locale;
-		this.i18NSource = I18NSourceFactory.createI18NSource(locale);
+		this.i18NSource = i18NSourceFactory.createI18NSource(locale);
 	}
 	
     @Override

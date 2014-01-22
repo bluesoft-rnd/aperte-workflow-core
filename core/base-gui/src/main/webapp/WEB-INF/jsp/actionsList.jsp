@@ -264,11 +264,9 @@
 			}
 
 			var taskId = data.nextTask.taskId;
-			var processStateConfigurationId = data.nextTask.processStateConfigurationId;
-			console.log( "taskId: " + taskId);
 			if(taskId)
 			{
-				loadProcessView(processStateConfigurationId, taskId);
+				loadProcessView(taskId);
 			}
 			else
 			{

@@ -46,6 +46,9 @@ public class DeadlineEngine {
     @Autowired
     private IUserRolesManager userRolesManager;
 
+    @Autowired
+    private I18NSourceFactory i18NSourceFactory;
+
     private Properties pluginProperties;
 
     public DeadlineEngine(Properties pluginProperties) throws SchedulerException
@@ -222,7 +225,7 @@ public class DeadlineEngine {
 	private I18NSource getI18NSource() {
 		String defaultLocale = pluginProperties.getProperty("default.locale");
 		Locale locale = Strings.hasText(defaultLocale) ? new Locale(defaultLocale) : Locale.getDefault();
-		return I18NSourceFactory.createI18NSource(locale);
+		return i18NSourceFactory.createI18NSource(locale);
 	}
 
 	private Map<String, UserData> prepareUsersForNotification(String assigneeLogin, ProcessDeadline processDeadline) {

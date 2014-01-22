@@ -82,6 +82,9 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
     @Autowired
     private DataRegistry dataRegistry;
 
+    @Autowired
+    private I18NSourceFactory i18NSourceFactory;
+
 
 	public ProcessToolJbpmSession(String userLogin, Collection<String> roleNames, String substitutingUserLogin) {
 		super(userLogin, roleNames, substitutingUserLogin);
@@ -1021,7 +1024,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 					for (String supportedLocale : supportedLocales) {
 						supportedLocale = supportedLocale.trim();
-						I18NSource i18NSource = I18NSourceFactory.createI18NSource(new Locale(supportedLocale));
+						I18NSource i18NSource = i18NSourceFactory.createI18NSource(new Locale(supportedLocale));
 
 						stepInfos.add(new StepInfo(toJbpmTaskId(task.getInternalTaskId()), supportedLocale, i18NSource.getMessage(pattern)));
 					}

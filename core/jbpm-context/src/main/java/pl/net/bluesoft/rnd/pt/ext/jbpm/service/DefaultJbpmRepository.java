@@ -1,6 +1,7 @@
 package pl.net.bluesoft.rnd.pt.ext.jbpm.service;
 
 import org.apache.commons.io.FileUtils;
+import pl.net.bluesoft.rnd.processtool.BasicSettings;
 
 import java.io.File;
 import java.io.InputStream;
@@ -9,12 +10,23 @@ import java.util.Collection;
 import java.util.List;
 
 public class DefaultJbpmRepository implements JbpmRepository {
-	private static final String DEFAULT_BASE_PATH = ".." + File.separator + ".." + File.separator + "jbpm" + File.separator + "repository";
 
-	private final String basePath;
+    private static final String DEFAULT_BASE_PATH = ".." + File.separator + ".." + File.separator + "jbpm" + File.separator + "repository";
 
-	public DefaultJbpmRepository(String basePath) {
-		this.basePath = basePath != null ? basePath : DEFAULT_BASE_PATH;
+    private static final String JBPM_REPOSITORY_DIR = "jbpm.repository.dir";
+
+    private String basePath;
+
+    public DefaultJbpmRepository(String basePath){
+        if(basePath == null){
+            if(System.getProperty(JBPM_REPOSITORY_DIR)!=null){
+                this.basePath = System.getProperty(JBPM_REPOSITORY_DIR);
+            }else{
+                this.basePath= DEFAULT_BASE_PATH;
+            }
+        }else{
+            this.basePath = basePath;
+        }
 		ensureBasePath();
 	}
 

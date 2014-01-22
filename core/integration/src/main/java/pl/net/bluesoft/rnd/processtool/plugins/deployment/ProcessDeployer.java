@@ -78,6 +78,8 @@ public class ProcessDeployer
 
 		if (session.differsFromTheLatest(cfg.getBpmDefinitionKey(), newDefinition) ||
 			processDefinitionDAO.differsFromTheLatest(cfg)) {
+
+
 			String deploymentId = session.deployProcessDefinition(cfg.getBpmProcessId(),
 					new ByteArrayInputStream(newDefinition), imageStream);
 

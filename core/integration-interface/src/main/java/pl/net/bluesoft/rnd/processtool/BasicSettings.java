@@ -16,7 +16,9 @@ public enum BasicSettings implements IProcessToolSettings
     
     /** Refresh interval in seconds */
     REFRESHER_INTERVAL_SETTINGS_KEY("refresher.interval");
-    
+
+
+
 	private String key;
 	private BasicSettings(String key)
 	{

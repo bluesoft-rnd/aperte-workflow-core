@@ -5,6 +5,7 @@ import org.codehaus.jackson.type.JavaType;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComment;
 import pl.net.bluesoft.rnd.processtool.plugins.IBundleResourceProvider;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.HandlingResult;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.IWidgetDataHandler;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
@@ -13,9 +14,7 @@ import pl.net.bluesoft.rnd.processtool.web.widgets.impl.FileWidgetContentProvide
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * User: POlszewski
@@ -31,7 +30,7 @@ public class ProcessComments extends ProcessHtmlWidget {
 
 	private static class DataHandler implements IWidgetDataHandler {
 		@Override
-		public void handleWidgetData(BpmTask task, Map<String, String> data) {
+		public Collection<HandlingResult> handleWidgetData(BpmTask task, Map<String, String> data) {
 			ObjectMapper mapper = new ObjectMapper();
 			JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, ProcessCommentBean.class);
 
@@ -44,6 +43,7 @@ public class ProcessComments extends ProcessHtmlWidget {
 			catch (IOException e) {
 				throw new RuntimeException(e);
 			}
+            return new LinkedList<HandlingResult>();
 		}
 
 		private List<ProcessComment> convert(List<ProcessCommentBean> list, BpmTask task) {

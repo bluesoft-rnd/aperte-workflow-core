@@ -29,8 +29,7 @@ public class FilesRepositoryFacade implements IFilesRepositoryFacade {
     private static Logger logger = Logger.getLogger(FilesRepositoryFacade.class.getName());
     private ProcessInstanceDAO customProcessInstanceDAO;
 
-    private FilesRepositoryStorageConfig storageConfig;
-
+    private FilesRepositoryConfigFactory configFactory;
     private Session customSession;
 
     public FilesRepositoryFacade() {
@@ -40,7 +39,7 @@ public class FilesRepositoryFacade implements IFilesRepositoryFacade {
 
     public FilesRepositoryFacade(Session customSession, FilesRepositoryConfigFactory configFactory, ProcessInstanceDAO customProcessInstanceDAO) {
         this.customSession = customSession;
-        this.storageConfig = configFactory.createFilesRepositoryStorageConfig();
+        this.configFactory = configFactory;
         this.customProcessInstanceDAO = customProcessInstanceDAO;
     }
 
@@ -59,7 +58,11 @@ public class FilesRepositoryFacade implements IFilesRepositoryFacade {
     }
 
     private FilesRepositoryStorageDAO getFilesRepositoryStorageDAO() {
-        return new FilesRepositoryStorageDAOImpl(storageConfig);
+        return new FilesRepositoryStorageDAOImpl(getStorageConfig());
+    }
+
+    private FilesRepositoryStorageConfig getStorageConfig() {
+        return configFactory.createFilesRepositoryStorageConfig();
     }
 
     @Override
@@ -110,7 +113,7 @@ public class FilesRepositoryFacade implements IFilesRepositoryFacade {
             content.setName(filesRepositoryItem.getName());
             return content;
         } catch (IOException e) {
-            throw new DownloadFileException("File item download problem for processInstanceId=[" + processInstanceId + "] and filesRepositoryItemId=["+filesRepositoryItemId+"].");
+            throw new DownloadFileException("File item download problem for processInstanceId=[" + processInstanceId + "] and filesRepositoryItemId=["+filesRepositoryItemId+"].", e);
         }
     }
 

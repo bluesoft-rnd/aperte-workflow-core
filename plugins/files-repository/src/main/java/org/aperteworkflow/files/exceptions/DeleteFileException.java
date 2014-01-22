@@ -10,7 +10,7 @@ public class DeleteFileException extends Exception {
         super(message);
     }
 
-    public DeleteFileException(String message, IOException cause) {
+    public DeleteFileException(String message, Throwable cause) {
         super(message, cause);
     }
 }

@@ -30,16 +30,17 @@ public class FilesRepositoryItemDAOImpl extends SimpleHibernateBean<FilesReposit
     }
 
     @Override
-    public FilesRepositoryItem addItem(Long processInstanceId, String name, String description, String relativePath, String creatorLogin) {
-        return addItem(processInstanceDAO.getProcessInstance(processInstanceId), name, description, relativePath, creatorLogin);
+    public FilesRepositoryItem addItem(Long processInstanceId, String name, String description, String relativePath, String contentType, String creatorLogin) {
+        return addItem(processInstanceDAO.getProcessInstance(processInstanceId), name, description, relativePath, contentType, creatorLogin);
     }
 
-    public FilesRepositoryItem addItem(ProcessInstance processInstance, String name, String description, String relativePath, String creatorLogin) {
+    public FilesRepositoryItem addItem(ProcessInstance processInstance, String name, String description, String relativePath, String contentType, String creatorLogin) {
         FilesRepositoryItem item = new FilesRepositoryItem();
         item.setProcessInstance(processInstance);
         item.setName(name);
         item.setDescription(description);
         item.setRelativePath(relativePath);
+        item.setContentType(contentType);
         item.setCreateDate(new Date());
         item.setCreatorLogin(creatorLogin);
         saveOrUpdate(item);

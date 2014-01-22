@@ -14,8 +14,6 @@ import java.io.InputStream;
 public interface FilesRepositoryStorageDAO {
     File uploadFileToStorage(InputStream inputStream, String fileName) throws IOException;
     void deleteFileFromStorage(File file) throws IOException;
-
     FileItemContent loadFileFromStorage(String relativeFilePath) throws IOException;
-
     String getRelativeFilePath(File file);
 }

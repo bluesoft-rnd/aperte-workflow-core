@@ -66,7 +66,7 @@ public class FilesRepositoryFacade implements IFilesRepositoryFacade {
     }
 
     @Override
-    public FilesRepositoryItem uploadFile(InputStream inputStream, Long processInstanceId, String fileName, String fileDescription, String creatorLogin) throws UploadFileException {
+    public FilesRepositoryItem uploadFile(InputStream inputStream, String contentType, Long processInstanceId, String fileName, String fileDescription, String creatorLogin) throws UploadFileException {
         FilesRepositoryItem result;
         String filePath = prepareFilePath(processInstanceId, fileName);
         try {
@@ -74,7 +74,7 @@ public class FilesRepositoryFacade implements IFilesRepositoryFacade {
         } catch (IOException e) {
             throw new UploadFileException("Cannot write file to storage", e);
         }
-        result = getFilesRepositoryItemDAO().addItem(processInstanceId, fileName, fileDescription, filePath, creatorLogin);
+        result = getFilesRepositoryItemDAO().addItem(processInstanceId, fileName, fileDescription, filePath, contentType, creatorLogin);
         return result;
     }
 
@@ -111,6 +111,7 @@ public class FilesRepositoryFacade implements IFilesRepositoryFacade {
         try {
             FileItemContent content = getFilesRepositoryStorageDAO().loadFileFromStorage(filesRepositoryItem.getRelativePath());
             content.setName(filesRepositoryItem.getName());
+            content.setContentType(filesRepositoryItem.getContentType());
             return content;
         } catch (IOException e) {
             throw new DownloadFileException("File item download problem for processInstanceId=[" + processInstanceId + "] and filesRepositoryItemId=["+filesRepositoryItemId+"].", e);

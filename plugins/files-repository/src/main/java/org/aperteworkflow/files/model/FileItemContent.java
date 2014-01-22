@@ -14,11 +14,11 @@ public class FileItemContent {
         super();
     }
 
-    public String getDocumentContentType() {
+    public String getContentType() {
         return contentType;
     }
 
-    public void setDocumentContentType(String contentType) {
+    public void setContentType(String contentType) {
         this.contentType = contentType;
     }
 

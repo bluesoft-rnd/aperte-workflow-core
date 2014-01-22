@@ -8,7 +8,7 @@ import java.util.Collection;
  * @author pwysocki@bluesoft.net.pl
  */
 public interface FilesRepositoryItemDAO {
-    FilesRepositoryItem addItem(Long processInstanceId, String name, String description, String relativePath, String creatorLogin);
+    FilesRepositoryItem addItem(Long processInstanceId, String name, String description, String relativePath, String contentType, String creatorLogin);
 
     Collection<FilesRepositoryItem> getItemsFor(Long processInstanceId);
 

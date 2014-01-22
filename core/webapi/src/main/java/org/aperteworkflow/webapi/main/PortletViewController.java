@@ -61,6 +61,8 @@ public class PortletViewController extends AbstractMainController<ModelAndView>
 {
     private static final String PORTLET_JSON_RESULT_ROOT_NAME = "result";
     private static final String PORTLET_PARAMTER_TASK_ID = "taskId";
+    private static final String RESPONSE_TYPE_PARAM_NAME = "responseType";
+    private static final String RESPONSE_TYPE_PARAM_VALUE_RAW = "RAW";
 
     private static Logger logger = Logger.getLogger(PortletViewController.class.getName());
     private Map<String, Object> viewData = new HashMap<String, Object>();
@@ -139,8 +141,13 @@ public class PortletViewController extends AbstractMainController<ModelAndView>
         else
         {
             HttpServletResponse httpServletResponse = getHttpServletResponse(response);
-        	return  translate(PORTLET_JSON_RESULT_ROOT_NAME,
-                mainDispatcher.invokeExternalController(controller, action, originalHttpServletRequest, httpServletResponse));
+            if (RESPONSE_TYPE_PARAM_VALUE_RAW.equals(originalHttpServletRequest.getParameter(RESPONSE_TYPE_PARAM_NAME))) {
+                mainDispatcher.invokeExternalController(controller, action, originalHttpServletRequest, httpServletResponse);
+                return null;
+            } else {
+                return translate(PORTLET_JSON_RESULT_ROOT_NAME,
+                        mainDispatcher.invokeExternalController(controller, action, originalHttpServletRequest, httpServletResponse));
+            }
         }
     }
 

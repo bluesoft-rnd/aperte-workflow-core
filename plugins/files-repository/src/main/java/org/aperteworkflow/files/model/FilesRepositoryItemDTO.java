@@ -19,6 +19,7 @@ public class FilesRepositoryItemDTO {
         setProcessInstanceId(frItem.getProcessInstance().getId());
         setName(frItem.getName());
         setDescription(frItem.getDescription());
+
         setCreateDate(Formats.formatFullDate(frItem.getCreateDate()));
         setCreatorLogin(frItem.getCreatorLogin());
     }

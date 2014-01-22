@@ -19,9 +19,10 @@ public class FilesRepositoryItem extends PersistentEntity {
     public static final String COLUMN_DESCRIPTION = "description";
     public static final String COLUMN_CREATE_DATE = "createDate";
     public static final String COLUMN_CREATOR_LOGIN = "creatorLogin";
+    public static final String COLUMN_CONTENT_TYPE = "contentType";
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name=COLUMN_PROCESS_INSTANCE_ID)
+    @JoinColumn(name = COLUMN_PROCESS_INSTANCE_ID)
     private ProcessInstance processInstance;
 
     @Column(name = COLUMN_NAME, nullable = false)
@@ -32,6 +33,9 @@ public class FilesRepositoryItem extends PersistentEntity {
 
     @Column(name = COLUMN_DESCRIPTION)
     private String description;
+
+    @Column(name = COLUMN_CONTENT_TYPE, nullable = false)
+    private String contentType;
 
     @Column(name = COLUMN_CREATE_DATE, nullable = false)
     private Date createDate;
@@ -85,5 +89,13 @@ public class FilesRepositoryItem extends PersistentEntity {
 
     public void setProcessInstance(ProcessInstance processInstance) {
         this.processInstance = processInstance;
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
+
+    public String getContentType() {
+        return contentType;
     }
 }

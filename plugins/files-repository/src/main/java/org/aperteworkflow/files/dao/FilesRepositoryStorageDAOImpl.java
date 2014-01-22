@@ -30,7 +30,7 @@ public class FilesRepositoryStorageDAOImpl implements FilesRepositoryStorageDAO 
                 FileUtils.openOutputStream(file);
         IOUtils.copyLarge(inputStream, outputStream);
         outputStream.flush();
-        outputStream.close();
+        IOUtils.closeQuietly(outputStream);
         return file;
     }
 
@@ -46,7 +46,9 @@ public class FilesRepositoryStorageDAOImpl implements FilesRepositoryStorageDAO 
         File file = new File(filePath);
         FileItemContent content = new FileItemContent();
         content.setName(file.getName());
-        content.setBytes(IOUtils.toByteArray(new FileInputStream(file)));
+        InputStream inputStream = new FileInputStream(file);
+        content.setBytes(IOUtils.toByteArray(inputStream));
+        IOUtils.closeQuietly(inputStream);
         return content;
     }
 

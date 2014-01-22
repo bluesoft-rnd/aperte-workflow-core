@@ -76,7 +76,7 @@ public class FilesController implements IOsgiWebController {
                         } else {
                             logger.log(Level.WARNING, "[FILES_REPOSITORY] Not all parameters provided when calling filescontroller.uploadFile. All of [processInstanceId, fileName, fileInputStream, creatorLogin] are required.");
                         }
-                        fileInputStream.close();
+                        IOUtils.closeQuietly(fileInputStream);
                     }
                 }
             } else {
@@ -157,7 +157,7 @@ public class FilesController implements IOsgiWebController {
         response.setContentType(content.getDocumentContentType());
         ServletOutputStream soutStream = response.getOutputStream();
         IOUtils.write(content.getBytes(), soutStream);
-        soutStream.close();
+        IOUtils.closeQuietly(soutStream);
     }
 
     private Long getFilesRepositoryItemId(HttpServletRequest request) {

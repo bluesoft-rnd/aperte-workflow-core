@@ -104,7 +104,7 @@ public class FilesRepositoryFacadeTest {
         item1.setDescription("Description of ExampleFile.txt");
         InputStream inputStream = IOUtils.toInputStream("File content");
         Long newItemId = filesRepoFacade.uploadFile(inputStream, item1.getProcessInstance().getId(), item1.getName(), item1.getDescription(), CREATOR_LOGIN);
-        inputStream.close();
+        IOUtils.closeQuietly(inputStream);
 
         FilesRepositoryItem newItem = frItemDAO.getItemById(newItemId);
         FileItemContent content = frStorageDAO.loadFileFromStorage(newItem.getRelativePath());

@@ -252,7 +252,15 @@ public class BpmTaskQuery {
         /* Queue or all user tasks */
         if (queues != null || queryType == QueryType.LIST || (virtualQueues != null && virtualQueues.contains(QueueType.ALL_TASKS)))
         {
-            sb.append(" JOIN PeopleAssignments_PotOwners potowners ON (potowners.task_id = task_.id AND potowners.entity_id = :user)");
+            sb.append(" JOIN PeopleAssignments_PotOwners potowners ON (potowners.task_id = task_.id AND ");
+            if(virtualQueues != null && virtualQueues.contains(QueueType.OWN_IN_PROGRESS))
+            {
+                sb.append(" potowners.entity_id <> :user)");
+            }
+            else
+            {
+                sb.append(" potowners.entity_id = :user)");
+            }
             queryParameters.add(new QueryParameter("user", user));
         }
 
@@ -431,7 +439,7 @@ public class BpmTaskQuery {
         for (Map.Entry<Long, String> entry : i18NKeys.entrySet()) {
             String localizedMessage = i18NSource.getMessage(entry.getValue());
 
-            if (localizedMessage.toLowerCase(locale).contains(searchExpressionLC)) {
+            if (localizedMessage != null && localizedMessage.toLowerCase(locale).contains(searchExpressionLC)) {
                 result.add(entry.getKey());
             }
         }

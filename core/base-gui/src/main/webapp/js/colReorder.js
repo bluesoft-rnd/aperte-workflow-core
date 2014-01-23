@@ -1044,7 +1044,7 @@ ColReorder.prototype = {
 		$.each( this.s.dt.aoColumns, function (i, column) {
 			$(column.nTh).attr('data-column-index', i);
 		} );
-	},
+	}
 };
 
 

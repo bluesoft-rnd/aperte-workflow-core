@@ -5,6 +5,8 @@ import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
+import java.util.Collection;
+
 /**
  * Process Tool request context 
  * 
@@ -24,5 +26,8 @@ public interface IProcessToolRequestContext
 	
 	/** Get message source */
 	I18NSource getMessageSource();
+
+    /** Get user queues */
+    Collection<String> getUserQueues();
 
 }

@@ -24,6 +24,7 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory.ExecutionType;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.StartProcessResult;
 import pl.net.bluesoft.rnd.processtool.model.*;
+import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComment;
 import pl.net.bluesoft.rnd.processtool.web.domain.DataPagingBean;
 import pl.net.bluesoft.rnd.processtool.web.domain.ErrorResultBean;
@@ -619,6 +620,9 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                         taskBean.setQueueName(queueName);
                     }
 
+                    if(hasUserRightsToTask(context, task))
+                        taskBean.setUserCanClaim(true);
+
                     adminAlertBeanList.add(taskBean);
                 }
 
@@ -650,6 +654,18 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 
         return pagingCollection;
 	}
+
+    private boolean hasUserRightsToTask(IProcessToolRequestContext context, BpmTask task)
+    {
+        if(task.getPotentialOwners().contains(context.getUser().getLogin()))
+            return true;
+
+        for(String queueName:  context.getUserQueues())
+            if(task.getQueues().contains(queueName))
+                return true;
+
+        return false;
+    }
 
     private QueueOrderCondition mapColumnNameToOrderCondition(String columnName)
     {

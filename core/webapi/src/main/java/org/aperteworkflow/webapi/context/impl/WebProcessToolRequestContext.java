@@ -1,10 +1,14 @@
 package org.aperteworkflow.webapi.context.impl;
 
+import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
 import pl.net.bluesoft.rnd.processtool.web.domain.IProcessToolRequestContext;
 
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+
+import java.util.Collection;
+import java.util.LinkedList;
 
 
 public class WebProcessToolRequestContext implements IProcessToolRequestContext
@@ -12,6 +16,7 @@ public class WebProcessToolRequestContext implements IProcessToolRequestContext
 	private UserData userData;
 	private ProcessToolBpmSession bpmSession;
 	private I18NSource messageSource;
+    private Collection<String> userQueues;
 
 	@Override
 	public UserData getUser() {
@@ -46,5 +51,17 @@ public class WebProcessToolRequestContext implements IProcessToolRequestContext
 	public void setMessageSource(I18NSource messageSource) {
 		this.messageSource = messageSource;
 	}
+
+    public Collection<String> getUserQueues()
+    {
+        if(userQueues == null)
+        {
+            userQueues = new LinkedList<String>();
+            for(ProcessQueue processQueue:  bpmSession.getUserAvailableQueues())
+                userQueues.add(processQueue.getName());
+
+        }
+        return userQueues;
+    }
 
 }

@@ -1,5 +1,8 @@
 package pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model;
 
+import java.util.Calendar;
+import java.util.Date;
+
 import javax.persistence.Entity;
 import javax.persistence.Lob;
 import javax.persistence.Table;
@@ -40,12 +43,41 @@ public class BpmNotification extends PersistentEntity
     /** Profile name for connection configuration */
     private String profileName;
     
-    /** The body of the notification */
+    /** Send message after specific hour */
+    private Date sendAfterHour;
+    
+    private boolean groupNotifications;
+
+	private Date notificationCreated;
+    
+	/** The body of the notification */
 	@Lob
     @Type(type = "org.hibernate.type.StringClobType")
 	private String body;
 	
+	public BpmNotification(){
+		/*Calendar cal = Calendar.getInstance();
+		cal.setTime( new Date());
+		int time = cal.get(Calendar.HOUR_OF_DAY) * 3600 + cal.get(Calendar.MINUTE) * 60 + cal.get(Calendar.SECOND);
+		*/
+        notificationCreated = new Date();
+	}
+	
+	public Date getNotificationCreated() {
+		return notificationCreated;
+	}
 
+	public void setNotificationCreated(Date notificationCreated) {
+		this.notificationCreated = notificationCreated;
+	}
+
+	public boolean isGroupNotifications() {
+		return groupNotifications;
+	}
+
+	public void setGroupNotifications(boolean groupNotifications) {
+		this.groupNotifications = groupNotifications;
+	}
 	public String getBody() {
 		return body;
 	}
@@ -102,4 +134,11 @@ public class BpmNotification extends PersistentEntity
 		this.profileName = profileName;
 	}
 
+	public Date getSendAfterHour() {
+		return sendAfterHour;
+	}
+
+	public void setSendAfterHour(Date sendAfterHour) {
+		this.sendAfterHour = sendAfterHour;
+	}
 }

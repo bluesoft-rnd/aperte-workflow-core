@@ -44,6 +44,7 @@ public class TaskViewBuilder
 	private UserData user;
     private ProcessToolContext ctx;
     private ProcessToolBpmSession bpmSession;
+    private Collection<String> userQueues;
 	
 	@Autowired
 	private ProcessToolRegistry processToolRegistry;
@@ -633,6 +634,11 @@ public class TaskViewBuilder
 		return this;
 	}
 
+    public TaskViewBuilder setUserQueues(Collection<String> userQueues) {
+        this.userQueues = userQueues;
+        return this;
+    }
+
     public TaskViewBuilder setCtx(ProcessToolContext ctx) {
         this.ctx = ctx;
         return this;
@@ -667,8 +673,8 @@ public class TaskViewBuilder
         if(task.getPotentialOwners().contains(user.getLogin()))
             return true;
 
-        for(ProcessQueue processQueue:  bpmSession.getUserAvailableQueues())
-            if(task.getQueues().contains(processQueue.getName()))
+        for(String queueName:  userQueues)
+            if(task.getQueues().contains(queueName))
                 return true;
 
         return false;

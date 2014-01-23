@@ -17,9 +17,9 @@ public class FilesRepositoryItem extends PersistentEntity {
     public static final String COLUMN_NAME = "name";
     public static final String COLUMN_RELATIVE_PATH = "relative_path";
     public static final String COLUMN_DESCRIPTION = "description";
-    public static final String COLUMN_CREATE_DATE = "createDate";
-    public static final String COLUMN_CREATOR_LOGIN = "creatorLogin";
-    public static final String COLUMN_CONTENT_TYPE = "contentType";
+    public static final String COLUMN_CREATE_DATE = "create_date";
+    public static final String COLUMN_CREATOR_LOGIN = "creator_login";
+    public static final String COLUMN_CONTENT_TYPE = "content_type";
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = COLUMN_PROCESS_INSTANCE_ID)

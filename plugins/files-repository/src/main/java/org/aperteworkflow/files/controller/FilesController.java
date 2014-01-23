@@ -64,13 +64,14 @@ public class FilesController implements IOsgiWebController {
                     FileItemStream item = iter.next();
                     InputStream stream = item.openStream();
                     if (!item.isFormField()) {
+                        InputStream fileInputStream = stream;
+                        String contentType = item.getContentType();
+                        Long processInstanceId = getProcessInstanceId(request);
                         String fileName = item.getName();
                         String fileDescription = null;
-                        InputStream fileInputStream = stream;
-                        Long processInstanceId = getProcessInstanceId(request);
                         String creatorLogin = getCreatorLogin(request);
                         if (processInstanceId != null && fileName != null && fileName.length() > 0 && fileInputStream != null && creatorLogin != null && creatorLogin.length() > 0) {
-                            FilesRepositoryItem frItem = filesRepoFacade.uploadFile(fileInputStream, processInstanceId, fileName, fileDescription, creatorLogin);
+                            FilesRepositoryItem frItem = filesRepoFacade.uploadFile(fileInputStream, contentType, processInstanceId, fileName, fileDescription, creatorLogin);
                             result.setData(new FilesRepositoryItemDTO(frItem));
                         } else {
                             logger.log(Level.WARNING, "[FILES_REPOSITORY] Not all parameters provided when calling filescontroller.uploadFile. All of [processInstanceId, fileName, fileInputStream, creatorLogin] are required.");
@@ -170,7 +171,7 @@ public class FilesController implements IOsgiWebController {
                                             FileItemContent content) throws IOException {
 
         response.setHeader("Content-Disposition", "attachment; filename=\"" + content.getName() + "\"");
-        response.setContentType(content.getDocumentContentType());
+        response.setContentType(content.getContentType());
         ServletOutputStream soutStream = response.getOutputStream();
         IOUtils.write(content.getBytes(), soutStream);
         IOUtils.closeQuietly(soutStream);

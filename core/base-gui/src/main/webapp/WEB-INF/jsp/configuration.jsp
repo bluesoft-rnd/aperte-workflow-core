@@ -102,10 +102,10 @@
 	}
 	
 	function setCheckboxes(parsedProcess,queueName){
-		var keys = Object.keys(parsedProcess);
-		$.each(keys, function(index, value) {
-			selectProcessTableCheckBox(value,parsedProcess[value],queueName)
-		});	
+		for(var value in parsedProcess){
+			if(parsedProcess.hasOwnProperty(value))
+				selectProcessTableCheckBox(value,parsedProcess[value],queueName)
+		}		
 	}
 	
 	function selectProcessTableCheckBox(name,value,queueName){

@@ -197,7 +197,7 @@
 		$( "<div>", { id : innerDivId, "class": "queue-list-name"} )
 		.appendTo( '#'+layoutId );
 		
-		$( "<a>", { id : 'link-'+processRow.queueId, "class": "queue-list-link", text: processRow.queueDesc, } )
+		$( "<a>", { id : 'link-'+processRow.queueId, "class": "queue-list-link", text: processRow.queueDesc } )
 		.appendTo( '#'+innerDivId );
 		
 		$( "<div>", { "class": "queue-list-size", text: processRow.queueSize} )
@@ -218,7 +218,7 @@
 		$( "<div>", { id : innerDivId, "class": "queue-list-name"} )
 		.appendTo( '#'+layoutId );
 		
-		$( "<a>", { id : 'link-'+queueRow.queueId, "class": "queue-list-link", text: queueRow.queueDesc, } )
+		$( "<a>", { id : 'link-'+queueRow.queueId, "class": "queue-list-link", text: queueRow.queueDesc } )
 		.appendTo( '#'+innerDivId );
 		
 		$( "<div>", { "class": "queue-list-size", text: queueRow.queueSize} )

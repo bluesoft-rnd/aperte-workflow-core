@@ -139,8 +139,36 @@ public class PortletViewController extends AbstractMainController<ModelAndView>
         else
         {
             HttpServletResponse httpServletResponse = getHttpServletResponse(response);
-        	return  translate(PORTLET_JSON_RESULT_ROOT_NAME,
-                mainDispatcher.invokeExternalController(controller, action, originalHttpServletRequest, httpServletResponse));
+            return translate(PORTLET_JSON_RESULT_ROOT_NAME,
+                    mainDispatcher.invokeExternalController(controller, action, originalHttpServletRequest, httpServletResponse));
+        }
+    }
+
+    @ResourceMapping("noReplyDispatcher")
+    @ResponseBody
+    public void noReplyDispatcher(ResourceRequest request, ResourceResponse response) throws PortletException
+    {
+        HttpServletRequest originalHttpServletRequest = getOriginalHttpServletRequest(request);
+
+        String controller = originalHttpServletRequest.getParameter("controller");
+        String action = originalHttpServletRequest.getParameter("action");
+
+        logger.log(Level.INFO, "fileDispatcher: controllerName: "+controller+", action: "+action);
+
+        if(controller == null || controller.isEmpty())
+        {
+            logger.log(Level.SEVERE, "[ERROR] fileDispatcher: No controller paramter in dispatcher invocation!");
+            throw new PortletException("No controller paramter!");
+        }
+        else if(action == null || action.isEmpty())
+        {
+            logger.log(Level.SEVERE, "[ERROR] fileDispatcher: No action paramter in dispatcher invocation!");
+            throw new PortletException("No action paramter!");
+        }
+        else
+        {
+            HttpServletResponse httpServletResponse = getHttpServletResponse(response);
+            mainDispatcher.invokeExternalController(controller, action, originalHttpServletRequest, httpServletResponse);
         }
     }
 

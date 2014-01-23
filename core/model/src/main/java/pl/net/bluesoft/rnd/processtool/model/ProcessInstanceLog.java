@@ -19,6 +19,13 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
  */
 @Entity
 @Table(name = "pt_process_instance_log")
+@org.hibernate.annotations.Table(
+        appliesTo="pt_process_instance_log",
+        indexes = {
+                @Index(name = "idx_pt_log_pk",
+                        columnNames = {"id"}
+                )
+        })
 public class ProcessInstanceLog extends AbstractPersistentEntity {
 	public static final String _ENTRY_DATE = "entryDate";
 	public static final String _EVENT_I18N_KEY = "eventI18NKey";
@@ -36,6 +43,7 @@ public class ProcessInstanceLog extends AbstractPersistentEntity {
 	public static final String LOG_TYPE_CLAIM_PROCESS = "CLAIM_PROCESS";
 	public static final String LOG_TYPE_PERFORM_ACTION = "PERFORM_ACTION";
 	public static final String LOG_TYPE_INFO = "INFO";
+    public static final String LOG_TYPE_PROCESS_CHANGE = "PROCESS_CHANGE";
 
 	@Id
 	@GeneratedValue(generator = "idGenerator")
@@ -63,8 +71,14 @@ public class ProcessInstanceLog extends AbstractPersistentEntity {
     @Column(length = Integer.MAX_VALUE)
 	private String additionalInfo;
 
+    @Lob
+    @Type(type = "org.hibernate.type.StringClobType")
+    @Column(length = Integer.MAX_VALUE)
 	private String logValue;
+
 	private String logType;
+
+    @Index(name="idx_pt_log_executionid")
 	private String executionId;
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -80,6 +94,7 @@ public class ProcessInstanceLog extends AbstractPersistentEntity {
 	@JoinColumn(name="process_instance_id")
 	private ProcessInstance processInstance;
 
+    @Index(name="idx_pt_log_login")
 	private String userLogin;
 	private String userSubstituteLogin;
 

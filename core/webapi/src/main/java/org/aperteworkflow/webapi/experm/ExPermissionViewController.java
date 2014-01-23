@@ -17,6 +17,7 @@ import pl.net.bluesoft.rnd.processtool.usersource.IPortalUserSource;
 
 import javax.portlet.*;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,7 +33,6 @@ public class ExPermissionViewController {
     private static Logger logger = Logger.getLogger(ExPermissionViewController.class.getName());
 
 
-
     @Autowired(required = false)
     private DispatcherController mainDispatcher;
 
@@ -40,20 +40,19 @@ public class ExPermissionViewController {
     protected IPortalUserSource portalUserSource;
 
 
-	@RenderMapping ()
+    @RenderMapping()
     /**
      * main view handler for Portlet.
      */
-	public ModelAndView handleMainRenderRequest(RenderRequest request, RenderResponse response, Model model)
-    {
-		logger.info("ExPermissionViewController.handleMainRenderRequest... ");
+    public ModelAndView handleMainRenderRequest(RenderRequest request, RenderResponse response, Model model) {
+        logger.info("ExPermissionViewController.handleMainRenderRequest... ");
         ModelAndView modelView = new ModelAndView();
         SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
         UserData user = portalUserSource.getUserByRequest(request);
         modelView.addObject(WebApiConstants.USER_PARAMETER_NAME, user);
-        if(user == null || user.getLogin() == null){
+        if (user == null || user.getLogin() == null) {
             modelView.setViewName("login");
-        }else{
+        } else {
             modelView.setViewName("ex_permission");
         }
 
@@ -61,67 +60,72 @@ public class ExPermissionViewController {
     }
 
 
-
-
-
-    @ResourceMapping( "dispatcher")
+    @ResourceMapping("dispatcher")
     @ResponseBody
-    public ModelAndView dispatcher(ResourceRequest request, ResourceResponse response) throws PortletException
-    {
+    public ModelAndView dispatcher(ResourceRequest request, ResourceResponse response) throws PortletException {
         HttpServletRequest originalHttpServletRequest = getOriginalHttpServletRequest(request);
 
         String controller = originalHttpServletRequest.getParameter("controller");
         String action = originalHttpServletRequest.getParameter("action");
 
-        logger.log(Level.INFO, "controllerName: "+controller+", action: "+action);
+        logger.log(Level.INFO, "controllerName: " + controller + ", action: " + action);
 
-        if(controller == null || controller.isEmpty())
-        {
+        if (controller == null || controller.isEmpty()) {
             logger.log(Level.SEVERE, "[ERROR] No controller paramter in dispatcher invocation!");
             throw new PortletException("No controller paramter!");
-        }
-        else if(action == null || action.isEmpty())
-        {
+        } else if (action == null || action.isEmpty()) {
             logger.log(Level.SEVERE, "[ERROR] No action paramter in dispatcher invocation!");
             throw new PortletException("No action paramter!");
         }
 
+        HttpServletResponse httpServletResponse = getHttpServletResponse(response);
 
-        return  translate(PORTLET_JSON_RESULT_ROOT_NAME,
-                mainDispatcher.invokeExternalController(controller, action, originalHttpServletRequest));
+        return translate(PORTLET_JSON_RESULT_ROOT_NAME,
+                mainDispatcher.invokeExternalController(controller, action, originalHttpServletRequest, httpServletResponse));
     }
 
-    @ResourceMapping( "getData")
+    @ResourceMapping("getData")
     @ResponseBody
-    public ModelAndView getUserQueues(ResourceRequest request, ResourceResponse response)
-    {
-        return  translate(PORTLET_JSON_RESULT_ROOT_NAME, new String("test"));
+    public ModelAndView getUserQueues(ResourceRequest request, ResourceResponse response) {
+        return translate(PORTLET_JSON_RESULT_ROOT_NAME, new String("test"));
     }
 
 
-    /** Obtain http servlet request with additional attributes from ajax request */
-    private HttpServletRequest getOriginalHttpServletRequest(ResourceRequest request)
-    {
+    /**
+     * Obtain http servlet request with additional attributes from ajax request
+     */
+    private HttpServletRequest getOriginalHttpServletRequest(ResourceRequest request) {
         try {
             HttpServletRequest httpServletRequest = portalUserSource.getHttpServletRequest(request);
-            HttpServletRequest originalHttpServletRequest =  portalUserSource.getOriginalHttpServletRequest(httpServletRequest);
+            HttpServletRequest originalHttpServletRequest = portalUserSource.getOriginalHttpServletRequest(httpServletRequest);
 
             /* Copy all attributes, because portlet attributes do not exist in original request */
             originalHttpServletRequest.getParameterMap().putAll(httpServletRequest.getParameterMap());
 
-            return  originalHttpServletRequest;
-        }
-        catch(Throwable ex)
-        {
+            return originalHttpServletRequest;
+        } catch (Throwable ex) {
             logger.log(Level.SEVERE, "[PORTLET CONTROLLER] Error", ex);
             throw new RuntimeException(ex);
         }
 
     }
 
-    /** Translate DTO object to json in model and view, which is required for portlet resource serving */
-    private ModelAndView translate(String resultName, Object result)
-    {
+    /**
+     * Obtain http servlet response from ajax request
+     */
+    private HttpServletResponse getHttpServletResponse(ResourceResponse response) {
+        try {
+            return portalUserSource.getHttpServletResponse(response);
+        } catch (Throwable ex) {
+            logger.log(Level.SEVERE, "[PORTLET CONTROLLER] Error", ex);
+            throw new RuntimeException(ex);
+        }
+    }
+
+    /**
+     * Translate DTO object to json in model and view, which is required for portlet resource serving
+     */
+    private ModelAndView translate(String resultName, Object result) {
         ModelAndView mav = new ModelAndView();
         MappingJacksonJsonViewEx v = new MappingJacksonJsonViewEx();
         v.setBeanName(resultName);

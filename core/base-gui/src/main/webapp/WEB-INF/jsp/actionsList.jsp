@@ -26,6 +26,23 @@
   </div><!-- /.modal-dialog -->
 </div>
 
+<div class="modal fade aperte-modal" id="alertModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+
+
+			<div class="panel panel-warning">
+				<div class="panel-heading"><h4><spring:message code="processes.alerts.modal.title" /></h4></div>
+				<ul id="alerts-list">
+					
+				</ul>
+				<button type="button" class="btn btn-warning" onClick="cancelShowWarnings()" data-dismiss="modal" style="margin: 20px;"><spring:message code="processes.alerts.modal.close" /></button>
+			</div>
+			
+
+
+  </div><!-- /.modal-dialog -->
+</div>
+
 <script type="text/javascript">
 //<![CDATA[
 	
@@ -34,6 +51,9 @@
 	var tempSkipSaving; 
 	var tempTaskId;
 	var tempCommentNeeded;
+	
+	var alertsShown = false;
+	var alertsInit = false;
 	
 	function cancelCommentModal()
 	{
@@ -54,6 +74,7 @@
 		performActionWithoutComment(tempButton, tempActionName, tempSkipSaving, tempTaskId, tempCommentNeeded, comment);
 	}
 
+
 	function disableButtons()
 	{
 		$('#actions-list').find('button').prop('disabled', true);
@@ -67,8 +88,6 @@
 	function checkActionCommentValue(event)
     {
         var comment = $('#action-comment-textarea').val();
-		
-		console.log("Modal: "+(comment == ''));
 
          $('#action-comment-button').attr("disabled", comment == '');
     }
@@ -82,10 +101,18 @@
 		$.each(widgets, function() 
 		{
 			var errorMessages = this.validate();
-			$.each(errorMessages, function() {
-				errors.push(this);
-				addAlert(this);
-			});
+			if(!errorMessages)
+			{
+				console.log('Widget should return empty array in validation function! Widget: '+this.name);
+				
+			}
+			else
+			{
+				$.each(errorMessages, function() {
+					errors.push(this);
+					addAlert(this);
+				});
+			}
 	    });
 		
 		if(errors.length > 0)
@@ -134,14 +161,35 @@
 		$('#alerts-list').empty();
 		$.each( alertsMessages, function( ) 
 		{
-			console.log( "alert: "+this.message );
 			addAlert(this.message);
 		});
 	}
 	
 	function addAlert(alertMessage)
 	{
-		$('#alerts-list').append('<div class="alert"><button type="button" class="close" data-dismiss="alert">&times;</button>'+alertMessage+'</div>');
+		if(alertsShown == false)
+		{
+			if(alertsInit == false)
+			{
+				alertsInit = true;
+				$('#alertModal').modal({
+				  keyboard: false
+				});
+				$('#alertModal').on('hidden.bs.modal', function (e) {
+					clearAlerts();
+					alertsShown = false;
+				});
+			
+			}
+			else
+			{
+				$('#alertModal').modal('show');
+			}
+			alertsShown = true;
+		}
+		
+		$('#alerts-list').append('<li><h5>'+alertMessage+'</h5></li>');
+		
 	}
 	
 	function clearAlerts()

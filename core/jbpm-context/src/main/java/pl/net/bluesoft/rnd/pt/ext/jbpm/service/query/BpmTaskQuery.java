@@ -203,11 +203,11 @@ public class BpmTaskQuery {
                     .addScalar("assignee", StandardBasicTypes.STRING)
                     .addScalar("groupId", StandardBasicTypes.STRING)
                     .addScalar("taskName", StandardBasicTypes.STRING)
-                    .addScalar("createdOn", StandardBasicTypes.DATE)
-                    .addScalar("completedOn", StandardBasicTypes.DATE)
+                    .addScalar("createdOn", StandardBasicTypes.TIMESTAMP)
+                    .addScalar("completedOn", StandardBasicTypes.TIMESTAMP)
                     .addScalar("taskStatus", StandardBasicTypes.STRING)
                     .addScalar("definitionId", StandardBasicTypes.LONG)
-                    .addScalar("taskDeadline", StandardBasicTypes.DATE)
+                    .addScalar("taskDeadline", StandardBasicTypes.TIMESTAMP)
                     .addScalar("stepInfo", StandardBasicTypes.STRING);
         }
 

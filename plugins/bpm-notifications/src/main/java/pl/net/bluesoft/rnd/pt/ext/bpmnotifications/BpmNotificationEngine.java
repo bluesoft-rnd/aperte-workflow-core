@@ -106,6 +106,8 @@ public class BpmNotificationEngine implements IBpmNotificationService
     private IMailTemplateLoader templateProvider;
 
 	private NotificationHistory history = new NotificationHistory(1000);
+	
+	final I18NSource messageSource = I18NSourceFactory.createI18NSource(Locale.getDefault());
     
     public BpmNotificationEngine(ProcessToolRegistry registry)
     {
@@ -192,9 +194,9 @@ public class BpmNotificationEngine implements IBpmNotificationService
 	    			
 	    				notificationsToSendMap.remove(groupedNotif.getRecipient());
 	    				String body = groupedNotif.getBody();
-	    				groupedNotif.setSubject("Aperte Workflow - zbiorcze powiadomienie");
+	    				groupedNotif.setSubject(messageSource.getMessage("bpmnot.notify.subject.for.grouped.email"));
 		    			
-		    			body += "</br>-----------</br>" + notification.getSubject();
+		    			body += "</br></br>" + notification.getSubject();
 		    			groupedNotif.setBody(body);
 		    			
 		    			notificationsToSendMap.put(groupedNotif.getRecipient(), groupedNotif);
@@ -454,9 +456,7 @@ public class BpmNotificationEngine implements IBpmNotificationService
      * 
      */
     public void addNotificationToSend(ProcessedNotificationData processedNotificationData) throws Exception 
-    {
-    	final I18NSource messageSource = I18NSourceFactory.createI18NSource(Locale.getDefault());
-    	
+    {    	
         if (!processedNotificationData.hasSender()) 
         {
             UserData autoUser = getRegistry().getAutoUser();

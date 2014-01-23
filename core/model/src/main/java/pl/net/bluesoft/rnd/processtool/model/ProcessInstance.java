@@ -20,6 +20,13 @@ import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
 
 @Entity
 @Table(name="pt_process_instance")
+@org.hibernate.annotations.Table(
+        appliesTo="pt_process_instance",
+        indexes = {
+                @Index(name = "idx_pt_instance_pk",
+                        columnNames = {"id"}
+                )
+        })
 public class ProcessInstance extends AbstractPersistentEntity
 {
 	public static final String _EXTERNAL_KEY = "externalKey";
@@ -68,6 +75,7 @@ public class ProcessInstance extends AbstractPersistentEntity
     private String businessStatus;
 
 	private Date createDate;
+    @Index(name="idx_pt_process_creator")
 	private String creatorLogin;
 
 	@ManyToOne(fetch = FetchType.LAZY)

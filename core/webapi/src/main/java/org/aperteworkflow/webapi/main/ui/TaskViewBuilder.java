@@ -458,7 +458,7 @@ public class TaskViewBuilder
     {
         Collection<String> privileges = new ArrayList<String>();
 
-        if(!isUserAssignedToTask())
+        if(!isUserAssignedToTask() || isTaskFinished())
             return privileges;
 
         for(ProcessStateWidgetPermission permission: widget.getPermissions())

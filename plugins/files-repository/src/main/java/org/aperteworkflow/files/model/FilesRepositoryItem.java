@@ -1,5 +1,6 @@
 package org.aperteworkflow.files.model;
 
+import org.hibernate.annotations.Index;
 import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 
@@ -11,6 +12,13 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "pt_files_repository_item")
+@org.hibernate.annotations.Table(
+        appliesTo="pt_files_repository_item",
+        indexes = {
+                @Index(name = "idx_pt_repository_item_pk",
+                        columnNames = {"id"}
+                )
+        })
 public class FilesRepositoryItem extends PersistentEntity {
 
     public static final String COLUMN_PROCESS_INSTANCE_ID = "process_instance_id";
@@ -26,6 +34,7 @@ public class FilesRepositoryItem extends PersistentEntity {
     private ProcessInstance processInstance;
 
     @Column(name = COLUMN_NAME, nullable = false)
+    @Index(name="idx_pt_files_name")
     private String name;
 
     @Column(name = COLUMN_RELATIVE_PATH, nullable = false)
@@ -41,6 +50,7 @@ public class FilesRepositoryItem extends PersistentEntity {
     private Date createDate;
 
     @Column(name = COLUMN_CREATOR_LOGIN, nullable = false)
+    @Index(name="idx_pt_files_creator_login")
     private String creatorLogin;
 
     public String getName() {

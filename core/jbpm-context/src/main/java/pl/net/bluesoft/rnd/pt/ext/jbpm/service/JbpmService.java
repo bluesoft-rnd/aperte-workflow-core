@@ -230,9 +230,13 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
         return ksession;
     }
 
-    public void reloadSession() {
-        ksession = null;
-        getSession();
+    public void reloadSession()
+    {
+        synchronized(JbpmService.class) {
+            ksession = null;
+            getSession();
+        }
+
     }
 
     private org.jbpm.task.TaskService getSessionTaskService() {

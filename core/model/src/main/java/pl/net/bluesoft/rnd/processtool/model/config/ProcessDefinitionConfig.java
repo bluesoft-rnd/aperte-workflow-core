@@ -19,6 +19,13 @@ import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
 
 @Entity
 @Table(name="pt_process_definition_config")
+@org.hibernate.annotations.Table(
+        appliesTo="pt_process_definition_config",
+        indexes = {
+                @Index(name = "idx_pt_def_conf_pk",
+                        columnNames = {"id"}
+                )
+        })
 public class ProcessDefinitionConfig extends AbstractPersistentEntity {
 	private static final long serialVersionUID = 3568533142091163609L;
 

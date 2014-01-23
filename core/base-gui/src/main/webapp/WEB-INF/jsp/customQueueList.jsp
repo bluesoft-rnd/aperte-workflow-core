@@ -77,7 +77,7 @@
 	function generateButtons(task)
 	{
 		var linkBody = '';
-		if(task.queueName || !task.assignee)
+		if(task.queueName || (!task.assignee && task.userCanClaim))
 		{
 			linkBody += '<button id="link-'+task.queueName+'" class="btn btn-default btn-sm" type="button" data-toggle="tooltip" title="<spring:message code="activity.tasks.task.claim.details" />" onclick="claimTaskFromQueue(this, \''+task.queueName+'\','+task.processStateConfigurationId+','+task.taskId+'); "><spring:message code="activity.tasks.task.claim" /></a>';
 		}

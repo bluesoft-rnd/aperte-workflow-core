@@ -34,6 +34,7 @@ public class BpmTaskBean extends AbstractResultBean
 	private String queueName;
     private String step;
 	private String stepInfo;
+    private Boolean userCanClaim = false;
 
 	public static BpmTaskBean createFrom(BpmTask task, I18NSource messageSource)
 	{
@@ -198,4 +199,12 @@ public class BpmTaskBean extends AbstractResultBean
 	public void setStepInfo(String stepInfo) {
 		this.stepInfo = stepInfo;
 	}
+
+    public Boolean getUserCanClaim() {
+        return userCanClaim;
+    }
+
+    public void setUserCanClaim(Boolean userCanClaim) {
+        this.userCanClaim = userCanClaim;
+    }
 }

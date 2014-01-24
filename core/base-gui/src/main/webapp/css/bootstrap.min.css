@@ -2291,6 +2291,7 @@ textarea.input-lg {
 .btn:focus {
   color: #333333;
   text-decoration: none;
+    background: none;
 }
 
 .btn:active,
@@ -2326,12 +2327,14 @@ fieldset[disabled] .btn {
   color: #333333;
   background-color: #ebebeb;
   border-color: #adadad;
+  background: none;
 }
 
 .btn-default:active,
 .btn-default.active,
 .open .dropdown-toggle.btn-default {
   background-image: none;
+    background: none;
 }
 
 .btn-default.disabled,
@@ -2371,6 +2374,7 @@ fieldset[disabled] .btn-default.active {
 .open .dropdown-toggle.btn-primary {
   color: #ffffff;
   background-color: #3276b1;
+  background: none;
   border-color: #285e8e;
 }
 
@@ -2396,6 +2400,7 @@ fieldset[disabled] .btn-primary:active,
 .btn-primary[disabled].active,
 fieldset[disabled] .btn-primary.active {
   background-color: #428bca;
+    background: none;
   border-color: #357ebd;
 }
 

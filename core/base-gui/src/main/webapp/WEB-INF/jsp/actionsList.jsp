@@ -35,7 +35,7 @@
 				<ul id="alerts-list">
 					
 				</ul>
-				<button type="button" class="btn btn-warning" onClick="cancelShowWarnings()" data-dismiss="modal" style="margin: 20px;"><spring:message code="processes.alerts.modal.close" /></button>
+				<button type="button" class="btn btn-warning" data-dismiss="modal" style="margin: 20px;"><spring:message code="processes.alerts.modal.close" /></button>
 			</div>
 			
 
@@ -103,7 +103,7 @@
 			var errorMessages = this.validate();
 			if(!errorMessages)
 			{
-				console.log('Widget should return empty array in validation function! Widget: '+this.name);
+
 				
 			}
 			else
@@ -281,7 +281,6 @@
 			var errors = [];
 			$.each(data.errors, function() {
 				errors.push(this);
-				console.log( "error: "+this.message); 
 				addAlert(this.message);
 			});
 			

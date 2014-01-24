@@ -51,7 +51,6 @@
 		var isVis = $(iframe).is(":visible");
 		if(isVis == false)
 		{
-			console.log($(iframe).attr('id')+" mark unloaded!" ); 
 			$(iframe).attr('widgetLoaded', false);
 		
 		}
@@ -60,7 +59,6 @@
 			$(iframe).attr('widgetLoaded', true);
 		}			
 		vaadinWidgetsLoadedCount += 1;  
-		console.log( "vaadinWidgetsLoadedCount: "+vaadinWidgetsLoadedCount + ", vaadinWidgetsCount: "+vaadinWidgetsCount ); 
 		checkIfViewIsLoaded();
 	}
 	
@@ -79,7 +77,7 @@
 	  e.target // activated tab
 	  e.relatedTarget // previous tab
 
-	  if($.browser.mozilla)
+	  if($.browser)
 	  {
 		  $("[id^='iframe-vaadin-']").each(function( ) 
 		  {

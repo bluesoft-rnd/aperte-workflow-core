@@ -116,8 +116,6 @@
 		reloadQueuesLoopTimer.pause();
 		try
 		{
-
-			console.log( "reload quueues");
 			var queuesJson = $.getJSON('<portlet:resourceURL id="getUserQueues"/>', function(queues)
 			{ 
 				$('#queue-view-block').empty();
@@ -160,8 +158,6 @@
 
 							if(oldProcessCount != this.queueSize)
 							{
-								console.log( "queueViewManager.currentQueue: "+queueViewManager.currentQueue+" this.queueName: "+this.queueName);
-								console.log( "oldProcessCount: "+oldProcessCount+" this.queueSize: "+this.queueSize);
 								queueViewManager.reloadCurrentQueue();
 								oldProcessCount = this.queueSize;
 							}
@@ -181,7 +177,7 @@
 		}
 		catch(err)
 		{
-			console.log( "Reload queues error: "+err.message);
+
 		}
 		reloadQueuesLoopTimer.play(true);
 	}

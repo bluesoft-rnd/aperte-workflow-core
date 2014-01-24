@@ -22,6 +22,23 @@
 		</portlet-info>
 	</portlet>
 
+	<portlet>
+		<portlet-name>AperteWorkflow Synchronization Portlet</portlet-name>
+		<display-name>Aperte Workflow Structure Synchronization Portlet</display-name>
+        <portlet-class>org.springframework.web.portlet.DispatcherPortlet</portlet-class>
+		<init-param>
+		  <name>contextConfigLocation</name>
+		  <value>/WEB-INF/spring/aperte-struct-sync-portlet.xml</value>
+		</init-param>
+		<supports>
+			<mime-type>text/html</mime-type>
+		</supports>
+		<portlet-info>
+			<title>Aperte Workflow Structure Synchronization</title>
+			<short-title>Aperte StructSync</short-title>
+		</portlet-info>
+	</portlet>
+
     <portlet>
         <portlet-name>AperteWorkflow Demand Registry</portlet-name>
         <display-name>AperteWorkflow Demand Registry Portlet</display-name>

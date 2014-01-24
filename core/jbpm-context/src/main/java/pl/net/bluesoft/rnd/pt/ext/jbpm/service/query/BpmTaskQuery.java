@@ -396,7 +396,7 @@ public class BpmTaskQuery {
             case SORT_BY_STEP_INFO:
                 return "stepInfo_.message";
             case SORT_BY_PROCESS_BUSINESS_STATUS_ORDER:
-                return "process.status";
+                return "process.business_status";
             default:
                 throw new RuntimeException("Unhandled order by field " + sortField);
         }

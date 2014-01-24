@@ -431,7 +431,7 @@ public class BpmTaskQuery {
         for (Map.Entry<Long, String> entry : i18NKeys.entrySet()) {
             String localizedMessage = i18NSource.getMessage(entry.getValue());
 
-            if (localizedMessage.toLowerCase(locale).contains(searchExpressionLC)) {
+            if (localizedMessage != null && localizedMessage.toLowerCase(locale).contains(searchExpressionLC)) {
                 result.add(entry.getKey());
             }
         }

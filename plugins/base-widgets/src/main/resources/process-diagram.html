@@ -35,7 +35,7 @@
 							<defs>
 								<radialGradient id="bga${counter}" cx="10%" cy="10%" r="100%" fx="10%" fy="10%">
 									<stop offset="0%" stop-color="#ffffff" stop-opacity="1" />
-									<stop offset="100%%" stop-color="#${bgcolor}" stop-opacity="1" />
+									<stop offset="100%" stop-color="#${bgcolor}" stop-opacity="1" />
 								</radialGradient>
 							</defs>
 							<#-- rectangle -->
@@ -279,18 +279,18 @@
 	var resizeFactor = 0.7
 
 	// centering label under events (circles) 
-    eventLabels = document.getElementsByClassName('event_label');
+    eventLabels = $( ".event_label" );
     for (var i = 0; i < eventLabels.length; i++) {
         eventLabels[i].setAttribute("transform","translate(-"+eventLabels[i].getBoundingClientRect().width/2+",0)");
     }
 
     // centering and wrapping labels in tasks
-	taskLabels = document.getElementsByClassName('task_label');
-    foreingObjectLabels = document.getElementsByClassName('foreign_task_label');
+	taskLabels = $(".task_label");
+    foreingObjectLabels = $( ".foreign_task_label" );
 	for (var i = 0; i < taskLabels.length; i++) {
    		label = taskLabels[i];
-		if(label.parentNode.getElementsByClassName('task_rect').length > 0) {
-			var rect = label.parentNode.getElementsByClassName('task_rect')[0];
+		if($(label.parentNode).find('.task_rect').length > 0) {
+			var rect = $(label.parentNode).find( ".task_rect" )[0];
 		} else {
 			continue;
 		}

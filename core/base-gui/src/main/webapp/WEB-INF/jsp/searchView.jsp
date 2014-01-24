@@ -80,8 +80,11 @@
 							 { "sName":"assignee", "bSortable": true,"mData": "assignee" },
 							 { "sName":"creationDate", "bSortable": true,"mData": function(object){return $.format.date(object.creationDate, 'dd-MM-yyyy, HH:mm');}}
 						 ];
-
-		var requestUrl = '<spring:url value="/processes/searchTasks.json?sSearch="/>'+$('#search-expression-text').val();
+						 
+		var requestUrl = '<portlet:resourceURL id="searchTasks"/>';
+		requestUrl += "&<portlet:namespace/>sSearch=" + $('#search-expression-text').val();
+		requestUrl += "&<portlet:namespace/>processKey="+$('#search-process-type').val();
+		
 		createSearchDataTable('searchTable',requestUrl,columnDefs,[[ 0, "asc" ]]);
 	}
 	

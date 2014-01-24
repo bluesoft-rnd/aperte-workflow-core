@@ -469,7 +469,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 
         final String sortCol = request.getParameter("iSortCol_0");
         final String sortDir = request.getParameter("sSortDir_0");
-        final String searchString = request.getParameter("sSearch");
+        final String searchString = request.getParameter("_AperteWorkflowActivitiesPortlet_WAR_aperteworkflow_sSearch");
         final String searchProcessKey = request.getParameter("processKey");
         String displayStartString = request.getParameter("iDisplayStart");
         String displayLengthString = request.getParameter("iDisplayLength");

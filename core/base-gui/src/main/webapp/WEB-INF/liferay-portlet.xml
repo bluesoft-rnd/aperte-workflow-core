@@ -8,16 +8,26 @@
 		<remoteable>true</remoteable>
 		<ajaxable>true</ajaxable>
 		<private-session-attributes>false</private-session-attributes>
-		<header-portlet-css>/sa/css/aperte.css</header-portlet-css>
 		<header-portlet-javascript>/sa/js/jquery-1.10.2.min.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/bootstrap.min.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/json3.min.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/jquery.dataTables.min.js</header-portlet-javascript>
 		<header-portlet-css>/sa/js/jstree/themes/default/style.min.css</header-portlet-css>
 		<header-portlet-javascript>/sa/js/jstree/jstree.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/select2.min.js</header-portlet-javascript>
-        <header-portlet-javascript>/sa/js/jquery.json-2.4.min.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/jquery.json-2.4.min.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/bootstrap-datepicker.js</header-portlet-javascript>
-		<header-portlet-javascript>/sa/js/locales/bootstrap-datepicker.pl.js</header-portlet-javascript>		
+		<header-portlet-javascript>/sa/js/locales/bootstrap-datepicker.pl.js</header-portlet-javascript>
+        <header-portlet-css>/sa/css/bootstrap.min.css</header-portlet-css>
+        <header-portlet-css>/sa/css/bootstrap-theme.min.css</header-portlet-css>
+        <header-portlet-css>/sa/css/aperteworkflow.css</header-portlet-css>
+        <header-portlet-css>/sa/css/jquery-ui-1.10.4.custom.min.css</header-portlet-css>
+        <header-portlet-css>/sa/css/datepicker3.css</header-portlet-css>
+        <header-portlet-css>/sa/css/jquery.fileupload.css</header-portlet-css>
+        <header-portlet-css>/sa/css/select2.css</header-portlet-css>
+        <header-portlet-css>/sa/css/select2-bootstrap.css</header-portlet-css>
+        <header-portlet-css>/sa/css/liferay.css</header-portlet-css>
+        <header-portlet-javascript>/sa/js/respond.min.js</header-portlet-javascript>
 	</portlet>
 	<portlet id="aperte-structure-sync">
 		<!-- Note: Must not be the same as servlet name. -->
@@ -37,24 +47,34 @@
 		<header-portlet-javascript>/sa/js/bootstrap-datepicker.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/locales/bootstrap-datepicker.pl.js</header-portlet-javascript>		
 	</portlet>
-    <portlet id="aperte-demand-registry">
-        <!-- Note: Must not be the same as servlet name. -->
-        <portlet-name>AperteWorkflow Demand Registry</portlet-name>
-        <instanceable>false</instanceable>
-        <remoteable>true</remoteable>
-        <ajaxable>true</ajaxable>
-        <private-session-attributes>false</private-session-attributes>
-        <header-portlet-css>/sa/css/aperte.css</header-portlet-css>
-        <header-portlet-javascript>/sa/js/jquery-1.10.2.min.js</header-portlet-javascript>
-        <header-portlet-javascript>/sa/js/bootstrap.min.js</header-portlet-javascript>
-        <header-portlet-javascript>/sa/js/jquery.dataTables.min.js</header-portlet-javascript>
-        <header-portlet-css>/sa/js/jstree/themes/default/style.min.css</header-portlet-css>
-        <header-portlet-javascript>/sa/js/jstree/jstree.js</header-portlet-javascript>
-        <header-portlet-javascript>/sa/js/select2.min.js</header-portlet-javascript>
-        <header-portlet-javascript>/sa/js/jquery.json-2.4.min.js</header-portlet-javascript>
+	<portlet id="aperte-demand-registry">
+		<!-- Note: Must not be the same as servlet name. -->
+		<portlet-name>AperteWorkflow Demand Registry</portlet-name>
+		<instanceable>false</instanceable>
+		<remoteable>true</remoteable>
+		<ajaxable>true</ajaxable>
+		<private-session-attributes>false</private-session-attributes>
+		<header-portlet-javascript>/sa/js/jquery-1.10.2.min.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/bootstrap.min.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/json3.min.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/jquery.dataTables.min.js</header-portlet-javascript>
+		<header-portlet-css>/sa/js/jstree/themes/default/style.min.css</header-portlet-css>
+		<header-portlet-javascript>/sa/js/jstree/jstree.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/select2.min.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/jquery.json-2.4.min.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/bootstrap-datepicker.js</header-portlet-javascript>
-		<header-portlet-javascript>/sa/js/locales/bootstrap-datepicker.pl.js</header-portlet-javascript>		
-    </portlet>
+		<header-portlet-javascript>/sa/js/locales/bootstrap-datepicker.pl.js</header-portlet-javascript>
+        <header-portlet-css>/sa/css/bootstrap.min.css</header-portlet-css>
+        <header-portlet-css>/sa/css/bootstrap-theme.min.css</header-portlet-css>
+        <header-portlet-css>/sa/css/aperteworkflow.css</header-portlet-css>
+        <header-portlet-css>/sa/css/jquery-ui-1.10.4.custom.min.css</header-portlet-css>
+        <header-portlet-css>/sa/css/datepicker3.css</header-portlet-css>
+        <header-portlet-css>/sa/css/jquery.fileupload.css</header-portlet-css>
+        <header-portlet-css>/sa/css/select2.css</header-portlet-css>
+        <header-portlet-css>/sa/css/select2-bootstrap.css</header-portlet-css>
+        <header-portlet-css>/sa/css/liferay.css</header-portlet-css>
+        <header-portlet-javascript>/sa/js/respond.min.js</header-portlet-javascript>
+	</portlet>
 	<portlet>
 		<!-- Matches definition in portlet.xml. -->
 		<!-- Note: Must not be the same as servlet name. -->
@@ -63,26 +83,36 @@
 		<remoteable>true</remoteable>
 		<ajaxable>true</ajaxable>
 		<private-session-attributes>false</private-session-attributes>
-		<header-portlet-css>/sa/css/aperte.css</header-portlet-css>
 		<header-portlet-javascript>/sa/js/jquery-1.10.2.min.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/jqModal.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/json3.min.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/bootstrap.min.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/jquery.dataTables.min.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/jquery.timer.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/jquery.dataTables.bootstrap.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/jquery.dateFormat-1.0.js</header-portlet-javascript>
-		<header-portlet-javascript>/sa/js/select2.min.js</header-portlet-javascript>		
+		<header-portlet-javascript>/sa/js/select2.min.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/colReorder.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/jquery-plugins.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/jquery.json-2.4.min.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/bootstrap-datepicker.js</header-portlet-javascript>
-		<header-portlet-javascript>/sa/js/locales/bootstrap-datepicker.pl.js</header-portlet-javascript>		
+		<header-portlet-javascript>/sa/js/locales/bootstrap-datepicker.pl.js</header-portlet-javascript>
 		<!-- header-portlet-javascript>/sa/js/jquery.cookie.js</header-portlet-javascript -->
 		<header-portlet-javascript>/sa/js/jquery-ui-1.10.4.custom.min.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/jquery.fileupload.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/jquery.fileupload-process.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/jquery.fileupload-validate.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/jquery.iframe-transport.js</header-portlet-javascript>
+        <header-portlet-css>/sa/css/bootstrap.min.css</header-portlet-css>
+        <header-portlet-css>/sa/css/bootstrap-theme.min.css</header-portlet-css>
+        <header-portlet-css>/sa/css/aperteworkflow.css</header-portlet-css>
+        <header-portlet-css>/sa/css/jquery-ui-1.10.4.custom.min.css</header-portlet-css>
+        <header-portlet-css>/sa/css/datepicker3.css</header-portlet-css>
+        <header-portlet-css>/sa/css/jquery.fileupload.css</header-portlet-css>
+        <header-portlet-css>/sa/css/select2.css</header-portlet-css>
+        <header-portlet-css>/sa/css/select2-bootstrap.css</header-portlet-css>
+        <header-portlet-css>/sa/css/liferay.css</header-portlet-css>
+        <header-portlet-javascript>/sa/js/respond.min.js</header-portlet-javascript>
 	</portlet>
 	<portlet>
 		<!-- Matches definition in portlet.xml. -->

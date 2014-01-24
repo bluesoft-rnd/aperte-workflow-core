@@ -103,7 +103,7 @@
 		})
 		.fail(function(request, status, error) 
 		{	
-			console.log( "ojoj:  "+error); 
+
 		});
 	}
 //]]>

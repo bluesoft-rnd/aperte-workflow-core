@@ -158,7 +158,7 @@
 		
 		this.showView = function(windowView, addToHistory)
 		{
-			console.log("windowView: "+windowView); 
+
 			$(document.getElementById(this.currentView)).stop(true, true);
 			
 			if(this.tabletMode == true && $("#mobile-collapse").hasClass('in') == true)

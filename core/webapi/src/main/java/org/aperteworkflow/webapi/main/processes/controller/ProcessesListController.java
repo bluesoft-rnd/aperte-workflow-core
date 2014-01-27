@@ -688,7 +688,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
             return QueueOrderCondition.SORT_BY_ASSIGNEE_ORDER;
 
         else if(CREATED_DATE_COLUMN.equals(columnName))
-            return QueueOrderCondition.SORT_BY_CREATE_DATE_ORDER;
+            return QueueOrderCondition.SORT_BY_DATE_ORDER;
 
         else
             return null;

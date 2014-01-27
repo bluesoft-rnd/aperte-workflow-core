@@ -384,7 +384,7 @@ public class BpmTaskQuery {
             case SORT_BY_CREATE_DATE_ORDER:
                 return "process.createdate";
             case SORT_BY_PROCESS_CODE_ORDER:
-                return "process.internalid";
+                return "CASE WHEN process.externalKey is not null THEN process.externalKey ELSE process.internalid END";
             case SORT_BY_PROCESS_STEP_ORDER:
                 return "i18ntext_.shortText";
             case SORT_BY_PROCESS_NAME_ORDER:

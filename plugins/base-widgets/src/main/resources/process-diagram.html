@@ -175,7 +175,8 @@
 					    </g>
 
 					<#elseif type == "SubprocessNode">
-						<g transform="translate(%.2f,%.2f)">", x, y))
+						<#assign resizeFactor = w / 30.0>
+						<g transform="translate(${x},${y})">
 							<#-- rectangle gradient -->
 							<defs>
 								<radialGradient id="bgs${counter}" cx="10%" cy="10%" r="100%" fx="10%" fy="10%">
@@ -276,7 +277,7 @@
 
 <script type="text/javascript">
 	var process_diagram_widget = document.getElementById("process_diagram_widget");
-	var resizeFactor = 0.7
+	var resizeFactor = 0.55;
 
 	// centering label under events (circles) 
     eventLabels = $( ".event_label" );
@@ -309,7 +310,6 @@
 
     // showing full diagram in separate window
 	function showCompleteDiagram() {
-
 		var dWidth = ${diagram.getWidth()};
 		var dHeight = ${diagram.getHeight()};
 		var w = window.open('about:blank', 'Process Diagram', "height="+dHeight+"px,width="+dWidth+"px,scrollbars=yes");
@@ -326,16 +326,20 @@
 
 	// showing fragment of diagram 
 	function showDiagramFragment(width, height) {
-		var process_diagram_widget = document.getElementById("process_diagram_widget");
+		var dWidth = ${diagram.getWidth()};
+		var dHeight = ${diagram.getHeight()};
+		process_diagram_widget.style.width=width;
+		//process_diagram_widget.style.height=height; not working, using jQuery instead
+		$(process_diagram_widget).height(height);
+		process_diagram_widget.style.overflow='scroll';
+
 		var svg = document.getElementById("pdw_svg");
 		var border = document.getElementById("pdw_border");
 		var diagram = document.getElementById("pdw_diagram");
-		process_diagram_widget.style.width=width;
-		process_diagram_widget.style.height=height;
-		svg.setAttribute('width', '100%');
-		svg.setAttribute('height', '100%');
-		border.setAttribute('width', '100%');
-		border.setAttribute('height', '100%');
+		svg.setAttribute('width', dWidth*resizeFactor);
+		svg.setAttribute('height', dHeight*resizeFactor);
+		border.setAttribute('width', dWidth*resizeFactor);
+		border.setAttribute('height', dHeight*resizeFactor);
 		// fixLabels(document);
 		diagram.setAttribute("transform","scale("+resizeFactor+","+resizeFactor+")");
 
@@ -358,7 +362,6 @@
 
 	}
 
-	showDiagramFragment("${diagramWidth}","${diagramHeight}");
-	
-</script>
+	showDiagramFragment( ${diagramWidth},  ${diagramHeight});
 
+</script>

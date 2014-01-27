@@ -104,7 +104,7 @@
 	{
 		var showOnClickCode = 'onclick="loadProcessView('+task.taskId+')"';
 		
-	    var linkBody = '<a class="process-view-link" data-toggle="tooltip" title="'+task.tooltip+'" '+showOnClickCode+' >' + task.processName + '</a>';
+	    var linkBody = '<a class="process-view-link"  '+showOnClickCode+' >' + task.processName + '</a>';
 
         return linkBody;
     }

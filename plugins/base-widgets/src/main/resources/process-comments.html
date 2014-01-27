@@ -1,5 +1,21 @@
 <#assign processComments = process.getCommentsOrderedByDate(true)/>
 
+
+<style type="text/css" media="all">
+    .add-new-comment-input
+    {
+        margin-top: 10px;
+        margin-bottom: 10px;
+        width: 100%;
+        min-height: 100px;
+    }
+
+    .add-comment-button
+    {
+        margin-top: 10px;
+    }
+</style>
+
 <div>
     <div class="panel panel-default">
         <div class="panel-heading">${messageSource.getMessage("widget.process_comments.caption")}</div>
@@ -22,10 +38,9 @@
                 </#list>
             </ul>
             <#if privileges?seq_contains("EDIT")>
-                <button class="btn btn-info" id="process_comments_button_new" onclick="process_comments_button_new_click()">${messageSource.getMessage("widget.process_comments.new")}</button>
+                <button class="btn btn-info add-comment-button" id="process_comments_button_new" onclick="process_comments_button_new_click()">${messageSource.getMessage("widget.process_comments.new")}</button>
                 <div id="process_comments_add_form" style="display:none;">
-                    <textarea id="process_comments_body" style="width:50%;"></textarea>
-                    <br/>
+                    <textarea id="process_comments_body" class="add-new-comment-input" ></textarea>
                     <button class="btn btn-info" id="process_comments_button_add" onclick="process_comments_button_add_click()">${messageSource.getMessage("widget.process_comments.add")}</button>
                     <button class="btn btn-warning" id="process_comments_button_cancel" onclick="process_comments_button_cancel_click()">${messageSource.getMessage("widget.process_comments.cancel")}</button>
                 </div>

@@ -9,10 +9,7 @@ import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import java.io.InputStream;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * The process tool interface, providing basic operations.
@@ -72,6 +69,8 @@ public interface ProcessToolBpmSession {
 	List<BpmTask> findFilteredTasks(ProcessInstanceFilter filter, int resultOffset, int maxResults);
 
 	List<BpmTask> findRecentTasks(Date minDate, Integer offset, Integer limit);
+
+	List<BpmTaskNotification> getNotifications(Date date, Locale locale);
 
 	int getRecentTasksCount(Date minDate);
 

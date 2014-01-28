@@ -13,10 +13,7 @@ import org.jbpm.workflow.instance.node.ActionNodeInstance;
 import org.jbpm.workflow.instance.node.StartNodeInstance;
 import org.jbpm.workflow.instance.node.SubProcessNodeInstance;
 import org.jbpm.workflow.instance.node.WorkItemNodeInstance;
-import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent;
-import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
-import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
-import pl.net.bluesoft.rnd.processtool.bpm.StartProcessResult;
+import pl.net.bluesoft.rnd.processtool.bpm.*;
 import pl.net.bluesoft.rnd.processtool.bpm.diagram.Node;
 import pl.net.bluesoft.rnd.processtool.bpm.diagram.ProcessDiagram;
 import pl.net.bluesoft.rnd.processtool.bpm.diagram.Transition;
@@ -37,6 +34,7 @@ import pl.net.bluesoft.rnd.processtool.model.token.AccessToken;
 import pl.net.bluesoft.rnd.processtool.token.IAccessTokenFactory;
 import pl.net.bluesoft.rnd.processtool.token.ITokenService;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.service.JbpmService;
+import pl.net.bluesoft.rnd.pt.ext.jbpm.service.query.BpmTaskNotificationQuery;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.service.query.BpmTaskQuery;
 import pl.net.bluesoft.rnd.util.PlaceholderUtil;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
@@ -522,6 +520,13 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 			}
 		}
 		return recentTasks;
+	}
+
+	@Override
+	public List<BpmTaskNotification> getNotifications(Date date, Locale locale) {
+		BpmTaskNotificationQuery query = new BpmTaskNotificationQuery();
+
+		return query.user(userLogin).date(date).page(0, 10000).list(locale);
 	}
 
 	private BpmTask getMostRecentProcessHistoryTask(ProcessInstance pi, String userLogin, Date minDate) {

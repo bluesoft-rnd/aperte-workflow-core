@@ -277,8 +277,8 @@
 
 <script type="text/javascript">
 	var process_diagram_widget = document.getElementById("process_diagram_widget");
-	var resizeFactor = 0.55;
-
+	var resizeFactor = 0.7
+	var margin = 330;
 	// centering label under events (circles) 
     eventLabels = $( ".event_label" );
     for (var i = 0; i < eventLabels.length; i++) {
@@ -317,10 +317,10 @@
 		var svg = w.document.getElementById("pdw_svg");
 		var border = w.document.getElementById("pdw_border");
 		var diagram = w.document.getElementById("pdw_diagram");
-		svg.setAttribute('width', dWidth*resizeFactor);
-		svg.setAttribute('height', dHeight*resizeFactor);
-		border.setAttribute('width', dWidth*resizeFactor);
-		border.setAttribute('height', dHeight*resizeFactor);
+		svg.setAttribute('width', dWidth*resizeFactor+margin*resizeFactor);
+		svg.setAttribute('height', dHeight*resizeFactor+margin*resizeFactor);
+		border.setAttribute('width', dWidth*resizeFactor+margin*resizeFactor);
+		border.setAttribute('height', dHeight*resizeFactor+margin*resizeFactor);
 		diagram.setAttribute("transform","scale("+resizeFactor+","+resizeFactor+")");
 	}
 
@@ -336,10 +336,10 @@
 		var svg = document.getElementById("pdw_svg");
 		var border = document.getElementById("pdw_border");
 		var diagram = document.getElementById("pdw_diagram");
-		svg.setAttribute('width', dWidth*resizeFactor);
-		svg.setAttribute('height', dHeight*resizeFactor);
-		border.setAttribute('width', dWidth*resizeFactor);
-		border.setAttribute('height', dHeight*resizeFactor);
+		svg.setAttribute('width', dWidth*resizeFactor+margin*resizeFactor);
+		svg.setAttribute('height', dHeight*resizeFactor+margin*resizeFactor);
+		border.setAttribute('width', dWidth*resizeFactor+margin*resizeFactor);
+		border.setAttribute('height', dHeight*resizeFactor+margin*resizeFactor);
 		// fixLabels(document);
 		diagram.setAttribute("transform","scale("+resizeFactor+","+resizeFactor+")");
 

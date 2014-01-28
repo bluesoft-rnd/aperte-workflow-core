@@ -95,6 +95,7 @@
                     date.getMinutes();
         var dateFull = dateStr + ":" + date.getSeconds();
         var body = $('#process_comments_body').val();
+        body = $("<div/>").text(body).html();
         var author = '${user.login}';
         var authorFullName = '${user.realName}';
 

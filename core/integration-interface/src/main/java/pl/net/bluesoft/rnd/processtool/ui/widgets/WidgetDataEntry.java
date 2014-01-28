@@ -21,7 +21,8 @@ public class WidgetDataEntry
         return value;
     }
 
-    public void setValue(String value) {
+    public void setValue(String value)
+    {
         this.value = value;
     }
 

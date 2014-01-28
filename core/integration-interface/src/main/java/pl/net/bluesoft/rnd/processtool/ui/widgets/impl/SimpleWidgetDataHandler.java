@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.Map;
 
+import org.springframework.web.util.HtmlUtils;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.*;
@@ -60,10 +61,12 @@ public class SimpleWidgetDataHandler implements IWidgetDataHandler
 
     private void setNewValue(ProcessInstance process, WidgetDataEntry data)
     {
+        String escapedData = HtmlUtils.htmlEscape(data.getValue());
+
         if(TYPE_SIMPLE.equals(data.getType()))
-            process.setSimpleAttribute(data.getKey(), data.getValue());
+            process.setSimpleAttribute(data.getKey(), escapedData);
         else if(TYPE_SIMPLE_LARGE.equals(data.getType()))
-            process.setSimpleLargeAttribute(data.getKey(), data.getValue());
+            process.setSimpleLargeAttribute(data.getKey(), escapedData);
     }
 
 

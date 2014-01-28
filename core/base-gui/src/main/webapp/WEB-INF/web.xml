@@ -260,6 +260,10 @@
 		<filter-name>Header Filter - JSP</filter-name>
 		<url-pattern>*.jsp</url-pattern>
 	</filter-mapping>
+    <filter-mapping>
+        <filter-name>Header Filter - JSP</filter-name>
+        <url-pattern>*.htc</url-pattern>
+    </filter-mapping>
 	<filter-mapping>
 		<filter-name>ETag Filter</filter-name>
 		<url-pattern>*.css</url-pattern>
@@ -276,6 +280,10 @@
 		<filter-name>ETag Filter</filter-name>
 		<url-pattern>*.ico</url-pattern>
 	</filter-mapping>
+    <filter-mapping>
+        <filter-name>ETag Filter</filter-name>
+        <url-pattern>*.htc</url-pattern>
+    </filter-mapping>
 	<filter-mapping>
 		<filter-name>ETag Filter</filter-name>
 		<url-pattern>*.jpg</url-pattern>
@@ -324,6 +332,10 @@
 		<filter-name>GZip Filter</filter-name>
 		<url-pattern>*.jsp</url-pattern>
 	</filter-mapping>
+    <filter-mapping>
+        <filter-name>GZip Filter</filter-name>
+        <url-pattern>*.htc</url-pattern>
+    </filter-mapping>
 	<filter-mapping>
 		<filter-name>Language Filter</filter-name>
 		<url-pattern>*.js</url-pattern>

@@ -187,8 +187,18 @@
 		var layoutId = 'queue-view-' + processRow.queueId+'-'+userLogin;
 		var innerDivId = processRow.queueId+'-'+userLogin;
 
-		$( "<div>", { id : layoutId, "class": "queue-list-row-process", "onclick":"showQueue('"+processRow.queueName+"', 'process', '"+userLogin+"', '"+processRow.queueDesc+"') "} )
+		$( "<div>", { id : layoutId, "class": "queue-list-row-process", "data-queue-name": processRow.queueName, "data-user-login" : userLogin, "data-queue-type" : "process", "data-queue-desc" : processRow.queueDesc } )
 		.appendTo( '#'+accordionID );
+		
+		$(document).ready(function () {
+			$("#"+layoutId).on("click", function () {
+				showQueue( 
+						$(this).attr('data-queue-name'),
+						$(this).attr('data-queue-type'),
+						$(this).attr('data-user-login'),
+						$(this).attr('data-queue-desc'));
+			});
+		});
 		
 		$( "<div>", { id : innerDivId, "class": "queue-list-name"} )
 		.appendTo( '#'+layoutId );
@@ -208,8 +218,18 @@
 		var layoutId = 'queue-view-' + queueRow.queueId+'-'+userLogin;
 		var innerDivId = queueRow.queueId+'-'+userLogin;
 
-		$( "<div>", { id : layoutId, "class": "queue-list-row-queue", "onclick":"showQueue('"+queueRow.queueName+"', 'queue', '"+userLogin+"', '"+queueRow.queueDesc+"') "} )
+		$( "<div>", { id : layoutId, "class": "queue-list-row-queue", "data-queue-name": queueRow.queueName, "data-user-login" : userLogin, "data-queue-type" : "queue", "data-queue-desc" : queueRow.queueDesc} )
 		.appendTo( '#'+accordionID );
+		
+		$(document).ready(function () {
+			$("#"+layoutId).on("click", function () {
+				showQueue( 
+						$(this).attr('data-queue-name'),
+						$(this).attr('data-queue-type'),
+						$(this).attr('data-user-login'),
+						$(this).attr('data-queue-desc'));
+			});
+		});
 		
 		$( "<div>", { id : innerDivId, "class": "queue-list-name"} )
 		.appendTo( '#'+layoutId );

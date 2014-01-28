@@ -17,7 +17,7 @@ public class ProcessDictionaries {
     protected List<Dictionary> dictionaries;
 
     public boolean isOverwrite() {
-        return overwrite;
+            return overwrite;
     }
 
     public void setOverwrite(boolean overwrite) {

@@ -68,7 +68,10 @@
 
     function getProcessCommentsData() {
         var commentText = $('#process_comments_added_comments').val();
-        var data = { "processCommentsAddedComments" : JSON.stringify(processCommentsAddedComments) };
+        var data =
+        [
+           {"key" : "processCommentsAddedComments", "value": JSON.stringify(processCommentsAddedComments), "type" : "comment" }
+        ];
         return data;
     }
 

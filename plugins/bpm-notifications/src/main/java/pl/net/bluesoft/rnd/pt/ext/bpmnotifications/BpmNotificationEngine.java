@@ -479,10 +479,14 @@ public class BpmNotificationEngine implements IBpmNotificationService
         notification.setProfileName(processedNotificationData.getProfileName());
         String isGroup = null;
         
-        try{
+        try
+        {
+
         	isGroup = processedNotificationData.getRecipient().getAttribute(messageSource.getMessage("bpmnot.notify.liferay.groupingCheckbox")).toString();
         
-        }catch(Exception e){
+        }
+        catch(Exception e)
+        {
         	logger.log(Level.SEVERE, "Add custom field true/false for grouping notifications. Property: bpmnot.notify.liferay.groupingCheckbox=key", e);
         }
         

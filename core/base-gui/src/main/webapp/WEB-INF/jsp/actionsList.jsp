@@ -132,7 +132,7 @@
 		var JsonWidgetData = JSON.stringify(widgetData, null, 2);
 		
 		var state = 'OK';
-		var newBpmTask = $.getJSON('<portlet:resourceURL id="saveAction"/>',
+		var newBpmTask = $.post('<portlet:resourceURL id="saveAction"/>',
 		{
 			"taskId": taskId,
 			"widgetData": JsonWidgetData

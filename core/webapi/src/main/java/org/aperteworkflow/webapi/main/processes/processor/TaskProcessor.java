@@ -11,15 +11,10 @@ import pl.net.bluesoft.rnd.processtool.event.beans.ErrorBean;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.HandlingResult;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.IWidgetDataHandler;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.IWidgetValidator;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.*;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -80,8 +75,11 @@ public class TaskProcessor
 				throw new RuntimeException(messageSource.getMessage("process.widget.name.unknown", widgetToValidate.getWidgetName()));
 			
 			IWidgetValidator widgetValidator = processWidget.getValidator();
+
+            WidgetData widgetData = new WidgetData();
+            widgetData.addWidgetData(widgetToValidate.getData());
 			
-			Collection<String> errors = widgetValidator.validate(task, widgetToValidate.getData());
+			Collection<String> errors = widgetValidator.validate(task, widgetData);
 			for(String error: errors)
 				validateResult.addError(widgetToValidate.getWidgetId().toString(), error);
 		}
@@ -98,7 +96,12 @@ public class TaskProcessor
 				throw new RuntimeException(messageSource.getMessage("process.widget.name.unknown", widgetToSave.getWidgetName()));
 			
 			IWidgetDataHandler widgetDataHandler = processWidget.getDataHandler();
-            results.addAll(widgetDataHandler.handleWidgetData(task, widgetToSave.getData()));
+
+            WidgetData widgetData = new WidgetData();
+            widgetData.addWidgetData(widgetToSave.getData());
+
+
+            results.addAll(widgetDataHandler.handleWidgetData(task, widgetData));
 		}
         ProcessInstance process = task.getProcessInstance();
 
@@ -123,8 +126,7 @@ public class TaskProcessor
 	
 	/** Send event to all vaadin widgets to perform validation task. Widgets are 
 	 * registered for this event and filtration is done by taskId
-	 * 
-	 * @param taskId of task to being saved
+	 *
 	 * @return
 	 */
 	private void validateVaadinWidgets(ValidateResultBean validateResult)
@@ -140,8 +142,7 @@ public class TaskProcessor
 	
 	/** Send event to all vaadin widgets to perform save task. Widgets are 
 	 * registered for this event and filtration is done by taskId
-	 * 
-	 * @param taskId of task to being saved
+	 *
 	 * @return
 	 */
 	private void saveVaadinWidgets(SaveResultBean saveResult)

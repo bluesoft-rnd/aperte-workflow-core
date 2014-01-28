@@ -201,6 +201,7 @@ public class TaskViewController extends AbstractProcessToolServletController
                         .setI18Source(messageSource)
                         .setUser(context.getUser())
                         .setCtx(ctx)
+                        .setUserQueues(context.getUserQueues())
                         .setTask(task)
                         .setBpmSession(context.getBpmSession());
 

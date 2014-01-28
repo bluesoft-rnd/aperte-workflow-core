@@ -14,6 +14,6 @@ import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 public interface IWidgetDataHandler
 {
     /** Handle widget data change */
-    Collection<HandlingResult> handleWidgetData(BpmTask task, Map<String, String> data);
+    Collection<HandlingResult> handleWidgetData(BpmTask task, WidgetData data);
 
 }

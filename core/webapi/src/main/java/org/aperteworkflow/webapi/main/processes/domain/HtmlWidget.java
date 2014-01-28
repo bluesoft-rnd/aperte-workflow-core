@@ -1,12 +1,14 @@
 package org.aperteworkflow.webapi.main.processes.domain;
 
-import java.util.Map;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.WidgetDataEntry;
+
+import java.util.Collection;
 
 public class HtmlWidget 
 {
 	private Long widgetId;
 	private String widgetName;
-	private Map<String, String> data;
+	private Collection<WidgetDataEntry> data;
 	
 
 
@@ -18,15 +20,15 @@ public class HtmlWidget
 		this.widgetId = widgetId;
 	}
 
-	public Map<String, String> getData() {
-		return data;
-	}
+    public Collection<WidgetDataEntry> getData() {
+        return data;
+    }
 
-	public void setData(Map<String, String> data) {
-		this.data = data;
-	}
+    public void setData(Collection<WidgetDataEntry> data) {
+        this.data = data;
+    }
 
-	public String getWidgetName() {
+    public String getWidgetName() {
 		return widgetName;
 	}
 

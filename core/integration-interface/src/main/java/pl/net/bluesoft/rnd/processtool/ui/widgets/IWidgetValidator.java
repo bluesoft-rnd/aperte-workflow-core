@@ -14,6 +14,6 @@ import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 public interface IWidgetValidator 
 {
 	/** Validate widget */
-	Collection<String> validate(BpmTask task, Map<String, String> data);
+	Collection<String> validate(BpmTask task, WidgetData widgetData);
 
 }

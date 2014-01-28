@@ -2,26 +2,25 @@ package pl.net.bluesoft.rnd.processtool.model.processdata;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Index;
+import org.hibernate.annotations.Type;
 import pl.net.bluesoft.rnd.processtool.model.BpmVariable;
 
 import javax.persistence.*;
 
 /**
- * Simple attribute with String value.
- * 
- * @author tlipski@bluesoft.net.pl
+ * Large attribute with clob as value
  */
 
 @Entity
-@Table(name="pt_process_instance_s_attr")
+@Table(name="pt_process_instance_s_l_attr")
 @org.hibernate.annotations.Table(
-        appliesTo="pt_process_instance_s_attr",
+        appliesTo="pt_process_instance_s_l_attr",
         indexes = {
-                @Index(name = "idx_p_s_attribute_process_id_key",
+                @Index(name = "idx_p_s_l_attribute_process_id_key",
                         columnNames = {"process_instance_id", "value_"}
                 )
         })
-public class ProcessInstanceSimpleAttribute extends AbstractProcessInstanceAttribute implements BpmVariable {
+public class ProcessInstanceSimpleLargeAttribute extends AbstractProcessInstanceAttribute implements BpmVariable {
 	public static final String _VALUE = "value";
 
 	@Id
@@ -32,20 +31,22 @@ public class ProcessInstanceSimpleAttribute extends AbstractProcessInstanceAttri
 			parameters = {
 					@org.hibernate.annotations.Parameter(name = "initial_value", value = "" + 1),
 					@org.hibernate.annotations.Parameter(name = "value_column", value = "_DB_ID"),
-					@org.hibernate.annotations.Parameter(name = "sequence_name", value = "DB_SEQ_PROC_INST_S_ATTR")
+					@org.hibernate.annotations.Parameter(name = "sequence_name", value = "DB_SEQ_PROC_INST_s_l_ATTR")
 			}
 	)
-    @Index(name="idx_p_s_attribute_id")
+    @Index(name="idx_p_s_l_attribute_id")
 	@Column(name = "id")
 	protected Long id;
 
-    @Column(name="value_", length = 255)
+    @Column(name="value_")
+    @Lob
+    @Type(type = "org.hibernate.type.StringClobType")
 	private String value;
 
-    public ProcessInstanceSimpleAttribute() {
+    public ProcessInstanceSimpleLargeAttribute() {
     }
 
-    public ProcessInstanceSimpleAttribute(String key, String value) {
+    public ProcessInstanceSimpleLargeAttribute(String key, String value) {
         setKey(key);
 		this.value = value;
     }

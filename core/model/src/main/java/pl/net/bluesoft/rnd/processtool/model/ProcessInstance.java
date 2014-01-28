@@ -84,7 +84,11 @@ public class ProcessInstance extends AbstractPersistentEntity
 
 	@OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
 	@JoinColumn(name="process_instance_id")
-	private Set<ProcessInstanceSimpleAttribute> processSimpleAttributes = new HashSet<ProcessInstanceSimpleAttribute>();
+	private Set<ProcessInstanceSimpleLargeAttribute> processSimpleLargeAttributes = new HashSet<ProcessInstanceSimpleLargeAttribute>();
+
+    @OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
+    @JoinColumn(name="process_instance_id")
+    private Set<ProcessInstanceSimpleAttribute> processSimpleAttributes = new HashSet<ProcessInstanceSimpleAttribute>();
 
 	@OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
 	@JoinColumn(name="process_instance_id")
@@ -129,7 +133,9 @@ public class ProcessInstance extends AbstractPersistentEntity
 		this.id = id;
 	}
 
-	public ProcessInstance getRootProcessInstance() {
+
+
+    public ProcessInstance getRootProcessInstance() {
     	ProcessInstance parentProcess = this;
     	while (parentProcess.parent != null){
     		parentProcess = parentProcess.parent;
@@ -222,7 +228,18 @@ public class ProcessInstance extends AbstractPersistentEntity
 		this.owners.remove(ownerLogin);
 	}
 
-	public Set<ProcessInstanceSimpleAttribute> getProcessSimpleAttributes() {
+    public Set<ProcessInstanceSimpleLargeAttribute> getProcessSimpleLargeAttributes() {
+        if (processSimpleLargeAttributes == null) {
+            processSimpleLargeAttributes = new HashSet<ProcessInstanceSimpleLargeAttribute>();
+        }
+        return processSimpleLargeAttributes;
+    }
+
+    public void setProcessSimpleLargeAttributes(Set<ProcessInstanceSimpleLargeAttribute> processSimpleLargeAttributes) {
+        this.processSimpleLargeAttributes = processSimpleLargeAttributes;
+    }
+
+    public Set<ProcessInstanceSimpleAttribute> getProcessSimpleAttributes() {
 		if (processSimpleAttributes == null) {
 			processSimpleAttributes = new HashSet<ProcessInstanceSimpleAttribute>();
 		}
@@ -419,6 +436,25 @@ public class ProcessInstance extends AbstractPersistentEntity
 		return null;
 	}
 
+    private ProcessInstanceSimpleLargeAttribute findSimpleLargeAttributeByKey(String key) {
+        Set<ProcessInstanceSimpleLargeAttribute> attrs = getProcessSimpleLargeAttributes();
+        for (ProcessInstanceSimpleLargeAttribute pia : attrs) {
+            if (pia.getKey() != null && pia.getKey().equals(key)) {
+                return pia;
+            }
+        }
+        return null;
+    }
+
+    public String getSimpleLargeAttributeValue(String key) {
+        return getSimpleLargeAttributeValue(key, null);
+    }
+
+    public String getSimpleLargeAttributeValue(String key, String default_) {
+        ProcessInstanceSimpleLargeAttribute attr = findSimpleLargeAttributeByKey(key);
+        return attr != null ? attr.getValue() : default_;
+    }
+
     public String getSimpleAttributeValue(String key) {
         return getSimpleAttributeValue(key, null);
     }
@@ -471,6 +507,23 @@ public class ProcessInstance extends AbstractPersistentEntity
 			attr = new ProcessInstanceSimpleAttribute(key, value);
 			attr.setProcessInstance(this);
 			getProcessSimpleAttributes().add(attr);
+        }
+    }
+
+    public void setSimpleLargeAttribute(IAttributeName key, String value) {
+        setSimpleLargeAttribute(key.value(), value);
+    }
+
+    public void setSimpleLargeAttribute(String key, String value) {
+        ProcessInstanceSimpleLargeAttribute attr = findSimpleLargeAttributeByKey(key);
+
+        if (attr != null) {
+            attr.setValue(value);
+        }
+        else {
+            attr = new ProcessInstanceSimpleLargeAttribute(key, value);
+            attr.setProcessInstance(this);
+            getProcessSimpleLargeAttributes().add(attr);
         }
     }
 

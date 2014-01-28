@@ -234,7 +234,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 	 * @param request
 	 * @return
 	 */
-	@RequestMapping(method = RequestMethod.GET, value = "/processes/saveAction.json")
+	@RequestMapping(method = RequestMethod.POST, value = "/processes/saveAction.json")
 	@ResponseBody
 	public SaveResultBean saveAction(final HttpServletRequest request)
 	{

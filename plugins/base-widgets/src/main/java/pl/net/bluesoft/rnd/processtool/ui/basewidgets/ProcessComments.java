@@ -5,16 +5,17 @@ import org.codehaus.jackson.type.JavaType;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComment;
 import pl.net.bluesoft.rnd.processtool.plugins.IBundleResourceProvider;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.HandlingResult;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.IWidgetDataHandler;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.*;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.processtool.web.widgets.impl.FileWidgetContentProvider;
 
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * User: POlszewski
@@ -22,7 +23,10 @@ import java.util.*;
  * Time: 14:20
  */
 @AliasName(name = "ProcessComments")
-public class ProcessComments extends ProcessHtmlWidget {
+public class ProcessComments extends ProcessHtmlWidget
+{
+    private static final String TYPE_COMMENT = "comment";
+
 	public ProcessComments(IBundleResourceProvider bundleResourceProvider) {
 		setContentProvider(new FileWidgetContentProvider("process-comments.html", bundleResourceProvider));
 		setDataHandler(new DataHandler());
@@ -30,11 +34,12 @@ public class ProcessComments extends ProcessHtmlWidget {
 
 	private static class DataHandler implements IWidgetDataHandler {
 		@Override
-		public Collection<HandlingResult> handleWidgetData(BpmTask task, Map<String, String> data) {
+		public Collection<HandlingResult> handleWidgetData(BpmTask task,  WidgetData data) {
 			ObjectMapper mapper = new ObjectMapper();
 			JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, ProcessCommentBean.class);
 
-			String commentsJSON = data.get("processCommentsAddedComments");
+            WidgetDataEntry commentData =  data.getEntryByKey("processCommentsAddedComments");
+			String commentsJSON = commentData.getValue();
 			try {
 				List<ProcessCommentBean> list = mapper.readValue(commentsJSON, type);
 				List<ProcessComment> comments = convert(list, task);

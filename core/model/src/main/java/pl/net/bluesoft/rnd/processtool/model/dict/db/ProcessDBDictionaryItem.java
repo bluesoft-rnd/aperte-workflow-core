@@ -152,6 +152,10 @@ public class ProcessDBDictionaryItem extends AbstractPersistentEntity implements
         this.localizedDescriptions = localizedDescriptions;
     }
 
+    public String getDescription() {
+        return getDescription((String)null);
+    }
+
     @Override
     public String getDescription(String languageCode) {
         return ProcessDBDictionaryI18N.getLocalizedText(localizedDescriptions, languageCode, defaultDescription);

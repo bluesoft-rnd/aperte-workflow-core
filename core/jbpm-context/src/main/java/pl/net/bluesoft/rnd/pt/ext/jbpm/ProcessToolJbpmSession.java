@@ -1222,7 +1222,11 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 			log.setState(null);
 			log.setEntryDate(new Date());
-			log.setEventI18NKey("process.log.process-started");
+			if (parentProcessInstance != null) {
+			    log.setEventI18NKey("process.log.subprocess-started");
+			} else {
+				log.setEventI18NKey("process.log.process-started");
+			}
 			log.setUserLogin(creator);
 			log.setLogType(ProcessInstanceLog.LOG_TYPE_START_PROCESS);
 			log.setOwnProcessInstance(newProcessInstance);

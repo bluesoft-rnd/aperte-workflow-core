@@ -328,40 +328,61 @@
 	function showDiagramFragment(width, height) {
 		var dWidth = ${diagram.getWidth()};
 		var dHeight = ${diagram.getHeight()};
-		process_diagram_widget.style.width=width;
-		//process_diagram_widget.style.height=height; not working, using jQuery instead
-		$(process_diagram_widget).height(height);
-		process_diagram_widget.style.overflow='scroll';
 
+
+
+		var process_diagram_widget = document.getElementById("process_diagram_widget");
 		var svg = document.getElementById("pdw_svg");
 		var border = document.getElementById("pdw_border");
 		var diagram = document.getElementById("pdw_diagram");
+
+		$(process_diagram_widget).width(width);
+		$(process_diagram_widget).height(height);
+		svg.setAttribute('width', '100%');
+		svg.setAttribute('height', '100%');
+		border.setAttribute('width', '100%');
+		border.setAttribute('height', '100%');
+
+		var nwidth = $(process_diagram_widget).width();
+		var nheight = $(process_diagram_widget).height();
+
+		console.log('nwidth='+nwidth);
+		console.log('nheight='+nheight);
+
 		svg.setAttribute('width', dWidth*resizeFactor+margin*resizeFactor);
 		svg.setAttribute('height', dHeight*resizeFactor+margin*resizeFactor);
 		border.setAttribute('width', dWidth*resizeFactor+margin*resizeFactor);
 		border.setAttribute('height', dHeight*resizeFactor+margin*resizeFactor);
+
+		$(process_diagram_widget).width(nwidth-margin*resizeFactor);
+		$(process_diagram_widget).height(nheight-margin*resizeFactor);
+
+		process_diagram_widget.style.overflow='scroll';
+
+
+
 		// fixLabels(document);
 		diagram.setAttribute("transform","scale("+resizeFactor+","+resizeFactor+")");
 
 		// centering on active task
+        var diagramBox = process_diagram_widget.getBoundingClientRect();
+        var activeTask = document.getElementById("active_task");
+        if(activeTask)
+        {
+            var box = activeTask.getBoundingClientRect();
+            var centerX = (box.left + 0.5 * box.width) - diagramBox.left;
+            var centerY = (box.top + 0.5 * box.height) - diagramBox.top;
+            var transX = Math.min(0,-(centerX - 0.5 * diagramBox.width));
+            var transY = Math.min(0,-(centerY - 0.5 * diagramBox.height));
+            diagram.setAttribute("transform","translate("+transX+" "+transY+"), scale("+resizeFactor+","+resizeFactor+")");
+            process_diagram_widget.style.display='none';
+            process_diagram_widget.offsetHeight;
+            process_diagram_widget.style.display='block';
+        }
 
-            var diagramBox = process_diagram_widget.getBoundingClientRect();
-            var activeTask = document.getElementById("active_task");
-            if(activeTask)
-            {
-                var box = activeTask.getBoundingClientRect();
-                var centerX = (box.left + 0.5 * box.width) - diagramBox.left;
-                var centerY = (box.top + 0.5 * box.height) - diagramBox.top;
-                var transX = Math.min(0,-(centerX - 0.5 * diagramBox.width));
-                var transY = Math.min(0,-(centerY - 0.5 * diagramBox.height));
-                diagram.setAttribute("transform","translate("+transX+" "+transY+"), scale("+resizeFactor+","+resizeFactor+")");
-                process_diagram_widget.style.display='none';
-                process_diagram_widget.offsetHeight;
-                process_diagram_widget.style.display='block';
-            }
 
 	}
 
-	showDiagramFragment( ${diagramWidth},  ${diagramHeight});
+	showDiagramFragment("${diagramWidth}","${diagramHeight}");
 
 </script>

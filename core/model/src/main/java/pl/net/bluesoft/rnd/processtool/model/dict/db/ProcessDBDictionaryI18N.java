@@ -96,6 +96,13 @@ public class ProcessDBDictionaryI18N extends AbstractPersistentEntity {
 		if (i18N == null) {
 			i18N = findByLanguageCode(i18Ns, parts[0]);
 		}
+		if (i18N == null){
+			i18N = findByLanguageCode(i18Ns, "default");
+		}
+		if (defaultText == null){
+			defaultText = "";
+		}
+		
 		return i18N != null ? i18N.text : defaultText;
 	}
 

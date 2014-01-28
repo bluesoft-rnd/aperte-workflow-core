@@ -487,7 +487,7 @@ public class BpmNotificationEngine implements IBpmNotificationService
         }
         catch(Exception e)
         {
-        	logger.log(Level.SEVERE, "Add custom field true/false for grouping notifications. Property: bpmnot.notify.liferay.groupingCheckbox=key", e);
+        	logger.log(Level.SEVERE, "Add custom field true/false for grouping notifications. Property: bpmnot.notify.liferay.groupingCheckbox=key");
         }
         
         if(isGroup == null){

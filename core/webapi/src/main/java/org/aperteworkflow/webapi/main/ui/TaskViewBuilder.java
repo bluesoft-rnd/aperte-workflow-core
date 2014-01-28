@@ -140,7 +140,7 @@ public class TaskViewBuilder
         /* Check if task is from queue */
         if(isTaskHasNoOwner() && hasUserRightsToTask())
         {
-            addClaimActionButton(genericActionButtons);
+            addClaimActionButton(processActionButtons);
         }
 
         /* Check if user, who is checking the task, is the assigned person */

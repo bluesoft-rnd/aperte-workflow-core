@@ -480,7 +480,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 	@Override
 	public List<BpmTask> findFilteredTasks(ProcessInstanceFilter filter, int offset, int maxResults) {
-		return getFilterQuery(filter).user(userLogin).page(offset, maxResults).list();
+		return getFilterQuery(filter).user(filter.getFilterOwnerLogin()).page(offset, maxResults).list();
 	}
 
 	private BpmTaskQuery getFilterQuery(ProcessInstanceFilter filter)

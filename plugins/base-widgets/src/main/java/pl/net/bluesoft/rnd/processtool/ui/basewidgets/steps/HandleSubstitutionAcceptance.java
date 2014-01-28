@@ -1,10 +1,13 @@
 package pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps;
 
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.model.BpmStep;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserSubstitution;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
+import pl.net.bluesoft.rnd.util.StepUtil;
 
 import java.util.Map;
 import java.util.logging.Level;
@@ -16,19 +19,40 @@ import static pl.net.bluesoft.util.lang.DateUtil.endOfDay;
 import static pl.net.bluesoft.util.lang.Formats.parseShortDate;
 
 @AliasName(name = "HandleSubstitutionAcceptanceStep")
-public class HandleSubstitutionAcceptance implements ProcessToolProcessStep {
+public class HandleSubstitutionAcceptance implements ProcessToolProcessStep
+{
     private static final Logger logger = Logger.getLogger(HandleSubstitutionAcceptance.class.getName());
+
+    @AutoWiredProperty(required = true)
+    private String userSubstituteLoginAttributeName;
+
+    @AutoWiredProperty(required = true)
+    private String userLoginAttributeName;
+
+    @AutoWiredProperty(required = true)
+    private String dateFromAttributeName;
+
+    @AutoWiredProperty(required = true)
+    private String dateToAttributeName;
 
     @Override
     public String invoke(BpmStep step, Map params) throws Exception {
         ProcessInstance processInstance = step.getProcessInstance();
-        try {
+        ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
+
+        try
+        {
+            String userLoginKey = StepUtil.extractVariable(userLoginAttributeName, ctx, processInstance);
+            String userSubstituteLoginKey= StepUtil.extractVariable(userSubstituteLoginAttributeName, ctx, processInstance);
+            String dateFromKey = StepUtil.extractVariable(dateFromAttributeName, ctx, processInstance);
+            String dateToKey = StepUtil.extractVariable(dateToAttributeName, ctx, processInstance);
+
 			UserSubstitution userSubstitution = new UserSubstitution();
 
-			userSubstitution.setUserLogin(processInstance.getCreatorLogin());
-            userSubstitution.setDateFrom(beginOfDay(parseShortDate(processInstance.getSimpleAttributeValue("dateFrom"))));
-            userSubstitution.setDateTo(endOfDay(parseShortDate(processInstance.getSimpleAttributeValue("dateTo"))));
-			userSubstitution.setUserSubstituteLogin(processInstance.getSimpleAttributeValue("userSubstitute"));
+			userSubstitution.setUserLogin(processInstance.getSimpleAttributeValue(userSubstituteLoginAttributeName));
+            userSubstitution.setDateFrom(beginOfDay(parseShortDate(processInstance.getSimpleAttributeValue(dateFromAttributeName))));
+            userSubstitution.setDateTo(endOfDay(parseShortDate(processInstance.getSimpleAttributeValue(dateToAttributeName))));
+			userSubstitution.setUserSubstituteLogin(processInstance.getSimpleAttributeValue(userLoginAttributeName));
 
             getThreadProcessToolContext().getUserSubstitutionDAO().saveOrUpdate(userSubstitution);
             logger.warning("Added substitution for user " + userSubstitution.getUserLogin());

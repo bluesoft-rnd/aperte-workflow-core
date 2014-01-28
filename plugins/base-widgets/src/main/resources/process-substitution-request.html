@@ -1,0 +1,200 @@
+<#assign null = "null"/>
+<#assign canEdit = privileges?seq_contains("EDIT")?string("yes", "no")/>
+
+<#assign creatorName = process.getSimpleAttributeValue("creatorName")!""/>
+<#assign substitutingUserLogin = process.getSimpleAttributeValue("substitutingUserLogin")!""/>
+<#assign substitutingUserLoginFullName = process.getSimpleAttributeValue("substitutingUserLoginFullName")!""/>
+<#assign substitutingDateFrom = process.getSimpleAttributeValue("substitutingDateFrom")!""/>
+<#assign substitutingDateTo = process.getSimpleAttributeValue("substitutingDateTo")!""/>
+
+<style type="text/css">
+    .form-control.demand-typeof-textarea {height: 115px; width: 100%;}
+    .form-control.demand-placeofuse-textarea { width: 100%;}
+    .form-control.demand-account-select { width: 100%;}
+    .row.row-general-info {margin-right: 5px; }
+	.required:after {content: " *";  color: red;}
+</style>
+
+<div>
+    <div class="panel panel-default">
+        <div class="panel-heading">${messageSource.getMessage("demand.choose.company.header.text")}</div>
+        <div class="panel-body">
+            <div class="form-horizontal">
+                <div class="form-group input-group-sm">
+                    <label name="tooltip" title="${messageSource.getMessage('substituting.user.label.tooltip')}"  class="col-sm-2 control-label">${messageSource.getMessage("substituting.user.label")}</label>
+                    <h4  class="col-sm-8">${creatorName}</h4>
+                </div>
+                <!-- Company select name="tooltip" title="${messageSource.getMessage('')}" -->
+                <div class="form-group input-group-sm">
+                    <label name="tooltip" title="${messageSource.getMessage('substitute.user.label.tooltip')}" for="substitute-user-${widgetId}" class="col-sm-2 control-label required">${messageSource.getMessage("substitute.user.label")}</label>
+                    <input id="substitute-user-${widgetId}"  class="col-sm-10" data-placeholder="${messageSource.getMessage('substituting.user.input.placeholder')}" <#if canEdit == "no">disabled</#if>/>
+                </div>
+
+                <div class="form-group input-group-sm">
+                    <label name="tooltip" title="${messageSource.getMessage('substituting.date.from.tooltip')}" for="substituting-date-from-${widgetId}" class="col-sm-2 control-label required">${messageSource.getMessage("substituting.date.from.label")}</label>
+                    <div  class="col-sm-4">
+                        <div class="input-group input-group-sm  input-append date">
+                            <input type="text" class="form-control" value="${substitutingDateFrom}"  id="substituting-date-from-${widgetId}" <#if canEdit == "no">disabled</#if>>
+                            <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group input-group-sm">
+                    <label name="tooltip" title="${messageSource.getMessage('substituting.date.to.tooltip')}" for="substituting-date-to-${widgetId}" class="col-sm-2 control-label required">${messageSource.getMessage("substituting.date.to.label")}</label>
+                    <div  class="col-sm-4">
+                        <div class="input-group input-group-sm  input-append date">
+                            <input type="text" class="form-control" value="${substitutingDateTo}"  id="substituting-date-to-${widgetId}" <#if canEdit == "no">disabled</#if>>
+                            <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+	
+</div>
+
+<script type="text/javascript">
+
+    $(document).ready(function()
+    {
+		var widget = new Widget('${widgetName}', '${widgetId}', '${task.internalTaskId}');
+		widget.getData = function() {return getSubstitutingRequestData();};
+		widget.validate = function() {return validateSubstitutingRequestData();};
+		widget.isEnabled = "${canEdit}" == "no" ? false : true;
+		widgets.push(widget);
+
+		$("#substitute-user-${widgetId}").select2(
+		{
+            ajax: {
+                url: dispatcherPortlet,
+                dataType: 'json',
+                quietMillis: 200,
+                data: function (term, page) {
+                    return {
+                        q: term, // search term
+                        page_limit: 10,
+                        controller: "usercontroller",
+                        page: page,
+                        action: "getAllUsers"
+                    };
+                },
+                results: function (data, page)
+                {
+                    var results = [];
+                      $.each(data.data, function(index, item)
+                      {
+                        if('${user.getLogin()}' != item.login)
+                        {
+                            results.push({
+                              id: item.login,
+                              text: item.realName + ' ['+item.login+']'
+                            });
+                        }
+                      });
+                      return {
+                          results: results
+                      };
+                }
+            },
+            initSelection: function(element, callback)
+            {
+                var id=$(element).val();
+                if(id != "")
+                {
+                    var data = {id:'${substitutingUserLogin}',text:'${substitutingUserLoginFullName}'};
+                    callback(data);
+                }
+            }
+        }).select2('readonly', "${canEdit}" == "no");
+        $("#substitute-user-${widgetId}").select2('val', '${substitutingUserLoginFullName}');
+
+
+        <#if canEdit != "no">
+            $("#substituting-date-from-${widgetId}").datepicker({
+                format: "yyyy-mm-dd",
+                language: "pl",
+                minDate: 0
+            });
+        </#if>
+
+
+        <#if canEdit != "no">
+            $("#substituting-date-to-${widgetId}").datepicker({
+                format: "yyyy-mm-dd",
+                language: "pl",
+                minDate: 0
+            });
+        </#if>
+
+
+    });
+    
+	function validateSubstitutingRequestData(){
+		var errors = [];
+		if("${canEdit}" == "no") { return errors; }
+
+		var substitutingUserLogin = $('#substitute-user-${widgetId}').val();
+		var substitutingDateFrom = $('#substituting-date-from-${widgetId}').val();
+        var substitutingDateTo = $('#substituting-date-to-${widgetId}').val();
+
+		if(!substitutingUserLogin) {
+			$('#warning').show();
+			errors.push('${messageSource.getMessage("substitute.user.empty")}');
+		}
+
+		if(!substitutingDateFrom)
+		{
+			$('#warning').show();
+			errors.push('${messageSource.getMessage("substituting.date.from.empty")}');
+		}
+		else if(new Date(substitutingDateFrom).setHours(0,0,0,0) < (new Date()).setHours(0,0,0,0))
+		{
+            $('#warning').show();
+            errors.push('${messageSource.getMessage("substituting.date.from.past")}');
+        }
+
+        if(!substitutingDateTo)
+		{
+			$('#warning').show();
+			errors.push('${messageSource.getMessage("substituting.date.to.empty")}');
+		}
+		else if(new Date(substitutingDateTo).setHours(0,0,0,0) < (new Date()).setHours(0,0,0,0))
+		{
+            $('#warning').show();
+            errors.push('${messageSource.getMessage("substituting.date.to.past")}');
+        }
+
+        if(substitutingDateTo && substitutingDateFrom && (new Date(substitutingDateTo).setHours(0,0,0,0) < (new Date(substitutingDateFrom)).setHours(0,0,0,0)))
+		{
+			$('#warning').show();
+			errors.push('${messageSource.getMessage("substituting.date.fromto.lesser")}');
+		}
+
+		return errors;
+	}
+
+	function getSubstitutingRequestData()
+	{
+	    if("${canEdit}" == "no") { return []; }
+
+        var substitutingUserLogin = $('#substitute-user-${widgetId}').val();
+        var substitutingUserLoginFullName = $('#substitute-user-${widgetId}').select2('data').text;
+        var substitutingDateFrom = $('#substituting-date-from-${widgetId}').val();
+        var substitutingDateTo = $('#substituting-date-to-${widgetId}').val();
+
+		var data = [
+		    {"key" : "substitutingUserLogin", "value": substitutingUserLogin, "type" : "simple" },
+		    {"key" : "substitutingUserLoginFullName", "value": substitutingUserLoginFullName, "type" : "simple" },
+		    {"key" : "substitutingDateFrom", "value": substitutingDateFrom, "type" : "simple" },
+		    {"key" : "substitutingDateTo", "value": substitutingDateTo, "type" : "simple" }
+        ];
+
+		return data;
+	}
+
+</script>

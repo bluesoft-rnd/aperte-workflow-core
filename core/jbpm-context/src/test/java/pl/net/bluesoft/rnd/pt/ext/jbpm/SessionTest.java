@@ -938,6 +938,11 @@ public class SessionTest extends TestCase {
         public List<UserData> getAllUsers() {
             return null;
         }
+
+        @Override
+        public List<UserData> findUsers(String query) {
+            return null;
+        }
     }
 
 }

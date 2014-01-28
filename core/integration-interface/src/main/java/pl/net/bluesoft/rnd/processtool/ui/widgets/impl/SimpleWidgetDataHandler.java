@@ -61,7 +61,7 @@ public class SimpleWidgetDataHandler implements IWidgetDataHandler
 
     private void setNewValue(ProcessInstance process, WidgetDataEntry data)
     {
-        String escapedData = HtmlUtils.htmlEscape(data.getValue());
+        String escapedData = data.getValue();
 
         if(TYPE_SIMPLE.equals(data.getType()))
             process.setSimpleAttribute(data.getKey(), escapedData);

@@ -125,8 +125,7 @@
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.TabSheetWidget,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.VerticalLayoutWidget,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.SwitchWidget,
-							pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDataBlockWidget,
-							pl.net.bluesoft.rnd.processtool.ui.basewidgets.UserSubstitutionRequestWidget
+							pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDataBlockWidget
                         </ProcessTool-Widget-Enhancement>
 						<!-- pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDataBlockWidget, -->
                         <ProcessTool-Button-Enhancement>
@@ -146,7 +145,8 @@
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDiagramWidget,
 							pl.net.bluesoft.rnd.processtool.ui.basewidgets.UserSubstitutionComment,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessHistoryWidget,
-                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.ShadowStateWidget
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.ShadowStateWidget,
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.UserSubstitutionRequestWidget
                         </ProcessTool-Widget-View>
                         <ProcessTool-Step-Enhancement>
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.ChooseUserWithRoleStep,
@@ -159,6 +159,9 @@
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.GetAssignedToStep,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.SetProcessBusinessStatus
                         </ProcessTool-Step-Enhancement>
+                        <ProcessTool-Controller>
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.controller.UserController
+                        </ProcessTool-Controller>
                       <!--  <ProcessTool-Widget-Script>
                         requests-scripts.js;provider:=file
                         </ProcessTool-Widget-Script>-->

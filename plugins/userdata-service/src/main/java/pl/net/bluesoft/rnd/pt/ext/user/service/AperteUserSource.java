@@ -56,8 +56,15 @@ public class AperteUserSource implements IPortalUserSource {
 		return new ArrayList<UserData>(userDao.findAll());
 	}
 
-	
-	private Session getSession()
+    @Override
+    public List<UserData> findUsers(String query) {
+        UserDataDAO userDao = new UserDataDAOImpl(getSession());
+
+        return new ArrayList<UserData>(userDao.findAll());
+    }
+
+
+    private Session getSession()
 	{
 		Session session = getRegistry().getDataRegistry().getSessionFactory().getCurrentSession();
 		if(session == null)

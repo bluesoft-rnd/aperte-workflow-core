@@ -22,6 +22,7 @@ public interface IUserSource
 	 */
 	UserData getUserByLogin(String login) throws UserSourceException;
 
+
 	/**
 	 * Get {@link UserData} by provided login for given comapnyId
 	 * 
@@ -48,5 +49,12 @@ public interface IUserSource
 	 * @return
 	 */
 	List<UserData> getAllUsers();
+
+    /**
+     * Get all users
+     *
+     * @return
+     */
+    List<UserData> findUsers(String query);
 
 }

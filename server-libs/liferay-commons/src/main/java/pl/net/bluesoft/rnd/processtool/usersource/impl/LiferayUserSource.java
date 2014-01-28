@@ -150,7 +150,28 @@ public class LiferayUserSource implements IPortalUserSource, CacheProvider
 		});
 	}
 
-	@Override
+    @Override
+    public List<UserData> findUsers(String query)
+    {
+        return allUsers.get(null, new ExpiringCache.NewValueCallback<String, List<UserData>>() {
+            @Override
+            public List<UserData> getNewValue(String key) {
+                try {
+                    List<UserData> users = LiferayUserConverter.convertLiferayUsers(UserLocalServiceUtil.getUsers(0, UserLocalServiceUtil.getUsersCount()));
+
+                    for (UserData user : users) {
+                        usersByLogin.put(user.getLogin(), user);
+                    }
+                    return users;
+                }
+                catch (SystemException e) {
+                    throw new UserSourceException(e);
+                }
+            }
+        });
+    }
+
+    @Override
 	public UserData getUserByRequest(HttpServletRequest request) 
 	{
         try

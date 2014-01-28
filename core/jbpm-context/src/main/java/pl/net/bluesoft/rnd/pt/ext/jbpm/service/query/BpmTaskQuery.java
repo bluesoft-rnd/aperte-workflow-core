@@ -256,12 +256,18 @@ public class BpmTaskQuery {
             if(virtualQueues != null && virtualQueues.contains(QueueType.OWN_IN_PROGRESS))
             {
                 sb.append(" potowners.entity_id <> :user)");
+                queryParameters.add(new QueryParameter("user", user));
+            }
+            else if(queues != null)
+            {
+                sb.append(" potowners.entity_id IN (:queues))");
             }
             else
             {
                 sb.append(" potowners.entity_id = :user)");
+                queryParameters.add(new QueryParameter("user", user));
             }
-            queryParameters.add(new QueryParameter("user", user));
+
         }
 
 

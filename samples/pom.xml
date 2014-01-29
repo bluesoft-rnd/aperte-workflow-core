@@ -18,8 +18,7 @@
         <module>sample-mule-step</module>
         <module>mule-flightsearch-sample</module>
         <module>mule-attachment-sample</module>
-		<module>incident-process</module>
-		<module>user-substitution-process</module>
+<!--		<module>incident-process</module>-->
     </modules>
 
     <dependencies>

@@ -276,113 +276,120 @@
 <button type="button" onclick="showCompleteDiagram()">${messageSource.getMessage("widget.process_diagram.show_full")}</button>
 
 <script type="text/javascript">
-	var process_diagram_widget = document.getElementById("process_diagram_widget");
-	var resizeFactor = 0.7
-	var margin = 330;
-	// centering label under events (circles) 
-    eventLabels = $( ".event_label" );
-    for (var i = 0; i < eventLabels.length; i++) {
-        eventLabels[i].setAttribute("transform","translate(-"+eventLabels[i].getBoundingClientRect().width/2+",0)");
-    }
 
-    // centering and wrapping labels in tasks
-	taskLabels = $(".task_label");
-    foreingObjectLabels = $( ".foreign_task_label" );
-	for (var i = 0; i < taskLabels.length; i++) {
-   		label = taskLabels[i];
-		if($(label.parentNode).find('.task_rect').length > 0) {
-			var rect = $(label.parentNode).find( ".task_rect" )[0];
-		} else {
-			continue;
+	if (!document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#Image", "1.1"))	{
+		
+		$('#process_diagram_widget').html('<h4 align="center" style="padding: 50px;">${messageSource.getMessage("widget.process_diagram.unavailable")}</h4>');
+		//document.documentElement.className = "svg";
+	}
+	else{
+		var process_diagram_widget = document.getElementById("process_diagram_widget");
+		var resizeFactor = 0.7
+		var margin = 330;
+		// centering label under events (circles) 
+		eventLabels = $( ".event_label" );
+		for (var i = 0; i < eventLabels.length; i++) {
+			eventLabels[i].setAttribute("transform","translate(-"+eventLabels[i].getBoundingClientRect().width/2+",0)");
 		}
 
-   		// if the label fits in bounding rect, center the label ...
-   		if (label.getBoundingClientRect().width < rect.getBoundingClientRect().width-10) {
-   			label.setAttribute("transform","translate("+(rect.getBoundingClientRect().width/4)+",0)");
-   		} 
-   		// ... otherwise, wrap the label into rect
-   		else {
-   			var foreignObjectLabel = foreingObjectLabels[i];
-   			foreignObjectLabel.innerHTML = label.innerHTML;			
-			label.innerHTML = "";
-   		}
-    }
+		// centering and wrapping labels in tasks
+		taskLabels = $(".task_label");
+		foreingObjectLabels = $( ".foreign_task_label" );
+		for (var i = 0; i < taskLabels.length; i++) {
+			label = taskLabels[i];
+			if($(label.parentNode).find('.task_rect').length > 0) {
+				var rect = $(label.parentNode).find( ".task_rect" )[0];
+			} else {
+				continue;
+			}
 
-    // showing full diagram in separate window
-	function showCompleteDiagram() {
-		var dWidth = ${diagram.getWidth()};
-		var dHeight = ${diagram.getHeight()};
-		var w = window.open('about:blank', 'Process Diagram', "height="+dHeight+"px,width="+dWidth+"px,scrollbars=yes");
-		w.document.write(process_diagram_widget.innerHTML);
-		var svg = w.document.getElementById("pdw_svg");
-		var border = w.document.getElementById("pdw_border");
-		var diagram = w.document.getElementById("pdw_diagram");
-		svg.setAttribute('width', dWidth*resizeFactor+margin*resizeFactor);
-		svg.setAttribute('height', dHeight*resizeFactor+margin*resizeFactor);
-		border.setAttribute('width', dWidth*resizeFactor+margin*resizeFactor);
-		border.setAttribute('height', dHeight*resizeFactor+margin*resizeFactor);
-		diagram.setAttribute("transform","scale("+resizeFactor+","+resizeFactor+")");
+			// if the label fits in bounding rect, center the label ...
+			if (label.getBoundingClientRect().width < rect.getBoundingClientRect().width-10) {
+				label.setAttribute("transform","translate("+(rect.getBoundingClientRect().width/4)+",0)");
+			} 
+			// ... otherwise, wrap the label into rect
+			else {
+				var foreignObjectLabel = foreingObjectLabels[i];
+				foreignObjectLabel.innerHTML = label.innerHTML;			
+				label.innerHTML = "";
+			}
+		}
+
+		// showing full diagram in separate window
+		function showCompleteDiagram() {
+			var dWidth = ${diagram.getWidth()};
+			var dHeight = ${diagram.getHeight()};
+			var w = window.open('about:blank', 'Process Diagram', "height="+dHeight+"px,width="+dWidth+"px,scrollbars=yes");
+			w.document.write(process_diagram_widget.innerHTML);
+			var svg = w.document.getElementById("pdw_svg");
+			var border = w.document.getElementById("pdw_border");
+			var diagram = w.document.getElementById("pdw_diagram");
+			svg.setAttribute('width', dWidth*resizeFactor+margin*resizeFactor);
+			svg.setAttribute('height', dHeight*resizeFactor+margin*resizeFactor);
+			border.setAttribute('width', dWidth*resizeFactor+margin*resizeFactor);
+			border.setAttribute('height', dHeight*resizeFactor+margin*resizeFactor);
+			diagram.setAttribute("transform","scale("+resizeFactor+","+resizeFactor+")");
+		}
+
+		// showing fragment of diagram 
+		function showDiagramFragment(width, height) {
+			var dWidth = ${diagram.getWidth()};
+			var dHeight = ${diagram.getHeight()};
+
+
+
+			var process_diagram_widget = document.getElementById("process_diagram_widget");
+			var svg = document.getElementById("pdw_svg");
+			var border = document.getElementById("pdw_border");
+			var diagram = document.getElementById("pdw_diagram");
+
+			$(process_diagram_widget).width(width);
+			$(process_diagram_widget).height(height);
+			svg.setAttribute('width', '100%');
+			svg.setAttribute('height', '100%');
+			border.setAttribute('width', '100%');
+			border.setAttribute('height', '100%');
+
+			var nwidth = $(process_diagram_widget).width();
+			var nheight = $(process_diagram_widget).height();
+
+			console.log('nwidth='+nwidth);
+			console.log('nheight='+nheight);
+
+			svg.setAttribute('width', dWidth*resizeFactor+margin*resizeFactor);
+			svg.setAttribute('height', dHeight*resizeFactor+margin*resizeFactor);
+			border.setAttribute('width', dWidth*resizeFactor+margin*resizeFactor);
+			border.setAttribute('height', dHeight*resizeFactor+margin*resizeFactor);
+
+			$(process_diagram_widget).width(nwidth-margin*resizeFactor);
+			$(process_diagram_widget).height(nheight-margin*resizeFactor);
+
+			process_diagram_widget.style.overflow='scroll';
+
+
+
+			// fixLabels(document);
+			diagram.setAttribute("transform","scale("+resizeFactor+","+resizeFactor+")");
+
+			// centering on active task
+			var diagramBox = process_diagram_widget.getBoundingClientRect();
+			var activeTask = document.getElementById("active_task");
+			if(activeTask)
+			{
+				var box = activeTask.getBoundingClientRect();
+				var centerX = (box.left + 0.5 * box.width) - diagramBox.left;
+				var centerY = (box.top + 0.5 * box.height) - diagramBox.top;
+				var transX = Math.min(0,-(centerX - 0.5 * diagramBox.width));
+				var transY = Math.min(0,-(centerY - 0.5 * diagramBox.height));
+				diagram.setAttribute("transform","translate("+transX+" "+transY+"), scale("+resizeFactor+","+resizeFactor+")");
+				process_diagram_widget.style.display='none';
+				process_diagram_widget.offsetHeight;
+				process_diagram_widget.style.display='block';
+			}
+
+
+		}
+
+		showDiagramFragment("${diagramWidth}","${diagramHeight}");
 	}
-
-	// showing fragment of diagram 
-	function showDiagramFragment(width, height) {
-		var dWidth = ${diagram.getWidth()};
-		var dHeight = ${diagram.getHeight()};
-
-
-
-		var process_diagram_widget = document.getElementById("process_diagram_widget");
-		var svg = document.getElementById("pdw_svg");
-		var border = document.getElementById("pdw_border");
-		var diagram = document.getElementById("pdw_diagram");
-
-		$(process_diagram_widget).width(width);
-		$(process_diagram_widget).height(height);
-		svg.setAttribute('width', '100%');
-		svg.setAttribute('height', '100%');
-		border.setAttribute('width', '100%');
-		border.setAttribute('height', '100%');
-
-		var nwidth = $(process_diagram_widget).width();
-		var nheight = $(process_diagram_widget).height();
-
-		console.log('nwidth='+nwidth);
-		console.log('nheight='+nheight);
-
-		svg.setAttribute('width', dWidth*resizeFactor+margin*resizeFactor);
-		svg.setAttribute('height', dHeight*resizeFactor+margin*resizeFactor);
-		border.setAttribute('width', dWidth*resizeFactor+margin*resizeFactor);
-		border.setAttribute('height', dHeight*resizeFactor+margin*resizeFactor);
-
-		$(process_diagram_widget).width(nwidth-margin*resizeFactor);
-		$(process_diagram_widget).height(nheight-margin*resizeFactor);
-
-		process_diagram_widget.style.overflow='scroll';
-
-
-
-		// fixLabels(document);
-		diagram.setAttribute("transform","scale("+resizeFactor+","+resizeFactor+")");
-
-		// centering on active task
-        var diagramBox = process_diagram_widget.getBoundingClientRect();
-        var activeTask = document.getElementById("active_task");
-        if(activeTask)
-        {
-            var box = activeTask.getBoundingClientRect();
-            var centerX = (box.left + 0.5 * box.width) - diagramBox.left;
-            var centerY = (box.top + 0.5 * box.height) - diagramBox.top;
-            var transX = Math.min(0,-(centerX - 0.5 * diagramBox.width));
-            var transY = Math.min(0,-(centerY - 0.5 * diagramBox.height));
-            diagram.setAttribute("transform","translate("+transX+" "+transY+"), scale("+resizeFactor+","+resizeFactor+")");
-            process_diagram_widget.style.display='none';
-            process_diagram_widget.offsetHeight;
-            process_diagram_widget.style.display='block';
-        }
-
-
-	}
-
-	showDiagramFragment("${diagramWidth}","${diagramHeight}");
-
 </script>

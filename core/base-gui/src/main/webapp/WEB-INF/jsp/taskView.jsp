@@ -253,15 +253,8 @@
 		
 		this.toggleColumnButton = function(columnName, active)
 		{
-			
 			var checkbox = $("#button-"+this.tableId+'-'+columnName);
-			
-			var changeState = !XOR(checkbox.is(':checked'), active); 
-			if(changeState == true)
-			{
-				checkbox.trigger('click');
-			}
-
+			checkbox.trigger('click');
 		}
 	
 		this.toggleColumn = function(columnName)

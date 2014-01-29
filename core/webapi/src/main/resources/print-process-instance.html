@@ -5,10 +5,9 @@
 <#assign attr = attributes!"">
 <#assign externalId = process.getExternalId!"">
 <#assign comments = comments!"">
-<#assign processLogs = processLogs!"">
+<#assign processLogs = process.getProcessLogsSortedByDate()?reverse!""/>
 <#assign demand = demand!"">
 <#assign demandSuppliers = demand.getContractors()>
-
 
 <#assign demandResponsiblePersonLoginFullName = process.getSimpleAttributeValue("demandResponsiblePersonLoginFullName")!""/>
 <#assign demandResponsiblePersonUnitFullName = process.getSimpleAttributeValue("demandResponsiblePersonUnitFullName")!""/>
@@ -275,15 +274,21 @@
 			<th>${messageSource.getMessage("process.history.action.by")}</th>
 			<th>${messageSource.getMessage("activity.task.history.log.entryDate")}</th>
 			<th>${messageSource.getMessage("processinstances.console.history.stateDescription")}</th>
-			<th>${messageSource.getMessage("")}</th>
+			<th>${messageSource.getMessage("safasfasf")}</th>
 		</tr>
 		<#list processLogs as log>
-			<tr>
-				<td>${log.getUserLogin()}</td>
-				<td>${log.getEntryDate()?string("dd-MM-yyyy HH:mm:ss")}</td>
-				<td>${messageSource.getMessage(log.eventI18NKey)}</td>
-				<td><#assign entryDescription = log.getAdditionalInfo()!log.getLogValue()!""/> ${messageSource.getMessage(entryDescription)}</td>
-			</tr>
+			<#if log.getLogType() != "PROCESS_CHANGE">
+				<tr>
+					<td>${log.getUserLogin()}</td>
+					<td>${log.getEntryDate()?string("dd-MM-yyyy HH:mm:ss")}</td>
+					<td>${messageSource.getMessage(log.eventI18NKey)}</td>
+					<td><#assign entryDescription = log.getAdditionalInfo()!log.getLogValue()!""/>
+						<#if entryDescription != "">
+							 ${messageSource.getMessage(entryDescription)}
+						</#if>
+					</td>
+				</tr>
+			</#if>
 		</#list>
 	</table>
 </#if>

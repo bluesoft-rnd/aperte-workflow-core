@@ -562,6 +562,11 @@
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 
+	<servlet>
+		<servlet-name>NotificationServlet</servlet-name>
+		<servlet-class>pl.net.bluesoft.rnd.processtool.plugins.NotificationServlet</servlet-class>
+	</servlet>
+
 	<servlet-mapping>
 		<servlet-name>CXFServlet</servlet-name>
 		<url-pattern>/services/*</url-pattern>
@@ -632,6 +637,11 @@
 	<servlet-mapping>
 		<servlet-name>OSGIServlet</servlet-name>
 		<url-pattern>/osgi</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>NotificationServlet</servlet-name>
+		<url-pattern>/notification</url-pattern>
 	</servlet-mapping>
 	
     <!-- SPRING SERVLET -->

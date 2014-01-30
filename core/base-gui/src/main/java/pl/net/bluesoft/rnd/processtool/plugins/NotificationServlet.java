@@ -3,12 +3,15 @@ package pl.net.bluesoft.rnd.processtool.plugins;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
+import pl.net.bluesoft.rnd.processtool.authorization.IAuthorizationService;
 import pl.net.bluesoft.rnd.processtool.bpm.BpmTaskNotification;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
+import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
 import pl.net.bluesoft.util.lang.Strings;
 import pl.net.bluesoft.util.lang.cquery.func.F;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -17,8 +20,12 @@ import java.io.PrintWriter;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.apache.commons.lang.StringEscapeUtils.escapeXml;
+import org.apache.commons.codec.binary.Base64;
 import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 import static pl.net.bluesoft.util.lang.Formats.nvl;
 import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
@@ -37,19 +44,30 @@ public class NotificationServlet extends HttpServlet {
 		long timestamp = Long.parseLong(nvl(req.getParameter("t"), "-1"));
 
 		if (!Strings.hasText(lang) || !Strings.hasText(login) || timestamp < 0) {
+			output(resp, "Incomplete arguments");
+			return;
+		}
+
+		String[] credentials = getCredentials(req);
+
+		if (credentials == null) {
+			output(resp, "No auth");
+			return;
+		}
+
+		IAuthorizationService authorizationService = ObjectFactory.create(IAuthorizationService.class);
+
+		try {
+			authorizationService.authenticateByLogin(credentials[0], credentials[1]);
+		}
+		catch (Exception e) {
+			output(resp, "Auth failed");
 			return;
 		}
 
 		Date date = timestamp != 0 ? new Date(timestamp) : null;
 
-		PrintWriter out = resp.getWriter();
-
-		try {
-			doExecute(lang, login, date, out);
-		}
-		finally {
-			out.close();
-		}
+		doExecute(lang, login, date, resp);
 	}
 
 	@Override
@@ -57,7 +75,38 @@ public class NotificationServlet extends HttpServlet {
 		doGet(req, resp);
 	}
 
-	private static void doExecute(final String lang, final String login, final Date date, PrintWriter out) {
+	private String[] getCredentials(HttpServletRequest req) {
+		String authHeader = req.getHeader("Authorization");
+
+		if (authHeader != null) {
+			StringTokenizer st = new StringTokenizer(authHeader);
+
+			if (st.hasMoreTokens()) {
+				String basic = st.nextToken();
+
+				if (basic.equalsIgnoreCase("Basic")) {
+					try {
+						String credentials = new String(Base64.decodeBase64(st.nextToken()), "UTF-8");
+
+						int p = credentials.indexOf(':');
+
+						if (p != -1) {
+							String login = credentials.substring(0, p).trim();
+							String password = credentials.substring(p + 1).trim();
+
+							return new String[] { login, password };
+						}
+					} catch (Exception e) {
+						Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Couldn't retrieve authentication", e);
+					}
+				}
+			}
+		}
+
+		return null;
+	}
+
+	private static void doExecute(final String lang, final String login, final Date date, HttpServletResponse resp) throws IOException {
 		List<BpmTaskNotification> notifications = getRegistry().withProcessToolContext(
 				new ReturningProcessToolContextCallback<List<BpmTaskNotification>>() {
 					@Override
@@ -68,11 +117,13 @@ public class NotificationServlet extends HttpServlet {
 					}
 				}, ProcessToolContextFactory.ExecutionType.NO_TRANSACTION);
 
-		printXml(notifications, out, date);
+		printXml(notifications, resp, date);
 	}
 
-	private static void printXml(List<BpmTaskNotification> notifications, PrintWriter out, Date date) {
+	private static void printXml(List<BpmTaskNotification> notifications, HttpServletResponse resp, Date date) throws IOException {
 		Date maxDate = notifications.isEmpty() ? date : getMaxDate(notifications);
+
+		ServletOutputStream out = resp.getOutputStream();
 
 		out.print(String.format("<r t=\"%s\">", maxDate != null ? maxDate.getTime() : 0));
 
@@ -93,6 +144,8 @@ public class NotificationServlet extends HttpServlet {
 		}
 
 		out.print("</r>");
+
+		out.close();
 	}
 
 	private static Date getMaxDate(List<BpmTaskNotification> notifications) {
@@ -107,5 +160,11 @@ public class NotificationServlet extends HttpServlet {
 	private static Locale getLocale(String lang) {
 		String[] parts = lang.split("_");
 		return parts.length > 1 ? new Locale(parts[0], parts[1]) : new Locale(parts[0]);
+	}
+
+	private static void output(HttpServletResponse resp, String msg) throws IOException {
+		PrintWriter out = resp.getWriter();
+		out.print(msg);
+		out.close();
 	}
 }

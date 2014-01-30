@@ -2,6 +2,8 @@ package pl.net.bluesoft.rnd.pt.ext.jbpm.service.query;
 
 import org.hibernate.SQLQuery;
 import org.hibernate.type.StandardBasicTypes;
+import pl.net.bluesoft.rnd.processtool.BasicSettings;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.BpmTaskNotification;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
@@ -11,6 +13,7 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 import java.util.*;
 
 import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
+import static pl.net.bluesoft.util.lang.Strings.withEnding;
 
 /**
  * User: POlszewski
@@ -68,8 +71,14 @@ public class BpmTaskNotificationQuery {
 
 		List<BpmTaskNotification> result = new ArrayList<BpmTaskNotification>();
 
-		ProcessDefinitionDAO processDefinitionDAO = getThreadProcessToolContext().getProcessDefinitionDAO();
+		if (queryResults.isEmpty()) {
+			return result;
+		}
+
+		ProcessToolContext ctx = getThreadProcessToolContext();
+		ProcessDefinitionDAO processDefinitionDAO = ctx.getProcessDefinitionDAO();
 		I18NSource i18NSource = I18NSourceFactory.createI18NSource(locale);
+		String activityPortletUrl = ctx.getSetting(BasicSettings.ACTIVITY_PORTLET_URL);
 
 		for (Object[] resultRow : queryResults) {
 			Long taskId = (Long)resultRow[0];
@@ -86,7 +95,9 @@ public class BpmTaskNotificationQuery {
 			notification.setTaskId(taskId);
 			if (completionDate == null) {
 				notification.setDescription(i18NSource.getMessage(description));
-				notification.setLink("http://localhost:8080/?taskId=" + taskId);//TODO
+				if (activityPortletUrl != null) {
+					notification.setLink(withEnding(activityPortletUrl, "/") + "?taskId=" + taskId);
+				}
 			}
 			notification.setCreationDate(creationDate);
 			notification.setCompletionDate(completionDate);

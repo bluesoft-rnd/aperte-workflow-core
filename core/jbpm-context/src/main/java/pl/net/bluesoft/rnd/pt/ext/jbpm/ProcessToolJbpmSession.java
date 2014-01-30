@@ -41,6 +41,7 @@ import pl.net.bluesoft.rnd.processtool.token.IAccessTokenFactory;
 import pl.net.bluesoft.rnd.processtool.token.ITokenService;
 import pl.net.bluesoft.rnd.processtool.usersource.IUserSource;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.service.JbpmService;
+import pl.net.bluesoft.rnd.pt.ext.jbpm.service.query.BpmTaskNotificationQuery;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.service.query.BpmTaskQuery;
 import pl.net.bluesoft.rnd.util.PlaceholderUtil;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
@@ -547,6 +548,13 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 			}
 		}
 		return recentTasks;
+	}
+
+	@Override
+	public List<BpmTaskNotification> getNotifications(Date date, Locale locale) {
+		BpmTaskNotificationQuery query = new BpmTaskNotificationQuery();
+
+		return query.user(userLogin).date(date).page(0, 10000).list(locale);
 	}
 
 	private BpmTask getMostRecentProcessHistoryTask(ProcessInstance pi, String userLogin, Date minDate) {

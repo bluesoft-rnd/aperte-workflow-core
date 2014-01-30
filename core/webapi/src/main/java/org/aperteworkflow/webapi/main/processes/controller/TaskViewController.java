@@ -170,6 +170,9 @@ public class TaskViewController extends AbstractProcessToolServletController
                 public void withContext(ProcessToolContext ctx) {
                     long t0 = System.currentTimeMillis();
 
+                    /* reset string buffer */
+                    builder.setLength(0);
+
                     BpmTask task = context.getBpmSession().getTaskData(taskId);
 
                     if(task == null)

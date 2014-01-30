@@ -163,6 +163,8 @@ public class TaskViewController extends AbstractProcessToolServletController
 
             long t2 = System.currentTimeMillis();
 
+           final StringBuilder builder = new StringBuilder();
+
             getProcessToolRegistry().withProcessToolContext(new ProcessToolContextCallback() {
                 @Override
                 public void withContext(ProcessToolContext ctx) {
@@ -208,7 +210,7 @@ public class TaskViewController extends AbstractProcessToolServletController
                     long t5 = System.currentTimeMillis();
 
                     try {
-                        taskViewBuilder.processView(response.getWriter());
+                        builder.append(taskViewBuilder.processView());
                     } catch(IOException ex) {
                         logger.log(Level.SEVERE, "Problem during task view generation. TaskId="+taskId, ex);
                     }
@@ -225,7 +227,12 @@ public class TaskViewController extends AbstractProcessToolServletController
                             );
 
                 }
-            }, ExecutionType.TRANSACTION_SYNCH);
+            }, ExecutionType.NO_TRANSACTION_SYNCH);
+
+            /* Write to outpit writer here, so there will be no invalid output
+            for error in previous code with seession
+             */
+            response.getWriter().print(builder.toString());
 
 
             long t3 = System.currentTimeMillis();

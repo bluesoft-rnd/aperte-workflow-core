@@ -165,7 +165,7 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory
                     tx.commit();
                 } catch (Exception ex) {
                     /* Hardcore fix //TODO change */
-                    logger.fine("Ksession problem, retry: "+reload);
+                    logger.severe("Ksession problem, retry: "+reload);
                     if (reload) {
                         reloadJbpm();
                         executeWithProcessToolContextNonJta(callback,false);

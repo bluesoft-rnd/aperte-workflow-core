@@ -35,6 +35,8 @@ import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
  * Date: 2014-01-26
  */
 public class NotificationServlet extends HttpServlet {
+	private static final Logger logger = Logger.getLogger(NotificationServlet.class.getName());
+
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		resp.setContentType("text/plain");
@@ -61,7 +63,8 @@ public class NotificationServlet extends HttpServlet {
 			authorizationService.authenticateByLogin(credentials[0], credentials[1]);
 		}
 		catch (Exception e) {
-			output(resp, "Auth failed");
+			output(resp, "Auth failed ");
+			logger.warning(String.format("Invalid login %s %s", credentials[0], credentials[1]));
 			return;
 		}
 
@@ -97,7 +100,7 @@ public class NotificationServlet extends HttpServlet {
 							return new String[] { login, password };
 						}
 					} catch (Exception e) {
-						Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Couldn't retrieve authentication", e);
+						logger.log(Level.SEVERE, "Couldn't retrieve authentication", e);
 					}
 				}
 			}

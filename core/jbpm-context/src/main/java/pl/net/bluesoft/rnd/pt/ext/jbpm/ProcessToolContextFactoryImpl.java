@@ -1,5 +1,6 @@
 package pl.net.bluesoft.rnd.pt.ext.jbpm;
 
+import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -279,6 +280,7 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory
 
         Session session = registry.getDataRegistry().getSessionFactory().openSession();
         session.setDefaultReadOnly(true);
+        session.setFlushMode(FlushMode.MANUAL);
         try
         {
             ProcessToolContext ctx = new ProcessToolContextImpl(session);

@@ -95,13 +95,13 @@
 								${dictionaryItem.getValueForCurrentDate().getValue(messageSource.getLocale().toString())}</br>
 								<#assign costAccountDictionary = costAccountDictionary!null/>
 									   <#if costAccountDictionary != null>
-											<#assign i = 0 />
+											<#assign iter = 0/>
 											<#list costAccountDictionary.sortedItems(messageSource.getLocale().toString()) as dictionaryItem>
-											
-											  <#if cost.account == dictionaryItem.getKey()>
-												<div><label id="cost${i}">${cost.cost}</label><label id="currency">&nbsp;${cost.currency}</label></div>  
 												
-											  </#if>
+												<#if cost.account == dictionaryItem.getKey()>
+												<div><label id="cost-${iter}">${cost.cost}</label><label id="currency">&nbsp;${cost.currency}</label></div>  
+												<#assign iter = iter + 1/>
+												</#if>
 										   </#list>
 									</#if>
 							</td>
@@ -294,18 +294,15 @@
 </#if>
 
 <script type="text/javascript">
-	//alert(document.getElementById('cost0'));
 	recalcuteCostSum();
 	
 	function recalcuteCostSum() {
 		var sum = new Number(0);
 		var inva = getElements();
-		//alert(inva.length);
 		
 		for ( var i = 0; i < inva.length; i++) {
 			var inc = new Number(inva[i].innerHTML.replace(/&nbsp;/g,''));
 			sum = sum + inc;
-			//alert('sum');
 		}
 		var currency = document.getElementById('currency').innerHTML;
 		document.getElementById('sumCost').innerHTML = sum + currency;
@@ -314,8 +311,8 @@
 	function getElements(){
 		var allElements = [];
 		var id = 0;
-		while(document.getElementById('cost' + id)){
-			allElements.push(document.getElementById('cost' + id));
+		while(document.getElementById('cost-' + id)){
+			allElements.push(document.getElementById('cost-' + id));
 			id++;
 		}
 		return allElements;

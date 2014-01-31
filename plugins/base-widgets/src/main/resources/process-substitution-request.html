@@ -34,7 +34,7 @@
                     <label name="tooltip" title="${messageSource.getMessage('substituting.date.from.tooltip')}" for="substituting-date-from-${widgetId}" class="col-sm-2 control-label required">${messageSource.getMessage("substituting.date.from.label")}</label>
                     <div  class="col-sm-4">
                         <div class="input-group input-group-sm  input-append date">
-                            <input type="text" class="form-control" value="${substitutingDateFrom}"  id="substituting-date-from-${widgetId}" <#if canEdit == "no">disabled</#if>>
+                            <input type="text" class="form-control" value="${substitutingDateFrom}" data-placeholder="${messageSource.getMessage('substituting.user.datefrom.placeholder')}"  id="substituting-date-from-${widgetId}" <#if canEdit == "no">disabled</#if>>
                             <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
                         </div>
                     </div>

@@ -62,10 +62,10 @@
 	{
 		this.views = {};
 
-		this.currentQueue = 'activity.created.assigned.tasks';
+		this.currentQueue = 'activity.created.all.tasks';
 		this.currentQueueType = 'process';
 		this.currentOwnerLogin = '${aperteUser.login}';
-		this.currentQueueDesc = '<spring:message code="activity.assigned.tasks" />';
+		this.currentQueueDesc = '<spring:message code="activity.created.all.tasks" />';
 		
 		this.loadQueue = function(newQueueName, queueType, ownerLogin, queueDesc)
 		{
@@ -81,11 +81,10 @@
 			this.currentOwnerLogin = ownerLogin;
 			this.currentQueueDesc = queueDesc;
 
-							var requestUrl = '<portlet:resourceURL id="loadProcessesList"/>';
-            				requestUrl += "&<portlet:namespace/>queueName=" + newQueueName;
-            				requestUrl += "&<portlet:namespace/>queueType=" + queueType;
-            				requestUrl += "&<portlet:namespace/>ownerLogin=" + ownerLogin;
-
+			var requestUrl = '<portlet:resourceURL id="loadProcessesList"/>';
+			requestUrl += "&<portlet:namespace/>queueName=" + newQueueName;
+			requestUrl += "&<portlet:namespace/>queueType=" + queueType;
+			requestUrl += "&<portlet:namespace/>ownerLogin=" + ownerLogin;
 			
 			newView.tableObject.reloadTable(requestUrl);
 			

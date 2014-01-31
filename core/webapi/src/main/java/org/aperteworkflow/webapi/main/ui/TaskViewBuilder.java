@@ -65,8 +65,10 @@ public class TaskViewBuilder
 		SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
 	}
 	
-	public void processView(PrintWriter printWriter) throws IOException
-	{
+	public StringBuilder processView() throws IOException
+    {
+        StringBuilder stringBuilder = new StringBuilder();
+
 		scriptBuilder.append("<script type=\"text/javascript\">");
 
 		Document document = Jsoup.parse("");
@@ -93,13 +95,15 @@ public class TaskViewBuilder
 
         addVersionNumber(document);
 
-		printWriter.print(document.toString());
+        stringBuilder.append(document.toString());
 		
 		scriptBuilder.append("vaadinWidgetsCount = ");
 		scriptBuilder.append(vaadinWidgetsCount);
 		scriptBuilder.append(';');
 		scriptBuilder.append("</script>");
-		printWriter.print(scriptBuilder.toString());
+        stringBuilder.append(scriptBuilder);
+
+        return  stringBuilder;
 	}
 
     private void addVersionNumber(Document document) {
@@ -140,7 +144,7 @@ public class TaskViewBuilder
         /* Check if task is from queue */
         if(isTaskHasNoOwner() && hasUserRightsToTask())
         {
-            addClaimActionButton(genericActionButtons);
+            addClaimActionButton(processActionButtons);
         }
 
         /* Check if user, who is checking the task, is the assigned person */

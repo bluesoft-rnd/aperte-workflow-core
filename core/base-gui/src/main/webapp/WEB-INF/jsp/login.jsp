@@ -37,13 +37,13 @@
 		{
 			if(!data)
 			{
-				console.log( "fail: "+data );
+				//console.log( "fail: "+data );
 				$('#login-alerts').append('<div class="alert"><button type="button" class="close" data-dismiss="alert">&times;</button><spring:message code="authorization.login.error" /></div>');
 				$('#login-button-login').prop('disabled', false);
 			}
 			else
 			{
-				console.log( "sucess login: "+data );
+				//console.log( "sucess login: "+data );
 				location.reload();
 			}
 		})

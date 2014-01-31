@@ -49,13 +49,12 @@
     <#assign demandCosts = [{"cost":0.0, "account":"", "currency": "PLN"}]/>
 </#if>
 
-<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
-<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet"/>
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+<link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.1/css/bootstrap.css" rel="stylesheet"/>
+<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+
 
 <script type="text/javascript">
-	alert(dokument);
+
 </script>
 <table class="table table-striped" >
 	<tr>
@@ -96,10 +95,11 @@
 								${dictionaryItem.getValueForCurrentDate().getValue(messageSource.getLocale().toString())}</br>
 								<#assign costAccountDictionary = costAccountDictionary!null/>
 									   <#if costAccountDictionary != null>
-										   <#list costAccountDictionary.sortedItems(messageSource.getLocale().toString()) as dictionaryItem>
-									
+											<#assign i = 0 />
+											<#list costAccountDictionary.sortedItems(messageSource.getLocale().toString()) as dictionaryItem>
+											
 											  <#if cost.account == dictionaryItem.getKey()>
-												<div><label name="cost">${cost.cost}</label><label id="currency">&nbsp;${cost.currency}</label></div>  
+												<div><label id="cost${i}">${cost.cost}</label><label id="currency">&nbsp;${cost.currency}</label></div>  
 												
 											  </#if>
 										   </#list>
@@ -274,7 +274,7 @@
 			<th>${messageSource.getMessage("process.history.action.by")}</th>
 			<th>${messageSource.getMessage("activity.task.history.log.entryDate")}</th>
 			<th>${messageSource.getMessage("processinstances.console.history.stateDescription")}</th>
-			<th>${messageSource.getMessage("safasfasf")}</th>
+			<th>${messageSource.getMessage("")}</th>
 		</tr>
 		<#list processLogs as log>
 			<#if log.getLogType() != "PROCESS_CHANGE">
@@ -294,18 +294,30 @@
 </#if>
 
 <script type="text/javascript">
-	
+	//alert(document.getElementById('cost0'));
 	recalcuteCostSum();
 	
 	function recalcuteCostSum() {
-		var sum = 0;
-		var inva = document.getElementsByName("cost");
+		var sum = new Number(0);
+		var inva = getElements();
+		//alert(inva.length);
+		
 		for ( var i = 0; i < inva.length; i++) {
-			var inc = inva[i].innerHTML.replace(/&nbsp;/g,'');
-			sum = +sum + +inc;
+			var inc = new Number(inva[i].innerHTML.replace(/&nbsp;/g,''));
+			sum = sum + inc;
+			//alert('sum');
 		}
-		var currency = document.getElementById("currency").innerHTML;
-		document.getElementById("sumCost").innerHTML = sum + currency;
+		var currency = document.getElementById('currency').innerHTML;
+		document.getElementById('sumCost').innerHTML = sum + currency;
 	}
 	
+	function getElements(){
+		var allElements = [];
+		var id = 0;
+		while(document.getElementById('cost' + id)){
+			allElements.push(document.getElementById('cost' + id));
+			id++;
+		}
+		return allElements;
+	}
 </script>

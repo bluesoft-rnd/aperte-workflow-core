@@ -230,7 +230,7 @@ public class TaskViewController extends AbstractProcessToolServletController
                             );
 
                 }
-            }, ExecutionType.NO_TRANSACTION_SYNCH);
+            }, ExecutionType.TRANSACTION_SYNCH);
 
             /* Write to outpit writer here, so there will be no invalid output
             for error in previous code with seession

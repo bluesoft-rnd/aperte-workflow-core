@@ -38,20 +38,18 @@
 	{
 		windowManager.addView("error-screen");
 		windowManager.addView("loading-screen");
-		<c:choose>
-              <c:when test="${externalTaskId!=null}">
-                     loadProcessView("${externalTaskId}");
-              </c:when>
-
-              <c:otherwise>
-				 <c:if test="${aperteUser.login!=null}">
-                      windowManager.showProcessList();
-					  reloadQueues();
-					  moveQueueList();
-				</c:if> 
-              </c:otherwise>
-        </c:choose>
-		
+		<c:if test="${aperteUser.login!=null}">
+			<c:choose>
+				  <c:when test="${externalTaskId!=null}">
+						 loadProcessView("${externalTaskId}");
+				  </c:when>
+				  <c:otherwise>
+						windowManager.showProcessList();
+				  </c:otherwise>
+			</c:choose>
+			reloadQueues();
+			moveQueueList();
+		</c:if> 
 
 	});
   

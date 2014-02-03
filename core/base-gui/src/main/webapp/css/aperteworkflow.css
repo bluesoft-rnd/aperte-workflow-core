@@ -795,6 +795,11 @@
 {
 	background-image: url(../images/progress_bar/loading_animation_2.gif) !important;
  }
+ 
+.login-select 
+{ 
+	width: 100%;
+}
 
 .loader
 {

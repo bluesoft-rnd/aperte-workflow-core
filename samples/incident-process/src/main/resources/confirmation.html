@@ -107,7 +107,7 @@
                 addAlert("Problem with obtaining employees from server");
                 return;
             }
-            console.log("resultBean status: " + resultBean.data);
+            //console.log("resultBean status: " + resultBean.data);
             var choosenTeam;
             $.each(resultBean.data, function(){
             	var name = this.name + ' ' + this.lastname + ' (' + this.email + ')';
@@ -118,7 +118,7 @@
             $("#incidentEmployee").select2("val", "${incidentEmployeeVal}");
         })
         .fail(function(request, status, error) {
-            console.log("an error was found: "+error);
+            //console.log("an error was found: "+error);
         });
     }
     

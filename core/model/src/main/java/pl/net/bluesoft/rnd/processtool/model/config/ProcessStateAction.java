@@ -68,7 +68,7 @@ public class ProcessStateAction extends AbstractPersistentEntity {
 
     private Boolean changeOwner = false;
 
-    private String changeOwnerAttribute = "";
+    private String changeOwnerAttributeName = "";
 
     private Boolean commentNeeded = false;
     
@@ -88,6 +88,7 @@ public class ProcessStateAction extends AbstractPersistentEntity {
 			"skipSaving",
             "commentNeeded",
             "changeOwner",
+            "changeOwnerAttributeName",
 			"markProcessImportant",
 			"priority",
 			"url",
@@ -280,11 +281,11 @@ public class ProcessStateAction extends AbstractPersistentEntity {
         this.changeOwner = changeOwner;
     }
 
-    public String getChangeOwnerAttribute() {
-        return changeOwnerAttribute;
+    public String getChangeOwnerAttributeName() {
+        return changeOwnerAttributeName;
     }
 
-    public void setChangeOwnerAttribute(String changeOwnerAttribute) {
-        this.changeOwnerAttribute = changeOwnerAttribute;
+    public void setChangeOwnerAttributeName(String changeOwnerAttributeName) {
+        this.changeOwnerAttributeName = changeOwnerAttributeName;
     }
 }

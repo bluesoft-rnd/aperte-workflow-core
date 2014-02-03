@@ -36,14 +36,14 @@
       <div class="modal-body">
 		<div class="modal-owner-errors"></div>
 			
-			<div class="form-group col-sm-4 ">
-                <label class="required" name="tooltip" title='<spring:message code="processes.action.button.change.owner.label.tootip" />' for="change-owner-select"><spring:message code="processes.action.button.change.owner.label" /></label>
-                <div id="change-owner-select" class="login-select" data-placeholder="<spring:message code='processes.action.button.change.owner.select.placeholder' />" ></div>
+			<div class="form-group input-group-sm ">
+                <label class="col-sm-4 control-label required" name="tooltip" title='<spring:message code="processes.action.button.change.owner.label.tootip" />' for="change-owner-select"><spring:message code="processes.action.button.change.owner.label" /></label>
+                <div id="change-owner-select" class="col-sm-8" data-placeholder="<spring:message code='processes.action.button.change.owner.select.placeholder' />" ></div>
             </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" onClick="cancelChangerOwnerModal()" data-dismiss="modal"><spring:message code="processes.action.button.comment.close" /></button>
-        <button id="action-changeowner-button" type="button" onClick="performChangeOwnerModal()" class="btn btn-primary" disabled="true"><spring:message code="processes.action.button.comment.perform" /></button>
+        <button id="action-changeowner-button"  type="button" onClick="performChangeOwnerModal()" class="btn btn-primary" disabled="true"><spring:message code="processes.action.button.comment.perform" /></button>
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->

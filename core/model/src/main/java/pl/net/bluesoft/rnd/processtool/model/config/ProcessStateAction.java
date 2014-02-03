@@ -66,6 +66,10 @@ public class ProcessStateAction extends AbstractPersistentEntity {
 
     private Boolean skipSaving = false;
 
+    private Boolean changeOwner = false;
+
+    private String changeOwnerAttribute = "";
+
     private Boolean commentNeeded = false;
     
     /** Should action be hidden for external access (e-mail shourtcuts)? */
@@ -83,6 +87,7 @@ public class ProcessStateAction extends AbstractPersistentEntity {
 			"actionType",
 			"skipSaving",
             "commentNeeded",
+            "changeOwner",
 			"markProcessImportant",
 			"priority",
 			"url",
@@ -266,4 +271,20 @@ public class ProcessStateAction extends AbstractPersistentEntity {
 	public void setHideForExternalAccess(Boolean hideForExternalAccess) {
 		this.hideForExternalAccess = hideForExternalAccess;
 	}
+
+    public Boolean getChangeOwner() {
+        return changeOwner;
+    }
+
+    public void setChangeOwner(Boolean changeOwner) {
+        this.changeOwner = changeOwner;
+    }
+
+    public String getChangeOwnerAttribute() {
+        return changeOwnerAttribute;
+    }
+
+    public void setChangeOwnerAttribute(String changeOwnerAttribute) {
+        this.changeOwnerAttribute = changeOwnerAttribute;
+    }
 }

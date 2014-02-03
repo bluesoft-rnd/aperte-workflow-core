@@ -26,6 +26,30 @@
   </div><!-- /.modal-dialog -->
 </div>
 
+<div class="modal fade aperte-modal" id="changeOwnerModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" onClick="cancelChangerOwnerModal()" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel"><spring:message code="processes.action.button.change.owner.title" /></h4>
+      </div>
+      <div class="modal-body">
+		<div class="modal-owner-errors"></div>
+			<spring:message code="processes.action.button.change.owner.body" />
+			
+			<div class="form-group col-sm-4 ">
+                <label class="required" name="tooltip" title="<spring:message code='processes.action.button.change.owner.label.tootip' />" for="change-owner-select"><spring:message code="processes.action.button.change.owner.label" /></label>
+                <div id="change-owner-select" class="login-select" data-placeholder="<spring:message code='processes.action.button.change.owner.select.placeholder' />"/>
+            </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" onClick="cancelChangerOwnerModal()" data-dismiss="modal"><spring:message code="processes.action.button.comment.close" /></button>
+        <button id="action-comment-button" type="button" onClick="performChangeOwnerModal()" class="btn btn-primary" disabled="true"><spring:message code="processes.action.button.comment.perform" /></button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div>
+
 <div class="modal fade aperte-modal" id="alertModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog">
 
@@ -61,6 +85,11 @@
 
 	}
 	
+	function cancelChangerOwnerModal()
+	{
+		$('#changeOwnerModal').modal('hide');
+	}
+	
 	function performCommentModal()
 	{
 		$('#commentModal').modal('hide');
@@ -68,6 +97,19 @@
 		if(!comment)
 		{
 			$('#modal-errors').append('<div class="alert"><button type="button" class="close" data-dismiss="alert">&times;</button><spring:message code="processes.action.button.comment.empty" /></div>');
+			return;
+		}
+		
+		performActionWithoutComment(tempButton, tempActionName, tempSkipSaving, tempTaskId, tempCommentNeeded, comment);
+	}
+	
+	function performChangeOwnerModal()
+	{
+		$('#changeOwnerModal').modal('hide');
+		var newOwnerLogin = $('#change-owner-select').val();
+		if(!newOwnerLogin)
+		{
+			$('#modal-owner-errors').append('<div class="alert"><button type="button" class="close" data-dismiss="alert">&times;</button><spring:message code="processes.action.button.change.owner.select.empty" /></div>');
 			return;
 		}
 		
@@ -198,7 +240,7 @@
 	}
 	
 	<!-- Check for comment required field -->
-	function performAction(button, actionName, skipSaving, commentNeeded, taskId)
+	function performAction(button, actionName, skipSaving, commentNeeded, changeOwner, taskId)
 	{
 		if(commentNeeded == true)
 		{
@@ -219,6 +261,24 @@
 				enableButtons();
 			});
 			
+		}
+		else if(changeOwner == true)
+		{
+			tempButton = button;
+			tempActionName = actionName;
+			tempSkipSaving = skipSaving;
+			tempTaskId = taskId;
+			tempCommentNeeded = commentNeeded;
+			
+			$('#action-comment-textarea').val('');
+			$('#commentModal').modal({
+			  keyboard: false
+			});
+			$('#commentModal').on('hidden.bs.modal', function (e) {
+			  	$('#modal-errors').empty();
+				$('#action-comment-textarea').val('');
+				enableButtons();
+			});
 		}
 		else
 		{

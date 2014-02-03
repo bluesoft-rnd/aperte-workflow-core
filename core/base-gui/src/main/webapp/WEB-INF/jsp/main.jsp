@@ -10,6 +10,8 @@
 <!--<script src="<%=request.getContextPath()%>/js/mp-admin-utils.js" ></script>-->
 
 <!--<h2>Aperte Workflow Maginificient Activities</h2>-->
+<%@include file="windowManager.jsp" %>
+
 <c:if test="${aperteUser.login!=null}">
 
 <div class="apw main-view">
@@ -31,7 +33,6 @@
  
   <script type="text/javascript">
     var dispatcherPortlet = '<portlet:resourceURL id="dispatcher"/>';
-	var windowManager = new WindowManager();
   
   	$(document).ready(function()
 	{
@@ -43,13 +44,15 @@
               </c:when>
 
               <c:otherwise>
+				 <c:if test="${aperteUser.login!=null}">
                       windowManager.showProcessList();
+					  reloadQueues();
+					  moveQueueList();
+				</c:if> 
               </c:otherwise>
         </c:choose>
 		
 
-		reloadQueues();
-		moveQueueList();
 	});
   
   	$(window).unload(function() 
@@ -58,164 +61,8 @@
 		
 	});
 	
-	function XOR(a,b) {
-	  return ( a || b ) && !( a && b );
-	} 
-	
-	function WindowView(viewId)
-	{
-		this.viewId = viewId;
-	}
 
   
-	function WindowManager()
-	{
-		this.currentView = 'process-panel-view';
-		this.viewHistory = [];
-		this.mobileMode = false;
-		this.tabletMode = false;
-		this.allViews = {};
-		
-		this.addView = function(viewId)
-		{
-			this.allViews[viewId] = new WindowView(viewId);
-		}
-		
-		this.previousView = function()
-		{
-			var lastView = this.viewHistory.pop();
-			if(lastView)
-			{
-				this.showView(this.allViews[lastView], false);
-				if(this.allViews[lastView].viewId == 'process-panel-view')
-				{
-					queueViewManager.reloadCurrentQueue();
-				}
-			}
-		}
-		
-		this.showLoadingScreen = function()
-		{
-			this.showView(this.allViews['loading-screen'], true);
-		}
-		
-		this.showQueueList = function()
-		{
-			this.showView(this.allViews['outer-queues'], true);
-		}
-		
-		
-		this.showConfiguration = function()
-		{
-			this.showView(this.allViews['configuration'], true);
-		}
-		
-		this.showSearchProcessPanel = function()
-		{
-			this.showView(this.allViews['search-view'], true);
-		}
-		
-		this.showNewProcessPanel = function()
-		{
-			this.showView(this.allViews['new-process-view'], true);
-		};
-		
-		this.showProcessList = function()
-		{
-			this.showView(this.allViews['process-panel-view'], true);
-		}
-		
-		this.showProcessData = function()
-		{
-			this.showView(this.allViews['process-data-view'], true);
-			$('#actions-list').fadeIn(600);
-		}
-		
-		this.hasPreviousView = function()
-		{
-			return this.viewHistory.length > 0;
-		}
-		
-		this.addError = function(errorMessage)
-		{
-			if($("#error-screen").is(":visible") == false)
-			{
-				$("#error-screen").fadeIn(500);
-				$("#loading-screen").hide();
-			}
-			
-			$('#error-screen').append('<div class="alert alert-error"><button type="button" class="close" data-dismiss="alert">&times;</button>'+errorMessage+'</div>')
-		}
-		
-		this.clearErrors = function()
-		{
-			$('#error-screen').empty();
-		}
-		
-		
-		
-
-		
-		this.showView = function(windowView, addToHistory)
-		{
-
-			$(document.getElementById(this.currentView)).stop(true, true);
-			
-			if(this.tabletMode == true && $("#mobile-collapse").hasClass('in') == true)
-			{
-				$("#mobile-collapse").collapse('hide');
-			}
-			windowManager.clearProcessView();
-			
-			$.each(this.allViews, function(index, view ) 
-			{ 
-				if(this != windowView.viewId)
-				{
-					$(document.getElementById(view.viewId)).hide();
-				}
-			});
-			
-			if("loading-screen" != this.currentView)
-			{
-				this.viewHistory.push(this.currentView);
-			}
-			
-			this.currentView = windowView.viewId;
-			$(document.getElementById(windowView.viewId)).fadeIn(500);
-		}
-		
-		
-		this.clearProcessView = function()
-		{
-			$('#actions-list').empty();
-			
-			widgets = [];
-			
-			<!-- required to close vaadin application -->
-			$('.vaadin-widget-view').each(function( ) 
-			{ 
-				var widgetToClose = $(this);
-				var widgetId = $(this).attr('widgetId');
-				var taskId = $(this).attr('taskId');
-				
-				var windowName = taskId+"_"+widgetId;
-				
-				var source = "widget/"+windowName+"_close/";
-				var url = '<spring:url value="/'+source+'"/>';
-				
-				
-				$.ajax(url)
-				.done(function() 
-				{
-					widgetToClose.remove();
-				});
-				
-			});
-			
-			vaadinWidgetsCount = 0;
-			vaadinWidgetsLoadedCount = 0;
-		}
-	}
   
 
 	

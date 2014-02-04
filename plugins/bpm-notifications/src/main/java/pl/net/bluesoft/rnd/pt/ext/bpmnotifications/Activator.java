@@ -12,6 +12,7 @@ import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent;
 import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent.Type;
 import pl.net.bluesoft.rnd.processtool.di.ClassDependencyManager;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.rnd.processtool.usersource.IUserSource;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.NotificationsConstants.ProviderType;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.addons.INotificationsAddonsManager;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.addons.mock.impl.NotificationAddonsMockManager;
@@ -45,6 +46,7 @@ public class Activator implements BundleActivator, EventListener<BpmEvent>
     private Logger logger = Logger.getLogger(Activator.class.getName());
 
     private BpmNotificationEngine engine;
+    private GroupedNotification groupedNotification;
 	MailEventListener mailEventListener;
 	private SchedulersActivator schedulerActivator;
 	
@@ -62,12 +64,14 @@ public class Activator implements BundleActivator, EventListener<BpmEvent>
 				
 				/* Init the bpm notification engine */
 				engine = new BpmNotificationEngine(processToolRegistry);
+				groupedNotification = new GroupedNotification(processToolRegistry);
 			}
         });
 		
 		schedulerActivator = new SchedulersActivator(processToolRegistry);
 
         processToolRegistry.getBundleRegistry().registerService(IBpmNotificationService.class, engine, new Properties());
+        processToolRegistry.getBundleRegistry().registerService(IBpmNotificationService.class, groupedNotification, new Properties());
         processToolRegistry.getEventBusManager().subscribe(BpmEvent.class, this);
 		
 		mailEventListener = new MailEventListener(engine);
@@ -75,6 +79,7 @@ public class Activator implements BundleActivator, EventListener<BpmEvent>
 		
 		/* Register scheduler for notifications sending */
 		schedulerActivator.scheduleNotificationsSend(engine);
+		schedulerActivator.scheduleNotificationsSend(groupedNotification);
 
 		getViewRegistry(processToolRegistry).registerGenericPortletViewRenderer("admin", BpmAdminPortletRender.INSTANCE);
 		getViewRegistry(processToolRegistry).registerGenericPortletViewRenderer("user", BpmAdminPortletRender.INSTANCE);

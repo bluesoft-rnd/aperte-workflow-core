@@ -83,7 +83,7 @@ public class BpmNotificationEngine implements IBpmNotificationService
     private static final Logger logger = Logger.getLogger(BpmNotificationEngine.class.getName());
 
     private Collection<BpmNotificationConfig> configCache = new HashSet<BpmNotificationConfig>();
-
+    
     private long cacheUpdateTime;
     private long refrshInterval;
 
@@ -499,7 +499,7 @@ public class BpmNotificationEngine implements IBpmNotificationService
         	Calendar cal = Calendar.getInstance();
     		cal.set(Calendar.SECOND, d.getSeconds());
     		cal.set(Calendar.HOUR_OF_DAY, d.getHours());
-    		cal.set(Calendar.MINUTE, d.getHours());
+    		cal.set(Calendar.MINUTE, d.getMinutes());
     		
     		//int time = cal.get(Calendar.HOUR_OF_DAY) * 3600 + cal.get(Calendar.MINUTE) * 60 + cal.get(Calendar.SECOND);
 	        
@@ -528,7 +528,6 @@ public class BpmNotificationEngine implements IBpmNotificationService
     			+ "\n subject=" + processedNotificationData.getSubject() 
     			+ "\n body=" + processedNotificationData.getBody());
     }
-    
     
     private void sendNotification(BpmNotification notification) throws Exception 
     {

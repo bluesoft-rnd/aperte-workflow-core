@@ -95,6 +95,9 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
             final String skipSaving = request.getParameter("skipSaving");
             final String commentNeeded = request.getParameter("commentNeeded");
             final String comment = request.getParameter("comment");
+            final String changeOwner = request.getParameter("changeOwner");
+            final String changeOwnerAttributeKey = request.getParameter("changeOwnerAttributeKey");
+            final String changeOwnerAttributeValue = request.getParameter("changeOwnerAttributeValue");
 
             if(isNull(taskId))
             {
@@ -109,6 +112,11 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
             else if("true".equals(commentNeeded) && isNull(comment))
             {
                 resultBean.addError(SYSTEM_SOURCE, context.getMessageSource().getMessage("request.performaction.error.noComment"));
+                return resultBean;
+            }
+            else if("true".equals(changeOwner) && isNull(changeOwnerAttributeKey))
+            {
+                resultBean.addError(SYSTEM_SOURCE, context.getMessageSource().getMessage("request.performaction.error.noChangeOwnerAttrKey"));
                 return resultBean;
             }
 
@@ -136,6 +144,12 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                         long t2 = System.currentTimeMillis();
 
                         BpmTask task = context.getBpmSession().getTaskData(taskId);
+
+                        if("true".equals(changeOwner))
+                        {
+                             task.getProcessInstance().setSimpleAttribute(changeOwnerAttributeKey, changeOwnerAttributeValue);
+                        }
+
                         List<BpmTask> newTasks = getBpmSession(context, task.getAssignee()).performAction(actionName, task, false);
 
                         long t3 = System.currentTimeMillis();

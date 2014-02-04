@@ -26,6 +26,29 @@
   </div><!-- /.modal-dialog -->
 </div>
 
+<div class="modal fade aperte-modal" id="changeOwnerModal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" onClick="cancelChangerOwnerModal()" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel"><spring:message code="processes.action.button.change.owner.title" /></h4>
+      </div>
+      <div class="modal-body">
+		<div class="modal-owner-errors"></div>
+			
+			<div class="form-group input-group-sm ">
+                <label class="col-sm-4 control-label required" name="tooltip" title='<spring:message code="processes.action.button.change.owner.label.tootip" />' for="change-owner-select"><spring:message code="processes.action.button.change.owner.label" /></label>
+                <div id="change-owner-select" class="col-sm-8" data-placeholder="<spring:message code='processes.action.button.change.owner.select.placeholder' />" ></div>
+            </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" onClick="cancelChangerOwnerModal()" data-dismiss="modal"><spring:message code="processes.action.button.comment.close" /></button>
+        <button id="action-changeowner-button"  type="button" onClick="performChangeOwnerModal()" class="btn btn-primary" disabled="true"><spring:message code="processes.action.button.comment.perform" /></button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div>
+
 <div class="modal fade aperte-modal" id="alertModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog">
 
@@ -51,6 +74,8 @@
 	var tempSkipSaving; 
 	var tempTaskId;
 	var tempCommentNeeded;
+	var tempChangeOwner;
+	var tempChangeOwnerAttrKey;
 	
 	var alertsShown = false;
 	var alertsInit = false;
@@ -59,6 +84,11 @@
 	{
 		$('#commentModal').modal('hide');
 
+	}
+	
+	function cancelChangerOwnerModal()
+	{
+		$('#changeOwnerModal').modal('hide');
 	}
 	
 	function performCommentModal()
@@ -71,7 +101,20 @@
 			return;
 		}
 		
-		performActionWithoutComment(tempButton, tempActionName, tempSkipSaving, tempTaskId, tempCommentNeeded, comment);
+		performActionWithoutComment(tempButton, tempActionName, tempSkipSaving, tempTaskId, tempCommentNeeded, comment, tempChangeOwner, '', '');
+	}
+	
+	function performChangeOwnerModal()
+	{
+		$('#changeOwnerModal').modal('hide');
+		var newOwnerLogin = $('#change-owner-select').val();
+		if(!newOwnerLogin)
+		{
+			$('#modal-owner-errors').append('<div class="alert"><button type="button" class="close" data-dismiss="alert">&times;</button><spring:message code="processes.action.button.change.owner.select.empty" /></div>');
+			return;
+		}
+		
+		performActionWithoutComment(tempButton, tempActionName, tempSkipSaving, tempTaskId, false, '',  true, tempChangeOwnerAttrKey, newOwnerLogin);
 	}
 
 
@@ -198,7 +241,7 @@
 	}
 	
 	<!-- Check for comment required field -->
-	function performAction(button, actionName, skipSaving, commentNeeded, taskId)
+	function performAction(button, actionName, skipSaving, commentNeeded, changeOwner, changeOwnerAttributeKey, taskId)
 	{
 		if(commentNeeded == true)
 		{
@@ -208,6 +251,7 @@
 			tempSkipSaving = skipSaving;
 			tempTaskId = taskId;
 			tempCommentNeeded = commentNeeded;
+			
 			
 			$('#action-comment-textarea').val('');
 			$('#commentModal').modal({
@@ -220,15 +264,72 @@
 			});
 			
 		}
+		else if(changeOwner == true)
+		{
+			tempButton = button;
+			tempActionName = actionName;
+			tempSkipSaving = skipSaving;
+			tempTaskId = taskId;
+			tempCommentNeeded = commentNeeded;
+			tempChangeOwner = changeOwner;
+			tempChangeOwnerAttrKey = changeOwnerAttributeKey;
+			
+			
+			$('#change-owner-select').val('');
+			$('#changeOwnerModal').modal({
+			  keyboard: false
+			});
+			$('#changeOwnerModal').on('hidden.bs.modal', function (e) {
+			  	$('#modal-errors').empty();
+				$('#change-owner-select').val('');
+				enableButtons();
+			});
+			
+			$("#change-owner-select").select2({
+				minimumInputLength: 3,
+				ajax: {
+					url: dispatcherPortlet,
+					dataType: 'json',
+					quietMillis: 200,
+					data: function (term, page) {
+						return {
+							q: term, // search term
+							page_limit: 10,
+							controller: "usercontroller",
+							page: page,
+							action: "getAllUsers"
+						};
+					},
+					results: function (data, page)
+					{
+						var results = [];
+						  $.each(data.data, function(index, item){
+							results.push({
+							  id: item.login,
+							  text: getReceivingPersonCaption(item)
+							});
+						  });
+						  return {
+							  results: results
+						  };
+					}
+				}
+			});
+			$("#change-owner-select").on("change", function(e) 
+			{
+				var selectedLogin = $('#change-owner-select').val();
+				$('#action-changeowner-button').attr("disabled", (!selectedLogin || selectedLogin == ''));
+			});
+		}
 		else
 		{
-			performActionWithoutComment(button, actionName, skipSaving, taskId, false, '');
+			performActionWithoutComment(button, actionName, skipSaving, taskId, false, '', false, '', '');
 		}
 		
 	}
 	
 	
-	function performActionWithoutComment(button, actionName, skipSaving, taskId, commentNeeded, comment)
+	function performActionWithoutComment(button, actionName, skipSaving, taskId, commentNeeded, comment, changeOwner, changeOwnerAttributeKey, changeOwnerAttributeValue)
 	{
 		var JsonWidgetData = "[{}]";
 
@@ -271,6 +372,9 @@
 			"skipSaving": skipSaving,
 			"commentNeeded": commentNeeded,
 			"comment": comment,
+			"changeOwner": changeOwner,
+			"changeOwnerAttributeKey": changeOwnerAttributeKey,
+			"changeOwnerAttributeValue": changeOwnerAttributeValue,
 			"widgetData": JsonWidgetData
 		})
 		.done(function(data)

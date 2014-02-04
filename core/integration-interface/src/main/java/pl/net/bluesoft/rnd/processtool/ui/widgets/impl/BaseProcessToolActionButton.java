@@ -29,6 +29,12 @@ public abstract class BaseProcessToolActionButton implements ProcessToolActionBu
     @AutoWiredProperty
     protected Boolean skipSaving = false;
 
+    @AutoWiredProperty
+    protected Boolean changeOwner = false;
+
+    @AutoWiredProperty
+    protected String changeOwnerAttributeName;
+
 	@AutoWiredProperty
 	protected Boolean autoHide = false;
 
@@ -86,6 +92,8 @@ public abstract class BaseProcessToolActionButton implements ProcessToolActionBu
 		map.put("actionType", definition.getActionType());
 		map.put("bpmAction", definition.getBpmName());
 		map.put("skipSaving", String.valueOf(definition.getSkipSaving()));
+        map.put("changeOwner", String.valueOf(definition.getChangeOwner()));
+        map.put("changeOwnerAttributeName", String.valueOf(definition.getChangeOwnerAttributeName()));
         map.put("commentNeeded", String.valueOf(definition.getCommentNeeded()));
 		map.put("markProcessImportant", String.valueOf(definition.getMarkProcessImportant()));
 		map.put("priority", String.valueOf(definition.getPriority()));
@@ -267,5 +275,21 @@ public abstract class BaseProcessToolActionButton implements ProcessToolActionBu
 
     public void setCommentNeeded(Boolean commentNeeded) {
         this.commentNeeded = commentNeeded;
+    }
+
+    public Boolean getChangeOwner() {
+        return changeOwner;
+    }
+
+    public void setChangeOwner(Boolean changeOwner) {
+        this.changeOwner = changeOwner;
+    }
+
+    public String getChangeOwnerAttributeName() {
+        return changeOwnerAttributeName;
+    }
+
+    public void setChangeOwnerAttributeName(String changeOwnerAttributeName) {
+        this.changeOwnerAttributeName = changeOwnerAttributeName;
     }
 }

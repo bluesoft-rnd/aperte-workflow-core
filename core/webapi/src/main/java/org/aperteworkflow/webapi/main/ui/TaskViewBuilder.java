@@ -521,7 +521,11 @@ public class TaskViewBuilder
                 .append(action.getSkipSaving())
                 .append(", ")
                 .append(action.getCommentNeeded())
+                .append(", ")
+                .append(action.getChangeOwner())
                 .append(", '")
+                .append(action.getChangeOwnerAttributeName())
+                .append("', '")
                 .append(task.getInternalTaskId())
                 .append("');  });");
 		scriptBuilder.append("$('#").append(actionButtonId).append("').tooltip({title: '").append(i18Source.getMessage(action.getDescription())).append("'});");

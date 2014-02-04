@@ -93,7 +93,7 @@ public class BpmNotificationEngine implements IBpmNotificationService
     /** Data provider for standard e-mail template */
     @AutoInject
     private ITemplateDataProvider templateDataProvider;
-    
+
     private ProcessToolRegistry registry;
     
 

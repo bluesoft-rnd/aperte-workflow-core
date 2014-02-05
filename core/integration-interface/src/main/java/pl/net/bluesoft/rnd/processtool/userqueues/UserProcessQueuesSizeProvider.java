@@ -131,6 +131,7 @@ public class UserProcessQueuesSizeProvider
 			String queueDesc = messageSource.getMessage(processQueue.getDescription());
 			
 			userQueueSize.addQueueSize(processQueue.getName(), queueId, queueDesc, processCount);
+            userQueueSize.setActiveTasks(userQueueSize.getActiveTasks() + processCount);
 		}
 		
 		usersQueuesSize.add(userQueueSize);
@@ -138,13 +139,10 @@ public class UserProcessQueuesSizeProvider
 
 	private boolean isAssignedToUserFilter(ProcessInstanceFilter filter)
 	{
-		if(filter.getQueueTypes().contains(QueueType.OWN_IN_PROGRESS))
-			return false;
+		if(filter.getQueueTypes().contains(QueueType.ALL_TASKS))
+			return true;
 
-		if(filter.getQueueTypes().contains(QueueType.OWN_FINISHED))
-			return false;
-
-		return true;
+		return false;
 	}
 
 	/**

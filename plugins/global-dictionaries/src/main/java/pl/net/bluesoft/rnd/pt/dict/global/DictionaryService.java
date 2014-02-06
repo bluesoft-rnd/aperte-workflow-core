@@ -9,6 +9,7 @@ import pl.net.bluesoft.rnd.processtool.web.controller.IOsgiWebController;
 import pl.net.bluesoft.rnd.processtool.web.controller.OsgiController;
 import pl.net.bluesoft.rnd.processtool.web.controller.OsgiWebRequest;
 import pl.net.bluesoft.rnd.processtool.web.domain.GenericResultBean;
+import pl.net.bluesoft.rnd.pt.dict.global.bean.DictionaryItem;
 import pl.net.bluesoft.util.lang.Pair;
 
 import java.util.ArrayList;
@@ -59,15 +60,17 @@ public class DictionaryService  implements IOsgiWebController {
             return result;
         }
         List<ProcessDictionaryItem> list = pd.sortedItems(langCode);
-        ArrayList<Pair<String,String>> reArray  =new ArrayList<Pair<String,String>>();
-        for(ProcessDictionaryItem pdi : list){
+        List<DictionaryItem> reArray  =new ArrayList<DictionaryItem>();
+
+        for(ProcessDictionaryItem pdi : list)
+        {
             String desc = pdi.getDescription(locale);
-            reArray.add(
-                 new Pair<String, String>(
-                         pdi.getKey(),
-                         pdi.getValueForDate(new Date()).getValue(locale)+ ((desc==null)?"":(" - "+desc))
-                 )
-            );
+            DictionaryItem dictionaryItem = new DictionaryItem();
+            dictionaryItem.setKey(pdi.getKey());
+            dictionaryItem.setValue(pdi.getValueForDate(new Date()).getValue(locale));
+            dictionaryItem.setDescription(desc);
+
+            reArray.add(dictionaryItem);
         }
 
         result.setData(reArray);

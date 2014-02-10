@@ -40,7 +40,8 @@
 			{
 				if(newUrl == '')
 				{
-					window.history.pushState('', '', this.oldUrl);
+					var currentUrl = location.href.replace(/&?taskId=([^&]$|[^&]*)/i, "");
+					window.history.pushState('', '', currentUrl);
 				}
 				else
 				{
@@ -77,6 +78,7 @@
 		
 		this.showProcessList = function()
 		{
+			this.changeUrl('');
 			this.showView(this.allViews['process-panel-view'], true);
 		}
 		
@@ -111,7 +113,6 @@
 		
 		this.showView = function(windowView, addToHistory)
 		{
-
 			$(document.getElementById(this.currentView)).stop(true, true);
 			
 			if(this.tabletMode == true && $("#mobile-collapse").hasClass('in') == true)

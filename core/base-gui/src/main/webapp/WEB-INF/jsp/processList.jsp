@@ -112,7 +112,6 @@
 	function loadProcessView(taskId)
 	{
 		windowManager.changeUrl('?taskId='+taskId);
-		windowManager.clearProcessView();
 		windowManager.showLoadingScreen();
 
 		var widgetJson = $.post('<portlet:resourceURL id="loadTask"/>',

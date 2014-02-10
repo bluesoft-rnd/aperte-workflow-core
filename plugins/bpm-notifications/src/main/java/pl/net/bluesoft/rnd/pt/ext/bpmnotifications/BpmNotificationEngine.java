@@ -2,19 +2,11 @@ package pl.net.bluesoft.rnd.pt.ext.bpmnotifications;
 
 import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 import static pl.net.bluesoft.util.lang.Strings.hasText;
+import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
 
 import java.net.ConnectException;
 import java.net.URL;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -576,7 +568,15 @@ public class BpmNotificationEngine implements IBpmNotificationService
         Message message = new MimeMessage(mailSession);
         message.setFrom(new InternetAddress(notification.getSender()));
         message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(notification.getRecipient()));
-        message.setSubject(notification.getSubject());
+
+		String recipientSubstiteEmails = getRecipientSubstiteEmails(notification);
+
+		if (recipientSubstiteEmails != null) {
+			message.setRecipients(Message.RecipientType.CC, InternetAddress.parse(recipientSubstiteEmails));
+            logger.info(String.format("Sending email to %s with CC %s", notification.getRecipient(), recipientSubstiteEmails));
+		}
+
+		message.setSubject(notification.getSubject());
         message.setSentDate(new Date());
         //body
         MimeBodyPart messagePart = new MimeBodyPart();
@@ -612,8 +612,38 @@ public class BpmNotificationEngine implements IBpmNotificationService
         
         return message;
     }
-    
-    /** Check if tranport protocol is set to smtps */
+
+	private static String getRecipientSubstiteEmails(BpmNotification notification) {
+		if (!hasText(notification.getRecipient())) {
+			 return null;
+		}
+		ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
+
+		UserData recipient = getRegistry().getUserSource().getUserByEmail(notification.getRecipient());
+
+		if (recipient == null) {
+			return null;
+		}
+
+        List <String> substitutesLogins = ctx.getUserSubstitutionDAO().getCurrentSubstitutedUserLogins(recipient.getLogin());
+
+		if (substitutesLogins.isEmpty()) {
+			return null;
+		}
+
+		Set<String> emails = new TreeSet<String>();
+
+		for (String substituteLogin : substitutesLogins)
+        {
+            UserData substitute = getRegistry().getUserSource().getUserByLogin(substituteLogin);
+			if (hasText(substitute.getEmail())) {
+				emails.add(substitute.getEmail());
+			}
+		}
+		return from(emails).ordered().toString(",");
+	}
+
+	/** Check if tranport protocol is set to smtps */
     private boolean isSmtpsRequired(javax.mail.Session mailSession)
     {
 		Properties emailPrtoperties = mailSession.getProperties();

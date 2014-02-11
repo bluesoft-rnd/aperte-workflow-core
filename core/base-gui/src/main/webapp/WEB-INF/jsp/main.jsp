@@ -36,6 +36,9 @@
   
   	$(document).ready(function()
 	{
+		// bootstrap moodals fix for ie7
+		$(".modal").appendTo($("body"));
+		
 		windowManager.addView("error-screen");
 		windowManager.addView("loading-screen");
 		<c:if test="${aperteUser.login!=null}">

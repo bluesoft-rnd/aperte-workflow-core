@@ -215,7 +215,7 @@
 			if(alertsInit == false)
 			{
 				alertsInit = true;
-				$('#alertModal').modal({
+				$('#alertModal').appendTo("body").modal({
 				  keyboard: false
 				});
 				$('#alertModal').on('hidden.bs.modal', function (e) {
@@ -226,7 +226,7 @@
 			}
 			else
 			{
-				$('#alertModal').modal('show');
+				$('#alertModal').appendTo("body").modal('show');
 			}
 			alertsShown = true;
 		}
@@ -254,7 +254,7 @@
 			
 			
 			$('#action-comment-textarea').val('');
-			$('#commentModal').modal({
+			$('#commentModal').appendTo("body").modal({
 			  keyboard: false
 			});
 			$('#commentModal').on('hidden.bs.modal', function (e) {
@@ -276,7 +276,7 @@
 			
 			
 			$('#change-owner-select').val('');
-			$('#changeOwnerModal').modal({
+			$('#changeOwnerModal').appendTo("body").modal({
 			  keyboard: false
 			});
 			$('#changeOwnerModal').on('hidden.bs.modal', function (e) {

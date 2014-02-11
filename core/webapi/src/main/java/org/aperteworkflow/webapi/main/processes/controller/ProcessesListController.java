@@ -517,7 +517,8 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                 }
 
                 JQueryDataTableColumn sortingColumn = dataTable.getFirstSortingColumn();
-
+                
+                filter.setFilterOwnerLogin(context.getUser().getLogin());
                 filter.setSortOrderCondition(mapColumnNameToOrderCondition(sortingColumn.getPropertyName()));
                 filter.setSortOrder(sortingColumn.getSortedAsc() ? QueueOrder.ASC : QueueOrder.DESC);
 

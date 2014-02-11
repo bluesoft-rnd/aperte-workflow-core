@@ -54,21 +54,26 @@
 	})();
 	
 	function searchProcess()
-	{
-		   if(isTableLoaded == false)
-		  {
+	{	
+		if($('#search-expression-text').val()){
+			if(isTableLoaded == false)
+			{
 				isTableLoaded = true;
 				loadSearchTable();
-		  }
-		  else
-		  {
-
+			}
+			else
+			{
 				var requestUrl = '<portlet:resourceURL id="searchTasks"/>';
 				requestUrl += "&<portlet:namespace/>sSearch=" + $('#search-expression-text').val();
 				requestUrl += "&<portlet:namespace/>processKey="+$('#search-process-type').val();
 
 				$('#searchTable').dataTable().fnReloadAjax(requestUrl);
-		  }
+			}
+		}
+		else
+		{
+			alert("Wprowadź szukaną frazę");
+		}
 	}
 	
 	function loadSearchTable() 

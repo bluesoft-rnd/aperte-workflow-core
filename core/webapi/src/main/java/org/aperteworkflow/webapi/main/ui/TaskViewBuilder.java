@@ -600,7 +600,7 @@ public class TaskViewBuilder
                 .append(task.getInternalTaskId())
                 .append("'); });")
                 .append("$('#").append(actionButtonId)
-                .append("').tooltip({title: '").append(i18Source.getMessage("button.exit")).append("'});");
+                .append("').tooltip({title: '").append(i18Source.getMessage("button.claim.descrition")).append("'});");
     }
 
 	public TaskViewBuilder setWidgets(List<ProcessStateWidget> widgets) 

@@ -42,8 +42,8 @@ public class UserController  implements IOsgiWebController
         Collection<UserData> filtered = new LinkedList<UserData>();
         for(UserData user: users)
         {
-            if(user.getRealName().toLowerCase().equals(queryTerm.toLowerCase()) ||
-                    user.getLogin().toLowerCase().equals(queryTerm.toLowerCase()))
+            if(user.getRealName().toLowerCase().contains(queryTerm.toLowerCase()) ||
+                    user.getLogin().toLowerCase().contains(queryTerm.toLowerCase()))
                 filtered.add(user);
         }
 

@@ -166,11 +166,13 @@ public class BpmTaskNotificationQuery {
 	}
 
 	private void fetchAdditionalDescription(List<BpmTaskNotification> result, Locale locale) {
-		if (result.isEmpty()) {
+		List<Long> taskIds = getTaskInProgressIds(result);
+
+		if (taskIds.isEmpty()) {
 			return;
 		}
 
-		SQLQuery query = getFetchAdditionalDescriptionQuery(result);
+		SQLQuery query = getFetchAdditionalDescriptionQuery(taskIds);
 
 		List<Object[]> queryResults = query.list();
 
@@ -219,7 +221,7 @@ public class BpmTaskNotificationQuery {
 		return result;
 	}
 
-	private SQLQuery getFetchAdditionalDescriptionQuery(List<BpmTaskNotification> result) {
+	private SQLQuery getFetchAdditionalDescriptionQuery(List<Long> taskIds) {
 		String queryString = "SELECT taskId, locale, message FROM pt_step_info WHERE taskId IN (:taskIds)";
 
 		SQLQuery query = getThreadProcessToolContext().getHibernateSession().createSQLQuery(queryString);
@@ -228,12 +230,16 @@ public class BpmTaskNotificationQuery {
 				.addScalar("locale", StandardBasicTypes.STRING)
 				.addScalar("message", StandardBasicTypes.STRING);
 
-		query.setParameterList("taskIds", getTaskInProgressIds(result));
+		query.setParameterList("taskIds", taskIds);
 
 		return query;
 	}
 
 	private List<Long> getTaskInProgressIds(List<BpmTaskNotification> list) {
+		if (list.isEmpty()) {
+			return Collections.emptyList();
+		}
+
 		List<Long> result = new ArrayList<Long>();
 
 		for (BpmTaskNotification notification : list) {

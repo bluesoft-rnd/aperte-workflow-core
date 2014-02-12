@@ -53,8 +53,8 @@
 	var queueInterval = '${queueInterval}';
 	var reloadQueuesLoopTimer;
 
-	 $(document).ready(function()
-	{
+	$(document).ready(function()
+	{	
 		windowManager.addView("outer-queues");
 		reloadQueuesLoopTimer = $.timer(function()
         	{
@@ -187,7 +187,7 @@
 		var layoutId = 'queue-view-' + processRow.queueId+'-'+userLogin;
 		var innerDivId = processRow.queueId+'-'+userLogin;
 
-		$( "<div>", { id : layoutId, "class": "queue-list-row-process", "data-queue-name": processRow.queueName, "data-user-login" : userLogin, "data-queue-type" : "process", "data-queue-desc" : processRow.queueDesc } )
+		$( "<div>", { id : layoutId, "class": "alert alert-info queue-list-row-process", "data-queue-name": processRow.queueName, "data-user-login" : userLogin, "data-queue-type" : "process", "data-queue-desc" : processRow.queueDesc, "onmouseover": "maouseOverQueue('"+layoutId+"');", "onmouseout": "maouseOutQueue('"+layoutId+"');" } )
 		.appendTo( '#'+accordionID );
 		
 		$(document).ready(function () {
@@ -203,7 +203,7 @@
 		$( "<div>", { id : innerDivId, "class": "queue-list-name"} )
 		.appendTo( '#'+layoutId );
 		
-		$( "<a>", { id : 'link-'+processRow.queueId, "class": "queue-list-link", text: processRow.queueDesc } )
+		$( "<div>", { id : 'link-'+processRow.queueId, "class": "queue-list-link", text: processRow.queueDesc } )
 		.appendTo( '#'+innerDivId );
 		
 		$( "<div>", { "class": "queue-list-size", text: processRow.queueSize} )
@@ -218,7 +218,7 @@
 		var layoutId = 'queue-view-' + queueRow.queueId+'-'+userLogin;
 		var innerDivId = queueRow.queueId+'-'+userLogin;
 
-		$( "<div>", { id : layoutId, "class": "queue-list-row-queue", "data-queue-name": queueRow.queueName, "data-user-login" : userLogin, "data-queue-type" : "queue", "data-queue-desc" : queueRow.queueDesc} )
+		$( "<div>", { id : layoutId, "class": "alert alert-info queue-list-row-queue", "data-queue-name": queueRow.queueName, "data-user-login" : userLogin, "data-queue-type" : "queue", "data-queue-desc" : queueRow.queueDesc, "onmouseover": "maouseOverQueue('"+layoutId+"');", "onmouseout": "maouseOutQueue('"+layoutId+"');" } )
 		.appendTo( '#'+accordionID );
 		
 		$(document).ready(function () {
@@ -234,7 +234,7 @@
 		$( "<div>", { id : innerDivId, "class": "queue-list-name"} )
 		.appendTo( '#'+layoutId );
 		
-		$( "<a>", { id : 'link-'+queueRow.queueId, "class": "queue-list-link", text: queueRow.queueDesc } )
+		$( "<div>", { id : 'link-'+queueRow.queueId, "class": "queue-list-link", text: queueRow.queueDesc } )
 		.appendTo( '#'+innerDivId );
 		
 		$( "<div>", { "class": "queue-list-size", text: queueRow.queueSize} )
@@ -242,6 +242,14 @@
 		
 		$( "<br>", { style: "clear: left;"} )
 		.appendTo( '#'+layoutId );
+	}
+	
+	function maouseOverQueue(id){
+		$('#'+id).attr('class','alert alert-warning queue-list-row-process');
+	}
+	
+	function maouseOutQueue(id){
+		$('#'+id).attr('class','alert alert-info queue-list-row-process');
 	}
 	
 	function showQueue(newQueueName, queueType, ownerLogin, queueDesc)

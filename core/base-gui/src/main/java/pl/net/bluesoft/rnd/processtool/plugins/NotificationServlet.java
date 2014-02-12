@@ -132,10 +132,11 @@ public class NotificationServlet extends HttpServlet {
 
 		for (BpmTaskNotification notification : notifications) {
 			if (notification.getCompletionDate() == null) {
-				out.print(String.format("<n i=\"%s\" l=\"%s\" d=\"%s\"/>",
+				out.print(String.format("<n i=\"%s\" l=\"%s\" d=\"%s\" ad=\"%s\"/>",
 						notification.getTaskId(),
 						escapeXml(notification.getLink()),
-						escapeXml(notification.getDescription())
+						escapeXml(nvl(notification.getDescription())),
+						escapeXml(nvl(notification.getAdditionalDescription()))
 				));
 			}
 		}

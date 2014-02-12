@@ -87,13 +87,13 @@ public class BpmTaskNotificationQuery {
 			Date creationDate = (Date)resultRow[3];
 			Date completionDate = (Date)resultRow[4];
 
-			ProcessDefinitionConfig definition = processDefinitionDAO.getCachedDefinitionById(processDefinitionId);
-			String description = definition.getProcessStateConfigurationByName(taskName).getDescription();
-
 			BpmTaskNotification notification = new BpmTaskNotification();
 
 			notification.setTaskId(taskId);
 			if (completionDate == null) {
+				ProcessDefinitionConfig definition = processDefinitionDAO.getCachedDefinitionById(processDefinitionId);
+				String description = definition.getProcessStateConfigurationByName(taskName).getDescription();
+
 				notification.setDescription(i18NSource.getMessage(description));
 				if (activityPortletUrl != null) {
 					notification.setLink(withEnding(activityPortletUrl, "/") + "?taskId=" + taskId);
@@ -104,6 +104,7 @@ public class BpmTaskNotificationQuery {
 
 			result.add(notification);
 		}
+		fetchAdditionalDescription(result, locale);
 		return result;
 	}
 
@@ -162,5 +163,84 @@ public class BpmTaskNotificationQuery {
 		}
 
 		return sb.toString();
+	}
+
+	private void fetchAdditionalDescription(List<BpmTaskNotification> result, Locale locale) {
+		if (result.isEmpty()) {
+			return;
+		}
+
+		SQLQuery query = getFetchAdditionalDescriptionQuery(result);
+
+		List<Object[]> queryResults = query.list();
+
+		Map<Long, Map<String, String>> descrByTaskIdByLocale = groupByTaskIdByLocale(queryResults);
+
+		for (BpmTaskNotification notification : result) {
+			String additionalDescr = getAdditionalDescr(descrByTaskIdByLocale, notification.getTaskId(), locale);
+
+			notification.setAdditionalDescription(additionalDescr);
+		}
+	}
+
+	private String getAdditionalDescr(Map<Long, Map<String, String>> descrByTaskIdByLocale, Long taskId, Locale locale) {
+		Map<String, String> byLocale = descrByTaskIdByLocale.get(taskId);
+
+		if (byLocale != null) {
+			String result = byLocale.get(locale.getCountry()); // specific language
+
+			if (result == null) { // default language
+				result = byLocale.get(null);
+			}
+			if (result == null) { // any
+				result = byLocale.values().iterator().next();
+			}
+			return result;
+		}
+		return null;
+	}
+
+	private Map<Long, Map<String, String>> groupByTaskIdByLocale(List<Object[]> queryResults) {
+		Map<Long, Map<String, String>> result = new HashMap<Long, Map<String, String>>();
+
+		for (Object[] resultRow : queryResults) {
+			Long taskId = (Long)resultRow[0];
+			String locale = (String)resultRow[1];
+			String message = (String)resultRow[2];
+
+			Map<String, String> byLocale = result.get(taskId);
+
+			if (byLocale == null) {
+				byLocale = new HashMap<String, String>();
+				result.put(taskId, byLocale);
+			}
+			byLocale.put(locale, message);
+		}
+		return result;
+	}
+
+	private SQLQuery getFetchAdditionalDescriptionQuery(List<BpmTaskNotification> result) {
+		String queryString = "SELECT taskId, locale, message FROM pt_step_info WHERE taskId IN (:taskIds)";
+
+		SQLQuery query = getThreadProcessToolContext().getHibernateSession().createSQLQuery(queryString);
+
+		query.addScalar("taskId", StandardBasicTypes.LONG)
+				.addScalar("locale", StandardBasicTypes.STRING)
+				.addScalar("message", StandardBasicTypes.STRING);
+
+		query.setParameterList("taskIds", getTaskInProgressIds(result));
+
+		return query;
+	}
+
+	private List<Long> getTaskInProgressIds(List<BpmTaskNotification> list) {
+		List<Long> result = new ArrayList<Long>();
+
+		for (BpmTaskNotification notification : list) {
+			if (notification.getCompletionDate() == null) {
+				result.add(notification.getTaskId());
+			}
+		}
+		return result;
 	}
 }

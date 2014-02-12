@@ -38,8 +38,6 @@
 				</div>
 			</div>
 
-
-
 	</nav>
 </div>
 <div class="navigation-border" ></div>
@@ -61,6 +59,7 @@
                reloadQueues();
             });
 		reloadQueuesLoopTimer.set({ time : queueInterval, autostart : true });
+		var a = document.getElementsByClassName('queue-list-row-process');
 	});
 
 	function moveQueueList()
@@ -187,7 +186,7 @@
 		var layoutId = 'queue-view-' + processRow.queueId+'-'+userLogin;
 		var innerDivId = processRow.queueId+'-'+userLogin;
 
-		$( "<div>", { id : layoutId, "class": "alert alert-info queue-list-row-process", "data-queue-name": processRow.queueName, "data-user-login" : userLogin, "data-queue-type" : "process", "data-queue-desc" : processRow.queueDesc, "onmouseover": "maouseOverQueue('"+layoutId+"');", "onmouseout": "maouseOutQueue('"+layoutId+"');" } )
+		$( "<div>", { id : layoutId, "class": "queue-button", "data-queue-name": processRow.queueName, "data-user-login" : userLogin, "data-queue-type" : "process", "data-queue-desc" : processRow.queueDesc} )
 		.appendTo( '#'+accordionID );
 		
 		$(document).ready(function () {
@@ -218,7 +217,7 @@
 		var layoutId = 'queue-view-' + queueRow.queueId+'-'+userLogin;
 		var innerDivId = queueRow.queueId+'-'+userLogin;
 
-		$( "<div>", { id : layoutId, "class": "alert alert-info queue-list-row-queue", "data-queue-name": queueRow.queueName, "data-user-login" : userLogin, "data-queue-type" : "queue", "data-queue-desc" : queueRow.queueDesc, "onmouseover": "maouseOverQueue('"+layoutId+"');", "onmouseout": "maouseOutQueue('"+layoutId+"');" } )
+		$( "<div>", { id : layoutId, "class": "queue-button", "data-queue-name": queueRow.queueName, "data-user-login" : userLogin, "data-queue-type" : "queue", "data-queue-desc" : queueRow.queueDesc} )
 		.appendTo( '#'+accordionID );
 		
 		$(document).ready(function () {
@@ -245,7 +244,7 @@
 	}
 	
 	function maouseOverQueue(id){
-		$('#'+id).attr('class','alert alert-warning queue-list-row-process');
+		$('#'+id).attr('class','alert alert-danger queue-list-row-process');
 	}
 	
 	function maouseOutQueue(id){

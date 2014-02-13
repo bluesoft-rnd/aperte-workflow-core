@@ -81,7 +81,7 @@ for (Map.Entry<String, List<ProcessDefinitionConfig>> group : groups.entrySet())
 			jsonAttributes = JSON.stringify(processData, null, 2);
 		}
 		
-		var widgetJson = $.getJSON('<portlet:resourceURL id="startNewProcess"/>',
+		var widgetJson = $.post('<portlet:resourceURL id="startNewProcess"/>',
 		{
 			"bpmDefinitionId": bpmDefinitionKey,
 			"processSimpleAttributes": jsonAttributes

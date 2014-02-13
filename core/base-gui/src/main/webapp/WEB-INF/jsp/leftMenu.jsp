@@ -115,7 +115,7 @@
 		reloadQueuesLoopTimer.pause();
 		try
 		{
-			var queuesJson = $.getJSON('<portlet:resourceURL id="getUserQueues"/>', function(queues)
+			var queuesJson = $.post('<portlet:resourceURL id="getUserQueues"/>', function(queues)
 			{ 
 				$('#queue-view-block').empty();
 				

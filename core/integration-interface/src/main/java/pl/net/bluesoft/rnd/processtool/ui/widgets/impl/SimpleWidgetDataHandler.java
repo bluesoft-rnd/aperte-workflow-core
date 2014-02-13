@@ -3,9 +3,7 @@ package pl.net.bluesoft.rnd.processtool.ui.widgets.impl;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
-import java.util.Map;
 
-import org.springframework.web.util.HtmlUtils;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.*;
@@ -26,6 +24,10 @@ public class SimpleWidgetDataHandler implements IWidgetDataHandler
     public Collection<HandlingResult> handleWidgetData(BpmTask task, WidgetData data)
     {
         ProcessInstance process = task.getProcessInstance();
+        ProcessInstance rootProcess = task.getRootProcessInstance();
+        if(rootProcess == null)
+            rootProcess = process;
+
         Collection<HandlingResult> results = new LinkedList<HandlingResult>();
 
         for(WidgetDataEntry widgetData: data.getWidgetDataEntries())
@@ -33,10 +35,13 @@ public class SimpleWidgetDataHandler implements IWidgetDataHandler
             String key = widgetData.getKey();
             String type = widgetData.getType();
 
+            boolean saveToRoot = widgetData.getSaveToRoot();
+            ProcessInstance processToSave =  saveToRoot ? rootProcess : process;
+
 
             if(keysToIgnoreProvider == null || !keysToIgnoreProvider.getKeysToIgnore().contains(key))
             {
-                String oldValue = getOldValue(process, widgetData);
+                String oldValue = getOldValue(processToSave, widgetData);
 
                 String newValue = widgetData.getValue();
                 if(oldValue != null && !oldValue.equals(newValue)) {
@@ -44,7 +49,9 @@ public class SimpleWidgetDataHandler implements IWidgetDataHandler
                 }
             }
 
-            setNewValue(process, widgetData);
+
+
+            setNewValue(processToSave, widgetData);
         }
         return results;
     }

@@ -9,7 +9,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" onClick="cancelCommentModal()" aria-hidden="true">&times;</button>
+        <button id="button-close-comment-modal" type="button" class="close" data-dismiss="modal" onClick="cancelCommentModal()" aria-hidden="true">&times;</button>
         <h4 class="modal-title" id="myModalLabel"><spring:message code="processes.action.button.comment.title" /></h4>
       </div>
       <div class="modal-body">
@@ -19,8 +19,8 @@
 			<textarea id="action-comment-textarea" class="modal-comment-textarea" onkeyup="checkActionCommentValue(event)" ></textarea>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-default" onClick="cancelCommentModal()" data-dismiss="modal"><spring:message code="processes.action.button.comment.close" /></button>
-        <button id="action-comment-button" type="button" onClick="performCommentModal()" class="btn btn-primary" disabled="true"><spring:message code="processes.action.button.comment.perform" /></button>
+        <button id="button-close-comment-modal-2" type="button" class="btn btn-default"  data-dismiss="modal"><spring:message code="processes.action.button.comment.close" /></button>
+        <button id="action-comment-button" type="button" class="btn btn-primary" disabled="true"><spring:message code="processes.action.button.comment.perform" /></button>
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
@@ -30,7 +30,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" onClick="cancelChangerOwnerModal()" aria-hidden="true">&times;</button>
+        <button type="button" id="button-close-changeowner-modal" class="close" data-dismiss="modal" onClick="cancelChangerOwnerModal()" aria-hidden="true">&times;</button>
         <h4 class="modal-title" id="myModalLabel"><spring:message code="processes.action.button.change.owner.title" /></h4>
       </div>
       <div class="modal-body">
@@ -42,8 +42,8 @@
             </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-default" onClick="cancelChangerOwnerModal()" data-dismiss="modal"><spring:message code="processes.action.button.comment.close" /></button>
-        <button id="action-changeowner-button"  type="button" onClick="performChangeOwnerModal()" class="btn btn-primary" disabled="true"><spring:message code="processes.action.button.comment.perform" /></button>
+        <button type="button" id="button-close-changeowner-modal-2" class="btn btn-default"  data-dismiss="modal"><spring:message code="processes.action.button.comment.close" /></button>
+        <button id="action-changeowner-button"  type="button" class="btn btn-primary" disabled="true"><spring:message code="processes.action.button.comment.perform" /></button>
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
@@ -80,6 +80,28 @@
 	var alertsShown = false;
 	var alertsInit = false;
 	
+	$(document).ready(function () {
+		$("#button-close-changeowner-modal").on("click", function () {
+			cancelChangerOwnerModal();
+		});
+		$("#button-close-changeowner-modal-2").on("click", function () {
+			cancelChangerOwnerModal();
+		});
+		$("#action-changeowner-button").on("click", function () {
+			performChangeOwnerModal();
+		});
+		
+		$("#button-close-comment-modal").on("click", function () {
+			cancelCommentModal();
+		});
+		$("#button-close-comment-modal-2").on("click", function () {
+			cancelCommentModal();
+		});
+		$("#action-comment-button").on("click", function () {
+			performCommentModal();
+		});
+	});
+	
 	function cancelCommentModal()
 	{
 		$('#commentModal').modal('hide');
@@ -93,8 +115,8 @@
 	
 	function performCommentModal()
 	{
-		$('#commentModal').modal('hide');
 		var comment = $('#action-comment-textarea').val();
+		$('#commentModal').modal('hide');
 		if(!comment)
 		{
 			$('#modal-errors').append('<div class="alert"><button type="button" class="close" data-dismiss="alert">&times;</button><spring:message code="processes.action.button.comment.empty" /></div>');
@@ -106,8 +128,8 @@
 	
 	function performChangeOwnerModal()
 	{
-		$('#changeOwnerModal').modal('hide');
 		var newOwnerLogin = $('#change-owner-select').val();
+		$('#changeOwnerModal').modal('hide');
 		if(!newOwnerLogin)
 		{
 			$('#modal-owner-errors').append('<div class="alert"><button type="button" class="close" data-dismiss="alert">&times;</button><spring:message code="processes.action.button.change.owner.select.empty" /></div>');

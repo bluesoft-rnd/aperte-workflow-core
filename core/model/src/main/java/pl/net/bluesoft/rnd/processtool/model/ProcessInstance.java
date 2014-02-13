@@ -1,5 +1,6 @@
 package pl.net.bluesoft.rnd.processtool.model;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Index;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
@@ -8,6 +9,7 @@ import pl.net.bluesoft.util.lang.cquery.func.F;
 
 import javax.persistence.*;
 import java.util.*;
+import java.util.logging.LogRecord;
 
 import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
 
@@ -614,4 +616,20 @@ public class ProcessInstance extends AbstractPersistentEntity
 		result.addAll(getProcessAttributes());
 		return result;
 	}
+
+
+
+    public void addProcessLogInfo(String infoHeader, String infoBody, Collection<String> parameters)
+    {
+        ProcessInstanceLog log = new ProcessInstanceLog();
+        log.setState(null);
+        log.setEntryDate(new Date());
+        log.setEventI18NKey(infoHeader);
+        log.setUserLogin("");
+        log.setLogType(ProcessInstanceLog.LOG_TYPE_INFO);
+        log.setOwnProcessInstance(this);
+        log.setLogValue(infoBody);
+        log.setAdditionalInfo(StringUtils.join(parameters, ","));
+        getRootProcessInstance().addProcessLog(log);
+    }
 }

@@ -119,7 +119,6 @@
 		
 		this.showView = function(windowView, addToHistory)
 		{
-			console.log('show: ' + windowView.viewId);
 			$(document.getElementById(this.currentView)).stop(true, true);
 			
 			if(this.tabletMode == true && $("#mobile-collapse").hasClass('in') == true)
@@ -138,7 +137,6 @@
 			
 			if("loading-screen" != this.currentView && this.currentView != windowView.viewId)
 			{
-				console.log('push: ' + this.currentView);
 				this.viewHistory.push(this.currentView);
 			}
 			

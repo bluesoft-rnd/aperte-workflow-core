@@ -6,43 +6,60 @@
         <div class="panel-body form-inline">
             <ul class="list-group aperte-list-group">
                 <#list processLogs as log>
-                    <#if log.getLogType() != "PROCESS_CHANGE">
-                        <li class="list-group-item">
-                            <#assign actionUser = userSource.getUserByLogin(log.getUserLogin())!""/>
-                            <#assign substitutionUserLogin = log.getUserSubstituteLogin()!""/>
-                            <h4 class="list-group-item-heading">
-                                <strong>
-                                    ${log.getEntryDate()?string("dd-MM-yyyy HH:mm:ss")} :
-                                </strong>
-                                ${messageSource.getMessage(log.getEventI18NKey())}
-                                <#assign entryDescription = log.getAdditionalInfo()!log.getLogValue()!""/>
-                                <#if entryDescription != "">
-                                    -  ${messageSource.getMessage(entryDescription)}
-                                </#if>
-                            </h4>
-                            <p class="list-group-item-text">
-                                <strong>${messageSource.getMessage("process.history.action.by")}: </strong>
+                    <#switch log.getLogType()>
+                        <#case "PROCESS_CHANGE">
+                            <#break>
+                        <#case "INFO">
+                            <li class="list-group-item">
+                                <h4 class="list-group-item-heading">
+                                    <strong>
+                                        ${log.getEntryDate()?string("dd-MM-yyyy HH:mm:ss")} :
+                                    </strong>
+                                    ${messageSource.getMessage(log.getEventI18NKey())}
+                                </h4>
+                                <p class="list-group-item-text">
+                                    <#assign messageParameters = log.getAdditionalInfo()?split(",")/>
+                                    ${messageSource.getMessage(log.getLogValue(), "", messageParameters)}
+                                </p>
+                            </li>
+                            <#break>
+                        <#default>
+                            <li class="list-group-item">
+                                <#assign actionUser = userSource.getUserByLogin(log.getUserLogin())!""/>
+                                <#assign substitutionUserLogin = log.getUserSubstituteLogin()!""/>
+                                <h4 class="list-group-item-heading">
+                                    <strong>
+                                        ${log.getEntryDate()?string("dd-MM-yyyy HH:mm:ss")} :
+                                    </strong>
+                                    ${messageSource.getMessage(log.getEventI18NKey())}
+                                    <#assign entryDescription = log.getAdditionalInfo()!log.getLogValue()!""/>
+                                    <#if entryDescription != "">
+                                        -  ${messageSource.getMessage(entryDescription)}
+                                    </#if>
+                                </h4>
+                                <p class="list-group-item-text">
+                                    <strong>${messageSource.getMessage("process.history.action.by")}: </strong>
 
-                                ${actionUser.getRealName()} ( ${log.getUserLogin()} )
-                                <#if substitutionUserLogin != "">
-                                    <#assign substitutionUser = userSource.getUserByLogin(substitutionUserLogin)!""/>
-                                    ${messageSource.getMessage("process.history.subsituted.by")} :
-                                    ${substitutionUser.getRealName()} ( ${substitutionUserLogin} )
-                                </#if>
+                                    ${actionUser.getRealName()} ( ${log.getUserLogin()} )
+                                    <#if substitutionUserLogin != "">
+                                        <#assign substitutionUser = userSource.getUserByLogin(substitutionUserLogin)!""/>
+                                        ${messageSource.getMessage("process.history.subsituted.by")} :
+                                        ${substitutionUser.getRealName()} ( ${substitutionUserLogin} )
+                                    </#if>
 
-                            </p>
-                            <p class="list-group-item-text ">
+                                </p>
+                                <p class="list-group-item-text ">
 
-                                <#assign state = log.getState()!""/>
-                                <#if state != "">
-                                    <#assign stateDesc = state.getDescription()!state.getName()!""/>
-                                    <strong>${messageSource.getMessage("process.history.new.state")}:</strong>
+                                    <#assign state = log.getState()!""/>
+                                    <#if state != "">
+                                        <#assign stateDesc = state.getDescription()!state.getName()!""/>
+                                        <strong>${messageSource.getMessage("process.history.new.state")}:</strong>
 
-                                    ${messageSource.getMessage(stateDesc)}
-                                </#if>
-                            </p>
-                        </li>
-                    </#if>
+                                        ${messageSource.getMessage(stateDesc)}
+                                    </#if>
+                                </p>
+                            </li>
+                    </#switch>
                 </#list>
             </ul>
         </div>

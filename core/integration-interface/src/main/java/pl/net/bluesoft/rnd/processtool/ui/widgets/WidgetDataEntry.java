@@ -8,6 +8,7 @@ public class WidgetDataEntry
     private String key;
     private String value;
     private String type;
+    private Boolean saveToRoot = false;
 
     public String getKey() {
         return key;
@@ -32,6 +33,14 @@ public class WidgetDataEntry
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public Boolean getSaveToRoot() {
+        return saveToRoot;
+    }
+
+    public void setSaveToRoot(Boolean saveToRoot) {
+        this.saveToRoot = saveToRoot;
     }
 
     @Override

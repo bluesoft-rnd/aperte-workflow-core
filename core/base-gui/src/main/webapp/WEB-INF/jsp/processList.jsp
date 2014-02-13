@@ -127,7 +127,6 @@
 			checkIfViewIsLoaded();
 		})
 		.fail(function(data, textStatus, errorThrown) {
-			//console.log("fail: "+data.statusText + " : " + textStatus + " : " + errorThrown);
 			
 		});
 	}

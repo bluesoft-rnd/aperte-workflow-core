@@ -9,6 +9,7 @@ import java.util.Date;
 public class BpmTaskNotification {
 	private Long taskId;
 	private String description;
+	private String additionalDescription;
 	private String link;
 	private Date creationDate;
 	private Date completionDate;
@@ -27,6 +28,14 @@ public class BpmTaskNotification {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public String getAdditionalDescription() {
+		return additionalDescription;
+	}
+
+	public void setAdditionalDescription(String additionalDescription) {
+		this.additionalDescription = additionalDescription;
 	}
 
 	public String getLink() {

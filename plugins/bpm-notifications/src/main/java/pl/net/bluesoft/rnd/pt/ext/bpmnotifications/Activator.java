@@ -69,9 +69,10 @@ public class Activator implements BundleActivator, EventListener<BpmEvent>
         });
 		
 		schedulerActivator = new SchedulersActivator(processToolRegistry);
-
+		
+		processToolRegistry.getBundleRegistry().registerService(IBpmNotificationService.class, groupedNotification, new Properties());
         processToolRegistry.getBundleRegistry().registerService(IBpmNotificationService.class, engine, new Properties());
-        processToolRegistry.getBundleRegistry().registerService(IBpmNotificationService.class, groupedNotification, new Properties());
+        
         processToolRegistry.getEventBusManager().subscribe(BpmEvent.class, this);
 		
 		mailEventListener = new MailEventListener(engine);

@@ -42,6 +42,7 @@ public class SimpleWidgetDataHandler implements IWidgetDataHandler
             if(keysToIgnoreProvider == null || !keysToIgnoreProvider.getKeysToIgnore().contains(key))
             {
                 String oldValue = getOldValue(processToSave, widgetData);
+                if(oldValue == null) { oldValue = ""; }
 
                 String newValue = widgetData.getValue();
                 if(oldValue != null && !oldValue.equals(newValue)) {

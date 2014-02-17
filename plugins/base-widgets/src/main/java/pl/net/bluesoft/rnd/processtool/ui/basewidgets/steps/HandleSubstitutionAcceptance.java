@@ -56,10 +56,10 @@ public class HandleSubstitutionAcceptance implements ProcessToolProcessStep
 
         UserSubstitution userSubstitution = new UserSubstitution();
 
-        userSubstitution.setUserLogin(processInstance.getSimpleAttributeValue(userSubstituteLoginAttributeName));
-        userSubstitution.setDateFrom(beginOfDay(parseShortDate(processInstance.getSimpleAttributeValue(dateFromAttributeName))));
-        userSubstitution.setDateTo(endOfDay(parseShortDate(processInstance.getSimpleAttributeValue(dateToAttributeName))));
-        userSubstitution.setUserSubstituteLogin(processInstance.getSimpleAttributeValue(userLoginAttributeName));
+        userSubstitution.setUserLogin(userLoginKey);
+        userSubstitution.setDateFrom(beginOfDay(parseShortDate(dateFromKey)));
+        userSubstitution.setDateTo(endOfDay(parseShortDate(dateToKey)));
+        userSubstitution.setUserSubstituteLogin(userSubstituteLoginKey);
 
         getThreadProcessToolContext().getUserSubstitutionDAO().saveOrUpdate(userSubstitution);
         logger.warning("Added substitution for user " + userSubstitution.getUserLogin());

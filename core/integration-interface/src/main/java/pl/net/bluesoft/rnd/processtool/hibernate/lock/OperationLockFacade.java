@@ -1,14 +1,20 @@
 package pl.net.bluesoft.rnd.processtool.hibernate.lock;
 
+import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.dao.OperationLockDAO;
 import pl.net.bluesoft.rnd.processtool.hibernate.lock.exception.AquireOperationLockException;
 import pl.net.bluesoft.rnd.processtool.model.OperationLock;
+import pl.net.bluesoft.rnd.processtool.model.OperationLockMode;
+import pl.net.bluesoft.rnd.processtool.model.UserData;
 
+import javax.persistence.UniqueConstraint;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -72,8 +78,14 @@ public class OperationLockFacade implements ILockFacade
             OperationLock existingLock = lockDAO.getLock(options.getLockName());
 
             /* Check if there is already a lock */
-            if(existingLock != null && !shouldReleaseLock(existingLock))
-                throw new AquireOperationLockException(options.getLockName() + " lock still valid");
+            if(existingLock != null)
+            {
+                if(!shouldReleaseLock(existingLock))
+                    throw new AquireOperationLockException(options.getLockName() + " lock still valid");
+
+                lockDAO.removeLock(existingLock);
+            }
+
 
             Calendar cal = Calendar.getInstance();
             cal.setTime(new Date());
@@ -103,7 +115,7 @@ public class OperationLockFacade implements ILockFacade
     private boolean shouldReleaseLock(OperationLock existingLock)
     {
 
-        if(existingLock.getLockReleaseDate().after(new Date()))
+        if((new Date()).after(existingLock.getLockReleaseDate()))
             return true;
         else
             return false;

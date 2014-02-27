@@ -59,7 +59,6 @@
                reloadQueues();
             });
 		reloadQueuesLoopTimer.set({ time : queueInterval, autostart : true });
-		var a = document.getElementsByClassName('queue-list-row-process');
 	});
 
 	function moveQueueList()

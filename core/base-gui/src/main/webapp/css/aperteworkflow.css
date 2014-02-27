@@ -427,6 +427,8 @@
 		width:200px;
 		float:left;
 		margin-right: 20px;
+		border: none;
+		background: none;
 		
 	}
 	
@@ -799,6 +801,24 @@
 	
 }
 
+.badge.badge-queue-link
+{
+	background-color: #5cb85c;;
+}
+
+
+.panel-title.panel-title-aperte
+{
+	font-size:14px;
+	font: Arial, Helvetica, Verdana, sans-serif;
+}
+
+.panel-heading.panel-heading-aperte-queues
+{
+	background-color: #51A5BE;
+	color: #ffffff;
+}
+
 .vaadin-widget-view
 {
 	background-repeat: no-repeat;
@@ -1088,6 +1108,13 @@ button, button:hover
     color: rgb(247, 248, 249);
     text-shadow: 0 -1px 0 rgb(46, 90, 132);
 	
+}
+
+.list-group-item.list-group-item-left-menu
+{
+	font-size: 14px;
+	padding-left: 5px;
+	padding-right: 5px;
 }
 
 .process-version-info
@@ -1406,6 +1433,10 @@ div.DTTT_print_info p {
 	line-height: 20px;
 }
 
+input[type="submit"], input[type="button"], input[type="reset"], button, .lfr-actions, .lfr-actions ul
+{
+	text-shadow: none !important;
+}
 
 
 /*
@@ -1451,4 +1482,12 @@ div.DTFC_LeftBodyWrapper tbody tr:first-child td {
 div.DTFC_RightFootWrapper table,
 div.DTFC_LeftFootWrapper table {
     border-top: none;
+}
+
+.apw_highlight {
+padding: 9px 14px;
+margin-bottom: 14px;
+background-color: #f7f7f9;
+border: 1px solid #e1e1e8;
+border-radius: 4px;
 }

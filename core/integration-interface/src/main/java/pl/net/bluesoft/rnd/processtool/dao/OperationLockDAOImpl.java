@@ -9,9 +9,7 @@ import pl.net.bluesoft.rnd.processtool.model.OperationLockMode;
 import static org.hibernate.criterion.Restrictions.eq;
 
 /**
- * User: POlszewski
- * Date: 2011-08-31
- * Time: 10:18:37
+ * @author mpawlak@bluesoft.net.pl
  */
 public class OperationLockDAOImpl extends SimpleHibernateBean<OperationLock> implements OperationLockDAO {
     public OperationLockDAOImpl(Session hibernateSession) {
@@ -46,7 +44,7 @@ public class OperationLockDAOImpl extends SimpleHibernateBean<OperationLock> imp
         if(lock == null)
             return;
 
-        getSession().delete(operationLock);
+        getSession().delete(lock);
         getSession().flush();
     }
 }

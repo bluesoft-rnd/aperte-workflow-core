@@ -11,7 +11,7 @@
 <%@ taglib uri="http://liferay.com/tld/portlet" prefix="liferay-portlet" %>
 
 <div id="new-process-view" class="new-process-block" hidden="true">
-	<div class="process-queue-name">
+	<div class="process-queue-name apw_highlight">
 		<spring:message code="new.process.view.header" />
 	</div>
 

@@ -4,7 +4,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <div class="process-panel" id="process-panel-view" hidden="true">
-	<div class="process-queue-name" id="process-queue-name-id">
+	<div class="process-queue-name apw_highlight" id="process-queue-name-id">
 		 
 	</div>
 	

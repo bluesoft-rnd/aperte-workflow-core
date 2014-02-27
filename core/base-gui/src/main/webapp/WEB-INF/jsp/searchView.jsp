@@ -7,7 +7,7 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 
 <div id="search-view" hidden="true" class="search-view">
-	<div class="process-queue-name">
+	<div class="process-queue-name apw_highlight">
 		<spring:message code="searching.view.header" />
 	</div>
 	<div id="search-process-table">

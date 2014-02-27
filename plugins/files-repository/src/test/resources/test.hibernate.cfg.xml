@@ -7,9 +7,9 @@
 
         <!-- this values are provided by ProcessToolRegistryImpl class -->
         <property name="hibernate.connection.driver_class">org.postgresql.Driver</property>
-        <property name="hibernate.connection.url">jdbc:postgresql://127.0.0.1:5432/dpd-jbpm</property>
-        <property name="hibernate.connection.username">dpd</property>
-        <property name="hibernate.connection.password">dpd</property>
+        <property name="hibernate.connection.url">jdbc:postgresql://127.0.0.1:5432/jbpm</property>
+        <property name="hibernate.connection.username">jbpm</property>
+        <property name="hibernate.connection.password">jbpm</property>
         <!-- <property name="hibernate.connection.datasource">java:comp/env/jdbc/aperte-workflow-ds</property> -->
 
         <!--<property name="connection.release_mode">after_statement</property>-->

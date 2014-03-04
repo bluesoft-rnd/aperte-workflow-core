@@ -22,7 +22,7 @@
           	color: gray;
             float: right;
         }
-
+	div.apw .navbar.left-menu, 
 	.navbar.left-menu
 	{
 		margin-right: 20px;
@@ -422,6 +422,7 @@
 		overflow: hidden;
 	}
 	
+	div.apw .navbar.left-menu, 
 	.navbar.left-menu
 	{
 		width:200px;
@@ -431,7 +432,7 @@
 		background: none;
 		
 	}
-	
+	div.apw .nav.left-menu,
 	.nav.left-menu
 	{
 		display: none !important;
@@ -777,6 +778,7 @@
 	background: none;
 }
 
+div.apw .list-group.aperte-list-group,
 .list-group.aperte-list-group
 {
 	margin: 0px;
@@ -801,18 +803,20 @@
 	
 }
 
+div.apw .badge.badge-queue-link,
 .badge.badge-queue-link
 {
 	background-color: #5cb85c;;
 }
 
-
+div.apw .panel-title.panel-title-aperte,
 .panel-title.panel-title-aperte
 {
 	font-size:14px;
 	font: Arial, Helvetica, Verdana, sans-serif;
 }
 
+div.apw .panel-heading.panel-heading-aperte-queues,
 .panel-heading.panel-heading-aperte-queues
 {
 	background-color: #51A5BE;
@@ -920,7 +924,7 @@ input[disabled], select[disabled], textarea[disabled], input[readonly], select[r
 		text-shadow: none; 
 }
 
-
+div.apw .navbar-inner.left-menu,
 .navbar-inner.left-menu
 {
 	padding: 0px;
@@ -983,6 +987,9 @@ input[disabled], select[disabled], textarea[disabled], input[readonly], select[r
 	background-color: #f5f5f5;
 }
 
+div.apw input[type="text"],
+div.apw textarea, 
+div.apw button, div.apw button:hover,
 input[type="text"],
 textarea, 
 button, button:hover
@@ -1354,8 +1361,13 @@ div.dataTables_scrollFoot table {
 	border-top: none;
 }
 
-
-
+div.apw .table thead th,
+.table thead tr th, 
+.table thead th
+{
+	background-color: white;
+	font-weight: bold;
+}
 
 /*
  * TableTools styles

@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+import org.springframework.web.servlet.LocaleResolver;
 import pl.net.bluesoft.rnd.processtool.web.domain.IProcessToolRequestContext;
 
 import pl.net.bluesoft.rnd.processtool.authorization.IAuthorizationService;
@@ -15,6 +16,8 @@ import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
+
+import java.util.Locale;
 
 /** 
  * Factory for web process tool context based on servlet and portlet requests 
@@ -34,6 +37,9 @@ public class WebProcessToolContextFactory implements IWebProcessToolContextFacto
     @Autowired
     private I18NSourceFactory i18NSourceFactory;
 
+    @Autowired
+    private LocaleResolver localeResolver;
+
     public WebProcessToolContextFactory()
     {
         SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
@@ -51,7 +57,9 @@ public class WebProcessToolContextFactory implements IWebProcessToolContextFacto
 			
 			processToolContext.setUser(user);
 
-			I18NSource messageSource = i18NSourceFactory.createI18NSource(request.getLocale());
+            Locale locale = localeResolver.resolveLocale(request);
+
+			I18NSource messageSource = i18NSourceFactory.createI18NSource(locale);
 			processToolContext.setMessageSource(messageSource);
 			
 			ProcessToolBpmSession bpmSession = (ProcessToolBpmSession)context.getAttribute(ProcessToolBpmSession.class.getName());

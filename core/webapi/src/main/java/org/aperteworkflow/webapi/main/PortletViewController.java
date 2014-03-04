@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.portlet.ModelAndView;
 import org.springframework.web.portlet.bind.annotation.RenderMapping;
 import org.springframework.web.portlet.bind.annotation.ResourceMapping;
+import org.springframework.web.servlet.LocaleResolver;
 
 import javax.portlet.*;
 import javax.servlet.ServletException;
@@ -50,6 +51,9 @@ public class PortletViewController extends AbstractMainController<ModelAndView>
 
     @Autowired(required = false)
     private ProcessesListController processesListController;
+
+    @Autowired
+    private LocaleResolver localeResolver;
 
 
     @RenderMapping()
@@ -149,6 +153,8 @@ public class PortletViewController extends AbstractMainController<ModelAndView>
     @ResponseBody
     public ModelAndView getUserQueues(ResourceRequest request, ResourceResponse response) {
         HttpServletRequest originalHttpServletRequest = getOriginalHttpServletRequest(request);
+        HttpServletResponse httpServletResponse = portalUserSource.getHttpServletResponse(response);
+        localeResolver.setLocale(originalHttpServletRequest, httpServletResponse, request.getLocale());
         return translate(PORTLET_JSON_RESULT_ROOT_NAME, queuesController.getUserQueues(originalHttpServletRequest));
     }
 
@@ -200,6 +206,8 @@ public class PortletViewController extends AbstractMainController<ModelAndView>
     @ResponseBody
     public ModelAndView loadProcessesList(ResourceRequest request, ResourceResponse response) throws IOException, ServletException {
         HttpServletRequest originalHttpServletRequest = getOriginalHttpServletRequest(request);
+        HttpServletResponse httpServletResponse = portalUserSource.getHttpServletResponse(response);
+        localeResolver.setLocale(originalHttpServletRequest, httpServletResponse, request.getLocale());
 
         return translate(PORTLET_JSON_RESULT_ROOT_NAME, processesListController.loadProcessesList(originalHttpServletRequest));
     }

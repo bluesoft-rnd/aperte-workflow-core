@@ -580,6 +580,8 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 			return new DataPagingBean<BpmTaskBean>(adminAlertBeanList, 0, dataTable.getEcho());
 		}
 
+        Locale locale = request.getLocale();
+
 		final IProcessToolRequestContext context = this.initilizeContext(request,getProcessToolRegistry().getProcessToolSessionFactory());
 		
 		if(!context.isUserAuthorized())

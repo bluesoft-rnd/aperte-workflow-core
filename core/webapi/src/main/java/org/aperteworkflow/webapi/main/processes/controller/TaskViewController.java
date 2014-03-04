@@ -139,25 +139,24 @@ public class TaskViewController extends AbstractProcessToolServletController
             logger.info("loadTask ...");
             long t0 = System.currentTimeMillis();
 
-            final I18NSource messageSource = I18NSourceFactory.createI18NSource(request.getLocale());
-
             /* Get process state configuration db id */
             final String taskId = request.getParameter("taskId");
 
+            /* Initilize request context */
+            final IProcessToolRequestContext context = this.initilizeContext(request,getProcessToolRegistry().getProcessToolSessionFactory());
+
             if(isNull(taskId))
             {
-                response.getWriter().print(messageSource.getMessage("request.performaction.error.notaskid"));
+                response.getWriter().print(context.getMessageSource().getMessage("request.performaction.error.notaskid"));
                 return;
             }
 
             long t1 = System.currentTimeMillis();
 
-            /* Initilize request context */
-            final IProcessToolRequestContext context = this.initilizeContext(request,getProcessToolRegistry().getProcessToolSessionFactory());
 
             if(!context.isUserAuthorized())
             {
-                response.getWriter().print(messageSource.getMessage("request.handle.error.nouser"));
+                response.getWriter().print(context.getMessageSource().getMessage("request.handle.error.nouser"));
                 return;
             }
 
@@ -181,7 +180,7 @@ public class TaskViewController extends AbstractProcessToolServletController
                     long t1 = System.currentTimeMillis();
 
                     ProcessStateConfiguration config = task.getCurrentProcessStateConfiguration();
-                    String processDescription = messageSource.getMessage(config.getDefinition().getDescription());
+                    String processDescription = context.getMessageSource().getMessage(config.getDefinition().getDescription());
                     String processVersion = String.valueOf(config.getDefinition().getBpmDefinitionVersion());
 
                     long t2 = System.currentTimeMillis();
@@ -203,7 +202,7 @@ public class TaskViewController extends AbstractProcessToolServletController
                         .setActions(actions)
                         .setDescription(processDescription)
                         .setVersion(processVersion)
-                        .setI18Source(messageSource)
+                        .setI18Source(context.getMessageSource())
                         .setUser(context.getUser())
                         .setCtx(ctx)
                         .setUserQueues(context.getUserQueues())

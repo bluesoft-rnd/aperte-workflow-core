@@ -15,6 +15,29 @@
 	padding: 5px;
 }
 
+.form-search input,
+.aui .form-search textarea,
+.aui .form-search select,
+.aui .form-search .help-inline,
+.aui .form-search .uneditable-input,
+.aui .form-search .input-prepend,
+.aui .form-search .input-append,
+.aui .form-inline input, .aui .form-inline textarea,
+.aui .form-inline select, .aui .form-inline .help-inline,
+.aui .form-inline .uneditable-input, .aui .form-inline .input-prepend,
+.aui .form-inline .input-append, .aui .form-horizontal input,
+.aui .form-horizontal textarea, .aui .form-horizontal select,
+.aui .form-horizontal .help-inline, .aui .form-horizontal .uneditable-input,
+.aui .form-horizontal .input-prepend, .aui .form-horizontal .input-append
+{
+	display: table;
+}
+
+.aui input[disabled], .aui select[disabled], .aui textarea[disabled], .aui input[readonly], .aui select[readonly], .aui textarea[readonly]
+{
+    background-color: #f4f4f4 !important;
+}
+
 .aperte-navigation-signin
 {
 	font-size: 18px;

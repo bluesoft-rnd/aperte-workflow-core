@@ -17,7 +17,7 @@ public class SetVariablesStep implements ProcessToolProcessStep {
 	private String query;
 	
 	@AutoWiredProperty
-	private Boolean applyToRoot = false;
+	private String applyToRoot;
 
 	private final static Logger logger = Logger.getLogger(SetVariablesStep.class.getName());
 
@@ -27,7 +27,7 @@ public class SetVariablesStep implements ProcessToolProcessStep {
 
     	ProcessInstance pi = step.getProcessInstance();
 
-    	if(applyToRoot)
+    	if("true".equals(applyToRoot))
     		pi = pi.getRootProcessInstance();
 
     	if(query == null)

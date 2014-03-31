@@ -72,7 +72,7 @@
 		<portlet-name>Aperte Workflow Plugin Manager</portlet-name>
 		<instanceable>false</instanceable>
 		<ajaxable>false</ajaxable>
-		<control-panel-entry-category>portal</control-panel-entry-category>
+		<control-panel-entry-category>configuration</control-panel-entry-category>
 		<control-panel-entry-weight>0.5</control-panel-entry-weight>
 		<header-portlet-javascript>/sa/js/jquery.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/jquery-ui-1.8.4.custom.min.js</header-portlet-javascript>
@@ -86,7 +86,7 @@
 		<portlet-name>Aperte Workflow Process Definition Manager</portlet-name>
 		<instanceable>false</instanceable>
 		<ajaxable>false</ajaxable>
-		<control-panel-entry-category>portal</control-panel-entry-category>
+		<control-panel-entry-category>configuration</control-panel-entry-category>
 		<control-panel-entry-weight>0.6</control-panel-entry-weight>
 		<header-portlet-javascript>/sa/js/jquery.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/jquery-ui-1.8.4.custom.min.js</header-portlet-javascript>
@@ -100,7 +100,7 @@
 		<portlet-name>Aperte Workflow Process Instance Manager</portlet-name>
 		<instanceable>false</instanceable>
 		<ajaxable>false</ajaxable>
-		<control-panel-entry-category>portal</control-panel-entry-category>
+		<control-panel-entry-category>configuration</control-panel-entry-category>
 		<control-panel-entry-weight>0.7</control-panel-entry-weight>
 		<header-portlet-javascript>/sa/js/jquery.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/jquery-ui-1.8.4.custom.min.js</header-portlet-javascript>
@@ -114,7 +114,7 @@
 		<portlet-name>AperteWorkflow User Substitutions</portlet-name>
 		<instanceable>false</instanceable>
 		<ajaxable>false</ajaxable>
-		<control-panel-entry-category>portal</control-panel-entry-category>
+		<control-panel-entry-category>configuration</control-panel-entry-category>
 		<control-panel-entry-weight>0.8</control-panel-entry-weight>
 		<header-portlet-javascript>/sa/js/jquery.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/jquery-ui-1.8.4.custom.min.js</header-portlet-javascript>
@@ -128,7 +128,7 @@
 		<portlet-name>Aperte Workflow Admin Portlet</portlet-name>
 		<instanceable>false</instanceable>
 		<ajaxable>false</ajaxable>
-		<control-panel-entry-category>portal</control-panel-entry-category>
+		<control-panel-entry-category>configuration</control-panel-entry-category>
 		<control-panel-entry-weight>0.9</control-panel-entry-weight>
 		<header-portlet-javascript>/sa/js/jquery.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/jquery-ui-1.8.4.custom.min.js</header-portlet-javascript>

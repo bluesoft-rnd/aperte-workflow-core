@@ -80,13 +80,21 @@ public class PropertiesBasedI18NProvider implements I18NProvider {
 
 	@Override
 	public String getMessage(String key, Locale locale) {
-		if (key == null) return null;
-		String msg = getCachedProperties("_" + locale.getLanguage() + "_" + locale.getCountry()).getProperty(key);
-		if (msg == null) {
-			msg = getCachedProperties("_" + locale.getLanguage()).getProperty(key);
+		if (key == null)
+            return null;
+
+        String lang = locale.getLanguage();
+        String country = locale.getCountry();
+
+		String msg = getCachedProperties("_" + lang + "_" + country).getProperty(key);
+		if (msg == null)
+        {
+            Properties properties = getCachedProperties("_" + lang);
+			msg = properties.getProperty(key);
 		}
 		if (msg == null) {
-			msg = getCachedProperties("").getProperty(key);
+            Properties properties = getCachedProperties("");
+            msg = properties.getProperty(key);
 		}
 		return msg;
 	}

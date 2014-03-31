@@ -4,6 +4,7 @@ import com.liferay.portal.NoSuchUserException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.model.User;
+import com.liferay.portal.service.PortalLocalServiceUtil;
 import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.util.Portal;
 import com.liferay.portal.util.PortalUtil;
@@ -67,6 +68,7 @@ public class LiferayUserSource implements IPortalUserSource, CacheProvider
 
 				for (long companyId : companyIds) {
 					try {
+
 						User u = UserLocalServiceUtil.getUserByScreenName(companyId, login);
 						if (u != null) {
 							return LiferayUserConverter.convertLiferayUser(u);

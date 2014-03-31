@@ -1,6 +1,7 @@
 package pl.net.bluesoft.rnd.pt.ext.jbpm.service.query;
 
 import org.hibernate.SQLQuery;
+import org.hibernate.dialect.Dialect;
 import org.hibernate.type.StandardBasicTypes;
 import pl.net.bluesoft.rnd.processtool.BasicSettings;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
@@ -10,6 +11,7 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 
+import java.sql.Types;
 import java.util.*;
 
 import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
@@ -45,6 +47,8 @@ public class BpmTaskNotificationQuery {
 
     private String user;
     private Date date;
+
+    private Dialect hibernateDialect;
 
     private int offset;
     private int limit = -1;
@@ -139,6 +143,7 @@ public class BpmTaskNotificationQuery {
 
     private String getQueryString(List<QueryParameter> queryParameters) {
         StringBuilder sb = new StringBuilder(3 * 512);
+        String castTypeName = hibernateDialect.getCastTypeName(Types.VARCHAR);
 
         sb.append("SELECT task_.id as taskId, \t\n" +
                 " i18ntext_.shorttext AS taskName,\n" +
@@ -147,7 +152,7 @@ public class BpmTaskNotificationQuery {
                 " task_.completedOn AS completionDate\n" +
                 "FROM \n" +
                 " pt_process_instance process \n" +
-                " JOIN task task_ ON CAST(task_.processinstanceid AS VARCHAR(10)) = process.internalId\n" +
+                " JOIN task task_ ON CAST(task_.processinstanceid AS "+castTypeName+") = process.internalId\n" +
                 " JOIN i18ntext i18ntext_ ON i18ntext_.task_names_id = task_.id\n" +
                 "WHERE 1=1\n");
 
@@ -249,4 +254,8 @@ public class BpmTaskNotificationQuery {
 		}
 		return result;
 	}
+
+    public void setHibernateDialect(Dialect hibernateDialect) {
+        this.hibernateDialect = hibernateDialect;
+    }
 }

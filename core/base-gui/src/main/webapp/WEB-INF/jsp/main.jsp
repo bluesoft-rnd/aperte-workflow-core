@@ -10,11 +10,14 @@
 <!--<script src="<%=request.getContextPath()%>/js/mp-admin-utils.js" ></script>-->
 
 <!--<h2>Aperte Workflow Maginificient Activities</h2>-->
-<%@include file="windowManager.jsp" %>
+<%@include file="utils/windowManager.jsp" %>
+<%@include file="utils/apertedatatable.jsp" %>
+<%@include file="utils/globals.jsp" %>
 
 <c:if test="${aperteUser.login!=null}">
 
 <div class="apw main-view">
+	
 	<%@include file="leftMenu.jsp" %>
 	<%@include file="taskView.jsp" %>
 	<%@include file="widgetList.jsp" %>
@@ -32,7 +35,7 @@
  </c:if> 
  
   <script type="text/javascript">
-    var dispatcherPortlet = '<portlet:resourceURL id="dispatcher"/>';
+
   
   	$(document).ready(function()
 	{

@@ -74,6 +74,7 @@ public class DispatcherController extends AbstractProcessToolServletController
                 controllerInvocation.setProcessToolRequestContext(context);
                 controllerInvocation.setRequest(request);
                 controllerInvocation.setResponse(response);
+                controllerInvocation.setProcessToolContext(ctx);
                 try {
                     Object result = controllerMethod.invoke(servletController, controllerInvocation);
                     return result;

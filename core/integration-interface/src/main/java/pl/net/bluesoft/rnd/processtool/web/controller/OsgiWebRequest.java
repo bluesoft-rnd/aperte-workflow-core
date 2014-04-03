@@ -1,5 +1,6 @@
 package pl.net.bluesoft.rnd.processtool.web.controller;
 
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.web.domain.IProcessToolRequestContext;
 
 import javax.servlet.http.HttpServletRequest;
@@ -12,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 public class OsgiWebRequest {
     private HttpServletRequest request;
     private HttpServletResponse response;
+    private ProcessToolContext processToolContext;
     private IProcessToolRequestContext processToolRequestContext;
 
     public HttpServletRequest getRequest() {
@@ -36,5 +38,13 @@ public class OsgiWebRequest {
 
     public void setResponse(HttpServletResponse response) {
         this.response = response;
+    }
+
+    public ProcessToolContext getProcessToolContext() {
+        return processToolContext;
+    }
+
+    public void setProcessToolContext(ProcessToolContext processToolContext) {
+        this.processToolContext = processToolContext;
     }
 }

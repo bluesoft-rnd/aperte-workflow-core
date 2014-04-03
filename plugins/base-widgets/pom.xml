@@ -160,7 +160,8 @@
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.SetProcessBusinessStatus
                         </ProcessTool-Step-Enhancement>
                         <ProcessTool-Controller>
-                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.controller.UserController
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.controller.UserController,
+                            org.aperteworkflow.admin.controller.SubstitutionController
                         </ProcessTool-Controller>
                       <!--  <ProcessTool-Widget-Script>
                         requests-scripts.js;provider:=file

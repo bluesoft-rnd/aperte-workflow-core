@@ -21,13 +21,13 @@
 	<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter"/>
     <bean class="org.springframework.web.portlet.mvc.annotation.DefaultAnnotationHandlerMapping" />
 	
-    <context:component-scan base-package="org.aperteworkflow.webapi.structsync" />
+    <context:component-scan base-package="org.aperteworkflow.webapi.registry" />
 
-    <bean class="org.aperteworkflow.webapi.structsync.StructSyncViewController" />
+    <bean class="org.aperteworkflow.webapi.admin.controller.AdminSubstitutionController" />
 
     <bean id="customTemplateLoader" class="org.aperteworkflow.webapi.FreemarkerOsgiTemplateLoader">
-        <property name="path" value="/pl/net/bluesoft/dpd/api/service/templates/" />
-        <property name="controllerName" value="dpdservice" />
+        <property name="path" value="/org/aperteworkflow/templates/" />
+        <property name="controllerName" value="templateservice" />
     </bean>
     <!-- freemarker config -->
     <bean id="freemarkerConfig" class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
@@ -58,13 +58,6 @@
     </bean>
 
 
-    <!-- bean id="jspViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-        <property name="viewClass" value="org.springframework.web.servlet.view.InternalResourceView"></property>
-        <property name="prefix" value="/WEB-INF/jsp/"></property>
-        <property name="suffix" value=".jsp"></property>
-
-        <property name="order" value="1"></property>
-    </bean -->
 
 
 </beans>

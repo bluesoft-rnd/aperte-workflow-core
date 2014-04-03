@@ -12,6 +12,6 @@
         <portlet id="AperteWorkflow User Substitutions"/>
         <portlet id="Aperte Workflow Process Definition Manager"/>
         <portlet id="Aperte Workflow Process Instance Manager"/>
-        <portlet id="Aperte Workflow Admin Portlet"/>
+        <portlet id="Aperte Workflow Substitution Manager"/>
     </category>
 </display>

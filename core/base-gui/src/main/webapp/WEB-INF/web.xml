@@ -8,13 +8,7 @@
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>
     <listener>
-        <listener-class>com.liferay.portal.kernel.servlet.SerializableSessionAttributeListener</listener-class>
-    </listener>
-    <listener>
         <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
-    </listener>
-    <listener>
-        <listener-class>com.liferay.portal.kernel.servlet.PortletContextListener</listener-class>
     </listener>
     <listener>
         <!-- each gui for each BPM engine should provide its own implementation
@@ -46,25 +40,6 @@
 		<auth-method>BASIC</auth-method>
 		<realm-name>default</realm-name>
 	</login-config>
-
-    <!-- LIFERAY USER MAPPING FOR SPRING SERVLET (AJAX) REQUEST -->
-    <!-- Without this filters, the user authorization for servlet request in post ajax request doesn' work -->
-    <filter>
-        <filter-name>Auto Login Filter</filter-name>
-        <filter-class>com.liferay.portal.kernel.servlet.PortalClassLoaderFilter</filter-class>
-        <init-param>
-            <param-name>filter-class</param-name>
-            <param-value>com.liferay.portal.servlet.filters.autologin.AutoLoginFilter</param-value>
-        </init-param>
-    </filter>
-    <filter>
-        <filter-name>Servlet Authorizing Filter</filter-name>
-        <filter-class>com.liferay.portal.kernel.servlet.PortalClassLoaderFilter</filter-class>
-        <init-param>
-            <param-name>filter-class</param-name>
-            <param-value>com.liferay.portal.servlet.filters.servletauthorizing.ServletAuthorizingFilter</param-value>
-        </init-param>
-    </filter>
 
 	<filter>
 		<filter-name>Cache Filter - Resource</filter-name>

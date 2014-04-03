@@ -52,6 +52,9 @@
             <property name="hibernate.transaction.manager_lookup_class" value="org.hibernate.transaction.BTMTransactionManagerLookup" />
             <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
             <property name="hibernate.transaction.flush_before_completion" value="true"/>
+            <property name="hibernate.connection.url" value="jdbc:postgresql://localhost:5432/jbpm6"/>
+            <property name="hibernate.connection.username" value="dpd"/>
+            <property name="hibernate.connection.password" value="dpd"/>
         </properties>
     </persistence-unit>
 

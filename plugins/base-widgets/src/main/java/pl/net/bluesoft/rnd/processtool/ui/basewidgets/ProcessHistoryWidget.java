@@ -36,7 +36,7 @@ import static pl.net.bluesoft.util.lang.Strings.hasText;
  * @author mpawlak@bluesoft.net.pl
  */
 @AliasName(name = "ProcessHistoryWidget", type = WidgetType.Html)
-@WidgetGroup("demand-process")
+@WidgetGroup("common")
 @AperteDoc(humanNameKey="widget.process_history.name", descriptionKey="widget.process_history.description")
 @ChildrenAllowed(false)
 public class ProcessHistoryWidget extends ProcessHtmlWidget {

@@ -28,7 +28,7 @@ import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.g
 
 
 @AliasName(name = "UserSubstitutionRequestWidget", type = WidgetType.Html)
-@WidgetGroup("demand-process")
+@WidgetGroup("common")
 @AperteDoc(humanNameKey="widget.substitution.request.name", descriptionKey="widget.substitution.request.description")
 @ChildrenAllowed(false)
 public class UserSubstitutionRequestWidget extends ProcessHtmlWidget

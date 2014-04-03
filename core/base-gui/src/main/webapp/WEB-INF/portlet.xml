@@ -4,59 +4,27 @@
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              version="2.0"
              xsi:schemaLocation="http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd">
-	
-	<portlet>
-		<portlet-name>AperteWorkflow Permission Portlet</portlet-name>
-		<display-name>Aperte Workflow Extended Permission Portlet</display-name>
-        <portlet-class>org.springframework.web.portlet.DispatcherPortlet</portlet-class>
-		<init-param>
-		  <name>contextConfigLocation</name>
-		  <value>/WEB-INF/spring/aperte-ex-permission-portlet.xml</value>
-		</init-param>
-		<supports>
-			<mime-type>text/html</mime-type>
-		</supports>
-		<portlet-info>
-			<title>Aperte Workflow Extended Permission</title>
-			<short-title>Aperte ExPerm</short-title>
-		</portlet-info>
-	</portlet>
-
-	<portlet>
-		<portlet-name>AperteWorkflow Synchronization Portlet</portlet-name>
-		<display-name>Aperte Workflow Structure Synchronization Portlet</display-name>
-        <portlet-class>org.springframework.web.portlet.DispatcherPortlet</portlet-class>
-		<init-param>
-		  <name>contextConfigLocation</name>
-		  <value>/WEB-INF/spring/aperte-struct-sync-portlet.xml</value>
-		</init-param>
-		<supports>
-			<mime-type>text/html</mime-type>
-		</supports>
-		<portlet-info>
-			<title>Aperte Workflow Structure Synchronization</title>
-			<short-title>Aperte StructSync</short-title>
-		</portlet-info>
-	</portlet>
 
     <portlet>
-        <portlet-name>AperteWorkflow Demand Registry</portlet-name>
-        <display-name>AperteWorkflow Demand Registry Portlet</display-name>
+        <portlet-name>Aperte Workflow Substitution Manager</portlet-name>
+        <display-name>Aperte Workflow Substitution Manager</display-name>
         <portlet-class>org.springframework.web.portlet.DispatcherPortlet</portlet-class>
         <init-param>
             <name>contextConfigLocation</name>
-            <value>/WEB-INF/spring/aperte-demand-registry-portlet.xml</value>
+            <value>/WEB-INF/spring/adminViewRendererContext.xml</value>
+        </init-param>
+        <init-param>
+            <name>view-jsp</name>
+            <value>admin/substitution/susubstitutionmanager</value>
         </init-param>
         <supports>
             <mime-type>text/html</mime-type>
         </supports>
         <portlet-info>
-            <title>Aperte Workflow Demand Registry</title>
-            <short-title>Aperte DReg</short-title>
+            <title>Aperte Workflow Substitution Manager</title>
+            <short-title>AperteSubstitution</short-title>
         </portlet-info>
     </portlet>
-	
-
 	
 	<portlet>
 		<portlet-name>AperteWorkflow Activities Portlet</portlet-name>

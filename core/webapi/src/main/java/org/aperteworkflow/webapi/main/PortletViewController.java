@@ -1,5 +1,6 @@
 package org.aperteworkflow.webapi.main;
 
+import org.aperteworkflow.webapi.PortletUtil;
 import org.aperteworkflow.webapi.main.processes.controller.ProcessesListController;
 import org.aperteworkflow.webapi.main.processes.controller.TaskViewController;
 import org.aperteworkflow.webapi.main.queues.controller.QueuesController;
@@ -91,7 +92,7 @@ public class PortletViewController extends AbstractMainController<ModelAndView>
     @ResourceMapping("dispatcher")
     @ResponseBody
     public ModelAndView dispatcher(ResourceRequest request, ResourceResponse response) throws PortletException {
-        HttpServletRequest originalHttpServletRequest = getOriginalHttpServletRequest(request);
+        HttpServletRequest originalHttpServletRequest = PortletUtil.getOriginalHttpServletRequest(portalUserSource, request);
 
         String controller = originalHttpServletRequest.getParameter("controller");
         String action = originalHttpServletRequest.getParameter("action");
@@ -107,7 +108,7 @@ public class PortletViewController extends AbstractMainController<ModelAndView>
             throw new PortletException("No action paramter!");
         } else {
             HttpServletResponse httpServletResponse = getHttpServletResponse(response);
-            return translate(PORTLET_JSON_RESULT_ROOT_NAME,
+            return PortletUtil.translate(PORTLET_JSON_RESULT_ROOT_NAME,
                     mainDispatcher.invokeExternalController(controller, action, originalHttpServletRequest, httpServletResponse));
         }
     }
@@ -116,7 +117,7 @@ public class PortletViewController extends AbstractMainController<ModelAndView>
     @ResponseBody
     public ModelAndView fileUploadDispatcher(ResourceRequest request, ResourceResponse response) throws PortletException {
         // IE doesnt properly handles application/json content type in response when uploading file.
-        HttpServletRequest originalHttpServletRequest = getOriginalHttpServletRequest(request);
+        HttpServletRequest originalHttpServletRequest = PortletUtil.getOriginalHttpServletRequest(portalUserSource, request);
         HttpServletResponse httpServletResponse = getHttpServletResponse(response);
         if (originalHttpServletRequest.getHeader("HTTP_ACCEPT") != null
                 && originalHttpServletRequest.getHeader("HTTP_ACCEPT").indexOf("application/json") > -1) {
@@ -130,7 +131,7 @@ public class PortletViewController extends AbstractMainController<ModelAndView>
     @ResourceMapping("noReplyDispatcher")
     @ResponseBody
     public void noReplyDispatcher(ResourceRequest request, ResourceResponse response) throws PortletException {
-        HttpServletRequest originalHttpServletRequest = getOriginalHttpServletRequest(request);
+        HttpServletRequest originalHttpServletRequest = PortletUtil.getOriginalHttpServletRequest(portalUserSource, request);
 
         String controller = originalHttpServletRequest.getParameter("controller");
         String action = originalHttpServletRequest.getParameter("action");
@@ -152,23 +153,23 @@ public class PortletViewController extends AbstractMainController<ModelAndView>
     @ResourceMapping("getUserQueues")
     @ResponseBody
     public ModelAndView getUserQueues(ResourceRequest request, ResourceResponse response) {
-        HttpServletRequest originalHttpServletRequest = getOriginalHttpServletRequest(request);
+        HttpServletRequest originalHttpServletRequest = PortletUtil.getOriginalHttpServletRequest(portalUserSource, request);
         HttpServletResponse httpServletResponse = portalUserSource.getHttpServletResponse(response);
         localeResolver.setLocale(originalHttpServletRequest, httpServletResponse, request.getLocale());
-        return translate(PORTLET_JSON_RESULT_ROOT_NAME, queuesController.getUserQueues(originalHttpServletRequest));
+        return PortletUtil.translate(PORTLET_JSON_RESULT_ROOT_NAME, queuesController.getUserQueues(originalHttpServletRequest));
     }
 
     @ResourceMapping("claimTaskFromQueue")
     @ResponseBody
     public ModelAndView claimTaskFromQueue(ResourceRequest request, ResourceResponse response) throws IOException, ServletException {
-        HttpServletRequest originalHttpServletRequest = getOriginalHttpServletRequest(request);
+        HttpServletRequest originalHttpServletRequest = PortletUtil.getOriginalHttpServletRequest(portalUserSource, request);
         HttpServletResponse httpServletResponse = portalUserSource.getHttpServletResponse(response);
-        return translate(PORTLET_JSON_RESULT_ROOT_NAME, taskViewController.claimTaskFromQueue(originalHttpServletRequest, httpServletResponse));
+        return PortletUtil.translate(PORTLET_JSON_RESULT_ROOT_NAME, taskViewController.claimTaskFromQueue(originalHttpServletRequest, httpServletResponse));
     }
 
     @ResourceMapping("loadTask")
     public void loadTask(ResourceRequest request, ResourceResponse response) throws IOException, ServletException {
-        HttpServletRequest originalHttpServletRequest = getOriginalHttpServletRequest(request);
+        HttpServletRequest originalHttpServletRequest = PortletUtil.getOriginalHttpServletRequest(portalUserSource, request);
         HttpServletResponse httpServletResponse = portalUserSource.getHttpServletResponse(response);
         taskViewController.loadTask(originalHttpServletRequest, httpServletResponse);
     }
@@ -176,60 +177,43 @@ public class PortletViewController extends AbstractMainController<ModelAndView>
     @ResourceMapping("performAction")
     @ResponseBody
     public ModelAndView performAction(ResourceRequest request, ResourceResponse response) throws IOException, ServletException {
-        HttpServletRequest originalHttpServletRequest = getOriginalHttpServletRequest(request);
-        return translate(PORTLET_JSON_RESULT_ROOT_NAME, processesListController.performAction(originalHttpServletRequest));
+        HttpServletRequest originalHttpServletRequest = PortletUtil.getOriginalHttpServletRequest(portalUserSource, request);
+        return PortletUtil.translate(PORTLET_JSON_RESULT_ROOT_NAME, processesListController.performAction(originalHttpServletRequest));
     }
 
     @ResourceMapping("saveAction")
     @ResponseBody
     public ModelAndView saveAction(ResourceRequest request, ResourceResponse response) throws IOException, ServletException {
-        HttpServletRequest originalHttpServletRequest = getOriginalHttpServletRequest(request);
-        return translate(PORTLET_JSON_RESULT_ROOT_NAME, processesListController.saveAction(originalHttpServletRequest));
+        HttpServletRequest originalHttpServletRequest = PortletUtil.getOriginalHttpServletRequest(portalUserSource, request);
+        return PortletUtil.translate(PORTLET_JSON_RESULT_ROOT_NAME, processesListController.saveAction(originalHttpServletRequest));
     }
 
     @ResourceMapping("startNewProcess")
     @ResponseBody
     public ModelAndView startNewProcess(ResourceRequest request, ResourceResponse response) throws IOException, ServletException {
-        HttpServletRequest originalHttpServletRequest = getOriginalHttpServletRequest(request);
-        return translate(PORTLET_JSON_RESULT_ROOT_NAME, processesListController.startNewProcess(originalHttpServletRequest));
+        HttpServletRequest originalHttpServletRequest = PortletUtil.getOriginalHttpServletRequest(portalUserSource, request);
+        return PortletUtil.translate(PORTLET_JSON_RESULT_ROOT_NAME, processesListController.startNewProcess(originalHttpServletRequest));
     }
 
     @ResourceMapping("searchTasks")
     @ResponseBody
     public ModelAndView searchTasks(ResourceRequest request, ResourceResponse response) throws IOException, ServletException {
-        HttpServletRequest originalHttpServletRequest = getOriginalHttpServletRequest(request);
-        return translate(PORTLET_JSON_RESULT_ROOT_NAME, processesListController.searchTasks(originalHttpServletRequest));
+        HttpServletRequest originalHttpServletRequest = PortletUtil.getOriginalHttpServletRequest(portalUserSource, request);
+        return PortletUtil.translate(PORTLET_JSON_RESULT_ROOT_NAME, processesListController.searchTasks(originalHttpServletRequest));
     }
 
 
     @ResourceMapping("loadProcessesList")
     @ResponseBody
     public ModelAndView loadProcessesList(ResourceRequest request, ResourceResponse response) throws IOException, ServletException {
-        HttpServletRequest originalHttpServletRequest = getOriginalHttpServletRequest(request);
+        HttpServletRequest originalHttpServletRequest = PortletUtil.getOriginalHttpServletRequest(portalUserSource, request);
         HttpServletResponse httpServletResponse = portalUserSource.getHttpServletResponse(response);
         localeResolver.setLocale(originalHttpServletRequest, httpServletResponse, request.getLocale());
 
-        return translate(PORTLET_JSON_RESULT_ROOT_NAME, processesListController.loadProcessesList(originalHttpServletRequest));
+        return PortletUtil.translate(PORTLET_JSON_RESULT_ROOT_NAME, processesListController.loadProcessesList(originalHttpServletRequest));
     }
 
-    /**
-     * Obtain http servlet request with additional attributes from ajax request
-     */
-    private HttpServletRequest getOriginalHttpServletRequest(ResourceRequest request) {
-        try {
-            HttpServletRequest httpServletRequest = portalUserSource.getHttpServletRequest(request);
-            HttpServletRequest originalHttpServletRequest = portalUserSource.getOriginalHttpServletRequest(httpServletRequest);
 
-            /* Copy all attributes, because portlet attributes do not exist in original request */
-            originalHttpServletRequest.getParameterMap().putAll(httpServletRequest.getParameterMap());
-
-            return originalHttpServletRequest;
-        } catch (Throwable ex) {
-            logger.log(Level.SEVERE, "[PORTLET CONTROLLER] Error", ex);
-            throw new RuntimeException(ex);
-        }
-
-    }
 
     /**
      * Obtain http servlet response from ajax request
@@ -243,17 +227,4 @@ public class PortletViewController extends AbstractMainController<ModelAndView>
         }
     }
 
-    /**
-     * Translate DTO object to json in model and view, which is required for portlet resource serving
-     */
-    private ModelAndView translate(String resultName, Object result) {
-        ModelAndView mav = new ModelAndView();
-        MappingJacksonJsonViewEx v = new MappingJacksonJsonViewEx();
-        v.setBeanName(resultName);
-
-        mav.setView(v);
-        mav.addObject(resultName, result);
-
-        return mav;
-    }
 }

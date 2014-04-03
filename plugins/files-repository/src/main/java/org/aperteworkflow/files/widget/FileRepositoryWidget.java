@@ -14,7 +14,7 @@ import pl.net.bluesoft.rnd.processtool.web.widgets.impl.FileWidgetContentProvide
  * @author mpawlak@bluesoft.net.pl
  */
 @AliasName(name = "FileRepositoryWidget", type = WidgetType.Html)
-@WidgetGroup("demand-process")
+@WidgetGroup("common")
 @AperteDoc(humanNameKey = "widget.file.repository.name", descriptionKey = "widget.file.repository.description")
 @ChildrenAllowed(false)
 public class FileRepositoryWidget extends ProcessHtmlWidget {

@@ -1,7 +1,9 @@
 package org.aperteworkflow.admin.controller;
 
 import org.aperteworkflow.ui.help.datatable.JQueryDataTable;
+import org.aperteworkflow.ui.help.datatable.JQueryDataTableColumn;
 import org.aperteworkflow.ui.help.datatable.JQueryDataTableUtil;
+import org.hibernate.criterion.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.model.UserSubstitution;
@@ -16,6 +18,10 @@ import pl.net.bluesoft.rnd.processtool.web.domain.GenericResultBean;
 import pl.net.bluesoft.rnd.processtool.web.domain.IProcessToolRequestContext;
 
 import java.util.List;
+
+import static pl.net.bluesoft.util.lang.DateUtil.beginOfDay;
+import static pl.net.bluesoft.util.lang.DateUtil.endOfDay;
+import static pl.net.bluesoft.util.lang.Formats.parseShortDate;
 
 /**
  *
@@ -39,10 +45,19 @@ public class SubstitutionController implements IOsgiWebController
         IProcessToolRequestContext requestContext = invocation.getProcessToolRequestContext();
         ProcessToolContext ctx = invocation.getProcessToolContext();
 
-        List<UserSubstitution> substitutionList = ctx.getUserSubstitutionDAO().findAll();
+        JQueryDataTable dataTable = JQueryDataTableUtil.analyzeRequest(invocation.getRequest().getParameterMap());
+        JQueryDataTableColumn sortingColumn = dataTable.getFirstSortingColumn();
 
+        List<UserSubstitution> substitutionList =
+                (List<UserSubstitution>)ctx.getHibernateSession()
+                        .createCriteria(UserSubstitution.class)
+                        .addOrder(                        sortingColumn.getSortedAsc() ?
+                                Order.asc(sortingColumn.getPropertyName()) :
+                                Order.desc(sortingColumn.getPropertyName()))
+                        .setMaxResults(dataTable.getPageLength())
+                        .setFirstResult(dataTable.getPageOffset())
+                        .list();
 
-        final JQueryDataTable dataTable = JQueryDataTableUtil.analyzeRequest(invocation.getRequest().getParameterMap());
 
         DataPagingBean<UserSubstitution> dataPagingBean =
                 new DataPagingBean<UserSubstitution>(substitutionList, substitutionList.size(), dataTable.getEcho());
@@ -64,6 +79,32 @@ public class SubstitutionController implements IOsgiWebController
         ProcessToolContext ctx = invocation.getProcessToolContext();
 
         ctx.getUserSubstitutionDAO().deleteById(Long.parseLong(substitutionId));
+
+        return result;
+    }
+
+    @ControllerMethod(action="addNewSubstitution")
+    public GenericResultBean addNewSubstitution(final OsgiWebRequest invocation)
+    {
+
+        GenericResultBean result = new GenericResultBean();
+
+        String userLogin = invocation.getRequest().getParameter("userLogin");
+        String userSubstituteLogin = invocation.getRequest().getParameter("userSubstituteLogin");
+        String dateFrom = invocation.getRequest().getParameter("dateFrom");
+        String dateTo = invocation.getRequest().getParameter("dateTo");
+
+        UserSubstitution userSubstitution = new UserSubstitution();
+
+        userSubstitution.setUserLogin(userLogin);
+        userSubstitution.setDateFrom(beginOfDay(parseShortDate(dateFrom)));
+        userSubstitution.setDateTo(endOfDay(parseShortDate(dateTo)));
+        userSubstitution.setUserSubstituteLogin(userSubstituteLogin);
+
+        IProcessToolRequestContext requestContext = invocation.getProcessToolRequestContext();
+        ProcessToolContext ctx = invocation.getProcessToolContext();
+
+        ctx.getUserSubstitutionDAO().saveOrUpdate(userSubstitution);
 
         return result;
     }

@@ -71,7 +71,6 @@ public class AdminSubstitutionController {
 
         String controller = originalHttpServletRequest.getParameter("controller");
         String action = originalHttpServletRequest.getParameter("action");
-        //final Long processId = Long.parseLong(originalHttpServletRequest.getParameter("processId"));
 
         logger.log(Level.INFO, "controllerName: " + controller + ", action: " + action);
 

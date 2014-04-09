@@ -183,20 +183,18 @@
     <portlet>
         <portlet-name>Aperte Workflow Admin Portlet</portlet-name>
         <display-name>Aperte Workflow Admin Portlet</display-name>
-        <portlet-class>org.aperteworkflow.util.vaadin.ProcessToolVaadinApplicationPortlet2</portlet-class>
-
-        <init-param>
-            <name>application</name>
-            <value>pl.net.bluesoft.rnd.processtool.portlets.generic.GenericAdminPortletApplication</value>
-        </init-param>
-        <init-param>
-            <name>widgetset</name>
-            <value>com.vaadin.portal.gwt.PortalDefaultWidgetSet</value>
-        </init-param>
-        <supports>
-            <mime-type>text/html</mime-type>
-            <portlet-mode>view</portlet-mode>
-        </supports>
+		<portlet-class>org.springframework.web.portlet.DispatcherPortlet</portlet-class>
+		<init-param>
+			<name>contextConfigLocation</name>
+			<value>/WEB-INF/spring/adminViewRendererContext.xml</value>
+		</init-param>
+		<init-param>
+			<name>view-jsp</name>
+			<value>admin/adminportlet/adminportlet</value>
+		</init-param>
+		<supports>
+			<mime-type>text/html</mime-type>
+		</supports>
         <portlet-info>
             <title>Aperte Workflow Admin Portlet</title>
             <short-title>Aperte Workflow Admin Portlet</short-title>

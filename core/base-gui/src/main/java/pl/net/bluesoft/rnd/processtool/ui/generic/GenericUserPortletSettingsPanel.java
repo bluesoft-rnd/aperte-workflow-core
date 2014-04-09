@@ -48,7 +48,7 @@ public class GenericUserPortletSettingsPanel extends VerticalLayout {
 		select.setImmediate(true);
 		select.addContainerProperty("name", String.class, "");
 		for (GenericPortletViewRenderer viewRenderer : registeredViews) {
-			select.addItem(viewRenderer.getKey()).getItemProperty("name").setValue(viewRenderer.getName(i18NSource));
+			select.addItem(viewRenderer.getKey()).getItemProperty("name").setValue(i18NSource.getMessage(viewRenderer.getName()));
 		}
 		select.setValue(from(selectedViewKeys).toSet());
 		select.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);

@@ -1,6 +1,8 @@
 package pl.net.bluesoft.rnd.pt.ext.bpmnotifications;
 
+import org.apache.commons.io.IOUtils;
 import org.aperteworkflow.ui.view.IViewRegistry;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -12,6 +14,7 @@ import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent;
 import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent.Type;
 import pl.net.bluesoft.rnd.processtool.di.ClassDependencyManager;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.rnd.processtool.plugins.osgi.OSGiBundleHelper;
 import pl.net.bluesoft.rnd.processtool.usersource.IUserSource;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.NotificationsConstants.ProviderType;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.addons.INotificationsAddonsManager;
@@ -33,6 +36,8 @@ import pl.net.bluesoft.util.eventbus.EventListener;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static pl.net.bluesoft.rnd.processtool.plugins.osgi.OSGiBundleHelper.getBundleResourceString;
 
 /**
  * @author tlipski@bluesoft.net.pl
@@ -66,8 +71,8 @@ public class Activator implements BundleActivator, EventListener<BpmEvent>
 				engine = new BpmNotificationEngine(processToolRegistry);
 				groupedNotification = new GroupedNotification(processToolRegistry);
 			}
-        });
-		
+   		     });
+
 		schedulerActivator = new SchedulersActivator(processToolRegistry);
 		
 		processToolRegistry.getBundleRegistry().registerService(IBpmNotificationService.class, groupedNotification, new Properties());
@@ -82,9 +87,13 @@ public class Activator implements BundleActivator, EventListener<BpmEvent>
 		schedulerActivator.scheduleNotificationsSend(engine);
 		schedulerActivator.scheduleNotificationsSend(groupedNotification);
 
+		String path = "/pl/net/bluesoft/rnd/pt/ext/bpmnotifications/html/file.html";
+		String html = getBundleResourceString(context.getBundle(), path);
+
+		BpmAdminPortletRender.init(html);
+
 		getViewRegistry(processToolRegistry).registerGenericPortletViewRenderer("admin", BpmAdminPortletRender.INSTANCE);
 		getViewRegistry(processToolRegistry).registerGenericPortletViewRenderer("user", BpmAdminPortletRender.INSTANCE);
-		
 	}
 	
 	/** Denpendency Injection */

@@ -145,11 +145,37 @@
 		<!-- Note: Must not be the same as servlet name. -->
 		<portlet-name>Aperte Workflow Admin Portlet</portlet-name>
 		<instanceable>false</instanceable>
-		<ajaxable>false</ajaxable>
+		<remoteable>true</remoteable>
+		<ajaxable>true</ajaxable>
+		<private-session-attributes>false</private-session-attributes>
 		<control-panel-entry-category>configuration</control-panel-entry-category>
-		<control-panel-entry-weight>0.9</control-panel-entry-weight>
+		<control-panel-entry-weight>0.7</control-panel-entry-weight>
 		<header-portlet-javascript>/sa/js/jquery-1.10.2.min.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/jqModal.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/json3.min.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/bootstrap.min.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/jquery.dataTables.min.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/jquery.timer.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/jquery.dataTables.bootstrap.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/jquery.dateFormat-1.0.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/select2.min.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/select2_locale_pl.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/colReorder.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/jquery-plugins.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/jquery.json-2.4.min.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/bootstrap-datepicker.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/locales/bootstrap-datepicker.pl.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/jquery-ui-1.10.4.custom.min.js</header-portlet-javascript>
+		<header-portlet-css>/sa/css/bootstrap.min.css</header-portlet-css>
+		<header-portlet-css>/sa/css/bootstrap-theme.min.css</header-portlet-css>
+		<header-portlet-css>/sa/css/aperteworkflow.css</header-portlet-css>
+		<header-portlet-css>/sa/css/jquery-ui-1.10.4.custom.min.css</header-portlet-css>
+		<header-portlet-css>/sa/css/datepicker3.css</header-portlet-css>
+		<header-portlet-css>/sa/css/jquery.fileupload.css</header-portlet-css>
+		<header-portlet-css>/sa/css/select2.css</header-portlet-css>
+		<header-portlet-css>/sa/css/select2-bootstrap.css</header-portlet-css>
+		<header-portlet-css>/sa/css/liferay.css</header-portlet-css>
+		<header-portlet-javascript>/sa/js/respond.min.js</header-portlet-javascript>
 	</portlet>
 	<portlet>
 		<!-- Matches definition in portlet.xml. -->

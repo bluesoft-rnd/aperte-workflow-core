@@ -5,6 +5,8 @@ import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by pkuciapski on 2014-04-18.
@@ -19,6 +21,7 @@ import java.util.Date;
                 )
         })
 public class Case extends PersistentEntity {
+    static final String CASE_ID = "case_id";
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -39,6 +42,18 @@ public class Case extends PersistentEntity {
 
     @Column(name = "modification_date", nullable = false)
     private Date modificationDate;
+
+    public Set<CaseSimpleAttribute> getSimpleAttributes() {
+        return simpleAttributes;
+    }
+
+    public void setSimpleAttributes(Set<CaseSimpleAttribute> simpleAttributes) {
+        this.simpleAttributes = simpleAttributes;
+    }
+
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = CASE_ID)
+    private Set<CaseSimpleAttribute> simpleAttributes = new HashSet<CaseSimpleAttribute>();
 
     public String getNumber() {
         return number;

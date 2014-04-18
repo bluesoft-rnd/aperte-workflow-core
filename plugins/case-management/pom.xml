@@ -101,7 +101,9 @@
                         <ProcessTool-Controller>
                         </ProcessTool-Controller>
                         <ProcessTool-Model-Enhancement>
-                            pl.net.bluesoft.lot.casemanagement.model.Case
+                            pl.net.bluesoft.lot.casemanagement.model.Case,
+                            pl.net.bluesoft.lot.casemanagement.model.CaseDefinition,
+                            pl.net.bluesoft.lot.casemanagement.model.CaseStateDefinition
                         </ProcessTool-Model-Enhancement>
                         <ProcessTool-Spring-Beans>
                         </ProcessTool-Spring-Beans>

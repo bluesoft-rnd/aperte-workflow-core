@@ -20,11 +20,11 @@ public class Activator implements BundleActivator {
     @Override
     public void start(BundleContext bundleContext) throws Exception {
         SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
-        logger.info("Activating case-management plugin");
+        logger.info("Activating the case-management plugin");
     }
 
     @Override
     public void stop(BundleContext bundleContext) throws Exception {
-        logger.info("Deactivating case-management plugin");
+        logger.info("Deactivating the case-management plugin");
     }
 }

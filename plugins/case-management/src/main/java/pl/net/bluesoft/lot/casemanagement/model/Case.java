@@ -2,6 +2,7 @@ package pl.net.bluesoft.lot.casemanagement.model;
 
 import org.hibernate.annotations.Index;
 import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -43,17 +44,20 @@ public class Case extends PersistentEntity {
     @Column(name = "modification_date", nullable = false)
     private Date modificationDate;
 
-    public Set<CaseSimpleAttribute> getSimpleAttributes() {
-        return simpleAttributes;
-    }
-
-    public void setSimpleAttributes(Set<CaseSimpleAttribute> simpleAttributes) {
-        this.simpleAttributes = simpleAttributes;
-    }
-
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = CASE_ID)
     private Set<CaseSimpleAttribute> simpleAttributes = new HashSet<CaseSimpleAttribute>();
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = CASE_ID)
+    private Set<CaseAttribute> attributes = new HashSet<CaseAttribute>();
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name = "pt_process_instance_case",
+            joinColumns = {@JoinColumn(name = CASE_ID)},
+            inverseJoinColumns = {@JoinColumn(name = "process_instance_id")}
+    )
+    private Set<ProcessInstance> processInstances;
 
     public String getNumber() {
         return number;
@@ -101,5 +105,29 @@ public class Case extends PersistentEntity {
 
     public void setState(CaseStateDefinition state) {
         this.state = state;
+    }
+
+    public Set<CaseSimpleAttribute> getSimpleAttributes() {
+        return simpleAttributes;
+    }
+
+    public void setSimpleAttributes(Set<CaseSimpleAttribute> simpleAttributes) {
+        this.simpleAttributes = simpleAttributes;
+    }
+
+    public Set<CaseAttribute> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(Set<CaseAttribute> attributes) {
+        this.attributes = attributes;
+    }
+
+    public Set<ProcessInstance> getProcessInstances() {
+        return processInstances;
+    }
+
+    public void setProcessInstances(Set<ProcessInstance> processInstances) {
+        this.processInstances = processInstances;
     }
 }

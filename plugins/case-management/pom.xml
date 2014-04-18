@@ -105,7 +105,11 @@
                             pl.net.bluesoft.lot.casemanagement.model.CaseDefinition,
                             pl.net.bluesoft.lot.casemanagement.model.CaseStateDefinition,
                             pl.net.bluesoft.lot.casemanagement.model.CaseSimpleAttribute,
-                            pl.net.bluesoft.lot.casemanagement.model.CaseAttribute
+                            pl.net.bluesoft.lot.casemanagement.model.CaseAttribute,
+                            pl.net.bluesoft.lot.casemanagement.model.CaseStage,
+                            pl.net.bluesoft.lot.casemanagement.model.CaseStateWidget,
+                            pl.net.bluesoft.lot.casemanagement.model.CaseStateWidgetAttribute,
+                            pl.net.bluesoft.lot.casemanagement.model.CaseStateWidgetPermission
                         </ProcessTool-Model-Enhancement>
                         <ProcessTool-Spring-Beans>
                         </ProcessTool-Spring-Beans>

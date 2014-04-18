@@ -52,6 +52,10 @@ public class Case extends PersistentEntity {
     @JoinColumn(name = CASE_ID)
     private Set<CaseAttribute> attributes = new HashSet<CaseAttribute>();
 
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = CASE_ID)
+    private Set<CaseStage> stages = new HashSet<CaseStage>();
+
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "pt_process_instance_case",
             joinColumns = {@JoinColumn(name = CASE_ID)},
@@ -129,5 +133,13 @@ public class Case extends PersistentEntity {
 
     public void setProcessInstances(Set<ProcessInstance> processInstances) {
         this.processInstances = processInstances;
+    }
+
+    public Set<CaseStage> getStages() {
+        return stages;
+    }
+
+    public void setStages(Set<CaseStage> stages) {
+        this.stages = stages;
     }
 }

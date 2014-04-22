@@ -14,7 +14,15 @@ public class CaseDefinitionDAOImpl extends SimpleHibernateBean<CaseDefinition> i
     }
 
     @Override
-    public CaseDefinition getDefinitionById(long caseDefinitionId) {
+    public CaseDefinition getDefinitionById(final long caseDefinitionId) {
         return (CaseDefinition) this.session.get(CaseDefinition.class, caseDefinitionId);
+    }
+
+    @Override
+    public CaseDefinition createDefinition(final String name) {
+        final CaseDefinition def = new CaseDefinition();
+        def.setName(name);
+        saveOrUpdate(def);
+        return def;
     }
 }

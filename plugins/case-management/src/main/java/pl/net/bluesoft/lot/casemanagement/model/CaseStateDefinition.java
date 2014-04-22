@@ -33,4 +33,12 @@ public class CaseStateDefinition extends PersistentEntity {
     public void setName(String name) {
         this.name = name;
     }
+
+    public CaseDefinition getDefinition() {
+        return definition;
+    }
+
+    public void setDefinition(CaseDefinition definition) {
+        this.definition = definition;
+    }
 }

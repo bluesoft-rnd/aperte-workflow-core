@@ -7,4 +7,6 @@ import pl.net.bluesoft.lot.casemanagement.model.CaseDefinition;
  */
 public interface CaseDefinitionDAO {
     CaseDefinition getDefinitionById(long caseDefinitionId);
+
+    CaseDefinition createDefinition(String name);
 }

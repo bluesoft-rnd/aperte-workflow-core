@@ -1,5 +1,6 @@
 package pl.net.bluesoft.lot.casemanagement.dao;
 
+import pl.net.bluesoft.lot.casemanagement.model.CaseDefinition;
 import pl.net.bluesoft.lot.casemanagement.model.CaseStateDefinition;
 
 /**
@@ -7,4 +8,6 @@ import pl.net.bluesoft.lot.casemanagement.model.CaseStateDefinition;
  */
 public interface CaseStateDefinitionDAO {
     CaseStateDefinition getStateDefinitionById(long caseStateDefinitionId);
+
+    CaseStateDefinition createStateDefinition(String name, long caseDefinitionId);
 }

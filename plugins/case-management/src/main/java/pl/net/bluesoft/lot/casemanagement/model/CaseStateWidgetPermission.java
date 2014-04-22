@@ -18,14 +18,14 @@ import javax.persistence.*;
                 )
         })
 public class CaseStateWidgetPermission extends PersistentEntity {
-    @Column(name = "role_name")
+    @Column(name = "role_name", nullable = false)
     private String roleName;
 
-    @Column(name = "privilege_name")
+    @Column(name = "privilege_name", nullable = false)
     private String privilegeName;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = CaseStateWidget.CASE_STATE_WIDGET_ID)
+    @JoinColumn(name = CaseStateWidget.CASE_STATE_WIDGET_ID, nullable = false)
     @Index(name = "idx_pt_case_state_wid_perm_id")
     private CaseStateWidget caseStateWidget;
 

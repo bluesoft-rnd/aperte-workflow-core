@@ -55,6 +55,12 @@
             <version>3.0-beta2-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>9.2-1004-jdbc4</version>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 

@@ -23,13 +23,13 @@ public class CaseStateWidget extends PersistentEntity {
     private static final String PARENT_ID = "parent_id";
     static final String CASE_STATE_WIDGET_ID = "case_state_widget_id";
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "class_name")
+    @Column(name = "class_name", nullable = false)
     private String className;
 
-    @Column(name = "priority")
+    @Column(name = "priority", nullable = false)
     private Integer priority;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)

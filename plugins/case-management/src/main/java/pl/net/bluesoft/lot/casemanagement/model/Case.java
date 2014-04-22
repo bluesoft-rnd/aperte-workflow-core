@@ -31,17 +31,17 @@ public class Case extends PersistentEntity {
     private String number;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "case_definition_id")
+    @JoinColumn(name = "case_definition_id", nullable = false)
     private CaseDefinition definition;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "case_state_id")
+    @JoinColumn(name = "case_state_id", nullable = false)
     private CaseStateDefinition state;
 
     @Column(name = "creation_date", nullable = false)
     private Date createDate;
 
-    @Column(name = "modification_date", nullable = false)
+    @Column(name = "modification_date", nullable = true)
     private Date modificationDate;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)

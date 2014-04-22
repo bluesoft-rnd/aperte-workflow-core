@@ -19,7 +19,7 @@ import javax.persistence.*;
         })
 public class CaseStateWidgetAttribute extends PersistentEntity {
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = CaseStateWidget.CASE_STATE_WIDGET_ID)
+    @JoinColumn(name = CaseStateWidget.CASE_STATE_WIDGET_ID, nullable = false)
     @Index(name = "idx_pt_case_state_wid_attr_id")
     private CaseStateWidget caseStateWidget;
 

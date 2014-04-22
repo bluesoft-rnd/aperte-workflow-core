@@ -19,12 +19,12 @@ import javax.persistence.*;
         })
 public class CaseStage extends PersistentEntity {
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = Case.CASE_ID)
+    @JoinColumn(name = Case.CASE_ID, nullable = false)
     @Index(name = "idx_pt_case_stage_case_id")
     private Case caseInstance;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "state_definition_id")
+    @JoinColumn(name = "state_definition_id", nullable = false)
     private CaseStateDefinition caseStateDefinition;
 
     public CaseStateDefinition getCaseStateDefinition() {

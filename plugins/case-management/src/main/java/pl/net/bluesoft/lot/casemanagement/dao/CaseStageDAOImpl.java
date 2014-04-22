@@ -25,12 +25,25 @@ public class CaseStageDAOImpl extends SimpleHibernateBean<CaseStage> implements 
         final Case case_ = new Case();
         case_.setId(caseId);
         final CaseStage stage = new CaseStage();
-        stage.setName(name);
+        if (name != null)
+            stage.setName(name);
+        else
+            stage.setName(stateDefinition.getName());
         stage.setCaseStateDefinition(stateDefinition);
         stage.setStartDate(new Date());
         stage.setCase(case_);
         case_.getStages().add(stage);
         saveOrUpdate(stage);
         return stage;
+    }
+
+    @Override
+    public void deleteStage(final CaseStage stage) {
+        delete(stage);
+    }
+
+    @Override
+    public CaseStage getStageById(long caseStageId) {
+        return (CaseStage) this.session.get(CaseStage.class, caseStageId);
     }
 }

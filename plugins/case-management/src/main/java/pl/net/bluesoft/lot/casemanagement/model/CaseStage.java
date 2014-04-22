@@ -32,18 +32,22 @@ public class CaseStage extends PersistentEntity {
     @Column(name = "end_date", nullable = true)
     private Date endDate;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = Case.CASE_ID)
     @Index(name = "idx_pt_case_stage_case_id")
     private Case caseInstance;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "state_definition_id")
     private CaseStateDefinition caseStateDefinition;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = CASE_STAGE_ID)
     private Set<CaseStageSimpleAttribute> simpleAttributes = new HashSet<CaseStageSimpleAttribute>();
+
+    public void setSimpleAttributes(Set<CaseStageSimpleAttribute> simpleAttributes) {
+        this.simpleAttributes = simpleAttributes;
+    }
 
     public CaseStateDefinition getCaseStateDefinition() {
         return caseStateDefinition;
@@ -63,10 +67,6 @@ public class CaseStage extends PersistentEntity {
 
     public Set<CaseStageSimpleAttribute> getSimpleAttributes() {
         return simpleAttributes;
-    }
-
-    public void setSimpleAttributes(Set<CaseStageSimpleAttribute> simpleAttributes) {
-        this.simpleAttributes = simpleAttributes;
     }
 
     public Date getStartDate() {

@@ -30,11 +30,11 @@ public class Case extends PersistentEntity {
     @Column(name = "number", nullable = false)
     private String number;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "case_definition_id")
     private CaseDefinition definition;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "current_" + CaseStage.CASE_STAGE_ID)
     private CaseStage currentStage;
 
@@ -44,18 +44,18 @@ public class Case extends PersistentEntity {
     @Column(name = "modification_date", nullable = true)
     private Date modificationDate;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = CASE_ID)
     private Set<CaseSimpleAttribute> simpleAttributes = new HashSet<CaseSimpleAttribute>();
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = CASE_ID)
     private Set<CaseAttribute> attributes = new HashSet<CaseAttribute>();
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<CaseStage> stages = new HashSet<CaseStage>();
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "pt_process_instance_case",
             joinColumns = {@JoinColumn(name = CASE_ID)},
             inverseJoinColumns = {@JoinColumn(name = "process_instance_id")}

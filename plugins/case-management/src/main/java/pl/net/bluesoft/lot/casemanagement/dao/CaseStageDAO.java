@@ -7,4 +7,8 @@ import pl.net.bluesoft.lot.casemanagement.model.CaseStage;
  */
 public interface CaseStageDAO {
     CaseStage createStage(long caseId, long caseStateDefinitionId, String name);
+
+    void deleteStage(CaseStage stage);
+
+    CaseStage getStageById(long caseStageId);
 }

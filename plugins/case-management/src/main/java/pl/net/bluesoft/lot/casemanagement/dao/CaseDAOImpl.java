@@ -2,6 +2,7 @@ package pl.net.bluesoft.lot.casemanagement.dao;
 
 import org.hibernate.Session;
 import pl.net.bluesoft.lot.casemanagement.model.Case;
+import pl.net.bluesoft.lot.casemanagement.model.CaseDefinition;
 import pl.net.bluesoft.lot.casemanagement.model.CaseStage;
 import pl.net.bluesoft.lot.casemanagement.model.CaseStateDefinition;
 import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
@@ -29,18 +30,21 @@ public class CaseDAOImpl extends SimpleHibernateBean<Case> implements CaseDAO {
     }
 
     @Override
-    public Case createCase(long caseDefinitionId, String name, String number, long caseStateDefinitionId, Map<String, String> simpleAttributes) {
+    public Case createCase(long caseDefinitionId, String name, String number, Map<String, String> simpleAttributes) {
         final Case newCase = new Case();
         newCase.setName(name);
         newCase.setNumber(number);
         newCase.setCreateDate(new Date());
-        newCase.setDefinition(caseDefinitionDAO.getDefinitionById(caseDefinitionId));
-        final CaseStateDefinition caseStateDefinition = caseStateDefinitionDAO.getStateDefinitionById(caseStateDefinitionId);
+        final CaseDefinition definition = caseDefinitionDAO.getDefinitionById(caseDefinitionId);
+        newCase.setDefinition(definition);
+        // get the initial state from the case definition
+        final CaseStateDefinition initialState = caseStateDefinitionDAO.getStateDefinitionById(newCase.getDefinition().getInitialState().getId());
+        // add the initial stage
         final CaseStage initialStage = new CaseStage();
         initialStage.setStartDate(new Date());
-        initialStage.setCaseStateDefinition(caseStateDefinition);
+        initialStage.setCaseStateDefinition(initialState);
         initialStage.setCase(newCase);
-        initialStage.setName(caseStateDefinition.getName());
+        initialStage.setName(initialState.getName());
         newCase.setCurrentStage(initialStage);
         newCase.getStages().add(initialStage);
         saveOrUpdate(newCase);

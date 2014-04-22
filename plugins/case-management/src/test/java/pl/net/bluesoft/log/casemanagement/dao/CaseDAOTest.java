@@ -32,12 +32,14 @@ public class CaseDAOTest extends BaseTest {
     public void testCreateCase() throws Exception {
         final String name = "name-" + System.currentTimeMillis();
         final String number = "number-" + System.currentTimeMillis();
-        final Case newCase = caseDAO.createCase(this.testCaseDefinition.getId(), name, number, this.testCaseStateDefinition.getId(), new HashMap<String, String>());
+        final Case newCase = caseDAO.createCase(this.testCaseDefinition.getId(), name, number, new HashMap<String, String>());
         logger.info(newCase.toString());
         assertEquals(name, newCase.getName());
         assertEquals(number, newCase.getNumber());
         assertEquals(this.testCaseDefinition.getName(), newCase.getDefinition().getName());
-        assertEquals(this.testCaseStateDefinition, newCase.getCurrentStage().getCaseStateDefinition());
+        assertEquals("The case state should be set to the initial state from the case definition",
+                this.testCaseDefinition.getInitialState().getId(), newCase.getCurrentStage().getCaseStateDefinition().getId());
+        assertNotNull(newCase.getCurrentStage().getName());
         assertEquals(this.testCaseStateDefinition.getName(), newCase.getCurrentStage().getName());
     }
 

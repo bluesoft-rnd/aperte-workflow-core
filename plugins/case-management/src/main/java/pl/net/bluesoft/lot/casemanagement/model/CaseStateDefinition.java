@@ -21,7 +21,7 @@ public class CaseStateDefinition extends PersistentEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = CaseDefinition.CASE_DEFINITION_ID)
     @Index(name = "idx_pt_case_state_def_id")
     private CaseDefinition definition;

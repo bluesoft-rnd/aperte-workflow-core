@@ -50,7 +50,9 @@ public abstract class BaseTest {
 
     private void insertTestData() {
         this.testCaseDefinition = this.caseDefinitionDAO.createDefinition("Test");
-        this.testCaseStateDefinition = this.caseStateDefinitionDAO.createStateDefinition("TestState", this.testCaseDefinition.getId());
+        this.testCaseStateDefinition = this.caseStateDefinitionDAO.createStateDefinition("InitialTestState", this.testCaseDefinition.getId());
+        this.caseStateDefinitionDAO.createStateDefinition("SomeOtherState", this.testCaseDefinition.getId());
+        this.caseDefinitionDAO.setInitialState(this.testCaseDefinition, this.testCaseStateDefinition.getId());
     }
 
 

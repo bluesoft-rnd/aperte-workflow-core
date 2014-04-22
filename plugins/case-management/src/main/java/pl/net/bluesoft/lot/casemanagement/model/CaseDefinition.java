@@ -25,9 +25,13 @@ public class CaseDefinition extends PersistentEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = CASE_DEFINITION_ID)
     private Set<CaseStateDefinition> possibleStates = new HashSet<CaseStateDefinition>();
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "initial_case_state_def_id")
+    private CaseStateDefinition initialState;
 
     public String getName() {
         return name;
@@ -43,5 +47,13 @@ public class CaseDefinition extends PersistentEntity {
 
     public void setPossibleStates(Set<CaseStateDefinition> possibleStates) {
         this.possibleStates = possibleStates;
+    }
+
+    public CaseStateDefinition getInitialState() {
+        return initialState;
+    }
+
+    public void setInitialState(CaseStateDefinition initialState) {
+        this.initialState = initialState;
     }
 }

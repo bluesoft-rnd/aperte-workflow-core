@@ -4,6 +4,9 @@ import org.hibernate.annotations.Index;
 import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 
 import javax.persistence.*;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by pkuciapski on 2014-04-18.
@@ -18,14 +21,29 @@ import javax.persistence.*;
                 )
         })
 public class CaseStage extends PersistentEntity {
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = Case.CASE_ID, nullable = false)
+    final static String CASE_STAGE_ID = "case_stage_id";
+
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "start_date", nullable = false)
+    private Date startDate;
+
+    @Column(name = "end_date", nullable = true)
+    private Date endDate;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = Case.CASE_ID)
     @Index(name = "idx_pt_case_stage_case_id")
     private Case caseInstance;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "state_definition_id", nullable = false)
+    @JoinColumn(name = "state_definition_id")
     private CaseStateDefinition caseStateDefinition;
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = CASE_STAGE_ID)
+    private Set<CaseStageSimpleAttribute> simpleAttributes = new HashSet<CaseStageSimpleAttribute>();
 
     public CaseStateDefinition getCaseStateDefinition() {
         return caseStateDefinition;
@@ -41,5 +59,37 @@ public class CaseStage extends PersistentEntity {
 
     public void setCase(Case caseInstance) {
         this.caseInstance = caseInstance;
+    }
+
+    public Set<CaseStageSimpleAttribute> getSimpleAttributes() {
+        return simpleAttributes;
+    }
+
+    public void setSimpleAttributes(Set<CaseStageSimpleAttribute> simpleAttributes) {
+        this.simpleAttributes = simpleAttributes;
+    }
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

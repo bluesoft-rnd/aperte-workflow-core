@@ -9,4 +9,5 @@ import java.util.Map;
  */
 public interface CaseDAO {
     Case createCase(long caseDefinitionId, String name, String number, long caseStateDefinitionId, Map<String, String> simpleAttributes);
+    Case getCaseById(long caseId);
 }

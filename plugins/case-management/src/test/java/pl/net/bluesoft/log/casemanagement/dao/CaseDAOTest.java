@@ -25,62 +25,20 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Created by pkuciapski on 2014-04-22.
  */
-public class CaseDAOTest {
+public class CaseDAOTest extends BaseTest {
     private static final Logger logger = Logger.getLogger(CaseDAOTest.class.getName());
-
-    private static SessionFactory sessionFactory;
-    private Session session;
-    private Transaction tx;
-
-    private CaseDAO dao;
-    private CaseDefinitionDAO caseDefinitionDAO;
-    private CaseStateDefinitionDAO caseStateDefinitionDAO;
-
-    private CaseDefinition testCaseDefinition;
-    private CaseStateDefinition testCaseStateDefinition;
-
-    @BeforeClass
-    public static void beforeClass() throws NamingException {
-        // Create the hibernate session factory
-        final Configuration configuration = new Configuration();
-        configuration.configure("test.hibernate.cfg.xml");
-        sessionFactory = configuration.buildSessionFactory();
-    }
-
-    @Before
-    public void setUp() throws NamingException {
-        this.session = sessionFactory.openSession();
-        this.tx = session.beginTransaction();
-        this.caseDefinitionDAO = new CaseDefinitionDAOImpl(this.session);
-        this.caseStateDefinitionDAO = new CaseStateDefinitionDAOImpl(this.session, this.caseDefinitionDAO);
-        this.dao = new CaseDAOImpl(this.session, this.caseDefinitionDAO, this.caseStateDefinitionDAO);
-        insertTestData();
-    }
-
-    private void insertTestData() {
-        this.testCaseDefinition = this.caseDefinitionDAO.createDefinition("Test");
-        this.testCaseStateDefinition = this.caseStateDefinitionDAO.createStateDefinition("TestState", this.testCaseDefinition.getId());
-    }
-
-    @After
-    public void tearDown() {
-        if (tx != null)
-            tx.rollback();
-        // tx.commit();
-        if (session != null && session.isOpen())
-            session.close();
-    }
 
     @Test
     public void testCreateCase() throws Exception {
         final String name = "name-" + System.currentTimeMillis();
         final String number = "number-" + System.currentTimeMillis();
-        final Case newCase = dao.createCase(this.testCaseDefinition.getId(), name, number, this.testCaseStateDefinition.getId(), new HashMap<String, String>());
+        final Case newCase = caseDAO.createCase(this.testCaseDefinition.getId(), name, number, this.testCaseStateDefinition.getId(), new HashMap<String, String>());
         logger.info(newCase.toString());
         assertEquals(name, newCase.getName());
         assertEquals(number, newCase.getNumber());
         assertEquals(this.testCaseDefinition.getName(), newCase.getDefinition().getName());
-        assertEquals(this.testCaseStateDefinition.getName(), newCase.getState().getName());
-        assertEquals(this.testCaseStateDefinition.getDefinition(), newCase.getState().getDefinition());
+        assertEquals(this.testCaseStateDefinition, newCase.getCurrentStage().getCaseStateDefinition());
+        assertEquals(this.testCaseStateDefinition.getName(), newCase.getCurrentStage().getName());
     }
+
 }

@@ -42,6 +42,7 @@
         <mapping class="pl.net.bluesoft.lot.casemanagement.model.CaseDefinition"/>
         <mapping class="pl.net.bluesoft.lot.casemanagement.model.CaseAttribute"/>
         <mapping class="pl.net.bluesoft.lot.casemanagement.model.CaseStage"/>
+        <mapping class="pl.net.bluesoft.lot.casemanagement.model.CaseStageSimpleAttribute"/>
         <mapping class="pl.net.bluesoft.lot.casemanagement.model.CaseSimpleAttribute"/>
         <mapping class="pl.net.bluesoft.lot.casemanagement.model.CaseStateDefinition"/>
 

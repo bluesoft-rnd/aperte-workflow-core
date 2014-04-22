@@ -1,4 +1,4 @@
-package pl.net.bluesoft.log.casemanagement.dao;
+package pl.net.bluesoft.lot.casemanagement.dao;
 
 import org.junit.Before;
 import org.junit.Test;

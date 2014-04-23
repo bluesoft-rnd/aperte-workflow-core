@@ -1,22 +1,8 @@
 package pl.net.bluesoft.lot.casemanagement.dao;
 
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
-import org.hibernate.cfg.Configuration;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import pl.net.bluesoft.lot.casemanagement.dao.*;
 import pl.net.bluesoft.lot.casemanagement.model.Case;
-import pl.net.bluesoft.lot.casemanagement.model.CaseDefinition;
-import pl.net.bluesoft.lot.casemanagement.model.CaseStateDefinition;
-import pl.net.bluesoft.rnd.processtool.dao.impl.ProcessInstanceDAOImpl;
-
-import javax.naming.NamingException;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;

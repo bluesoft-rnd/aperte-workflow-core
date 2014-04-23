@@ -7,7 +7,6 @@ import org.hibernate.cfg.Configuration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import pl.net.bluesoft.lot.casemanagement.dao.*;
 import pl.net.bluesoft.lot.casemanagement.model.CaseDefinition;
 import pl.net.bluesoft.lot.casemanagement.model.CaseStateDefinition;
 
@@ -44,12 +43,12 @@ public abstract class BaseTest {
         this.caseDefinitionDAO = new CaseDefinitionDAOImpl(this.session);
         this.caseStateDefinitionDAO = new CaseStateDefinitionDAOImpl(this.session, this.caseDefinitionDAO);
         this.caseStageDAO = new CaseStageDAOImpl(this.session, this.caseStateDefinitionDAO);
-        this.caseDAO = new CaseDAOImpl(this.session, this.caseDefinitionDAO, this.caseStateDefinitionDAO, this.caseStageDAO);
+        this.caseDAO = new CaseDAOImpl(this.session, this.caseDefinitionDAO, this.caseStateDefinitionDAO);
         insertTestData();
     }
 
     private void insertTestData() {
-        this.testCaseDefinition = this.caseDefinitionDAO.createDefinition("Test");
+        this.testCaseDefinition = this.caseDefinitionDAO.createDefinition("Test-" + System.currentTimeMillis());
         this.testCaseStateDefinition = this.caseStateDefinitionDAO.createStateDefinition("InitialTestState", this.testCaseDefinition.getId());
         this.caseStateDefinitionDAO.createStateDefinition("SomeOtherState", this.testCaseDefinition.getId());
         this.caseDefinitionDAO.setInitialState(this.testCaseDefinition, this.testCaseStateDefinition.getId());

@@ -9,7 +9,11 @@ import pl.net.bluesoft.lot.casemanagement.model.CaseStateDefinition;
 public interface CaseDefinitionDAO {
     CaseDefinition getDefinitionById(long caseDefinitionId);
 
+    CaseDefinition getDefinitionByName(String name);
+
     CaseDefinition createDefinition(String name);
+
+    CaseDefinition createDefinition(String name, long initialCaseStateDefinitionId);
 
     void setInitialState(CaseDefinition caseDefinition, long initialCaseStateDefinitionId);
 }

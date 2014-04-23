@@ -16,17 +16,15 @@ import java.util.Map;
 public class CaseDAOImpl extends SimpleHibernateBean<Case> implements CaseDAO {
     private CaseDefinitionDAO caseDefinitionDAO;
     private CaseStateDefinitionDAO caseStateDefinitionDAO;
-    private CaseStageDAO caseStageDAO;
 
     public CaseDAOImpl(final Session session) {
         super(session);
     }
 
-    public CaseDAOImpl(final Session session, final CaseDefinitionDAO caseDefinitionDAO, final CaseStateDefinitionDAO caseStateDefinitionDAO, final CaseStageDAO caseStageDAO) {
+    public CaseDAOImpl(final Session session, final CaseDefinitionDAO caseDefinitionDAO, final CaseStateDefinitionDAO caseStateDefinitionDAO) {
         this(session);
         this.caseDefinitionDAO = caseDefinitionDAO;
         this.caseStateDefinitionDAO = caseStateDefinitionDAO;
-        this.caseStageDAO = caseStageDAO;
     }
 
     @Override

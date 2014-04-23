@@ -21,8 +21,10 @@ import java.util.Set;
         })
 public class CaseDefinition extends PersistentEntity {
     static final String CASE_DEFINITION_ID = "case_definition_id";
+    public static final String NAME = "name";
 
-    @Column(name = "name", nullable = false)
+    @Column(name = NAME, nullable = false, unique = true)
+    // @Index(name = "idx_pt_case_definition_name")
     private String name;
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)

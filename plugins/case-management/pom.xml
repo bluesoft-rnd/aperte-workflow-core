@@ -61,7 +61,12 @@
             <version>9.2-1004-jdbc4</version>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.6.1</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -119,9 +124,10 @@
                             pl.net.bluesoft.lot.casemanagement.model.CaseStateWidgetPermission
                         </ProcessTool-Model-Enhancement>
                         <ProcessTool-Spring-Beans>
+                            pl.net.bluesoft.lot.casemanagement.CaseManagementFacadeImpl
                         </ProcessTool-Spring-Beans>
                         <ProcessTool-Step-Enhancement>
-
+                            pl.net.bluesoft.lot.casemanagement.step.CreateCaseStep
                         </ProcessTool-Step-Enhancement>
                     </instructions>
                 </configuration>

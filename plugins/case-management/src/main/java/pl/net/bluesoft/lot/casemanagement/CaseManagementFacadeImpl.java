@@ -21,7 +21,7 @@ public class CaseManagementFacadeImpl implements ICaseManagementFacade {
         final CaseDefinition definition = getCaseDefinitionDAO().getDefinitionByName(definitionName);
         if (definition == null)
             throw new CreateCaseException(String.format("Case definition for name '%s' not found", definitionName ));
-        return getCaseDAO().createCase(definition.getId(), caseName, caseNumber, caseAttributes);
+        return getCaseDAO().createCase(definition, caseName, caseNumber, caseAttributes);
     }
 
     private CaseDefinitionDAO getCaseDefinitionDAO() {
@@ -33,6 +33,6 @@ public class CaseManagementFacadeImpl implements ICaseManagementFacade {
     }
 
     private CaseDAO getCaseDAO() {
-        return new CaseDAOImpl(ProcessToolContext.Util.getThreadProcessToolContext().getHibernateSession(), getCaseDefinitionDAO(), getCaseStateDefinitionDAO());
+        return new CaseDAOImpl(ProcessToolContext.Util.getThreadProcessToolContext().getHibernateSession(), getCaseStateDefinitionDAO());
     }
 }

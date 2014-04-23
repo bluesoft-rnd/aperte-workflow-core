@@ -43,7 +43,7 @@ public abstract class BaseTest {
         this.caseDefinitionDAO = new CaseDefinitionDAOImpl(this.session);
         this.caseStateDefinitionDAO = new CaseStateDefinitionDAOImpl(this.session, this.caseDefinitionDAO);
         this.caseStageDAO = new CaseStageDAOImpl(this.session, this.caseStateDefinitionDAO);
-        this.caseDAO = new CaseDAOImpl(this.session, this.caseDefinitionDAO, this.caseStateDefinitionDAO);
+        this.caseDAO = new CaseDAOImpl(this.session, this.caseStateDefinitionDAO);
         insertTestData();
     }
 

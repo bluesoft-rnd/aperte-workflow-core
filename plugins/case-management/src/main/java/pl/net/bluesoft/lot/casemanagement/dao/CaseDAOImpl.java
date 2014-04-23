@@ -14,26 +14,23 @@ import java.util.Map;
  * Created by pkuciapski on 2014-04-22.
  */
 public class CaseDAOImpl extends SimpleHibernateBean<Case> implements CaseDAO {
-    private CaseDefinitionDAO caseDefinitionDAO;
     private CaseStateDefinitionDAO caseStateDefinitionDAO;
 
     public CaseDAOImpl(final Session session) {
         super(session);
     }
 
-    public CaseDAOImpl(final Session session, final CaseDefinitionDAO caseDefinitionDAO, final CaseStateDefinitionDAO caseStateDefinitionDAO) {
+    public CaseDAOImpl(final Session session, final CaseStateDefinitionDAO caseStateDefinitionDAO) {
         this(session);
-        this.caseDefinitionDAO = caseDefinitionDAO;
         this.caseStateDefinitionDAO = caseStateDefinitionDAO;
     }
 
     @Override
-    public Case createCase(long caseDefinitionId, String name, String number, Map<String, String> simpleAttributes) {
+    public Case createCase(final CaseDefinition definition, final String name, final String number, final Map<String, String> simpleAttributes) {
         final Case newCase = new Case();
         newCase.setName(name);
         newCase.setNumber(number);
         newCase.setCreateDate(new Date());
-        final CaseDefinition definition = caseDefinitionDAO.getDefinitionById(caseDefinitionId);
         newCase.setDefinition(definition);
         // get the initial state from the case definition
         final CaseStateDefinition initialState = caseStateDefinitionDAO.getStateDefinitionById(newCase.getDefinition().getInitialState().getId());

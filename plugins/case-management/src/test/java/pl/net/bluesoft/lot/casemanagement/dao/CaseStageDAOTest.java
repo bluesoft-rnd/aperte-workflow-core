@@ -26,7 +26,7 @@ public class CaseStageDAOTest extends BaseTest {
     }
 
     private void insertTestData() {
-        this.testCase = this.caseDAO.createCase(this.testCaseDefinition.getId(), "test", "1/2014", null);
+        this.testCase = this.caseDAO.createCase(this.testCaseDefinition, "test", "no." + System.currentTimeMillis(), null);
     }
 
     @Test

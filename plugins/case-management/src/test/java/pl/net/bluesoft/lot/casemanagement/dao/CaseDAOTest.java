@@ -18,7 +18,7 @@ public class CaseDAOTest extends BaseTest {
     public void testCreateCase() throws Exception {
         final String name = "name-" + System.currentTimeMillis();
         final String number = "number-" + System.currentTimeMillis();
-        final Case newCase = caseDAO.createCase(this.testCaseDefinition.getId(), name, number, new HashMap<String, String>());
+        final Case newCase = caseDAO.createCase(this.testCaseDefinition, name, number, new HashMap<String, String>());
         logger.info(newCase.toString());
         assertEquals(name, newCase.getName());
         assertEquals(number, newCase.getNumber());

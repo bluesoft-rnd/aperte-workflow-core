@@ -5,6 +5,7 @@ import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 
 import javax.persistence.*;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -140,5 +141,12 @@ public class Case extends PersistentEntity {
 
     public void setStages(Set<CaseStage> stages) {
         this.stages = stages;
+    }
+
+    public Collection<AbstractCaseAttribute> getAllAttributes() {
+        Set<AbstractCaseAttribute> all = new HashSet<AbstractCaseAttribute>();
+        all.addAll(this.getSimpleAttributes());
+        all.addAll(this.getAttributes());
+        return all;
     }
 }

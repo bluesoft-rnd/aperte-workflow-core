@@ -3,32 +3,55 @@ package pl.net.bluesoft.rnd.util;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Util for steps
  *
  * @author: "mpawlak@bluesoft.net.pl"
  */
-public class StepUtil
-{
-    public static String extractVariable(String variableCode, ProcessToolContext ctx, ProcessInstance pi )
-    {
+public class StepUtil {
+    public static String extractVariable(String variableCode, ProcessToolContext ctx, ProcessInstance pi) {
         if (variableCode == null)
             return null;
 
         variableCode = variableCode.trim();
 
         /* If key is variable #{variableName}, extract it */
-        if(variableCode.matches("#\\{.*\\}"))
-        {
+        if (variableCode.matches("#\\{.*\\}")) {
             String variableName = variableCode.replaceAll("#\\{(.*)\\}", "$1");
             variableName = pi.getSimpleAttributeValue(variableName);
 
             return variableName;
         }
         /* Otherwise variableCode == key */
-        else
-        {
+        else {
             return pi.getSimpleAttributeValue(variableCode);
         }
+    }
+
+    /**
+     * Evaluate the given query string to a list of simple attributes.
+     *
+     * @param query
+     * @return
+     */
+    public static Map<String, String> evaluateQuery(final String query) {
+        final Map<String, String> attributes = new HashMap<String, String>();
+        String[] parts = query.split("[,;]");
+        for (String part : parts) {
+            String[] assignment = part.split("[:=]");
+            if (assignment.length != 2)
+                continue;
+
+            if (assignment[1].startsWith("\"") && assignment[1].endsWith("\""))
+                assignment[1] = assignment[1].substring(1, assignment[1].length() - 1);
+
+            String key = assignment[0];
+            String value = assignment[1];
+            attributes.put(key, value);
+        }
+        return attributes;
     }
 }

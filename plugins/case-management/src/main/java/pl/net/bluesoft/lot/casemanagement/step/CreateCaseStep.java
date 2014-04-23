@@ -3,9 +3,13 @@ package pl.net.bluesoft.lot.casemanagement.step;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.net.bluesoft.lot.casemanagement.ICaseManagementFacade;
 import pl.net.bluesoft.lot.casemanagement.model.Case;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.model.BpmStep;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
+import pl.net.bluesoft.rnd.util.StepUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,9 +35,20 @@ public class CreateCaseStep implements ProcessToolProcessStep {
 
     @Override
     public String invoke(final BpmStep step, final Map<String, String> params) throws Exception {
-        // todo evaluate the given query to set the case attributes
-        final Map<String, String> attributes = new HashMap<String, String>();
-        final Case created = caseManagement.createCase(caseDefinitionName, caseName, caseNumber, attributes);
+        // evaluate the given query to set the case attributes
+        final Map<String, String> attributes = StepUtil.evaluateQuery(caseAttributesQuery);
+
+        ProcessToolRegistry.Util.getRegistry().withProcessToolContext(new ProcessToolContextCallback() {
+            @Override
+            public void withContext(ProcessToolContext ctx) {
+                for (Map.Entry<String, String> a : attributes.entrySet()) {
+                    final String value = StepUtil.extractVariable(a.getValue(), ctx, step.getProcessInstance());
+                    a.setValue(value);
+                }
+            }
+        });
+
+        caseManagement.createCase(caseDefinitionName, caseName, caseNumber, attributes);
         return STATUS_OK;
     }
 }

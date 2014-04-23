@@ -19,7 +19,7 @@ import javax.persistence.Table;
                 ),
                 @Index(name = "idx_pt_case_s_attr_case_id", columnNames = Case.CASE_ID)
         })
-public class CaseSimpleAttribute extends AbstractCaseAttribute {
+public class CaseSimpleAttribute extends AbstractCaseAttribute implements Comparable<CaseSimpleAttribute> {
     @Column(name = "value")
     private String value;
 
@@ -29,5 +29,12 @@ public class CaseSimpleAttribute extends AbstractCaseAttribute {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    @Override
+    public int compareTo(final CaseSimpleAttribute other) {
+        if (this.getKey() != null && other != null)
+            return this.getKey().compareTo(other.getKey());
+        return 0;
     }
 }

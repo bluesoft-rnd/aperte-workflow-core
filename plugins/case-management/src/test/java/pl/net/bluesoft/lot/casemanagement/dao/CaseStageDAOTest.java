@@ -31,7 +31,7 @@ public class CaseStageDAOTest extends BaseTest {
 
     @Test
     public void testCreateCaseStage() throws Exception {
-        final CaseStage stage = this.caseStageDAO.createStage(this.testCase.getId(), this.testCaseStateDefinition.getId(), "NewStage");
+        final CaseStage stage = this.caseStageDAO.createStage(this.testCase, this.testCaseStateDefinition.getId(), "NewStage");
         assertNotNull(stage.getId());
         assertEquals("NewStage", stage.getName());
         assertEquals(this.testCase.getId(), stage.getCase().getId());
@@ -41,7 +41,7 @@ public class CaseStageDAOTest extends BaseTest {
 
     @Test
     public void testDeleteCaseStage() throws Exception {
-        final CaseStage stage = this.caseStageDAO.createStage(this.testCase.getId(), this.testCaseStateDefinition.getId(), "StageToDelete");
+        final CaseStage stage = this.caseStageDAO.createStage(this.testCase, this.testCaseStateDefinition.getId(), "StageToDelete");
         final CaseStage before = this.caseStageDAO.getStageById(stage.getId());
         assertNotNull(before);
         this.caseStageDAO.deleteStage(stage);

@@ -20,10 +20,8 @@ public class CaseStageDAOImpl extends SimpleHibernateBean<CaseStage> implements 
     }
 
     @Override
-    public CaseStage createStage(final long caseId, final long caseStateDefinitionId, final String name) {
+    public CaseStage createStage(final Case caseInstance, final long caseStateDefinitionId, final String name) {
         final CaseStateDefinition stateDefinition = caseStateDefinitionDAO.getStateDefinitionById(caseStateDefinitionId);
-        final Case case_ = new Case();
-        case_.setId(caseId);
         final CaseStage stage = new CaseStage();
         if (name != null)
             stage.setName(name);
@@ -31,15 +29,21 @@ public class CaseStageDAOImpl extends SimpleHibernateBean<CaseStage> implements 
             stage.setName(stateDefinition.getName());
         stage.setCaseStateDefinition(stateDefinition);
         stage.setStartDate(new Date());
-        stage.setCase(case_);
-        case_.getStages().add(stage);
+        stage.setCase(caseInstance);
+        caseInstance.getStages().add(stage);
+        caseInstance.setModificationDate(new Date());
         saveOrUpdate(stage);
+        this.session.update(caseInstance);
         return stage;
     }
 
     @Override
     public void deleteStage(final CaseStage stage) {
+        final Case caseInstance = stage.getCase();
+        caseInstance.setModificationDate(new Date());
+        caseInstance.getStages().remove(stage);
         delete(stage);
+        this.session.update(caseInstance);
     }
 
     @Override

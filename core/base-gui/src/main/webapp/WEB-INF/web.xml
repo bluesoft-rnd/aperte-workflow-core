@@ -196,14 +196,6 @@
 		</filter-class>
 	</filter>
     <filter-mapping>
-        <filter-name>Auto Login Filter</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>Servlet Authorizing Filter</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
 		<filter-name>Header Filter</filter-name>
 		<url-pattern>*.css</url-pattern>
 	</filter-mapping>

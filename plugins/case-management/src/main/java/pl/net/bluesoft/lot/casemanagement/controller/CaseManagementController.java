@@ -1,5 +1,7 @@
 package pl.net.bluesoft.lot.casemanagement.controller;
 
+import org.aperteworkflow.ui.help.datatable.JQueryDataTable;
+import org.aperteworkflow.ui.help.datatable.JQueryDataTableUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.net.bluesoft.lot.casemanagement.ICaseManagementFacade;
 import pl.net.bluesoft.lot.casemanagement.exception.CaseManagementException;
@@ -9,6 +11,7 @@ import pl.net.bluesoft.rnd.processtool.web.controller.ControllerMethod;
 import pl.net.bluesoft.rnd.processtool.web.controller.IOsgiWebController;
 import pl.net.bluesoft.rnd.processtool.web.controller.OsgiController;
 import pl.net.bluesoft.rnd.processtool.web.controller.OsgiWebRequest;
+import pl.net.bluesoft.rnd.processtool.web.domain.DataPagingBean;
 import pl.net.bluesoft.rnd.processtool.web.domain.GenericResultBean;
 
 import javax.servlet.http.HttpServletRequest;
@@ -32,11 +35,10 @@ public class CaseManagementController implements IOsgiWebController {
     @ControllerMethod(action = "getAllCases")
     public GenericResultBean getAllCases(final OsgiWebRequest invocation) {
         final GenericResultBean result = new GenericResultBean();
-        final HttpServletRequest request = invocation.getRequest();
-        // final long caseId = getCaseId(request);
+        JQueryDataTable dataTable = JQueryDataTableUtil.analyzeRequest(invocation.getRequest().getParameterMap());
 
         try {
-            Collection<Case> cases = facade.getCases();
+            final Collection<Case> cases = facade.getCases();
             Iterator<Case> i = cases.iterator();
             final Case case1 = i.next();
             final Case case2 = i.next();
@@ -44,7 +46,11 @@ public class CaseManagementController implements IOsgiWebController {
             cases.add(case1);
             cases.add(case2);
 
-            result.setData(createDTOList(cases));
+            final Collection<CaseDTO> dtos = createDTOList(cases);
+            final DataPagingBean<CaseDTO> dataPagingBean =
+                    new DataPagingBean<CaseDTO>(dtos, dtos.size(), dataTable.getEcho());
+
+            return dataPagingBean;
         } catch (CaseManagementException e) {
             logger.log(Level.SEVERE, "[CASE_MANAGEMENT] Cannot get the case list", e);
             result.addError("Cannot get the case list", e.getMessage());

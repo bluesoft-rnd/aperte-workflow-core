@@ -2,6 +2,7 @@ package pl.net.bluesoft.rnd.processtool.portlets.report;
 
 import org.aperteworkflow.ui.view.GenericPortletViewRenderer;
 import org.aperteworkflow.ui.view.RenderParams;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 /**
  * User: POlszewski
@@ -17,8 +18,8 @@ public class ReportPortletRenderer implements GenericPortletViewRenderer {
 	}
 
 	@Override
-	public String getName() {
-		return "AWF Reports";
+	public String getName(I18NSource i18NSource) {
+		return i18NSource.getMessage("AWF Reports");
 	}
 
 	@Override
@@ -34,10 +35,5 @@ public class ReportPortletRenderer implements GenericPortletViewRenderer {
 	@Override
 	public Object render(RenderParams params) {
 		return new ReportsPanel(params.getI18NSource());
-	}
-
-	@Override
-	public String render() {
-		return "ReportPortlet";
 	}
 }

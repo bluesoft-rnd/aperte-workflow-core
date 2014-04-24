@@ -75,7 +75,7 @@ public abstract class GenericPortletPanel extends VerticalLayout {
 			Object gui = renderer.render(params);
 
 			if (gui instanceof Component) {
-				tabSheet.addTab(addControls((Component)gui, renderer), i18NSource.getMessage(renderer.getName()));
+				tabSheet.addTab(addControls((Component)gui, renderer), renderer.getName(i18NSource));
 			}
 		}
 		return tabSheet;
@@ -83,12 +83,15 @@ public abstract class GenericPortletPanel extends VerticalLayout {
 
 	private RenderParams createParams() {
 		RenderParams params = new RenderParams();
+		params.setContext(getThreadProcessToolContext());
+		params.setBpmSession(bpmSession);
 		params.setI18NSource(i18NSource);
+		params.setApplication(application);
 		return params;
 	}
 
 	private Component addControls(Component gui, GenericPortletViewRenderer renderer) {
-		Label titleLabel = new Label(i18NSource.getMessage(renderer.getName()));
+		Label titleLabel = new Label(renderer.getName(i18NSource));
 		titleLabel.addStyleName("h1 color processtool-title");
 		titleLabel.setWidth("100%");
 

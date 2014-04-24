@@ -1,6 +1,5 @@
 package pl.net.bluesoft.rnd.processtool.plugins.osgi;
 
-import org.apache.commons.io.IOUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
 import pl.net.bluesoft.rnd.processtool.plugins.IBundleResourceProvider;
@@ -86,13 +85,4 @@ public class OSGiBundleHelper implements IBundleResourceProvider
         URL resource = bundle.getResource(resourcePath);
         return resource != null ? resource.openStream() : null;
     }
-
-	public static String getBundleResourceString(Bundle bundle, String resourcePath) {
-		try {
-			return IOUtils.toString(getBundleResourceStream(bundle, resourcePath));
-		}
-		catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
 }

@@ -3,7 +3,7 @@ package pl.net.bluesoft.lot.casemanagement.exception;
 /**
  * Created by pkuciapski on 2014-04-23.
  */
-public class CreateCaseException extends Exception {
+public class CreateCaseException extends CaseManagementException {
     public CreateCaseException(String s) {
         super(s);
     }

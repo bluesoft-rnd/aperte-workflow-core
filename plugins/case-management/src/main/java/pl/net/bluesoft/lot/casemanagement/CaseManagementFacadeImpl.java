@@ -1,11 +1,13 @@
 package pl.net.bluesoft.lot.casemanagement;
 
 import pl.net.bluesoft.lot.casemanagement.dao.*;
+import pl.net.bluesoft.lot.casemanagement.exception.CaseManagementException;
 import pl.net.bluesoft.lot.casemanagement.exception.CreateCaseException;
 import pl.net.bluesoft.lot.casemanagement.model.Case;
 import pl.net.bluesoft.lot.casemanagement.model.CaseDefinition;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -20,7 +22,7 @@ public class CaseManagementFacadeImpl implements ICaseManagementFacade {
         logger.info("Creating the new case");
         final CaseDefinition definition = getCaseDefinitionDAO().getDefinitionByName(definitionName);
         if (definition == null)
-            throw new CreateCaseException(String.format("Case definition for name '%s' not found", definitionName ));
+            throw new CreateCaseException(String.format("Case definition for name '%s' not found", definitionName));
         return getCaseDAO().createCase(definition, caseName, caseNumber, caseAttributes);
     }
 
@@ -34,5 +36,10 @@ public class CaseManagementFacadeImpl implements ICaseManagementFacade {
 
     private CaseDAO getCaseDAO() {
         return new CaseDAOImpl(ProcessToolContext.Util.getThreadProcessToolContext().getHibernateSession(), getCaseStateDefinitionDAO());
+    }
+
+    @Override
+    public Collection<Case> getCases() throws CaseManagementException {
+        return getCaseDAO().getAllCases();
     }
 }

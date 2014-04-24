@@ -110,6 +110,7 @@
                         <ProcessTool-Widget-View>
                         </ProcessTool-Widget-View>
                         <ProcessTool-Controller>
+                            pl.net.bluesoft.lot.casemanagement.controller.CaseManagementController
                         </ProcessTool-Controller>
                         <ProcessTool-Model-Enhancement>
                             pl.net.bluesoft.lot.casemanagement.model.Case,

@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by pkuciapski on 2014-04-22.
@@ -49,6 +50,14 @@ public class CaseDAOTest extends BaseTest {
         assertEquals("key2", attrList.get(1).getKey());
         assertEquals("value1", attrList.get(0).getValue());
         assertEquals("value2", attrList.get(1).getValue());
+    }
+
+    @Test
+    public void testGetAllCases() throws Exception {
+        final Collection<Case> cases = caseDAO.getAllCases();
+        logger.info(cases.toString());
+        assertNotNull(cases);
+        assertTrue(cases.size() > 0);
     }
 
 }

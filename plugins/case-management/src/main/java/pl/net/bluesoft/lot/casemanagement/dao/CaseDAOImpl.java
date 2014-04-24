@@ -1,13 +1,12 @@
 package pl.net.bluesoft.lot.casemanagement.dao;
 
 import org.hibernate.Session;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Restrictions;
 import pl.net.bluesoft.lot.casemanagement.model.*;
 import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by pkuciapski on 2014-04-22.
@@ -67,7 +66,15 @@ public class CaseDAOImpl extends SimpleHibernateBean<Case> implements CaseDAO {
     }
 
     @Override
-    public Case getCaseById(long caseId) {
+    public Case getCaseById(final long caseId) {
         return (Case) this.session.get(Case.class, caseId);
+    }
+
+    @Override
+    public Collection<Case> getAllCases() {
+        DetachedCriteria criteria = getDetachedCriteria();
+        // criteria.createAlias("processInstance", "pi")
+        //         .add(Restrictions.eq("pi.id", processInstanceId));
+        return criteria.getExecutableCriteria(getSession()).list();
     }
 }

@@ -1,8 +1,10 @@
 package pl.net.bluesoft.lot.casemanagement;
 
+import pl.net.bluesoft.lot.casemanagement.exception.CaseManagementException;
 import pl.net.bluesoft.lot.casemanagement.exception.CreateCaseException;
 import pl.net.bluesoft.lot.casemanagement.model.Case;
 
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -10,4 +12,6 @@ import java.util.Map;
  */
 public interface ICaseManagementFacade {
     Case createCase(String definitionName, String caseName, String caseNumber, Map<String, String> caseAttributes) throws CreateCaseException;
+
+    Collection<Case> getCases() throws CaseManagementException;
 }

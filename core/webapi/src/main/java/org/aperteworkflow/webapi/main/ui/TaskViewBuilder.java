@@ -36,7 +36,7 @@ import static pl.net.bluesoft.util.lang.Strings.hasText;
 public class TaskViewBuilder
 {
 	private BpmTask task;
-	private List<IStateWidget> widgets;
+	private List<? extends IStateWidget> widgets;
     private List<ProcessStateAction> actions;
     private String version;
     private String  description;
@@ -465,7 +465,7 @@ public class TaskViewBuilder
         if(!isUserAssignedToTask() || isTaskFinished())
             return privileges;
 
-        for(ProcessStateWidgetPermission permission: widget.getPermissions())
+        for(IPermission permission: widget.getPermissions())
         {
             if (permission.getRoleName().contains("*") || user.hasRole(permission.getRoleName())) {
 				privileges.add(permission.getPrivilegeName());
@@ -602,7 +602,7 @@ public class TaskViewBuilder
                 .append("').tooltip({title: '").append(i18Source.getMessage("button.claim.descrition")).append("'});");
     }
 
-	public TaskViewBuilder setWidgets(List<IStateWidget> widgets)
+	public TaskViewBuilder setWidgets(List<? extends IStateWidget> widgets)
 	{
 		this.widgets = widgets;
 		return this;

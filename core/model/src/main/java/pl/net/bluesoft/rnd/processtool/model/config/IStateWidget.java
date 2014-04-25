@@ -18,5 +18,5 @@ public interface IStateWidget {
 
     Integer getPriority();
 
-    Set<ProcessStateWidgetPermission> getPermissions();
+    Set<? extends IPermission> getPermissions();
 }

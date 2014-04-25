@@ -16,6 +16,7 @@ import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.dao.UserSubstitutionDAO;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.processtool.model.config.IStateWidget;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
@@ -186,7 +187,7 @@ public class TaskViewController extends AbstractProcessToolServletController
                     long t2 = System.currentTimeMillis();
 
                     /* Load view widgets */
-                    List<ProcessStateWidget> widgets = new ArrayList<ProcessStateWidget>(config.getWidgets());
+                    List<IStateWidget> widgets = new ArrayList<IStateWidget>(config.getWidgets());
                     Collections.sort(widgets, BY_WIDGET_PRIORITY);
 
                     long t3 = System.currentTimeMillis();
@@ -246,9 +247,9 @@ public class TaskViewController extends AbstractProcessToolServletController
                     );
 	}
 
-	private static final Comparator<ProcessStateWidget> BY_WIDGET_PRIORITY = new Comparator<ProcessStateWidget>() {
+	private static final Comparator<IStateWidget> BY_WIDGET_PRIORITY = new Comparator<IStateWidget>() {
 		@Override
-		public int compare(ProcessStateWidget widget1, ProcessStateWidget widget2) {
+		public int compare(IStateWidget widget1, IStateWidget widget2) {
 			return widget1.getPriority().compareTo(widget2.getPriority());
 		}
 	};

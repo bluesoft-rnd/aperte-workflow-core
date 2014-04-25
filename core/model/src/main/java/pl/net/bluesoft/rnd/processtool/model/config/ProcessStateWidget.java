@@ -24,7 +24,7 @@ import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 
 @Entity
 @Table(name="pt_process_state_widget")
-public class ProcessStateWidget extends PersistentEntity 
+public class ProcessStateWidget extends PersistentEntity implements IStateWidget
 {
 	private static final long serialVersionUID = 8363229421636212280L;
 

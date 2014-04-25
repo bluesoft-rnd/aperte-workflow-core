@@ -6,8 +6,8 @@
 <%@include file="utils/globals.jsp" %>
 <%@include file="utils/apertedatatable.jsp" %>
 
-<div class="process-tasks-view" id="task-view-processes">
-    <table id="caseTable" class="process-table table table-striped" border="1">
+<div class="process-tasks-view" id="case-management-view">
+    <table id="caseManagementTable" class="process-table table table-striped" border="1">
         <thead>
                 <th style="width:20%;"><spring:message code="admin.case.management.results.table.number" /></th>
                 <th style="width:20%;"><spring:message code="admin.case.management.results.table.definitionName" /></th>
@@ -23,11 +23,12 @@
 
 <script type="text/javascript">
 //<![CDATA[
+    var caseManagement = {}
 
   	$(document).ready(function() {
-        var dataTable = new AperteDataTable("caseTable",
+        caseManagement.caseListDT = new AperteDataTable("caseManagementTable",
             [
-                 { "sName":"number", "bSortable": true ,"mData": function(object) { return generateNameColumn(object) }
+                 { "sName":"number", "bSortable": true ,"mData": function(object) { return caseManagement.generateNameColumn(object) }
                  },
                  { "sName":"definitionName", "bSortable": false ,"mData": "definitionName"},
                  { "sName":"name", "bSortable": true , "mData": "name"},
@@ -38,21 +39,21 @@
             [[ 0, "asc" ]]
         );
 
-        dataTable.addParameter("controller", "casemanagementcontroller");
-        dataTable.addParameter("action", "getAllCasesPaged");
+        caseManagement.caseListDT.addParameter("controller", "casemanagementcontroller");
+        caseManagement.caseListDT.addParameter("action", "getAllCasesPaged");
         // if (window.console) console.log(dispatcherPortlet);
-        dataTable.reloadTable(dispatcherPortlet);
+        caseManagement.caseListDT.reloadTable(dispatcherPortlet);
 
     });
 
-	function generateNameColumn(caseInstance) {
+	caseManagement.generateNameColumn = function(caseInstance) {
         // if (window.console) console.log(caseInstance);
-        var showOnClickCode = 'onclick="loadCaseView(' + caseInstance.id + ')"';
+        var showOnClickCode = 'onclick="caseManagement.loadCaseView(' + caseInstance.id + ')"';
         // if (window.console) console.log(showOnClickCode);
         return '<a class="process-view-link"  '+ showOnClickCode + ' >' + caseInstance.number + '</a>';
     }
 
-    function loadCaseView(caseId) {
+    caseManagement.loadCaseView = function(caseId) {
         windowManager.changeUrl('?caseId=' + caseId);
         windowManager.showLoadingScreen();
 

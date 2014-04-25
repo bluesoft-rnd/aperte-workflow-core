@@ -17,10 +17,7 @@ import pl.net.bluesoft.rnd.processtool.web.domain.DataPagingBean;
 import pl.net.bluesoft.rnd.processtool.web.domain.GenericResultBean;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -81,7 +78,14 @@ public class CaseManagementController implements IOsgiWebController {
         final GenericResultBean result = new GenericResultBean();
         final Long caseId = getCaseId(invocation.getRequest());
         final Case caseInstance = facade.getCaseById(caseId);
-        final Set<CaseStateWidget> widgets = caseInstance.getCurrentStage().getCaseStateDefinition().getWidgets();
+        final List<CaseStateWidget> widgets = new ArrayList<CaseStateWidget>(caseInstance.getCurrentStage().getCaseStateDefinition().getWidgets());
+        // sort widgets by priority
+        Collections.sort(widgets, new Comparator<CaseStateWidget>() {
+            @Override
+            public int compare(CaseStateWidget caseStateWidget, CaseStateWidget caseStateWidget2) {
+                return caseStateWidget.getPriority().compareTo(caseStateWidget2.getPriority());
+            }
+        });
         return result;
     }
 }

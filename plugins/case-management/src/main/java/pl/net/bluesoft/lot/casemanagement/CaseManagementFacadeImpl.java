@@ -53,4 +53,9 @@ public class CaseManagementFacadeImpl implements ICaseManagementFacade {
     public Long getAllCasesCount() throws CaseManagementException {
         return getCaseDAO().getAllCasesCount();
     }
+
+    @Override
+    public Case getCaseById(long caseId) {
+        return getCaseDAO().getCaseById(caseId);
+    }
 }

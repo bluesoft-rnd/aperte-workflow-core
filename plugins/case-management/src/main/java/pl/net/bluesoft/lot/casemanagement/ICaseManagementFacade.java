@@ -19,4 +19,6 @@ public interface ICaseManagementFacade {
 
     Collection<Case> getAllCasesPaged(String sortColumnProperty, boolean sortAscending,
                                       int pageLength, int pageOffset) throws CaseManagementException;
+
+    Case getCaseById(long caseId);
 }

@@ -33,6 +33,11 @@ public class CaseStateWidget extends PersistentEntity {
     private Integer priority;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = CaseStateDefinition.CASE_STATE_DEFINITION_ID)
+    @Index(name = "idx_pt_case_state_wid_csd_id")
+    private CaseStateDefinition caseStateDefinition;
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = PARENT_ID)
     @Index(name = "idx_pt_case_state_widget_p_id")
     private CaseStateWidget parent;
@@ -103,6 +108,14 @@ public class CaseStateWidget extends PersistentEntity {
 
     public void setPermissions(Set<CaseStateWidgetPermission> permissions) {
         this.permissions = permissions;
+    }
+
+    public CaseStateDefinition getCaseStateDefinition() {
+        return caseStateDefinition;
+    }
+
+    public void setCaseStateDefinition(CaseStateDefinition caseStateDefinition) {
+        this.caseStateDefinition = caseStateDefinition;
     }
 }
 

@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import pl.net.bluesoft.lot.casemanagement.model.CaseDefinition;
 import pl.net.bluesoft.lot.casemanagement.model.CaseStateDefinition;
+import pl.net.bluesoft.lot.casemanagement.model.CaseStateWidget;
 
 import javax.naming.NamingException;
 
@@ -47,11 +48,21 @@ public abstract class BaseTest {
         insertTestData();
     }
 
-    private void insertTestData() {
+    protected void insertTestData() {
         this.testCaseDefinition = this.caseDefinitionDAO.createDefinition("Test-" + System.currentTimeMillis());
-        this.testCaseStateDefinition = this.caseStateDefinitionDAO.createStateDefinition("InitialTestState", this.testCaseDefinition.getId());
-        this.caseStateDefinitionDAO.createStateDefinition("SomeOtherState", this.testCaseDefinition.getId());
+        this.testCaseStateDefinition = this.caseStateDefinitionDAO.createStateDefinition("Test-InitialTestState", this.testCaseDefinition.getId());
+        insertTestWidgets(this.testCaseStateDefinition);
+        this.caseStateDefinitionDAO.createStateDefinition("Test-SomeOtherState", this.testCaseDefinition.getId());
         this.caseDefinitionDAO.setInitialState(this.testCaseDefinition, this.testCaseStateDefinition.getId());
+    }
+
+    private void insertTestWidgets(CaseStateDefinition stateDef) {
+        final CaseStateWidget widget = new CaseStateWidget();
+        widget.setName("testWidget");
+        widget.setClassName("testClass");
+        widget.setPriority(0);
+        widget.setCaseStateDefinition(stateDef);
+        stateDef.getWidgets().add(widget);
     }
 
 

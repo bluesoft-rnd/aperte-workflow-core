@@ -27,15 +27,16 @@
   	$(document).ready(function() {
         var dataTable = new AperteDataTable("caseTable",
             [
-                 { "sName":"number", "bSortable": true ,"mData": "number"},
+                 { "sName":"number", "bSortable": true ,"mData": function(object) { return generateNameColumn(object) }
+                 },
                  { "sName":"definitionName", "bSortable": false ,"mData": "definitionName"},
                  { "sName":"name", "bSortable": true , "mData": "name"},
                  { "sName":"currentStageName", "bSortable": false ,"mData": "currentStageName"},
                  { "sName":"createDate", "bSortable": true ,"mData": "createDate"},
                  { "sName":"modificationDate", "bSortable": true ,"mData": "modificationDate"}
-             ],
-             [[ 0, "asc" ]]
-            );
+            ],
+            [[ 0, "asc" ]]
+        );
 
         dataTable.addParameter("controller", "casemanagementcontroller");
         dataTable.addParameter("action", "getAllCasesPaged");
@@ -43,7 +44,36 @@
         dataTable.reloadTable(dispatcherPortlet);
 
     });
-	
+
+	function generateNameColumn(caseInstance) {
+        // if (window.console) console.log(caseInstance);
+        var showOnClickCode = 'onclick="loadCaseView(' + caseInstance.id + ')"';
+        // if (window.console) console.log(showOnClickCode);
+        return '<a class="process-view-link"  '+ showOnClickCode + ' >' + caseInstance.number + '</a>';
+    }
+
+    function loadCaseView(caseId) {
+        windowManager.changeUrl('?caseId=' + caseId);
+        windowManager.showLoadingScreen();
+
+        var widgetJson = $.post(dispatcherPortlet, {
+                "controller": "casemanagementcontroller",
+                "action": "loadCase",
+                "caseId" : caseId
+            })
+            .done(function(data) {
+                if (window.console)
+                    console.log(data);
+                clearAlerts();
+                windowManager.showProcessData();
+                $('#process-data-view').empty();
+                $("#process-data-view").append(data);
+                checkIfViewIsLoaded();
+            })
+            .fail(function(data, textStatus, errorThrown) {
+            }
+        );
+    }
 
 //]]>
 </script>

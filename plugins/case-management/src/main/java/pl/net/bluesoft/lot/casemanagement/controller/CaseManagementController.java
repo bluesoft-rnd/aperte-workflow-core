@@ -8,6 +8,7 @@ import pl.net.bluesoft.lot.casemanagement.ICaseManagementFacade;
 import pl.net.bluesoft.lot.casemanagement.exception.CaseManagementException;
 import pl.net.bluesoft.lot.casemanagement.model.Case;
 import pl.net.bluesoft.lot.casemanagement.model.CaseDTO;
+import pl.net.bluesoft.lot.casemanagement.model.CaseStateWidget;
 import pl.net.bluesoft.rnd.processtool.web.controller.ControllerMethod;
 import pl.net.bluesoft.rnd.processtool.web.controller.IOsgiWebController;
 import pl.net.bluesoft.rnd.processtool.web.controller.OsgiController;
@@ -19,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -71,5 +73,15 @@ public class CaseManagementController implements IOsgiWebController {
             throw new RuntimeException("Case ID not provided in request!");
         }
         return caseId;
+    }
+
+    @ControllerMethod(action = "loadCase")
+    public GenericResultBean loadCase(final OsgiWebRequest invocation) {
+        logger.info(invocation.toString());
+        final GenericResultBean result = new GenericResultBean();
+        final Long caseId = getCaseId(invocation.getRequest());
+        final Case caseInstance = facade.getCaseById(caseId);
+        final Set<CaseStateWidget> widgets = caseInstance.getCurrentStage().getCaseStateDefinition().getWidgets();
+        return result;
     }
 }

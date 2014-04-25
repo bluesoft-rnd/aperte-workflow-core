@@ -45,6 +45,9 @@
         <mapping class="pl.net.bluesoft.lot.casemanagement.model.CaseStageSimpleAttribute"/>
         <mapping class="pl.net.bluesoft.lot.casemanagement.model.CaseSimpleAttribute"/>
         <mapping class="pl.net.bluesoft.lot.casemanagement.model.CaseStateDefinition"/>
+        <mapping class="pl.net.bluesoft.lot.casemanagement.model.CaseStateWidget"/>
+        <mapping class="pl.net.bluesoft.lot.casemanagement.model.CaseStateWidgetAttribute"/>
+        <mapping class="pl.net.bluesoft.lot.casemanagement.model.CaseStateWidgetPermission"/>
 
         <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstance"/>

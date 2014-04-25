@@ -19,8 +19,8 @@ public class CaseDAOTest extends BaseTest {
 
     @Test
     public void testCreateCase() throws Exception {
-        final String name = "name-" + System.currentTimeMillis();
-        final String number = "number-" + System.currentTimeMillis();
+        final String name = "CaseDAOTest-Name-" + System.currentTimeMillis();
+        final String number = "CaseDAOTest-Number-" + System.currentTimeMillis();
         final Case newCase = caseDAO.createCase(this.testCaseDefinition, name, number, new HashMap<String, String>());
         logger.info(newCase.toString());
         assertEquals(name, newCase.getName());
@@ -34,8 +34,8 @@ public class CaseDAOTest extends BaseTest {
 
     @Test
     public void testCreateCaseWithAttributes() throws Exception {
-        final String name = "name-" + System.currentTimeMillis();
-        final String number = "number-" + System.currentTimeMillis();
+        final String name = "CaseDAOTest-Name-" + System.currentTimeMillis();
+        final String number = "CaseDAOTest-Number-" + System.currentTimeMillis();
         final Map<String, String> attrs = new HashMap<String, String>();
         attrs.put("key1", "value1");
         attrs.put("key2", "value2");

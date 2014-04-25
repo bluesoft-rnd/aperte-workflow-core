@@ -19,14 +19,9 @@ public class CaseStageDAOTest extends BaseTest {
     private Case testCase;
 
     @Override
-    @Before
-    public void setUp() throws Exception {
-        super.setUp();
-        insertTestData();
-    }
-
-    private void insertTestData() {
-        this.testCase = this.caseDAO.createCase(this.testCaseDefinition, "test", "no." + System.currentTimeMillis(), null);
+    protected void insertTestData() {
+        super.insertTestData();
+        this.testCase = this.caseDAO.createCase(this.testCaseDefinition, "CaseStageDAOTest", "no." + System.currentTimeMillis(), null);
     }
 
     @Test

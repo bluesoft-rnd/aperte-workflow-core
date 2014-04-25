@@ -80,7 +80,7 @@ public class ProcessStateWidget extends PersistentEntity implements IStateWidget
 		this.parent = parent;
 	}
 
-	public Set<ProcessStateWidget> getChildren() 
+	public Set<ProcessStateWidget> getChildren()
 	{
         if (children == null) {
 			children = new HashSet<ProcessStateWidget>();
@@ -108,7 +108,7 @@ public class ProcessStateWidget extends PersistentEntity implements IStateWidget
 		this.permissions = permissions;
 	}
 
-	public Set<ProcessStateWidgetAttribute> getAttributes() 
+	public Set<ProcessStateWidgetAttribute> getAttributes()
 	{
         if (attributes == null) {
 			attributes = new HashSet<ProcessStateWidgetAttribute>();

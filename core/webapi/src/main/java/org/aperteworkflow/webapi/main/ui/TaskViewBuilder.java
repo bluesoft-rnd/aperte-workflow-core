@@ -174,10 +174,10 @@ public class TaskViewBuilder
         ProcessHtmlWidget processHtmlWidget = processToolRegistry.getGuiRegistry().getHtmlWidget(aliasName);
 
 		/* Sort widgets by prority */
-		List<ProcessStateWidget> children = new ArrayList<ProcessStateWidget>(widget.getChildren());
-		Collections.sort(children, new Comparator<ProcessStateWidget>() {
+		List<IStateWidget> children = new ArrayList<IStateWidget>(widget.getChildren());
+		Collections.sort(children, new Comparator<IStateWidget>() {
 			@Override
-			public int compare(ProcessStateWidget widget1, ProcessStateWidget widget2) {
+			public int compare(IStateWidget widget1, IStateWidget widget2) {
 				return widget1.getPriority().compareTo(widget2.getPriority());
 			}
 		});
@@ -187,10 +187,10 @@ public class TaskViewBuilder
 
         if(aliasName.equals("ShadowStateWidget"))
         {
-             ProcessStateWidgetAttribute processStateConfigurationIdAttribute =
-                     widget.getAttributeByName("processStateConfigurationId");
+            IStateWidgetAttribute processStateConfigurationIdAttribute =
+                    widget.getAttributeByName("processStateConfigurationId");
 
-            ProcessStateWidgetAttribute forcePrivilegesAttribute =
+            IStateWidgetAttribute forcePrivilegesAttribute =
                     widget.getAttributeByName("forcePrivileges");
 
             Boolean forcePrivileges = Boolean.parseBoolean(forcePrivilegesAttribute.getValue());
@@ -243,7 +243,7 @@ public class TaskViewBuilder
 			{
 				String caption = aliasName;
 				/* Set caption from attributes */
-				ProcessStateWidgetAttribute attribute = child.getAttributeByName("caption");
+				IStateWidgetAttribute attribute = child.getAttributeByName("caption");
 				if(attribute != null)
 					caption = i18Source.getMessage(attribute.getValue());
 
@@ -303,7 +303,7 @@ public class TaskViewBuilder
 			}
 		}
 		else if(aliasName.equals("SwitchWidgets")){
-			List<ProcessStateWidget> sortedList = new ArrayList<ProcessStateWidget>(children);
+			List<IStateWidget> sortedList = new ArrayList<IStateWidget>(children);
 
 			IStateWidget filteredChild = filterChildren(task, sortedList, widget);
 
@@ -343,7 +343,7 @@ public class TaskViewBuilder
             viewData.put(IHtmlTemplateProvider.DICTIONARIES_DAO_PARAMETER, ctx.getProcessDictionaryDAO());
             viewData.put(IHtmlTemplateProvider.BPM_SESSION_PARAMETER, bpmSession);
 
-            for(ProcessStateWidgetAttribute attribute: widget.getAttributes())
+            for(IStateWidgetAttribute attribute: widget.getAttributes())
                 viewData.put(attribute.getName(), attribute.getValue());
 
             /* Add custom attributes from widget data providers */
@@ -651,7 +651,7 @@ public class TaskViewBuilder
         return this;
     }
 
-    public IStateWidget filterChildren(BpmTask task, List<ProcessStateWidget> sortedList, IStateWidget sw) {
+    public IStateWidget filterChildren(BpmTask task, List<IStateWidget> sortedList, IStateWidget sw) {
     	String selectorKey = sw.getAttributeByName("selectorKey").getValue();
     	String conditions = sw.getAttributeByName("conditions").getValue();
 		String selectorValue = task.getProcessInstance().getInheritedSimpleAttributeValue(selectorKey);

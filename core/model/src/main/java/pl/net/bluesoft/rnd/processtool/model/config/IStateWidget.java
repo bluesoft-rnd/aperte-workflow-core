@@ -8,11 +8,11 @@ import java.util.Set;
 public interface IStateWidget {
     Long getId();
 
-    Set<ProcessStateWidgetAttribute> getAttributes();
+    Set<? extends IStateWidgetAttribute> getAttributes();
 
-    ProcessStateWidgetAttribute getAttributeByName(String name);
+    IStateWidgetAttribute getAttributeByName(String name);
 
-    Set<ProcessStateWidget> getChildren();
+    Set<? extends IStateWidget> getChildren();
 
     String getClassName();
 

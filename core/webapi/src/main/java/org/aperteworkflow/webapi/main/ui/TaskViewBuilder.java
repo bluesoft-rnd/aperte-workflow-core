@@ -207,14 +207,14 @@ public class TaskViewBuilder
                     .attr("id", "vertical_layout"+widget.getId());
             parent.appendChild(divContentNode);
 
-            for(ProcessStateWidget childWidget: processStateConfiguration.getWidgets())
+            for(IStateWidget childWidget: processStateConfiguration.getWidgets())
             {
                 WidgetHierarchyBean childBean = new WidgetHierarchyBean()
                         .setParent(divContentNode)
                         .setWidget(childWidget)
                         .setProcessInstance(processInstance.getRootProcessInstance())
                         .setForcePrivileges(forcePrivileges)
-                        .setPrivileges(getPrivileges((ProcessStateWidget)widget));
+                        .setPrivileges(getPrivileges(widget));
 
                 processWidget(childBean);
             }
@@ -239,7 +239,7 @@ public class TaskViewBuilder
 
 			boolean isFirst = true;
 
-			for(ProcessStateWidget child: children)
+			for(IStateWidget child: children)
 			{
 				String caption = aliasName;
 				/* Set caption from attributes */
@@ -290,7 +290,7 @@ public class TaskViewBuilder
 				.attr("id", "vertical_layout"+widget.getId());
 			parent.appendChild(divContentNode);
 
-			for(ProcessStateWidget child: children)
+			for(IStateWidget child: children)
 			{
                 WidgetHierarchyBean childBean = new WidgetHierarchyBean()
                         .setParent(divContentNode)
@@ -305,7 +305,7 @@ public class TaskViewBuilder
 		else if(aliasName.equals("SwitchWidgets")){
 			List<ProcessStateWidget> sortedList = new ArrayList<ProcessStateWidget>(children);
 
-			ProcessStateWidget filteredChild = filterChildren(task, sortedList, (ProcessStateWidget)widget);
+			IStateWidget filteredChild = filterChildren(task, sortedList, widget);
 
 			if (filteredChild != null) {
 				Element divContentNode = parent.ownerDocument().createElement("div")
@@ -329,7 +329,7 @@ public class TaskViewBuilder
             if(widgetHierarchyBean.isForcePrivileges())
                 privileges = widgetHierarchyBean.getPrivileges();
             else
-                privileges = getPrivileges((ProcessStateWidget)widget);
+                privileges = getPrivileges(widget);
 
             Map<String, Object> viewData = new HashMap<String, Object>();
 			viewData.put(IHtmlTemplateProvider.PROCESS_PARAMTER, processInstance);
@@ -358,7 +358,7 @@ public class TaskViewBuilder
 					.attr("id", "html-"+widget.getId());
 				parent.appendChild(divContentNode);
 
-			for(ProcessStateWidget child: children)
+			for(IStateWidget child: children)
 			{
                 WidgetHierarchyBean childBean = new WidgetHierarchyBean()
                         .setParent(divContentNode)
@@ -390,7 +390,7 @@ public class TaskViewBuilder
 
 			scriptBuilder.append("$('#iframe-vaadin-").append(widget.getId()).append("').load(function() {onLoadIFrame($(this)); });");
 
-			for(ProcessStateWidget child: children)
+			for(IStateWidget child: children)
 			{
                 WidgetHierarchyBean childBean = new WidgetHierarchyBean()
                         .setParent(iFrameNode)
@@ -458,7 +458,7 @@ public class TaskViewBuilder
         }
     }
 
-    private Collection<String> getPrivileges(ProcessStateWidget widget)
+    private Collection<String> getPrivileges(IStateWidget widget)
     {
         Collection<String> privileges = new ArrayList<String>();
 
@@ -651,9 +651,9 @@ public class TaskViewBuilder
         return this;
     }
 
-    public ProcessStateWidget filterChildren(BpmTask task, List<ProcessStateWidget> sortedList, ProcessStateWidget psw) {
-    	String selectorKey = psw.getAttributeByName("selectorKey").getValue();
-    	String conditions = psw.getAttributeByName("conditions").getValue();
+    public IStateWidget filterChildren(BpmTask task, List<ProcessStateWidget> sortedList, IStateWidget sw) {
+    	String selectorKey = sw.getAttributeByName("selectorKey").getValue();
+    	String conditions = sw.getAttributeByName("conditions").getValue();
 		String selectorValue = task.getProcessInstance().getInheritedSimpleAttributeValue(selectorKey);
 
 		if(!hasText(selectorValue)) {

@@ -17,4 +17,6 @@ public interface IStateWidget {
     String getClassName();
 
     Integer getPriority();
+
+    Set<ProcessStateWidgetPermission> getPermissions();
 }

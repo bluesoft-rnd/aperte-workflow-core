@@ -9,12 +9,12 @@
 <div class="process-tasks-view" id="task-view-processes">
     <table id="caseTable" class="process-table table table-striped" border="1">
         <thead>
-                <th style="width:20%;">Numer sprawy</th>
-                <th style="width:20%;">Rodzaj</th>
-                <th style="width:20%;">Nazwa</th>
-                <th style="width:20%;">Bieżący etap</th>
-                <th style="width:20%;">Data utworzenia</th>
-                <th style="width:20%;">Data modyfikacji</th>
+                <th style="width:20%;"><spring:message code="admin.case.management.results.table.number" /></th>
+                <th style="width:20%;"><spring:message code="admin.case.management.results.table.definitionName" /></th>
+                <th style="width:20%;"><spring:message code="admin.case.management.results.table.name" /></th>
+                <th style="width:20%;"><spring:message code="admin.case.management.results.table.currentStageName" /></th>
+                <th style="width:20%;"><spring:message code="admin.case.management.results.table.createDate" /></th>
+                <th style="width:20%;"><spring:message code="admin.case.management.results.table.modificationDate" /></th>
         </thead>
         <tbody></tbody>
     </table>

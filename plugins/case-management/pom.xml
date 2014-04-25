@@ -106,6 +106,7 @@
                         <Embed-Directory>lib</Embed-Directory>
                         <Embed-Transitive>true</Embed-Transitive>
                         <ProcessTool-I18N-Property>
+                            casemanagement-messages
                         </ProcessTool-I18N-Property>
                         <ProcessTool-Widget-View>
                         </ProcessTool-Widget-View>

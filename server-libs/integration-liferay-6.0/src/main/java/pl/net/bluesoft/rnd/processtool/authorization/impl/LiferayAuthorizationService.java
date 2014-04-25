@@ -58,6 +58,13 @@ public class LiferayAuthorizationService implements IAuthorizationService
 			/* Fix for wrong user in servlet request */
             User sessionUser = getLiferayUser(servletRequest);
             User liferayUser = PortalUtil.getUser(servletRequest);
+            Long userId = PortalUtil.getUserId(servletRequest);
+            String password = PortalUtil.getUserPassword(servletRequest);
+
+
+            long basicAuthUserId = PortalUtil.getBasicAuthUserId(servletRequest);
+            if (basicAuthUserId != 0)
+                liferayUser  = UserLocalServiceUtil.getUserById(basicAuthUserId);
 
             //Object test = servletRequest.getAttribute("USER");
 

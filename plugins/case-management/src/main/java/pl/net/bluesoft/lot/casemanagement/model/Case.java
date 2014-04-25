@@ -149,4 +149,12 @@ public class Case extends PersistentEntity {
         all.addAll(this.getAttributes());
         return all;
     }
+
+    public String getDefinitionName() {
+        return this.getDefinition().getName();
+    }
+
+    public void setDefinitionName(final String definitionName) {
+        this.getDefinition().setName(definitionName);
+    }
 }

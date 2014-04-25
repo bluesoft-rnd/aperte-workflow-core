@@ -13,5 +13,10 @@ import java.util.Map;
 public interface ICaseManagementFacade {
     Case createCase(String definitionName, String caseName, String caseNumber, Map<String, String> caseAttributes) throws CreateCaseException;
 
-    Collection<Case> getCases() throws CaseManagementException;
+    Collection<Case> getAllCases() throws CaseManagementException;
+
+    Long getAllCasesCount() throws CaseManagementException;
+
+    Collection<Case> getAllCasesPaged(String sortColumnProperty, boolean sortAscending,
+                                      int pageLength, int pageOffset) throws CaseManagementException;
 }

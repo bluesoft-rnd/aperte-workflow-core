@@ -60,4 +60,10 @@ public class CaseDAOTest extends BaseTest {
         assertTrue(cases.size() > 0);
     }
 
+    @Test
+    public void testGetAllCasesCount() throws Exception {
+        final Long count = caseDAO.getAllCasesCount();
+        assertTrue(count > 0);
+    }
+
 }

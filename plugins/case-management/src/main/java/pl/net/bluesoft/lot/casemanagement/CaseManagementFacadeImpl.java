@@ -39,7 +39,18 @@ public class CaseManagementFacadeImpl implements ICaseManagementFacade {
     }
 
     @Override
-    public Collection<Case> getCases() throws CaseManagementException {
+    public Collection<Case> getAllCases() throws CaseManagementException {
         return getCaseDAO().getAllCases();
+    }
+
+    @Override
+    public Collection<Case> getAllCasesPaged(final String sortColumnProperty, final boolean sortAscending,
+                                             final int pageLength, final int pageOffset) throws CaseManagementException {
+        return getCaseDAO().getAllCasesPaged(sortColumnProperty, sortAscending, pageLength, pageOffset);
+    }
+
+    @Override
+    public Long getAllCasesCount() throws CaseManagementException {
+        return getCaseDAO().getAllCasesCount();
     }
 }

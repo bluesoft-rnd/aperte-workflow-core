@@ -13,4 +13,6 @@ public interface CaseDAO {
     Case createCase(CaseDefinition definition, String name, String number, Map<String, String> simpleAttributes);
     Case getCaseById(long caseId);
     Collection<Case> getAllCases();
+    Long getAllCasesCount();
+    Collection<Case> getAllCasesPaged(String sortColumnProperty, boolean sortAscending, int pageLength, int pageOffset);
 }

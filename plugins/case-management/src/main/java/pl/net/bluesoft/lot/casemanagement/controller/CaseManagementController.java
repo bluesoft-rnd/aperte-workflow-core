@@ -1,6 +1,7 @@
 package pl.net.bluesoft.lot.casemanagement.controller;
 
 import org.aperteworkflow.ui.help.datatable.JQueryDataTable;
+import org.aperteworkflow.ui.help.datatable.JQueryDataTableColumn;
 import org.aperteworkflow.ui.help.datatable.JQueryDataTableUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.net.bluesoft.lot.casemanagement.ICaseManagementFacade;
@@ -32,23 +33,20 @@ public class CaseManagementController implements IOsgiWebController {
     @Autowired
     private ICaseManagementFacade facade;
 
-    @ControllerMethod(action = "getAllCases")
-    public GenericResultBean getAllCases(final OsgiWebRequest invocation) {
+    @ControllerMethod(action = "getAllCasesPaged")
+    public GenericResultBean getAllCasesPaged(final OsgiWebRequest invocation) {
         final GenericResultBean result = new GenericResultBean();
         JQueryDataTable dataTable = JQueryDataTableUtil.analyzeRequest(invocation.getRequest().getParameterMap());
+        JQueryDataTableColumn sortColumn = dataTable.getFirstSortingColumn();
 
+        // sortColumn.setPropertyName(CaseDTO.getCasePropertyName(sortColumn.getPropertyName()));
         try {
-            final Collection<Case> cases = facade.getCases();
-            Iterator<Case> i = cases.iterator();
-            final Case case1 = i.next();
-            final Case case2 = i.next();
-            cases.clear();
-            cases.add(case1);
-            cases.add(case2);
-
+            final Collection<Case> cases = facade.getAllCasesPaged(sortColumn.getPropertyName(), sortColumn.getSortedAsc(), dataTable.getPageLength(), dataTable.getPageOffset());
             final Collection<CaseDTO> dtos = createDTOList(cases);
+            // unfortunately, we have to count all cases for the list pagination to work properly
+            Long count = facade.getAllCasesCount();
             final DataPagingBean<CaseDTO> dataPagingBean =
-                    new DataPagingBean<CaseDTO>(dtos, dtos.size(), dataTable.getEcho());
+                    new DataPagingBean<CaseDTO>(dtos, count.intValue(), dataTable.getEcho());
 
             return dataPagingBean;
         } catch (CaseManagementException e) {

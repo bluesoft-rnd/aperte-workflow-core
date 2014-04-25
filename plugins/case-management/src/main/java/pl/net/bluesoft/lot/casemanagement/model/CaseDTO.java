@@ -24,6 +24,13 @@ public class CaseDTO {
         setModificationDate(Formats.formatFullDate(caseInstance.getModificationDate()));
     }
 
+    public static String getCasePropertyName(final String dtoPropertyName) {
+        if ("definitionName".equals(dtoPropertyName)) {
+            return "definition.name";
+        }
+        return dtoPropertyName;
+    }
+
     public String getName() {
         return name;
     }

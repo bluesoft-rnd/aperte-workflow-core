@@ -2,6 +2,8 @@ package pl.net.bluesoft.lot.casemanagement.dao;
 
 import org.hibernate.Session;
 import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import pl.net.bluesoft.lot.casemanagement.model.*;
 import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
@@ -72,9 +74,22 @@ public class CaseDAOImpl extends SimpleHibernateBean<Case> implements CaseDAO {
 
     @Override
     public Collection<Case> getAllCases() {
-        DetachedCriteria criteria = getDetachedCriteria();
-        // criteria.createAlias("processInstance", "pi")
-        //         .add(Restrictions.eq("pi.id", processInstanceId));
-        return criteria.getExecutableCriteria(getSession()).list();
+        return getDetachedCriteria().getExecutableCriteria(getSession()).list();
+    }
+
+    @Override
+    public Collection<Case> getAllCasesPaged(final String sortColumnProperty, final boolean sortAscending, final int pageLength, final int pageOffset) {
+        return this.session.createCriteria(Case.class)
+                .addOrder(sortAscending ?
+                        Order.asc(sortColumnProperty) :
+                        Order.desc(sortColumnProperty))
+                .setMaxResults(pageLength)
+                .setFirstResult(pageOffset)
+                .list();
+    }
+
+    @Override
+    public Long getAllCasesCount() {
+        return (Long) this.session.createCriteria(Case.class).setProjection(Projections.rowCount()).uniqueResult();
     }
 }

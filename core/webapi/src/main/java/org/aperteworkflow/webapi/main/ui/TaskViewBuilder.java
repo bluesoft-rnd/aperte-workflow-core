@@ -1,28 +1,20 @@
 package org.aperteworkflow.webapi.main.ui;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
-import pl.net.bluesoft.rnd.processtool.filters.factory.QueuesNameUtil;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.*;
-import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.IWidgetDataProvider;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
 import pl.net.bluesoft.rnd.processtool.usersource.IUserSource;
 import pl.net.bluesoft.rnd.processtool.web.domain.IHtmlTemplateProvider;
-import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.*;
 
 import static pl.net.bluesoft.util.lang.Strings.hasText;
@@ -31,55 +23,47 @@ import static pl.net.bluesoft.util.lang.Strings.hasText;
  * Html builder for the task view
  *
  * @author mpawlak@bluesoft.net.pl
- *
  */
-public class TaskViewBuilder
-{
-	private BpmTask task;
-	private List<? extends IStateWidget> widgets;
+public class TaskViewBuilder extends AbstractViewBuilder<TaskViewBuilder> {
+    private BpmTask task;
     private List<ProcessStateAction> actions;
     private String version;
-    private String  description;
-	private I18NSource i18Source;
-	private UserData user;
-    private ProcessToolContext ctx;
-    private ProcessToolBpmSession bpmSession;
-    private Collection<String> userQueues;
+    private String description;
 
-	@Autowired
-	private ProcessToolRegistry processToolRegistry;
+    @Autowired
+    private ProcessToolRegistry processToolRegistry;
 
-	@Autowired
-	private IHtmlTemplateProvider templateProvider;
+    @Autowired
+    private IHtmlTemplateProvider templateProvider;
 
     @Autowired
     private IUserSource userSource;
 
-	/** Builder for javascripts */
-	private StringBuilder scriptBuilder = new StringBuilder(1024);
+    /**
+     * Builder for javascripts
+     */
+    private StringBuilder scriptBuilder = new StringBuilder(1024);
 
-	private int vaadinWidgetsCount = 0;
+    private int vaadinWidgetsCount = 0;
 
-    public TaskViewBuilder()
-	{
-		SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
-	}
+    public TaskViewBuilder() {
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+    }
 
-	public StringBuilder processView() throws IOException
-    {
+    public StringBuilder processView() throws IOException {
         StringBuilder stringBuilder = new StringBuilder();
 
-		scriptBuilder.append("<script type=\"text/javascript\">");
+        scriptBuilder.append("<script type=\"text/javascript\">");
 
-		Document document = Jsoup.parse("");
+        Document document = Jsoup.parse("");
 
 
-		Element widgetsNode = document.createElement("div")
-				.attr("id", "vaadin-widgets")
-				.attr("class", "vaadin-widgets-view");
-		document.appendChild(widgetsNode);
+        Element widgetsNode = document.createElement("div")
+                .attr("id", "vaadin-widgets")
+                .attr("class", "vaadin-widgets-view");
+        document.appendChild(widgetsNode);
 
-		for (IStateWidget widget: widgets) {
+        for (IStateWidget widget : widgets) {
             WidgetHierarchyBean childBean = new WidgetHierarchyBean()
                     .setParent(widgetsNode)
                     .setWidget(widget)
@@ -87,8 +71,8 @@ public class TaskViewBuilder
                     .setForcePrivileges(false)
                     .setPrivileges(new ArrayList<String>());
 
-			processWidget(childBean);
-		}
+            processWidget(childBean);
+        }
 
         addActionButtons(document);
 
@@ -96,14 +80,14 @@ public class TaskViewBuilder
 
         stringBuilder.append(document.toString());
 
-		scriptBuilder.append("vaadinWidgetsCount = ");
-		scriptBuilder.append(vaadinWidgetsCount);
-		scriptBuilder.append(';');
-		scriptBuilder.append("</script>");
+        scriptBuilder.append("vaadinWidgetsCount = ");
+        scriptBuilder.append(vaadinWidgetsCount);
+        scriptBuilder.append(';');
+        scriptBuilder.append("</script>");
         stringBuilder.append(scriptBuilder);
 
-        return  stringBuilder;
-	}
+        return stringBuilder;
+    }
 
     private void addVersionNumber(Document document) {
         Element versionNumber = document.createElement("div")
@@ -114,9 +98,10 @@ public class TaskViewBuilder
         versionNumber.append(description + " v. " + version);
     }
 
-    /** Add actions buttons compared to user privileges and process state */
-    private void addActionButtons(Document document)
-    {
+    /**
+     * Add actions buttons compared to user privileges and process state
+     */
+    private void addActionButtons(Document document) {
         Element actionsNode = document.createElement("div")
                 .attr("id", "actions-list")
                 .attr("class", "actions-view");
@@ -134,23 +119,20 @@ public class TaskViewBuilder
         actionsNode.appendChild(processActionButtons);
 
         /* Check if task is finished */
-        if(isTaskFinished())
-        {
+        if (isTaskFinished()) {
             addCancelActionButton(genericActionButtons);
             return;
         }
 
         /* Check if task is from queue */
-        if(isTaskHasNoOwner() && hasUserRightsToTask())
-        {
+        if (isTaskHasNoOwner() && hasUserRightsToTask()) {
             addClaimActionButton(processActionButtons);
         }
 
         /* Check if user, who is checking the task, is the assigned person */
-        if(isUserAssignedToTask() || isSubstitutingUser())
-        {
+        if (isUserAssignedToTask() || isSubstitutingUser()) {
             addSaveActionButton(genericActionButtons);
-            for(ProcessStateAction action: actions)
+            for (ProcessStateAction action : actions)
                 processAction(action, processActionButtons);
         }
 
@@ -158,35 +140,32 @@ public class TaskViewBuilder
     }
 
 
-    private boolean isSubstitutingUser()
-    {
+    private boolean isSubstitutingUser() {
         return ctx.getUserSubstitutionDAO().isSubstitutedBy(task.getAssignee(), user.getLogin());
     }
 
-	private void processWidget(WidgetHierarchyBean widgetHierarchyBean)
-	{
+    private void processWidget(WidgetHierarchyBean widgetHierarchyBean) {
         IStateWidget widget = widgetHierarchyBean.getWidget();
         ProcessInstance processInstance = widgetHierarchyBean.getProcessInstance();
-        Element parent =  widgetHierarchyBean.getParent();
+        Element parent = widgetHierarchyBean.getParent();
 
-		String aliasName = widget.getClassName();
+        String aliasName = widget.getClassName();
 
         ProcessHtmlWidget processHtmlWidget = processToolRegistry.getGuiRegistry().getHtmlWidget(aliasName);
 
 		/* Sort widgets by prority */
-		List<IStateWidget> children = new ArrayList<IStateWidget>(widget.getChildren());
-		Collections.sort(children, new Comparator<IStateWidget>() {
-			@Override
-			public int compare(IStateWidget widget1, IStateWidget widget2) {
-				return widget1.getPriority().compareTo(widget2.getPriority());
-			}
-		});
-		
-		/* Check if widget is based on html */
-		String widgetTemplateBody = templateProvider.getTemplate(aliasName);
+        List<IStateWidget> children = new ArrayList<IStateWidget>(widget.getChildren());
+        Collections.sort(children, new Comparator<IStateWidget>() {
+            @Override
+            public int compare(IStateWidget widget1, IStateWidget widget2) {
+                return widget1.getPriority().compareTo(widget2.getPriority());
+            }
+        });
 
-        if(aliasName.equals("ShadowStateWidget"))
-        {
+		/* Check if widget is based on html */
+        String widgetTemplateBody = templateProvider.getTemplate(aliasName);
+
+        if (aliasName.equals("ShadowStateWidget")) {
             IStateWidgetAttribute processStateConfigurationIdAttribute =
                     widget.getAttributeByName("processStateConfigurationId");
 
@@ -195,20 +174,18 @@ public class TaskViewBuilder
 
             Boolean forcePrivileges = Boolean.parseBoolean(forcePrivilegesAttribute.getValue());
 
-            String  attributeName = processStateConfigurationIdAttribute.getValue();
-            String  processStateConfigurationId = processInstance.getRootProcessInstance().getSimpleAttributeValue(attributeName);
+            String attributeName = processStateConfigurationIdAttribute.getValue();
+            String processStateConfigurationId = processInstance.getRootProcessInstance().getSimpleAttributeValue(attributeName);
 
             ProcessStateConfiguration processStateConfiguration =
                     ctx.getProcessDefinitionDAO().getCachedProcessStateConfiguration(Long.parseLong(processStateConfigurationId));
 
 
-
             Element divContentNode = parent.ownerDocument().createElement("div")
-                    .attr("id", "vertical_layout"+widget.getId());
+                    .attr("id", "vertical_layout" + widget.getId());
             parent.appendChild(divContentNode);
 
-            for(IStateWidget childWidget: processStateConfiguration.getWidgets())
-            {
+            for (IStateWidget childWidget : processStateConfiguration.getWidgets()) {
                 WidgetHierarchyBean childBean = new WidgetHierarchyBean()
                         .setParent(divContentNode)
                         .setWidget(childWidget)
@@ -220,57 +197,53 @@ public class TaskViewBuilder
             }
 
 
-        }
+        } else if (aliasName.equals("TabSheet")) {
+            String tabId = "tab_sheet_" + widget.getId();
+            String divContentId = "div_content_" + widget.getId();
 
-		else if(aliasName.equals("TabSheet"))
-		{
-			String tabId = "tab_sheet_"+widget.getId();
-			String divContentId = "div_content_"+widget.getId();
+            Element ulNode = parent.ownerDocument().createElement("ul")
+                    .attr("id", tabId)
+                    .attr("class", "nav nav-tabs");
+            parent.appendChild(ulNode);
 
-			Element ulNode = parent.ownerDocument().createElement("ul")
-				.attr("id", tabId)
-				.attr("class", "nav nav-tabs");
-			parent.appendChild(ulNode);
+            Element divContentNode = parent.ownerDocument().createElement("div")
+                    .attr("id", divContentId)
+                    .attr("class", "tab-content");
+            parent.appendChild(divContentNode);
 
-			Element divContentNode = parent.ownerDocument().createElement("div")
-				.attr("id", divContentId)
-				.attr("class", "tab-content");
-			parent.appendChild(divContentNode);
+            boolean isFirst = true;
 
-			boolean isFirst = true;
-
-			for(IStateWidget child: children)
-			{
-				String caption = aliasName;
+            for (IStateWidget child : children) {
+                String caption = aliasName;
 				/* Set caption from attributes */
-				IStateWidgetAttribute attribute = child.getAttributeByName("caption");
-				if(attribute != null)
-					caption = i18Source.getMessage(attribute.getValue());
+                IStateWidgetAttribute attribute = child.getAttributeByName("caption");
+                if (attribute != null)
+                    caption = i18Source.getMessage(attribute.getValue());
 
-				String childId = "tab" + child.getId();
+                String childId = "tab" + child.getId();
 				
 				/* Li tab element */
-				Element liNode = parent.ownerDocument().createElement("li");
-				ulNode.appendChild(liNode);
+                Element liNode = parent.ownerDocument().createElement("li");
+                ulNode.appendChild(liNode);
 
-				Element aNode = parent.ownerDocument().createElement("a")
-						.attr("id", "tab_link_"+childId)
-						.attr("href", '#' +childId)
-						.attr("data-toggle", "tab")
-						.append(caption);
+                Element aNode = parent.ownerDocument().createElement("a")
+                        .attr("id", "tab_link_" + childId)
+                        .attr("href", '#' + childId)
+                        .attr("data-toggle", "tab")
+                        .append(caption);
 
-				liNode.appendChild(aNode);
+                liNode.appendChild(aNode);
 
-				scriptBuilder.append("$('#tab_link_").append(childId).append("').on('shown', function (e) { onTabChange(e); });");
+                scriptBuilder.append("$('#tab_link_").append(childId).append("').on('shown', function (e) { onTabChange(e); });");
 				
 				/* Content element */
-				Element divTabContentNode = parent.ownerDocument().createElement("div")
-						.attr("id", childId)
-						.attr("class", isFirst ? "tab-pane active" : "tab-pane");
-				divContentNode.appendChild(divTabContentNode);
+                Element divTabContentNode = parent.ownerDocument().createElement("div")
+                        .attr("id", childId)
+                        .attr("class", isFirst ? "tab-pane active" : "tab-pane");
+                divContentNode.appendChild(divTabContentNode);
 
-				if(isFirst)
-					isFirst = false;
+                if (isFirst)
+                    isFirst = false;
 
                 WidgetHierarchyBean childBean = new WidgetHierarchyBean()
                         .setParent(divTabContentNode)
@@ -279,19 +252,16 @@ public class TaskViewBuilder
                         .setForcePrivileges(widgetHierarchyBean.isForcePrivileges())
                         .setPrivileges(widgetHierarchyBean.getPrivileges());
 
-				processWidget(childBean);
-			}
+                processWidget(childBean);
+            }
 
-			scriptBuilder.append("$('#").append(tabId).append(" a:first').tab('show');");
-		}
-		else if(aliasName.equals("VerticalLayout"))
-		{
-			Element divContentNode = parent.ownerDocument().createElement("div")
-				.attr("id", "vertical_layout"+widget.getId());
-			parent.appendChild(divContentNode);
+            scriptBuilder.append("$('#").append(tabId).append(" a:first').tab('show');");
+        } else if (aliasName.equals("VerticalLayout")) {
+            Element divContentNode = parent.ownerDocument().createElement("div")
+                    .attr("id", "vertical_layout" + widget.getId());
+            parent.appendChild(divContentNode);
 
-			for(IStateWidget child: children)
-			{
+            for (IStateWidget child : children) {
                 WidgetHierarchyBean childBean = new WidgetHierarchyBean()
                         .setParent(divContentNode)
                         .setWidget(child)
@@ -299,18 +269,17 @@ public class TaskViewBuilder
                         .setForcePrivileges(widgetHierarchyBean.isForcePrivileges())
                         .setPrivileges(widgetHierarchyBean.getPrivileges());
 
-				processWidget(childBean);
-			}
-		}
-		else if(aliasName.equals("SwitchWidgets")){
-			List<IStateWidget> sortedList = new ArrayList<IStateWidget>(children);
+                processWidget(childBean);
+            }
+        } else if (aliasName.equals("SwitchWidgets")) {
+            List<IStateWidget> sortedList = new ArrayList<IStateWidget>(children);
 
-			IStateWidget filteredChild = filterChildren(task, sortedList, widget);
+            IStateWidget filteredChild = filterChildren(task, sortedList, widget);
 
-			if (filteredChild != null) {
-				Element divContentNode = parent.ownerDocument().createElement("div")
-						.attr("id", "switch_widget" + widget.getId());
-				parent.appendChild(divContentNode);
+            if (filteredChild != null) {
+                Element divContentNode = parent.ownerDocument().createElement("div")
+                        .attr("id", "switch_widget" + widget.getId());
+                parent.appendChild(divContentNode);
 
                 WidgetHierarchyBean childBean = new WidgetHierarchyBean()
                         .setParent(divContentNode)
@@ -319,47 +288,45 @@ public class TaskViewBuilder
                         .setForcePrivileges(widgetHierarchyBean.isForcePrivileges())
                         .setPrivileges(widgetHierarchyBean.getPrivileges());
 
-				processWidget(childBean);
-			}
-		}
+                processWidget(childBean);
+            }
+        }
         /* HTML Widget */
-		else if(processHtmlWidget != null)
-		{
+        else if (processHtmlWidget != null) {
             Collection<String> privileges;
-            if(widgetHierarchyBean.isForcePrivileges())
+            if (widgetHierarchyBean.isForcePrivileges())
                 privileges = widgetHierarchyBean.getPrivileges();
             else
                 privileges = getPrivileges(widget);
 
             Map<String, Object> viewData = new HashMap<String, Object>();
-			viewData.put(IHtmlTemplateProvider.PROCESS_PARAMTER, processInstance);
-			viewData.put(IHtmlTemplateProvider.TASK_PARAMTER, task);
-			viewData.put(IHtmlTemplateProvider.USER_PARAMTER, user);
+            viewData.put(IHtmlTemplateProvider.PROCESS_PARAMTER, processInstance);
+            viewData.put(IHtmlTemplateProvider.TASK_PARAMTER, task);
+            viewData.put(IHtmlTemplateProvider.USER_PARAMTER, user);
             viewData.put(IHtmlTemplateProvider.USER_SOURCE_PARAMTER, userSource);
-			viewData.put(IHtmlTemplateProvider.MESSAGE_SOURCE_PARAMETER, i18Source);
-			viewData.put(IHtmlTemplateProvider.WIDGET_NAME_PARAMETER, aliasName);
-			viewData.put(IHtmlTemplateProvider.PRIVILEGES_PARAMETER, privileges);
-			viewData.put(IHtmlTemplateProvider.WIDGET_ID_PARAMETER, widget.getId().toString());
+            viewData.put(IHtmlTemplateProvider.MESSAGE_SOURCE_PARAMETER, i18Source);
+            viewData.put(IHtmlTemplateProvider.WIDGET_NAME_PARAMETER, aliasName);
+            viewData.put(IHtmlTemplateProvider.PRIVILEGES_PARAMETER, privileges);
+            viewData.put(IHtmlTemplateProvider.WIDGET_ID_PARAMETER, widget.getId().toString());
             viewData.put(IHtmlTemplateProvider.DICTIONARIES_DAO_PARAMETER, ctx.getProcessDictionaryDAO());
             viewData.put(IHtmlTemplateProvider.BPM_SESSION_PARAMETER, bpmSession);
 
-            for(IStateWidgetAttribute attribute: widget.getAttributes())
+            for (IStateWidgetAttribute attribute : widget.getAttributes())
                 viewData.put(attribute.getName(), attribute.getValue());
 
             /* Add custom attributes from widget data providers */
-            for(IWidgetDataProvider dataProvider: processHtmlWidget.getDataProviders())
+            for (IWidgetDataProvider dataProvider : processHtmlWidget.getDataProviders())
                 viewData.putAll(dataProvider.getData(task));
 
-			String processedView = templateProvider.processTemplate(aliasName, viewData);
+            String processedView = templateProvider.processTemplate(aliasName, viewData);
 
-			Element divContentNode = parent.ownerDocument().createElement("div")
-					.append(processedView)
-					.attr("class", "html-widget-view")
-					.attr("id", "html-"+widget.getId());
-				parent.appendChild(divContentNode);
+            Element divContentNode = parent.ownerDocument().createElement("div")
+                    .append(processedView)
+                    .attr("class", "html-widget-view")
+                    .attr("id", "html-" + widget.getId());
+            parent.appendChild(divContentNode);
 
-			for(IStateWidget child: children)
-			{
+            for (IStateWidget child : children) {
                 WidgetHierarchyBean childBean = new WidgetHierarchyBean()
                         .setParent(divContentNode)
                         .setWidget(child)
@@ -367,31 +334,28 @@ public class TaskViewBuilder
                         .setForcePrivileges(widgetHierarchyBean.isForcePrivileges())
                         .setPrivileges(widgetHierarchyBean.getPrivileges());
 
-				processWidget(childBean);
-			}
-		}
-		else
-		{
-			vaadinWidgetsCount++;
-			//http://localhost:8080
-			String vaadinWidgetUrl = "/aperteworkflow/widget/"+task.getInternalTaskId()+"_"+widget.getId()+"/?widgetId=" + widget.getId() + "&taskId="+task.getInternalTaskId();
+                processWidget(childBean);
+            }
+        } else {
+            vaadinWidgetsCount++;
+            //http://localhost:8080
+            String vaadinWidgetUrl = "/aperteworkflow/widget/" + task.getInternalTaskId() + "_" + widget.getId() + "/?widgetId=" + widget.getId() + "&taskId=" + task.getInternalTaskId();
 
-			Element iFrameNode = parent.ownerDocument().createElement("iframe")
-					.attr("src", vaadinWidgetUrl)
-					.attr("autoResize", "true")
-					.attr("id", "iframe-vaadin-"+widget.getId())
-					.attr("frameborder", "0")
-					.attr("taskId", task.getInternalTaskId())
-					.attr("widgetId", widget.getId().toString())
-					.attr("class", "vaadin-widget-view")
-					.attr("widgetLoaded", "false")
-					.attr("name", widget.getId().toString());
-			parent.appendChild(iFrameNode);
+            Element iFrameNode = parent.ownerDocument().createElement("iframe")
+                    .attr("src", vaadinWidgetUrl)
+                    .attr("autoResize", "true")
+                    .attr("id", "iframe-vaadin-" + widget.getId())
+                    .attr("frameborder", "0")
+                    .attr("taskId", task.getInternalTaskId())
+                    .attr("widgetId", widget.getId().toString())
+                    .attr("class", "vaadin-widget-view")
+                    .attr("widgetLoaded", "false")
+                    .attr("name", widget.getId().toString());
+            parent.appendChild(iFrameNode);
 
-			scriptBuilder.append("$('#iframe-vaadin-").append(widget.getId()).append("').load(function() {onLoadIFrame($(this)); });");
+            scriptBuilder.append("$('#iframe-vaadin-").append(widget.getId()).append("').load(function() {onLoadIFrame($(this)); });");
 
-			for(IStateWidget child: children)
-			{
+            for (IStateWidget child : children) {
                 WidgetHierarchyBean childBean = new WidgetHierarchyBean()
                         .setParent(iFrameNode)
                         .setWidget(child)
@@ -399,13 +363,12 @@ public class TaskViewBuilder
                         .setForcePrivileges(widgetHierarchyBean.isForcePrivileges())
                         .setPrivileges(widgetHierarchyBean.getPrivileges());
 
-				processWidget(childBean);
-			}
-		}
-	}
+                processWidget(childBean);
+            }
+        }
+    }
 
-    private static class WidgetHierarchyBean
-    {
+    private static class WidgetHierarchyBean {
         private IStateWidget widget;
         private Element parent;
         private ProcessInstance processInstance;
@@ -458,60 +421,56 @@ public class TaskViewBuilder
         }
     }
 
-    private Collection<String> getPrivileges(IStateWidget widget)
-    {
+    private Collection<String> getPrivileges(IStateWidget widget) {
         Collection<String> privileges = new ArrayList<String>();
 
-        if(!isUserAssignedToTask() || isTaskFinished())
+        if (!isUserAssignedToTask() || isTaskFinished())
             return privileges;
 
-        for(IPermission permission: widget.getPermissions())
-        {
+        for (IPermission permission : widget.getPermissions()) {
             if (permission.getRoleName().contains("*") || user.hasRole(permission.getRoleName())) {
-				privileges.add(permission.getPrivilegeName());
-			}
+                privileges.add(permission.getPrivilegeName());
+            }
         }
         return privileges;
     }
 
-	private void processAction(ProcessStateAction action, Element parent)
-	{
+    private void processAction(ProcessStateAction action, Element parent) {
 
-		String actionButtonId = "action-button-" + action.getBpmName();
+        String actionButtonId = "action-button-" + action.getBpmName();
 
         String actionLabel = action.getLabel();
-        if(actionLabel == null)
+        if (actionLabel == null)
             actionLabel = "label";
-        //TODO make autohide
-        else if(actionLabel.equals("hide"))
+            //TODO make autohide
+        else if (actionLabel.equals("hide"))
             return;
 
         String actionType = action.getActionType();
-        if(actionType == null || actionType.isEmpty())
+        if (actionType == null || actionType.isEmpty())
             actionType = "primary";
 
         String iconName = action.getAttributeValue(ProcessStateAction.ATTR_ICON_NAME);
-        if(iconName == null || iconName.isEmpty())
+        if (iconName == null || iconName.isEmpty())
             iconName = "arrow-right";
 
-		Element buttonNode = parent.ownerDocument().createElement("button")
-				.attr("class", "btn btn-" + actionType)
-				.attr("disabled", "true")
-				.attr("type", "button")
-				.attr("id", actionButtonId);
-		parent.appendChild(buttonNode);
-
+        Element buttonNode = parent.ownerDocument().createElement("button")
+                .attr("class", "btn btn-" + actionType)
+                .attr("disabled", "true")
+                .attr("type", "button")
+                .attr("id", actionButtonId);
+        parent.appendChild(buttonNode);
 
 
         Element actionButtonIcon = parent.ownerDocument().createElement("span")
-                .attr("class", "glyphicon glyphicon-"+iconName);
+                .attr("class", "glyphicon glyphicon-" + iconName);
 
         parent.appendChild(buttonNode);
         buttonNode.appendChild(actionButtonIcon);
 
         buttonNode.appendText(i18Source.getMessage(actionLabel));
 
-		scriptBuilder
+        scriptBuilder
                 .append("$('#")
                 .append(actionButtonId)
                 .append("').click(function() { disableButtons(); performAction(this, '")
@@ -527,39 +486,37 @@ public class TaskViewBuilder
                 .append("', '")
                 .append(task.getInternalTaskId())
                 .append("');  });");
-		scriptBuilder.append("$('#").append(actionButtonId).append("').tooltip({title: '").append(i18Source.getMessage(action.getDescription())).append("'});");
-	}
+        scriptBuilder.append("$('#").append(actionButtonId).append("').tooltip({title: '").append(i18Source.getMessage(action.getDescription())).append("'});");
+    }
 
-	private void addSaveActionButton(Element parent)
-	{
-		String actionButtonId = "action-button-save";
+    private void addSaveActionButton(Element parent) {
+        String actionButtonId = "action-button-save";
 
-		Element buttonNode = parent.ownerDocument().createElement("button")
-				.attr("class", "btn btn-warning")
-				.attr("disabled", "true")
-				.attr("id", actionButtonId);
+        Element buttonNode = parent.ownerDocument().createElement("button")
+                .attr("class", "btn btn-warning")
+                .attr("disabled", "true")
+                .attr("id", actionButtonId);
 
         Element saveButtonIcon = parent.ownerDocument().createElement("span")
                 .attr("class", "glyphicon glyphicon-floppy-save");
 
-		parent.appendChild(buttonNode);
+        parent.appendChild(buttonNode);
         buttonNode.appendChild(saveButtonIcon);
 
         buttonNode.appendText(i18Source.getMessage("button.save.process.data"));
 
-		scriptBuilder.append("$('#").append(actionButtonId).append("').click(function() { onSaveButton('").append(task.getInternalTaskId()).append("');  });");
-		scriptBuilder.append("$('#").append(actionButtonId).append("').tooltip({title: '").append(i18Source.getMessage("button.save.process.desc")).append("'});");
-	}
+        scriptBuilder.append("$('#").append(actionButtonId).append("').click(function() { onSaveButton('").append(task.getInternalTaskId()).append("');  });");
+        scriptBuilder.append("$('#").append(actionButtonId).append("').tooltip({title: '").append(i18Source.getMessage("button.save.process.desc")).append("'});");
+    }
 
-	private void addCancelActionButton(Element parent)
-	{
-		String actionButtonId = "action-button-cancel";
+    private void addCancelActionButton(Element parent) {
+        String actionButtonId = "action-button-cancel";
 
-		Element buttonNode = parent.ownerDocument().createElement("button")
-				.attr("class", "btn btn-info")
-				.attr("disabled", "true")
-				.attr("id", actionButtonId);
-		parent.appendChild(buttonNode);
+        Element buttonNode = parent.ownerDocument().createElement("button")
+                .attr("class", "btn btn-info")
+                .attr("disabled", "true")
+                .attr("id", actionButtonId);
+        parent.appendChild(buttonNode);
 
         Element cancelButtonIcon = parent.ownerDocument().createElement("span")
                 .attr("class", "glyphicon glyphicon-home");
@@ -569,12 +526,11 @@ public class TaskViewBuilder
 
         buttonNode.appendText(i18Source.getMessage("button.exit"));
 
-		scriptBuilder.append("$('#").append(actionButtonId).append("').click(function() { onCancelButton();  });");
-		scriptBuilder.append("$('#").append(actionButtonId).append("').tooltip({title: '").append(i18Source.getMessage("button.exit")).append("'});");
-	}
+        scriptBuilder.append("$('#").append(actionButtonId).append("').click(function() { onCancelButton();  });");
+        scriptBuilder.append("$('#").append(actionButtonId).append("').tooltip({title: '").append(i18Source.getMessage("button.exit")).append("'});");
+    }
 
-    private void addClaimActionButton(Element parent)
-    {
+    private void addClaimActionButton(Element parent) {
         String actionButtonId = "action-button-claim";
 
         Element buttonNode = parent.ownerDocument().createElement("button")
@@ -602,17 +558,11 @@ public class TaskViewBuilder
                 .append("').tooltip({title: '").append(i18Source.getMessage("button.claim.descrition")).append("'});");
     }
 
-	public TaskViewBuilder setWidgets(List<? extends IStateWidget> widgets)
-	{
-		this.widgets = widgets;
-		return this;
-	}
+    public TaskViewBuilder setActions(List<ProcessStateAction> actions) {
+        this.actions = actions;
+        return this;
+    }
 
-	public TaskViewBuilder setActions(List<ProcessStateAction> actions)
-	{
-		this.actions = actions;
-		return this;
-	}
     public TaskViewBuilder setDescription(String description) {
         this.description = description;
         return this;
@@ -623,83 +573,55 @@ public class TaskViewBuilder
         return this;
     }
 
-	public TaskViewBuilder setI18Source(I18NSource i18Source)
-	{
-		this.i18Source = i18Source;
-		return this;
-	}
-
-	public TaskViewBuilder setTask(BpmTask task)
-	{
-		this.task = task;
-		return this;
-	}
-
-	public TaskViewBuilder setUser(UserData user)
-	{
-		this.user = user;
-		return this;
-	}
-
-    public TaskViewBuilder setUserQueues(Collection<String> userQueues) {
-        this.userQueues = userQueues;
-        return this;
-    }
-
-    public TaskViewBuilder setCtx(ProcessToolContext ctx) {
-        this.ctx = ctx;
+    public TaskViewBuilder setTask(BpmTask task) {
+        this.task = task;
         return this;
     }
 
     public IStateWidget filterChildren(BpmTask task, List<IStateWidget> sortedList, IStateWidget sw) {
-    	String selectorKey = sw.getAttributeByName("selectorKey").getValue();
-    	String conditions = sw.getAttributeByName("conditions").getValue();
-		String selectorValue = task.getProcessInstance().getInheritedSimpleAttributeValue(selectorKey);
+        String selectorKey = sw.getAttributeByName("selectorKey").getValue();
+        String conditions = sw.getAttributeByName("conditions").getValue();
+        String selectorValue = task.getProcessInstance().getInheritedSimpleAttributeValue(selectorKey);
 
-		if(!hasText(selectorValue)) {
-			return null;
-		}
+        if (!hasText(selectorValue)) {
+            return null;
+        }
 
-		String[] conditionsArray = conditions.split("[,; ]+");
+        String[] conditionsArray = conditions.split("[,; ]+");
 
-		for (int i = 0; i < conditionsArray.length; i++) {
-			if (selectorValue.equals(conditionsArray[i].trim())) {
-				return i < sortedList.size() ? sortedList.get(i) : null;
-			}
-		}
-		return null;
-	}
-
-    public TaskViewBuilder setBpmSession(ProcessToolBpmSession bpmSession) {
-    	this.bpmSession = bpmSession;
-    	return this;
+        for (int i = 0; i < conditionsArray.length; i++) {
+            if (selectorValue.equals(conditionsArray[i].trim())) {
+                return i < sortedList.size() ? sortedList.get(i) : null;
+            }
+        }
+        return null;
     }
 
-    private boolean hasUserRightsToTask()
-    {
-        if(task.getPotentialOwners().contains(user.getLogin()))
+    private boolean hasUserRightsToTask() {
+        if (task.getPotentialOwners().contains(user.getLogin()))
             return true;
 
-        for(String queueName:  userQueues)
-            if(task.getQueues().contains(queueName))
+        for (String queueName : userQueues)
+            if (task.getQueues().contains(queueName))
                 return true;
 
         return false;
     }
 
-    private boolean isTaskHasNoOwner()
-    {
+    private boolean isTaskHasNoOwner() {
         return task.getAssignee() == null || task.getAssignee().isEmpty();
     }
 
-    private boolean isTaskFinished()
-    {
+    private boolean isTaskFinished() {
         return task.isFinished();
     }
 
-    private boolean isUserAssignedToTask()
-    {
+    private boolean isUserAssignedToTask() {
         return user.getLogin().equals(task.getAssignee());
     }
 
+    @Override
+    protected TaskViewBuilder getThis() {
+        return this;
+    }
 }

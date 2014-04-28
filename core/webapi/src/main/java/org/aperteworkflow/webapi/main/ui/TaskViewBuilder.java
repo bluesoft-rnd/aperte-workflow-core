@@ -39,30 +39,12 @@ public class TaskViewBuilder extends AbstractViewBuilder<TaskViewBuilder> {
     @Autowired
     private IUserSource userSource;
 
-    /**
-     * Builder for javascripts
-     */
-    private StringBuilder scriptBuilder = new StringBuilder(1024);
-
-    private int vaadinWidgetsCount = 0;
-
     public TaskViewBuilder() {
         SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
     }
 
-    public StringBuilder processView() throws IOException {
-        StringBuilder stringBuilder = new StringBuilder();
-
-        scriptBuilder.append("<script type=\"text/javascript\">");
-
-        Document document = Jsoup.parse("");
-
-
-        Element widgetsNode = document.createElement("div")
-                .attr("id", "vaadin-widgets")
-                .attr("class", "vaadin-widgets-view");
-        document.appendChild(widgetsNode);
-
+    @Override
+    public void buildWidgets(final Document document, final Element widgetsNode) {
         for (IStateWidget widget : widgets) {
             WidgetHierarchyBean childBean = new WidgetHierarchyBean()
                     .setParent(widgetsNode)
@@ -77,16 +59,6 @@ public class TaskViewBuilder extends AbstractViewBuilder<TaskViewBuilder> {
         addActionButtons(document);
 
         addVersionNumber(document);
-
-        stringBuilder.append(document.toString());
-
-        scriptBuilder.append("vaadinWidgetsCount = ");
-        scriptBuilder.append(vaadinWidgetsCount);
-        scriptBuilder.append(';');
-        scriptBuilder.append("</script>");
-        stringBuilder.append(scriptBuilder);
-
-        return stringBuilder;
     }
 
     private void addVersionNumber(Document document) {
@@ -215,13 +187,13 @@ public class TaskViewBuilder extends AbstractViewBuilder<TaskViewBuilder> {
 
             for (IStateWidget child : children) {
                 String caption = aliasName;
-				/* Set caption from attributes */
+                /* Set caption from attributes */
                 IStateWidgetAttribute attribute = child.getAttributeByName("caption");
                 if (attribute != null)
                     caption = i18Source.getMessage(attribute.getValue());
 
                 String childId = "tab" + child.getId();
-				
+
 				/* Li tab element */
                 Element liNode = parent.ownerDocument().createElement("li");
                 ulNode.appendChild(liNode);
@@ -235,7 +207,7 @@ public class TaskViewBuilder extends AbstractViewBuilder<TaskViewBuilder> {
                 liNode.appendChild(aNode);
 
                 scriptBuilder.append("$('#tab_link_").append(childId).append("').on('shown', function (e) { onTabChange(e); });");
-				
+
 				/* Content element */
                 Element divTabContentNode = parent.ownerDocument().createElement("div")
                         .attr("id", childId)
@@ -624,4 +596,5 @@ public class TaskViewBuilder extends AbstractViewBuilder<TaskViewBuilder> {
     protected TaskViewBuilder getThis() {
         return this;
     }
+
 }

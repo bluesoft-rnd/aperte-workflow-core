@@ -212,8 +212,8 @@ public class TaskViewController extends AbstractProcessToolServletController
                     long t5 = System.currentTimeMillis();
 
                     try {
-                        builder.append(taskViewBuilder.processView());
-                    } catch(IOException ex) {
+                        builder.append(taskViewBuilder.build());
+                    } catch(Exception ex) {
                         logger.log(Level.SEVERE, "Problem during task view generation. TaskId="+taskId, ex);
                     }
 

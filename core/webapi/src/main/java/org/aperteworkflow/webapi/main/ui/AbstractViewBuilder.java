@@ -1,5 +1,8 @@
 package org.aperteworkflow.webapi.main.ui;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
@@ -20,8 +23,40 @@ public abstract class AbstractViewBuilder<T extends AbstractViewBuilder> {
     protected Collection<String> userQueues;
     protected ProcessToolBpmSession bpmSession;
 
+    /**
+     * Builder for javascripts
+     */
+    protected StringBuilder scriptBuilder = new StringBuilder(1024);
+
+    protected int vaadinWidgetsCount = 0;
 
     protected abstract T getThis();
+
+    protected abstract void buildWidgets(final Document document, final Element widgetsNode);
+
+    public StringBuilder build() throws Exception {
+        final StringBuilder stringBuilder = new StringBuilder();
+        scriptBuilder.append("<script type=\"text/javascript\">");
+        final Document document = Jsoup.parse("");
+
+        Element widgetsNode = document.createElement("div")
+                .attr("id", "vaadin-widgets")
+                .attr("class", "vaadin-widgets-view");
+        document.appendChild(widgetsNode);
+
+        buildWidgets(document, widgetsNode);
+
+        stringBuilder.append(document.toString());
+
+        scriptBuilder.append("vaadinWidgetsCount = ");
+        scriptBuilder.append(vaadinWidgetsCount);
+        scriptBuilder.append(';');
+        scriptBuilder.append("</script>");
+        stringBuilder.append(scriptBuilder);
+
+        return stringBuilder;
+
+    }
 
     public T setWidgets(List<? extends IStateWidget> widgets) {
         this.widgets = widgets;

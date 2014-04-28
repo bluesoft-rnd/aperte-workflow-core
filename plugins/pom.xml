@@ -15,7 +15,6 @@
     <modules>
         <module>base-widgets</module>
         <module>bpm-notifications</module>
-        <module>../lot_workflow</module>
         <!--<module>cmis-widget</module>-->
         <!--<module>doclist-widget</module>-->
         <!--<module>drools-step</module>-->
@@ -31,6 +30,7 @@
         <module>scheduler-integration</module>
         <module>global-dictionaries</module>
         <!--<module>external-plugins</module>-->
+		<module>../lot_workflow</module>
 
 		<!-- Plugins for Aperte Reports, uncomment if you are using it. -->
 		<!-- <module>report-step</module> -->

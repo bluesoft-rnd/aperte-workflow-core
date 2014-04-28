@@ -1,6 +1,5 @@
 package org.aperteworkflow.webapi.main.ui;
 
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -597,4 +596,29 @@ public class TaskViewBuilder extends AbstractViewBuilder<TaskViewBuilder> {
         return this;
     }
 
+
+    @Override
+    protected String getObjectId() {
+        return this.task.getInternalTaskId();
+    }
+
+    @Override
+    protected boolean isObjectClosed() {
+        return isTaskFinished();
+    }
+
+    @Override
+    protected String getSaveButtonMessageKey() {
+        return "button.save.process.data";
+    }
+
+    @Override
+    protected String getSaveButtonDescriptionKey() {
+        return "button.save.process.desc";
+    }
+
+    @Override
+    protected String getCancelButtonMessageKey() {
+        return "button.exit";
+    }
 }

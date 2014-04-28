@@ -1,0 +1,3 @@
+[submodule "lot_workflow"]
+	path = lot_workflow
+	url = ssh://git@ijon.bluesoft.net.pl:60022/lot_workflow

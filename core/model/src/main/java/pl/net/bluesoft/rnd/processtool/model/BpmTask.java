@@ -6,13 +6,12 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import java.util.Collection;
 import java.util.Date;
 
-public interface BpmTask {
+public interface BpmTask extends IProcessInstanceAware {
     boolean isFinished();
     Date getFinishDate();
     Date getCreateDate();
     String getExecutionId();	
 
-    ProcessInstance getProcessInstance();
 	ProcessInstance getRootProcessInstance();
 	String getInternalProcessId();
 	String getExternalProcessId();

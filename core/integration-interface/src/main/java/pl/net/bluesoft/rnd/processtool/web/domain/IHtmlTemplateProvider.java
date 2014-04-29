@@ -15,6 +15,7 @@ public interface IHtmlTemplateProvider extends TemplateLoader
 {
 	String PROCESS_PARAMTER = "process";
 	String TASK_PARAMTER = "task";
+    String CASE_PARAMETER = "case";
 	String USER_PARAMTER = "user";
     String USER_SOURCE_PARAMTER = "userSource";
 	String MESSAGE_SOURCE_PARAMETER = "messageSource";

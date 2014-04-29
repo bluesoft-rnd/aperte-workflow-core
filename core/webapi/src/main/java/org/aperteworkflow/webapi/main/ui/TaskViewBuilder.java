@@ -5,6 +5,7 @@ import org.jsoup.nodes.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.processtool.model.IProcessInstanceAware;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.config.*;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
@@ -13,7 +14,6 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
 import pl.net.bluesoft.rnd.processtool.usersource.IUserSource;
 import pl.net.bluesoft.rnd.processtool.web.domain.IHtmlTemplateProvider;
 
-import java.io.IOException;
 import java.util.*;
 
 import static pl.net.bluesoft.util.lang.Strings.hasText;
@@ -29,34 +29,23 @@ public class TaskViewBuilder extends AbstractViewBuilder<TaskViewBuilder> {
     private String version;
     private String description;
 
-    @Autowired
-    private ProcessToolRegistry processToolRegistry;
-
-    @Autowired
-    private IHtmlTemplateProvider templateProvider;
-
-    @Autowired
-    private IUserSource userSource;
-
-    public TaskViewBuilder() {
-        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+    @Override
+    protected IProcessInstanceAware getViewedObject() {
+        return this.task;
     }
 
     @Override
-    public void buildWidgets(final Document document, final Element widgetsNode) {
-        for (IStateWidget widget : widgets) {
-            WidgetHierarchyBean childBean = new WidgetHierarchyBean()
-                    .setParent(widgetsNode)
-                    .setWidget(widget)
-                    .setProcessInstance(task.getProcessInstance())
-                    .setForcePrivileges(false)
-                    .setPrivileges(new ArrayList<String>());
+    protected void buildWidget(final WidgetHierarchyBean bean) {
+        processWidget(bean);
+    }
 
-            processWidget(childBean);
-        }
-
+    @Override
+    protected void buildActionButtons(final Document document) {
         addActionButtons(document);
+    }
 
+    @Override
+    protected void buildAdditionalData(final Document document) {
         addVersionNumber(document);
     }
 
@@ -91,7 +80,7 @@ public class TaskViewBuilder extends AbstractViewBuilder<TaskViewBuilder> {
 
         /* Check if task is finished */
         if (isTaskFinished()) {
-            addCancelActionButton(genericActionButtons);
+            buildCancelActionButton(genericActionButtons);
             return;
         }
 
@@ -102,12 +91,12 @@ public class TaskViewBuilder extends AbstractViewBuilder<TaskViewBuilder> {
 
         /* Check if user, who is checking the task, is the assigned person */
         if (isUserAssignedToTask() || isSubstitutingUser()) {
-            addSaveActionButton(genericActionButtons);
+            buildSaveActionButton(genericActionButtons);
             for (ProcessStateAction action : actions)
                 processAction(action, processActionButtons);
         }
 
-        addCancelActionButton(genericActionButtons);
+        buildCancelActionButton(genericActionButtons);
     }
 
 
@@ -339,60 +328,14 @@ public class TaskViewBuilder extends AbstractViewBuilder<TaskViewBuilder> {
         }
     }
 
-    private static class WidgetHierarchyBean {
-        private IStateWidget widget;
-        private Element parent;
-        private ProcessInstance processInstance;
-        private boolean forcePrivileges;
-        private Collection<String> privileges;
-
-        public IStateWidget getWidget() {
-            return widget;
-        }
-
-        public WidgetHierarchyBean setWidget(IStateWidget widget) {
-            this.widget = widget;
-            return this;
-        }
-
-        public Element getParent() {
-            return parent;
-        }
-
-        public WidgetHierarchyBean setParent(Element parent) {
-            this.parent = parent;
-            return this;
-        }
-
-        public ProcessInstance getProcessInstance() {
-            return processInstance;
-        }
-
-        public WidgetHierarchyBean setProcessInstance(ProcessInstance processInstance) {
-            this.processInstance = processInstance;
-            return this;
-        }
-
-        public boolean isForcePrivileges() {
-            return forcePrivileges;
-        }
-
-        public WidgetHierarchyBean setForcePrivileges(boolean forcePrivileges) {
-            this.forcePrivileges = forcePrivileges;
-            return this;
-        }
-
-        public Collection<String> getPrivileges() {
-            return privileges;
-        }
-
-        public WidgetHierarchyBean setPrivileges(Collection<String> privileges) {
-            this.privileges = privileges;
-            return this;
-        }
+    @Override
+    protected void addSpecificHtmlWidgetData(final Map<String, Object> viewData, final ProcessInstance processInstance) {
+        viewData.put(IHtmlTemplateProvider.PROCESS_PARAMTER, processInstance);
+        viewData.put(IHtmlTemplateProvider.TASK_PARAMTER, task);
     }
 
-    private Collection<String> getPrivileges(IStateWidget widget) {
+    @Override
+    protected Collection<String> getPrivileges(IStateWidget widget) {
         Collection<String> privileges = new ArrayList<String>();
 
         if (!isUserAssignedToTask() || isTaskFinished())
@@ -458,47 +401,6 @@ public class TaskViewBuilder extends AbstractViewBuilder<TaskViewBuilder> {
                 .append(task.getInternalTaskId())
                 .append("');  });");
         scriptBuilder.append("$('#").append(actionButtonId).append("').tooltip({title: '").append(i18Source.getMessage(action.getDescription())).append("'});");
-    }
-
-    private void addSaveActionButton(Element parent) {
-        String actionButtonId = "action-button-save";
-
-        Element buttonNode = parent.ownerDocument().createElement("button")
-                .attr("class", "btn btn-warning")
-                .attr("disabled", "true")
-                .attr("id", actionButtonId);
-
-        Element saveButtonIcon = parent.ownerDocument().createElement("span")
-                .attr("class", "glyphicon glyphicon-floppy-save");
-
-        parent.appendChild(buttonNode);
-        buttonNode.appendChild(saveButtonIcon);
-
-        buttonNode.appendText(i18Source.getMessage("button.save.process.data"));
-
-        scriptBuilder.append("$('#").append(actionButtonId).append("').click(function() { onSaveButton('").append(task.getInternalTaskId()).append("');  });");
-        scriptBuilder.append("$('#").append(actionButtonId).append("').tooltip({title: '").append(i18Source.getMessage("button.save.process.desc")).append("'});");
-    }
-
-    private void addCancelActionButton(Element parent) {
-        String actionButtonId = "action-button-cancel";
-
-        Element buttonNode = parent.ownerDocument().createElement("button")
-                .attr("class", "btn btn-info")
-                .attr("disabled", "true")
-                .attr("id", actionButtonId);
-        parent.appendChild(buttonNode);
-
-        Element cancelButtonIcon = parent.ownerDocument().createElement("span")
-                .attr("class", "glyphicon glyphicon-home");
-
-        parent.appendChild(buttonNode);
-        buttonNode.appendChild(cancelButtonIcon);
-
-        buttonNode.appendText(i18Source.getMessage("button.exit"));
-
-        scriptBuilder.append("$('#").append(actionButtonId).append("').click(function() { onCancelButton();  });");
-        scriptBuilder.append("$('#").append(actionButtonId).append("').tooltip({title: '").append(i18Source.getMessage("button.exit")).append("'});");
     }
 
     private void addClaimActionButton(Element parent) {
@@ -598,12 +500,12 @@ public class TaskViewBuilder extends AbstractViewBuilder<TaskViewBuilder> {
 
 
     @Override
-    protected String getObjectId() {
+    protected String getViewedObjectId() {
         return this.task.getInternalTaskId();
     }
 
     @Override
-    protected boolean isObjectClosed() {
+    protected boolean isViewedObjectClosed() {
         return isTaskFinished();
     }
 

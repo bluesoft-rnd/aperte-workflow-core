@@ -497,4 +497,34 @@ public class TaskViewBuilder extends AbstractViewBuilder<TaskViewBuilder> {
     protected String getCancelButtonMessageKey() {
         return "button.exit";
     }
+
+    @Override
+    protected String getActionsListHtmlId() {
+        return "actions-list";
+    }
+
+    @Override
+    protected String getSaveButtonHtmlId() {
+        return "action-button-save";
+    }
+
+    @Override
+    protected String getActionsGenericListHtmlId() {
+        return "actions-generic-list";
+    }
+
+    @Override
+    protected String getVaadinWidgetsHtmlId() {
+        return "vaadin-widgets";
+    }
+
+    @Override
+    protected String getCancelButtonClickFunction() {
+        return "onCancelButton();";
+    }
+
+    @Override
+    protected String getCancelButtonHtmlId() {
+        return "action-button-cancel";
+    }
 }

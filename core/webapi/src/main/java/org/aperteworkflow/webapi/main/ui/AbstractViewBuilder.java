@@ -64,7 +64,7 @@ public abstract class AbstractViewBuilder<T extends AbstractViewBuilder> {
         final Document document = Jsoup.parse("");
 
         final Element widgetsNode = document.createElement("div")
-                .attr("id", "vaadin-widgets")
+                .attr("id", getVaadinWidgetsHtmlId())
                 .attr("class", "vaadin-widgets-view");
         document.appendChild(widgetsNode);
 
@@ -82,6 +82,8 @@ public abstract class AbstractViewBuilder<T extends AbstractViewBuilder> {
         return stringBuilder;
 
     }
+
+    protected abstract String getVaadinWidgetsHtmlId();
 
     protected void buildWidgets(final Document document, final Element widgetsNode) {
         for (IStateWidget widget : widgets) {
@@ -228,7 +230,6 @@ public abstract class AbstractViewBuilder<T extends AbstractViewBuilder> {
         } else if (aliasName.equals("SwitchWidgets")) {
             List<IStateWidget> sortedList = new ArrayList<IStateWidget>(children);
 
-            // todo
             IStateWidget filteredChild = filterChildren(getViewedObject(), sortedList, widget);
 
             if (filteredChild != null) {
@@ -272,7 +273,6 @@ public abstract class AbstractViewBuilder<T extends AbstractViewBuilder> {
                 viewData.put(attribute.getName(), attribute.getValue());
 
             /* Add custom attributes from widget data providers */
-            // todo
             for (IWidgetDataProvider dataProvider : processHtmlWidget.getDataProviders())
                 viewData.putAll(dataProvider.getData(getViewedObject()));
 
@@ -385,20 +385,22 @@ public abstract class AbstractViewBuilder<T extends AbstractViewBuilder> {
      */
     protected void buildActionButtons(final Document document) {
         Element actionsNode = document.createElement("div")
-                .attr("id", "actions-list")
+                //.attr("id", "actions-list")
+                .attr("id", getActionsListHtmlId())
                 .attr("class", "actions-view");
         document.appendChild(actionsNode);
 
         Element genericActionButtons = document.createElement("div")
-                .attr("id", "actions-generic-list")
+                .attr("id", getActionsGenericListHtmlId())
                 .attr("class", "btn-group  pull-left actions-generic-view");
 
-        Element processActionButtons = document.createElement("div")
+        // todo
+        /*Element processActionButtons = document.createElement("div")
                 .attr("id", "actions-process-list")
                 .attr("class", "btn-group  pull-right actions-process-view");
-
+        */
         actionsNode.appendChild(genericActionButtons);
-        actionsNode.appendChild(processActionButtons);
+        //actionsNode.appendChild(processActionButtons);
 
         /* Check if the viewed object is in a terminal state */
         if (isViewedObjectClosed()) {
@@ -410,6 +412,10 @@ public abstract class AbstractViewBuilder<T extends AbstractViewBuilder> {
         buildCancelActionButton(genericActionButtons);
     }
 
+    protected abstract String getActionsGenericListHtmlId();
+
+    protected abstract String getActionsListHtmlId();
+
     /**
      * Check if the object being viewed is in the terminal state.
      *
@@ -418,7 +424,8 @@ public abstract class AbstractViewBuilder<T extends AbstractViewBuilder> {
     protected abstract boolean isViewedObjectClosed();
 
     protected void buildSaveActionButton(final Element parent) {
-        String actionButtonId = "action-button-save";
+        //String actionButtonId = "action-button-save";
+        String actionButtonId = getSaveButtonHtmlId();
 
         Element buttonNode = parent.ownerDocument().createElement("button")
                 .attr("class", "btn btn-warning")
@@ -437,12 +444,15 @@ public abstract class AbstractViewBuilder<T extends AbstractViewBuilder> {
         scriptBuilder.append("$('#").append(actionButtonId).append("').tooltip({title: '").append(i18Source.getMessage(getSaveButtonDescriptionKey())).append("'});");
     }
 
+    protected abstract String getSaveButtonHtmlId();
+
     protected abstract String getSaveButtonDescriptionKey();
 
     protected abstract String getSaveButtonMessageKey();
 
     protected void buildCancelActionButton(final Element parent) {
-        String actionButtonId = "action-button-cancel";
+        //String actionButtonId = "action-button-cancel";
+        String actionButtonId = getCancelButtonHtmlId();
 
         Element buttonNode = parent.ownerDocument().createElement("button")
                 .attr("class", "btn btn-info")
@@ -458,9 +468,13 @@ public abstract class AbstractViewBuilder<T extends AbstractViewBuilder> {
 
         buttonNode.appendText(i18Source.getMessage(getCancelButtonMessageKey()));
 
-        scriptBuilder.append("$('#").append(actionButtonId).append("').click(function() { onCancelButton();  });");
+        scriptBuilder.append("$('#").append(actionButtonId).append("').click(function() { " + getCancelButtonClickFunction() + "  });");
         scriptBuilder.append("$('#").append(actionButtonId).append("').tooltip({title: '").append(i18Source.getMessage(getCancelButtonMessageKey())).append("'});");
     }
+
+    protected abstract String getCancelButtonHtmlId();
+
+    protected abstract String getCancelButtonClickFunction();
 
     protected abstract String getCancelButtonMessageKey();
 

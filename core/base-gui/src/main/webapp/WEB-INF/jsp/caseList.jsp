@@ -3,12 +3,11 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
-<%@include file="utils/windowManager.jsp" %>
 <%@include file="utils/apertedatatable.jsp" %>
 <%@include file="utils/globals.jsp" %>
 
 <div class="apw main-view">
-	<div class="process-tasks-view" id="case-management-view">
+	<div class="process-tasks-view" id="case-list-view">
         <table id="caseManagementTable" class="process-table table table-striped" border="1">
             <thead>
                     <th style="width:20%;"><spring:message code="admin.case.management.results.table.number" /></th>
@@ -23,19 +22,16 @@
     </div>
 
     <div id="case-data-view" class="process-data-view" hidden="false">
+        <div id="case-vaadin-widgets" class="vaadin-widgets-view">
+        </div>
 
+        <div id="case-actions-list" class="actions-view">
+        </div>
     </div>
-
-
 
 </div>
 
-
-
 <br/>
-<br/>
-<br/>
-
 
 <script type="text/javascript">
 //<![CDATA[
@@ -81,12 +77,14 @@
             .done(function(data) {
                 if (window.console)
                     console.log(data);
-                clearAlerts();
-                windowManager.showProcessData();
-                // caseManagement.showCaseData();
-                $('#process-data-view').empty();
-                $("#process-data-view").append(data.data);
-                checkIfViewIsLoaded();
+                // clearAlerts();
+                // windowManager.showProcessData();
+                caseManagement.hideCaseList();
+                caseManagement.showCaseData();
+                $('#case-data-view').empty();
+                $("#case-data-view").append(data.data);
+                caseManagement.enableButtons();
+                // checkIfViewIsLoaded();
             })
             .fail(function(data, textStatus, errorThrown) {
             }
@@ -94,8 +92,29 @@
     }
 
     caseManagement.showCaseData = function() {
-        $('#case-data-view').show();
+        $('#case-data-view').fadeIn(500);
     }
+
+    caseManagement.hideCaseData = function() {
+        $('#case-data-view').hide();
+    }
+
+    caseManagement.hideCaseList = function() {
+        $('#case-list-view').hide();
+    }
+
+    caseManagement.showCaseList = function() {
+        $('#case-list-view').fadeIn(500);
+    }
+
+    caseManagement.onCloseButton = function() {
+        caseManagement.hideCaseData();
+        caseManagement.showCaseList();
+    }
+
+    caseManagement.enableButtons = function() {
+   		$('#case-actions-list').find('button').prop('disabled', false);
+   	}
 
 
 //]]>

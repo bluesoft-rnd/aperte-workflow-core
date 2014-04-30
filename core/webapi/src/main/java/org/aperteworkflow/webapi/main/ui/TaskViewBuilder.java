@@ -2,21 +2,15 @@ package org.aperteworkflow.webapi.main.ui;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
-import pl.net.bluesoft.rnd.processtool.model.IProcessInstanceAware;
+import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.config.*;
-import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.IWidgetDataProvider;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
-import pl.net.bluesoft.rnd.processtool.usersource.IUserSource;
 import pl.net.bluesoft.rnd.processtool.web.domain.IHtmlTemplateProvider;
 
 import java.util.*;
-
-import static pl.net.bluesoft.util.lang.Strings.hasText;
 
 /**
  * Html builder for the task view
@@ -30,7 +24,7 @@ public class TaskViewBuilder extends AbstractViewBuilder<TaskViewBuilder> {
     private String description;
 
     @Override
-    protected IProcessInstanceAware getViewedObject() {
+    protected IAttributesProvider getViewedObject() {
         return this.task;
     }
 
@@ -329,7 +323,7 @@ public class TaskViewBuilder extends AbstractViewBuilder<TaskViewBuilder> {
     }
 
     @Override
-    protected void addSpecificHtmlWidgetData(final Map<String, Object> viewData, final IProcessInstanceAware viewedObject) {
+    protected void addSpecificHtmlWidgetData(final Map<String, Object> viewData, final IAttributesProvider viewedObject) {
         viewData.put(IHtmlTemplateProvider.TASK_PARAMTER, task);
     }
 

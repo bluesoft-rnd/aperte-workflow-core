@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
-import pl.net.bluesoft.rnd.processtool.model.IProcessInstanceAware;
+import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.IPermission;
@@ -96,7 +96,7 @@ public abstract class AbstractViewBuilder<T extends AbstractViewBuilder> {
         }
     }
 
-    protected abstract IProcessInstanceAware getViewedObject();
+    protected abstract IAttributesProvider getViewedObject();
 
     protected void buildWidget(final WidgetHierarchyBean widgetHierarchyBean) {
         IStateWidget widget = widgetHierarchyBean.getWidget();
@@ -273,8 +273,8 @@ public abstract class AbstractViewBuilder<T extends AbstractViewBuilder> {
 
             /* Add custom attributes from widget data providers */
             // todo
-            // for (IWidgetDataProvider dataProvider : processHtmlWidget.getDataProviders())
-            //    viewData.putAll(dataProvider.getData(getViewedObject()));
+            for (IWidgetDataProvider dataProvider : processHtmlWidget.getDataProviders())
+                viewData.putAll(dataProvider.getData(getViewedObject()));
 
             String processedView = templateProvider.processTemplate(aliasName, viewData);
 
@@ -327,9 +327,9 @@ public abstract class AbstractViewBuilder<T extends AbstractViewBuilder> {
         }
     }
 
-    protected abstract void addSpecificHtmlWidgetData(final Map<String, Object> viewData, IProcessInstanceAware viewedObject);
+    protected abstract void addSpecificHtmlWidgetData(final Map<String, Object> viewData, IAttributesProvider viewedObject);
 
-    public IStateWidget filterChildren(IProcessInstanceAware viewedObject, List<IStateWidget> sortedList, IStateWidget sw) {
+    public IStateWidget filterChildren(IAttributesProvider viewedObject, List<IStateWidget> sortedList, IStateWidget sw) {
         String selectorKey = sw.getAttributeByName("selectorKey").getValue();
         String conditions = sw.getAttributeByName("conditions").getValue();
         String selectorValue = viewedObject.getProcessInstance().getInheritedSimpleAttributeValue(selectorKey);

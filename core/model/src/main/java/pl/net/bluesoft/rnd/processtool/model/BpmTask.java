@@ -6,7 +6,7 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import java.util.Collection;
 import java.util.Date;
 
-public interface BpmTask extends IProcessInstanceAware {
+public interface BpmTask extends IAttributesProvider {
     boolean isFinished();
     Date getFinishDate();
     Date getCreateDate();

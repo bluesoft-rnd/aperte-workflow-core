@@ -6,6 +6,28 @@
              xsi:schemaLocation="http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd">
 
     <portlet>
+        <portlet-name>AperteWorkflow Case Management Portlet</portlet-name>
+        <display-name>Aperte Workflow Case Management</display-name>
+        <portlet-class>org.springframework.web.portlet.DispatcherPortlet</portlet-class>
+        <init-param>
+            <name>contextConfigLocation</name>
+            <value>/WEB-INF/spring/aperte-case-management-portlet.xml</value>
+        </init-param>
+        <init-param>
+            <name>view-jsp</name>
+            <value>caseList</value>
+        </init-param>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+        </supports>
+        <portlet-info>
+            <title>Aperte Workflow Case Management</title>
+            <short-title>Case Management</short-title>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
         <portlet-name>Aperte Workflow Substitution Manager</portlet-name>
         <display-name>Aperte Workflow Substitution Manager</display-name>
         <portlet-class>org.springframework.web.portlet.DispatcherPortlet</portlet-class>
@@ -25,7 +47,7 @@
             <short-title>AperteSubstitution</short-title>
         </portlet-info>
     </portlet>
-	
+
 	<portlet>
 		<portlet-name>AperteWorkflow Activities Portlet</portlet-name>
 		<display-name>Aperte Workflow Activities Simple</display-name>

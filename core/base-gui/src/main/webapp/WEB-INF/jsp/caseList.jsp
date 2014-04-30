@@ -3,8 +3,9 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
-<%@include file="utils/globals.jsp" %>
+<%@include file="utils/windowManager.jsp" %>
 <%@include file="utils/apertedatatable.jsp" %>
+<%@include file="utils/globals.jsp" %>
 
 <div class="process-tasks-view" id="case-management-view">
     <table id="caseManagementTable" class="process-table table table-striped" border="1">
@@ -19,6 +20,18 @@
         <tbody></tbody>
     </table>
 </div>
+
+<div id="case-data-view" class="process-data-view" hidden="false">
+	<div id="vaadin-widgets" class="vaadin-widgets-view">
+
+	</div>
+	<div id="actions-list" class="actions-view">
+	</div>
+</div>
+
+<br/>
+<br/>
+<br/>
 
 
 <script type="text/javascript">
@@ -54,8 +67,8 @@
     }
 
     caseManagement.loadCaseView = function(caseId) {
-        windowManager.changeUrl('?caseId=' + caseId);
-        windowManager.showLoadingScreen();
+        //windowManager.changeUrl('?caseId=' + caseId);
+        //windowManager.showLoadingScreen();
 
         var widgetJson = $.post(dispatcherPortlet, {
                 "controller": "casemanagementcontroller",
@@ -67,14 +80,20 @@
                     console.log(data);
                 clearAlerts();
                 windowManager.showProcessData();
+                // caseManagement.showCaseData();
                 $('#process-data-view').empty();
-                $("#process-data-view").append(data);
+                $("#process-data-view").append(data.data);
                 checkIfViewIsLoaded();
             })
             .fail(function(data, textStatus, errorThrown) {
             }
         );
     }
+
+    caseManagement.showCaseData = function() {
+        $('#case-data-view').show();
+    }
+
 
 //]]>
 </script>

@@ -6,6 +6,7 @@
 		<portlet id="ProcessTool Queues"/>
 		<portlet id="AperteWorkflow Activities Portlet"/>
         <portlet id="Aperte Workflow User Portlet"/>
+        <portlet id="AperteWorkflow Case Management Portlet"/>
 	</category>
     <category name="category.hidden">
         <portlet id="Aperte Workflow Plugin Manager"/>

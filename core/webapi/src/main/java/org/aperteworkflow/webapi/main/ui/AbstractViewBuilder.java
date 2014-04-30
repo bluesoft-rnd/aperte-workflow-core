@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
-import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.IProcessInstanceAware;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
@@ -230,9 +229,9 @@ public abstract class AbstractViewBuilder<T extends AbstractViewBuilder> {
             List<IStateWidget> sortedList = new ArrayList<IStateWidget>(children);
 
             // todo
-            // IStateWidget filteredChild = filterChildren(task, sortedList, widget);
+            IStateWidget filteredChild = filterChildren(getViewedObject(), sortedList, widget);
 
-            /*if (filteredChild != null) {
+            if (filteredChild != null) {
                 Element divContentNode = parent.ownerDocument().createElement("div")
                         .attr("id", "switch_widget" + widget.getId());
                 parent.appendChild(divContentNode);
@@ -245,7 +244,7 @@ public abstract class AbstractViewBuilder<T extends AbstractViewBuilder> {
                         .setPrivileges(widgetHierarchyBean.getPrivileges());
 
                 buildWidget(childBean);
-            }*/
+            }
         }
         /* HTML Widget */
         else if (processHtmlWidget != null) {
@@ -257,9 +256,9 @@ public abstract class AbstractViewBuilder<T extends AbstractViewBuilder> {
 
             Map<String, Object> viewData = new HashMap<String, Object>();
             // todo
-            // viewData.put(IHtmlTemplateProvider.PROCESS_PARAMTER, processInstance);
+            viewData.put(IHtmlTemplateProvider.PROCESS_PARAMTER, processInstance);
             // viewData.put(IHtmlTemplateProvider.TASK_PARAMTER, task);
-            addSpecificHtmlWidgetData(viewData, processInstance);
+            addSpecificHtmlWidgetData(viewData, getViewedObject());
             viewData.put(IHtmlTemplateProvider.USER_PARAMTER, user);
             viewData.put(IHtmlTemplateProvider.USER_SOURCE_PARAMTER, userSource);
             viewData.put(IHtmlTemplateProvider.MESSAGE_SOURCE_PARAMETER, i18Source);
@@ -275,7 +274,7 @@ public abstract class AbstractViewBuilder<T extends AbstractViewBuilder> {
             /* Add custom attributes from widget data providers */
             // todo
             // for (IWidgetDataProvider dataProvider : processHtmlWidget.getDataProviders())
-            //    viewData.putAll(dataProvider.getData(task));
+            //    viewData.putAll(dataProvider.getData(getViewedObject()));
 
             String processedView = templateProvider.processTemplate(aliasName, viewData);
 
@@ -297,16 +296,16 @@ public abstract class AbstractViewBuilder<T extends AbstractViewBuilder> {
             }
         } else {
             // todo
-            /*vaadinWidgetsCount++;
+            vaadinWidgetsCount++;
             //http://localhost:8080
-            String vaadinWidgetUrl = "/aperteworkflow/widget/" + task.getInternalTaskId() + "_" + widget.getId() + "/?widgetId=" + widget.getId() + "&taskId=" + task.getInternalTaskId();
+            String vaadinWidgetUrl = "/aperteworkflow/widget/" + getViewedObjectId() + "_" + widget.getId() + "/?widgetId=" + widget.getId() + "&taskId=" + getViewedObjectId();
 
             Element iFrameNode = parent.ownerDocument().createElement("iframe")
                     .attr("src", vaadinWidgetUrl)
                     .attr("autoResize", "true")
                     .attr("id", "iframe-vaadin-" + widget.getId())
                     .attr("frameborder", "0")
-                    .attr("taskId", task.getInternalTaskId())
+                    .attr("taskId", getViewedObjectId())
                     .attr("widgetId", widget.getId().toString())
                     .attr("class", "vaadin-widget-view")
                     .attr("widgetLoaded", "false")
@@ -324,16 +323,16 @@ public abstract class AbstractViewBuilder<T extends AbstractViewBuilder> {
                         .setPrivileges(widgetHierarchyBean.getPrivileges());
 
                 buildWidget(childBean);
-            }*/
+            }
         }
     }
 
-    protected abstract void addSpecificHtmlWidgetData(final Map<String, Object> viewData, ProcessInstance processInstance);
+    protected abstract void addSpecificHtmlWidgetData(final Map<String, Object> viewData, IProcessInstanceAware viewedObject);
 
-    public IStateWidget filterChildren(BpmTask task, List<IStateWidget> sortedList, IStateWidget sw) {
+    public IStateWidget filterChildren(IProcessInstanceAware viewedObject, List<IStateWidget> sortedList, IStateWidget sw) {
         String selectorKey = sw.getAttributeByName("selectorKey").getValue();
         String conditions = sw.getAttributeByName("conditions").getValue();
-        String selectorValue = task.getProcessInstance().getInheritedSimpleAttributeValue(selectorKey);
+        String selectorValue = viewedObject.getProcessInstance().getInheritedSimpleAttributeValue(selectorKey);
 
         if (!hasText(selectorValue)) {
             return null;
@@ -474,7 +473,7 @@ public abstract class AbstractViewBuilder<T extends AbstractViewBuilder> {
 
     protected Collection<String> getPrivileges(IStateWidget widget) {
         Collection<String> privileges = new ArrayList<String>();
-
+        // todo
         //if (!isUserAssignedToTask() || isTaskFinished())
 //            return privileges;
         if (isViewedObjectClosed())

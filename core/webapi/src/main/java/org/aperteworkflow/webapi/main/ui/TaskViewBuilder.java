@@ -329,8 +329,7 @@ public class TaskViewBuilder extends AbstractViewBuilder<TaskViewBuilder> {
     }
 
     @Override
-    protected void addSpecificHtmlWidgetData(final Map<String, Object> viewData, final ProcessInstance processInstance) {
-        viewData.put(IHtmlTemplateProvider.PROCESS_PARAMTER, processInstance);
+    protected void addSpecificHtmlWidgetData(final Map<String, Object> viewData, final IProcessInstanceAware viewedObject) {
         viewData.put(IHtmlTemplateProvider.TASK_PARAMTER, task);
     }
 
@@ -449,25 +448,6 @@ public class TaskViewBuilder extends AbstractViewBuilder<TaskViewBuilder> {
     public TaskViewBuilder setTask(BpmTask task) {
         this.task = task;
         return this;
-    }
-
-    public IStateWidget filterChildren(BpmTask task, List<IStateWidget> sortedList, IStateWidget sw) {
-        String selectorKey = sw.getAttributeByName("selectorKey").getValue();
-        String conditions = sw.getAttributeByName("conditions").getValue();
-        String selectorValue = task.getProcessInstance().getInheritedSimpleAttributeValue(selectorKey);
-
-        if (!hasText(selectorValue)) {
-            return null;
-        }
-
-        String[] conditionsArray = conditions.split("[,; ]+");
-
-        for (int i = 0; i < conditionsArray.length; i++) {
-            if (selectorValue.equals(conditionsArray[i].trim())) {
-                return i < sortedList.size() ? sortedList.get(i) : null;
-            }
-        }
-        return null;
     }
 
     private boolean hasUserRightsToTask() {

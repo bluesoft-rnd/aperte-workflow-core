@@ -7,27 +7,30 @@
 <%@include file="utils/apertedatatable.jsp" %>
 <%@include file="utils/globals.jsp" %>
 
-<div class="process-tasks-view" id="case-management-view">
-    <table id="caseManagementTable" class="process-table table table-striped" border="1">
-        <thead>
-                <th style="width:20%;"><spring:message code="admin.case.management.results.table.number" /></th>
-                <th style="width:20%;"><spring:message code="admin.case.management.results.table.definitionName" /></th>
-                <th style="width:20%;"><spring:message code="admin.case.management.results.table.name" /></th>
-                <th style="width:20%;"><spring:message code="admin.case.management.results.table.currentStageName" /></th>
-                <th style="width:20%;"><spring:message code="admin.case.management.results.table.createDate" /></th>
-                <th style="width:20%;"><spring:message code="admin.case.management.results.table.modificationDate" /></th>
-        </thead>
-        <tbody></tbody>
-    </table>
+<div class="apw main-view">
+	<div class="process-tasks-view" id="case-management-view">
+        <table id="caseManagementTable" class="process-table table table-striped" border="1">
+            <thead>
+                    <th style="width:20%;"><spring:message code="admin.case.management.results.table.number" /></th>
+                    <th style="width:20%;"><spring:message code="admin.case.management.results.table.definitionName" /></th>
+                    <th style="width:20%;"><spring:message code="admin.case.management.results.table.name" /></th>
+                    <th style="width:20%;"><spring:message code="admin.case.management.results.table.currentStageName" /></th>
+                    <th style="width:20%;"><spring:message code="admin.case.management.results.table.createDate" /></th>
+                    <th style="width:20%;"><spring:message code="admin.case.management.results.table.modificationDate" /></th>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <div id="case-data-view" class="process-data-view" hidden="false">
+
+    </div>
+
+
+
 </div>
 
-<div id="case-data-view" class="process-data-view" hidden="false">
-	<div id="vaadin-widgets" class="vaadin-widgets-view">
 
-	</div>
-	<div id="actions-list" class="actions-view">
-	</div>
-</div>
 
 <br/>
 <br/>

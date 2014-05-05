@@ -10,10 +10,7 @@ import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
-import pl.net.bluesoft.rnd.processtool.model.config.IPermission;
-import pl.net.bluesoft.rnd.processtool.model.config.IStateWidget;
-import pl.net.bluesoft.rnd.processtool.model.config.IStateWidgetAttribute;
-import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
+import pl.net.bluesoft.rnd.processtool.model.config.*;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.IWidgetDataProvider;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
@@ -295,7 +292,6 @@ public abstract class AbstractViewBuilder<T extends AbstractViewBuilder> {
                 buildWidget(childBean);
             }
         } else {
-            // todo
             vaadinWidgetsCount++;
             //http://localhost:8080
             String vaadinWidgetUrl = "/aperteworkflow/widget/" + getViewedObjectId() + "_" + widget.getId() + "/?widgetId=" + widget.getId() + "&taskId=" + getViewedObjectId();
@@ -394,23 +390,35 @@ public abstract class AbstractViewBuilder<T extends AbstractViewBuilder> {
                 .attr("id", getActionsGenericListHtmlId())
                 .attr("class", "btn-group  pull-left actions-generic-view");
 
-        // todo
-        /*Element processActionButtons = document.createElement("div")
-                .attr("id", "actions-process-list")
+        Element specificActionButtons = document.createElement("div")
+                .attr("id", getActionsSpecificListHtmlId())
                 .attr("class", "btn-group  pull-right actions-process-view");
-        */
+
         actionsNode.appendChild(genericActionButtons);
-        //actionsNode.appendChild(processActionButtons);
+        actionsNode.appendChild(specificActionButtons);
 
         /* Check if the viewed object is in a terminal state */
         if (isViewedObjectClosed()) {
             buildCancelActionButton(genericActionButtons);
             return;
         }
-        //buildSaveActionButton(genericActionButtons);
+
+        // build a view specific buttons
+        buildSpecificActionButtons(specificActionButtons);
+
+        // build a save button
+        if (isUserCanPerformActions()) {
+            buildSaveActionButton(genericActionButtons);
+        }
 
         buildCancelActionButton(genericActionButtons);
     }
+
+    protected abstract boolean isUserCanPerformActions();
+
+    protected abstract void buildSpecificActionButtons(final Element specificActionButtons);
+
+    protected abstract String getActionsSpecificListHtmlId();
 
     protected abstract String getActionsGenericListHtmlId();
 
@@ -440,9 +448,11 @@ public abstract class AbstractViewBuilder<T extends AbstractViewBuilder> {
 
         buttonNode.appendText(i18Source.getMessage(getSaveButtonMessageKey()));
 
-        scriptBuilder.append("$('#").append(actionButtonId).append("').click(function() { onSaveButton('").append(getViewedObjectId()).append("');  });");
+        scriptBuilder.append("$('#").append(actionButtonId).append("').click(function() { " + getSaveButtonClickFunction() + "('").append(getViewedObjectId()).append("');  });");
         scriptBuilder.append("$('#").append(actionButtonId).append("').tooltip({title: '").append(i18Source.getMessage(getSaveButtonDescriptionKey())).append("'});");
     }
+
+    protected abstract String getSaveButtonClickFunction();
 
     protected abstract String getSaveButtonHtmlId();
 
@@ -468,7 +478,7 @@ public abstract class AbstractViewBuilder<T extends AbstractViewBuilder> {
 
         buttonNode.appendText(i18Source.getMessage(getCancelButtonMessageKey()));
 
-        scriptBuilder.append("$('#").append(actionButtonId).append("').click(function() { " + getCancelButtonClickFunction() + "  });");
+        scriptBuilder.append("$('#").append(actionButtonId).append("').click(function() { " + getCancelButtonClickFunction() + "();  });");
         scriptBuilder.append("$('#").append(actionButtonId).append("').tooltip({title: '").append(i18Source.getMessage(getCancelButtonMessageKey())).append("'});");
     }
 
@@ -487,10 +497,7 @@ public abstract class AbstractViewBuilder<T extends AbstractViewBuilder> {
 
     protected Collection<String> getPrivileges(IStateWidget widget) {
         Collection<String> privileges = new ArrayList<String>();
-        // todo
-        //if (!isUserAssignedToTask() || isTaskFinished())
-//            return privileges;
-        if (isViewedObjectClosed())
+        if (!isUserAssignedToViewedObject() || isViewedObjectClosed())
             return privileges;
 
         for (IPermission permission : widget.getPermissions()) {
@@ -500,6 +507,8 @@ public abstract class AbstractViewBuilder<T extends AbstractViewBuilder> {
         }
         return privileges;
     }
+
+    protected abstract boolean isUserAssignedToViewedObject();
 
     protected static class WidgetHierarchyBean {
         private IStateWidget widget;

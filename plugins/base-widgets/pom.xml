@@ -155,6 +155,8 @@
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.SetProcessStateConfigurationId,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.SetVariablesStep,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.CopyVariablesStep,
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.PopFromList,
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.IncrementIntegerVariableStep,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.LogStep,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.GetAssignedToStep,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.SetProcessBusinessStatus

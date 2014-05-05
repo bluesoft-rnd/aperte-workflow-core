@@ -1,7 +1,7 @@
 package org.aperteworkflow.webapi.casemanagement;
 
+import org.aperteworkflow.webapi.PortletUtil;
 import org.aperteworkflow.webapi.main.DispatcherController;
-import org.aperteworkflow.webapi.main.util.MappingJacksonJsonViewEx;
 import org.aperteworkflow.webapi.tools.WebApiConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -63,7 +63,7 @@ public class CaseManagementPortletController {
     @ResourceMapping("dispatcher")
     @ResponseBody
     public ModelAndView dispatcher(ResourceRequest request, ResourceResponse response) throws PortletException {
-        HttpServletRequest originalHttpServletRequest = getOriginalHttpServletRequest(request);
+        HttpServletRequest originalHttpServletRequest = PortletUtil.getOriginalHttpServletRequest(portalUserSource, request);
 
         String controller = originalHttpServletRequest.getParameter("controller");
         String action = originalHttpServletRequest.getParameter("action");
@@ -80,34 +80,8 @@ public class CaseManagementPortletController {
 
         HttpServletResponse httpServletResponse = getHttpServletResponse(response);
 
-        return translate(PORTLET_JSON_RESULT_ROOT_NAME,
+        return PortletUtil.translate(PORTLET_JSON_RESULT_ROOT_NAME,
                 mainDispatcher.invokeExternalController(controller, action, originalHttpServletRequest, httpServletResponse));
-    }
-
-    @ResourceMapping("getData")
-    @ResponseBody
-    public ModelAndView getUserQueues(ResourceRequest request, ResourceResponse response) {
-        return translate(PORTLET_JSON_RESULT_ROOT_NAME, new String("test"));
-    }
-
-
-    /**
-     * Obtain http servlet request with additional attributes from ajax request
-     */
-    private HttpServletRequest getOriginalHttpServletRequest(ResourceRequest request) {
-        try {
-            HttpServletRequest httpServletRequest = portalUserSource.getHttpServletRequest(request);
-            HttpServletRequest originalHttpServletRequest = portalUserSource.getOriginalHttpServletRequest(httpServletRequest);
-
-            /* Copy all attributes, because portlet attributes do not exist in original request */
-            originalHttpServletRequest.getParameterMap().putAll(httpServletRequest.getParameterMap());
-
-            return originalHttpServletRequest;
-        } catch (Throwable ex) {
-            logger.log(Level.SEVERE, "[PORTLET CONTROLLER] Error", ex);
-            throw new RuntimeException(ex);
-        }
-
     }
 
     /**
@@ -120,20 +94,6 @@ public class CaseManagementPortletController {
             logger.log(Level.SEVERE, "[PORTLET CONTROLLER] Error", ex);
             throw new RuntimeException(ex);
         }
-    }
-
-    /**
-     * Translate DTO object to json in model and view, which is required for portlet resource serving
-     */
-    private ModelAndView translate(String resultName, Object result) {
-        ModelAndView mav = new ModelAndView();
-        MappingJacksonJsonViewEx v = new MappingJacksonJsonViewEx();
-        v.setBeanName(resultName);
-
-        mav.setView(v);
-        mav.addObject(resultName, result);
-
-        return mav;
     }
 
 }

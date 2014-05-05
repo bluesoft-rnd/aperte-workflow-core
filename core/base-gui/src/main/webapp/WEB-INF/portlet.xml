@@ -13,11 +13,6 @@
             <name>contextConfigLocation</name>
             <value>/WEB-INF/spring/aperte-case-management-portlet.xml</value>
         </init-param>
-        <init-param>
-            <name>view-jsp</name>
-            <value>caseList</value>
-        </init-param>
-
         <supports>
             <mime-type>text/html</mime-type>
         </supports>

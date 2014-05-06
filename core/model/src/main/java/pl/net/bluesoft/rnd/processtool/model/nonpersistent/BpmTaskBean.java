@@ -195,4 +195,14 @@ public class BpmTaskBean extends AbstractBpmTask implements Serializable {
 		}
 		return result;
 	}
+
+    @Override
+    public String getSimpleAttributeValue(String key) {
+        return this.processInstance != null ? this.processInstance.getSimpleAttributeValue(key) : null;
+    }
+
+    @Override
+    public String getExternalKey() {
+        return this.processInstance != null ? this.processInstance.getExternalKey() : null;
+    }
 }

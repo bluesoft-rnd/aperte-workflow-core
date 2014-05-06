@@ -1462,7 +1462,17 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		public void setStepInfo(String stepInfo) {
 			this.stepInfo = stepInfo;
 		}
-	}
+
+        @Override
+        public String getSimpleAttributeValue(String key) {
+            return null;
+        }
+
+        @Override
+        public String getExternalKey() {
+            return null;
+        }
+    }
 
 	private static class LazyProcessQueue implements ProcessQueue, Serializable {
 		private final ProcessQueue queue;

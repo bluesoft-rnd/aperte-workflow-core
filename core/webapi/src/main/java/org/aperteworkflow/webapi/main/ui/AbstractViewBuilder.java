@@ -253,9 +253,9 @@ public abstract class AbstractViewBuilder<T extends AbstractViewBuilder> {
                 privileges = getPrivileges(widget);
 
             Map<String, Object> viewData = new HashMap<String, Object>();
-            // todo
-            viewData.put(IHtmlTemplateProvider.PROCESS_PARAMTER, processInstance);
+            // viewData.put(IHtmlTemplateProvider.PROCESS_PARAMTER, processInstance);
             // viewData.put(IHtmlTemplateProvider.TASK_PARAMTER, task);
+            viewData.put(IHtmlTemplateProvider.ATTRIBUTES_PROVIDER, getViewedObject());
             addSpecificHtmlWidgetData(viewData, getViewedObject());
             viewData.put(IHtmlTemplateProvider.USER_PARAMTER, user);
             viewData.put(IHtmlTemplateProvider.USER_SOURCE_PARAMTER, userSource);

@@ -315,4 +315,14 @@ public class BpmTaskDerivedBean implements BpmTask {
 		}
 		return result;
 	}
+
+    @Override
+    public String getSimpleAttributeValue(String key) {
+        return null;
+    }
+
+    @Override
+    public String getExternalKey() {
+        return null;
+    }
 }

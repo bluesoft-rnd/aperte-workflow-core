@@ -24,6 +24,7 @@ public interface IHtmlTemplateProvider extends TemplateLoader
 	String PRIVILEGES_PARAMETER = "privileges";
     String DICTIONARIES_DAO_PARAMETER = "dictionariesDao";
 	String BPM_SESSION_PARAMETER = "bpmSession";
+    String ATTRIBUTES_PROVIDER = "attributesProvider";
 
     /** Add template */
 	void addTemplate(String templateName, String template);

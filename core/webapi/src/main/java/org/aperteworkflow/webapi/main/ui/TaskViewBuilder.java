@@ -62,6 +62,7 @@ public class TaskViewBuilder extends AbstractViewBuilder<TaskViewBuilder> {
 
     @Override
     protected void addSpecificHtmlWidgetData(final Map<String, Object> viewData, final IAttributesProvider viewedObject) {
+        viewData.put(IHtmlTemplateProvider.PROCESS_PARAMTER, viewedObject.getProcessInstance());
         viewData.put(IHtmlTemplateProvider.TASK_PARAMTER, task);
     }
 

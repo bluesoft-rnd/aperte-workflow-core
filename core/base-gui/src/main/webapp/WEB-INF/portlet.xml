@@ -159,27 +159,25 @@
 		</portlet-info>
 	</portlet>
     <portlet>
-		<portlet-name>Aperte Workflow Process Instance Manager</portlet-name>
-		<display-name>Aperte Workflow Process Instances</display-name>
-        <portlet-class>org.aperteworkflow.portlets.ProcessInstanceManagerApplicationPortlet</portlet-class>
-		<init-param>
-			<name>application</name>
-			<value>org.aperteworkflow.portlets.ProcessInstanceManagerPortlet</value>
-		</init-param>
+        <portlet-name>Aperte Workflow Process Instance Manager</portlet-name>
+        <display-name>Aperte Workflow Process Instance Manager</display-name>
+        <portlet-class>org.springframework.web.portlet.DispatcherPortlet</portlet-class>
         <init-param>
-            <name>widgetset</name>
-            <value>com.vaadin.portal.gwt.PortalDefaultWidgetSet</value>
+            <name>contextConfigLocation</name>
+            <value>/WEB-INF/spring/adminViewRendererContext.xml</value>
         </init-param>
-		<supports>
-			<mime-type>text/html</mime-type>
-			<portlet-mode>view</portlet-mode>
-		</supports>
-		<portlet-info>
-			<title>Aperte Workflow Process Instances</title>
-			<short-title>Process Instances</short-title>
-		</portlet-info>
-	</portlet>
-
+        <init-param>
+            <name>view-jsp</name>
+            <value>admin/processInstance/processinstance</value>
+        </init-param>
+        <supports>
+            <mime-type>text/html</mime-type>
+        </supports>
+        <portlet-info>
+            <title>Aperte Workflow Process Instance Manager</title>
+            <short-title>ProcessInstances</short-title>
+        </portlet-info>
+    </portlet>
     <portlet>
         <portlet-name>Aperte Workflow Admin Portlet</portlet-name>
         <display-name>Aperte Workflow Admin Portlet</display-name>

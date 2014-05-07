@@ -2,6 +2,7 @@ package pl.net.bluesoft.rnd.processtool.model.processdata;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Index;
+import pl.net.bluesoft.rnd.processtool.model.IAttribute;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlSeeAlso;
@@ -18,7 +19,7 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 @Table(name="pt_process_instance_attr")
 @Inheritance(strategy=InheritanceType.JOINED)
 @XmlSeeAlso({ ProcessInstanceDictionaryAttribute.class, ProcessInstanceAttachmentAttribute.class })
-public abstract class ProcessInstanceAttribute extends AbstractProcessInstanceAttribute {
+public abstract class ProcessInstanceAttribute extends AbstractProcessInstanceAttribute implements IAttribute {
 	@Id
 	@GeneratedValue(generator = "idGenerator")
 	@GenericGenerator(

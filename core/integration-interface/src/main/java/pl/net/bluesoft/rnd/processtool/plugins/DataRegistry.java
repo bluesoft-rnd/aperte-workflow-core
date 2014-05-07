@@ -6,6 +6,8 @@ import org.hibernate.dialect.Dialect;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.dao.*;
 
+import java.util.List;
+
 /**
  * User: POlszewski
  * Date: 2013-10-09
@@ -39,4 +41,10 @@ public interface DataRegistry {
 	ProcessDefinitionDAO getProcessDefinitionDAO(Session hibernateSession);
 
     OperationLockDAO getOperationLockDAO(Session hibernateSession);
+
+    void registerAttributesCopier(Class<? extends IAttributesCopier> copierClass);
+    void unregisterAttributesCopier(Class<? extends IAttributesCopier> copierClass);
+    List<Class<? extends IAttributesCopier>> getAttributesCopiers();
+    // List<IAttributesCopier> getAttributesCopiersFor(Class<? extends IAttribute> clazz);
+
 }

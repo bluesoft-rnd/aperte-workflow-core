@@ -18,8 +18,7 @@ import javax.naming.InitialContext;
 import javax.sql.DataSource;
 import javax.transaction.UserTransaction;
 import java.io.ByteArrayInputStream;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,6 +37,7 @@ public class DataRegistryImpl implements DataRegistry {
 	private final Map<String, Class> annotatedClasses = new HashMap<String, Class>();
 	private final Map<String, byte[]> hibernateResources = new HashMap<String, byte[]>();
 	private final Map<String, ClassLoader> classLoaders = new HashMap<String, ClassLoader>();
+    private final Map<String, Class<? extends IAttributesCopier>> dataCopierClasses = new HashMap<String, Class<? extends IAttributesCopier>>();
 
 	private SessionFactory sessionFactory;
 
@@ -348,5 +348,22 @@ public class DataRegistryImpl implements DataRegistry {
     @Override
     public OperationLockDAO getOperationLockDAO(Session hibernateSession) {
         return new OperationLockDAOImpl(hibernateSession);
+    }
+
+
+    @Override
+    public synchronized void registerAttributesCopier(Class<? extends IAttributesCopier> copierClass) {
+        this.dataCopierClasses.put(copierClass.getName(), copierClass);
+    }
+
+    @Override
+    public synchronized void unregisterAttributesCopier(Class<? extends IAttributesCopier> copierClass) {
+        this.dataCopierClasses.remove(copierClass.getName());
+    }
+
+
+    @Override
+    public List<Class<? extends IAttributesCopier>> getAttributesCopiers() {
+        return new ArrayList<Class<? extends IAttributesCopier>>(this.dataCopierClasses.values());
     }
 }

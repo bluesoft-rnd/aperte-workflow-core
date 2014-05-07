@@ -11,7 +11,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
-import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
+import pl.net.bluesoft.rnd.processtool.plugins.IAttributesCopier;
 import pl.net.bluesoft.rnd.processtool.plugins.IBundleResourceProvider;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.plugins.deployment.ProcessDeployer;
@@ -83,6 +83,10 @@ public class BundleInstallationHandler {
             handleSpringBeans(eventType, bundleHelper);
         }
 
+        if (bundleHelper.hasHeaderValues(ATTRIBUTES_COPIERS)) {
+            handleAttributesCopiers(eventType, bundleHelper);
+        }
+
 		if (bundleHelper.hasHeaderValues(VIEW)) {
 			handleView(eventType, bundleHelper);
 		}
@@ -128,6 +132,27 @@ public class BundleInstallationHandler {
 			handleBundleResources(eventType, bundleHelper);
 		}
 	}
+
+    private void handleAttributesCopiers(int eventType, OSGiBundleHelper bundleHelper) {
+        Bundle bundle = bundleHelper.getBundle();
+        String[] dataCopiers = bundleHelper.getHeaderValues(ATTRIBUTES_COPIERS);
+
+        for (String copier : dataCopiers) {
+            try
+            {
+                Class<? extends IAttributesCopier> copierClass = (Class<? extends IAttributesCopier>) bundle.loadClass(copier);
+
+                if (eventType == Bundle.ACTIVE) {
+                    processToolRegistry.getDataRegistry().registerAttributesCopier(copierClass);
+                } else {
+                    processToolRegistry.getDataRegistry().unregisterAttributesCopier(copierClass);
+                }
+            } catch(Throwable e) {
+                logger.log(Level.SEVERE, e.getMessage(), e);
+                forwardErrorInfoToMonitor(bundle.getSymbolicName(), e);
+            }
+        }
+    }
 
     private void handleSpringBeans(int eventType, OSGiBundleHelper bundleHelper)
     {

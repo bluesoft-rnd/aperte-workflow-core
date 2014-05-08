@@ -5,6 +5,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.dialect.Dialect;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.dao.*;
+import pl.net.bluesoft.rnd.processtool.model.IAttribute;
 
 import java.util.List;
 
@@ -45,6 +46,6 @@ public interface DataRegistry {
     void registerAttributesCopier(Class<? extends IAttributesCopier> copierClass);
     void unregisterAttributesCopier(Class<? extends IAttributesCopier> copierClass);
     List<Class<? extends IAttributesCopier>> getAttributesCopiers();
-    // List<IAttributesCopier> getAttributesCopiersFor(Class<? extends IAttribute> clazz);
+    List<IAttributesCopier> getAttributesCopiersFor(Class<? extends IAttribute> clazz);
 
 }

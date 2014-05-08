@@ -30,6 +30,7 @@
 		<header-portlet-javascript>/sa/js/jquery.fileupload-process.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/jquery.fileupload-validate.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/jquery.iframe-transport.js</header-portlet-javascript>
+        <header-portlet-javascript>/sa/js/dataTables.fixedHeader.min.js</header-portlet-javascript>
         <header-portlet-css>/sa/css/bootstrap.min.css</header-portlet-css>
         <header-portlet-css>/sa/css/bootstrap-theme.min.css</header-portlet-css>
         <header-portlet-css>/sa/css/aperteworkflow.css</header-portlet-css>
@@ -39,6 +40,7 @@
         <header-portlet-css>/sa/css/select2.css</header-portlet-css>
         <header-portlet-css>/sa/css/select2-bootstrap.css</header-portlet-css>
         <header-portlet-css>/sa/css/liferay.css</header-portlet-css>
+        <header-portlet-css>/sa/css/dataTables.fixedHeader.min.css</header-portlet-css>
         <header-portlet-javascript>/sa/js/respond.min.js</header-portlet-javascript>
 	</portlet>
 	<portlet>

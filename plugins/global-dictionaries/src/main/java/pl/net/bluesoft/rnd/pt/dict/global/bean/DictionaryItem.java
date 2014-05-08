@@ -1,5 +1,8 @@
 package pl.net.bluesoft.rnd.pt.dict.global.bean;
 
+import java.util.Collection;
+import java.util.LinkedList;
+
 /**
  * @author: mpawlak@bluesoft.net.pl
  */
@@ -8,6 +11,7 @@ public class DictionaryItem
     private String key;
     private String value;
     private String description;
+    private Collection<DictionaryItemExt> extensions = new LinkedList<DictionaryItemExt>();
 
     public String getKey() {
         return key;
@@ -35,5 +39,13 @@ public class DictionaryItem
         if(description == null)
             description = "";
         this.description = description;
+    }
+
+    public Collection<DictionaryItemExt> getExtensions() {
+        return extensions;
+    }
+
+    public void setExtensions(Collection<DictionaryItemExt> extensions) {
+        this.extensions = extensions;
     }
 }

@@ -19,7 +19,7 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 @Table(name="pt_process_instance_attr")
 @Inheritance(strategy=InheritanceType.JOINED)
 @XmlSeeAlso({ ProcessInstanceDictionaryAttribute.class, ProcessInstanceAttachmentAttribute.class })
-public abstract class ProcessInstanceAttribute extends AbstractProcessInstanceAttribute implements IAttribute {
+public abstract class ProcessInstanceAttribute extends AbstractProcessInstanceAttribute {
 	@Id
 	@GeneratedValue(generator = "idGenerator")
 	@GenericGenerator(

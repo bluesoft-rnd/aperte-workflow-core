@@ -11,7 +11,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
-import pl.net.bluesoft.rnd.processtool.plugins.IAttributesCopier;
+import pl.net.bluesoft.rnd.processtool.plugins.IAttributesMapper;
 import pl.net.bluesoft.rnd.processtool.plugins.IBundleResourceProvider;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.plugins.deployment.ProcessDeployer;
@@ -83,14 +83,14 @@ public class BundleInstallationHandler {
             handleSpringBeans(eventType, bundleHelper);
         }
 
-        if (bundleHelper.hasHeaderValues(ATTRIBUTES_COPIERS)) {
-            handleAttributesCopiers(eventType, bundleHelper);
+        if (bundleHelper.hasHeaderValues(MAPPERS)) {
+            handleMappers(eventType, bundleHelper);
         }
 
 		if (bundleHelper.hasHeaderValues(VIEW)) {
 			handleView(eventType, bundleHelper);
 		}
-		
+
 		if (bundleHelper.hasHeaderValues(SCRIPT)) {
 			handleScript(eventType, bundleHelper);
 		}
@@ -133,19 +133,19 @@ public class BundleInstallationHandler {
 		}
 	}
 
-    private void handleAttributesCopiers(int eventType, OSGiBundleHelper bundleHelper) {
+    private void handleMappers(int eventType, OSGiBundleHelper bundleHelper) {
         Bundle bundle = bundleHelper.getBundle();
-        String[] dataCopiers = bundleHelper.getHeaderValues(ATTRIBUTES_COPIERS);
+        String[] mappers = bundleHelper.getHeaderValues(MAPPERS);
 
-        for (String copier : dataCopiers) {
+        for (String mapper : mappers) {
             try
             {
-                Class<? extends IAttributesCopier> copierClass = (Class<? extends IAttributesCopier>) bundle.loadClass(copier);
+                Class<? extends IAttributesMapper> mapperClass = (Class<? extends IAttributesMapper>) bundle.loadClass(mapper);
 
                 if (eventType == Bundle.ACTIVE) {
-                    processToolRegistry.getDataRegistry().registerAttributesCopier(copierClass);
+                    processToolRegistry.getDataRegistry().registerAttributesMapper(mapperClass);
                 } else {
-                    processToolRegistry.getDataRegistry().unregisterAttributesCopier(copierClass);
+                    processToolRegistry.getDataRegistry().unregisterAttributesMapper(mapperClass);
                 }
             } catch(Throwable e) {
                 logger.log(Level.SEVERE, e.getMessage(), e);
@@ -192,19 +192,19 @@ public class BundleInstallationHandler {
 		Bundle bundle = bundleHelper.getBundle();
 		String[] javaScriptFiles = bundleHelper.getHeaderValues(SCRIPT);
 
-		
-		for (String javaScriptFileName : javaScriptFiles) 
+
+		for (String javaScriptFileName : javaScriptFiles)
 		{
 			try
 			{
 				ScriptFileNameBean scriptFileNameBean = new ScriptFileNameBean(javaScriptFileName);
 				IWidgetScriptProvider scriptProvider;
-				
+
 				if(scriptFileNameBean.getProviderClass().equals(FileWidgetJavaScriptProvider.class.getName()))
 				{
-					scriptProvider = 
+					scriptProvider =
 							new FileWidgetJavaScriptProvider(
-									scriptFileNameBean.getFileName(), 
+									scriptFileNameBean.getFileName(),
 									bundle.getResource(scriptFileNameBean.getFileName()));
 				}
 				else
@@ -214,10 +214,10 @@ public class BundleInstallationHandler {
 							.getConstructor(String.class, URL.class)
 							.newInstance(scriptFileNameBean.getFileName());
 				}
-				
-				
-				
-				if (eventType == Bundle.ACTIVE) 
+
+
+
+				if (eventType == Bundle.ACTIVE)
 				{
                     processToolRegistry.getGuiRegistry().registerJavaScript(scriptFileNameBean.getFileName(), scriptProvider);
 				}
@@ -231,7 +231,7 @@ public class BundleInstallationHandler {
 				forwardErrorInfoToMonitor(bundle.getSymbolicName(), e);
 			}
 		}
-		
+
 	}
 
 	private void handleView(int eventType, OSGiBundleHelper bundleHelper)
@@ -239,7 +239,7 @@ public class BundleInstallationHandler {
 		Bundle bundle = bundleHelper.getBundle();
 		String[] widgetClasses = bundleHelper.getHeaderValues(VIEW);
 
-		
+
 		for (String widgetClass : widgetClasses)
 		{
 			try
@@ -247,7 +247,7 @@ public class BundleInstallationHandler {
                 Class<?> clazz = bundle.loadClass(widgetClass);
                 String widgetName =  AnnotationUtil.getAliasName(clazz);
 
-				if (eventType == Bundle.ACTIVE) 
+				if (eventType == Bundle.ACTIVE)
 				{
                     ProcessHtmlWidget htmlWidget = (ProcessHtmlWidget)clazz
                             .getConstructor(IBundleResourceProvider.class)
@@ -255,7 +255,7 @@ public class BundleInstallationHandler {
 
                     processToolRegistry.getGuiRegistry().registerHtmlView(widgetName, htmlWidget);
 				}
-				else 
+				else
 				{
                     processToolRegistry.getGuiRegistry().unregisterHtmlView(widgetName);
 				}
@@ -503,7 +503,7 @@ public class BundleInstallationHandler {
 						logger.log(Level.INFO, "Created role " + role.getName());
 					}
 
-				} 
+				}
 				catch (RuntimeException e) {
 					forwardErrorInfoToMonitor("adding role " + role.getName(), e);
 					throw e;

@@ -43,9 +43,9 @@ public interface DataRegistry {
 
     OperationLockDAO getOperationLockDAO(Session hibernateSession);
 
-    void registerAttributesCopier(Class<? extends IAttributesCopier> copierClass);
-    void unregisterAttributesCopier(Class<? extends IAttributesCopier> copierClass);
-    List<Class<? extends IAttributesCopier>> getAttributesCopiers();
-    List<IAttributesCopier> getAttributesCopiersFor(Class<? extends IAttribute> clazz);
+    void registerAttributesMapper(Class<? extends IAttributesMapper> mapperClass);
+    void unregisterAttributesMapper(Class<? extends IAttributesMapper> mapperClass);
+    List<Class<? extends IAttributesMapper>> getAttributesMappers();
+    List<IAttributesMapper> getAttributesMappersFor(Class<? extends IAttribute> clazz);
 
 }

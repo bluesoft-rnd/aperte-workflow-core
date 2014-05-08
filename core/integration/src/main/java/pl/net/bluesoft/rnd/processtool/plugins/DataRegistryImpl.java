@@ -8,6 +8,7 @@ import org.hibernate.engine.SessionFactoryImplementor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.dao.*;
@@ -15,7 +16,6 @@ import pl.net.bluesoft.rnd.processtool.dao.impl.*;
 import pl.net.bluesoft.rnd.processtool.model.IAttribute;
 import pl.net.bluesoft.util.lang.FormatUtil;
 
-import javax.management.Attribute;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 import javax.transaction.UserTransaction;
@@ -39,7 +39,7 @@ public class DataRegistryImpl implements DataRegistry {
     private final Map<String, Class> annotatedClasses = new HashMap<String, Class>();
     private final Map<String, byte[]> hibernateResources = new HashMap<String, byte[]>();
     private final Map<String, ClassLoader> classLoaders = new HashMap<String, ClassLoader>();
-    private final Map<String, Class<? extends IAttributesCopier>> attributesCopiersClasses = new HashMap<String, Class<? extends IAttributesCopier>>();
+    private final Map<String, Class<? extends IAttributesMapper>> attributesMappersClasses = new HashMap<String, Class<? extends IAttributesMapper>>();
 
     private SessionFactory sessionFactory;
 
@@ -353,38 +353,40 @@ public class DataRegistryImpl implements DataRegistry {
 
 
     @Override
-    public synchronized void registerAttributesCopier(Class<? extends IAttributesCopier> copierClass) {
-        if (!copierClass.isAnnotationPresent(AttributesCopier.class))
-            throw new RuntimeException("Attributes copier class should be marked with @AttributesCopier annotation");
-        this.attributesCopiersClasses.put(copierClass.getName(), copierClass);
+    public synchronized void registerAttributesMapper(Class<? extends IAttributesMapper> mapperClass) {
+        if (!mapperClass.isAnnotationPresent(AttributesMapper.class))
+            throw new RuntimeException("Attributes mapper class should be marked with @AttributesMapper annotation");
+        this.attributesMappersClasses.put(mapperClass.getName(), mapperClass);
     }
 
     @Override
-    public synchronized void unregisterAttributesCopier(Class<? extends IAttributesCopier> copierClass) {
-        this.attributesCopiersClasses.remove(copierClass.getName());
+    public synchronized void unregisterAttributesMapper(Class<? extends IAttributesMapper> mapperClass) {
+        this.attributesMappersClasses.remove(mapperClass.getName());
     }
 
 
     @Override
-    public List<Class<? extends IAttributesCopier>> getAttributesCopiers() {
-        return new ArrayList<Class<? extends IAttributesCopier>>(this.attributesCopiersClasses.values());
+    public List<Class<? extends IAttributesMapper>> getAttributesMappers() {
+        return new ArrayList<Class<? extends IAttributesMapper>>(this.attributesMappersClasses.values());
     }
 
     @Override
-    public List<IAttributesCopier> getAttributesCopiersFor(final Class<? extends IAttribute> clazz) {
-        final List<IAttributesCopier> copiers = new ArrayList<IAttributesCopier>();
-        for (Class<? extends IAttributesCopier> copierClass : this.attributesCopiersClasses.values()) {
-            if (copierClass.isAnnotationPresent(AttributesCopier.class)) {
-                AttributesCopier annotation = copierClass.getAnnotation(AttributesCopier.class);
+    public List<IAttributesMapper> getAttributesMappersFor(final Class<? extends IAttribute> clazz) {
+        final List<IAttributesMapper> mappers = new ArrayList<IAttributesMapper>();
+        for (Class<? extends IAttributesMapper> mapperClass : this.attributesMappersClasses.values()) {
+            if (mapperClass.isAnnotationPresent(AttributesMapper.class)) {
+                AttributesMapper annotation = mapperClass.getAnnotation(AttributesMapper.class);
                 if (annotation.forClass().equals(clazz)) {
                     try {
-                        copiers.add(copierClass.newInstance());
+                        final IAttributesMapper mapper = mapperClass.newInstance();
+                        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(mapper);
+                        mappers.add(mapper);
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
                 }
             }
         }
-        return copiers;
+        return mappers;
     }
 }

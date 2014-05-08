@@ -1,6 +1,6 @@
 package pl.net.bluesoft.rnd.processtool.plugins;
 
-import pl.net.bluesoft.rnd.processtool.model.IAttribute;
+import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -12,6 +12,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface AttributesMapper {
-    Class<?  extends IAttribute> forAttributeClass();
+public @interface Mapper {
+    Class<? extends IAttributesProvider> forProviderClass();
+    String forDefinitionName();
 }

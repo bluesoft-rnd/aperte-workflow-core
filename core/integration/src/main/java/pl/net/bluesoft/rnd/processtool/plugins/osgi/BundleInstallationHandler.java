@@ -13,6 +13,7 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.plugins.IAttributesMapper;
 import pl.net.bluesoft.rnd.processtool.plugins.IBundleResourceProvider;
+import pl.net.bluesoft.rnd.processtool.plugins.IMapper;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.plugins.deployment.ProcessDeployer;
 import pl.net.bluesoft.rnd.processtool.plugins.osgi.beans.ScriptFileNameBean;
@@ -46,10 +47,10 @@ import static pl.net.bluesoft.rnd.processtool.plugins.osgi.OSGiBundleHelper.*;
  * Time: 16:17
  */
 public class BundleInstallationHandler {
-	private static final String SEPARATOR = "/";
+    private static final String SEPARATOR = "/";
 
     @Autowired
-	private ProcessToolRegistry processToolRegistry;
+    private ProcessToolRegistry processToolRegistry;
 
     @Autowired
     private IUserRolesManager userRolesManager;
@@ -57,27 +58,26 @@ public class BundleInstallationHandler {
     @Autowired
     private ApplicationContext applicationContext;
 
-	private ErrorMonitor errorMonitor;
-	private Logger logger;
+    private ErrorMonitor errorMonitor;
+    private Logger logger;
     private DefaultListableBeanFactory beanFactory;
 
-	public BundleInstallationHandler(ErrorMonitor errorMonitor, Logger logger)
-    {
+    public BundleInstallationHandler(ErrorMonitor errorMonitor, Logger logger) {
         SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
 
-        this.beanFactory = (DefaultListableBeanFactory)applicationContext.getAutowireCapableBeanFactory();
+        this.beanFactory = (DefaultListableBeanFactory) applicationContext.getAutowireCapableBeanFactory();
 
-		this.errorMonitor = errorMonitor;
-		this.logger = logger;
-	}
+        this.errorMonitor = errorMonitor;
+        this.logger = logger;
+    }
 
-	public synchronized void processBundleExtensions(Bundle bundle, int eventType) throws ClassNotFoundException {
-		if (processToolRegistry.getDataRegistry().getProcessToolContextFactory() == null) {
-			logger.severe("No default process tool context registered! - skipping process tool context-based processing of this OSGI bundle");
-			return;
-		}
+    public synchronized void processBundleExtensions(Bundle bundle, int eventType) throws ClassNotFoundException {
+        if (processToolRegistry.getDataRegistry().getProcessToolContextFactory() == null) {
+            logger.severe("No default process tool context registered! - skipping process tool context-based processing of this OSGI bundle");
+            return;
+        }
 
-		OSGiBundleHelper bundleHelper = new OSGiBundleHelper(bundle);
+        OSGiBundleHelper bundleHelper = new OSGiBundleHelper(bundle);
 
         if (bundleHelper.hasHeaderValues(SPRING_BEANS)) {
             handleSpringBeans(eventType, bundleHelper);
@@ -87,218 +87,192 @@ public class BundleInstallationHandler {
             handleMappers(eventType, bundleHelper);
         }
 
-		if (bundleHelper.hasHeaderValues(VIEW)) {
-			handleView(eventType, bundleHelper);
-		}
+        if (bundleHelper.hasHeaderValues(VIEW)) {
+            handleView(eventType, bundleHelper);
+        }
 
-		if (bundleHelper.hasHeaderValues(SCRIPT)) {
-			handleScript(eventType, bundleHelper);
-		}
+        if (bundleHelper.hasHeaderValues(SCRIPT)) {
+            handleScript(eventType, bundleHelper);
+        }
 
         if (bundleHelper.hasHeaderValues(CONTROLLER)) {
             handleController(eventType, bundleHelper);
         }
 
-		if (bundleHelper.hasHeaderValues(MODEL_ENHANCEMENT)) {
-			handleModelEnhancement(eventType, bundleHelper);
-		}
+        if (bundleHelper.hasHeaderValues(MODEL_ENHANCEMENT)) {
+            handleModelEnhancement(eventType, bundleHelper);
+        }
 
-		if (bundleHelper.hasHeaderValues(WIDGET_ENHANCEMENT)) {
-			handleWidgetEnhancement(eventType, bundleHelper);
-		}
+        if (bundleHelper.hasHeaderValues(WIDGET_ENHANCEMENT)) {
+            handleWidgetEnhancement(eventType, bundleHelper);
+        }
 
-		if (bundleHelper.hasHeaderValues(BUTTON_ENHANCEMENT)) {
-			handleButtonEnhancement(eventType, bundleHelper);
-		}
+        if (bundleHelper.hasHeaderValues(BUTTON_ENHANCEMENT)) {
+            handleButtonEnhancement(eventType, bundleHelper);
+        }
 
-		if (bundleHelper.hasHeaderValues(STEP_ENHANCEMENT)) {
-			handleStepEnhancement(eventType, bundleHelper);
-		}
+        if (bundleHelper.hasHeaderValues(STEP_ENHANCEMENT)) {
+            handleStepEnhancement(eventType, bundleHelper);
+        }
 
-		if (bundleHelper.hasHeaderValues(I18N_PROPERTY)) {
-			handleMessageSources(eventType, bundleHelper);
-		}
+        if (bundleHelper.hasHeaderValues(I18N_PROPERTY)) {
+            handleMessageSources(eventType, bundleHelper);
+        }
 
-		if (bundleHelper.hasHeaderValues(PROCESS_DEPLOYMENT)) {
-			handleProcessRoles(eventType, bundleHelper);
-			handleProcessDeployment(eventType, bundleHelper);
-		}
+        if (bundleHelper.hasHeaderValues(PROCESS_DEPLOYMENT)) {
+            handleProcessRoles(eventType, bundleHelper);
+            handleProcessDeployment(eventType, bundleHelper);
+        }
 
-		if (bundleHelper.hasHeaderValues(GLOBAL_DICTIONARY)) {
-			handleGlobalDictionaries(eventType, bundleHelper);
-		}
+        if (bundleHelper.hasHeaderValues(GLOBAL_DICTIONARY)) {
+            handleGlobalDictionaries(eventType, bundleHelper);
+        }
 
-		if (bundleHelper.hasHeaderValues(RESOURCES)) {
-			handleBundleResources(eventType, bundleHelper);
-		}
-	}
+        if (bundleHelper.hasHeaderValues(RESOURCES)) {
+            handleBundleResources(eventType, bundleHelper);
+        }
+    }
 
     private void handleMappers(int eventType, OSGiBundleHelper bundleHelper) {
         Bundle bundle = bundleHelper.getBundle();
         String[] mappers = bundleHelper.getHeaderValues(MAPPERS);
 
         for (String mapper : mappers) {
-            try
-            {
-                Class<? extends IAttributesMapper> mapperClass = (Class<? extends IAttributesMapper>) bundle.loadClass(mapper);
+            try {
+                //Class<? extends IAttributesMapper> mapperClass = (Class<? extends IAttributesMapper>) bundle.loadClass(mapper);
+                Class<?> mapperClass = bundle.loadClass(mapper);
 
-                if (eventType == Bundle.ACTIVE) {
-                    processToolRegistry.getDataRegistry().registerAttributesMapper(mapperClass);
-                } else {
-                    processToolRegistry.getDataRegistry().unregisterAttributesMapper(mapperClass);
+                if (IAttributesMapper.class.isAssignableFrom(mapperClass)) {
+                    if (eventType == Bundle.ACTIVE) {
+                        processToolRegistry.getDataRegistry().registerAttributesMapper((Class<? extends IAttributesMapper>) mapperClass);
+                    } else {
+                        processToolRegistry.getDataRegistry().unregisterAttributesMapper((Class<? extends IAttributesMapper>) mapperClass);
+                    }
+                } else if (IMapper.class.isAssignableFrom(mapperClass)) {
+                    if (eventType == Bundle.ACTIVE) {
+                        processToolRegistry.getDataRegistry().registerMapper((Class<? extends IMapper>) mapperClass);
+                    } else {
+                        processToolRegistry.getDataRegistry().unregisterMapper((Class<? extends IMapper>) mapperClass);
+                    }
                 }
-            } catch(Throwable e) {
+            } catch (Throwable e) {
                 logger.log(Level.SEVERE, e.getMessage(), e);
                 forwardErrorInfoToMonitor(bundle.getSymbolicName(), e);
             }
         }
     }
 
-    private void handleSpringBeans(int eventType, OSGiBundleHelper bundleHelper)
-    {
+    private void handleSpringBeans(int eventType, OSGiBundleHelper bundleHelper) {
         Bundle bundle = bundleHelper.getBundle();
         String[] springBeans = bundleHelper.getHeaderValues(SPRING_BEANS);
 
-        for (String springBean : springBeans)
-        {
-            try
-            {
+        for (String springBean : springBeans) {
+            try {
                 Class<?> springBeanClass = bundle.loadClass(springBean);
                 String springBeanSimpleClassName = springBeanClass.getSimpleName();
 
-                if (eventType == Bundle.ACTIVE)
-                {
+                if (eventType == Bundle.ACTIVE) {
                     beanFactory.registerBeanDefinition(springBeanSimpleClassName,
                             BeanDefinitionBuilder.
                                     genericBeanDefinition(springBeanClass).
                                     setScope(BeanDefinition.SCOPE_SINGLETON).
-                                    getBeanDefinition());
-                }
-                else
-                {
+                                    getBeanDefinition()
+                    );
+                } else {
                     beanFactory.removeBeanDefinition(springBeanSimpleClassName);
                 }
-            }
-            catch(Throwable e)
-            {
+            } catch (Throwable e) {
                 logger.log(Level.SEVERE, e.getMessage(), e);
                 forwardErrorInfoToMonitor(bundle.getSymbolicName(), e);
             }
         }
     }
 
-	private void handleScript(int eventType, OSGiBundleHelper bundleHelper)
-	{
-		Bundle bundle = bundleHelper.getBundle();
-		String[] javaScriptFiles = bundleHelper.getHeaderValues(SCRIPT);
+    private void handleScript(int eventType, OSGiBundleHelper bundleHelper) {
+        Bundle bundle = bundleHelper.getBundle();
+        String[] javaScriptFiles = bundleHelper.getHeaderValues(SCRIPT);
 
 
-		for (String javaScriptFileName : javaScriptFiles)
-		{
-			try
-			{
-				ScriptFileNameBean scriptFileNameBean = new ScriptFileNameBean(javaScriptFileName);
-				IWidgetScriptProvider scriptProvider;
+        for (String javaScriptFileName : javaScriptFiles) {
+            try {
+                ScriptFileNameBean scriptFileNameBean = new ScriptFileNameBean(javaScriptFileName);
+                IWidgetScriptProvider scriptProvider;
 
-				if(scriptFileNameBean.getProviderClass().equals(FileWidgetJavaScriptProvider.class.getName()))
-				{
-					scriptProvider =
-							new FileWidgetJavaScriptProvider(
-									scriptFileNameBean.getFileName(),
-									bundle.getResource(scriptFileNameBean.getFileName()));
-				}
-				else
-				{
-					scriptProvider = (IWidgetScriptProvider)bundle
-							.loadClass(scriptFileNameBean.getProviderClass())
-							.getConstructor(String.class, URL.class)
-							.newInstance(scriptFileNameBean.getFileName());
-				}
+                if (scriptFileNameBean.getProviderClass().equals(FileWidgetJavaScriptProvider.class.getName())) {
+                    scriptProvider =
+                            new FileWidgetJavaScriptProvider(
+                                    scriptFileNameBean.getFileName(),
+                                    bundle.getResource(scriptFileNameBean.getFileName()));
+                } else {
+                    scriptProvider = (IWidgetScriptProvider) bundle
+                            .loadClass(scriptFileNameBean.getProviderClass())
+                            .getConstructor(String.class, URL.class)
+                            .newInstance(scriptFileNameBean.getFileName());
+                }
 
 
-
-				if (eventType == Bundle.ACTIVE)
-				{
+                if (eventType == Bundle.ACTIVE) {
                     processToolRegistry.getGuiRegistry().registerJavaScript(scriptFileNameBean.getFileName(), scriptProvider);
-				}
-				else {
+                } else {
                     processToolRegistry.getGuiRegistry().unregisterJavaScript(scriptFileNameBean.getFileName());
-				}
-			}
-			catch(Throwable e)
-			{
-				logger.log(Level.SEVERE, e.getMessage(), e);
-				forwardErrorInfoToMonitor(bundle.getSymbolicName(), e);
-			}
-		}
+                }
+            } catch (Throwable e) {
+                logger.log(Level.SEVERE, e.getMessage(), e);
+                forwardErrorInfoToMonitor(bundle.getSymbolicName(), e);
+            }
+        }
 
-	}
+    }
 
-	private void handleView(int eventType, OSGiBundleHelper bundleHelper)
-	{
-		Bundle bundle = bundleHelper.getBundle();
-		String[] widgetClasses = bundleHelper.getHeaderValues(VIEW);
+    private void handleView(int eventType, OSGiBundleHelper bundleHelper) {
+        Bundle bundle = bundleHelper.getBundle();
+        String[] widgetClasses = bundleHelper.getHeaderValues(VIEW);
 
 
-		for (String widgetClass : widgetClasses)
-		{
-			try
-			{
+        for (String widgetClass : widgetClasses) {
+            try {
                 Class<?> clazz = bundle.loadClass(widgetClass);
-                String widgetName =  AnnotationUtil.getAliasName(clazz);
+                String widgetName = AnnotationUtil.getAliasName(clazz);
 
-				if (eventType == Bundle.ACTIVE)
-				{
-                    ProcessHtmlWidget htmlWidget = (ProcessHtmlWidget)clazz
+                if (eventType == Bundle.ACTIVE) {
+                    ProcessHtmlWidget htmlWidget = (ProcessHtmlWidget) clazz
                             .getConstructor(IBundleResourceProvider.class)
                             .newInstance(bundleHelper);
 
                     processToolRegistry.getGuiRegistry().registerHtmlView(widgetName, htmlWidget);
-				}
-				else
-				{
+                } else {
                     processToolRegistry.getGuiRegistry().unregisterHtmlView(widgetName);
-				}
-			}
-			catch(Throwable e)
-			{
-				logger.log(Level.SEVERE, e.getMessage(), e);
-				forwardErrorInfoToMonitor(bundle.getSymbolicName(), e);
-			}
-		}
-	}
+                }
+            } catch (Throwable e) {
+                logger.log(Level.SEVERE, e.getMessage(), e);
+                forwardErrorInfoToMonitor(bundle.getSymbolicName(), e);
+            }
+        }
+    }
 
-    private void handleController(int eventType, OSGiBundleHelper bundleHelper)
-    {
+    private void handleController(int eventType, OSGiBundleHelper bundleHelper) {
         Bundle bundle = bundleHelper.getBundle();
         String[] classes = bundleHelper.getHeaderValues(CONTROLLER);
 
-        for (String cls : classes)
-        {
-            try
-            {
+        for (String cls : classes) {
+            try {
                 Class<? extends IOsgiWebController> controllerClass =
-                        (Class<? extends IOsgiWebController>)bundleHelper.getBundle().loadClass(cls);
+                        (Class<? extends IOsgiWebController>) bundleHelper.getBundle().loadClass(cls);
                 OsgiController controllerAnnotation = controllerClass.getAnnotation(OsgiController.class);
 
                 String controllerName = controllerAnnotation.name();
-                if (eventType == Bundle.ACTIVE)
-                {
+                if (eventType == Bundle.ACTIVE) {
                     IOsgiWebController controller =
-                            (IOsgiWebController)beanFactory.createBean(
+                            (IOsgiWebController) beanFactory.createBean(
                                     controllerClass,
                                     AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE,
                                     true);
 
                     processToolRegistry.getGuiRegistry().registerWebController(controllerName, controller);
-                }
-                else
-                {
+                } else {
                     processToolRegistry.getGuiRegistry().unregisterWebController(controllerName);
                 }
-            }
-            catch (Throwable e)
-            {
+            } catch (Throwable e) {
                 logger.log(Level.SEVERE, e.getMessage(), e);
                 forwardErrorInfoToMonitor(bundle.getSymbolicName(), e);
             }
@@ -306,258 +280,241 @@ public class BundleInstallationHandler {
 
     }
 
-	private void handleMessageSources(int eventType, OSGiBundleHelper bundleHelper) {
-		final Bundle bundle = bundleHelper.getBundle();
-		String[] properties = bundleHelper.getHeaderValues(I18N_PROPERTY);
-		for (String propertyFileName : properties) {
-			String providerId = bundle.getBundleId() + File.separator + propertyFileName;
-			if (eventType == Bundle.ACTIVE) {
+    private void handleMessageSources(int eventType, OSGiBundleHelper bundleHelper) {
+        final Bundle bundle = bundleHelper.getBundle();
+        String[] properties = bundleHelper.getHeaderValues(I18N_PROPERTY);
+        for (String propertyFileName : properties) {
+            String providerId = bundle.getBundleId() + File.separator + propertyFileName;
+            if (eventType == Bundle.ACTIVE) {
                 processToolRegistry.getBundleRegistry().registerI18NProvider(new PropertiesBasedI18NProvider(new PropertyLoader() {
-					@Override
-					public InputStream loadProperty(String path) throws IOException {
-						return getBundleResourceStream(bundle, path);
-					}
-				}, propertyFileName), providerId);
-			}
-			else {
+                    @Override
+                    public InputStream loadProperty(String path) throws IOException {
+                        return getBundleResourceStream(bundle, path);
+                    }
+                }, propertyFileName), providerId);
+            } else {
                 processToolRegistry.getBundleRegistry().unregisterI18NProvider(providerId);
-			}
-		}
-	}
+            }
+        }
+    }
 
-	private void handleStepEnhancement(int eventType, OSGiBundleHelper bundleHelper) throws ClassNotFoundException {
-		Bundle bundle = bundleHelper.getBundle();
-		String[] classes = bundleHelper.getHeaderValues(STEP_ENHANCEMENT);
-		for (String cls : classes) {
-			if (eventType == Bundle.ACTIVE) {
+    private void handleStepEnhancement(int eventType, OSGiBundleHelper bundleHelper) throws ClassNotFoundException {
+        Bundle bundle = bundleHelper.getBundle();
+        String[] classes = bundleHelper.getHeaderValues(STEP_ENHANCEMENT);
+        for (String cls : classes) {
+            if (eventType == Bundle.ACTIVE) {
                 processToolRegistry.getGuiRegistry().registerStep((Class<? extends ProcessToolProcessStep>) bundle.loadClass(cls));
-			}
-			else {
+            } else {
                 processToolRegistry.getGuiRegistry().unregisterStep((Class<? extends ProcessToolProcessStep>) bundle.loadClass(cls));
-			}
-		}
-	}
+            }
+        }
+    }
 
-	private void handleButtonEnhancement(int eventType, OSGiBundleHelper bundleHelper) throws ClassNotFoundException {
-		Bundle bundle = bundleHelper.getBundle();
-		String[] classes = bundleHelper.getHeaderValues(BUTTON_ENHANCEMENT);
-		for (String cls : classes) {
-			if (eventType == Bundle.ACTIVE) {
-                processToolRegistry.getGuiRegistry().registerButton((Class)bundle.loadClass(cls));
-			}
-			else {
-                processToolRegistry.getGuiRegistry().unregisterButton((Class)bundle.loadClass(cls));
-			}
-		}
-	}
+    private void handleButtonEnhancement(int eventType, OSGiBundleHelper bundleHelper) throws ClassNotFoundException {
+        Bundle bundle = bundleHelper.getBundle();
+        String[] classes = bundleHelper.getHeaderValues(BUTTON_ENHANCEMENT);
+        for (String cls : classes) {
+            if (eventType == Bundle.ACTIVE) {
+                processToolRegistry.getGuiRegistry().registerButton((Class) bundle.loadClass(cls));
+            } else {
+                processToolRegistry.getGuiRegistry().unregisterButton((Class) bundle.loadClass(cls));
+            }
+        }
+    }
 
-	private void handleWidgetEnhancement(int eventType, OSGiBundleHelper bundleHelper) throws ClassNotFoundException {
-		Bundle bundle = bundleHelper.getBundle();
-		String[] classes = bundleHelper.getHeaderValues(WIDGET_ENHANCEMENT);
-		for (String cls : classes) {
-			if (eventType == Bundle.ACTIVE) {
-                processToolRegistry.getGuiRegistry().registerWidget((Class)bundle.loadClass(cls));
-			}
-			else {
-                processToolRegistry.getGuiRegistry().unregisterWidget((Class)bundle.loadClass(cls));
-			}
-		}
-	}
+    private void handleWidgetEnhancement(int eventType, OSGiBundleHelper bundleHelper) throws ClassNotFoundException {
+        Bundle bundle = bundleHelper.getBundle();
+        String[] classes = bundleHelper.getHeaderValues(WIDGET_ENHANCEMENT);
+        for (String cls : classes) {
+            if (eventType == Bundle.ACTIVE) {
+                processToolRegistry.getGuiRegistry().registerWidget((Class) bundle.loadClass(cls));
+            } else {
+                processToolRegistry.getGuiRegistry().unregisterWidget((Class) bundle.loadClass(cls));
+            }
+        }
+    }
 
-	private void handleModelEnhancement(int eventType, OSGiBundleHelper bundleHelper) throws ClassNotFoundException {
-		Bundle bundle = bundleHelper.getBundle();
-		String[] classes = bundleHelper.getHeaderValues(MODEL_ENHANCEMENT);
-		Collection<Class> classSet = new HashSet<Class>();
-		for (String cls : classes) {
-			classSet.add(bundle.loadClass(cls));
-		}
-		if (!classSet.isEmpty()) {
-			Class<?>[] extensions = classSet.toArray(new Class<?>[classSet.size()]);
-			boolean needUpdate = eventType == Bundle.ACTIVE
-					? processToolRegistry.getDataRegistry().registerModelExtension(extensions)
-					: processToolRegistry.getDataRegistry().unregisterModelExtension(extensions);
-			if (needUpdate) {
-				logger.fine("Rebuilding Hibernate session factory...");
-				try {
+    private void handleModelEnhancement(int eventType, OSGiBundleHelper bundleHelper) throws ClassNotFoundException {
+        Bundle bundle = bundleHelper.getBundle();
+        String[] classes = bundleHelper.getHeaderValues(MODEL_ENHANCEMENT);
+        Collection<Class> classSet = new HashSet<Class>();
+        for (String cls : classes) {
+            classSet.add(bundle.loadClass(cls));
+        }
+        if (!classSet.isEmpty()) {
+            Class<?>[] extensions = classSet.toArray(new Class<?>[classSet.size()]);
+            boolean needUpdate = eventType == Bundle.ACTIVE
+                    ? processToolRegistry.getDataRegistry().registerModelExtension(extensions)
+                    : processToolRegistry.getDataRegistry().unregisterModelExtension(extensions);
+            if (needUpdate) {
+                logger.fine("Rebuilding Hibernate session factory...");
+                try {
                     processToolRegistry.getDataRegistry().commitModelExtensions();
-				}
-				catch (Exception e) {
-					logger.severe("Encountered problem while updating Hibernate mappings");
-					logger.log(Level.SEVERE, e.getMessage(), e);
+                } catch (Exception e) {
+                    logger.severe("Encountered problem while updating Hibernate mappings");
+                    logger.log(Level.SEVERE, e.getMessage(), e);
                     processToolRegistry.getDataRegistry().unregisterModelExtension(extensions);
-				}
-			}
-			else {
-				logger.warning("Skipping Hibernate session factory rebuild. Classes already processed.");
-			}
-		}
-	}
+                }
+            } else {
+                logger.warning("Skipping Hibernate session factory rebuild. Classes already processed.");
+            }
+        }
+    }
 
-	private void handleProcessDeployment(int eventType, final OSGiBundleHelper bundleHelper) {
-		final Bundle bundle = bundleHelper.getBundle();
-		String[] properties = bundleHelper.getHeaderValues(PROCESS_DEPLOYMENT);
-		for (final String processPackage : properties) {
-			final String providerId = bundle.getBundleId() + SEPARATOR + processPackage.replace(".", SEPARATOR) + "/messages";
-			if (eventType == Bundle.ACTIVE) {
-				final String basePath = SEPARATOR + processPackage.replace(".", SEPARATOR) + SEPARATOR;
+    private void handleProcessDeployment(int eventType, final OSGiBundleHelper bundleHelper) {
+        final Bundle bundle = bundleHelper.getBundle();
+        String[] properties = bundleHelper.getHeaderValues(PROCESS_DEPLOYMENT);
+        for (final String processPackage : properties) {
+            final String providerId = bundle.getBundleId() + SEPARATOR + processPackage.replace(".", SEPARATOR) + "/messages";
+            if (eventType == Bundle.ACTIVE) {
+                final String basePath = SEPARATOR + processPackage.replace(".", SEPARATOR) + SEPARATOR;
 
                 processToolRegistry.withExistingOrNewContext(new ProcessToolContextCallback() {
-					@Override
-					public void withContext(ProcessToolContext ctx)
-					{
-						try {
-							/* Initialize process deployer */
-							ProcessDeployer processDeployer = new ProcessDeployer(ctx);
+                    @Override
+                    public void withContext(ProcessToolContext ctx) {
+                        try {
+                            /* Initialize process deployer */
+                            ProcessDeployer processDeployer = new ProcessDeployer(ctx);
 
-							processDeployer.deployOrUpdateProcessDefinition(
-									bundleHelper.getBundleResourceStream(basePath + "processdefinition." +
+                            processDeployer.deployOrUpdateProcessDefinition(
+                                    bundleHelper.getBundleResourceStream(basePath + "processdefinition." +
                                             processToolRegistry.getProcessToolSessionFactory().getBpmDefinitionLanguage()),
-											bundleHelper.getBundleResourceStream(basePath + "processtool-config.xml"),
-									bundleHelper.getBundleResourceStream(basePath + "queues-config.xml"),
-									bundleHelper.getBundleResourceStream(basePath + "processdefinition.png"),
-									bundleHelper.getBundleResourceStream(basePath + "processdefinition-logo.png"));
+                                    bundleHelper.getBundleResourceStream(basePath + "processtool-config.xml"),
+                                    bundleHelper.getBundleResourceStream(basePath + "queues-config.xml"),
+                                    bundleHelper.getBundleResourceStream(basePath + "processdefinition.png"),
+                                    bundleHelper.getBundleResourceStream(basePath + "processdefinition-logo.png")
+                            );
 
-							getRegistry().getBundleRegistry().registerI18NProvider(new PropertiesBasedI18NProvider(new PropertyLoader() {
-								@Override
-								public InputStream loadProperty(String path) throws IOException {
-									return getBundleResourceStream(bundle, path);
-								}
-							}, "/" + processPackage.replace(".", SEPARATOR) + "/messages"), providerId);
-						}
-						catch (Exception e) {
-							logger.log(Level.SEVERE, e.getMessage(), e);
-							forwardErrorInfoToMonitor(bundle.getSymbolicName(), e);
-						}
-					}
-				});
-			}
-			else { // ignore
+                            getRegistry().getBundleRegistry().registerI18NProvider(new PropertiesBasedI18NProvider(new PropertyLoader() {
+                                @Override
+                                public InputStream loadProperty(String path) throws IOException {
+                                    return getBundleResourceStream(bundle, path);
+                                }
+                            }, "/" + processPackage.replace(".", SEPARATOR) + "/messages"), providerId);
+                        } catch (Exception e) {
+                            logger.log(Level.SEVERE, e.getMessage(), e);
+                            forwardErrorInfoToMonitor(bundle.getSymbolicName(), e);
+                        }
+                    }
+                });
+            } else { // ignore
                 processToolRegistry.getBundleRegistry().unregisterI18NProvider(providerId);
-			}
-		}
-	}
+            }
+        }
+    }
 
-	private void handleProcessRoles(int eventType, OSGiBundleHelper bundleHelper) {
-		if (eventType != Bundle.ACTIVE) {
-			return;
-		}
+    private void handleProcessRoles(int eventType, OSGiBundleHelper bundleHelper) {
+        if (eventType != Bundle.ACTIVE) {
+            return;
+        }
 
-		Bundle bundle = bundleHelper.getBundle();
+        Bundle bundle = bundleHelper.getBundle();
 
-		if (bundleHelper.hasHeaderValues(ROLE_FILES)) {
-			String[] files = bundleHelper.getHeaderValues(ROLE_FILES);
-			for (String file : files) {
-				try {
-					InputStream input = bundleHelper.getBundleResourceStream(file);
-					Collection<ProcessRoleConfig> roles = getRoles(input);
-					createRoles(roles);
-				}
-				catch (Exception e) {
-					logger.log(Level.SEVERE, e.getMessage(), e);
-					forwardErrorInfoToMonitor(bundle.getSymbolicName(), e);
-				}
-			}
-		}
+        if (bundleHelper.hasHeaderValues(ROLE_FILES)) {
+            String[] files = bundleHelper.getHeaderValues(ROLE_FILES);
+            for (String file : files) {
+                try {
+                    InputStream input = bundleHelper.getBundleResourceStream(file);
+                    Collection<ProcessRoleConfig> roles = getRoles(input);
+                    createRoles(roles);
+                } catch (Exception e) {
+                    logger.log(Level.SEVERE, e.getMessage(), e);
+                    forwardErrorInfoToMonitor(bundle.getSymbolicName(), e);
+                }
+            }
+        }
 
-		if (bundleHelper.hasHeaderValues(PROCESS_DEPLOYMENT)) {
-			String[] properties = bundleHelper.getHeaderValues(PROCESS_DEPLOYMENT);
-			for (String processPackage : properties) {
-				String basePath = SEPARATOR + processPackage.replace(".", SEPARATOR) + SEPARATOR;
-				try {
-					InputStream input = bundleHelper.getBundleResourceStream(basePath + "roles-config.xml");
-					Collection<ProcessRoleConfig> roles = getRoles(input);
-					createRoles(roles);
-				}
-				catch (Exception e) {
-					logger.log(Level.SEVERE, e.getMessage(), e);
-					forwardErrorInfoToMonitor(bundle.getSymbolicName(), e);
-				}
-			}
-		}
-	}
+        if (bundleHelper.hasHeaderValues(PROCESS_DEPLOYMENT)) {
+            String[] properties = bundleHelper.getHeaderValues(PROCESS_DEPLOYMENT);
+            for (String processPackage : properties) {
+                String basePath = SEPARATOR + processPackage.replace(".", SEPARATOR) + SEPARATOR;
+                try {
+                    InputStream input = bundleHelper.getBundleResourceStream(basePath + "roles-config.xml");
+                    Collection<ProcessRoleConfig> roles = getRoles(input);
+                    createRoles(roles);
+                } catch (Exception e) {
+                    logger.log(Level.SEVERE, e.getMessage(), e);
+                    forwardErrorInfoToMonitor(bundle.getSymbolicName(), e);
+                }
+            }
+        }
+    }
 
 
-	private Collection<ProcessRoleConfig> getRoles(InputStream input) {
-		if (input == null) {
-			return null;
-		}
-		XStream xstream = new XStream();
-		xstream.aliasPackage("config", ProcessRoleConfig.class.getPackage().getName());
-		xstream.useAttributeFor(String.class);
-		xstream.useAttributeFor(Boolean.class);
-		xstream.useAttributeFor(Integer.class);
-		return (Collection<ProcessRoleConfig>) xstream.fromXML(input);
-	}
+    private Collection<ProcessRoleConfig> getRoles(InputStream input) {
+        if (input == null) {
+            return null;
+        }
+        XStream xstream = new XStream();
+        xstream.aliasPackage("config", ProcessRoleConfig.class.getPackage().getName());
+        xstream.useAttributeFor(String.class);
+        xstream.useAttributeFor(Boolean.class);
+        xstream.useAttributeFor(Integer.class);
+        return (Collection<ProcessRoleConfig>) xstream.fromXML(input);
+    }
 
-	private void createRoles(Collection<ProcessRoleConfig> roles) {
-		if (roles != null) {
-			for (ProcessRoleConfig role : roles) {
-				try
-				{
+    private void createRoles(Collection<ProcessRoleConfig> roles) {
+        if (roles != null) {
+            for (ProcessRoleConfig role : roles) {
+                try {
 
 					
 					/* Check if role exist. If not, create it */
-					if(!userRolesManager.isRoleExist(role.getName()))
-					{
-						userRolesManager.createRole(role.getName(), role.getDescription());
-						logger.log(Level.INFO, "Created role " + role.getName());
-					}
+                    if (!userRolesManager.isRoleExist(role.getName())) {
+                        userRolesManager.createRole(role.getName(), role.getDescription());
+                        logger.log(Level.INFO, "Created role " + role.getName());
+                    }
 
-				}
-				catch (RuntimeException e) {
-					forwardErrorInfoToMonitor("adding role " + role.getName(), e);
-					throw e;
+                } catch (RuntimeException e) {
+                    forwardErrorInfoToMonitor("adding role " + role.getName(), e);
+                    throw e;
 
-				}
-			}
-		}
-	}
+                }
+            }
+        }
+    }
 
-	private void handleBundleResources(int eventType, OSGiBundleHelper bundleHelper) {
-		Bundle bundle = bundleHelper.getBundle();
-		String[] resources = bundleHelper.getHeaderValues(RESOURCES);
-		for (String pack : resources) {
-			if (eventType == Bundle.ACTIVE)
-			{
-				String basePath = SEPARATOR + pack.replace(".", SEPARATOR);
-				if (!basePath.endsWith(SEPARATOR)) {
-					basePath += SEPARATOR;
-				}
-				Enumeration<URL> urls = bundle.findEntries(basePath, null, true);
-				while (urls.hasMoreElements()) {
-					String path = urls.nextElement().getPath();
+    private void handleBundleResources(int eventType, OSGiBundleHelper bundleHelper) {
+        Bundle bundle = bundleHelper.getBundle();
+        String[] resources = bundleHelper.getHeaderValues(RESOURCES);
+        for (String pack : resources) {
+            if (eventType == Bundle.ACTIVE) {
+                String basePath = SEPARATOR + pack.replace(".", SEPARATOR);
+                if (!basePath.endsWith(SEPARATOR)) {
+                    basePath += SEPARATOR;
+                }
+                Enumeration<URL> urls = bundle.findEntries(basePath, null, true);
+                while (urls.hasMoreElements()) {
+                    String path = urls.nextElement().getPath();
                     processToolRegistry.getBundleRegistry().registerResource(bundle.getSymbolicName(), path);
-				}
-			}
-			else {
+                }
+            } else {
                 processToolRegistry.getBundleRegistry().removeRegisteredResources(bundle.getSymbolicName());
-			}
-		}
-	}
+            }
+        }
+    }
 
-	private void handleGlobalDictionaries(int eventType, OSGiBundleHelper bundleHelper) {
-		String[] properties = bundleHelper.getHeaderValues(GLOBAL_DICTIONARY);
-		if (eventType == Bundle.ACTIVE) {
-			for (String pack : properties) {
-				try {
-					String basePath = SEPARATOR + pack.replace(".", SEPARATOR) + SEPARATOR;
-					InputStream is = bundleHelper.getBundleResourceStream(basePath + "global-dictionaries.xml");
-					if (is != null) {
+    private void handleGlobalDictionaries(int eventType, OSGiBundleHelper bundleHelper) {
+        String[] properties = bundleHelper.getHeaderValues(GLOBAL_DICTIONARY);
+        if (eventType == Bundle.ACTIVE) {
+            for (String pack : properties) {
+                try {
+                    String basePath = SEPARATOR + pack.replace(".", SEPARATOR) + SEPARATOR;
+                    InputStream is = bundleHelper.getBundleResourceStream(basePath + "global-dictionaries.xml");
+                    if (is != null) {
                         processToolRegistry.registerGlobalDictionaries(is);
-					}
-					else {
-						logger.log(Level.SEVERE, "No global dictionary stream found in package: " + pack);
-					}
-				}
-				catch (Exception e) {
-					logger.log(Level.SEVERE, e.getMessage(), e);
-					forwardErrorInfoToMonitor(bundleHelper.getBundleMetadata().getDescription() + " global-dictionary", e);
-				}
-			}
-		}
-	}
+                    } else {
+                        logger.log(Level.SEVERE, "No global dictionary stream found in package: " + pack);
+                    }
+                } catch (Exception e) {
+                    logger.log(Level.SEVERE, e.getMessage(), e);
+                    forwardErrorInfoToMonitor(bundleHelper.getBundleMetadata().getDescription() + " global-dictionary", e);
+                }
+            }
+        }
+    }
 
-	private void forwardErrorInfoToMonitor(String path, Throwable e) {
-		errorMonitor.forwardErrorInfoToMonitor(path, e);
-	}
+    private void forwardErrorInfoToMonitor(String path, Throwable e) {
+        errorMonitor.forwardErrorInfoToMonitor(path, e);
+    }
 }

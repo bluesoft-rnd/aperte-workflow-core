@@ -14,6 +14,7 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.dao.*;
 import pl.net.bluesoft.rnd.processtool.dao.impl.*;
 import pl.net.bluesoft.rnd.processtool.model.IAttribute;
+import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
 import pl.net.bluesoft.util.lang.FormatUtil;
 
 import javax.naming.InitialContext;
@@ -40,6 +41,7 @@ public class DataRegistryImpl implements DataRegistry {
     private final Map<String, byte[]> hibernateResources = new HashMap<String, byte[]>();
     private final Map<String, ClassLoader> classLoaders = new HashMap<String, ClassLoader>();
     private final Map<String, Class<? extends IAttributesMapper>> attributesMappersClasses = new HashMap<String, Class<? extends IAttributesMapper>>();
+    private final Map<String, Class<? extends IMapper>> mappersClasses = new HashMap<String, Class<? extends IMapper>>();
 
     private SessionFactory sessionFactory;
 
@@ -374,16 +376,44 @@ public class DataRegistryImpl implements DataRegistry {
     public List<IAttributesMapper> getAttributesMappersFor(final Class<? extends IAttribute> clazz) {
         final List<IAttributesMapper> mappers = new ArrayList<IAttributesMapper>();
         for (Class<? extends IAttributesMapper> mapperClass : this.attributesMappersClasses.values()) {
-            if (mapperClass.isAnnotationPresent(AttributesMapper.class)) {
-                AttributesMapper annotation = mapperClass.getAnnotation(AttributesMapper.class);
-                if (annotation.forClass().equals(clazz)) {
-                    try {
-                        final IAttributesMapper mapper = mapperClass.newInstance();
-                        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(mapper);
-                        mappers.add(mapper);
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
+            AttributesMapper annotation = mapperClass.getAnnotation(AttributesMapper.class);
+            if (annotation.forAttributeClass().equals(clazz)) {
+                try {
+                    final IAttributesMapper mapper = mapperClass.newInstance();
+                    SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(mapper);
+                    mappers.add(mapper);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+        return mappers;
+    }
+
+    @Override
+    public synchronized void registerMapper(final Class<? extends IMapper> mapperClass) {
+        if (!mapperClass.isAnnotationPresent(Mapper.class))
+            throw new RuntimeException("Mapper class should be marked with @Mapper annotation");
+        this.mappersClasses.put(mapperClass.getName(), mapperClass);
+    }
+
+    @Override
+    public synchronized void unregisterMapper(final Class<? extends IMapper> mapperClass) {
+        this.mappersClasses.remove(mapperClass.getName());
+    }
+
+    @Override
+    public List<IMapper> getMappersFor(final Class<? extends IAttributesProvider> clazz, final String definitionName) {
+        final List<IMapper> mappers = new ArrayList<IMapper>();
+        for (Class<? extends IMapper> mapperClass : this.mappersClasses.values()) {
+            Mapper annotation = mapperClass.getAnnotation(Mapper.class);
+            if (annotation.forProviderClass().equals(clazz) && annotation.forDefinitionName().equalsIgnoreCase(definitionName)) {
+                try {
+                    final IMapper mapper = mapperClass.newInstance();
+                    SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(mapper);
+                    mappers.add(mapper);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
                 }
             }
         }

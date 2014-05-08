@@ -6,5 +6,5 @@ package pl.net.bluesoft.rnd.processtool.model;
 public interface IAttributesConsumer {
     void setSimpleAttribute(String key, String value);
 
-    void setAttribute(Object attribute);
+    void addAttribute(Object attribute);
 }

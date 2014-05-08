@@ -8,5 +8,5 @@ import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
  * Created by pkuciapski on 2014-05-07.
  */
 public interface IAttributesMapper<T extends IAttribute> {
-    void copy(T attribute, IAttributesConsumer consumer, IAttributesProvider provider);
+    void map(T attribute, IAttributesConsumer consumer, IAttributesProvider provider);
 }

@@ -11,6 +11,7 @@ import org.aperteworkflow.files.exceptions.UpdateDescriptionException;
 import org.aperteworkflow.files.model.FileItemContent;
 import org.aperteworkflow.files.model.FilesRepositoryItem;
 import org.aperteworkflow.files.model.FilesRepositoryItemDTO;
+import org.aperteworkflow.files.model.IFilesRepositoryItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.usersource.IPortalUserSource;
@@ -71,7 +72,7 @@ public class FilesController implements IOsgiWebController {
                         String fileDescription = null;
                         String creatorLogin = getCreatorLogin(request);
                         if (processInstanceId != null && fileName != null && fileName.length() > 0 && fileInputStream != null && creatorLogin != null && creatorLogin.length() > 0) {
-                            FilesRepositoryItem frItem = filesRepoFacade.uploadFile(fileInputStream, contentType, processInstanceId, fileName, fileDescription, creatorLogin);
+                            IFilesRepositoryItem frItem = filesRepoFacade.uploadFile(fileInputStream, contentType, processInstanceId, fileName, fileDescription, creatorLogin);
                             result.setData(new FilesRepositoryItemDTO(frItem));
                         } else {
                             logger.log(Level.WARNING, "[FILES_REPOSITORY] Not all parameters provided when calling filescontroller.uploadFile. All of [processInstanceId, fileName, fileInputStream, creatorLogin] are required.");

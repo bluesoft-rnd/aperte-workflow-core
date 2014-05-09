@@ -14,9 +14,9 @@ public class FilesRepositoryItemDTO {
     private String createDate;
     private String creatorLogin;
 
-    public FilesRepositoryItemDTO(FilesRepositoryItem frItem) {
+    public FilesRepositoryItemDTO(IFilesRepositoryItem frItem) {
         setId(frItem.getId());
-        setProcessInstanceId(frItem.getProcessInstance().getId());
+        setProcessInstanceId(frItem.getParentObjectId());
         setName(frItem.getName());
         setDescription(frItem.getDescription());
 

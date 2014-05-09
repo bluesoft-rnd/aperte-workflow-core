@@ -13,6 +13,7 @@ import org.aperteworkflow.files.exceptions.UpdateDescriptionException;
 import org.aperteworkflow.files.exceptions.UploadFileException;
 import org.aperteworkflow.files.model.FileItemContent;
 import org.aperteworkflow.files.model.FilesRepositoryItem;
+import org.aperteworkflow.files.model.IFilesRepositoryItem;
 import org.hibernate.Session;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceDAO;
@@ -66,8 +67,8 @@ public class FilesRepositoryFacade implements IFilesRepositoryFacade {
     }
 
     @Override
-    public FilesRepositoryItem uploadFile(InputStream inputStream, String contentType, Long processInstanceId, String fileName, String fileDescription, String creatorLogin) throws UploadFileException {
-        FilesRepositoryItem result;
+    public IFilesRepositoryItem uploadFile(InputStream inputStream, String contentType, Long processInstanceId, String fileName, String fileDescription, String creatorLogin) throws UploadFileException {
+        IFilesRepositoryItem result;
         String filePath = prepareFilePath(processInstanceId, fileName);
         try {
             getFilesRepositoryStorageDAO().uploadFileToStorage(inputStream, filePath);

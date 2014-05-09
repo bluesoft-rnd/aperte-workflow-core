@@ -380,7 +380,6 @@ public class DataRegistryImpl implements DataRegistry {
             if (annotation.forAttributeClass().equals(clazz)) {
                 try {
                     final IAttributesMapper mapper = mapperClass.newInstance();
-                    // SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(mapper);
                     mappers.add(mapper);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
@@ -407,10 +406,10 @@ public class DataRegistryImpl implements DataRegistry {
         final List<IMapper> mappers = new ArrayList<IMapper>();
         for (Class<? extends IMapper> mapperClass : this.mappersClasses.values()) {
             Mapper annotation = mapperClass.getAnnotation(Mapper.class);
-            if (annotation.forProviderClass().equals(clazz) && annotation.forDefinitionName().equalsIgnoreCase(definitionName)) {
+            List<String> definitionNames = Arrays.asList(annotation.forDefinitionNames());
+            if (annotation.forProviderClass().equals(clazz) && definitionNames.contains(definitionName)) {
                 try {
                     final IMapper mapper = mapperClass.newInstance();
-                    // SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(mapper);
                     mappers.add(mapper);
                 } catch (Exception e) {
                     throw new RuntimeException(e);

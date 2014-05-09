@@ -407,7 +407,7 @@ public class DataRegistryImpl implements DataRegistry {
         for (Class<? extends IMapper> mapperClass : this.mappersClasses.values()) {
             Mapper annotation = mapperClass.getAnnotation(Mapper.class);
             List<String> definitionNames = Arrays.asList(annotation.forDefinitionNames());
-            if (annotation.forProviderClass().equals(clazz) && definitionNames.contains(definitionName)) {
+            if (annotation.forProviderClass().equals(clazz) && (definitionNames.contains(definitionName) || definitionNames.size() == 0)) {
                 try {
                     final IMapper mapper = mapperClass.newInstance();
                     mappers.add(mapper);

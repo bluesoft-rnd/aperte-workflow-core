@@ -637,4 +637,14 @@ public class ProcessInstance extends AbstractPersistentEntity implements IAttrib
     public ProcessInstance getProcessInstance() {
         return this;
     }
+
+    @Override
+    public Object getAttribute(String key) {
+        return getProcessAttribute(key);
+    }
+
+    @Override
+    public Object getProvider() {
+        return this;
+    }
 }

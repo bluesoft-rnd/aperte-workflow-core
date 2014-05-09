@@ -7,4 +7,6 @@ public interface IAttributesConsumer {
     void setSimpleAttribute(String key, String value);
 
     void addAttribute(Object attribute);
+
+    void setAttribute(String key, Object attribute);
 }

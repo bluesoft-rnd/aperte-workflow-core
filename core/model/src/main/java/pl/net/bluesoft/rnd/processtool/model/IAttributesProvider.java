@@ -14,4 +14,7 @@ public interface IAttributesProvider {
 
     String getDefinitionName();
 
+    Object getAttribute(String key);
+
+    Object getProvider();
 }

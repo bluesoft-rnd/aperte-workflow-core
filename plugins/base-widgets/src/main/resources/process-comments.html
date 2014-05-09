@@ -1,4 +1,9 @@
-<#assign processComments = attributesProvider.provider.getCommentsOrderedByDate(true)/>
+<#if attributesProvider.processInstance??>
+    <#assign processComments = attributesProvider.processInstance.getCommentsOrderedByDate(true) />
+</#if>
+<#if !processComments??>
+    <#assign processComments = attributesProvider.provider.getCommentsOrderedByDate(true)! />
+</#if>
 
 
 <style type="text/css" media="all">

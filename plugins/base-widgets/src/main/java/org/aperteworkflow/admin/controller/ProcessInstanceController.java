@@ -18,7 +18,8 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
+
+import static org.aperteworkflow.util.vaadin.VaadinUtility.getLocalizedMessage;
 
 /**
  * Process Instance operations controller for admin portlet.
@@ -34,22 +35,19 @@ public class ProcessInstanceController implements IOsgiWebController {
     @Autowired
     protected ProcessToolRegistry processToolRegistry;
 
-    private Logger logger = Logger.getLogger(ProcessInstanceController.class.getName());
-
-    private String filterCriteria = "";
-    private Boolean onlyActive = false;
-    private Map<String,String[]> parameterMap;
-
     @ControllerMethod(action = "findProcessInstances")
     public GenericResultBean findProcessInstances(final OsgiWebRequest invocation) {
 
         IProcessToolRequestContext requestContext = invocation.getProcessToolRequestContext();
         I18NSource messageSource = requestContext.getMessageSource();
-        parameterMap = invocation.getRequest().getParameterMap();
+        Map<String, String[]> parameterMap = invocation.getRequest().getParameterMap();
         JQueryDataTable dataTable = JQueryDataTableUtil.analyzeRequest(parameterMap);
 
+        String searchCriteria = invocation.getRequest().getParameter("filter");
+        Boolean isOnlyActive = "true".equals(invocation.getRequest().getParameter("onlyActive"));
+
         List<ProcessInstance> processInstances = new ArrayList<ProcessInstance>(invocation.getProcessToolContext().getProcessInstanceDAO()
-                .searchProcesses(filterCriteria, dataTable.getPageOffset(), dataTable.getPageLength(), onlyActive, null, null)); //todo: filter, onlyActive
+                .searchProcesses(searchCriteria, dataTable.getPageOffset(), dataTable.getPageLength(), isOnlyActive, null, null));
 
         final List<ProcessInstanceBean> processInstanceBeans = createProcessInstanceBeansList(messageSource, processInstances);
         DataPagingBean<ProcessInstanceBean> dataPagingBean = new DataPagingBean<ProcessInstanceBean>(processInstanceBeans, processInstanceBeans.size(), dataTable.getEcho());

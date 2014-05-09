@@ -31,12 +31,24 @@
                 <th style="width:10%;">status:</th>
                 <th style="width:10%;">External key:</th>
                 <th style="width:10%;">Internal Id:</th>
+                <th style="width:10%;">Actions</th>
         </thead>
         <tbody></tbody>
     </table>
 </div>
 
-<div>
+<div class="btn-group">
+  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+    Action <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu" role="menu">
+    <li><a href="#">Action</a></li>
+    <li><a href="#">Another action</a></li>
+    <li><a href="#">Something else here</a></li>
+    <li class="divider"></li>
+    <li><a href="#">Separated link</a></li>
+  </ul>
+</div>
 
 
 <script type="text/javascript">
@@ -50,12 +62,15 @@
                 { "sName":"creationDate", "bSortable": true ,"mData": function(object){return $.format.date(object.creationDate, 'dd-MM-yyyy, HH:mm:ss');}},
                 { "sName":"status", "bSortable": true , "mData": "status"},
                 { "sName":"externalKey", "bSortable": true , "mData": "externalKey"},
-                { "sName":"internalId", "bSortable": true , "mData": "internalId"}
+                { "sName":"internalId", "bSortable": true , "mData": "internalId"},
+                { "sName":"actions", "bSortable": true , "mData": function(object) {}}
             ],
             [[ 1, "desc" ]]
         );
-        dataTable.addParameter("controller", "processInstanceController");
-        dataTable.addParameter("action", "findProcessInstances");
+
+
+
+        setSearchParameters();
 
       	$(document).ready(function()
     	{
@@ -70,6 +85,10 @@
             $('#search_field').blur(function(){
                 doneTyping.call(this);
             });
+
+            $("#only_active").change(function() {
+                performSearch();
+            });
         });
 
         function doneTyping() {
@@ -77,7 +96,23 @@
                 return;
             }
             timeout = null;
+            performSearch();
+        }
+
+        function performSearch() {
+            setSearchParameters();
             dataTable.reloadTable(dispatcherPortlet);
+        }
+
+        function setSearchParameters() {
+            dataTable.setParameters(
+                [
+                    { "name": "controller", "value" : "processInstanceController"},
+                    { "name": "action", "value" : "findProcessInstances" },
+                    { "name": "filter", "value" : document.getElementById("search_field").value },
+                    { "name": "onlyActive", "value" : document.getElementById("only_active").checked}
+                ]
+            );
         }
     //]]>
 </script>

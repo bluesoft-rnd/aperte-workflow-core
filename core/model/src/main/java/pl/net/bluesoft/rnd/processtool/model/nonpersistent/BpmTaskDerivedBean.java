@@ -325,4 +325,9 @@ public class BpmTaskDerivedBean implements BpmTask {
     public String getExternalKey() {
         return null;
     }
+
+    @Override
+    public String getDefinitionName() {
+        return getProcessDefinition().getProcessName();
+    }
 }

@@ -11,4 +11,7 @@ public interface IAttributesProvider {
     String getSimpleAttributeValue(String key);
 
     String getExternalKey();
+
+    String getDefinitionName();
+
 }

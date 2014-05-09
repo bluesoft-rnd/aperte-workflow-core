@@ -6,6 +6,7 @@ import org.hibernate.dialect.Dialect;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.dao.*;
 import pl.net.bluesoft.rnd.processtool.model.IAttribute;
+import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
 
 import java.util.List;
 
@@ -43,9 +44,12 @@ public interface DataRegistry {
 
     OperationLockDAO getOperationLockDAO(Session hibernateSession);
 
-    void registerAttributesCopier(Class<? extends IAttributesCopier> copierClass);
-    void unregisterAttributesCopier(Class<? extends IAttributesCopier> copierClass);
-    List<Class<? extends IAttributesCopier>> getAttributesCopiers();
-    List<IAttributesCopier> getAttributesCopiersFor(Class<? extends IAttribute> clazz);
+    void registerAttributesMapper(Class<? extends IAttributesMapper> mapperClass);
+    void unregisterAttributesMapper(Class<? extends IAttributesMapper> mapperClass);
+    List<Class<? extends IAttributesMapper>> getAttributesMappers();
+    List<IAttributesMapper> getAttributesMappersFor(Class<? extends IAttribute> clazz);
 
+    void registerMapper(Class<? extends IMapper> mapperClass);
+    void unregisterMapper(Class<? extends IMapper> mapperClass);
+    List<IMapper> getMappersFor(Class<? extends IAttributesProvider> clazz, String definitionName);
 }

@@ -1,11 +1,13 @@
 package pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps;
 
 
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.model.BpmStep;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
+import pl.net.bluesoft.rnd.util.StepUtil;
 
 import java.util.Map;
 import java.util.logging.Logger;
@@ -44,6 +46,11 @@ public class SetVariablesStep implements ProcessToolProcessStep {
 
             String key = assignment[0];
             String value = assignment[1];
+
+			if (value.startsWith("#{") && value.endsWith("}")) {
+				value = StepUtil.extractVariable(value, ProcessToolContext.Util.getThreadProcessToolContext(), pi);
+			}
+
             pi.setSimpleAttribute(key, value);
 
     	}

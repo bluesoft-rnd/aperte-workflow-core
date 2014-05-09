@@ -63,4 +63,19 @@ public abstract class AbstractBpmTask implements BpmTask {
     public String getDefinitionName() {
         return this.getProcessDefinition().getProcessName();
     }
+
+    @Override
+    public Object getProvider() {
+        return this;
+    }
+
+    @Override
+    public String getSimpleAttributeValue(String key) {
+        return getProcessInstance().getSimpleAttributeValue(key);
+    }
+
+    @Override
+    public Object getAttribute(String key) {
+        return getProcessInstance().getAttribute(key);
+    }
 }

@@ -114,7 +114,7 @@ public class FilesRepositoryItemDAOTest {
 
         dao.updateDescriptionById(newItem1.getId(), "New Description for 1.txt");
 
-        FilesRepositoryItem updatedNewItem1 = dao.getItemById(newItem1.getId());
+        IFilesRepositoryItem updatedNewItem1 = dao.getItemById(newItem1.getId());
 
         Assert.assertEquals("Updated description doesn't match with expected", updatedNewItem1.getDescription(), newItem1.getDescription());
     }

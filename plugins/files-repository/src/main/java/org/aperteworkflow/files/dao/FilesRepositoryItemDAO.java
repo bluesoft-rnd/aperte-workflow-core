@@ -1,6 +1,5 @@
 package org.aperteworkflow.files.dao;
 
-import org.aperteworkflow.files.model.FilesRepositoryItem;
 import org.aperteworkflow.files.model.IFilesRepositoryItem;
 
 import java.util.Collection;
@@ -17,5 +16,5 @@ public interface FilesRepositoryItemDAO {
 
     void updateDescriptionById(Long id, String description);
 
-    FilesRepositoryItem getItemById(Long id);
+    IFilesRepositoryItem getItemById(Long id);
 }

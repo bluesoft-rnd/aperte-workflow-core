@@ -119,4 +119,9 @@ public class FilesRepositoryItem extends PersistentEntity implements IFilesRepos
     public void setParentObject(IAttributesProvider parentObject) {
         setProcessInstance((ProcessInstance) parentObject);
     }
+
+    @Override
+    public IAttributesProvider getParentObject() {
+        return getProcessInstance();
+    }
 }

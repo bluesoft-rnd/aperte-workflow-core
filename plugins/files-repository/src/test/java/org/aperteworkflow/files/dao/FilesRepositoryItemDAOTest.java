@@ -70,6 +70,7 @@ public class FilesRepositoryItemDAOTest {
         item1.setName("ExampleFile.txt");
         item1.setRelativePath("ExampleFile_relativePath.txt");
         item1.setDescription("Description of ExampleFile.txt");
+        item1.setContentType("testContentType");
         IFilesRepositoryItem newItem = dao.addItem(item1.getParentObjectId(), item1.getName(), item1.getDescription(), item1.getRelativePath(), item1.getContentType(), CREATOR_LOGIN);
         Assert.assertArrayEquals("Old and new item properties doesn't equals", new String[]{item1.getName(), item1.getRelativePath(), item1.getDescription()}
                 , new String[]{newItem.getName(), newItem.getRelativePath(), newItem.getDescription()});
@@ -84,7 +85,7 @@ public class FilesRepositoryItemDAOTest {
         IFilesRepositoryItem newItem2 = dao.addItem(exProcessInstance.getId(), "2.txt", "2_relativePath.txt", "Description of 2.txt", "text/plain", CREATOR_LOGIN);
         IFilesRepositoryItem newItem3 = dao.addItem(exProcessInstance.getId(), "3.txt", "3_relativePath.txt", "Description of 3.txt", "text/plain", CREATOR_LOGIN);
 
-        Collection<FilesRepositoryItem> retItems = dao.getItemsFor(exProcessInstance.getId());
+        Collection<? extends IFilesRepositoryItem> retItems = dao.getItemsFor(exProcessInstance.getId());
 
         Assert.assertEquals("Wrong returned items collection size", retItems.size(), 3);
         Assert.assertArrayEquals("Identifiers don't match", new Long[]{retItems.toArray(new FilesRepositoryItem[]{})[0].getId()
@@ -100,7 +101,7 @@ public class FilesRepositoryItemDAOTest {
 
         dao.deleteById(newItem2.getId());
 
-        Collection<FilesRepositoryItem> retItems = dao.getItemsFor(exProcessInstance.getId());
+        Collection<? extends IFilesRepositoryItem> retItems = dao.getItemsFor(exProcessInstance.getId());
 
         Assert.assertEquals("Returned items after delete one element doesn't match", retItems.size(), 2);
         Assert.assertEquals("Bad identifier of returned item after delete by id", retItems.toArray(new FilesRepositoryItem[]{})[0].getId(), newItem1.getId());

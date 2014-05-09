@@ -96,9 +96,9 @@ public class FilesController implements IOsgiWebController {
         GenericResultBean result = new GenericResultBean();
         HttpServletRequest request = invocation.getRequest();
         Long processInstanceId = getProcessInstanceId(request);
-        Collection<FilesRepositoryItem> fileRepoItems = filesRepoFacade.getFilesList(processInstanceId);
+        Collection<? extends IFilesRepositoryItem> fileRepoItems = filesRepoFacade.getFilesList(processInstanceId);
         Collection<FilesRepositoryItemDTO> filesRepoItemsDTO = new ArrayList<FilesRepositoryItemDTO>();
-        for (FilesRepositoryItem frItem : fileRepoItems) {
+        for (IFilesRepositoryItem frItem : fileRepoItems) {
             filesRepoItemsDTO.add(new FilesRepositoryItemDTO(frItem));
         }
         result.setData(filesRepoItemsDTO);
@@ -113,9 +113,9 @@ public class FilesController implements IOsgiWebController {
         Long filesRepositoryItemId = getFilesRepositoryItemId(request);
         try {
             filesRepoFacade.deleteFile(processInstanceId, filesRepositoryItemId);
-            Collection<FilesRepositoryItem> fileRepoItems = filesRepoFacade.getFilesList(processInstanceId);
+            Collection<? extends IFilesRepositoryItem> fileRepoItems = filesRepoFacade.getFilesList(processInstanceId);
             Collection<FilesRepositoryItemDTO> filesRepoItemsDTO = new ArrayList<FilesRepositoryItemDTO>();
-            for (FilesRepositoryItem frItem : fileRepoItems) {
+            for (IFilesRepositoryItem frItem : fileRepoItems) {
                 filesRepoItemsDTO.add(new FilesRepositoryItemDTO(frItem));
             }
             result.setData(filesRepoItemsDTO);

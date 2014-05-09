@@ -120,7 +120,7 @@ public class FilesRepositoryFacade implements IFilesRepositoryFacade {
     }
 
     @Override
-    public Collection<FilesRepositoryItem> getFilesList(Long processInstanceId) {
+    public Collection<? extends IFilesRepositoryItem> getFilesList(Long processInstanceId) {
         return getFilesRepositoryItemDAO().getItemsFor(processInstanceId);
     }
 

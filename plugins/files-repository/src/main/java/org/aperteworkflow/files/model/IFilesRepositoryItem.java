@@ -32,4 +32,6 @@ public interface IFilesRepositoryItem {
     String getContentType();
 
     void setParentObject(IAttributesProvider parentObject);
+
+    void setContentType(String contentType);
 }

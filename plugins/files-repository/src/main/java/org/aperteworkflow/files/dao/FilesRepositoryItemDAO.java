@@ -11,7 +11,7 @@ import java.util.Collection;
 public interface FilesRepositoryItemDAO {
     IFilesRepositoryItem addItem(Long processInstanceId, String name, String description, String relativePath, String contentType, String creatorLogin);
 
-    Collection<FilesRepositoryItem> getItemsFor(Long processInstanceId);
+    Collection<? extends IFilesRepositoryItem> getItemsFor(Long parentObjectId);
 
     void deleteById(Long id);
 

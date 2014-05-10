@@ -1,4 +1,4 @@
-package pl.net.bluesoft.rnd.pt.dict.global.bean;
+package pl.net.bluesoft.rnd.processtool.dict;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -47,5 +47,19 @@ public class DictionaryItem
 
     public void setExtensions(Collection<DictionaryItemExt> extensions) {
         this.extensions = extensions;
+    }
+
+    public DictionaryItemExt getExtensionByKey(String key)
+    {
+        for(DictionaryItemExt ext: extensions)
+            if(ext.getKey().equals(key))
+                return ext;
+
+        return null;
+    }
+
+    public boolean hasExtenstion(String key)
+    {
+        return getExtensionByKey(key) != null;
     }
 }

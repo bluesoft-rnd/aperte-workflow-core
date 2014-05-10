@@ -67,6 +67,9 @@
                         <ProcessTool-Controller>
                             pl.net.bluesoft.rnd.pt.dict.global.DictionaryService
                         </ProcessTool-Controller>
+                        <ProcessTool-Spring-Beans>
+                            pl.net.bluesoft.rnd.pt.dict.global.facade.GlobalDictionaryFacade
+                        </ProcessTool-Spring-Beans>
                     </instructions>
                 </configuration>
             </plugin>

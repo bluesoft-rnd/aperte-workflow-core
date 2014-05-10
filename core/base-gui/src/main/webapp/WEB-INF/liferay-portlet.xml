@@ -30,6 +30,8 @@
         <header-portlet-javascript>/sa/js/jquery.fileupload-process.js</header-portlet-javascript>
         <header-portlet-javascript>/sa/js/jquery.fileupload-validate.js</header-portlet-javascript>
         <header-portlet-javascript>/sa/js/jquery.iframe-transport.js</header-portlet-javascript>
+        <header-portlet-javascript>/sa/js/aperte/aperte.datatable.js</header-portlet-javascript>
+        <header-portlet-javascript>/sa/js/aperte/aperte.widget.js</header-portlet-javascript>
         <header-portlet-css>/sa/css/bootstrap.min.css</header-portlet-css>
         <header-portlet-css>/sa/css/bootstrap-theme.min.css</header-portlet-css>
         <header-portlet-css>/sa/css/aperteworkflow.css</header-portlet-css>
@@ -70,6 +72,8 @@
 		<header-portlet-javascript>/sa/js/jquery.fileupload-process.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/jquery.fileupload-validate.js</header-portlet-javascript>
 		<header-portlet-javascript>/sa/js/jquery.iframe-transport.js</header-portlet-javascript>
+        <header-portlet-javascript>/sa/js/aperte/aperte.datatable.js</header-portlet-javascript>
+        <header-portlet-javascript>/sa/js/aperte/aperte.widget.js</header-portlet-javascript>
         <header-portlet-css>/sa/css/bootstrap.min.css</header-portlet-css>
         <header-portlet-css>/sa/css/bootstrap-theme.min.css</header-portlet-css>
         <header-portlet-css>/sa/css/aperteworkflow.css</header-portlet-css>
@@ -136,6 +140,7 @@
         <header-portlet-javascript>/sa/js/bootstrap-datepicker.js</header-portlet-javascript>
         <header-portlet-javascript>/sa/js/locales/bootstrap-datepicker.pl.js</header-portlet-javascript>
         <header-portlet-javascript>/sa/js/jquery-ui-1.10.4.custom.min.js</header-portlet-javascript>
+        <header-portlet-javascript>/sa/js/aperte/aperte.datatable.js</header-portlet-javascript>
         <header-portlet-css>/sa/css/bootstrap.min.css</header-portlet-css>
         <header-portlet-css>/sa/css/bootstrap-theme.min.css</header-portlet-css>
         <header-portlet-css>/sa/css/aperteworkflow.css</header-portlet-css>

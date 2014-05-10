@@ -410,6 +410,20 @@
 }
 @media (min-width: 768px)
 {
+	div.apw label,
+	div.apw .table>caption+thead>tr:first-child>th, 
+	div.apw .table>colgroup+thead>tr:first-child>th, 
+	div.apw .table>thead:first-child>tr:first-child>th, 
+	div.apw .table>caption+thead>tr:first-child>td, 
+	div.apw .table>colgroup+thead>tr:first-child>td, 
+	div.apw .table>thead:first-child>tr:first-child>td
+	{
+		font-size: 12px;
+	}
+	.modal
+	{
+		padding: 10px;
+	}
 	.standalone-version-body
 	{
 		padding: 10px;

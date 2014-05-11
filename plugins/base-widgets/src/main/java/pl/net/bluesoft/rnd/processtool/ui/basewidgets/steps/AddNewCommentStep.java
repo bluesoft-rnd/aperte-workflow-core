@@ -31,6 +31,9 @@ public class AddNewCommentStep implements ProcessToolProcessStep
     @AutoWiredProperty(required = true)
     private String commentDate;
 
+    @AutoWiredProperty
+    private String commentType;
+
     @Autowired
     private IUserSource userSource;
 
@@ -47,6 +50,7 @@ public class AddNewCommentStep implements ProcessToolProcessStep
             throw new RuntimeException("No user found with login: "+login);
 
         String body = StepUtil.extractVariable(commentBody, ctx, processInstance);
+        String type = StepUtil.extractVariable(commentType, ctx, processInstance);
 
 
         ProcessComment comment = new ProcessComment();
@@ -55,6 +59,7 @@ public class AddNewCommentStep implements ProcessToolProcessStep
         comment.setBody(body);
         comment.setCreateTime(new Date());
         comment.setProcessInstance(processInstance);
+        comment.setCommentType(type);
 
         processInstance.addComment(comment);
 

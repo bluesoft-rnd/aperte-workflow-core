@@ -18,6 +18,10 @@
                                 </#if>
                             </h4>
                             <p class="list-group-item-text">
+                                <#if processComment.getCommentType() != "">
+                                    ${processComment.commentType}
+                                    <br>
+                                </#if>
                                 ${processComment.body}
                             </p>
                         </li>

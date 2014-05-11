@@ -30,7 +30,10 @@ public class SimpleWidgetDataHandler implements IWidgetDataHandler
 
         Collection<HandlingResult> results = new LinkedList<HandlingResult>();
 
-        for(WidgetDataEntry widgetData: data.getWidgetDataEntries())
+        Collection<WidgetDataEntry> dataEntries = data.getEntriesByType(TYPE_SIMPLE);
+        dataEntries.addAll(data.getEntriesByType(TYPE_SIMPLE_LARGE));
+
+        for(WidgetDataEntry widgetData: dataEntries)
         {
             String key = widgetData.getKey();
             String type = widgetData.getType();
@@ -56,6 +59,8 @@ public class SimpleWidgetDataHandler implements IWidgetDataHandler
         }
         return results;
     }
+
+
 
     private String getOldValue(ProcessInstance process, WidgetDataEntry data)
     {

@@ -41,6 +41,7 @@ import static pl.net.bluesoft.util.lang.Strings.hasText;
 @ChildrenAllowed(false)
 public class ProcessHistoryWidget extends ProcessHtmlWidget {
     public ProcessHistoryWidget(IBundleResourceProvider bundleResourceProvider) {
+
         setContentProvider(new FileWidgetContentProvider("process-history.html", bundleResourceProvider));
     }
 }

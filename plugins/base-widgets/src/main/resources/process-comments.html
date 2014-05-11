@@ -37,8 +37,9 @@
                             </#if>
                         </h4>
                         <p class="list-group-item-text">
-                            <#if processComment.getCommentType() != "">
-                                ${processComment.commentType}
+                            <#assign processCommentType = processComment.commentType!""/>
+                            <#if processCommentType != "">
+                                ${processCommentType}
                                 <br>
                             </#if>
                             ${processComment.body}

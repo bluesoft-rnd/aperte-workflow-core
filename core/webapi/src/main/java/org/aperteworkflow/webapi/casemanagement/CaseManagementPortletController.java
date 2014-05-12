@@ -29,6 +29,7 @@ import java.util.logging.Logger;
  */
 public class CaseManagementPortletController {
     private static final String PORTLET_JSON_RESULT_ROOT_NAME = "result";
+    private static final String PORTLET_CASE_ID_PARAMTER = "caseId";
 
     private static Logger logger = Logger.getLogger(CaseManagementPortletController.class.getName());
 
@@ -54,6 +55,15 @@ public class CaseManagementPortletController {
             modelView.setViewName("login");
         } else {
             modelView.setViewName("case_list");
+        }
+
+        HttpServletRequest httpServletRequest = portalUserSource.getHttpServletRequest(request);
+        HttpServletRequest originalHttpServletRequest = portalUserSource.getOriginalHttpServletRequest(httpServletRequest);
+
+        /* Start from case view */
+        String showCaseId = originalHttpServletRequest.getParameter(PORTLET_CASE_ID_PARAMTER);
+        if (showCaseId != null) {
+            modelView.addObject(PORTLET_CASE_ID_PARAMTER, showCaseId);
         }
 
         return modelView;

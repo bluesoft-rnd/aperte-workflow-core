@@ -14,16 +14,22 @@ import pl.net.bluesoft.util.lang.ExpiringCache;
 @Component
 public class AperteSettingsProvider implements ISettingsProvider
 {
-    private static final ExpiringCache<IProcessToolSettings, String> settings = new ExpiringCache<IProcessToolSettings, String>(60 * 1000);
+    private static final ExpiringCache<String, String> settings = new ExpiringCache<String, String>(60 * 1000);
 
     @Autowired
     private ProcessToolRegistry processToolRegistry;
 
     @Override
     public String getSetting(IProcessToolSettings settingKey) {
-        return settings.get(settingKey, new ExpiringCache.NewValueCallback<IProcessToolSettings, String>() {
+        return getSetting(settingKey.toString());
+    }
+
+    @Override
+    public String getSetting(String key)
+    {
+        return settings.get(key, new ExpiringCache.NewValueCallback<String, String>() {
             @Override
-            public String getNewValue(final IProcessToolSettings setting)
+            public String getNewValue(final String setting)
             {
                 ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
                 if(ctx != null)
@@ -42,7 +48,7 @@ public class AperteSettingsProvider implements ISettingsProvider
     @Override
     public void setSetting(final IProcessToolSettings settingKey, final String value)
     {
-        settings.put(settingKey, value);
+        settings.put(settingKey.toString(), value);
 
         ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
         if(ctx != null)

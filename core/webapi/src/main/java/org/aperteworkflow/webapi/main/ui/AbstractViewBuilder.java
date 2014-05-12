@@ -5,6 +5,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+import pl.net.bluesoft.rnd.processtool.ISettingsProvider;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.dict.IDictionaryFacade;
@@ -36,6 +37,9 @@ public abstract class AbstractViewBuilder<T extends AbstractViewBuilder> {
 
     @Autowired
     protected ProcessToolRegistry processToolRegistry;
+
+    @Autowired
+    protected ISettingsProvider settingsProvider;
 
     @Autowired
     protected IHtmlTemplateProvider templateProvider;
@@ -270,6 +274,7 @@ public abstract class AbstractViewBuilder<T extends AbstractViewBuilder> {
             viewData.put(IHtmlTemplateProvider.DICTIONARIES_DAO_PARAMETER, ctx.getProcessDictionaryDAO());
             viewData.put(IHtmlTemplateProvider.DICTIONARIES_FACADE, dictionaryFacade);
             viewData.put(IHtmlTemplateProvider.BPM_SESSION_PARAMETER, bpmSession);
+            viewData.put(IHtmlTemplateProvider.SETTINGS_PROVIDER, settingsProvider);
 
             for (IStateWidgetAttribute attribute : widget.getAttributes())
                 viewData.put(attribute.getName(), attribute.getValue());

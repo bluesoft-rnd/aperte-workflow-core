@@ -4,6 +4,7 @@ import org.aperteworkflow.files.widget.dataprovider.FilesRepositoryDataProvider;
 import pl.net.bluesoft.rnd.processtool.plugins.IBundleResourceProvider;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.*;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.SimpleWidgetDataHandler;
 import pl.net.bluesoft.rnd.processtool.web.widgets.impl.FileWidgetContentProvider;
 
 /**
@@ -22,5 +23,6 @@ public class FileRepositoryWidget extends ProcessHtmlWidget {
         setContentProvider(new FileWidgetContentProvider("files-repository-widget.html", bundleResourceProvider));
         addDataProvider(
                 new FilesRepositoryDataProvider());
+        addDataHandler(new SimpleWidgetDataHandler());
     }
 }

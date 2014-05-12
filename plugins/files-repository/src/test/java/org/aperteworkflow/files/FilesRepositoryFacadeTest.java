@@ -10,6 +10,7 @@ import org.aperteworkflow.files.dao.config.FilesRepositoryStorageConfig;
 import org.aperteworkflow.files.exceptions.UploadFileException;
 import org.aperteworkflow.files.model.FileItemContent;
 import org.aperteworkflow.files.model.FilesRepositoryItem;
+import org.aperteworkflow.files.model.IFilesRepositoryItem;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -107,7 +108,7 @@ public class FilesRepositoryFacadeTest {
         Long newItemId = filesRepoFacade.uploadFile(inputStream, item1.getContentType(), item1.getProcessInstance().getId(), item1.getName(), item1.getDescription(), CREATOR_LOGIN).getId();
         IOUtils.closeQuietly(inputStream);
 
-        FilesRepositoryItem newItem = frItemDAO.getItemById(newItemId);
+        IFilesRepositoryItem newItem = frItemDAO.getItemById(newItemId);
         FileItemContent content = frStorageDAO.loadFileFromStorage(newItem.getRelativePath());
 
         Assert.assertArrayEquals("Old and new item properties doesn't equals", new String[]{item1.getName(), item1.getDescription()}

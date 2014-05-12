@@ -17,6 +17,6 @@ public class UserSubstitutionComment extends ProcessHtmlWidget
     {
         setContentProvider(new FileWidgetContentProvider("substitution-comments.html", bundleResourceProvider));
         setValidator(new SubstitutionCommentValidator());
-        setDataHandler(new SimpleWidgetDataHandler());
+        addDataHandler(new SimpleWidgetDataHandler());
     }
 }

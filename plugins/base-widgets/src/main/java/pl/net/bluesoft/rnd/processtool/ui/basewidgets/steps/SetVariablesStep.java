@@ -28,6 +28,7 @@ public class SetVariablesStep implements ProcessToolProcessStep {
     {
 
     	ProcessInstance pi = step.getProcessInstance();
+        ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
 
     	if("true".equals(applyToRoot))
     		pi = pi.getRootProcessInstance();
@@ -45,12 +46,8 @@ public class SetVariablesStep implements ProcessToolProcessStep {
     			assignment[1] = assignment[1].substring(1, assignment[1].length() - 1);
 
             String key = assignment[0];
-            String value = assignment[1];
 
-			if (value.startsWith("#{") && value.endsWith("}")) {
-				value = StepUtil.extractVariable(value, ProcessToolContext.Util.getThreadProcessToolContext(), pi);
-			}
-
+            String value = StepUtil.extractVariable(assignment[1], ctx, pi);
             pi.setSimpleAttribute(key, value);
 
     	}

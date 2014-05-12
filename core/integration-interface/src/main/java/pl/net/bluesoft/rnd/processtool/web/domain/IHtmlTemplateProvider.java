@@ -23,6 +23,7 @@ public interface IHtmlTemplateProvider extends TemplateLoader
 	String WIDGET_ID_PARAMETER = "widgetId";
 	String PRIVILEGES_PARAMETER = "privileges";
     String DICTIONARIES_DAO_PARAMETER = "dictionariesDao";
+    String DICTIONARIES_FACADE = "dictionariesFacade";
 	String BPM_SESSION_PARAMETER = "bpmSession";
     String ATTRIBUTES_PROVIDER = "attributesProvider";
 

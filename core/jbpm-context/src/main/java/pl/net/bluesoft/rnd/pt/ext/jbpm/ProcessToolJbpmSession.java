@@ -1465,12 +1465,12 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
         @Override
         public String getSimpleAttributeValue(String key) {
-            return null;
+            return getProcessInstance().getSimpleAttributeValue(key);
         }
 
         @Override
         public String getExternalKey() {
-            return null;
+            return getProcessInstance().getExternalKey();
         }
     }
 

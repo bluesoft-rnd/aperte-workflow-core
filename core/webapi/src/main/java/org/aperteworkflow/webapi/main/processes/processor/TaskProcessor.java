@@ -95,13 +95,15 @@ public class TaskProcessor
 			if(processWidget == null)
 				throw new RuntimeException(messageSource.getMessage("process.widget.name.unknown", widgetToSave.getWidgetName()));
 			
-			IWidgetDataHandler widgetDataHandler = processWidget.getDataHandler();
+			for(IWidgetDataHandler widgetDataHandler: processWidget.getDataHandlers())
+            {
+                WidgetData widgetData = new WidgetData();
+                widgetData.addWidgetData(widgetToSave.getData());
 
-            WidgetData widgetData = new WidgetData();
-            widgetData.addWidgetData(widgetToSave.getData());
 
+                results.addAll(widgetDataHandler.handleWidgetData(task, widgetData));
+            }
 
-            results.addAll(widgetDataHandler.handleWidgetData(task, widgetData));
 		}
         ProcessInstance process = task.getProcessInstance();
 

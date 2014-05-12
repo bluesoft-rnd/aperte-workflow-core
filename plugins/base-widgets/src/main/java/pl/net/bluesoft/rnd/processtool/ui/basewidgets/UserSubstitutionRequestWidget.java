@@ -15,6 +15,7 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolVaadinRenderable;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.*;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.SimpleWidgetDataHandler;
 import pl.net.bluesoft.rnd.processtool.usersource.IUserSource;
 import pl.net.bluesoft.rnd.processtool.web.widgets.impl.FileWidgetContentProvider;
 import pl.net.bluesoft.util.lang.Formats;
@@ -38,5 +39,6 @@ public class UserSubstitutionRequestWidget extends ProcessHtmlWidget
 
     public UserSubstitutionRequestWidget(IBundleResourceProvider bundleResourceProvider) {
         setContentProvider(new FileWidgetContentProvider("process-substitution-request.html", bundleResourceProvider));
+        addDataHandler(new SimpleWidgetDataHandler());
     }
 }

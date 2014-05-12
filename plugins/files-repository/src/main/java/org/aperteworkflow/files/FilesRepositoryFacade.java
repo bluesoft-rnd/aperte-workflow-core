@@ -13,6 +13,7 @@ import org.aperteworkflow.files.exceptions.UpdateDescriptionException;
 import org.aperteworkflow.files.exceptions.UploadFileException;
 import org.aperteworkflow.files.model.FileItemContent;
 import org.aperteworkflow.files.model.FilesRepositoryItem;
+import org.aperteworkflow.files.model.IFilesRepositoryItem;
 import org.hibernate.Session;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceDAO;
@@ -66,8 +67,8 @@ public class FilesRepositoryFacade implements IFilesRepositoryFacade {
     }
 
     @Override
-    public FilesRepositoryItem uploadFile(InputStream inputStream, String contentType, Long processInstanceId, String fileName, String fileDescription, String creatorLogin) throws UploadFileException {
-        FilesRepositoryItem result;
+    public IFilesRepositoryItem uploadFile(InputStream inputStream, String contentType, Long processInstanceId, String fileName, String fileDescription, String creatorLogin) throws UploadFileException {
+        IFilesRepositoryItem result;
         String filePath = prepareFilePath(processInstanceId, fileName);
         try {
             getFilesRepositoryStorageDAO().uploadFileToStorage(inputStream, filePath);
@@ -84,11 +85,11 @@ public class FilesRepositoryFacade implements IFilesRepositoryFacade {
 
     @Override
     public void deleteFile(Long processInstanceId, Long filesRepositoryItemId) throws DeleteFileException {
-        FilesRepositoryItem filesRepositoryItem = getFilesRepositoryItemDAO().getItemById(filesRepositoryItemId);
+        IFilesRepositoryItem filesRepositoryItem = getFilesRepositoryItemDAO().getItemById(filesRepositoryItemId);
         if (filesRepositoryItem == null) {
             throw new DeleteFileException("File item with id=[" + filesRepositoryItemId + "] not found.");
         }
-        if (filesRepositoryItem.getProcessInstance() == null || !filesRepositoryItem.getProcessInstance().getId().equals(processInstanceId)) {
+        if (filesRepositoryItem.getParentObject() == null || !filesRepositoryItem.getParentObjectId().equals(processInstanceId)) {
             throw new DeleteFileException("File from repository. File item is not connected to processInstanceId=[" + processInstanceId + "].");
         }
         getFilesRepositoryItemDAO().deleteById(filesRepositoryItemId);
@@ -101,11 +102,11 @@ public class FilesRepositoryFacade implements IFilesRepositoryFacade {
 
     @Override
     public FileItemContent downloadFile(Long processInstanceId, Long filesRepositoryItemId) throws DownloadFileException {
-        FilesRepositoryItem filesRepositoryItem = getFilesRepositoryItemDAO().getItemById(filesRepositoryItemId);
+        IFilesRepositoryItem filesRepositoryItem = getFilesRepositoryItemDAO().getItemById(filesRepositoryItemId);
         if (filesRepositoryItem == null) {
             throw new DownloadFileException("File item with id=[" + filesRepositoryItemId + "] not found.");
         }
-        if (filesRepositoryItem.getProcessInstance() == null || !filesRepositoryItem.getProcessInstance().getId().equals(processInstanceId)) {
+        if (filesRepositoryItem.getParentObject() == null || !filesRepositoryItem.getParentObjectId().equals(processInstanceId)) {
             throw new DownloadFileException("File item is not connected to process instance. ProcessInstanceId=[" + processInstanceId + "] and filesRepositoryItemId=["+filesRepositoryItemId+"].");
         }
         try {
@@ -119,17 +120,17 @@ public class FilesRepositoryFacade implements IFilesRepositoryFacade {
     }
 
     @Override
-    public Collection<FilesRepositoryItem> getFilesList(Long processInstanceId) {
+    public Collection<? extends IFilesRepositoryItem> getFilesList(Long processInstanceId) {
         return getFilesRepositoryItemDAO().getItemsFor(processInstanceId);
     }
 
     @Override
     public void updateDescription(Long processInstanceId, Long filesRepositoryItemId, String fileDescription) throws UpdateDescriptionException {
-        FilesRepositoryItem filesRepositoryItem = getFilesRepositoryItemDAO().getItemById(filesRepositoryItemId);
+        IFilesRepositoryItem filesRepositoryItem = getFilesRepositoryItemDAO().getItemById(filesRepositoryItemId);
         if (filesRepositoryItem == null) {
             throw new UpdateDescriptionException("File item with id=[" + filesRepositoryItemId + "] not found.");
         }
-        if (filesRepositoryItem.getProcessInstance() == null || !filesRepositoryItem.getProcessInstance().getId().equals(processInstanceId)) {
+        if (filesRepositoryItem.getParentObject() == null || !filesRepositoryItem.getParentObjectId().equals(processInstanceId)) {
             throw new UpdateDescriptionException("File item is not connected to process instance. ProcessInstanceId=[" + processInstanceId + "] and fileRepositoryItemId=["+filesRepositoryItemId+"].");
         }
         getFilesRepositoryItemDAO().updateDescriptionById(filesRepositoryItemId, fileDescription);

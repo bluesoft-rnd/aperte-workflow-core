@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
+import pl.net.bluesoft.rnd.processtool.dict.IDictionaryFacade;
 import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
@@ -41,6 +42,9 @@ public abstract class AbstractViewBuilder<T extends AbstractViewBuilder> {
 
     @Autowired
     protected IUserSource userSource;
+
+    @Autowired
+    protected IDictionaryFacade dictionaryFacade;
 
     protected AbstractViewBuilder() {
         SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
@@ -264,14 +268,17 @@ public abstract class AbstractViewBuilder<T extends AbstractViewBuilder> {
             viewData.put(IHtmlTemplateProvider.PRIVILEGES_PARAMETER, privileges);
             viewData.put(IHtmlTemplateProvider.WIDGET_ID_PARAMETER, widget.getId().toString());
             viewData.put(IHtmlTemplateProvider.DICTIONARIES_DAO_PARAMETER, ctx.getProcessDictionaryDAO());
+            viewData.put(IHtmlTemplateProvider.DICTIONARIES_FACADE, dictionaryFacade);
             viewData.put(IHtmlTemplateProvider.BPM_SESSION_PARAMETER, bpmSession);
 
             for (IStateWidgetAttribute attribute : widget.getAttributes())
                 viewData.put(attribute.getName(), attribute.getValue());
 
             /* Add custom attributes from widget data providers */
-            for (IWidgetDataProvider dataProvider : processHtmlWidget.getDataProviders())
+            for (IWidgetDataProvider dataProvider : processHtmlWidget.getDataProviders()) {
+                SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(dataProvider);
                 viewData.putAll(dataProvider.getData(getViewedObject()));
+            }
 
             String processedView = templateProvider.processTemplate(aliasName, viewData);
 

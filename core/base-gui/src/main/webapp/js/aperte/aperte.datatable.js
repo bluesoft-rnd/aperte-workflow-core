@@ -1,12 +1,3 @@
-<%@ page import="org.springframework.web.servlet.support.RequestContextUtils"%>
-<%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
-<%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
-
-<script type="text/javascript">
-
-   
 	function AperteDataTable(tableId, columnDefs, sortingOrder)
 	{
 		this.tableId = tableId;
@@ -15,7 +6,7 @@
 		this.sortingOrder = sortingOrder;
 		this.dataTable;
 		this.requestParameters = [];
-		
+
 		this.initialized = false;
 
 		this.setParameters = function(parameters)
@@ -27,14 +18,14 @@
 		{
 			this.requestParameters.push({ "name": name, "value": value });
 		}
-		
+
 		this.reloadTable = function(requestUrl)
 		{
-			$.each(this.requestParameters, function (index, parameter) 
+			$.each(this.requestParameters, function (index, parameter)
 			{
 				requestUrl += "&<portlet:namespace/>" + parameter["name"] + "=" + parameter["value"];
-			});		
-			
+			});
+
 			this.requestUrl = requestUrl;
 			if(this.initialized == false)
 			{
@@ -46,23 +37,23 @@
 				this.dataTable.fnReloadAjax(this.requestUrl);
 			}
 		}
-		
+
 		this.enableMobileMode = function()
 		{
 		}
-		
+
 		this.enableTabletMode = function()
 		{
 		}
-		
+
 		this.disableMobileMode = function()
 		{
 		}
-		
+
 		this.disableTabletMode = function()
 		{
 		}
-		
+
 		this.createDataTable = function()
 		{
 			this.dataTable = $('#'+this.tableId).dataTable({
@@ -96,7 +87,7 @@
 					  "sEmptyTable": "<spring:message code='datatable.empty' />",
 					  "sInfoEmpty": "<spring:message code='datatable.empty' />",
 					  "sProcessing": "<spring:message code='datatable.processing' />",
-					  "sLengthMenu": "<spring:message code='datatable.records' />",			  
+					  "sLengthMenu": "<spring:message code='datatable.records' />",
 					  "sInfoFiltered": "",
 					  "oPaginate": {
 						"sFirst": "<spring:message code='datatable.paginate.firstpage' />",
@@ -112,24 +103,24 @@
 				{
 					this.enableMobileMode();
 				}
-				
+
 				if(windowManager.tabletMode == true)
 				{
 					this.enableTabletMode();
 				}
 			}
 		}
-		
+
 		this.toggleColumnButton = function(columnName, active)
 		{
 			var checkbox = $("#button-"+this.tableId+'-'+columnName);
 			checkbox.trigger('click');
 		}
-	
+
 		this.toggleColumn = function(columnName)
 		{
 			var dataTable = this.dataTable;
-			$.each(dataTable.fnSettings().aoColumns, function (columnIndex, column) 
+			$.each(dataTable.fnSettings().aoColumns, function (columnIndex, column)
 			{
 				if (column.sName == columnName)
 				{
@@ -138,4 +129,3 @@
 		    });
 		}
 	}
-</script>

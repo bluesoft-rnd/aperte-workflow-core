@@ -3,6 +3,7 @@ package org.aperteworkflow.admin.controller;
 import org.aperteworkflow.ui.help.datatable.JQueryDataTable;
 import org.aperteworkflow.ui.help.datatable.JQueryDataTableUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.usersource.IPortalUserSource;
@@ -35,11 +36,16 @@ public class ProcessInstanceController implements IOsgiWebController {
     @Autowired
     protected ProcessToolRegistry processToolRegistry;
 
+    private ProcessToolBpmSession bpmSession;
+    private I18NSource messageSource;
+
     @ControllerMethod(action = "findProcessInstances")
     public GenericResultBean findProcessInstances(final OsgiWebRequest invocation) {
 
         IProcessToolRequestContext requestContext = invocation.getProcessToolRequestContext();
-        I18NSource messageSource = requestContext.getMessageSource();
+        messageSource = requestContext.getMessageSource();
+        bpmSession = requestContext.getBpmSession();
+
         Map<String, String[]> parameterMap = invocation.getRequest().getParameterMap();
         JQueryDataTable dataTable = JQueryDataTableUtil.analyzeRequest(parameterMap);
 
@@ -49,16 +55,16 @@ public class ProcessInstanceController implements IOsgiWebController {
         List<ProcessInstance> processInstances = new ArrayList<ProcessInstance>(invocation.getProcessToolContext().getProcessInstanceDAO()
                 .searchProcesses(searchCriteria, dataTable.getPageOffset(), dataTable.getPageLength(), isOnlyActive, null, null));
 
-        final List<ProcessInstanceBean> processInstanceBeans = createProcessInstanceBeansList(messageSource, processInstances);
+        final List<ProcessInstanceBean> processInstanceBeans = createProcessInstanceBeansList(processInstances);
         DataPagingBean<ProcessInstanceBean> dataPagingBean = new DataPagingBean<ProcessInstanceBean>(processInstanceBeans, processInstanceBeans.size(), dataTable.getEcho());
         return dataPagingBean;
     }
 
-    private List<ProcessInstanceBean> createProcessInstanceBeansList(I18NSource messageSource, List<ProcessInstance> processInstances) {
+    private List<ProcessInstanceBean> createProcessInstanceBeansList(List<ProcessInstance> processInstances) {
         final List<ProcessInstanceBean> processInstanceBeans = new ArrayList<ProcessInstanceBean>();
         for (ProcessInstance instance : processInstances) {
-            ProcessInstanceBean instanceBean = ProcessInstanceBean.createFrom(instance, messageSource);
-            processInstanceBeans.add(instanceBean);
+            List<ProcessInstanceBean> beans = ProcessInstanceBean.createBeans(instance, messageSource, bpmSession);
+            processInstanceBeans.addAll(beans);
         }
         return processInstanceBeans;
     }

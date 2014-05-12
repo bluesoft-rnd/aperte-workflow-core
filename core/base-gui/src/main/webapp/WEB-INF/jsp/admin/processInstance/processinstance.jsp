@@ -22,32 +22,23 @@
     </div>
 </div>
 
-<div class="process-tasks-view" id="foundProcessInstances">
+
+<div class="process-tasks-view" id="foundProcessInstances" style="z-index: 1">
     <table id="processInstanceTable" class="process-table table table-striped" border="1">
         <thead>
                 <th style="width:10%;">Definition name:</th>
+                <th style="width:10%;">Task name</th>
                 <th style="width:10%;">creator Login:</th>
                 <th style="width:10%;">created on:</th>
                 <th style="width:10%;">status:</th>
-                <th style="width:10%;">External key:</th>
-                <th style="width:10%;">Internal Id:</th>
+                <th style="width:10%;">Assigned to:</th>
                 <th style="width:10%;">Actions</th>
+                <th style="width:10%;">internal id</th>
+                <th style="width:5%;">external key</th>
+                <th style="width:15%;">dropdown</th>
         </thead>
         <tbody></tbody>
     </table>
-</div>
-
-<div class="btn-group">
-  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-    Action <span class="caret"></span>
-  </button>
-  <ul class="dropdown-menu" role="menu">
-    <li><a href="#">Action</a></li>
-    <li><a href="#">Another action</a></li>
-    <li><a href="#">Something else here</a></li>
-    <li class="divider"></li>
-    <li><a href="#">Separated link</a></li>
-  </ul>
 </div>
 
 
@@ -58,17 +49,18 @@
         var dataTable = new AperteDataTable("processInstanceTable",
             [
                 { "sName":"definitionName", "bSortable": true , "mData": "definitionName"},
+                { "sName":"taskName", "bSortable": true , "mData": "taskName" },
                 { "sName":"creatorLogin", "bSortable": true , "mData": "creatorLogin"},
                 { "sName":"creationDate", "bSortable": true ,"mData": function(object){return $.format.date(object.creationDate, 'dd-MM-yyyy, HH:mm:ss');}},
                 { "sName":"status", "bSortable": true , "mData": "status"},
-                { "sName":"externalKey", "bSortable": true , "mData": "externalKey"},
-                { "sName":"internalId", "bSortable": true , "mData": "internalId"},
-                { "sName":"actions", "bSortable": true , "mData": function(object) {}}
+                { "sName":"assignedTo", "bSortable": true , "mData": "assignedTo"},
+                { "sName":"availableActions", "bSortable": true , "mData": "availableActions" },
+                { "sName":"internalId", "bSortable": true , "mData": "internalId" },
+                { "sName":"externalKey", "bSortable": true , "mData": "externalKey" },
+                { "sName":"availableActions", "bSortable": true , "mData": function(object){return generateDropdownButton(object);}}
             ],
             [[ 1, "desc" ]]
         );
-
-
 
         setSearchParameters();
 
@@ -113,6 +105,35 @@
                     { "name": "onlyActive", "value" : document.getElementById("only_active").checked}
                 ]
             );
+        }
+
+        function generateDropdownButton(object) {
+            console.log(object.availableActions)
+
+            var dropdownDiv = document.createElement('div');
+            dropdownDiv.className = 'btn-group';
+            dropdownDiv.appendChild(
+
+
+            // 1. create javascript  element,
+            //2. append it to page!
+            var listCode = ['<ul id="actionList" class="dropdown-menu" role="menu">'];
+
+            for(var i = 0; i < object.availableActions.length; i++)
+            {
+                listCode.push('<li><a href="#">' + object.availableActions[i] + '</a></li>');
+            }
+            listCode.push('</ul>');
+
+            var buttonCode =
+                ['<div class="btn-group">',
+                    '<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">',
+                    'Action <span class="caret"></span>',
+                   '</button>'];
+            buttonCode.push(listCode);
+            buttonCode.push('</div>');
+            buttonCode.join('\n');
+            return buttonCode;
         }
     //]]>
 </script>

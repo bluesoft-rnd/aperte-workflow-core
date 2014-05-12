@@ -363,7 +363,7 @@
 			<!-- Validate html widgets -->
 			$.each(widgets, function() 
 			{
-				var errorMessages = this.validate();
+				var errorMessages = this.validate(actionName);
 				$.each(errorMessages, function() {
 					errors.push(this);
 					addAlert(this);

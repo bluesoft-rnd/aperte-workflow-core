@@ -12,6 +12,8 @@ import pl.net.bluesoft.rnd.processtool.web.domain.IHtmlTemplateProvider;
 
 import java.util.*;
 
+import static pl.net.bluesoft.util.lang.Strings.hasText;
+
 /**
  * Html builder for the task view
  *
@@ -90,8 +92,15 @@ public class TaskViewBuilder extends AbstractViewBuilder<TaskViewBuilder> {
         if (iconName == null || iconName.isEmpty())
             iconName = "arrow-right";
 
-        Element buttonNode = parent.ownerDocument().createElement("button")
-                .attr("class", "btn btn-" + actionType)
+		String btnClass = "btn btn-" + actionType;
+		String styleName = action.getAttributeValue("styleName");
+
+		if (hasText(styleName)) {
+			btnClass += ' ' + styleName;
+		}
+
+		Element buttonNode = parent.ownerDocument().createElement("button")
+                .attr("class", btnClass)
                 .attr("disabled", "true")
                 .attr("type", "button")
                 .attr("id", actionButtonId);

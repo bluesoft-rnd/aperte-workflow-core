@@ -46,6 +46,7 @@ public class SetVariablesStep implements ProcessToolProcessStep {
     			assignment[1] = assignment[1].substring(1, assignment[1].length() - 1);
 
             String key = assignment[0];
+
             String value = StepUtil.extractVariable(assignment[1], ctx, pi);
             pi.setSimpleAttribute(key, value);
 

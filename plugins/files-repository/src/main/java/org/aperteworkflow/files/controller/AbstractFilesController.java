@@ -13,7 +13,6 @@ import org.aperteworkflow.files.model.FileItemContent;
 import org.aperteworkflow.files.model.FilesRepositoryItemDTO;
 import org.aperteworkflow.files.model.IFilesRepositoryItem;
 import org.springframework.beans.factory.annotation.Autowired;
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.model.IAttributesConsumer;
 import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
@@ -199,6 +198,7 @@ public abstract class AbstractFilesController implements IOsgiWebController {
 
     private Long getProcessInstanceId(HttpServletRequest request) {
         String processInstanceIdStr = request.getParameter(PROCESS_INSTANCE_ID_REQ_PARAM_NAME);
+        processInstanceIdStr = processInstanceIdStr.replaceAll("\u00a0+", "");
         Long processInstanceId = processInstanceIdStr != null ? Long.valueOf(processInstanceIdStr) : null;
         if (processInstanceId == null) {
             throw new RuntimeException("Process instance ID not provided in request!");

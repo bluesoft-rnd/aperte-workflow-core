@@ -6,12 +6,10 @@ import org.aperteworkflow.files.model.FilesRepositoryProcessAttribute;
 import org.aperteworkflow.files.model.IFilesRepositoryAttribute;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
 import pl.net.bluesoft.rnd.processtool.model.IAttributesConsumer;
 import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 
 import java.util.*;
 
@@ -20,15 +18,12 @@ import java.util.*;
  */
 public class FilesRepositoryItemDAOImpl extends SimpleHibernateBean<FilesRepositoryProcessAttribute> implements FilesRepositoryItemDAO {
 
-    private FilesRepositoryAttributeFactory factory;
-
-    public FilesRepositoryItemDAOImpl(Session session, FilesRepositoryAttributeFactory factory) {
+    public FilesRepositoryItemDAOImpl(Session session) {
         super(session);
-        this.factory = factory;
     }
 
     @Override
-    public FilesRepositoryItem addItem(IAttributesConsumer consumer, String name, String description, String relativePath, String contentType, String creatorLogin) {
+    public FilesRepositoryItem addItem(IAttributesConsumer consumer, String name, String description, String relativePath, String contentType, String creatorLogin, FilesRepositoryAttributeFactory factory) {
         FilesRepositoryItem item = new FilesRepositoryItem();
         item.setName(name);
         item.setDescription(description);

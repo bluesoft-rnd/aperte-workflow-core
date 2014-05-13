@@ -75,12 +75,7 @@ public class FilesRepositoryFacadeTest {
         tx = session.beginTransaction();
         processInstanceDAO = new ProcessInstanceDAOImpl(session);
         exProcessInstance = processInstanceDAO.findAll().get(0);
-        frItemDAO = new FilesRepositoryItemDAOImpl(session, new FilesRepositoryAttributeFactory() {
-            @Override
-            public IFilesRepositoryAttribute create() {
-                return new FilesRepositoryProcessAttribute();
-            }
-        });
+        frItemDAO = new FilesRepositoryItemDAOImpl(session);
         frStorageDAO = new FilesRepositoryStorageDAOImpl(config);
         filesRepoFacade = new FilesRepositoryFacade(session, configFactory);
     }
@@ -105,7 +100,7 @@ public class FilesRepositoryFacadeTest {
         item1.setDescription("Description of ExampleFile.txt");
         item1.setContentType("text/plain");
         InputStream inputStream = IOUtils.toInputStream("File content");
-        Long newItemId = filesRepoFacade.uploadFile(inputStream, item1.getContentType(), exProcessInstance, item1.getName(), item1.getDescription(), CREATOR_LOGIN).getId();
+        Long newItemId = filesRepoFacade.uploadFile(inputStream, item1.getContentType(), exProcessInstance, item1.getName(), item1.getDescription(), CREATOR_LOGIN, new FilesRepositoryProcessAttributeFactoryImpl()).getId();
         IOUtils.closeQuietly(inputStream);
 
         IFilesRepositoryItem newItem = frItemDAO.getItemById(newItemId);

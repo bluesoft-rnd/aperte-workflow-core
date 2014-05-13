@@ -40,12 +40,7 @@ public class FilesRepositoryFacade implements IFilesRepositoryFacade {
 
     private FilesRepositoryItemDAO getFilesRepositoryItemDAO() {
         Session sessionToUse = getSession();
-        return new FilesRepositoryItemDAOImpl(sessionToUse, new FilesRepositoryAttributeFactory() {
-            @Override
-            public IFilesRepositoryAttribute create() {
-                return new FilesRepositoryProcessAttribute();
-            }
-        });
+        return new FilesRepositoryItemDAOImpl(sessionToUse);
     }
 
     private Session getSession() {
@@ -61,7 +56,7 @@ public class FilesRepositoryFacade implements IFilesRepositoryFacade {
     }
 
     @Override
-    public IFilesRepositoryItem uploadFile(InputStream inputStream, String contentType, IAttributesConsumer filesConsumer, String fileName, String fileDescription, String creatorLogin) throws UploadFileException {
+    public IFilesRepositoryItem uploadFile(InputStream inputStream, String contentType, IAttributesConsumer filesConsumer, String fileName, String fileDescription, String creatorLogin, FilesRepositoryAttributeFactory factory) throws UploadFileException {
         IFilesRepositoryItem result;
         String filePath = prepareFilePath(filesConsumer.getId(), fileName);
         try {
@@ -69,7 +64,7 @@ public class FilesRepositoryFacade implements IFilesRepositoryFacade {
         } catch (IOException e) {
             throw new UploadFileException("Cannot write file to storage", e);
         }
-        result = getFilesRepositoryItemDAO().addItem(filesConsumer, fileName, fileDescription, filePath, contentType, creatorLogin);
+        result = getFilesRepositoryItemDAO().addItem(filesConsumer, fileName, fileDescription, filePath, contentType, creatorLogin, factory);
         return result;
     }
 

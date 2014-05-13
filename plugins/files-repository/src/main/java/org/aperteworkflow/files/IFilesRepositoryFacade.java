@@ -1,5 +1,6 @@
 package org.aperteworkflow.files;
 
+import org.aperteworkflow.files.dao.FilesRepositoryAttributeFactory;
 import org.aperteworkflow.files.exceptions.DeleteFileException;
 import org.aperteworkflow.files.exceptions.DownloadFileException;
 import org.aperteworkflow.files.exceptions.UpdateDescriptionException;
@@ -16,7 +17,7 @@ import java.util.Collection;
  * @author pwysocki@bluesoft.net.pl
  */
 public interface IFilesRepositoryFacade {
-    IFilesRepositoryItem uploadFile(InputStream inputStream, String contentType, IAttributesConsumer filesAttributeConsumer, String fileName, String fileDescription, String creatorLogin) throws UploadFileException;
+    IFilesRepositoryItem uploadFile(InputStream inputStream, String contentType, IAttributesConsumer filesAttributeConsumer, String fileName, String fileDescription, String creatorLogin, FilesRepositoryAttributeFactory factory) throws UploadFileException;
 
     void deleteFile(IAttributesProvider filesAttributeProvider, Long filesRepositoryItemId) throws DeleteFileException;
 
@@ -25,4 +26,5 @@ public interface IFilesRepositoryFacade {
     Collection<? extends IFilesRepositoryItem> getFilesList(IAttributesProvider filesAttributeProvider);
 
     void updateDescription(Long filesRepositoryItemId, String fileDescription) throws UpdateDescriptionException;
+
 }

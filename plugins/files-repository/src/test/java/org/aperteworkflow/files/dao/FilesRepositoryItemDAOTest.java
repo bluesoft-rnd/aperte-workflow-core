@@ -33,6 +33,7 @@ public class FilesRepositoryItemDAOTest {
     private ProcessInstanceDAO processInstanceDAO;
 
     private ProcessInstance exProcessInstance;
+    private FilesRepositoryAttributeFactory factory;
 
     @BeforeClass
     public static void beforeClass() throws NamingException {
@@ -48,12 +49,8 @@ public class FilesRepositoryItemDAOTest {
         tx = session.beginTransaction();
         processInstanceDAO = new ProcessInstanceDAOImpl(session);
         exProcessInstance = processInstanceDAO.findAll().get(3);
-        dao = new FilesRepositoryItemDAOImpl(session, new FilesRepositoryAttributeFactory() {
-            @Override
-            public IFilesRepositoryAttribute create() {
-                return new FilesRepositoryProcessAttribute();
-            }
-        });
+        dao = new FilesRepositoryItemDAOImpl(session);
+        factory = new FilesRepositoryProcessAttributeFactoryImpl();
     }
 
     @After
@@ -74,7 +71,7 @@ public class FilesRepositoryItemDAOTest {
         item1.setRelativePath("ExampleFile_relativePath.txt");
         item1.setDescription("Description of ExampleFile.txt");
         item1.setContentType("testContentType");
-        IFilesRepositoryItem newItem = dao.addItem(exProcessInstance, item1.getName(), item1.getDescription(), item1.getRelativePath(), item1.getContentType(), CREATOR_LOGIN);
+        IFilesRepositoryItem newItem = dao.addItem(exProcessInstance, item1.getName(), item1.getDescription(), item1.getRelativePath(), item1.getContentType(), CREATOR_LOGIN, factory);
         Assert.assertArrayEquals("Old and new item properties doesn't equals", new String[]{item1.getName(), item1.getRelativePath(), item1.getDescription()}
                 , new String[]{newItem.getName(), newItem.getRelativePath(), newItem.getDescription()});
         Assert.assertNotNull("CreatorLogin of new item has been not set", newItem.getCreatorLogin());
@@ -83,9 +80,9 @@ public class FilesRepositoryItemDAOTest {
 
     @Test
     public void testGetItems() {
-        IFilesRepositoryItem newItem1 = dao.addItem(exProcessInstance, "1.txt", "1_relativePath.txt", "Description of 1.txt", "text/plain", CREATOR_LOGIN);
-        IFilesRepositoryItem newItem2 = dao.addItem(exProcessInstance, "2.txt", "2_relativePath.txt", "Description of 2.txt", "text/plain", CREATOR_LOGIN);
-        IFilesRepositoryItem newItem3 = dao.addItem(exProcessInstance, "3.txt", "3_relativePath.txt", "Description of 3.txt", "text/plain", CREATOR_LOGIN);
+        IFilesRepositoryItem newItem1 = dao.addItem(exProcessInstance, "1.txt", "1_relativePath.txt", "Description of 1.txt", "text/plain", CREATOR_LOGIN, factory);
+        IFilesRepositoryItem newItem2 = dao.addItem(exProcessInstance, "2.txt", "2_relativePath.txt", "Description of 2.txt", "text/plain", CREATOR_LOGIN, factory);
+        IFilesRepositoryItem newItem3 = dao.addItem(exProcessInstance, "3.txt", "3_relativePath.txt", "Description of 3.txt", "text/plain", CREATOR_LOGIN, factory);
 
         List<FilesRepositoryItem> retItems = new ArrayList<FilesRepositoryItem>(dao.getItemsFor(exProcessInstance));
 
@@ -104,9 +101,9 @@ public class FilesRepositoryItemDAOTest {
 
     @Test
     public void testDeleteById() {
-        IFilesRepositoryItem newItem1 = dao.addItem(exProcessInstance, "1.txt", "1_relativePath.txt", "Description of 1.txt", "text/plain", CREATOR_LOGIN);
-        IFilesRepositoryItem newItem2 = dao.addItem(exProcessInstance, "2.txt", "2_relativePath.txt", "Description of 2.txt", "text/plain", CREATOR_LOGIN);
-        IFilesRepositoryItem newItem3 = dao.addItem(exProcessInstance, "3.txt", "3_relativePath.txt", "Description of 3.txt", "text/plain", CREATOR_LOGIN);
+        IFilesRepositoryItem newItem1 = dao.addItem(exProcessInstance, "1.txt", "1_relativePath.txt", "Description of 1.txt", "text/plain", CREATOR_LOGIN, factory);
+        IFilesRepositoryItem newItem2 = dao.addItem(exProcessInstance, "2.txt", "2_relativePath.txt", "Description of 2.txt", "text/plain", CREATOR_LOGIN, factory);
+        IFilesRepositoryItem newItem3 = dao.addItem(exProcessInstance, "3.txt", "3_relativePath.txt", "Description of 3.txt", "text/plain", CREATOR_LOGIN, factory);
 
         dao.deleteById(exProcessInstance, newItem2.getId());
 
@@ -125,7 +122,7 @@ public class FilesRepositoryItemDAOTest {
 
     @Test
     public void testUpdateDescriptionById() {
-        IFilesRepositoryItem newItem1 = dao.addItem(exProcessInstance, "1.txt", "1_relativePath.txt", "Description of 1.txt", "text/plain", CREATOR_LOGIN);
+        IFilesRepositoryItem newItem1 = dao.addItem(exProcessInstance, "1.txt", "1_relativePath.txt", "Description of 1.txt", "text/plain", CREATOR_LOGIN, factory);
         final String newDesc = "New Description for 1.txt";
         dao.updateDescriptionById(newItem1.getId(), newDesc);
         IFilesRepositoryItem updatedNewItem1 = dao.getItemById(newItem1.getId());

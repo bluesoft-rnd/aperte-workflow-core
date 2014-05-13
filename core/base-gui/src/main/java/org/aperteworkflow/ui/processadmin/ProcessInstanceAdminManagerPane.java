@@ -41,17 +41,15 @@ import static pl.net.bluesoft.util.lang.StringUtil.hasText;
  */
 public class ProcessInstanceAdminManagerPane extends VerticalLayout implements Refreshable {
 
-    private Logger logger = Logger.getLogger(ProcessInstanceAdminManagerPane.class.getName());
-    
     TextField searchField = new TextField(getLocalizedMessage("processinstances.search.prompt"));
     CheckBox onlyActive = new CheckBox(getLocalizedMessage("processinstances.search.onlyActive"));
     VerticalLayout searchResults = new VerticalLayout();
-
     int offset = 0;
     int limit = 10;
     int cnt = 0;
     String filter = null;
     Label errorLbl = new Label();
+    private Logger logger = Logger.getLogger(ProcessInstanceAdminManagerPane.class.getName());
     private ProcessToolBpmSession bpmSession;
 
     public ProcessInstanceAdminManagerPane(Application application, ProcessToolBpmSession session) {
@@ -89,7 +87,7 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements R
         addComponent(searchField);
         addComponent(onlyActive);
         addComponent(errorLbl);
-        
+
         addComponent(searchResults);
     }
 
@@ -110,7 +108,7 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements R
         });
         hl.addComponent(prevButton);
 
-        hl.addComponent(new Label((offset + 1) + "-" + Math.min(offset + limit, offset+cnt)));
+        hl.addComponent(new Label((offset + 1) + "-" + Math.min(offset + limit, offset + cnt)));
         Button nextButton = new Button(getLocalizedMessage("processinstances.console.tasks.next"));
         nextButton.setStyleName(BaseTheme.BUTTON_LINK);
         nextButton.setEnabled(limit < cnt);
@@ -155,11 +153,10 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements R
                     searchResults.addComponent(getProcessInstancePane(pi));
                 }
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
             errorLbl.setVisible(true);
-            errorLbl.setValue(getLocalizedMessage("processinstances.console.failed") + " " + e.getClass().getName() 
+            errorLbl.setValue(getLocalizedMessage("processinstances.console.failed") + " " + e.getClass().getName()
                     + ": " + e.getMessage());
         }
     }
@@ -227,12 +224,12 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements R
                     @Override
                     public int compare(ProcessStateAction o1, ProcessStateAction o2) {
                         int res = nvl(o1.getPriority(), 0).compareTo(nvl(o2.getPriority(), 0));
-                        if (res == 0) 
+                        if (res == 0)
                             res = o1.getId().compareTo(o2.getId());
                         return res;
                     }
                 });
-                
+
                 for (final ProcessStateAction psa : actions) {
                     hl.addComponent(getActionForceButton(pi, task, psa));
                 }
@@ -240,47 +237,47 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements R
             }
         }
         vl.addComponent(hl(getCancelProcessButton(pi), getDisplayProcessMapButton(pi)));
-      
+
         return vl;
     }
 
     private Button getDisplayProcessMapButton(final ProcessInstance pi) {
         Button button = linkButton(getLocalizedMessage("processinstances.console.show-process-map"),
-                                new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        //doesn't show in window!!!
-                                        //showWindowWithProcessMapEmbedded(pi);
-                                        BufferedImage read;
-                                        final byte[] png = bpmSession.getProcessMapImage(pi);
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        //doesn't show in window!!!
+                        //showWindowWithProcessMapEmbedded(pi);
+                        BufferedImage read;
+                        final byte[] png = bpmSession.getProcessMapImage(pi);
 
-                                        try {
-                                            read = ImageIO.read(new ByteArrayInputStream(png));
-                                            String url = ProcessInstanceManagerPortlet.getProcessInstanceMapRequestUrl(getApplication(),
-                                                    pi.getInternalId());
-                                            Window w = new Window(getLocalizedMessage("processinstances.console.process.image-map") + ":" + pi.getInternalId());
+                        try {
+                            read = ImageIO.read(new ByteArrayInputStream(png));
+                            String url = ProcessInstanceManagerPortlet.getProcessInstanceMapRequestUrl(getApplication(),
+                                    pi.getInternalId());
+                            Window w = new Window(getLocalizedMessage("processinstances.console.process.image-map") + ":" + pi.getInternalId());
 //                                            w.setWidth(read.getWidth() + "px");
 //                                            w.setHeight(read.getHeight() + "px");
-                                            VerticalLayout newContent = new VerticalLayout();
-                                            newContent.setMargin(false);
-                                            newContent.setSpacing(false);
-                                            w.setContent(newContent);
-                                            w.getContent().setWidth(read.getWidth() + "px");
-                                            w.getContent().setHeight(read.getHeight() + "px");
-                                            w.center();
-                                            Embedded e = new Embedded(null, new ExternalResource(url));
-                                            e.setWidth(read.getWidth() + "px");
-                                            e.setHeight(read.getHeight() + "px");
-                                            e.setType(Embedded.TYPE_BROWSER);
-                                            w.getContent().addComponent(e);
-                                            w.setResizable(true);
-                                            getApplication().getMainWindow().addWindow(w);
-                                        } catch (IOException e) {
-                                            throw new RuntimeException(e);
-                                        }
-                                    }
-                                });
-                return button;            
+                            VerticalLayout newContent = new VerticalLayout();
+                            newContent.setMargin(false);
+                            newContent.setSpacing(false);
+                            w.setContent(newContent);
+                            w.getContent().setWidth(read.getWidth() + "px");
+                            w.getContent().setHeight(read.getHeight() + "px");
+                            w.center();
+                            Embedded e = new Embedded(null, new ExternalResource(url));
+                            e.setWidth(read.getWidth() + "px");
+                            e.setHeight(read.getHeight() + "px");
+                            e.setType(Embedded.TYPE_BROWSER);
+                            w.getContent().addComponent(e);
+                            w.setResizable(true);
+                            getApplication().getMainWindow().addWindow(w);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                });
+        return button;
     }
 
 //    private void showWindowWithProcessMapEmbedded(ProcessInstance pi) {
@@ -422,68 +419,83 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements R
                     confirmable(getApplication(),
                             getLocalizedMessage("processinstances.console.remove-owner.confirm.title"),
                             getLocalizedMessage("processinstances.console.remove-owner.confirm.message"),
-                    new Runnable() {
-                @Override
-                public void run() {
-                    bpmSession.adminReassignProcessTask(task.getInternalTaskId(), null);
-                    refreshData();
-                    Window.Notification n =
-                            new Window.Notification(getLocalizedMessage("processinstances.console.remove-owner.success"));
-                    n.setDelayMsec(5000);
-                    getApplication().getMainWindow().showNotification(n);
-                }
-            })));
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    bpmSession.adminReassignProcessTask(task.getInternalTaskId(), null);
+                                    refreshData();
+                                    Window.Notification n =
+                                            new Window.Notification(getLocalizedMessage("processinstances.console.remove-owner.success"));
+                                    n.setDelayMsec(5000);
+                                    getApplication().getMainWindow().showNotification(n);
+                                }
+                            })));
         }
         return hl;
     }
 
-    private class UserSearchComponent extends VerticalLayout {
-        private TextField smallSearchField = new TextField();
-        private CssLayout results = new CssLayout();
-        private String filter;
-
-        public UserSearchComponent(final BpmTask task, final ProcessInstance pi, final Window w) {
-
-            setWidth("100%");
-            setSpacing(true);
-            addComponent(styled(new Label(getLocalizedMessage("processinstances.console.entry.change.owner.title")), "h2"));
-            addComponent(styled(new Label(getLocalizedMessage("processinstances.console.entry.change.owner.info")), "h2"));
-
-            addComponent(smallSearchField);
-            addComponent(results);
-            smallSearchField.setImmediate(true);
-            smallSearchField.setWidth("100%");
-            smallSearchField.setTextChangeTimeout(500);
-            smallSearchField.focus();
-            smallSearchField.addListener(new FieldEvents.TextChangeListener() {
-                @Override
-                public void textChange(FieldEvents.TextChangeEvent textChangeEvent) {
-                    filter = textChangeEvent.getText();
-                    results.removeAllComponents();
-                    List<String> availableLogins = bpmSession.getAvailableLogins(filter.trim());
-                    for (final String login : availableLogins) {
-                        results.addComponent(linkButton(login,
-                                confirmable(getApplication(),
-                                        getLocalizedMessage("processinstances.console.change-owner.confirm.title"),
-                                        getLocalizedMessage("processinstances.console.change-owner.confirm.message"),
-                                        new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                bpmSession.adminReassignProcessTask(task.getInternalTaskId(), login);
-                                                Window mainWindow = getApplication().getMainWindow();
-                                                mainWindow.removeWindow(w);
-                                                refreshData();
-                                                Window.Notification n =
-                                                        new Window.Notification(getLocalizedMessage("processinstances.console.change-owner.success"));
-                                                n.setDelayMsec(5000);
-                                                mainWindow.showNotification(n);
-                                            }
-                                        })));
-                    }
-                }
-            });
-
+    private ProcessLogInfo getProcessLogInfo(ProcessInstanceLog pl) {
+        ProcessLogInfo plInfo = new ProcessLogInfo();
+        String userDescription = getUserDescription(pl.getUserLogin());
+        if (pl.getUserSubstituteLogin() != null) {
+            String substituteDescription = getUserDescription(pl.getUserSubstituteLogin());
+            plInfo.userDescription = substituteDescription + "(" +
+                    getLocalizedMessage("processinstances.console.history.substituting") + " " + userDescription + ")";
+        } else {
+            plInfo.userDescription = userDescription;
         }
+        plInfo.entryDescription = nvl(pl.getAdditionalInfo(), pl.getLogValue());
+        plInfo.actionDescription = getLocalizedMessage(pl.getEventI18NKey());
+        if (hasText(plInfo.getEntryDescription())) {
+            plInfo.actionDescription = plInfo.actionDescription + " - " + getLocalizedMessage(plInfo.entryDescription);
+        }
+        plInfo.performDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(pl.getEntryDate().getTime());
+        plInfo.stateDescription = pl.getState() != null ? nvl(pl.getState().getDescription(), pl.getState().getName()) : "";
+        return plInfo;
+    }
+
+    private String getUserDescription(String login) {
+        if (login != null) {
+            UserData user = getRegistry().getUserSource().getUserByLogin(login);
+            if (user != null) {
+                return nvl(user.getRealName(), user.getLogin());
+            }
+        }
+        return "";
+    }
+
+    private ComponentContainer getHistoryPane(ProcessInstance pi) {
+        //refresh
+        pi = getThreadProcessToolContext().getProcessInstanceDAO().getProcessInstance(pi.getId());
+
+        List<ProcessInstanceLog> processLogs = new ArrayList<ProcessInstanceLog>(pi.getProcessLogs());
+        Collections.sort(processLogs, ProcessInstanceLog.DEFAULT_COMPARATOR);
+        VerticalLayout vl = new VerticalLayout();
+        HorizontalLayout hl;
+        for (ProcessInstanceLog pil : processLogs) {
+            ProcessLogInfo pli = getProcessLogInfo(pil);
+
+            hl = new HorizontalLayout();
+            hl.setSpacing(true);
+            if (hasText(pli.getUserDescription()))
+                hl.addComponent(htmlLabel("<b>" + pli.getUserDescription() + "</b>", 150));
+            else
+                hl.addComponent(htmlLabel("<b>System</b>", 150));
+
+            hl.addComponent(htmlLabel("<b>" + pli.getPerformDate() + "</b>", 130));
+            hl.addComponent(new Label("<b>" + getLocalizedMessage("processinstances.console.history.stateDescription") +
+                    "</b>", Label.CONTENT_XHTML));
+            hl.addComponent(label(getLocalizedMessage(pli.getStateDescription()), 350));
+            vl.addComponent(hl);
+            hl = new HorizontalLayout();
+            hl.setSpacing(true);
+            hl.setMargin(new Layout.MarginInfo(false, false, true, true));
+            Label l = new Label(pli.getActionDescription(), Label.CONTENT_XHTML);
+            l.setWidth("100%");
+            hl.addComponent(l);
+            vl.addComponent(hl);
+        }
+        return vl;
     }
 
     public static class ProcessLogInfo {
@@ -534,67 +546,52 @@ public class ProcessInstanceAdminManagerPane extends VerticalLayout implements R
         }
     }
 
-    private ProcessLogInfo getProcessLogInfo(ProcessInstanceLog pl) {
-        ProcessLogInfo plInfo = new ProcessLogInfo();
-		String userDescription = getUserDescription(pl.getUserLogin());
-		if (pl.getUserSubstituteLogin() != null) {
-            String substituteDescription = getUserDescription(pl.getUserSubstituteLogin());
-            plInfo.userDescription = substituteDescription + "(" +
-                    getLocalizedMessage("processinstances.console.history.substituting") + " " + userDescription + ")";
-        } else {
-            plInfo.userDescription = userDescription;
+    private class UserSearchComponent extends VerticalLayout {
+        private TextField smallSearchField = new TextField();
+        private CssLayout results = new CssLayout();
+        private String filter;
+
+        public UserSearchComponent(final BpmTask task, final ProcessInstance pi, final Window w) {
+
+            setWidth("100%");
+            setSpacing(true);
+            addComponent(styled(new Label(getLocalizedMessage("processinstances.console.entry.change.owner.title")), "h2"));
+            addComponent(styled(new Label(getLocalizedMessage("processinstances.console.entry.change.owner.info")), "h2"));
+
+            addComponent(smallSearchField);
+            addComponent(results);
+            smallSearchField.setImmediate(true);
+            smallSearchField.setWidth("100%");
+            smallSearchField.setTextChangeTimeout(500);
+            smallSearchField.focus();
+            smallSearchField.addListener(new FieldEvents.TextChangeListener() {
+                @Override
+                public void textChange(FieldEvents.TextChangeEvent textChangeEvent) {
+                    filter = textChangeEvent.getText();
+                    results.removeAllComponents();
+                    List<String> availableLogins = bpmSession.getAvailableLogins(filter.trim());
+                    for (final String login : availableLogins) {
+                        results.addComponent(linkButton(login,
+                                confirmable(getApplication(),
+                                        getLocalizedMessage("processinstances.console.change-owner.confirm.title"),
+                                        getLocalizedMessage("processinstances.console.change-owner.confirm.message"),
+                                        new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                bpmSession.adminReassignProcessTask(task.getInternalTaskId(), login);
+                                                Window mainWindow = getApplication().getMainWindow();
+                                                mainWindow.removeWindow(w);
+                                                refreshData();
+                                                Window.Notification n =
+                                                        new Window.Notification(getLocalizedMessage("processinstances.console.change-owner.success"));
+                                                n.setDelayMsec(5000);
+                                                mainWindow.showNotification(n);
+                                            }
+                                        })));
+                    }
+                }
+            });
+
         }
-        plInfo.entryDescription = nvl(pl.getAdditionalInfo(), pl.getLogValue());
-        plInfo.actionDescription = getLocalizedMessage(pl.getEventI18NKey());
-        if (hasText(plInfo.getEntryDescription())) {
-            plInfo.actionDescription = plInfo.actionDescription + " - " + getLocalizedMessage(plInfo.entryDescription);
-        }
-        plInfo.performDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(pl.getEntryDate().getTime());
-        plInfo.stateDescription = pl.getState() != null ? nvl(pl.getState().getDescription(), pl.getState().getName()) : "";
-        return plInfo;
-    }
-
-	private String getUserDescription(String login) {
-		if (login != null) {
-			UserData user = getRegistry().getUserSource().getUserByLogin(login);
-			if (user != null) {
-				return nvl(user.getRealName(), user.getLogin());
-			}
-		}
-		return "";
-	}
-
-	private ComponentContainer getHistoryPane(ProcessInstance pi) {
-        //refresh
-        pi = getThreadProcessToolContext().getProcessInstanceDAO().getProcessInstance(pi.getId());
-
-        List<ProcessInstanceLog> processLogs = new ArrayList<ProcessInstanceLog>(pi.getProcessLogs());
-        Collections.sort(processLogs, ProcessInstanceLog.DEFAULT_COMPARATOR);
-        VerticalLayout vl = new VerticalLayout();
-        HorizontalLayout hl;
-        for (ProcessInstanceLog pil : processLogs) {
-            ProcessLogInfo pli = getProcessLogInfo(pil);
-
-            hl = new HorizontalLayout();
-            hl.setSpacing(true);
-            if (hasText(pli.getUserDescription()))
-                hl.addComponent(htmlLabel("<b>" + pli.getUserDescription() + "</b>", 150));
-            else
-                hl.addComponent(htmlLabel("<b>System</b>", 150));
-
-            hl.addComponent(htmlLabel("<b>" + pli.getPerformDate() + "</b>", 130));
-            hl.addComponent(new Label("<b>" + getLocalizedMessage("processinstances.console.history.stateDescription") +
-                    "</b>", Label.CONTENT_XHTML));
-            hl.addComponent(label(getLocalizedMessage(pli.getStateDescription()), 350));
-            vl.addComponent(hl);
-            hl = new HorizontalLayout();
-            hl.setSpacing(true);
-            hl.setMargin(new Layout.MarginInfo(false, false, true, true));
-            Label l = new Label(pli.getActionDescription(), Label.CONTENT_XHTML);
-            l.setWidth("100%");
-            hl.addComponent(l);
-            vl.addComponent(hl);
-        }
-        return vl;
     }
 }

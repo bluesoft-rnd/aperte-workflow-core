@@ -16,7 +16,11 @@ import java.util.List;
 
 public class ProcessInstanceBean extends AbstractResultBean {
 
-    private String definitionName;
+
+    private Long definitionId;
+    private String definitionDescription;
+    private String bpmDefinitionKey;
+
     private String creatorLogin;
     private Date creationDate;
     private String status;
@@ -37,7 +41,7 @@ public class ProcessInstanceBean extends AbstractResultBean {
         return processInstanceBeans;
     }
 
-    private static List<ProcessInstanceBean> createBeansForAllTasks(ProcessInstance instance,ProcessDefinitionConfig definition, List<BpmTask> taskList, List<ProcessInstanceLog> processLogs) {
+    private static List<ProcessInstanceBean> createBeansForAllTasks(ProcessInstance instance, ProcessDefinitionConfig definition, List<BpmTask> taskList, List<ProcessInstanceLog> processLogs) {
         List<ProcessInstanceBean> processInstanceBeans = new ArrayList<ProcessInstanceBean>();
         ProcessInstanceBean bean;
         for (final BpmTask task : taskList) {
@@ -45,10 +49,9 @@ public class ProcessInstanceBean extends AbstractResultBean {
 
             ProcessStateConfiguration processState = task.getCurrentProcessStateConfiguration();
 
-            bean.definitionName = instance.getInternalId() + " " + definition.getDescription()
-                    + " (def id: " + definition.getId() + ") "
-                    + definition.getBpmDefinitionKey();
-
+            bean.definitionId = definition.getId();
+            bean.definitionDescription = definition.getDescription();
+            bean.bpmDefinitionKey = definition.getBpmDefinitionKey();
             bean.assignedTo = task.getAssignee();
             bean.creatorLogin = instance.getCreatorLogin();
             bean.creationDate = instance.getCreateDate();
@@ -69,71 +72,48 @@ public class ProcessInstanceBean extends AbstractResultBean {
         return processInstanceBeans;
     }
 
-    public String getDefinitionName() {
-        return definitionName;
+    public Long getDefinitionId() {
+        return definitionId;
+    }
+
+    public String getDefinitionDescription() {
+        return definitionDescription;
+    }
+
+    public String getBpmDefinitionKey() {
+        return bpmDefinitionKey;
     }
 
     public String getCreatorLogin() {
         return creatorLogin;
     }
 
-    public void setCreatorLogin(String creatorLogin) {
-        this.creatorLogin = creatorLogin;
-    }
-
     public Date getCreationDate() {
         return creationDate;
-    }
-
-    public void setCreationDate(Date creationDate) {
-        this.creationDate = creationDate;
     }
 
     public String getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
     public String getAssignedTo() {
         return assignedTo;
-    }
-
-    public void setAssignedTo(String assignedTo) {
-        this.assignedTo = assignedTo;
     }
 
     public String getInternalId() {
         return internalId;
     }
 
-    public void setInternalId(String internalId) {
-        this.internalId = internalId;
-    }
-
     public String getExternalKey() {
         return externalKey;
-    }
-
-    public void setExternalKey(String externalKey) {
-        this.externalKey = externalKey;
     }
 
     public List<String> getAvailableActions() {
         return availableActions;
     }
 
-    public void setAvailableActions(List<String> availableActions) {
-        this.availableActions = availableActions;
-    }
-
     public String getTaskName() {
         return taskName;
     }
 
-    public void setTaskName(String taskName) {
-        this.taskName = taskName;
-    }
 }

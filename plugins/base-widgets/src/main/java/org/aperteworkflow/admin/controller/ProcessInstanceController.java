@@ -68,4 +68,16 @@ public class ProcessInstanceController implements IOsgiWebController {
         }
         return processInstanceBeans;
     }
+
+
+    @ControllerMethod(action = "cancelProcessInstance")
+    public GenericResultBean cancelProcessInstance(final OsgiWebRequest invocation) {
+        IProcessToolRequestContext requestContext = invocation.getProcessToolRequestContext();
+        bpmSession = requestContext.getBpmSession();
+
+        //w parametrze musi isc internal id!!
+        //bpmSession.adminCancelProcessInstance();
+        return null;
+    }
+
 }

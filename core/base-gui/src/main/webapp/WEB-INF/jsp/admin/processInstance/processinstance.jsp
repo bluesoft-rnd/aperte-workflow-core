@@ -26,15 +26,15 @@
 <div class="process-tasks-view" id="foundProcessInstances" style="z-index: 1">
     <table id="processInstanceTable" class="process-table table table-striped" border="1">
         <thead>
-                <th style="width:10%;">Definition name:</th>
-                <th style="width:10%;">Task name</th>
-                <th style="width:10%;">creator Login:</th>
-                <th style="width:10%;">created on:</th>
-                <th style="width:10%;">status:</th>
-                <th style="width:10%;">Assigned to:</th>
+                <th style="width:20%;">Definition:</th>
+                <th style="width:15%;">Task name</th>
+                <th style="width:5%;">creator Login:</th>
+                <th style="width:5%;">created on:</th>
+                <th style="width:5%;">status:</th>
+                <th style="width:5%;">Assigned to:</th>
                 <th style="width:10%;">Actions</th>
                 <th style="width:10%;">internal id</th>
-                <th style="width:5%;">external key</th>
+                <th style="width:10%;">external key</th>
                 <th style="width:15%;">dropdown</th>
         </thead>
         <tbody></tbody>
@@ -48,7 +48,7 @@
         var timeout;
         var dataTable = new AperteDataTable("processInstanceTable",
             [
-                { "sName":"definitionName", "bSortable": true , "mData": "definitionName"},
+                { "sName":"definitionName", "bSortable": true , "mData": function(object) {return formatDefinitionName(object);}},
                 { "sName":"taskName", "bSortable": true , "mData": "taskName" },
                 { "sName":"creatorLogin", "bSortable": true , "mData": "creatorLogin"},
                 { "sName":"creationDate", "bSortable": true ,"mData": function(object){return $.format.date(object.creationDate, 'dd-MM-yyyy, HH:mm:ss');}},
@@ -63,6 +63,66 @@
         );
 
         setSearchParameters();
+
+        function formatDefinitionName(object) {
+            return object.definitionDescription + " (Def Id: " +  object.definitionId + ") " + object.bpmDefinitionKey;
+        }
+
+        function generateDropdownButton(object) {
+                    var button = createButton();
+                    var actionList = createActionList(object.availableActions);
+                    var div = document.createElement('div');
+                    $(div).attr('class', 'btn-group');
+                    div.appendChild(button);
+                    div.appendChild(actionList);
+
+                    var dropdownButton = document.createElement('div');
+                    dropdownButton.appendChild(div);
+                    return $(dropdownButton).html();
+                }
+
+        function createButton() {
+            var button = document.createElement('button');
+            $(button).attr('type', 'button');
+            $(button).attr('class', 'btn btn-default dropdown-toggle');
+            $(button).attr('data-toggle', 'dropdown');
+            button.textContent = 'AvailableActions';
+            var caret = document.createElement('span');
+            $(caret).attr('class', 'caret');
+            button.appendChild(caret);
+            return button;
+        }
+
+
+        // referencje do akcji wysłać przez object
+        function createActionList(availableActions) {
+            var actionList = document.createElement('ul');
+            $(actionList).attr('id', 'actionList');
+            $(actionList).attr('class', 'dropdown-menu');
+            $(actionList).attr('role', 'menu');
+
+            for (var i=0; i< availableActions.length; i++) {
+                addListItem(actionList, availableActions[i], '#');
+            }
+
+            addListItem(actionList, 'Show process map', '#');
+            addListItem(actionList, 'Show process history', '#');
+            addListItem(actionList, 'Cancel process instance', '#');
+
+            return actionList;
+        }
+
+
+        function addListItem(list, title, href) {
+            var a = document.createElement('a');
+            $(a).attr('href', href);
+            $(a).attr('onClick', cancel());
+            //onclick="MyFunction();return false;
+            a.textContent = title;
+            var li = document.createElement('li');
+            li.appendChild(a);
+            list.appendChild(li);
+        }
 
       	$(document).ready(function()
     	{
@@ -81,6 +141,8 @@
             $("#only_active").change(function() {
                 performSearch();
             });
+
+
         });
 
         function doneTyping() {
@@ -107,33 +169,14 @@
             );
         }
 
-        function generateDropdownButton(object) {
-            console.log(object.availableActions)
-
-            var dropdownDiv = document.createElement('div');
-            dropdownDiv.className = 'btn-group';
-            dropdownDiv.appendChild(
-
-
-            // 1. create javascript  element,
-            //2. append it to page!
-            var listCode = ['<ul id="actionList" class="dropdown-menu" role="menu">'];
-
-            for(var i = 0; i < object.availableActions.length; i++)
-            {
-                listCode.push('<li><a href="#">' + object.availableActions[i] + '</a></li>');
+        function cancel() {
+            var userIsSure = confirm("are you sure? this cannot be undone!");
+            if (userIsSure) {
+                //post contorller method!
+                //refresh view!
+                dataTable.reloadTable(dispatcherPortlet);
+                alert('done!');
             }
-            listCode.push('</ul>');
-
-            var buttonCode =
-                ['<div class="btn-group">',
-                    '<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">',
-                    'Action <span class="caret"></span>',
-                   '</button>'];
-            buttonCode.push(listCode);
-            buttonCode.push('</div>');
-            buttonCode.join('\n');
-            return buttonCode;
         }
     //]]>
 </script>

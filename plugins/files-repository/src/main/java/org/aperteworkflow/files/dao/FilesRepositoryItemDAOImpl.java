@@ -16,7 +16,7 @@ import java.util.*;
 /**
  * @author pwysocki@bluesoft.net.pl
  */
-public class FilesRepositoryItemDAOImpl extends SimpleHibernateBean<FilesRepositoryProcessAttribute> implements FilesRepositoryItemDAO {
+public class FilesRepositoryItemDAOImpl extends SimpleHibernateBean<IFilesRepositoryAttribute> implements FilesRepositoryItemDAO {
 
     public FilesRepositoryItemDAOImpl(Session session) {
         super(session);
@@ -46,11 +46,9 @@ public class FilesRepositoryItemDAOImpl extends SimpleHibernateBean<FilesReposit
     public Collection<FilesRepositoryItem> getItemsFor(IAttributesProvider provider) {
         IFilesRepositoryAttribute filesAttribute = (IFilesRepositoryAttribute) provider.getAttribute(FilesRepositoryAttributes.FILES.value());
         if (filesAttribute == null)
-            return new ArrayList<FilesRepositoryItem>();
-        Criteria criteria = getSession().createCriteria(filesAttribute.getClass());
-        criteria.add(Restrictions.eq(filesAttribute.getParentObjectPropertyName(), filesAttribute.getParentObjectId()));
-        IFilesRepositoryAttribute attr = (IFilesRepositoryAttribute) criteria.uniqueResult();
-        return attr.getFilesRepositoryItems();
+            return new HashSet<FilesRepositoryItem>();
+        getSession().refresh(filesAttribute);
+        return filesAttribute.getFilesRepositoryItems();
     }
 
     @Override

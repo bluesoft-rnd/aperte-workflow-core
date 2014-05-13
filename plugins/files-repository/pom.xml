@@ -87,7 +87,8 @@
                 <instructions>
                     <Export-Package>
                         org.aperteworkflow.files,
-                        org.aperteworkflow.files.model
+                        org.aperteworkflow.files.model,
+                        org.aperteworkflow.files.controller
                     </Export-Package>
                     <Import-Package>
                         pl.net.bluesoft.rnd.util.i18n,
@@ -115,6 +116,7 @@
                     </ProcessTool-Controller>
                     <ProcessTool-Model-Enhancement>
                         org.aperteworkflow.files.model.FilesRepositoryItem,
+                        org.aperteworkflow.files.model.IFilesRepositoryAttribute,
                         org.aperteworkflow.files.model.FilesRepositoryProcessAttribute
                     </ProcessTool-Model-Enhancement>
                     <ProcessTool-Spring-Beans>

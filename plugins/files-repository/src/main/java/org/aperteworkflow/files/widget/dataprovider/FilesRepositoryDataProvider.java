@@ -17,6 +17,8 @@ import java.util.Map;
 public class FilesRepositoryDataProvider implements IWidgetDataProvider {
     private static final String PROCESS_INSTANCE_FILES_PARAMETER = "processInstanceFiles";
 
+    private static final String FILES_PARAMETER = "files";
+
     @Autowired
     protected IFilesRepositoryFacade filesRepoFacade;
 
@@ -25,12 +27,14 @@ public class FilesRepositoryDataProvider implements IWidgetDataProvider {
     }
 
     @Override
-    public Map<String, Object> getData(IAttributesProvider task) {
+    public Map<String, Object> getData(IAttributesProvider provider) {
         Map<String, Object> data = new HashMap<String, Object>();
 
-        ProcessInstance processInstance = task.getProcessInstance();
-
-        data.put(PROCESS_INSTANCE_FILES_PARAMETER, filesRepoFacade.getFilesList(processInstance));
+        ProcessInstance processInstance = provider.getProcessInstance();
+        if (processInstance != null)
+            data.put(PROCESS_INSTANCE_FILES_PARAMETER, filesRepoFacade.getFilesList(processInstance));
+        else
+            data.put(FILES_PARAMETER, filesRepoFacade.getFilesList(provider));
 
         return data;
     }

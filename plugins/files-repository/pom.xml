@@ -114,7 +114,8 @@
                         org.aperteworkflow.files.controller.FilesController
                     </ProcessTool-Controller>
                     <ProcessTool-Model-Enhancement>
-                        org.aperteworkflow.files.model.FilesRepositoryItem
+                        org.aperteworkflow.files.model.FilesRepositoryItem,
+                        org.aperteworkflow.files.model.FilesRepositoryProcessAttribute
                     </ProcessTool-Model-Enhancement>
                     <ProcessTool-Spring-Beans>
                         org.aperteworkflow.files.FilesRepositoryFacade

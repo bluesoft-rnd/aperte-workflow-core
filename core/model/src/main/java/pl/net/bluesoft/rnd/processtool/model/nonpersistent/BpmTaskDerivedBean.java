@@ -340,4 +340,9 @@ public class BpmTaskDerivedBean implements BpmTask {
     public Object getProvider() {
         return this;
     }
+
+    @Override
+    public Long getId() {
+        return this.task.getId();
+    }
 }

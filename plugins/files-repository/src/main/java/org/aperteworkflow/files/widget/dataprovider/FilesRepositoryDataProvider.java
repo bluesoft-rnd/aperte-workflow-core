@@ -14,28 +14,25 @@ import java.util.Map;
 /**
  * @author pwysocki@bluesoft.net.pl
  */
-public class FilesRepositoryDataProvider implements IWidgetDataProvider
-    {
-        private static final String PROCESS_INSTANCE_FILES_PARAMETER = "processInstanceFiles";
+public class FilesRepositoryDataProvider implements IWidgetDataProvider {
+    private static final String PROCESS_INSTANCE_FILES_PARAMETER = "processInstanceFiles";
 
-        @Autowired
-        protected IFilesRepositoryFacade filesRepoFacade;
+    @Autowired
+    protected IFilesRepositoryFacade filesRepoFacade;
 
-        public FilesRepositoryDataProvider()
-        {
-            SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
-        }
+    public FilesRepositoryDataProvider() {
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+    }
 
-        @Override
-        public Map<String, Object> getData(IAttributesProvider task)
-        {
-            Map<String, Object> data = new HashMap<String, Object>();
+    @Override
+    public Map<String, Object> getData(IAttributesProvider task) {
+        Map<String, Object> data = new HashMap<String, Object>();
 
-            ProcessInstance processInstance = task.getProcessInstance();
+        ProcessInstance processInstance = task.getProcessInstance();
 
-            data.put(PROCESS_INSTANCE_FILES_PARAMETER, filesRepoFacade.getFilesList(processInstance.getId()));
+        data.put(PROCESS_INSTANCE_FILES_PARAMETER, filesRepoFacade.getFilesList(processInstance));
 
-            return data;
-        }
+        return data;
+    }
 
 }

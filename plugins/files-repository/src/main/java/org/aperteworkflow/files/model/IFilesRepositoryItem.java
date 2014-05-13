@@ -19,8 +19,6 @@ public interface IFilesRepositoryItem {
 
     String getCreatorLogin();
 
-    Long getParentObjectId();
-
     void setName(String s);
 
     void setRelativePath(String s);
@@ -30,10 +28,6 @@ public interface IFilesRepositoryItem {
     String getRelativePath();
 
     String getContentType();
-
-    void setParentObject(IAttributesProvider parentObject);
-
-    IAttributesProvider getParentObject();
 
     void setContentType(String contentType);
 }

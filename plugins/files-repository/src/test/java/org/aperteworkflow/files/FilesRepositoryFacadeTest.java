@@ -1,16 +1,11 @@
 package org.aperteworkflow.files;
 
 import org.apache.commons.io.IOUtils;
-import org.aperteworkflow.files.dao.FilesRepositoryItemDAO;
-import org.aperteworkflow.files.dao.FilesRepositoryItemDAOImpl;
-import org.aperteworkflow.files.dao.FilesRepositoryStorageDAO;
-import org.aperteworkflow.files.dao.FilesRepositoryStorageDAOImpl;
+import org.aperteworkflow.files.dao.*;
 import org.aperteworkflow.files.dao.config.FilesRepositoryConfigFactory;
 import org.aperteworkflow.files.dao.config.FilesRepositoryStorageConfig;
 import org.aperteworkflow.files.exceptions.UploadFileException;
-import org.aperteworkflow.files.model.FileItemContent;
-import org.aperteworkflow.files.model.FilesRepositoryItem;
-import org.aperteworkflow.files.model.IFilesRepositoryItem;
+import org.aperteworkflow.files.model.*;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -80,9 +75,14 @@ public class FilesRepositoryFacadeTest {
         tx = session.beginTransaction();
         processInstanceDAO = new ProcessInstanceDAOImpl(session);
         exProcessInstance = processInstanceDAO.findAll().get(0);
-        frItemDAO = new FilesRepositoryItemDAOImpl(session, processInstanceDAO);
+        frItemDAO = new FilesRepositoryItemDAOImpl(session, new FilesRepositoryAttributeFactory() {
+            @Override
+            public IFilesRepositoryAttribute create() {
+                return new FilesRepositoryProcessAttribute();
+            }
+        });
         frStorageDAO = new FilesRepositoryStorageDAOImpl(config);
-        filesRepoFacade = new FilesRepositoryFacade(session, configFactory, processInstanceDAO);
+        filesRepoFacade = new FilesRepositoryFacade(session, configFactory);
     }
 
     @After
@@ -100,12 +100,12 @@ public class FilesRepositoryFacadeTest {
     @Test
     public void testUploadFile() throws UploadFileException, IOException {
         FilesRepositoryItem item1 = new FilesRepositoryItem();
-        item1.setProcessInstance(exProcessInstance);
+        // item1.setProcessInstance(exProcessInstance);
         item1.setName("ExampleFile.txt");
         item1.setDescription("Description of ExampleFile.txt");
         item1.setContentType("text/plain");
         InputStream inputStream = IOUtils.toInputStream("File content");
-        Long newItemId = filesRepoFacade.uploadFile(inputStream, item1.getContentType(), item1.getProcessInstance().getId(), item1.getName(), item1.getDescription(), CREATOR_LOGIN).getId();
+        Long newItemId = filesRepoFacade.uploadFile(inputStream, item1.getContentType(), exProcessInstance, item1.getName(), item1.getDescription(), CREATOR_LOGIN).getId();
         IOUtils.closeQuietly(inputStream);
 
         IFilesRepositoryItem newItem = frItemDAO.getItemById(newItemId);

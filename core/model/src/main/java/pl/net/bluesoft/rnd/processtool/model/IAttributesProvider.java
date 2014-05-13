@@ -17,4 +17,6 @@ public interface IAttributesProvider {
     Object getAttribute(String key);
 
     Object getProvider();
+
+    Long getId();
 }

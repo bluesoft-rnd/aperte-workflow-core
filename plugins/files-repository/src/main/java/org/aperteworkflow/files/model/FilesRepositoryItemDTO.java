@@ -16,7 +16,6 @@ public class FilesRepositoryItemDTO {
 
     public FilesRepositoryItemDTO(IFilesRepositoryItem frItem) {
         setId(frItem.getId());
-        setProcessInstanceId(frItem.getParentObjectId());
         setName(frItem.getName());
         setDescription(frItem.getDescription());
 

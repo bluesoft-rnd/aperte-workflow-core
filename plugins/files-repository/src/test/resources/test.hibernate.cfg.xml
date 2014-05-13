@@ -39,6 +39,7 @@
         <property name="current_session_context_class">jta</property>-->
 		<property name="hibernate.transaction.flush_before_completion">true</property>
         <mapping class="org.aperteworkflow.files.model.FilesRepositoryItem"/>
+        <mapping class="org.aperteworkflow.files.model.FilesRepositoryProcessAttribute" />
 
         <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstance"/>

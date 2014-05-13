@@ -1,6 +1,8 @@
 package org.aperteworkflow.files.dao;
 
-import org.aperteworkflow.files.model.IFilesRepositoryItem;
+import org.aperteworkflow.files.model.FilesRepositoryItem;
+import pl.net.bluesoft.rnd.processtool.model.IAttributesConsumer;
+import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
 
 import java.util.Collection;
 
@@ -8,13 +10,13 @@ import java.util.Collection;
  * @author pwysocki@bluesoft.net.pl
  */
 public interface FilesRepositoryItemDAO {
-    IFilesRepositoryItem addItem(Long processInstanceId, String name, String description, String relativePath, String contentType, String creatorLogin);
+    FilesRepositoryItem addItem(IAttributesConsumer consumer, String name, String description, String relativePath, String contentType, String creatorLogin);
 
-    Collection<? extends IFilesRepositoryItem> getItemsFor(Long parentObjectId);
+    Collection<FilesRepositoryItem> getItemsFor(IAttributesProvider provider);
 
-    void deleteById(Long id);
+    void deleteById(IAttributesProvider provider, Long itemId);
 
-    void updateDescriptionById(Long id, String description);
+    void updateDescriptionById(Long itemId, String description);
 
-    IFilesRepositoryItem getItemById(Long id);
+    FilesRepositoryItem getItemById(Long id);
 }

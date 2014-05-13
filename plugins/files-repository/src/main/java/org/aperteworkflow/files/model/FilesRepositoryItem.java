@@ -1,9 +1,7 @@
 package org.aperteworkflow.files.model;
 
 import org.hibernate.annotations.Index;
-import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
 import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -29,10 +27,6 @@ public class FilesRepositoryItem extends PersistentEntity implements IFilesRepos
     public static final String COLUMN_CREATE_DATE = "create_date";
     public static final String COLUMN_CREATOR_LOGIN = "creator_login";
     public static final String COLUMN_CONTENT_TYPE = "content_type";
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = COLUMN_PROCESS_INSTANCE_ID)
-    private ProcessInstance processInstance;
 
     @Column(name = COLUMN_NAME, nullable = false)
     @Index(name = "idx_pt_files_name")
@@ -94,14 +88,6 @@ public class FilesRepositoryItem extends PersistentEntity implements IFilesRepos
         this.creatorLogin = creatorLogin;
     }
 
-    public ProcessInstance getProcessInstance() {
-        return processInstance;
-    }
-
-    public void setProcessInstance(ProcessInstance processInstance) {
-        this.processInstance = processInstance;
-    }
-
     public void setContentType(String contentType) {
         this.contentType = contentType;
     }
@@ -110,18 +96,6 @@ public class FilesRepositoryItem extends PersistentEntity implements IFilesRepos
         return contentType;
     }
 
-    @Override
-    public Long getParentObjectId() {
-        return getProcessInstance().getId();
-    }
 
-    @Override
-    public void setParentObject(IAttributesProvider parentObject) {
-        setProcessInstance((ProcessInstance) parentObject);
-    }
 
-    @Override
-    public IAttributesProvider getParentObject() {
-        return getProcessInstance();
-    }
 }

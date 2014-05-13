@@ -13,6 +13,9 @@ import org.aperteworkflow.files.model.FilesRepositoryItem;
 import org.aperteworkflow.files.model.FilesRepositoryItemDTO;
 import org.aperteworkflow.files.model.IFilesRepositoryItem;
 import org.springframework.beans.factory.annotation.Autowired;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceDAO;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.usersource.IPortalUserSource;
 import pl.net.bluesoft.rnd.processtool.web.controller.ControllerMethod;
@@ -47,6 +50,10 @@ public class FilesController implements IOsgiWebController {
     @Autowired
     protected IPortalUserSource portalUserSource;
 
+    private ProcessInstanceDAO getProcessInstanceDAO() {
+        return ProcessToolContext.Util.getThreadProcessToolContext().getProcessInstanceDAO();
+    }
+
     @ControllerMethod(action = "uploadFile")
     public GenericResultBean uploadFile(final OsgiWebRequest invocation) {
         GenericResultBean result = new GenericResultBean();
@@ -72,7 +79,7 @@ public class FilesController implements IOsgiWebController {
                         String fileDescription = null;
                         String creatorLogin = getCreatorLogin(request);
                         if (processInstanceId != null && fileName != null && fileName.length() > 0 && fileInputStream != null && creatorLogin != null && creatorLogin.length() > 0) {
-                            IFilesRepositoryItem frItem = filesRepoFacade.uploadFile(fileInputStream, contentType, processInstanceId, fileName, fileDescription, creatorLogin);
+                            IFilesRepositoryItem frItem = filesRepoFacade.uploadFile(fileInputStream, contentType, getProcessInstanceDAO().getProcessInstance(processInstanceId), fileName, fileDescription, creatorLogin);
                             result.setData(new FilesRepositoryItemDTO(frItem));
                         } else {
                             logger.log(Level.WARNING, "[FILES_REPOSITORY] Not all parameters provided when calling filescontroller.uploadFile. All of [processInstanceId, fileName, fileInputStream, creatorLogin] are required.");
@@ -96,7 +103,7 @@ public class FilesController implements IOsgiWebController {
         GenericResultBean result = new GenericResultBean();
         HttpServletRequest request = invocation.getRequest();
         Long processInstanceId = getProcessInstanceId(request);
-        Collection<? extends IFilesRepositoryItem> fileRepoItems = filesRepoFacade.getFilesList(processInstanceId);
+        Collection<? extends IFilesRepositoryItem> fileRepoItems = filesRepoFacade.getFilesList(getProcessInstanceDAO().getProcessInstance(processInstanceId));
         Collection<FilesRepositoryItemDTO> filesRepoItemsDTO = new ArrayList<FilesRepositoryItemDTO>();
         for (IFilesRepositoryItem frItem : fileRepoItems) {
             filesRepoItemsDTO.add(new FilesRepositoryItemDTO(frItem));
@@ -112,8 +119,9 @@ public class FilesController implements IOsgiWebController {
         Long processInstanceId = getProcessInstanceId(request);
         Long filesRepositoryItemId = getFilesRepositoryItemId(request);
         try {
-            filesRepoFacade.deleteFile(processInstanceId, filesRepositoryItemId);
-            Collection<? extends IFilesRepositoryItem> fileRepoItems = filesRepoFacade.getFilesList(processInstanceId);
+            ProcessInstance pi = getProcessInstanceDAO().getProcessInstance(processInstanceId);
+            filesRepoFacade.deleteFile(pi, filesRepositoryItemId);
+            Collection<? extends IFilesRepositoryItem> fileRepoItems = filesRepoFacade.getFilesList(pi);
             Collection<FilesRepositoryItemDTO> filesRepoItemsDTO = new ArrayList<FilesRepositoryItemDTO>();
             for (IFilesRepositoryItem frItem : fileRepoItems) {
                 filesRepoItemsDTO.add(new FilesRepositoryItemDTO(frItem));
@@ -134,7 +142,7 @@ public class FilesController implements IOsgiWebController {
         Long filesRepositoryItemId = getFilesRepositoryItemId(request);
         FileItemContent content = null;
         try {
-            content = filesRepoFacade.downloadFile(processInstanceId, filesRepositoryItemId);
+            content = filesRepoFacade.downloadFile(filesRepositoryItemId);
         } catch (DownloadFileException e) {
             logger.log(Level.SEVERE, "[FILES_REPOSITORY] Cannot download requested file from repository for item id=[" + filesRepositoryItemId + "] and processInstanceId=[" + processInstanceId + "].", e);
             result.addError("Cannot download requested file from repository for item id=[" + filesRepositoryItemId + "] and processInstanceId=[" + processInstanceId + "].", e.getMessage());
@@ -155,14 +163,13 @@ public class FilesController implements IOsgiWebController {
     public GenericResultBean updateDescription(final OsgiWebRequest invocation) {
         GenericResultBean result = new GenericResultBean();
         HttpServletRequest request = invocation.getRequest();
-        Long processInstanceId = getProcessInstanceId(request);
         Long filesRepositoryItemId = getFilesRepositoryItemId(request);
         String fileDescription = getFileRepositoryItemDescription(request);
         try {
-            filesRepoFacade.updateDescription(processInstanceId, filesRepositoryItemId, fileDescription);
+            filesRepoFacade.updateDescription(filesRepositoryItemId, fileDescription);
         } catch (UpdateDescriptionException e) {
-            logger.log(Level.SEVERE, "[FILES_REPOSITORY] Cannot modify description of file in repository with item id=[" + filesRepositoryItemId + "] and processInstanceId=[" + processInstanceId + "].", e);
-            result.addError("Cannot modify description of file in repository with item id=[" + filesRepositoryItemId + "] and processInstanceId=[" + processInstanceId + "].", e.getMessage());
+            logger.log(Level.SEVERE, "[FILES_REPOSITORY] Cannot modify description of file in repository with item id=[" + filesRepositoryItemId + "].", e);
+            result.addError("Cannot modify description of file in repository with item id=[" + filesRepositoryItemId + "].", e.getMessage());
             return result;
         }
         return result;

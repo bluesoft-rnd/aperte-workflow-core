@@ -1,83 +1,81 @@
 package org.aperteworkflow.files.dao;
 
+import org.aperteworkflow.files.model.FilesRepositoryAttributes;
 import org.aperteworkflow.files.model.FilesRepositoryItem;
-import org.aperteworkflow.files.model.IFilesRepositoryItem;
+import org.aperteworkflow.files.model.FilesRepositoryProcessAttribute;
+import org.aperteworkflow.files.model.IFilesRepositoryAttribute;
+import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceDAO;
 import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
+import pl.net.bluesoft.rnd.processtool.model.IAttributesConsumer;
+import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 
-import java.util.Collection;
-import java.util.Date;
+import java.util.*;
 
 /**
  * @author pwysocki@bluesoft.net.pl
  */
-public class FilesRepositoryItemDAOImpl extends SimpleHibernateBean<FilesRepositoryItem> implements FilesRepositoryItemDAO {
+public class FilesRepositoryItemDAOImpl extends SimpleHibernateBean<FilesRepositoryProcessAttribute> implements FilesRepositoryItemDAO {
 
-    private ProcessInstanceDAO processInstanceDAO;
+    private FilesRepositoryAttributeFactory factory;
 
-
-    public FilesRepositoryItemDAOImpl(Session session, ProcessInstanceDAO processInstanceDAO) {
+    public FilesRepositoryItemDAOImpl(Session session, FilesRepositoryAttributeFactory factory) {
         super(session);
-        this.processInstanceDAO = processInstanceDAO;
-    }
-
-    public FilesRepositoryItemDAOImpl(Session session) {
-        this(session, ProcessToolContext.Util.getThreadProcessToolContext().getProcessInstanceDAO());
+        this.factory = factory;
     }
 
     @Override
-    public FilesRepositoryItem addItem(Long processInstanceId, String name, String description, String relativePath, String contentType, String creatorLogin) {
-        return addItem(processInstanceDAO.getProcessInstance(processInstanceId), name, description, relativePath, contentType, creatorLogin);
-    }
-
-    public FilesRepositoryItem addItem(ProcessInstance processInstance, String name, String description, String relativePath, String contentType, String creatorLogin) {
+    public FilesRepositoryItem addItem(IAttributesConsumer consumer, String name, String description, String relativePath, String contentType, String creatorLogin) {
         FilesRepositoryItem item = new FilesRepositoryItem();
-        item.setProcessInstance(processInstance);
         item.setName(name);
         item.setDescription(description);
         item.setRelativePath(relativePath);
         item.setContentType(contentType);
         item.setCreateDate(new Date());
         item.setCreatorLogin(creatorLogin);
-        saveOrUpdate(item);
+        IFilesRepositoryAttribute attribute = (IFilesRepositoryAttribute) consumer.getAttribute(FilesRepositoryAttributes.FILES.value());
+        if (attribute == null) {
+            attribute = factory.create();
+            attribute.setKey(FilesRepositoryAttributes.FILES.value());
+            consumer.setAttribute(FilesRepositoryAttributes.FILES.value(), attribute);
+        }
+        attribute.getFilesRepositoryItems().add(item);
+        getSession().saveOrUpdate(item);
         return item;
     }
 
     @Override
-    public Collection<FilesRepositoryItem> getItemsFor(Long processInstanceId) {
-        DetachedCriteria criteria = getDetachedCriteria();
-        criteria.createAlias("processInstance", "pi")
-                .add(Restrictions.eq("pi.id", processInstanceId));
-        return criteria.getExecutableCriteria(getSession()).list();
+    public Collection<FilesRepositoryItem> getItemsFor(IAttributesProvider provider) {
+        IFilesRepositoryAttribute filesAttribute = (IFilesRepositoryAttribute) provider.getAttribute(FilesRepositoryAttributes.FILES.value());
+        if (filesAttribute == null)
+            return new ArrayList<FilesRepositoryItem>();
+        Criteria criteria = getSession().createCriteria(filesAttribute.getClass());
+        criteria.add(Restrictions.eq(filesAttribute.getParentObjectPropertyName(), filesAttribute.getParentObjectId()));
+        IFilesRepositoryAttribute attr = (IFilesRepositoryAttribute) criteria.uniqueResult();
+        return attr.getFilesRepositoryItems();
     }
 
     @Override
-    public void deleteById(Long id) {
-        delete(getItemById(id));
+    public void deleteById(IAttributesProvider provider, Long itemId) {
+        FilesRepositoryItem item = getItemById(itemId);
+        IFilesRepositoryAttribute filesAttribute = (IFilesRepositoryAttribute) provider.getAttribute(FilesRepositoryAttributes.FILES.value());
+        filesAttribute.removeItem(item);
+        getSession().delete(item);
     }
 
     @Override
     public void updateDescriptionById(Long id, String description) {
         FilesRepositoryItem item = getItemById(id);
         item.setDescription(description);
-        saveOrUpdate(item);
+        getSession().saveOrUpdate(item);
     }
 
     @Override
     public FilesRepositoryItem getItemById(Long id) {
-        return loadById(id);
+        return (FilesRepositoryItem) getSession().get(FilesRepositoryItem.class, id);
     }
 
-    public ProcessInstanceDAO getProcessInstanceDAO() {
-        return processInstanceDAO;
-    }
-
-    public void setProcessInstanceDAO(ProcessInstanceDAO processInstanceDAO) {
-        this.processInstanceDAO = processInstanceDAO;
-    }
 }

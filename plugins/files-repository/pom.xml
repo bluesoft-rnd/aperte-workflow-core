@@ -88,7 +88,8 @@
                     <Export-Package>
                         org.aperteworkflow.files,
                         org.aperteworkflow.files.model,
-                        org.aperteworkflow.files.controller
+                        org.aperteworkflow.files.controller,
+                        org.aperteworkflow.files.dao
                     </Export-Package>
                     <Import-Package>
                         pl.net.bluesoft.rnd.util.i18n,

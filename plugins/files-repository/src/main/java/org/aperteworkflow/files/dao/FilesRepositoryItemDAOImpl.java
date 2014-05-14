@@ -47,7 +47,6 @@ public class FilesRepositoryItemDAOImpl extends SimpleHibernateBean<IFilesReposi
         IFilesRepositoryAttribute filesAttribute = (IFilesRepositoryAttribute) provider.getAttribute(FilesRepositoryAttributes.FILES.value());
         if (filesAttribute == null)
             return new HashSet<FilesRepositoryItem>();
-        getSession().refresh(filesAttribute);
         return filesAttribute.getFilesRepositoryItems();
     }
 

@@ -1,8 +1,10 @@
 <#if attributesProvider.processInstance??>
     <#assign processComments = attributesProvider.processInstance.getCommentsOrderedByDate(true) />
+    <#assign internalId = task.internalTaskId />
 </#if>
 <#if !processComments??>
     <#assign processComments = attributesProvider.provider.getCommentsOrderedByDate(true)! />
+    <#assign internalId = attributesProvider.id />
 </#if>
 
 
@@ -69,7 +71,7 @@
     {
         //$('#area-comment-warning').hide();
 
-        var widget = new Widget('${widgetName}', '${widgetId}', '${task.internalTaskId}');
+        var widget = new Widget('${widgetName}', '${widgetId}', '${internalId}');
         widget.getData = function() {return getProcessCommentsData();};
         widget.validate = function() {return validateProcessComments();};
 

@@ -5,7 +5,7 @@ import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.IOUtils;
 import org.aperteworkflow.files.IFilesRepositoryFacade;
-import org.aperteworkflow.files.dao.FilesRepositoryProcessAttributeFactoryImpl;
+import org.aperteworkflow.files.dao.FilesRepositoryAttributeFactory;
 import org.aperteworkflow.files.exceptions.DeleteFileException;
 import org.aperteworkflow.files.exceptions.DownloadFileException;
 import org.aperteworkflow.files.exceptions.UpdateDescriptionException;
@@ -76,7 +76,7 @@ public abstract class AbstractFilesController implements IOsgiWebController {
                         String fileDescription = null;
                         String creatorLogin = getCreatorLogin(request);
                         if (processInstanceId != null && fileName != null && fileName.length() > 0 && fileInputStream != null && creatorLogin != null && creatorLogin.length() > 0) {
-                            IFilesRepositoryItem frItem = filesRepoFacade.uploadFile(fileInputStream, contentType, getAttributesConsumer(processInstanceId), fileName, fileDescription, creatorLogin, new FilesRepositoryProcessAttributeFactoryImpl());
+                            IFilesRepositoryItem frItem = filesRepoFacade.uploadFile(fileInputStream, contentType, getAttributesConsumer(processInstanceId), fileName, fileDescription, creatorLogin, getAttributesFactory());
                             result.setData(new FilesRepositoryItemDTO(frItem));
                         } else {
                             logger.log(Level.WARNING, "[FILES_REPOSITORY] Not all parameters provided when calling filescontroller.uploadFile. All of [processInstanceId, fileName, fileInputStream, creatorLogin] are required.");
@@ -94,6 +94,8 @@ public abstract class AbstractFilesController implements IOsgiWebController {
         }
         return result;
     }
+
+    protected abstract FilesRepositoryAttributeFactory getAttributesFactory();
 
     @ControllerMethod(action = "getFilesList")
     public GenericResultBean getFilesList(final OsgiWebRequest invocation) {

@@ -16,6 +16,7 @@ import pl.net.bluesoft.rnd.processtool.web.domain.GenericResultBean;
 import pl.net.bluesoft.rnd.processtool.web.domain.IProcessToolRequestContext;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -69,15 +70,25 @@ public class ProcessInstanceController implements IOsgiWebController {
         return processInstanceBeans;
     }
 
-
     @ControllerMethod(action = "cancelProcessInstance")
     public GenericResultBean cancelProcessInstance(final OsgiWebRequest invocation) {
+        GenericResultBean result = new GenericResultBean();
+        IProcessToolRequestContext requestContext = invocation.getProcessToolRequestContext();
+        bpmSession = requestContext.getBpmSession();
+        bpmSession.adminCancelProcessInstance(invocation.getRequest().getParameter("processInstanceId"));
+        return result;
+    }
+
+    @ControllerMethod(action = "showProcessMap")
+    public GenericResultBean showProcessMap(final OsgiWebRequest invocation) {
+        GenericResultBean result = new GenericResultBean();
         IProcessToolRequestContext requestContext = invocation.getProcessToolRequestContext();
         bpmSession = requestContext.getBpmSession();
 
-        //w parametrze musi isc internal id!!
-        //bpmSession.adminCancelProcessInstance();
-        return null;
+        //BufferedImage read;
+        //final byte[] png = bpmSession.getProcessMapImage(pi); //todo - supply with processinstance
+
+        return result;
     }
 
 }

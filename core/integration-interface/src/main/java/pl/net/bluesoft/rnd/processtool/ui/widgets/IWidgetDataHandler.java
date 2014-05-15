@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
 
 /**
  * Widget data handler
@@ -14,6 +15,6 @@ import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 public interface IWidgetDataHandler
 {
     /** Handle widget data change */
-    Collection<HandlingResult> handleWidgetData(BpmTask task, WidgetData data);
+    Collection<HandlingResult> handleWidgetData(IAttributesProvider provider, WidgetData data);
 
 }

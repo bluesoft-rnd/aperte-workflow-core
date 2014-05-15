@@ -21,21 +21,21 @@ import java.util.List;
 /**
  * @author: Maciej
  */
-public class CommentDataHandler implements IWidgetDataHandler
-{
+public class CommentDataHandler implements IWidgetDataHandler {
     private static final String TYPE_COMMENT = "comment";
 
-    public Collection<HandlingResult> handleWidgetData(IAttributesProvider provider,  WidgetData data)
-    {
+    public Collection<HandlingResult> handleWidgetData(IAttributesProvider provider, WidgetData data) {
         ObjectMapper mapper = new ObjectMapper();
         JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, ProcessCommentBean.class);
 
-        for(WidgetDataEntry commentData: data.getEntriesByType(TYPE_COMMENT)) {
+        for (WidgetDataEntry commentData : data.getEntriesByType(TYPE_COMMENT)) {
             String commentsJSON = commentData.getValue();
             try {
                 List<ProcessCommentBean> list = mapper.readValue(commentsJSON, type);
-                List<ProcessComment> comments = convert(list, provider);
-                provider.getProcessInstance().addComments(comments);
+                if (provider.getProcessInstance() != null) {
+                    List<ProcessComment> comments = convert(list, provider);
+                    provider.getProcessInstance().addComments(comments);
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -48,7 +48,7 @@ public class CommentDataHandler implements IWidgetDataHandler
         SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
         for (ProcessCommentBean bean : list) {
-            result.add(convert(bean, (BpmTask)provider, format));
+            result.add(convert(bean, (BpmTask) provider, format));
         }
         return result;
     }
@@ -62,8 +62,7 @@ public class CommentDataHandler implements IWidgetDataHandler
         comment.setProcessInstance(task.getProcessInstance());
         try {
             comment.setCreateTime(format.parse(bean.getCreateDate()));
-        }
-        catch (ParseException e) {
+        } catch (ParseException e) {
             throw new RuntimeException(e);
         }
         return comment;

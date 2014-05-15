@@ -382,7 +382,7 @@
 				widgetData.push(widgetDataBean);
 			});
 		}
-        console.log(widgetData);
+
 		var performActionArgs =
 		{
 			button: button,
@@ -396,8 +396,7 @@
 			changeOwnerAttributeValue: changeOwnerAttributeValue,
 			widgetData: widgetData
 		};
-        console.log(widgetData);
-        console.log(performActionArgs);
+
         for (var i = 0; i < widgets.length; ++i)
         {
         	var widget = widgets[i];

@@ -86,7 +86,7 @@ public abstract class AbstractSaveProcessor {
                 WidgetData widgetData = new WidgetData();
                 widgetData.addWidgetData(widgetToSave.getData());
 
-                results.addAll(widgetDataHandler.handleWidgetData(getConsumer(), widgetData));
+                results.addAll(widgetDataHandler.handleWidgetData(getProvider(), widgetData));
             }
 
         }

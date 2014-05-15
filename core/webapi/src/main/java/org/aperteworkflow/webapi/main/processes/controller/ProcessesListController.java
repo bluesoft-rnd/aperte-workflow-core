@@ -4,6 +4,7 @@ import org.aperteworkflow.ui.help.datatable.JQueryDataTable;
 import org.aperteworkflow.ui.help.datatable.JQueryDataTableColumn;
 import org.aperteworkflow.ui.help.datatable.JQueryDataTableUtil;
 import org.aperteworkflow.webapi.main.AbstractProcessToolServletController;
+import org.aperteworkflow.webapi.main.processes.ActionPseudoTaskBean;
 import org.aperteworkflow.webapi.main.processes.BpmTaskBean;
 import org.aperteworkflow.webapi.main.processes.action.domain.PerformActionResultBean;
 import org.aperteworkflow.webapi.main.processes.action.domain.SaveResultBean;
@@ -24,6 +25,7 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory.ExecutionType;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.StartProcessResult;
 import pl.net.bluesoft.rnd.processtool.model.*;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComment;
 import pl.net.bluesoft.rnd.processtool.web.domain.DataPagingBean;
 import pl.net.bluesoft.rnd.processtool.web.domain.ErrorResultBean;
@@ -192,7 +194,15 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                         
                         /* Task finished or no tasks created (ie waiting for timer) */
                         if (newTasks == null || newTasks.isEmpty()) {
-                            return null;
+							String actionPseudoStateName = ActionPseudoTaskBean.getActionPseudoStateName(task.getTaskName(), actionName);
+							ProcessStateConfiguration actionPseudoState = task.getProcessDefinition().getProcessStateConfigurationByName(actionPseudoStateName);
+
+							if (actionPseudoState != null) {
+								I18NSource messageSource = context.getMessageSource();
+
+								return ActionPseudoTaskBean.createTask(task, actionPseudoState, actionName, messageSource);
+							}
+							return null;
                         }
 
                         I18NSource messageSource = context.getMessageSource();

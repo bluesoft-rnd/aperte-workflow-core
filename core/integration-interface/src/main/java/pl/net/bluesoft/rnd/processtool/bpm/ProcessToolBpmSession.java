@@ -26,6 +26,7 @@ public interface ProcessToolBpmSession {
     ProcessToolBpmSession createSession(String userLogin, Collection<String> roleNames);
 
 	StartProcessResult startProcess(String bpmDefinitionId, String externalKey, String source);
+	StartProcessResult startProcess(String bpmDefinitionId, String externalKey, String source, Map<String, Object> simpleAttributes);
 	List<BpmTask> performAction(String actionName, String taskId);
 	List<BpmTask> performAction(String actionName, BpmTask bpmTask);
 	List<BpmTask> performAction(String actionName, BpmTask bpmTask, boolean reloadTask);

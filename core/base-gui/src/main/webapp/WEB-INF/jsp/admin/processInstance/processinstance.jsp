@@ -44,7 +44,7 @@
 
 <script type="text/javascript">
     //<![CDATA[
-        var waitTime = 1000;
+        var waitTime = 500;
         var timeout;
         var dataTable = new AperteDataTable("processInstanceTable",
             [
@@ -53,7 +53,7 @@
                 { "sName":"creatorLogin", "bSortable": true , "mData": "creatorLogin"},
                 { "sName":"creationDate", "bSortable": true ,"mData": function(object){return $.format.date(object.creationDate, 'dd-MM-yyyy, HH:mm:ss');}},
                 { "sName":"status", "bSortable": true , "mData": "status"},
-                { "sName":"assignedTo", "bSortable": true , "mData": function(object){return generateAssignedUserButtonGroup(object);}},
+                { "sName":"assignedTo", "bSortable": true , "mData": function(object){return generateAssignedUserDropdown(object);}},
                 { "sName":"internalId", "bSortable": true , "mData": "internalId" },
                 { "sName":"availableActions", "bSortable": true , "mData": function(object){return generateActionDropdownButton(object);}}
             ],
@@ -66,44 +66,35 @@
             return object.definitionDescription + " (Def Id: " +  object.definitionId + ") " + object.bpmDefinitionKey;
         }
 
-        function generateAssignedUserButtonGroup(object) {
-            var changeButton = document.createElement('button');
-            $(changeButton).attr('type', 'button');
-            $(changeButton).attr('class', 'btn btn-default');
-            changeButton.textContent = "Change";
-
-            var removeButton = document.createElement('button');
-            $(removeButton).attr('type', 'button');
-            $(removeButton).attr('class', 'btn btn-default');
-            removeButton.textContent = "Remove";
-
-            var label = document.createElement('label');
-            $(label).text(object.assignedTo);
-
-            var buttonGroup = document.createElement('div');
-            $(buttonGroup).attr('class', 'btn-group btn-group-xs');
-            buttonGroup.appendChild(label);
-            buttonGroup.appendChild(changeButton);
-            buttonGroup.appendChild(removeButton);
-
-            var div = document.createElement('div');
-            div.appendChild(buttonGroup);
-            return $(div).html();
+        function generateAssignedUserDropdown(object) {
+            var button = createDropdownButton((object.assignedTo != null) ? object.assignedTo : "Not assigned");
+            var actionList = createActionList();
+            addListItem(actionList, 'Change', 'changeAssignee(' + object.taskInternalId + ',' + object.assignedTo + ')');
+            addListItem(actionList, 'Remove', '');
+            var dropdown = wrapDropdownWithDiv(button, actionList);
+            return $(dropdown).html();
         }
-
-
 
         function generateActionDropdownButton(object) {
             var button = createDropdownButton("Available actions");
             var actionList = createActionList(object);
+
+            for (var i=0; i< object.availableActions.length; i++) {
+                var actionName = String(object.availableActions[i]);
+                addListItem(actionList, actionName, 'performActionForTask(' + object.taskInternalId + ')');     //todo: pass action
+            }
+            addListItem(actionList, "Cancel", 'cancelProcessInstance('+object.internalId+')');
+            return $(wrapDropdownWithDiv(button, actionList)).html();
+        }
+
+        function wrapDropdownWithDiv(button, actionList) {
             var div = document.createElement('div');
             $(div).attr('class', 'btn-group');
             div.appendChild(button);
             div.appendChild(actionList);
-
             var dropdownButton = document.createElement('div');
             dropdownButton.appendChild(div);
-            return $(dropdownButton).html();
+            return dropdownButton;
         }
 
         function createDropdownButton(title) {
@@ -118,17 +109,11 @@
             return button;
         }
 
-        function createActionList(object) {
+        function createActionList() {
             var actionList = document.createElement('ul');
             $(actionList).attr('id', 'actionList');
             $(actionList).attr('class', 'dropdown-menu');
             $(actionList).attr('role', 'menu');
-
-            for (var i=0; i< object.availableActions.length; i++) {
-                addListItem(actionList, object.availableActions[i], object);
-            }
-
-            addListItem(actionList, "Cancel", 'cancelProcessInstance('+object.internalId+')');
             return actionList;
         }
 
@@ -136,10 +121,20 @@
             var a = document.createElement('a');
             $(a).attr('nohref');
             $(a).attr('onclick', onClickAction);
-            a.textContent = title;
+            a.innerHTML = title;
             var li = document.createElement('li');
             li.appendChild(a);
             list.appendChild(li);
+        }
+
+        function performActionForTask(taskId, action) {
+           ajaxPost({
+               controller : 'processInstanceController',
+               action : 'performAction',
+               taskInternalId : taskId,
+               actionToPerform : action },
+               function(response) { dataTable.reloadTable(dispatcherPortlet);
+           });
         }
 
         function cancelProcessInstance(processId) {
@@ -153,6 +148,23 @@
             }
         }
 
+        function changeAssignee(taskId, oldUserName) {
+            var userLogin = prompt("Please enter user login","");   //TODO - zrobic select list!
+
+            modifyAssignee(taskId, oldUserName, userLogin);
+        }
+
+        function modifyAssignee(taskId, oldUserName, newUserName) {
+            ajaxPost({
+                controller : 'processInstanceController',
+                action : 'modifyTaskAssignee',
+                taskInternalId : taskId,
+                oldUserLogin : oldUserName,
+                newUserLogin : newUserName },
+                function(response) { dataTable.reloadTable(dispatcherPortlet);
+            });
+        }
+
         function ajaxPost(settings, doneAction) {
             $.ajax({
                 url : dispatcherPortlet,
@@ -160,23 +172,6 @@
                 data : settings
                 }).done(doneAction());
         }
-
-      	$(document).ready(function()
-    	{
-            $('#search_field').on('input',function() {
-                var el = this;
-                if (timeout) clearTimeout(timeout);
-                timeout = setTimeout(function() {
-                    doneTyping.call(el);
-                }, waitTime);
-            }).on('blur', function(){
-                doneTyping.call(this);
-            });
-
-            $("#only_active").on('change', function() {
-                performSearch();
-            });
-        });
 
         function doneTyping() {
             if (!timeout){
@@ -201,5 +196,23 @@
                 ]
             );
         }
+
+      	$(document).ready(function()
+    	{
+            $('#search_field').on('input',function() {
+                var el = this;
+                if (timeout) clearTimeout(timeout);
+                timeout = setTimeout(function() {
+                    doneTyping.call(el);
+                }, waitTime);
+            }).on('blur', function(){
+                doneTyping.call(this);
+            });
+
+            $("#only_active").on('change', function() {
+                performSearch();
+            });
+        });
+
     //]]>
 </script>

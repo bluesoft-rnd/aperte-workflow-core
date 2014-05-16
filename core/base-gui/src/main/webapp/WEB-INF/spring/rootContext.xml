@@ -76,4 +76,6 @@
         <property name="paramName" value="language" />
     </bean>
 
+    <bean id="OsgiServiceDispatcher" class="org.aperteworkflow.osgi.OsgiServiceDispatcherImpl"/>
+
 </beans>

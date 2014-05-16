@@ -103,6 +103,11 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 	@Override
 	public StartProcessResult startProcess(String processDefinitionId, String externalKey, String source) {
+		return startProcess(processDefinitionId, externalKey, source, new HashMap<String, Object>());
+	}
+
+	@Override
+	public StartProcessResult startProcess(String processDefinitionId, String externalKey, String source, Map<String, Object> simpleAttributes) {
 		ProcessDefinitionConfig config = getContext().getProcessDefinitionDAO().getActiveConfigurationByKey(processDefinitionId);
 
 		if (!config.isEnabled()) {
@@ -112,7 +117,11 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		startProcessParams = new StartProcessParams(config, externalKey, source, userLogin);
 
 		try {
-			getJbpmService().startProcess(config.getBpmProcessId(), getInitialParams());
+			Map<String, Object> initialParams = getInitialParams();
+			if(simpleAttributes != null){
+				initialParams.putAll(simpleAttributes);
+			}
+			getJbpmService().startProcess(config.getBpmProcessId(), initialParams);
 			generateExternalKey(startProcessParams.newProcessInstance);
 			generateStepInfo(startProcessParams.createdTasks);
 			return new JbpmStartProcessResult(startProcessParams.newProcessInstance, startProcessParams.createdTasksForCurrentUser);

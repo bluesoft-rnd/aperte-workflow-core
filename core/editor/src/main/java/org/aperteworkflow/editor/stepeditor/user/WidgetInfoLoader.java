@@ -1,6 +1,5 @@
 package org.aperteworkflow.editor.stepeditor.user;
 
-import com.vaadin.Application;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.Permission;
@@ -45,7 +44,7 @@ public class WidgetInfoLoader {
         }
     }
 
-	public static Map<BundleItem, Collection<WidgetItem>> loadAvailableWidgets(Application application)
+	public static Map<BundleItem, Collection<WidgetItem>> loadAvailableWidgets()
             throws ClassNotFoundException {
         I18NSource i18NSource = I18NSource.ThreadUtil.getThreadI18nSource();
 

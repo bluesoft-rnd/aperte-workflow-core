@@ -3,7 +3,12 @@
     <#assign internalId = task.internalTaskId />
 </#if>
 <#if !processComments??>
-    <#assign processComments = attributesProvider.provider.getCommentsOrderedByDate(true)! />
+    <#assign commentsAttribute = attributesProvider.getAttribute('comments')!"" />
+    <#if commentsAttribute?has_content>
+        <#assign processComments = commentsAttribute.getCommentsOrderedByDate(true)! />
+    <#else>
+        <#assign processComments = [] />
+    </#if>
     <#assign internalId = attributesProvider.id />
 </#if>
 

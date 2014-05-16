@@ -3,6 +3,7 @@ package pl.net.bluesoft.rnd.processtool.ui.basewidgets.datahandler;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.JavaType;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComment;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.HandlingResult;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.IWidgetDataHandler;
@@ -20,21 +21,21 @@ import java.util.List;
 /**
  * @author: Maciej
  */
-public class CommentDataHandler implements IWidgetDataHandler
-{
+public class CommentDataHandler implements IWidgetDataHandler {
     private static final String TYPE_COMMENT = "comment";
 
-    public Collection<HandlingResult> handleWidgetData(BpmTask task,  WidgetData data)
-    {
+    public Collection<HandlingResult> handleWidgetData(IAttributesProvider provider, WidgetData data) {
         ObjectMapper mapper = new ObjectMapper();
         JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, ProcessCommentBean.class);
 
-        for(WidgetDataEntry commentData: data.getEntriesByType(TYPE_COMMENT)) {
+        for (WidgetDataEntry commentData : data.getEntriesByType(TYPE_COMMENT)) {
             String commentsJSON = commentData.getValue();
             try {
                 List<ProcessCommentBean> list = mapper.readValue(commentsJSON, type);
-                List<ProcessComment> comments = convert(list, task);
-                task.getProcessInstance().addComments(comments);
+                if (provider.getProcessInstance() != null) {
+                    List<ProcessComment> comments = convert(list, provider);
+                    provider.getProcessInstance().addComments(comments);
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -42,12 +43,12 @@ public class CommentDataHandler implements IWidgetDataHandler
         return new LinkedList<HandlingResult>();
     }
 
-    private List<ProcessComment> convert(List<ProcessCommentBean> list, BpmTask task) {
+    private List<ProcessComment> convert(List<ProcessCommentBean> list, IAttributesProvider provider) {
         List<ProcessComment> result = new ArrayList<ProcessComment>();
         SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
         for (ProcessCommentBean bean : list) {
-            result.add(convert(bean, task, format));
+            result.add(convert(bean, (BpmTask) provider, format));
         }
         return result;
     }
@@ -61,8 +62,7 @@ public class CommentDataHandler implements IWidgetDataHandler
         comment.setProcessInstance(task.getProcessInstance());
         try {
             comment.setCreateTime(format.parse(bean.getCreateDate()));
-        }
-        catch (ParseException e) {
+        } catch (ParseException e) {
             throw new RuntimeException(e);
         }
         return comment;

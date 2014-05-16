@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
 
-import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.*;
 
@@ -21,10 +21,10 @@ public class SimpleWidgetDataHandler implements IWidgetDataHandler
     private IKeysToIgnoreProvider keysToIgnoreProvider = null;
 
     @Override
-    public Collection<HandlingResult> handleWidgetData(BpmTask task, WidgetData data)
+    public Collection<HandlingResult> handleWidgetData(IAttributesProvider provider, WidgetData data)
     {
-        ProcessInstance process = task.getProcessInstance();
-        ProcessInstance rootProcess = task.getRootProcessInstance();
+        ProcessInstance process = provider.getProcessInstance();
+        ProcessInstance rootProcess = process.getRootProcessInstance();
         if(rootProcess == null)
             rootProcess = process;
 

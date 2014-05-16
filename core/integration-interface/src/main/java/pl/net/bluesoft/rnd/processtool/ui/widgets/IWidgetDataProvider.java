@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public interface IWidgetDataProvider
 {
-    Map<String, Object>getData(IAttributesProvider task);
+    Map<String, Object>getData(IAttributesProvider provider);
 
 
 }

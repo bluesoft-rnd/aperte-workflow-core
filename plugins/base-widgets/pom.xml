@@ -165,6 +165,11 @@
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.controller.UserController,
                             org.aperteworkflow.admin.controller.SubstitutionController
                         </ProcessTool-Controller>
+
+                        <ProcessTool-Controller>
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.controller.UserController,
+                            org.aperteworkflow.admin.controller.ProcessInstanceController
+                        </ProcessTool-Controller>
                       <!--  <ProcessTool-Widget-Script>
                         requests-scripts.js;provider:=file
                         </ProcessTool-Widget-Script>-->

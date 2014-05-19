@@ -45,7 +45,9 @@ public class ProcessInstanceController implements IOsgiWebController {
 
         IProcessToolRequestContext requestContext = invocation.getProcessToolRequestContext();
         I18NSource messageSource = requestContext.getMessageSource();
-        ProcessToolBpmSession bpmSession = requestContext.getBpmSession();
+        ProcessToolBpmSession bpmSession; // = requestContext.getBpmSession();
+
+        bpmSession = processToolSessionFactory.createAutoSession();
 
         Map<String, String[]> parameterMap = invocation.getRequest().getParameterMap();
         JQueryDataTable dataTable = JQueryDataTableUtil.analyzeRequest(parameterMap);
@@ -98,20 +100,13 @@ public class ProcessInstanceController implements IOsgiWebController {
 
         HttpServletRequest request = invocation.getRequest();
         final String taskInternalId = request.getParameter("taskInternalId");
-        final String oldUserLogin = request.getParameter("oldUserLogin");
+        String oldUserLogin = request.getParameter("oldUserLogin");
         final String newUserLogin = request.getParameter("newUserLogin");
 
-        //albo własciciel taska albo potencjalni wlasciciele (potential owners)
         final UserData taskOwner = portalUserSource.getUserByLogin(oldUserLogin);
 
         ProcessToolBpmSession bpmSession = processToolSessionFactory.createSession(taskOwner);
-
-        //kto może domagać się (claim) tasków? tylko wlasciciel i potencjalni właścicele?
-        //Jezeli tak, to jak reassignować ten task za pomocą poniższej metody?
-
-        //czy jezeli jest single potential owner to nie powinno byc tak, że nie da sie reassignowac?
-        //w takiej sytuacji jak zrobić, w aktualnym liferayu zeby było wiele potential ownerów w tasku?
-        bpmSession.adminReassignProcessTask(taskInternalId, newUserLogin);
+        bpmSession.adminForwardProcessTask(taskInternalId, oldUserLogin, newUserLogin);
 
         return result;
     }

@@ -63,7 +63,6 @@ public class ProcessInstanceBean extends AbstractResultBean {
             bean.internalId = processInstance.getInternalId();
             bean.taskPotentialOwners = (List<String>) task.getPotentialOwners();
 
-
             for (ProcessInstanceLog pl : processLogs) {
                 bean.status = pl.getState() != null ? pl.getState().getDescription() + pl.getState().getName() : "none";
             }

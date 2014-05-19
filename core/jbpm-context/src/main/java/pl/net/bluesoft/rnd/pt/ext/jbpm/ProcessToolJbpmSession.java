@@ -629,6 +629,20 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		log.severe("User: " + userLogin + " has reassigned task " + toJbpmTaskId(bpmTask) + " for process: " + pi.getInternalId() + " to user: " + userLogin);
 	}
 
+    @Override
+    public void adminForwardProcessTask(String taskId, String userLogin, String targetUserLogin) {
+        BpmTask bpmTask = getTaskData(taskId);
+        ProcessInstance pi = bpmTask.getProcessInstance();
+
+        log.severe("User: " + userLogin + " attempting to forward task " + toJbpmTaskId(bpmTask) + " for process: " + pi.getInternalId() + " to user: " + userLogin);
+
+        getJbpmService().forwardTask(toJbpmTaskId(bpmTask), userLogin, targetUserLogin);
+
+        log.info("Process.running:" + pi.isProcessRunning());
+        save(pi);
+        log.severe("User: " + userLogin + " has reassigned task " + toJbpmTaskId(bpmTask) + " for process: " + pi.getInternalId() + " to user: " + userLogin);
+    }
+
 	@Override
 	public void adminCompleteTask(String taskId, String actionName) {
 		log.severe("User: " + userLogin + " attempting to complete task " + taskId + " for process: " + " to outcome: " + actionName);

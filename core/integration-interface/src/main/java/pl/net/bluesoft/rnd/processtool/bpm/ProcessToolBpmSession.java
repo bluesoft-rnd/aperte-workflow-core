@@ -87,13 +87,15 @@ public interface ProcessToolBpmSession {
 	Collection<String> getRoleNames();
 
     void adminCancelProcessInstance(String internalId);
+    void adminForwardProcessTask(String taskId, String userLogin, String targetUserLogin);
     void adminReassignProcessTask(String taskId, String userLogin);
+
     void adminCompleteTask(String taskId, String actionName);
 
     List<String> getAvailableLogins(String filter);
-
     byte[] getProcessLatestDefinition(String bpmDefinitionKey);
     byte[] getProcessDefinition(ProcessInstance pi);
+
     byte[] getProcessMapImage(ProcessInstance pi);
 
 	boolean differsFromTheLatest(String bpmDefinitionKey, byte[] newDefinition);

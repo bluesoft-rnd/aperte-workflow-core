@@ -45,9 +45,7 @@ public class ProcessInstanceController implements IOsgiWebController {
 
         IProcessToolRequestContext requestContext = invocation.getProcessToolRequestContext();
         I18NSource messageSource = requestContext.getMessageSource();
-        ProcessToolBpmSession bpmSession; // = requestContext.getBpmSession();
-
-        bpmSession = processToolSessionFactory.createAutoSession();
+        ProcessToolBpmSession bpmSession = requestContext.getBpmSession();
 
         Map<String, String[]> parameterMap = invocation.getRequest().getParameterMap();
         JQueryDataTable dataTable = JQueryDataTableUtil.analyzeRequest(parameterMap);
@@ -100,13 +98,12 @@ public class ProcessInstanceController implements IOsgiWebController {
 
         HttpServletRequest request = invocation.getRequest();
         final String taskInternalId = request.getParameter("taskInternalId");
-        String oldUserLogin = request.getParameter("oldUserLogin");
+        final String oldUserLogin = request.getParameter("oldUserLogin");
         final String newUserLogin = request.getParameter("newUserLogin");
 
-        final UserData taskOwner = portalUserSource.getUserByLogin(oldUserLogin);
-
-        ProcessToolBpmSession bpmSession = processToolSessionFactory.createSession(taskOwner);
+        ProcessToolBpmSession bpmSession = invocation.getProcessToolRequestContext().getBpmSession();
         bpmSession.adminForwardProcessTask(taskInternalId, oldUserLogin, newUserLogin);
+        bpmSession.assignTaskToUser(taskInternalId, newUserLogin);
 
         return result;
     }

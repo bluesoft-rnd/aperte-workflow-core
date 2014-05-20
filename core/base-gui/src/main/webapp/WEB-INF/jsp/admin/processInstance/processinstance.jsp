@@ -69,7 +69,7 @@
         function generateAssignedUserDropdown(object) {
             var button = createDropdownButton((object.assignedTo != null) ? object.assignedTo : "Not assigned");
             var actionList = createActionList();
-            addListItem(actionList, 'Change', 'changeAssignee(' + object.taskInternalId + ',' + object.assignedTo + ')');
+            addListItem(actionList, 'Change', 'changeAssignee(' + object.taskInternalId + ',\"' + object.assignedTo + '\")');
             addListItem(actionList, 'Remove', '');
             var dropdown = wrapDropdownWithDiv(button, actionList);
             return $(dropdown).html();
@@ -83,7 +83,7 @@
                 var actionName = String(object.availableActions[i]);
                 addListItem(actionList, actionName, 'performActionForTask(' + object.taskInternalId + ')');     //todo: pass action
             }
-            addListItem(actionList, "Cancel", 'cancelProcessInstance('+object.internalId+')');
+            addListItem(actionList, "Cancel", 'cancelProcessInstance(' + object.internalId + ')');
             return $(wrapDropdownWithDiv(button, actionList)).html();
         }
 
@@ -121,6 +121,7 @@
             var a = document.createElement('a');
             $(a).attr('nohref');
             $(a).attr('onclick', onClickAction);
+
             a.innerHTML = title;
             var li = document.createElement('li');
             li.appendChild(a);
@@ -150,6 +151,9 @@
 
         function changeAssignee(taskId, oldUserName) {
             var userLogin = prompt("Please enter user login","");   //TODO - zrobic select list!
+
+            console.log(taskId);
+            console.log(oldUserName);
 
             modifyAssignee(taskId, oldUserName, userLogin);
         }

@@ -40,7 +40,7 @@ public class JobExecutionListener extends JobListenerSupport {
     public void jobWasExecuted(JobExecutionContext context, JobExecutionException jobException) {
         JobDetail jobDetail = context.getJobDetail();
         if (!silentJobsSet.contains(jobDetail.getJobClass())) {
-            registry.getEventBusManager().post(new JobExecutedEvent(jobDetail.getJobClass(), jobDetail, jobException));
+            //registry.getEventBusManager().post(new JobExecutedEvent(jobDetail.getJobClass(), jobDetail, jobException));
         }
     }
 }

@@ -70,7 +70,7 @@
             var button = createDropdownButton((object.assignedTo != null) ? object.assignedTo : "Not assigned");
             var actionList = createActionList();
             addListItem(actionList, 'Change', 'changeAssignee(' + object.taskInternalId + ',\"' + object.assignedTo + '\")');
-            addListItem(actionList, 'Remove', '');
+            addListItem(actionList, 'Remove', 'removeAssignee(' + object.taskInternalId + ',\"' + object.assignedTo + '\")');
             var dropdown = wrapDropdownWithDiv(button, actionList);
             return $(dropdown).html();
         }
@@ -151,11 +151,14 @@
 
         function changeAssignee(taskId, oldUserName) {
             var userLogin = prompt("Please enter user login","");   //TODO - zrobic select list!
-
-            console.log(taskId);
-            console.log(oldUserName);
-
             modifyAssignee(taskId, oldUserName, userLogin);
+        }
+
+        function removeAssignee(taskId, oldUserName) {
+            var userIsSure = confirm("Are you sure?");
+            if(userIsSure) {
+                modifyAssignee(taskId, oldUserName);
+            }
         }
 
         function modifyAssignee(taskId, oldUserName, newUserName) {

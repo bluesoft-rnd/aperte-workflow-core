@@ -102,9 +102,12 @@ public class ProcessInstanceController implements IOsgiWebController {
         final String newUserLogin = request.getParameter("newUserLogin");
 
         ProcessToolBpmSession bpmSession = invocation.getProcessToolRequestContext().getBpmSession();
-        bpmSession.adminForwardProcessTask(taskInternalId, oldUserLogin, newUserLogin);
-        bpmSession.assignTaskToUser(taskInternalId, newUserLogin);
 
+        //Forwarding changes status to Ready and leaves the task unassigned.
+        bpmSession.adminForwardProcessTask(taskInternalId, oldUserLogin, newUserLogin);
+        if(newUserLogin != null) {
+            bpmSession.assignTaskToUser(taskInternalId, newUserLogin);
+        }
         return result;
     }
 }

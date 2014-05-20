@@ -28,11 +28,10 @@ import java.util.logging.Logger;
  * mapping to obtain portal specific attributes and cookies
  */
 public class CaseManagementPortletController {
-    private static final String PORTLET_JSON_RESULT_ROOT_NAME = "result";
-    private static final String PORTLET_CASE_ID_PARAMTER = "caseId";
+    protected static final String PORTLET_JSON_RESULT_ROOT_NAME = "result";
+    protected static final String PORTLET_CASE_ID_PARAMTER = "caseId";
 
     private static Logger logger = Logger.getLogger(CaseManagementPortletController.class.getName());
-
 
     @Autowired(required = false)
     private DispatcherController mainDispatcher;

@@ -32,7 +32,8 @@
                 <th style="width:5%;">created on:</th>
                 <th style="width:5%;">status:</th>
                 <th style="width:15%;">Assigned to:</th>
-                <th style="width:10%;">internal id</th>
+                <th style="width:10%;">Process internal id</th>
+                <th style="width:10%;">external key</th>
                 <th style="width:15%;">Actions</th>
         </thead>
         <tbody></tbody>
@@ -54,7 +55,8 @@
                 { "sName":"creationDate", "bSortable": true ,"mData": function(object){return $.format.date(object.creationDate, 'dd-MM-yyyy, HH:mm:ss');}},
                 { "sName":"status", "bSortable": true , "mData": "status"},
                 { "sName":"assignedTo", "bSortable": true , "mData": function(object){return generateAssignedUserDropdown(object);}},
-                { "sName":"internalId", "bSortable": true , "mData": "internalId" },
+                { "sName":"processInternalId", "bSortable": true , "mData": "processInternalId" },
+                { "sName":"externalKey", "bSortable": true , "mData": "externalKey" },
                 { "sName":"availableActions", "bSortable": true , "mData": function(object){return generateActionDropdownButton(object);}}
             ],
             [[ 1, "desc" ]]
@@ -63,6 +65,7 @@
         setSearchParameters();
 
         function formatDefinitionName(object) {
+            console.log(object);
             return object.definitionDescription + " (Def Id: " +  object.definitionId + ") " + object.bpmDefinitionKey;
         }
 
@@ -80,8 +83,9 @@
             var actionList = createActionList(object);
 
             for (var i=0; i< object.availableActions.length; i++) {
-                var actionName = String(object.availableActions[i]);
-                addListItem(actionList, actionName, 'performActionForTask(' + object.taskInternalId + ')');     //todo: pass action
+                var actionName = object.availableActions[i];
+                console.log("");
+                addListItem(actionList, actionName, 'performActionForTask(' + object.taskInternalId + ',\"' + actionName + '\")');
             }
             addListItem(actionList, "Cancel", 'cancelProcessInstance(' + object.internalId + ')');
             return $(wrapDropdownWithDiv(button, actionList)).html();
@@ -129,6 +133,7 @@
         }
 
         function performActionForTask(taskId, action) {
+            console.log(action);
            ajaxPost({
                controller : 'processInstanceController',
                action : 'performAction',
@@ -155,8 +160,7 @@
         }
 
         function removeAssignee(taskId, oldUserName) {
-            var userIsSure = confirm("Are you sure?");
-            if(userIsSure) {
+            if(confirm("Are you sure?")) {
                 modifyAssignee(taskId, oldUserName);
             }
         }

@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolSessionFactory;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.usersource.IPortalUserSource;
 import pl.net.bluesoft.rnd.processtool.web.controller.ControllerMethod;
@@ -83,12 +82,13 @@ public class ProcessInstanceController implements IOsgiWebController {
     public GenericResultBean performAction(final OsgiWebRequest invocation) {
         GenericResultBean result = new GenericResultBean();
         IProcessToolRequestContext requestContext = invocation.getProcessToolRequestContext();
-        ProcessToolBpmSession bpmSession = requestContext.getBpmSession();
 
         String taskId = invocation.getRequest().getParameter("taskInternalId");
+        String action = invocation.getRequest().getParameter("actionToPerform");
 
-        // todo: make it dynamic!!!
-        bpmSession.adminCompleteTask(taskId, "acceptance_reject");
+        // znowu - czy tylko osoba przypisana do taska (majaca dostep do kolejki tasków w której on sie znajduje) moze to wykonywac?
+        ProcessToolBpmSession session = processToolSessionFactory.createSession(requestContext.getBpmSession().getTaskData(taskId).getAssignee());
+        session.adminCompleteTask(taskId, action);
         return result;
     }
 
@@ -98,15 +98,18 @@ public class ProcessInstanceController implements IOsgiWebController {
 
         HttpServletRequest request = invocation.getRequest();
         final String taskInternalId = request.getParameter("taskInternalId");
-        final String oldUserLogin = request.getParameter("oldUserLogin");
         final String newUserLogin = request.getParameter("newUserLogin");
-
+        String oldUserLogin = request.getParameter("oldUserLogin");
         ProcessToolBpmSession bpmSession = invocation.getProcessToolRequestContext().getBpmSession();
 
-        //Forwarding changes status to Ready and leaves the task unassigned.
+        if ("null".equals(oldUserLogin)) {
+            oldUserLogin = bpmSession.getUserLogin();
+        }
+
+        // Forwarding changes status to Ready and leaves the task unassigned.
         bpmSession.adminForwardProcessTask(taskInternalId, oldUserLogin, newUserLogin);
-        if(newUserLogin != null) {
-            bpmSession.assignTaskToUser(taskInternalId, newUserLogin);
+        if (newUserLogin != null) {
+            bpmSession.adminReassignProcessTask(taskInternalId, newUserLogin);
         }
         return result;
     }

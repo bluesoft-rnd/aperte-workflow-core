@@ -26,11 +26,10 @@ public class ProcessInstanceBean extends AbstractResultBean {
     private String status;
     private String assignedTo = "";
     private String externalKey;
-    private String internalId;
+    private String processInternalId;
     private List<String> availableActions = new ArrayList<String>();
     private String taskName = "";
     private String taskInternalId;
-    private List<String> taskPotentialOwners;
 
     public static List<ProcessInstanceBean> createBeans(ProcessInstance instance, I18NSource messageSource, ProcessToolBpmSession bpmSession) {
         ProcessDefinitionConfig definition = instance.getDefinition();
@@ -56,8 +55,8 @@ public class ProcessInstanceBean extends AbstractResultBean {
             bean.creatorLogin = processInstance.getCreatorLogin();
             bean.creationDate = processInstance.getCreateDate();
             bean.externalKey = processInstance.getExternalKey();
-            bean.internalId = processInstance.getInternalId();
-            bean.taskPotentialOwners = (List<String>) task.getPotentialOwners();
+            bean.processInternalId = processInstance.getInternalId();
+
 
             for (ProcessInstanceLog pl : processLogs) {
                 bean.status = pl.getState() != null ? pl.getState().getDescription() + pl.getState().getName() : "none";
@@ -70,10 +69,6 @@ public class ProcessInstanceBean extends AbstractResultBean {
             processInstanceBeans.add(bean);
         }
         return processInstanceBeans;
-    }
-
-    public List<String> getTaskPotentialOwners() {
-        return taskPotentialOwners;
     }
 
     public String getTaskInternalId() {
@@ -108,8 +103,8 @@ public class ProcessInstanceBean extends AbstractResultBean {
         return assignedTo;
     }
 
-    public String getInternalId() {
-        return internalId;
+    public String getProcessInternalId() {
+        return processInternalId;
     }
 
     public String getExternalKey() {

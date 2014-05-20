@@ -16,27 +16,24 @@ import java.util.List;
 
 public class ProcessInstanceBean extends AbstractResultBean {
 
-
     private Long definitionId;
     private String definitionDescription;
     private String bpmDefinitionKey;
-
     private String creatorLogin;
     private Date creationDate;
     private String status;
-    private String assignedTo = "";
+    private String assignedTo;
     private String externalKey;
     private String processInternalId;
     private List<String> availableActions = new ArrayList<String>();
-    private String taskName = "";
+    private String taskName;
     private String taskInternalId;
 
     public static List<ProcessInstanceBean> createBeans(ProcessInstance instance, I18NSource messageSource, ProcessToolBpmSession bpmSession) {
         ProcessDefinitionConfig definition = instance.getDefinition();
         List<BpmTask> taskList = new ArrayList<BpmTask>(bpmSession.findProcessTasks(instance));
         List<ProcessInstanceLog> processLogs = new ArrayList<ProcessInstanceLog>(instance.getProcessLogs());
-        List<ProcessInstanceBean> processInstanceBeans = createBeansForAllTasks(instance, definition, taskList, processLogs);
-        return processInstanceBeans;
+        return createBeansForAllTasks(instance, definition, taskList, processLogs);
     }
 
     private static List<ProcessInstanceBean> createBeansForAllTasks(ProcessInstance processInstance, ProcessDefinitionConfig definition, List<BpmTask> taskList, List<ProcessInstanceLog> processLogs) {

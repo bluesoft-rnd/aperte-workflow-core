@@ -34,8 +34,7 @@ public class ProcessInstanceController implements IOsgiWebController {
 
     @Autowired
     protected IPortalUserSource portalUserSource;
-    @Autowired
-    protected ProcessToolRegistry processToolRegistry;
+
     @Autowired
     protected ProcessToolSessionFactory processToolSessionFactory;
 

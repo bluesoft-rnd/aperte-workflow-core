@@ -31,17 +31,14 @@
                 <th style="width:5%;">creator Login:</th>
                 <th style="width:5%;">created on:</th>
                 <th style="width:5%;">status:</th>
-                <th style="width:15%;">Assigned to:</th>
+                <th style="width:10%;">Assigned to:</th>
                 <th style="width:10%;">Process internal id</th>
-                <th style="width:10%;">external key</th>
+                <th style="width:5%;">external key</th>
                 <th style="width:15%;">Actions</th>
         </thead>
         <tbody></tbody>
     </table>
 </div>
-
-
-
 
 <script type="text/javascript">
     //<![CDATA[
@@ -65,7 +62,6 @@
         setSearchParameters();
 
         function formatDefinitionName(object) {
-            console.log(object);
             return object.definitionDescription + " (Def Id: " +  object.definitionId + ") " + object.bpmDefinitionKey;
         }
 
@@ -84,7 +80,6 @@
 
             for (var i=0; i< object.availableActions.length; i++) {
                 var actionName = object.availableActions[i];
-                console.log("");
                 addListItem(actionList, actionName, 'performActionForTask(' + object.taskInternalId + ',\"' + actionName + '\")');
             }
             addListItem(actionList, "Cancel", 'cancelProcessInstance(' + object.internalId + ')');
@@ -133,7 +128,6 @@
         }
 
         function performActionForTask(taskId, action) {
-            console.log(action);
            ajaxPost({
                controller : 'processInstanceController',
                action : 'performAction',

@@ -33,6 +33,7 @@ public class OsgiDispachServlet extends HttpServlet {
 	}
 
 	protected void  process(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		resp.setContentType("text/xml");
 		PrintWriter writer = resp.getWriter();
 		String response = getOsgiDispatcher().handle(req);
 		writer.print(response);

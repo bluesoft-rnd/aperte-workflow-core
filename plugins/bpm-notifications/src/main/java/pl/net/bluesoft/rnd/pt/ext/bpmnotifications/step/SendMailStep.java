@@ -100,9 +100,7 @@ public class SendMailStep implements ProcessToolProcessStep {
 			}
 		}
 		else {
-			String[] attachmentIds = pi.getSimpleAttributeValue(this.attachmentIds).split(",");
-
-			for (String attachmentId : attachmentIds) {
+			for (String attachmentId : attachmentIds.split(",")) {
 				result.add(getBpmAttachment(Long.valueOf(attachmentId)));
 			}
 		}

@@ -103,16 +103,26 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 	@Override
 	public StartProcessResult startProcess(String processDefinitionId, String externalKey, String source) {
+		return startProcess(processDefinitionId, externalKey, source, null);
+	}
+
+	@Override
+	public StartProcessResult startProcess(String processDefinitionId, String externalKey, String source, Map<String, Object> simpleAttributes) {
 		ProcessDefinitionConfig config = getContext().getProcessDefinitionDAO().getActiveConfigurationByKey(processDefinitionId);
 
 		if (!config.isEnabled()) {
 			throw new IllegalArgumentException("Process definition has been disabled!");
 		}
 
-		startProcessParams = new StartProcessParams(config, externalKey, source, userLogin);
+		Map<String, Object> initialParams = getInitialParams();
+		if(simpleAttributes != null){
+			initialParams.putAll(simpleAttributes);
+		}
+
+		startProcessParams = new StartProcessParams(config, externalKey, source, userLogin, initialParams);
 
 		try {
-			getJbpmService().startProcess(config.getBpmProcessId(), getInitialParams());
+			getJbpmService().startProcess(config.getBpmProcessId(), initialParams);
 			generateExternalKey(startProcessParams.newProcessInstance);
 			generateStepInfo(startProcessParams.createdTasks);
 			return new JbpmStartProcessResult(startProcessParams.newProcessInstance, startProcessParams.createdTasksForCurrentUser);
@@ -1192,13 +1202,16 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		public final String externalKey;
 		public final String source;
 		public final String creator;
+		private Map<String, Object> initialParams;
 		public ProcessInstance newProcessInstance;
 
-		public StartProcessParams(ProcessDefinitionConfig config, String externalKey, String source, String creator) {
+		public StartProcessParams(ProcessDefinitionConfig config, String externalKey, String source, String creator,
+								  Map<String, Object> initialParams) {
 			this.config = config;
 			this.externalKey = externalKey;
 			this.source = source;
 			this.creator = creator;
+			this.initialParams = initialParams;
 		}
 
 		public ProcessInstance createFromParams(org.drools.runtime.process.ProcessInstance jbpmProcessInstance, ProcessInstance parentProcessInstance) {
@@ -1216,6 +1229,13 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 			newProcessInstance.setSimpleAttribute("creator", creator);
 			newProcessInstance.setSimpleAttribute("creatorName", userSource.getUserByLogin(creator).getRealName());
 			newProcessInstance.setSimpleAttribute("source", source);
+
+			if (initialParams != null) {
+				for (Map.Entry<String, Object> entry : initialParams.entrySet()) {
+					String value = entry.getValue() != null ? String.valueOf(entry.getValue()) : null;
+					newProcessInstance.setSimpleAttribute(entry.getKey(), value);
+				}
+			}
 
 			if (parentProcessInstance != null) {
 				newProcessInstance.setParent(parentProcessInstance);
@@ -1288,7 +1308,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 				String creator = parentProcessInstance.getCreatorLogin();
 
 				StartProcessParams params = new StartProcessParams(
-						config, null, "parent_process", creator
+						config, null, "parent_process", creator, null
 				);
 				newProcessInstance = params.createFromParams(jbpmProcessInstance, parentProcessInstance);
 
@@ -1461,8 +1481,8 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 		public void setStepInfo(String stepInfo) {
 			this.stepInfo = stepInfo;
-		}
-	}
+        }
+    }
 
 	private static class LazyProcessQueue implements ProcessQueue, Serializable {
 		private final ProcessQueue queue;

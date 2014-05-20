@@ -87,10 +87,10 @@ public class Activator implements BundleActivator, EventListener<BpmEvent>
 		schedulerActivator.scheduleNotificationsSend(engine);
 		schedulerActivator.scheduleNotificationsSend(groupedNotification);
 
-		String path = "/pl/net/bluesoft/rnd/pt/ext/bpmnotifications/html/file.html";
-		String html = getBundleResourceString(context.getBundle(), path);
+		//String path = "/pl/net/bluesoft/rnd/pt/ext/bpmnotifications/html/file.html";
+		//String html = getBundleResourceString(context.getBundle(), path);
 
-		BpmAdminPortletRender.init(html);
+		//BpmAdminPortletRender.init(html);
 
 		getViewRegistry(processToolRegistry).registerGenericPortletViewRenderer("admin", BpmAdminPortletRender.INSTANCE);
 		getViewRegistry(processToolRegistry).registerGenericPortletViewRenderer("user", BpmAdminPortletRender.INSTANCE);

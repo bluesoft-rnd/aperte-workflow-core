@@ -9,8 +9,7 @@ public class EmailSender {
 	
 	public static void sendEmail(IBpmNotificationService service, NotificationData notificationData) throws Exception 
 	{
-
-        logger.info("EmailSender with params " + notificationData.getRecipient() + " " + notificationData.getTemplateData().getTemplateName());
+        logger.info("EmailSender with params " + notificationData.getRecipient() + ' ' + notificationData.getTemplateData().getTemplateName());
         
         if (notificationData.getRecipient() == null)
         	throw new Exception("Error sending email. Recipient is null");
@@ -24,9 +23,5 @@ public class EmailSender {
         catch (ProcessToolTemplateErrorException e) {
         	throw new Exception("Error preparing email template", e);
         }
-        
-
-        
-
 	}
 }

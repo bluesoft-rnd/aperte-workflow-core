@@ -5,13 +5,11 @@ import static pl.net.bluesoft.util.lang.Strings.hasText;
 import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
 
 import java.net.ConnectException;
-import java.net.URL;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.activation.DataHandler;
-import javax.activation.URLDataSource;
 import javax.mail.Message;
 import javax.mail.Multipart;
 import javax.mail.Transport;
@@ -19,6 +17,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+import javax.mail.util.ByteArrayDataSource;
 
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
@@ -36,6 +35,7 @@ import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.template.ProcessToolTemplateErrorException;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.facade.NotificationsFacade;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmAttachment;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotification;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotificationConfig;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.IBpmNotificationService;
@@ -52,7 +52,6 @@ import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.settings.NotificationsSetting
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.templates.IMailTemplateLoader;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
-import pl.net.bluesoft.util.lang.Strings;
 
 /**
  * E-mail notification engine. 
@@ -126,13 +125,12 @@ public class BpmNotificationEngine implements IBpmNotificationService
 				{	
 					initComponents();
 				}
-	        });
+			      });
     	}
     }
     
     private void initComponents()
     {
-
         /* Inject dependencies */
         ObjectFactory.inject(this);
     	
@@ -155,7 +153,7 @@ public class BpmNotificationEngine implements IBpmNotificationService
 			{
 				handleNotificationsWithContext();
 			}
-        });
+		});
     }
     
     /** The method check if there are any new notifications in database to be sent */
@@ -165,7 +163,6 @@ public class BpmNotificationEngine implements IBpmNotificationService
 
 		try
 		{
-    	
 	    	/* Get all notifications waiting to be sent */
 	    	Collection<BpmNotification> notificationsToSend = NotificationsFacade.getNotificationsToSend();
 	    	
@@ -235,7 +232,6 @@ public class BpmNotificationEngine implements IBpmNotificationService
 		/* Table is locked, end transation */
 		catch(LockAcquisitionException ex)
 		{
-
 		}
     }
     
@@ -347,7 +343,6 @@ public class BpmNotificationEngine implements IBpmNotificationService
     	{
     		refrshInterval = Long.parseLong(refreshIntervalString);
     	}
-    		
     }
 
 	private Collection<UserData> extractUsers(String notifyUserAttributes, ProcessToolContext ctx, ProcessInstance pi) {
@@ -473,16 +468,14 @@ public class BpmNotificationEngine implements IBpmNotificationService
         
         try
         {
-
         	isGroup = processedNotificationData.getRecipient().getAttribute(messageSource.getMessage("bpmnot.notify.liferay.groupingCheckbox")).toString();
-        
         }
         catch(Exception e)
         {
         	logger.log(Level.SEVERE, "Add custom field true/false for grouping notifications. Property: bpmnot.notify.liferay.groupingCheckbox=key");
         }
         
-        if(isGroup == null){
+        if(isGroup == null) {
         	notification.setGroupNotifications(false);
         }
         
@@ -497,19 +490,8 @@ public class BpmNotificationEngine implements IBpmNotificationService
 	        
 	        notification.setSendAfterHour(cal.getTime());
         }
-       
-        StringBuilder attachmentsString = new StringBuilder();
-        int attachmentsSize = processedNotificationData.getAttachments().size();
-        for(String attachment: processedNotificationData.getAttachments())
-        {
-        	attachmentsString.append(attachment);
-        	attachmentsSize--;
-        	
-        	if(attachmentsSize > 0)
-        		attachmentsString.append(",");
-        }
-        
-        notification.setAttachments(attachmentsString.toString());
+
+        notification.encodeAttachments(processedNotificationData.getAttachments());
         
         NotificationsFacade.addNotificationToBeSent(notification);
 
@@ -586,23 +568,22 @@ public class BpmNotificationEngine implements IBpmNotificationService
         multipart.addBodyPart(messagePart);
 
         //zalaczniki
-        int counter = 0;
-        URL url;
-        
+
         if(notification.getAttachments() != null && !notification.getAttachments().isEmpty())
         {
-	        String[] attachments = notification.getAttachments().split(",");
+			List<BpmAttachment> attachments = notification.decodeAttachments();
 	        
-	        for (String u : attachments) {
-	        	if (!Strings.hasText(u))
-	        		continue;
-	        	url = new URL(u);
+	        for (BpmAttachment attachment : attachments) {
 		        MimeBodyPart attachmentPart = new MimeBodyPart();
-		        URLDataSource urlDs = new URLDataSource(url);
-		        attachmentPart.setDataHandler(new DataHandler(urlDs));
-		        attachmentPart.setFileName("file" + counter++);
+				ByteArrayDataSource ds = new ByteArrayDataSource(attachment.getBody(), attachment.getContentType());
+
+				attachmentPart.setDataHandler(new DataHandler(ds));
+		        attachmentPart.setFileName(attachment.getName());
 		        multipart.addBodyPart(attachmentPart);
-		        logger.info("Added attachment " + u);
+
+				if (logger.isLoggable(Level.INFO)) {
+					logger.info("Added attachment " + attachment.getName());
+				}
 	        }       
         }
         
@@ -650,7 +631,6 @@ public class BpmNotificationEngine implements IBpmNotificationService
 		String transportProtocol = emailPrtoperties.getProperty("mail.transport.protocol");
 		
 		return "smtps".equals(transportProtocol);
-		
     }
 
 	@Override
@@ -698,8 +678,7 @@ public class BpmNotificationEngine implements IBpmNotificationService
         	.setBody(body)
         	.setSubject(topic)
         	.setSender(sender);
-        
-        
+
 		return processedNotificationData;
 	}
 

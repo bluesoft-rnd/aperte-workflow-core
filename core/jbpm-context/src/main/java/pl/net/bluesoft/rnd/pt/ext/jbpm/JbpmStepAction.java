@@ -41,12 +41,11 @@ public class JbpmStepAction {
             throw new IllegalArgumentException("No step defined by name: " + stepName);
         }
 
-        String res;
-
-        PropertyAutoWiring.autowire(stepInstance, params);
+		PropertyAutoWiring.autowire(stepInstance, params, pi);
         BpmStep step = prepareStep(pi);
+		String res;
 
-        try {
+		try {
             res = stepInstance.invoke(step, params);
         }
         catch (Exception e) {

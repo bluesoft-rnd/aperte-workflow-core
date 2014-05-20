@@ -1,6 +1,7 @@
 package pl.net.bluesoft.rnd.util;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 
 import java.util.Collection;
@@ -32,6 +33,18 @@ public class StepUtil {
             return pi.getSimpleAttributeValue(variableCode);
         }
     }
+
+	/**
+	 * Replaces each occurence of #{attr} with value of attribute attr
+	 */
+	public static String substituteVariables(String pattern, final IAttributesProvider pi) {
+		return PlaceholderUtil.expand(pattern, new PlaceholderUtil.ReplacementCallback() {
+			@Override
+			public String getReplacement(String placeholderName) {
+				return pi.getSimpleAttributeValue(placeholderName);
+			}
+		});
+	}
 
     /**
      * Evaluate the given query string to a list of simple attributes.

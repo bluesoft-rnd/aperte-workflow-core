@@ -1,6 +1,9 @@
 package pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service;
 
 import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmAttachment;
+
+import java.util.List;
 
 /**
  * Notification DTO
@@ -13,7 +16,8 @@ public class NotificationData
 	private UserData recipient;
 	private String profileName;
 	private TemplateData templateData;
-	
+	private List<BpmAttachment> attachments;
+
 	public TemplateData getTemplateData() {
 		return templateData;
 	}
@@ -41,5 +45,13 @@ public class NotificationData
 		this.profileName = profileName;
 		
 		return this;
+	}
+
+	public void setAttachments(List<BpmAttachment> attachments) {
+		this.attachments = attachments;
+	}
+
+	public List<BpmAttachment> getAttachments() {
+		return attachments;
 	}
 }

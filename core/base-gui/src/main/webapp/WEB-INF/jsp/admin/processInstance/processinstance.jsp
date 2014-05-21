@@ -25,12 +25,12 @@
 <div class="process-tasks-view" id="foundProcessInstances" style="z-index: 1">
     <table id="processInstanceTable" class="process-table table table-striped" border="1">
         <thead>
-                <th style="width:7%;">Process internal id</th>
-                <th style="width:18%;">Definition:</th>
-                <th style="width:10%;">external key</th>
+                <th style="width:7%;"><spring:message code="processinstances.console.processInternalId.title"/></th>
+                <th style="width:18%;"><spring:message code="processinstances.console.definitionsColumn.title"/></th>
+                <th style="width:10%;"><spring:message code="processinstances.console.externalKey.title"/></th>
                 <th style="width:5%;"><spring:message code="processinstances.console.history.createdby"/></th>
                 <th style="width:10%;"><spring:message code="processinstances.console.history.on"/></th>
-                <th style="width:15%;">Task name</th>
+                <th style="width:15%;"><spring:message code="processinstances.console.taskName.title"/></th>
                 <th style="width:13%;"><spring:message code="processinstances.console.entry.owner"/></th>
                 <th style="width:7%;"><spring:message code="processinstances.console.entry.state"/></th>
                 <th style="width:15%;"><spring:message code="processinstances.console.entry.available-actions"/></th>
@@ -48,6 +48,7 @@
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                 <h4 class="modal-title" id="categoryModalLabel"><spring:message code="processinstances.console.entry.change.owner.title" /></h4>
             </div>
+
             <div class="modal-body">
                 <div class="panel panel-default">
                     <div class="panel-body">
@@ -61,12 +62,15 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" id="cancelChangeButton" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                <button type="button" id="changeUserButton" class="btn btn-primary" data-dismiss="modal">Ok</button>
+                <button type="button" id="cancelChangeButton" class="btn btn-default" data-dismiss="modal">
+                    <spring:message code="processinstances.console.cancel.process.button.negative" />
+                </button>
+                <button type="button" id="changeUserButton" class="btn btn-primary" data-dismiss="modal">
+                    <spring:message code="processinstances.console.cancel.process.button.affirmative" />
+                </button>
             </div>
-
-        </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
+        </div>
+    </div>
 </div><!-- /.modal -->
 
 
@@ -102,7 +106,7 @@
         function generateAssignedUserDropdown(object) {
             var button = createDropdownButton((object.assignedTo != null) ? object.assignedTo : "<spring:message code="processinstances.console.entry.no-owner"/>");
             var actionList = createActionList();
-            addListItem(actionList, "<spring:message code="processinstances.console.entry.change.owner"/>", 'changeAssignee(' + object.taskInternalId + ',\"' + object.assignedTo + '\")');
+            addListItem(actionList, "<spring:message code="processinstances.console.entry.change.owner"/>", 'toggleChangeAssingeModal(' + object.taskInternalId + ',\"' + object.assignedTo + '\")');
             addListItem(actionList, "<spring:message code="processinstances.console.entry.remove-owner"/>", 'removeAssignee(' + object.taskInternalId + ',\"' + object.assignedTo + '\")');
             var dropdown = wrapDropdownWithDiv(button, actionList);
             return $(dropdown).html();
@@ -118,7 +122,7 @@
                     addListItem(actionList, actionName, 'performActionForTask(' + object.taskInternalId + ',\"' + actionName + '\")');
                 }
             } else {
-                addErrorListItem(actionList, "No user assigned");
+                addErrorListItem(actionList, "<spring:message code="processinstances.console.noUserAssinged"/>");
             }
             addListItem(actionList, "<spring:message code="processinstances.console.cancel-process"/>", 'cancelProcessInstance(' + object.processInternalId + ')');
             return $(wrapDropdownWithDiv(button, actionList)).html();
@@ -172,6 +176,19 @@
             list.appendChild(li);
         }
 
+
+        var currentlyChangedTaskId = null;
+        var currentlyChangedTaskOldUserName = null;
+
+        function toggleChangeAssingeModal(taskId, oldUserName) {
+            //var userLogin = prompt("Please enter user login","");
+            $('#changeUserModal').modal();
+            currentlyChangedTaskId = taskId;
+            currentlyChangedTaskOldUserName = oldUserName;
+
+            //modifyAssignee(taskId, oldUserName, userLogin);
+        }
+
         function performActionForTask(taskId, action) {
            if (confirm("<spring:message code="processinstances.console.force-action.confirm.title"/>")) {
                ajaxPost({
@@ -188,7 +205,7 @@
         }
 
         function cancelProcessInstance(processId) {
-            if(confirm("Are you sure?")) {
+            if(confirm("<spring:message code="processinstances.console.cancel.process.confirm.message"/>")) {
                 ajaxPost({
                     controller : 'processInstanceController',
                     action : 'cancelProcessInstance',
@@ -200,19 +217,10 @@
             }
         }
 
-        var currentlyChangedTaskId = null;
-        var currentlyChangedTaskOldUserName = null;
-        function changeAssignee(taskId, oldUserName) {
-            //var userLogin = prompt("Please enter user login","");
-            $('#changeUserModal').modal();
-            currentlyChangedTaskId = taskId;
-            currentlyChangedTaskOldUserName = oldUserName;
 
-            //modifyAssignee(taskId, oldUserName, userLogin);
-        }
 
         function removeAssignee(taskId, oldUserName) {
-            if(confirm("Are you sure?")) {
+            if(confirm("<spring:message code="processinstances.console.remove.process.confirm.message"/>")) {
                 modifyAssignee(taskId, oldUserName);
             }
         }

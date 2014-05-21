@@ -33,7 +33,11 @@ public class ProcessInstanceBean extends AbstractResultBean {
         ProcessDefinitionConfig definition = instance.getDefinition();
         List<BpmTask> taskList = new ArrayList<BpmTask>(bpmSession.findProcessTasks(instance));
         List<ProcessInstanceLog> processLogs = new ArrayList<ProcessInstanceLog>(instance.getProcessLogs());
+
+        //messageSource.getMessage()
         return createBeansForAllTasks(instance, definition, taskList, processLogs);
+
+
     }
 
     private static List<ProcessInstanceBean> createBeansForAllTasks(ProcessInstance processInstance, ProcessDefinitionConfig definition, List<BpmTask> taskList, List<ProcessInstanceLog> processLogs) {
@@ -49,6 +53,7 @@ public class ProcessInstanceBean extends AbstractResultBean {
             bean.assignedTo = task.getAssignee();
             bean.taskInternalId = task.getInternalTaskId();
             bean.taskName = task.getTaskName();
+
             bean.creatorLogin = processInstance.getCreatorLogin();
             bean.creationDate = processInstance.getCreateDate();
             bean.externalKey = processInstance.getExternalKey();

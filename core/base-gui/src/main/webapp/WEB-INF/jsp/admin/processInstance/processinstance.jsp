@@ -106,7 +106,7 @@
         function generateAssignedUserDropdown(object) {
             var button = createDropdownButton((object.assignedTo != null) ? object.assignedTo : "<spring:message code="processinstances.console.entry.no-owner"/>");
             var actionList = createActionList();
-            addListItem(actionList, "<spring:message code="processinstances.console.entry.change.owner"/>", 'toggleChangeAssingeModal(' + object.taskInternalId + ',\"' + object.assignedTo + '\")');
+            addListItem(actionList, "<spring:message code="processinstances.console.entry.change.owner"/>", 'toggleChangeAssigneeModal(' + object.taskInternalId + ',\"' + object.assignedTo + '\")');
             addListItem(actionList, "<spring:message code="processinstances.console.entry.remove-owner"/>", 'removeAssignee(' + object.taskInternalId + ',\"' + object.assignedTo + '\")');
             var dropdown = wrapDropdownWithDiv(button, actionList);
             return $(dropdown).html();
@@ -170,9 +170,11 @@
         }
 
         function addErrorListItem(list, message) {
+            var centerText = document.createElement('center');
+            $(centerText).text(message);
             var li = document.createElement('li');
             $(li).attr('class', 'list-group-item list-group-item-danger');
-            $(li).text(message);
+            li.appendChild(centerText);
             list.appendChild(li);
         }
 
@@ -180,7 +182,7 @@
         var currentlyChangedTaskId = null;
         var currentlyChangedTaskOldUserName = null;
 
-        function toggleChangeAssingeModal(taskId, oldUserName) {
+        function toggleChangeAssigneeModal(taskId, oldUserName) {
             //var userLogin = prompt("Please enter user login","");
             $('#changeUserModal').modal();
             currentlyChangedTaskId = taskId;

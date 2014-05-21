@@ -25,7 +25,7 @@ public class ProcessInstanceBean extends AbstractResultBean {
     private String assignedTo;
     private String externalKey;
     private String processInternalId;
-    private List<String> availableActions = new ArrayList<String>();
+    private List<Action> availableActions = new ArrayList<Action>();
     private String taskName;
     private String taskInternalId;
 
@@ -35,12 +35,12 @@ public class ProcessInstanceBean extends AbstractResultBean {
         List<ProcessInstanceLog> processLogs = new ArrayList<ProcessInstanceLog>(instance.getProcessLogs());
 
         //messageSource.getMessage()
-        return createBeansForAllTasks(instance, definition, taskList, processLogs);
+        return createBeansForAllTasks(messageSource, instance, definition, taskList, processLogs);
 
 
     }
 
-    private static List<ProcessInstanceBean> createBeansForAllTasks(ProcessInstance processInstance, ProcessDefinitionConfig definition, List<BpmTask> taskList, List<ProcessInstanceLog> processLogs) {
+    private static List<ProcessInstanceBean> createBeansForAllTasks(I18NSource messageSource, ProcessInstance processInstance, ProcessDefinitionConfig definition, List<BpmTask> taskList, List<ProcessInstanceLog> processLogs) {
         List<ProcessInstanceBean> processInstanceBeans = new ArrayList<ProcessInstanceBean>();
         ProcessInstanceBean bean;
         for (final BpmTask task : taskList) {
@@ -52,7 +52,7 @@ public class ProcessInstanceBean extends AbstractResultBean {
             bean.bpmDefinitionKey = definition.getBpmDefinitionKey();
             bean.assignedTo = task.getAssignee();
             bean.taskInternalId = task.getInternalTaskId();
-            bean.taskName = task.getTaskName();
+            bean.taskName = messageSource.getMessage(task.getTaskName());
 
             bean.creatorLogin = processInstance.getCreatorLogin();
             bean.creationDate = processInstance.getCreateDate();
@@ -64,7 +64,8 @@ public class ProcessInstanceBean extends AbstractResultBean {
             }
             if (processState != null && !processState.getActions().isEmpty()) {
                 for (ProcessStateAction action : processState.getActions()) {
-                    bean.availableActions.add(action.getBpmName());
+                    bean.availableActions.add(new Action(action.getBpmName(), messageSource.getMessage())); //TODO
+                    action.getTitle();
                 }
             }
             processInstanceBeans.add(bean);
@@ -112,7 +113,7 @@ public class ProcessInstanceBean extends AbstractResultBean {
         return externalKey;
     }
 
-    public List<String> getAvailableActions() {
+    public List<Action> getAvailableActions() {
         return availableActions;
     }
 

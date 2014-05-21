@@ -116,10 +116,15 @@
             var button = createDropdownButton("<spring:message code="processinstances.console.entry.available-actions"/>");
             var actionList = createActionList(object);
 
+            //console.log(object);
+
             if (object.assignedTo != null) {
                 for (var i=0; i< object.availableActions.length; i++) {
-                    var actionName = object.availableActions[i];
-                    addListItem(actionList, actionName, 'performActionForTask(' + object.taskInternalId + ',\"' + actionName + '\")');
+                    var action = object.availableActions[i].actionName;
+                    var actionLabel = "<spring:message code=" ${object.availableActions[i].actionTitle} "/>";
+                    console.log(object);
+
+                    addListItem(actionList, actionLabel, 'performActionForTask(' + object.taskInternalId + ',\"' + action + '\")');
                 }
             } else {
                 addErrorListItem(actionList, "<spring:message code="processinstances.console.noUserAssinged"/>");

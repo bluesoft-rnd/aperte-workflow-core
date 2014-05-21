@@ -40,6 +40,36 @@
     </table>
 </div>
 
+<!-- User Changing Modal -->
+<div class="modal fade" id="changeUserModal" tabindex="-1" role="dialog" aria-labelledby="categoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="categoryModalLabel"><spring:message code="processinstances.console.entry.change.owner.title" /></h4>
+            </div>
+            <div class="modal-body">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="form-horizontal">
+                            <div class="form-group input-group-sm">
+                                <input id="changeUserInput"  class="col-sm-10" style="width:100%"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" id="cancelChangeButton" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" id="changeUserButton" class="btn btn-primary" data-dismiss="modal">Ok</button>
+            </div>
+
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
 <script type="text/javascript">
     //<![CDATA[
         var waitTime = 500;
@@ -170,10 +200,15 @@
             }
         }
 
-
+        var currentlyChangedTaskId = null;
+        var currentlyChangedTaskOldUserName = null;
         function changeAssignee(taskId, oldUserName) {
-            var userLogin = prompt("Please enter user login","");   //TODO - zrobic select list!
-            modifyAssignee(taskId, oldUserName, userLogin);
+            //var userLogin = prompt("Please enter user login","");
+            $('#changeUserModal').modal();
+            currentlyChangedTaskId = taskId;
+            currentlyChangedTaskOldUserName = oldUserName;
+
+            //modifyAssignee(taskId, oldUserName, userLogin);
         }
 
         function removeAssignee(taskId, oldUserName) {
@@ -240,7 +275,49 @@
             $("#only_active").on('change', function() {
                 performSearch();
             });
-        });
 
+            $("#changeUserInput").select2({
+                ajax: {
+                    url: dispatcherPortlet,
+                    dataType: 'json',
+                    quietMillis: 200,
+                    data: function (term, page) {
+                        return {
+                            q: term, // search term
+                            page_limit: 10,
+                            controller: "usercontroller",
+                            page: page,
+                            action: "getAllUsers"
+                        };
+                    },
+                    results: function (data, page)
+                    {
+                        var results = [];
+                      $.each(data.data, function(index, item)
+                      {
+                        if('${user.getLogin()}' != item.login)
+                        {
+                            results.push({
+                              id: item.login,
+                              text: item.realName + ' ['+item.login+']'
+                            });
+
+                        }
+                      });
+                      return {
+                          results: results
+                      };
+                    }
+                },
+            });
+
+            $("#changeUserButton").on('click', function() {
+                var userFullName = $('.select2-hidden-accessible').text();
+                var userLogin = userFullName.substring(userFullName.lastIndexOf("[")+1,userFullName.lastIndexOf("]"))
+                modifyAssignee(currentlyChangedTaskId, currentlyChangedTaskOldUserName, userLogin);
+                currentlyChangedTaskId = null;
+                currentlyChangedTaskOldUserName = null;
+            });
+        });
     //]]>
 </script>

@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolSessionFactory;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.usersource.IPortalUserSource;
 import pl.net.bluesoft.rnd.processtool.web.controller.ControllerMethod;
 import pl.net.bluesoft.rnd.processtool.web.controller.IOsgiWebController;
@@ -47,7 +46,6 @@ public class ProcessInstanceController implements IOsgiWebController {
 
         Map<String, String[]> parameterMap = invocation.getRequest().getParameterMap();
         JQueryDataTable dataTable = JQueryDataTableUtil.analyzeRequest(parameterMap);
-
         String searchCriteria = invocation.getRequest().getParameter("filter");
         Boolean isOnlyActive = "true".equals(invocation.getRequest().getParameter("onlyActive"));
 
@@ -84,8 +82,6 @@ public class ProcessInstanceController implements IOsgiWebController {
 
         String taskId = invocation.getRequest().getParameter("taskInternalId");
         String action = invocation.getRequest().getParameter("actionToPerform");
-
-        // znowu - czy tylko osoba przypisana do taska (majaca dostep do kolejki tasków w której on sie znajduje) moze to wykonywac?
         ProcessToolBpmSession session = processToolSessionFactory.createSession(requestContext.getBpmSession().getTaskData(taskId).getAssignee());
         session.adminCompleteTask(taskId, action);
         return result;
@@ -101,10 +97,7 @@ public class ProcessInstanceController implements IOsgiWebController {
         String oldUserLogin = request.getParameter("oldUserLogin");
         ProcessToolBpmSession bpmSession = invocation.getProcessToolRequestContext().getBpmSession();
 
-        if ("null".equals(oldUserLogin)) {
-            oldUserLogin = bpmSession.getUserLogin();
-        }
-
+        // FIXME: if old user is null then we cannot reassign this task.
         // Forwarding changes status to Ready and leaves the task unassigned.
         bpmSession.adminForwardProcessTask(taskInternalId, oldUserLogin, newUserLogin);
         if (newUserLogin != null) {

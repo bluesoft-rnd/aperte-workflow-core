@@ -12,7 +12,11 @@ import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import org.springframework.web.portlet.ModelAndView;
 import org.springframework.web.portlet.bind.annotation.RenderMapping;
 import org.springframework.web.portlet.bind.annotation.ResourceMapping;
+import pl.net.bluesoft.rnd.processtool.BasicSettings;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.usersource.IPortalUserSource;
 
 import javax.portlet.*;
@@ -30,6 +34,8 @@ import java.util.logging.Logger;
 public class CaseManagementPortletController {
     protected static final String PORTLET_JSON_RESULT_ROOT_NAME = "result";
     protected static final String PORTLET_CASE_ID_PARAMTER = "caseId";
+    protected static final Integer DEFAULT_REFRESH_INTERVAL = 60000;
+    protected static final String REFRESH_INTERVAL = "refreshInterval";
 
     private static Logger logger = Logger.getLogger(CaseManagementPortletController.class.getName());
 
@@ -39,6 +45,9 @@ public class CaseManagementPortletController {
     @Autowired(required = false)
     protected IPortalUserSource portalUserSource;
 
+    @Autowired(required = false)
+    protected ProcessToolRegistry processToolRegistry;
+
 
     @RenderMapping()
     /**
@@ -46,10 +55,13 @@ public class CaseManagementPortletController {
      */
     public ModelAndView handleMainRenderRequest(RenderRequest request, RenderResponse response, Model model) {
         logger.info("CaseManagementPortletController.handleMainRenderRequest... ");
-        ModelAndView modelView = new ModelAndView();
+        final ModelAndView modelView = new ModelAndView();
         SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
         UserData user = portalUserSource.getUserByRequest(request);
         modelView.addObject(WebApiConstants.USER_PARAMETER_NAME, user);
+
+        addRefreshParameter(modelView);
+
         if (user == null || user.getLogin() == null) {
             modelView.setViewName("login");
         } else {
@@ -66,6 +78,23 @@ public class CaseManagementPortletController {
         }
 
         return modelView;
+    }
+
+    protected void addRefreshParameter(final ModelAndView modelView) {
+        processToolRegistry.withProcessToolContext(new ProcessToolContextCallback() {
+            @Override
+            public void withContext(ProcessToolContext ctx) {
+                Integer interval = DEFAULT_REFRESH_INTERVAL;
+                String refreshInterval = ctx.getSetting(BasicSettings.REFRESHER_INTERVAL_SETTINGS_KEY);
+                if (refreshInterval != null && !refreshInterval.trim().isEmpty()) {
+                    try {
+                        interval = Integer.parseInt(refreshInterval + "000");
+                    } catch (NumberFormatException e) {
+                    }
+                }
+                modelView.addObject(REFRESH_INTERVAL, interval);
+            }
+        });
     }
 
 

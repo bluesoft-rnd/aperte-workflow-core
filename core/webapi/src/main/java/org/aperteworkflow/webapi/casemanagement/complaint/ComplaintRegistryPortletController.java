@@ -54,6 +54,7 @@ public class ComplaintRegistryPortletController extends CaseManagementPortletCon
         } else {
             modelView.setViewName("complaint-registry");
         }
+        addRefreshParameter(modelView);
 
         HttpServletRequest httpServletRequest = portalUserSource.getHttpServletRequest(request);
         HttpServletRequest originalHttpServletRequest = portalUserSource.getOriginalHttpServletRequest(httpServletRequest);

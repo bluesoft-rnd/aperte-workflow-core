@@ -26,17 +26,18 @@
 <div class="process-tasks-view" id="foundProcessInstances" style="z-index: 1">
     <table id="processInstanceTable" class="process-table table table-striped" border="1">
         <thead>
-                <th style="width:15%;">Definition:</th>
+                <th style="width:7%;">Process internal id</th>
+                <th style="width:18%;">Definition:</th>
+                <th style="width:10%;">external key</th>
+                <th style="width:5%;"><spring:message code="processinstances.console.history.createdby"/></th>
+                <th style="width:10%;"><spring:message code="processinstances.console.history.on"/></th>
                 <th style="width:15%;">Task name</th>
-                <th style="width:5%;">creator Login:</th>
-                <th style="width:5%;">created on:</th>
-                <th style="width:5%;">status:</th>
-                <th style="width:10%;">Assigned to:</th>
-                <th style="width:10%;">Process internal id</th>
-                <th style="width:5%;">external key</th>
-                <th style="width:15%;">Actions</th>
+                <th style="width:13%;"><spring:message code="processinstances.console.entry.owner"/></th>
+                <th style="width:7%;"><spring:message code="processinstances.console.entry.state"/></th>
+                <th style="width:15%;"><spring:message code="processinstances.console.entry.available-actions"/></th>
         </thead>
-        <tbody></tbody>
+        <tbody>
+        </tbody>
     </table>
 </div>
 
@@ -46,14 +47,14 @@
         var timeout;
         var dataTable = new AperteDataTable("processInstanceTable",
             [
+                { "sName":"processInternalId", "bSortable": true , "mData": "processInternalId" },
                 { "sName":"definitionName", "bSortable": true , "mData": function(object) {return formatDefinitionName(object);}},
-                { "sName":"taskName", "bSortable": true , "mData": "taskName" },
+                { "sName":"externalKey", "bSortable": true , "mData": "externalKey" },
                 { "sName":"creatorLogin", "bSortable": true , "mData": "creatorLogin"},
                 { "sName":"creationDate", "bSortable": true ,"mData": function(object){return $.format.date(object.creationDate, 'dd-MM-yyyy, HH:mm:ss');}},
-                { "sName":"status", "bSortable": true , "mData": "status"},
+                { "sName":"taskName", "bSortable": true , "mData": "taskName" },
                 { "sName":"assignedTo", "bSortable": true , "mData": function(object){return generateAssignedUserDropdown(object);}},
-                { "sName":"processInternalId", "bSortable": true , "mData": "processInternalId" },
-                { "sName":"externalKey", "bSortable": true , "mData": "externalKey" },
+                { "sName":"status", "bSortable": true , "mData": function(object){return taskState(object);}},
                 { "sName":"availableActions", "bSortable": true , "mData": function(object){return generateActionDropdownButton(object);}}
             ],
             [[ 1, "desc" ]]
@@ -61,28 +62,32 @@
 
         setSearchParameters();
 
+        function taskState(object) {
+            return object.taskName + " " + object.taskInternalId;
+        }
+
         function formatDefinitionName(object) {
             return object.definitionDescription + " (Def Id: " +  object.definitionId + ") " + object.bpmDefinitionKey;
         }
 
         function generateAssignedUserDropdown(object) {
-            var button = createDropdownButton((object.assignedTo != null) ? object.assignedTo : "Not assigned");
+            var button = createDropdownButton((object.assignedTo != null) ? object.assignedTo : "<spring:message code="processinstances.console.entry.no-owner"/>");
             var actionList = createActionList();
-            addListItem(actionList, 'Change', 'changeAssignee(' + object.taskInternalId + ',\"' + object.assignedTo + '\")');
-            addListItem(actionList, 'Remove', 'removeAssignee(' + object.taskInternalId + ',\"' + object.assignedTo + '\")');
+            addListItem(actionList, "<spring:message code="processinstances.console.entry.change.owner"/>", 'changeAssignee(' + object.taskInternalId + ',\"' + object.assignedTo + '\")');
+            addListItem(actionList, "<spring:message code="processinstances.console.entry.remove-owner"/>", 'removeAssignee(' + object.taskInternalId + ',\"' + object.assignedTo + '\")');
             var dropdown = wrapDropdownWithDiv(button, actionList);
             return $(dropdown).html();
         }
 
         function generateActionDropdownButton(object) {
-            var button = createDropdownButton("Available actions");
+            var button = createDropdownButton("<spring:message code="processinstances.console.entry.available-actions"/>");
             var actionList = createActionList(object);
 
             for (var i=0; i< object.availableActions.length; i++) {
                 var actionName = object.availableActions[i];
                 addListItem(actionList, actionName, 'performActionForTask(' + object.taskInternalId + ',\"' + actionName + '\")');
             }
-            addListItem(actionList, "Cancel", 'cancelProcessInstance(' + object.internalId + ')');
+            addListItem(actionList, "<spring:message code="processinstances.console.cancel-process"/>", 'cancelProcessInstance(' + object.processInternalId + ')');
             return $(wrapDropdownWithDiv(button, actionList)).html();
         }
 
@@ -128,13 +133,17 @@
         }
 
         function performActionForTask(taskId, action) {
-           ajaxPost({
-               controller : 'processInstanceController',
-               action : 'performAction',
-               taskInternalId : taskId,
-               actionToPerform : action },
-               function(response) { dataTable.reloadTable(dispatcherPortlet);
-           });
+           if (confirm("<spring:message code="processinstances.console.force-action.confirm.title"/>") ) {
+               ajaxPost({
+                   controller : 'processInstanceController',
+                   action : 'performAction',
+                   taskInternalId : taskId,
+                   actionToPerform : action },
+                   function(response) {
+                        alert("<spring:message code="processinstances.console.force-action.success"/>");
+                        dataTable.reloadTable(dispatcherPortlet);
+               });
+           }
         }
 
         function cancelProcessInstance(processId) {
@@ -143,10 +152,13 @@
                     controller : 'processInstanceController',
                     action : 'cancelProcessInstance',
                     processInstanceId : processId },
-                    function(response) { dataTable.reloadTable(dispatcherPortlet);
+                    function(response) {
+                        dataTable.reloadTable(dispatcherPortlet);
+                        alert("<spring:message code="processinstances.console.cancel-process.success"/>");
                 });
             }
         }
+
 
         function changeAssignee(taskId, oldUserName) {
             var userLogin = prompt("Please enter user login","");   //TODO - zrobic select list!

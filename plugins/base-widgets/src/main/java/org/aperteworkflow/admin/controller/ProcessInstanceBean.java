@@ -54,7 +54,6 @@ public class ProcessInstanceBean extends AbstractResultBean {
             bean.externalKey = processInstance.getExternalKey();
             bean.processInternalId = processInstance.getInternalId();
 
-
             for (ProcessInstanceLog pl : processLogs) {
                 bean.status = pl.getState() != null ? pl.getState().getDescription() + pl.getState().getName() : "none";
             }

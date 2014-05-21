@@ -22,7 +22,6 @@
     </div>
 </div>
 
-
 <div class="process-tasks-view" id="foundProcessInstances" style="z-index: 1">
     <table id="processInstanceTable" class="process-table table table-striped" border="1">
         <thead>
@@ -55,7 +54,7 @@
                 { "sName":"taskName", "bSortable": true , "mData": "taskName" },
                 { "sName":"assignedTo", "bSortable": true , "mData": function(object){return generateAssignedUserDropdown(object);}},
                 { "sName":"status", "bSortable": true , "mData": function(object){return taskState(object);}},
-                { "sName":"availableActions", "bSortable": true , "mData": function(object){return generateActionDropdownButton(object);}}
+                { "sName":"availableActions", "bSortable": true , "mData": function(object){ return generateActionDropdownButton(object); }}
             ],
             [[ 1, "desc" ]]
         );
@@ -83,9 +82,13 @@
             var button = createDropdownButton("<spring:message code="processinstances.console.entry.available-actions"/>");
             var actionList = createActionList(object);
 
-            for (var i=0; i< object.availableActions.length; i++) {
-                var actionName = object.availableActions[i];
-                addListItem(actionList, actionName, 'performActionForTask(' + object.taskInternalId + ',\"' + actionName + '\")');
+            if (object.assignedTo != null) {
+                for (var i=0; i< object.availableActions.length; i++) {
+                    var actionName = object.availableActions[i];
+                    addListItem(actionList, actionName, 'performActionForTask(' + object.taskInternalId + ',\"' + actionName + '\")');
+                }
+            } else {
+                addErrorListItem(actionList, "No user assigned");
             }
             addListItem(actionList, "<spring:message code="processinstances.console.cancel-process"/>", 'cancelProcessInstance(' + object.processInternalId + ')');
             return $(wrapDropdownWithDiv(button, actionList)).html();
@@ -132,8 +135,15 @@
             list.appendChild(li);
         }
 
+        function addErrorListItem(list, message) {
+            var li = document.createElement('li');
+            $(li).attr('class', 'list-group-item list-group-item-danger');
+            $(li).text(message);
+            list.appendChild(li);
+        }
+
         function performActionForTask(taskId, action) {
-           if (confirm("<spring:message code="processinstances.console.force-action.confirm.title"/>") ) {
+           if (confirm("<spring:message code="processinstances.console.force-action.confirm.title"/>")) {
                ajaxPost({
                    controller : 'processInstanceController',
                    action : 'performAction',
@@ -142,7 +152,8 @@
                    function(response) {
                         alert("<spring:message code="processinstances.console.force-action.success"/>");
                         dataTable.reloadTable(dispatcherPortlet);
-               });
+                   }
+               );
            }
         }
 

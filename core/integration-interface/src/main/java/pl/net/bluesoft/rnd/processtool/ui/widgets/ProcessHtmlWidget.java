@@ -6,12 +6,12 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredPropertyConfigurator;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.MockWidgetValidator;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.SimpleWidgetDataHandler;
 import pl.net.bluesoft.rnd.processtool.web.domain.IWidgetContentProvider;
 import pl.net.bluesoft.rnd.util.AnnotationUtil;
 
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.Map;
 
 /**
  * Widget in-memory model
@@ -149,4 +149,8 @@ public class ProcessHtmlWidget extends BaseProcessToolWidget
     {
         return contentProvider != null;
     }
+
+	public Map<String, Object> getViewData() {
+		return null;
+	}
 }

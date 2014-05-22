@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-
 /**
  * Process Instance operations controller for admin portlet.
  *
@@ -30,9 +29,6 @@ import java.util.Map;
 
 @OsgiController(name = "processInstanceController")
 public class ProcessInstanceController implements IOsgiWebController {
-
-    @Autowired
-    protected IPortalUserSource portalUserSource;
 
     @Autowired
     protected ProcessToolSessionFactory processToolSessionFactory;

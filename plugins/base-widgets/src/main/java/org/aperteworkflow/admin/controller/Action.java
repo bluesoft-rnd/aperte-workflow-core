@@ -1,8 +1,9 @@
 package org.aperteworkflow.admin.controller;
 
 /**
- * Created by lukasz on 5/21/14.
+ * @author: lgajowy@bluesoft.net.pl
  */
+
 public class Action {
     String actionName;
     String actionTitle;

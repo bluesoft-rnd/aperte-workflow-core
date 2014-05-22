@@ -33,18 +33,13 @@ public class ProcessInstanceBean extends AbstractResultBean {
         ProcessDefinitionConfig definition = instance.getDefinition();
         List<BpmTask> taskList = new ArrayList<BpmTask>(bpmSession.findProcessTasks(instance));
         List<ProcessInstanceLog> processLogs = new ArrayList<ProcessInstanceLog>(instance.getProcessLogs());
-
-        //messageSource.getMessage()
         return createBeansForAllTasks(messageSource, instance, definition, taskList, processLogs);
-
-
     }
 
     private static List<ProcessInstanceBean> createBeansForAllTasks(I18NSource messageSource, ProcessInstance processInstance, ProcessDefinitionConfig definition, List<BpmTask> taskList, List<ProcessInstanceLog> processLogs) {
         List<ProcessInstanceBean> processInstanceBeans = new ArrayList<ProcessInstanceBean>();
         ProcessInstanceBean bean;
         for (final BpmTask task : taskList) {
-
             ProcessStateConfiguration processState = task.getCurrentProcessStateConfiguration();
             bean = new ProcessInstanceBean();
             bean.definitionId = definition.getId();
@@ -53,7 +48,6 @@ public class ProcessInstanceBean extends AbstractResultBean {
             bean.assignedTo = task.getAssignee();
             bean.taskInternalId = task.getInternalTaskId();
             bean.taskName = messageSource.getMessage(task.getTaskName());
-
             bean.creatorLogin = processInstance.getCreatorLogin();
             bean.creationDate = processInstance.getCreateDate();
             bean.externalKey = processInstance.getExternalKey();
@@ -64,8 +58,7 @@ public class ProcessInstanceBean extends AbstractResultBean {
             }
             if (processState != null && !processState.getActions().isEmpty()) {
                 for (ProcessStateAction action : processState.getActions()) {
-                    bean.availableActions.add(new Action(action.getBpmName(), messageSource.getMessage())); //TODO
-                    action.getTitle();
+                    bean.availableActions.add(new Action(action.getBpmName(), messageSource.getMessage(action.getLabel())));
                 }
             }
             processInstanceBeans.add(bean);

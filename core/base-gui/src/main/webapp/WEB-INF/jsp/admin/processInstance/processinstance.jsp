@@ -92,7 +92,6 @@
             ],
             [[ 1, "desc" ]]
         );
-
         setSearchParameters();
 
         function taskState(object) {
@@ -115,16 +114,11 @@
         function generateActionDropdownButton(object) {
             var button = createDropdownButton("<spring:message code="processinstances.console.entry.available-actions"/>");
             var actionList = createActionList(object);
-
-            //console.log(object);
-
             if (object.assignedTo != null) {
                 for (var i=0; i< object.availableActions.length; i++) {
                     var action = object.availableActions[i].actionName;
-                    var actionLabel = "<spring:message code=" ${object.availableActions[i].actionTitle} "/>";
-                    console.log(object);
-
-                    addListItem(actionList, actionLabel, 'performActionForTask(' + object.taskInternalId + ',\"' + action + '\")');
+                    var actionLable = object.availableActions[i].actionTitle;
+                    addListItem(actionList, actionLable, 'performActionForTask(' + object.taskInternalId + ',\"' + action + '\")');
                 }
             } else {
                 addErrorListItem(actionList, "<spring:message code="processinstances.console.noUserAssinged"/>");
@@ -183,32 +177,28 @@
             list.appendChild(li);
         }
 
-
         var currentlyChangedTaskId = null;
         var currentlyChangedTaskOldUserName = null;
 
         function toggleChangeAssigneeModal(taskId, oldUserName) {
-            //var userLogin = prompt("Please enter user login","");
             $('#changeUserModal').modal();
             currentlyChangedTaskId = taskId;
             currentlyChangedTaskOldUserName = oldUserName;
-
-            //modifyAssignee(taskId, oldUserName, userLogin);
         }
 
         function performActionForTask(taskId, action) {
-           if (confirm("<spring:message code="processinstances.console.force-action.confirm.title"/>")) {
-               ajaxPost({
-                   controller : 'processInstanceController',
-                   action : 'performAction',
-                   taskInternalId : taskId,
-                   actionToPerform : action },
-                   function(response) {
+            if (confirm("<spring:message code="processinstances.console.force-action.confirm.title"/>")) {
+                ajaxPost({
+                    controller : 'processInstanceController',
+                    action : 'performAction',
+                    taskInternalId : taskId,
+                    actionToPerform : action },
+                    function(response) {
                         alert("<spring:message code="processinstances.console.force-action.success"/>");
                         dataTable.reloadTable(dispatcherPortlet);
-                   }
-               );
-           }
+                    }
+                );
+            }
         }
 
         function cancelProcessInstance(processId) {
@@ -223,8 +213,6 @@
                 });
             }
         }
-
-
 
         function removeAssignee(taskId, oldUserName) {
             if(confirm("<spring:message code="processinstances.console.remove.process.confirm.message"/>")) {

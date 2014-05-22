@@ -117,8 +117,8 @@
             if (object.assignedTo != null) {
                 for (var i=0; i< object.availableActions.length; i++) {
                     var action = object.availableActions[i].actionName;
-                    var actionLable = object.availableActions[i].actionTitle;
-                    addListItem(actionList, actionLable, 'performActionForTask(' + object.taskInternalId + ',\"' + action + '\")');
+                    var actionLabel = object.availableActions[i].actionTitle;
+                    addListItem(actionList, actionLabel, 'performActionForTask(' + object.taskInternalId + ',\"' + action + '\")');
                 }
             } else {
                 addErrorListItem(actionList, "<spring:message code="processinstances.console.noUserAssinged"/>");
@@ -129,7 +129,7 @@
 
         function wrapDropdownWithDiv(button, actionList) {
             var div = document.createElement('div');
-            $(div).attr('class', 'btn-group');
+            $(div).attr('class', 'btn-group dropup');
             div.appendChild(button);
             div.appendChild(actionList);
             var dropdownButton = document.createElement('div');

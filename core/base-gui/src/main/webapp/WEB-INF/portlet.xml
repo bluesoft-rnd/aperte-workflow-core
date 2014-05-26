@@ -6,6 +6,23 @@
              xsi:schemaLocation="http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd">
 
     <portlet>
+        <portlet-name>AperteWorkflow Complaint Registry Portlet</portlet-name>
+        <display-name>Aperte Workflow Complaint Registry</display-name>
+        <portlet-class>org.springframework.web.portlet.DispatcherPortlet</portlet-class>
+        <init-param>
+            <name>contextConfigLocation</name>
+            <value>/WEB-INF/spring/aperte-complaint-registry-portlet.xml</value>
+        </init-param>
+        <supports>
+            <mime-type>text/html</mime-type>
+        </supports>
+        <portlet-info>
+            <title>Aperte Workflow Complaint Registry</title>
+            <short-title>Complaint Registry</short-title>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
         <portlet-name>AperteWorkflow Case Management Portlet</portlet-name>
         <display-name>Aperte Workflow Case Management</display-name>
         <portlet-class>org.springframework.web.portlet.DispatcherPortlet</portlet-class>

@@ -353,7 +353,7 @@
 	
 	function performActionWithoutComment(button, actionName, skipSaving, taskId, commentNeeded, comment, changeOwner, changeOwnerAttributeKey, changeOwnerAttributeValue)
 	{
-		var JsonWidgetData = "[{}]";
+		var widgetData = [];
 
 		if(skipSaving != true)
 		{
@@ -363,7 +363,7 @@
 			<!-- Validate html widgets -->
 			$.each(widgets, function() 
 			{
-				var errorMessages = this.validate();
+				var errorMessages = this.validate(actionName);
 				$.each(errorMessages, function() {
 					errors.push(this);
 					addAlert(this);
@@ -376,50 +376,89 @@
 				return;
 			}
 			
-			var widgetData = [];
-			
 			$.each(widgets, function() 
 			{
 				var widgetDataBean = new WidgetDataBean(this.widgetId, this.name, this.getData());
 				widgetData.push(widgetDataBean);
 			});
-			
-			JsonWidgetData = JSON.stringify(widgetData, null, 2);
 		}
-		
+
+		var performActionArgs =
+		{
+			button: button,
+			actionName: actionName,
+			skipSaving: skipSaving,
+			taskId: taskId,
+			commentNeeded: commentNeeded,
+			comment: comment,
+			changeOwner: changeOwner,
+			changeOwnerAttributeKey: changeOwnerAttributeKey,
+			changeOwnerAttributeValue: changeOwnerAttributeValue,
+			widgetData: widgetData
+		};
+
+        for (var i = 0; i < widgets.length; ++i)
+        {
+        	var widget = widgets[i];
+
+        	if (widget.beforePerformAction)
+        	{
+        		var handled = widget.beforePerformAction(performActionRequest, performActionArgs);
+
+        		if (handled)
+        		{
+        			return;
+        		}
+        	}
+        }
+
+        // no widget intercepted the action -> default handling
+
+		performActionRequest(performActionArgs);
+	}
+
+	function performActionRequest(args)
+	{
+		var JsonWidgetData = "[{}]";
+
+		if (args.widgetData.length > 0)
+		{
+			JsonWidgetData = JSON.stringify(args.widgetData, null, 2);
+		}
+
 		var newBpmTask = $.post('<portlet:resourceURL id="performAction"/>',
 		{
-			"taskId": taskId,
-			"actionName": actionName,
-			"skipSaving": skipSaving,
-			"commentNeeded": commentNeeded,
-			"comment": comment,
-			"changeOwner": changeOwner,
-			"changeOwnerAttributeKey": changeOwnerAttributeKey,
-			"changeOwnerAttributeValue": changeOwnerAttributeValue,
+			"taskId": args.taskId,
+			"actionName": args.actionName,
+			"skipSaving": args.skipSaving,
+			"commentNeeded": args.commentNeeded,
+			"comment": args.comment,
+			"changeOwner": args.changeOwner,
+			"changeOwnerAttributeKey": args.changeOwnerAttributeKey,
+			"changeOwnerAttributeValue": args.changeOwnerAttributeValue,
 			"widgetData": JsonWidgetData
 		})
 		.done(function(data)
 		{
 			<!-- Errors handling -->
 			windowManager.clearErrors();
-			
+
 			var errors = [];
 			$.each(data.errors, function() {
 				errors.push(this);
 				addAlert(this.message);
 			});
-			
+
 			if(errors.length > 0) { return; }
-			
+
 			reloadQueues();
-			
+
 			if(!data)
 			{
-			    closeProcessView();
+				closeProcessView();
 				queueViewManager.reloadCurrentQueue();
 				windowManager.showProcessList();
-				
+
 				return;
 			}
 			else if(data.errors.length > 0)
@@ -432,7 +471,7 @@
 				closeProcessView();
 				queueViewManager.reloadCurrentQueue();
 				windowManager.showProcessList();
-				
+
 				return;
 			}
 
@@ -449,8 +488,8 @@
 			}
 		})
 		.fail(function() { addAlerts(data.errors); })
-		.always(function(data) 
-		{ 
+		.always(function(data)
+		{
 			if(data != null)
 			{
 				enableButtons();

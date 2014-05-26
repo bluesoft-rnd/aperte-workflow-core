@@ -1,4 +1,4 @@
-package pl.net.bluesoft.rnd.pt.dict.global.bean;
+package pl.net.bluesoft.rnd.processtool.dict;
 
 /**
  * @author: mpawlak@bluesoft.net.pl

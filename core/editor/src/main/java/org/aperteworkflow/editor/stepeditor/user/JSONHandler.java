@@ -108,7 +108,7 @@ public class JSONHandler {
 		return new String(Base64.decodeBase64(stringToDecode.getBytes()));
 	}
 
-	private static void analyzeChildren(Map<String, Object> map, HierarchicalContainer hc, WidgetItemInStep rootItem) throws WidgetNotFoundException {
+	public static void analyzeChildren(Map<String, Object> map, HierarchicalContainer hc, WidgetItemInStep rootItem) throws WidgetNotFoundException {
 		Collection<Map<String, Object>> children = (Collection<Map<String, Object>>) map.get(CHILDREN);
 		if (children != null) {
 			for (Map<String, Object> node : children) {
@@ -205,17 +205,17 @@ public class JSONHandler {
 		return map;
 	}
 
-	protected static String dumpTreeToJSON(Tree tree, WidgetItemInStep rootItem, Object assignee, 
+	public static String dumpTreeToJSON(Tree tree, WidgetItemInStep rootItem, Object assignee,
                                            Object candidateGroups, Object swimlane, String stepName,
                                            Object description, Object commentary, Object stepInfo,
                                            Collection<Permission> permissions) {
 		I18NSource messages = I18NSource.ThreadUtil.getThreadI18nSource();
 		TaskConfig tc = new TaskConfig();
 		tc.setTaskName(stepName);
-		
-		Map<String, Object> treeMap = collectNode(tree, rootItem, 1);
 
-        if (assignee != null) {
+		Map<String, Object> treeMap = treeToMap(tree, rootItem);
+
+		if (assignee != null) {
 		    treeMap.put(ASSIGNEE, assignee);
         }
         if (candidateGroups != null) {
@@ -250,7 +250,11 @@ public class JSONHandler {
 		}
 		return messages.getMessage("dump.failed");
 	}
-	
+
+	public static Map<String, Object> treeToMap(Tree tree, WidgetItemInStep rootItem) {
+		return collectNode(tree, rootItem, 1);
+	}
+
 	public static String encodeString(Object objectToConvert){
 		byte[] bytes = objectToConvert.toString().getBytes();
 		return Base64.encodeBase64URLSafeString(bytes);

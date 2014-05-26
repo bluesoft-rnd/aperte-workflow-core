@@ -1,6 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.ui.basewidgets.validator;
 
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.IWidgetValidator;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.WidgetData;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.WidgetDataEntry;
@@ -19,7 +20,7 @@ public class SubstitutionCommentValidator implements IWidgetValidator
 	private static final String USER_SUBSTITUTION_COMMENT_NAME = "substitutionRequestComment";
 
 	@Override
-	public Collection<String> validate(BpmTask task, WidgetData data)
+	public Collection<String> validate(IAttributesProvider task, WidgetData data)
 	{
 		Collection<String> errors = new ArrayList<String>();
 		 

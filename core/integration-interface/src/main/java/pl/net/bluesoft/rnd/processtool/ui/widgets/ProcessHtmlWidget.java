@@ -6,12 +6,12 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredPropertyConfigurator;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.BaseProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.MockWidgetValidator;
-import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.SimpleWidgetDataHandler;
 import pl.net.bluesoft.rnd.processtool.web.domain.IWidgetContentProvider;
 import pl.net.bluesoft.rnd.util.AnnotationUtil;
 
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.Map;
 
 /**
  * Widget in-memory model
@@ -22,7 +22,7 @@ import java.util.LinkedList;
 public class ProcessHtmlWidget extends BaseProcessToolWidget
 {
 	private String widgetName;
-	private IWidgetDataHandler dataHandler = new SimpleWidgetDataHandler();
+	private Collection<IWidgetDataHandler> dataHandlers = new LinkedList<IWidgetDataHandler>();
     private Collection<IWidgetDataProvider> dataProviders = new LinkedList<IWidgetDataProvider>();
 	private IWidgetValidator validator = new MockWidgetValidator();
 	private IWidgetContentProvider contentProvider;
@@ -48,13 +48,19 @@ public class ProcessHtmlWidget extends BaseProcessToolWidget
     )
     protected String comment;
 
-	protected ProcessHtmlWidget() {
+	protected ProcessHtmlWidget()
+    {
 		this.widgetName = AnnotationUtil.getAliasName(getClass());
 	}
 
 	protected ProcessHtmlWidget(String widgetName) {
 		this.widgetName = widgetName;
 	}
+
+    public void addDataHandler(IWidgetDataHandler dataHandler)
+    {
+        this.dataHandlers.add(dataHandler);
+    }
 
     public void addDataProvider(IWidgetDataProvider widgetDataProvider)
     {
@@ -87,13 +93,16 @@ public class ProcessHtmlWidget extends BaseProcessToolWidget
 	public void setWidgetName(String widgetName) {
 		this.widgetName = widgetName;
 	}
-	public IWidgetDataHandler getDataHandler() {
-		return dataHandler;
-	}
-	public void setDataHandler(IWidgetDataHandler dataHandler) {
-		this.dataHandler = dataHandler;
-	}
-	public IWidgetValidator getValidator() {
+
+    public Collection<IWidgetDataHandler> getDataHandlers() {
+        return dataHandlers;
+    }
+
+    public void setDataHandlers(Collection<IWidgetDataHandler> dataHandlers) {
+        this.dataHandlers = dataHandlers;
+    }
+
+    public IWidgetValidator getValidator() {
 		return validator;
 	}
 	public void setValidator(IWidgetValidator validator) {
@@ -140,4 +149,8 @@ public class ProcessHtmlWidget extends BaseProcessToolWidget
     {
         return contentProvider != null;
     }
+
+	public Map<String, Object> getViewData() {
+		return null;
+	}
 }

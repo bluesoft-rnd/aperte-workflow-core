@@ -53,6 +53,18 @@
             <version>3.0-beta2-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-asl</artifactId>
+			<version>${jackson.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.aperteworkflow</groupId>
+			<artifactId>files-repository</artifactId>
+			<version>3.0-beta2-SNAPSHOT</version>
+			<scope>provided</scope>
+		</dependency>
     </dependencies>
 
     <build>
@@ -84,11 +96,12 @@
                         <Import-Package>
                             org.aperteworkflow.bpmnotifications.addons.impl;resolution:=optional,
                             javax.mail;version=!,
-                            pl.net.bluesoft.rnd.util.i18n.impl,
+							javax.mail.internet;version=!,
+							javax.mail.util;version=!,
+							pl.net.bluesoft.rnd.util.i18n.impl,
                             javassist.util.proxy,org.hibernate.proxy,
                             org.osgi.framework,
                             org.hibernate.exception,
-                            javax.mail.internet;version=!,
                             *;resolution:=optional,
                             pl.net.bluesoft.util.eventbus,
                             pl.net.bluesoft.rnd.pt.ext.sched.service,
@@ -105,7 +118,11 @@
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.sessions,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.addons,
-                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.facade
+                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.facade,
+							org.codehaus.jackson;version="1.9.13",
+							org.codehaus.jackson.map;version="1.9.13",
+							org.codehaus.jackson.type;version="1.9.13",
+							org.codehaus.jackson.map.type;version="1.9.13"
                         </Import-Package>
                         <Private-Package>
                         	pl.net.bluesoft.rnd.pt.ext.bpmnotifications,

@@ -73,6 +73,7 @@
                     <instructions>
                         <Export-Package>
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets,
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.datahandler,
                             pl.net.bluesoft.rnd.processtool.ui.buttons, 
                             pl.net.bluesoft.rnd.processtool.ui.buttons.dialog,
                             !com.ctc.wstx.stax,
@@ -157,7 +158,8 @@
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.CopyVariablesStep,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.LogStep,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.GetAssignedToStep,
-                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.SetProcessBusinessStatus
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.SetProcessBusinessStatus,
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.AddNewCommentStep
                         </ProcessTool-Step-Enhancement>
                         <ProcessTool-Controller>
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.controller.UserController,

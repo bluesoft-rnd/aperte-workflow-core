@@ -1,9 +1,12 @@
 package pl.net.bluesoft.rnd.util;
 
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 /**
@@ -31,14 +34,30 @@ public class StepUtil {
         }
     }
 
+	/**
+	 * Replaces each occurence of #{attr} with value of attribute attr
+	 */
+	public static String substituteVariables(String pattern, final IAttributesProvider pi) {
+		return PlaceholderUtil.expand(pattern, new PlaceholderUtil.ReplacementCallback() {
+			@Override
+			public String getReplacement(String placeholderName) {
+				return pi.getSimpleAttributeValue(placeholderName);
+			}
+		});
+	}
+
     /**
      * Evaluate the given query string to a list of simple attributes.
      *
      * @param query
      * @return
      */
-    public static Map<String, String> evaluateQuery(final String query) {
-        final Map<String, String> attributes = new HashMap<String, String>();
+    public static Map<String, String> evaluateQuery(String query)
+    {
+        if(query == null)
+            return null;
+
+        Map<String, String> attributes = new HashMap<String, String>();
         String[] parts = query.split("[,;]");
         for (String part : parts) {
             String[] assignment = part.split("[:=]");
@@ -51,6 +70,19 @@ public class StepUtil {
             String key = assignment[0];
             String value = assignment[1];
             attributes.put(key, value);
+        }
+        return attributes;
+    }
+
+    public static Collection<String> evaluateList(String query)
+    {
+        if(query == null)
+            return null;
+
+        Collection<String> attributes = new LinkedList<String>();
+        String[] parts = query.split("[,;]");
+        for (String part : parts) {
+            attributes.add(part);
         }
         return attributes;
     }

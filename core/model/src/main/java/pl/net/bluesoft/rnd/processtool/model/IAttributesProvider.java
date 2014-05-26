@@ -10,8 +10,15 @@ public interface IAttributesProvider {
 
     String getSimpleAttributeValue(String key);
 
+	String getSimpleLargeAttributeValue(String key);
+
     String getExternalKey();
 
     String getDefinitionName();
 
+    Object getAttribute(String key);
+
+    Object getProvider();
+
+    Long getId();
 }

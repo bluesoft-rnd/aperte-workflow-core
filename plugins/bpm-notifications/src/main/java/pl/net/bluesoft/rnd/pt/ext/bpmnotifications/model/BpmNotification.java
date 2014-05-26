@@ -1,16 +1,22 @@
 package pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model;
 
-import java.util.Calendar;
+import java.io.IOException;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 import org.hibernate.annotations.Type;
 
 import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.HandleEmailsJob;
+
+import static pl.net.bluesoft.util.lang.Strings.hasText;
 
 /**
  * The entity which represents notification to be send by scheduler
@@ -25,6 +31,8 @@ public class BpmNotification extends PersistentEntity
 {
 	private static final long serialVersionUID = -1358169256410750304L;
 
+	private static final ObjectMapper mapper = new ObjectMapper();
+
 	/** Sender email adress */
 	private String sender;
 	
@@ -35,6 +43,8 @@ public class BpmNotification extends PersistentEntity
     private String subject;
     
     /** Attachments list, seperated by semi-colon */
+	@Lob
+	@Type(type = "org.hibernate.type.StringClobType")
     private String attachments;
     
     /** Send message as html? */
@@ -140,5 +150,33 @@ public class BpmNotification extends PersistentEntity
 
 	public void setSendAfterHour(Date sendAfterHour) {
 		this.sendAfterHour = sendAfterHour;
+	}
+
+	public void encodeAttachments(List<BpmAttachment> attachments) {
+		if (attachments == null || attachments.isEmpty()) {
+			setAttachments(null);
+			return;
+		}
+
+		try {
+			String json = mapper.writeValueAsString(attachments);
+			setAttachments(json);
+		}
+		catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public List<BpmAttachment> decodeAttachments() {
+		if (!hasText(attachments)) {
+			return Collections.emptyList();
+		}
+		try {
+			Object value = mapper.readValue(attachments, new TypeReference<List<BpmAttachment>>() {});
+			return (List<BpmAttachment>)value;
+		}
+		catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

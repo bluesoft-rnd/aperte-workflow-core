@@ -20,6 +20,10 @@ public class PlaceholderUtil {
 	}
 
 	public static String expand(String pattern, ReplacementCallback callback) {
+		if (pattern == null) {
+			return null;
+		}
+
 		StringBuffer result = new StringBuffer(pattern.length());
 		Matcher matcher = PATTERN.matcher(pattern);
 

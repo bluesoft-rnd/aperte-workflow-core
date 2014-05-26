@@ -12,7 +12,11 @@ import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import org.springframework.web.portlet.ModelAndView;
 import org.springframework.web.portlet.bind.annotation.RenderMapping;
 import org.springframework.web.portlet.bind.annotation.ResourceMapping;
+import pl.net.bluesoft.rnd.processtool.BasicSettings;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.usersource.IPortalUserSource;
 
 import javax.portlet.*;
@@ -28,16 +32,21 @@ import java.util.logging.Logger;
  * mapping to obtain portal specific attributes and cookies
  */
 public class CaseManagementPortletController {
-    private static final String PORTLET_JSON_RESULT_ROOT_NAME = "result";
+    protected static final String PORTLET_JSON_RESULT_ROOT_NAME = "result";
+    protected static final String PORTLET_CASE_ID_PARAMTER = "caseId";
+    protected static final Integer DEFAULT_REFRESH_INTERVAL = 60000;
+    protected static final String REFRESH_INTERVAL = "refreshInterval";
 
     private static Logger logger = Logger.getLogger(CaseManagementPortletController.class.getName());
-
 
     @Autowired(required = false)
     private DispatcherController mainDispatcher;
 
     @Autowired(required = false)
     protected IPortalUserSource portalUserSource;
+
+    @Autowired(required = false)
+    protected ProcessToolRegistry processToolRegistry;
 
 
     @RenderMapping()
@@ -46,17 +55,46 @@ public class CaseManagementPortletController {
      */
     public ModelAndView handleMainRenderRequest(RenderRequest request, RenderResponse response, Model model) {
         logger.info("CaseManagementPortletController.handleMainRenderRequest... ");
-        ModelAndView modelView = new ModelAndView();
+        final ModelAndView modelView = new ModelAndView();
         SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
         UserData user = portalUserSource.getUserByRequest(request);
         modelView.addObject(WebApiConstants.USER_PARAMETER_NAME, user);
+
+        addRefreshParameter(modelView);
+
         if (user == null || user.getLogin() == null) {
             modelView.setViewName("login");
         } else {
             modelView.setViewName("case_list");
         }
 
+        HttpServletRequest httpServletRequest = portalUserSource.getHttpServletRequest(request);
+        HttpServletRequest originalHttpServletRequest = portalUserSource.getOriginalHttpServletRequest(httpServletRequest);
+
+        /* Start from case view */
+        String showCaseId = originalHttpServletRequest.getParameter(PORTLET_CASE_ID_PARAMTER);
+        if (showCaseId != null) {
+            modelView.addObject(PORTLET_CASE_ID_PARAMTER, showCaseId);
+        }
+
         return modelView;
+    }
+
+    protected void addRefreshParameter(final ModelAndView modelView) {
+        processToolRegistry.withProcessToolContext(new ProcessToolContextCallback() {
+            @Override
+            public void withContext(ProcessToolContext ctx) {
+                Integer interval = DEFAULT_REFRESH_INTERVAL;
+                String refreshInterval = ctx.getSetting(BasicSettings.REFRESHER_INTERVAL_SETTINGS_KEY);
+                if (refreshInterval != null && !refreshInterval.trim().isEmpty()) {
+                    try {
+                        interval = Integer.parseInt(refreshInterval + "000");
+                    } catch (NumberFormatException e) {
+                    }
+                }
+                modelView.addObject(REFRESH_INTERVAL, interval);
+            }
+        });
     }
 
 
@@ -82,6 +120,43 @@ public class CaseManagementPortletController {
 
         return PortletUtil.translate(PORTLET_JSON_RESULT_ROOT_NAME,
                 mainDispatcher.invokeExternalController(controller, action, originalHttpServletRequest, httpServletResponse));
+    }
+
+    @ResourceMapping("noReplyDispatcher")
+    @ResponseBody
+    public void noReplyDispatcher(ResourceRequest request, ResourceResponse response) throws PortletException {
+        HttpServletRequest originalHttpServletRequest = PortletUtil.getOriginalHttpServletRequest(portalUserSource, request);
+
+        String controller = originalHttpServletRequest.getParameter("controller");
+        String action = originalHttpServletRequest.getParameter("action");
+
+        logger.log(Level.INFO, "fileDispatcher: controllerName: " + controller + ", action: " + action);
+
+        if (controller == null || controller.isEmpty()) {
+            logger.log(Level.SEVERE, "[ERROR] fileDispatcher: No controller paramter in dispatcher invocation!");
+            throw new PortletException("No controller paramter!");
+        } else if (action == null || action.isEmpty()) {
+            logger.log(Level.SEVERE, "[ERROR] fileDispatcher: No action paramter in dispatcher invocation!");
+            throw new PortletException("No action paramter!");
+        } else {
+            HttpServletResponse httpServletResponse = getHttpServletResponse(response);
+            mainDispatcher.invokeExternalController(controller, action, originalHttpServletRequest, httpServletResponse);
+        }
+    }
+
+    @ResourceMapping("fileUploadDispatcher")
+    @ResponseBody
+    public ModelAndView fileUploadDispatcher(ResourceRequest request, ResourceResponse response) throws PortletException {
+        // IE doesnt properly handles application/json content type in response when uploading file.
+        HttpServletRequest originalHttpServletRequest = PortletUtil.getOriginalHttpServletRequest(portalUserSource, request);
+        HttpServletResponse httpServletResponse = getHttpServletResponse(response);
+        if (originalHttpServletRequest.getHeader("HTTP_ACCEPT") != null
+                && originalHttpServletRequest.getHeader("HTTP_ACCEPT").indexOf("application/json") > -1) {
+            httpServletResponse.setContentType("application/json");
+        } else {
+            httpServletResponse.setContentType("text/plain");
+        }
+        return dispatcher(request, response);
     }
 
     /**

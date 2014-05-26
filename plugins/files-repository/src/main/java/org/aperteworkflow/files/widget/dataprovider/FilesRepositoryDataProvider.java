@@ -14,28 +14,29 @@ import java.util.Map;
 /**
  * @author pwysocki@bluesoft.net.pl
  */
-public class FilesRepositoryDataProvider implements IWidgetDataProvider
-    {
-        private static final String PROCESS_INSTANCE_FILES_PARAMETER = "processInstanceFiles";
+public class FilesRepositoryDataProvider implements IWidgetDataProvider {
+    private static final String PROCESS_INSTANCE_FILES_PARAMETER = "processInstanceFiles";
 
-        @Autowired
-        protected IFilesRepositoryFacade filesRepoFacade;
+    private static final String FILES_PARAMETER = "files";
 
-        public FilesRepositoryDataProvider()
-        {
-            SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
-        }
+    @Autowired
+    protected IFilesRepositoryFacade filesRepoFacade;
 
-        @Override
-        public Map<String, Object> getData(IAttributesProvider task)
-        {
-            Map<String, Object> data = new HashMap<String, Object>();
+    public FilesRepositoryDataProvider() {
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+    }
 
-            ProcessInstance processInstance = task.getProcessInstance();
+    @Override
+    public Map<String, Object> getData(IAttributesProvider provider) {
+        Map<String, Object> data = new HashMap<String, Object>();
 
-            data.put(PROCESS_INSTANCE_FILES_PARAMETER, filesRepoFacade.getFilesList(processInstance.getId()));
+        ProcessInstance processInstance = provider.getProcessInstance();
+        if (processInstance != null)
+            data.put(PROCESS_INSTANCE_FILES_PARAMETER, filesRepoFacade.getFilesList(processInstance));
+        else
+            data.put(FILES_PARAMETER, filesRepoFacade.getFilesList(provider));
 
-            return data;
-        }
+        return data;
+    }
 
 }

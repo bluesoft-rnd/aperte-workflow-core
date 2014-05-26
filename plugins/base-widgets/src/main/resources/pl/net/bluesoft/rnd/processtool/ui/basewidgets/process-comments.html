@@ -1,4 +1,16 @@
-<#assign processComments = process.getCommentsOrderedByDate(true)/>
+<#if attributesProvider.processInstance??>
+    <#assign processComments = attributesProvider.processInstance.getCommentsOrderedByDate(true) />
+    <#assign internalId = task.internalTaskId />
+</#if>
+<#if !processComments??>
+    <#assign commentsAttribute = attributesProvider.getAttribute('comments')!"" />
+    <#if commentsAttribute?has_content>
+        <#assign processComments = commentsAttribute.getCommentsOrderedByDate(true)! />
+    <#else>
+        <#assign processComments = [] />
+    </#if>
+    <#assign internalId = attributesProvider.id />
+</#if>
 
 
 <style type="text/css" media="all">
@@ -32,6 +44,11 @@
                             </#if>
                         </h4>
                         <p class="list-group-item-text">
+                            <#assign processCommentType = processComment.commentType!""/>
+                            <#if processCommentType != "">
+                                ${processCommentType}
+                                <br>
+                            </#if>
                             ${processComment.body}
                         </p>
                     </li>
@@ -59,7 +76,7 @@
     {
         //$('#area-comment-warning').hide();
 
-        var widget = new Widget('${widgetName}', '${widgetId}', '${task.internalTaskId}');
+        var widget = new Widget('${widgetName}', '${widgetId}', '${internalId}');
         widget.getData = function() {return getProcessCommentsData();};
         widget.validate = function() {return validateProcessComments();};
 

@@ -1,14 +1,13 @@
 package org.aperteworkflow.webapi.main.processes.controller;
 
 import org.aperteworkflow.webapi.main.AbstractProcessToolServletController;
+import org.aperteworkflow.webapi.main.processes.ActionPseudoTaskBean;
 import org.aperteworkflow.webapi.main.processes.BpmTaskBean;
 import org.aperteworkflow.webapi.main.ui.TaskViewBuilder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory.ExecutionType;
@@ -21,14 +20,11 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
 import pl.net.bluesoft.rnd.processtool.web.domain.IProcessToolRequestContext;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
-import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -172,10 +168,7 @@ public class TaskViewController extends AbstractProcessToolServletController
                     /* reset string buffer */
                     builder.setLength(0);
 
-                    BpmTask task = context.getBpmSession().getTaskData(taskId);
-
-                    if(task == null)
-                        task = context.getBpmSession().getHistoryTask(taskId);
+					BpmTask task = getBpmTask(context, taskId);
 
                     long t1 = System.currentTimeMillis();
 
@@ -244,6 +237,28 @@ public class TaskViewController extends AbstractProcessToolServletController
                     "[2]: " + (t2-t1) + "ms, " +
                     "[3]: " + (t3-t2) + "ms, "
                     );
+	}
+
+	private BpmTask getBpmTask(IProcessToolRequestContext context, String taskId) {
+		String jbpmTaskId = taskId;
+		boolean pseudoTask = false;
+
+		if (ActionPseudoTaskBean.isActionPseudotask(taskId)) {
+			jbpmTaskId = ActionPseudoTaskBean.extractJbpmTaskId(taskId);
+			pseudoTask = true;
+		}
+
+		BpmTask task = context.getBpmSession().getTaskData(jbpmTaskId);
+
+		if(task == null) {
+			task = context.getBpmSession().getHistoryTask(jbpmTaskId);
+		}
+
+		if (pseudoTask) {
+			task = ActionPseudoTaskBean.createBpmTask(task, taskId);
+		}
+
+		return task;
 	}
 
 	private static final Comparator<ProcessStateWidget> BY_WIDGET_PRIORITY = new Comparator<ProcessStateWidget>() {

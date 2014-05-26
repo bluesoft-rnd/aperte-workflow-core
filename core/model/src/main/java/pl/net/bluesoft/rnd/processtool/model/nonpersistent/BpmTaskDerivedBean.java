@@ -242,12 +242,12 @@ public class BpmTaskDerivedBean implements BpmTask {
 	@Override
 	public ProcessStateConfiguration getCurrentProcessStateConfiguration() {
 		if (!currentProcessConfigurationPresent) {
-			setCurrentProcessConfiguration(task.getCurrentProcessStateConfiguration());
+			setCurrentProcessStateConfiguration(task.getCurrentProcessStateConfiguration());
 		}
 		return currentProcessConfiguration;
 	}
 
-	public void setCurrentProcessConfiguration(ProcessStateConfiguration currentProcessConfiguration) {
+	public void setCurrentProcessStateConfiguration(ProcessStateConfiguration currentProcessConfiguration) {
 		this.currentProcessConfiguration = currentProcessConfiguration;
 		this.currentProcessConfigurationPresent = true;
 	}
@@ -318,16 +318,36 @@ public class BpmTaskDerivedBean implements BpmTask {
 
     @Override
     public String getSimpleAttributeValue(String key) {
-        return null;
+        return getProcessInstance().getSimpleAttributeValue(key);
     }
+
+	@Override
+	public String getSimpleLargeAttributeValue(String key) {
+		return getProcessInstance().getSimpleAttributeValue(key);
+	}
 
     @Override
     public String getExternalKey() {
-        return null;
+        return getProcessInstance().getExternalKey();
     }
 
     @Override
     public String getDefinitionName() {
         return getProcessDefinition().getProcessName();
+    }
+
+    @Override
+    public Object getAttribute(String key) {
+        return getProcessInstance().getProcessAttribute(key);
+    }
+
+    @Override
+    public Object getProvider() {
+        return this;
+    }
+
+    @Override
+    public Long getId() {
+        return this.task.getId();
     }
 }

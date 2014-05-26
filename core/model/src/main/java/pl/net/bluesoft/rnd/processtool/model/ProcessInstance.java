@@ -29,7 +29,7 @@ import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
                         columnNames = {"id"}
                 )
         })
-public class ProcessInstance extends AbstractPersistentEntity implements IAttributesProvider
+public class ProcessInstance extends AbstractPersistentEntity implements IAttributesProvider, IAttributesConsumer
 {
 	public static final String _EXTERNAL_KEY = "externalKey";
 	public static final String _INTERNAL_ID = "internalId";
@@ -636,5 +636,29 @@ public class ProcessInstance extends AbstractPersistentEntity implements IAttrib
     @Override
     public ProcessInstance getProcessInstance() {
         return this;
+    }
+
+    @Override
+    public Object getAttribute(String key) {
+        return getProcessAttribute(key);
+    }
+
+    @Override
+    public Object getProvider() {
+        return this;
+    }
+
+    @Override
+    public void addAttribute(Object attribute) {
+        addAttribute((ProcessInstanceAttribute) attribute);
+    }
+
+    @Override
+    public void setAttribute(String key, Object attribute) {
+        ProcessInstanceAttribute attr = findAttributeByKey(key);
+        if (attr != null) {
+            getProcessAttributes().remove(attr);
+        }
+        addAttribute(attribute);
     }
 }

@@ -91,11 +91,17 @@
 			windowManager.showProcessList();
 			
 			$("#process-queue-name-id").text('<spring:message code="processes.currentqueue" />'+" "+queueDesc);
+			this.highlightChosenQueue();
 		}
 		
 		this.reloadCurrentQueue = function()
 		{
 			this.loadQueue(this.currentQueue, this.currentQueueType, this.currentOwnerLogin, this.currentQueueDesc);
+		}
+
+		this.highlightChosenQueue = function()
+		{
+		    $('[data-queue-name="' + this.currentQueue +'"]').css("background-color", "lavender");
 		}
 		
 		this.addTableView = function(queueType, tableObject, viewName)

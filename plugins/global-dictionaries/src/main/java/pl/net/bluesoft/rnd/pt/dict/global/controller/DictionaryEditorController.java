@@ -7,6 +7,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessDictionaryDAO;
+import pl.net.bluesoft.rnd.processtool.dict.DictionaryItem;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionary;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItem;
@@ -63,6 +64,8 @@ public class DictionaryEditorController implements IOsgiWebController {
         GenericResultBean result = new GenericResultBean();
         ProcessDictionaryDAO dao = registry.getDataRegistry().getProcessDictionaryDAO(invocation.getProcessToolContext().getHibernateSession());
 
+        String queryTerm = invocation.getRequest().getParameter("q");
+
         List<ProcessDBDictionary> dictionary = dao.fetchAllDictionaries();
         List<DictionaryDTO> dtos = new ArrayList(createDTOList(dictionary, invocation.getProcessToolRequestContext().getMessageSource()));
 
@@ -72,14 +75,33 @@ public class DictionaryEditorController implements IOsgiWebController {
             if (user.hasRole("DICT_EDITOR_" + dto.getId().toUpperCase()))
                 dictionaries.add(dto);
         }
-        Collections.sort(dictionaries, new Comparator<DictionaryDTO>() {
+
+
+        List<DictionaryDTO> filteredDictionaryItems = new ArrayList<DictionaryDTO>();
+
+        if(queryTerm == null || queryTerm.isEmpty())
+            filteredDictionaryItems.addAll(dictionaries);
+        else
+        {
+
+            for(DictionaryDTO dict: dictionaries)
+            {
+                String dictionaryName = dict.getName().toLowerCase();
+                String dictionaryDesc = dict.getDescription() != null ? dict.getDescription().toLowerCase() : "";
+                if(dictionaryName.contains(queryTerm.toLowerCase()) || (!dictionaryDesc.isEmpty() && dictionaryDesc.contains(queryTerm.toLowerCase())))
+                    filteredDictionaryItems.add(dict);
+            }
+
+        }
+
+        Collections.sort(filteredDictionaryItems, new Comparator<DictionaryDTO>() {
             @Override
             public int compare(DictionaryDTO d1, DictionaryDTO d2) {
                 return d1.getName().compareTo(d2.getName());
             }
         });
 
-        result.setData(dictionaries);
+        result.setData(filteredDictionaryItems);
 
         return result;
     }

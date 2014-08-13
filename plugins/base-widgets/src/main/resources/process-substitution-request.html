@@ -183,7 +183,7 @@
 	    if("${canEdit}" == "no") { return []; }
 
         var substitutingUserLogin = $('#substitute-user-${widgetId}').val();
-        var substitutingUserLoginFullName = $('#substitute-user-${widgetId}').select2('data').text;
+        var substitutingUserLoginFullName = substitutingUserLogin ? $('#substitute-user-${widgetId}').select2('data').text : substitutingUserLogin;
         var substitutingDateFrom = $('#substituting-date-from-${widgetId}').val();
         var substitutingDateTo = $('#substituting-date-to-${widgetId}').val();
 

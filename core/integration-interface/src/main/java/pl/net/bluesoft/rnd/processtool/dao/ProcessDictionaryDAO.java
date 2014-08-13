@@ -20,4 +20,8 @@ public interface ProcessDictionaryDAO extends HibernateBean<ProcessDBDictionary>
 	void createOrUpdateDictionaryItem(ProcessDBDictionary dictionary, String languageCode, String dictionaryItemKey, String dictionaryItemValue);
 
 	ProcessDBDictionaryItem refresh(ProcessDBDictionaryItem item);
+
+    public Collection<ProcessDBDictionaryItem> getDictionaryItems(String dictionaryId, String sortColumnProperty, boolean sortAscending, int pageLength, int pageOffset);
+
+    public Long getDictionaryItemsCount(String dictionaryId);
 }

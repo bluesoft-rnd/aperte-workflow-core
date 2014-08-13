@@ -6,6 +6,22 @@
              xsi:schemaLocation="http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd">
 
     <portlet>
+        <portlet-name>AperteWorkflow Dictionary Editor Portlet</portlet-name>
+        <display-name>Aperte Workflow Dictionary Editor</display-name>
+        <portlet-class>org.springframework.web.portlet.DispatcherPortlet</portlet-class>
+        <init-param>
+            <name>contextConfigLocation</name>
+            <value>/WEB-INF/spring/aperte-dictionary-editor-portlet.xml</value>
+        </init-param>
+        <supports>
+            <mime-type>text/html</mime-type>
+        </supports>
+        <portlet-info>
+            <title>Aperte Workflow Dictionary Editor</title>
+            <short-title>Dictionary Editor</short-title>
+        </portlet-info>
+    </portlet>
+    <portlet>
         <portlet-name>Aperte Workflow Substitution Manager</portlet-name>
         <display-name>Aperte Workflow Substitution Manager</display-name>
         <portlet-class>org.springframework.web.portlet.DispatcherPortlet</portlet-class>

@@ -1,21 +1,15 @@
 package pl.net.bluesoft.rnd.pt.dict.global;
 
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.dict.ProcessDictionaryRegistry;
-import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionary;
-import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItem;
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.net.bluesoft.rnd.processtool.web.controller.ControllerMethod;
 import pl.net.bluesoft.rnd.processtool.web.controller.IOsgiWebController;
 import pl.net.bluesoft.rnd.processtool.web.controller.OsgiController;
 import pl.net.bluesoft.rnd.processtool.web.controller.OsgiWebRequest;
 import pl.net.bluesoft.rnd.processtool.web.domain.GenericResultBean;
-import pl.net.bluesoft.rnd.pt.dict.global.bean.DictionaryItem;
-import pl.net.bluesoft.util.lang.Pair;
+import pl.net.bluesoft.rnd.processtool.dict.DictionaryItem;
+import pl.net.bluesoft.rnd.processtool.dict.IDictionaryFacade;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,20 +24,14 @@ import java.util.logging.Logger;
 public class DictionaryService  implements IOsgiWebController {
     private static Logger logger = Logger.getLogger(DictionaryService.class.getName());
 
+    @Autowired
+    private IDictionaryFacade dictionaryFacade;
+
     @ControllerMethod(action="getAll")
     public GenericResultBean getAll(final OsgiWebRequest invocation)
     {
         GenericResultBean result = new GenericResultBean();
-        ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
-        if(ctx==null){
-            result.addError("Dictionary","Cannot initialize context");
-            return result;
-        }
-        ProcessDictionaryRegistry processDictionaryRegistry = ctx.getProcessDictionaryRegistry();
-        if(processDictionaryRegistry==null){
-            result.addError("Dictionary","Cannot initialize registry");
-            return result;
-        }
+
 
         String dictId = invocation.getRequest().getParameter("dictionaryId");
         if(dictId==null || dictId.length() <=0){
@@ -54,28 +42,14 @@ public class DictionaryService  implements IOsgiWebController {
         String langCode = locale.getLanguage();
         logger.log(Level.ALL, "Getting for language" + langCode);
 
-        ProcessDictionary pd = processDictionaryRegistry.getDictionary(dictId);
-        if(pd==null ){
-            result.addError("Dictionary","No dictionary found with name "+ dictId);
-            return result;
-        }
-        List<ProcessDictionaryItem> list = pd.sortedItems(langCode);
-        List<DictionaryItem> reArray  =new ArrayList<DictionaryItem>();
+        String filter = invocation.getRequest().getParameter("filter");
 
-        for(ProcessDictionaryItem pdi : list)
-        {
-            String desc = pdi.getDescription(locale);
-            DictionaryItem dictionaryItem = new DictionaryItem();
-            dictionaryItem.setKey(pdi.getKey());
-            dictionaryItem.setValue(pdi.getValueForDate(new Date()).getValue(locale));
-            dictionaryItem.setDescription(desc);
+        Collection<DictionaryItem> dictionaryItems = dictionaryFacade.getAllDictionaryItems(dictId, locale, filter);
 
-            reArray.add(dictionaryItem);
-        }
-
-        result.setData(reArray);
+        result.setData(dictionaryItems);
 
         return result;
     }
+
 
 }

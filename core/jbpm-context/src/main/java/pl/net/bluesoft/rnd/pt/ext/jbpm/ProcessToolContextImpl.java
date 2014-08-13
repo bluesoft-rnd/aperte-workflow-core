@@ -156,9 +156,14 @@ public class ProcessToolContextImpl implements ProcessToolContext {
 
     @Override
     public String getSetting(IProcessToolSettings key) {
+        return getSetting(key.toString());
+    }
+
+    @Override
+    public String getSetting(String key) {
         verifyContextOpen();
         ProcessToolSetting setting = (ProcessToolSetting) hibernateSession.createCriteria(ProcessToolSetting.class)
-                .add(Restrictions.eq("key", key.toString())).uniqueResult();
+                .add(Restrictions.eq("key", key)).uniqueResult();
         return setting != null ? setting.getValue() : null;
     }
 

@@ -165,7 +165,7 @@
 		<!-- Validate html widgets -->
 		$.each(widgets, function() 
 		{
-			var errorMessages = this.validate();
+			var errorMessages = this.validateDataCorrectness();
 			if(!errorMessages)
 			{
 
@@ -265,6 +265,41 @@
 	<!-- Check for comment required field -->
 	function performAction(button, actionName, skipSaving, commentNeeded, changeOwner, changeOwnerAttributeKey, taskId)
 	{
+		if(skipSaving != true)
+		{
+			clearAlerts();
+			
+			var errors = [];
+			<!-- Validate html widgets -->
+			$.each(widgets, function() 
+			{
+				<!-- Validate technical correctness -->
+                var errorMessages = this.validateDataCorrectness();
+				if(errorMessages)
+				{
+					$.each(errorMessages, function() {
+						errors.push(this);
+						addAlert(this);
+					});
+				}
+
+                <!-- Validate business correctness -->
+				errorMessages = this.validate();
+				if(errorMessages)
+				{
+					$.each(errorMessages, function() {
+						errors.push(this);
+						addAlert(this);
+					});
+				}
+			});
+			
+			if(errors.length > 0)
+			{
+				enableButtons();
+				return;
+			}
+		}
 		if(commentNeeded == true)
 		{
 
@@ -356,26 +391,7 @@
 		var JsonWidgetData = "[{}]";
 
 		if(skipSaving != true)
-		{
-			clearAlerts();
-			
-			var errors = [];
-			<!-- Validate html widgets -->
-			$.each(widgets, function() 
-			{
-				var errorMessages = this.validate();
-				$.each(errorMessages, function() {
-					errors.push(this);
-					addAlert(this);
-				});
-			});
-			
-			if(errors.length > 0)
-			{
-				enableButtons();
-				return;
-			}
-			
+		{			
 			var widgetData = [];
 			
 			$.each(widgets, function() 

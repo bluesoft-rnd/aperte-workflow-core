@@ -33,6 +33,7 @@
 		this.taskId = taskId;
 		this.formId = 'test';
 		this.validate = function() {};
+		this.validateDataCorrectness = function() {};
 		this.getData = function() { return null; };
 		this.isEnabled = true;
 	}

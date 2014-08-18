@@ -6,6 +6,7 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
+import pl.net.bluesoft.rnd.processtool.web.view.ProcessInstanceFilter;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import java.io.InputStream;
@@ -43,9 +44,8 @@ public interface ProcessToolBpmSession {
 	/** Method returns queue size for given queue type and user login. Methods is significally faster
 	 * than {@link getFilteredTasksCount} but does not provide filtering support.
 	 */
-	int getTasksCount(String userLogin, QueueType ... queueTypes);
+	int getTasksCount(ProcessInstanceFilter queueFilter);
 
-	int getTasksCount(String userLogin, Collection<QueueType> queueTypes);
 
 	/** Method returns queue size for conditions provided by given filter. Methods is slower then
 	 * than {@link getTasksCount} but has full filtering options. It does not load entities to
@@ -88,6 +88,7 @@ public interface ProcessToolBpmSession {
 	Collection<String> getRoleNames();
 
     void adminCancelProcessInstance(String internalId);
+    void adminForwardProcessTask(String taskId, String userLogin, String targetUserLogin);
     void adminReassignProcessTask(String taskId, String userLogin);
     void adminCompleteTask(String taskId, String actionName);
 

@@ -260,7 +260,14 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
 
     public void claimTask(long taskId, String userLogin) {
         log.info("JBPMService claimTask: " +  taskId + ", userLogin: " + userLogin);
+
         getSessionTaskService().claim(taskId, userLogin);
+    }
+
+    public void forwardTask(long taskId, String userLogin, String targetUserLogin) {
+        log.info("JBPMService forwardTask: " +  taskId + ", userLogin: " + userLogin);
+
+        getSessionTaskService().forward(taskId, userLogin, targetUserLogin);
     }
 
     public void endTask(long taskId, String userLogin, ContentData outputData, boolean startNeeded) {

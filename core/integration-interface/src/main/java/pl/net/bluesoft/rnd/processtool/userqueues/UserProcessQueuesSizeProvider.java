@@ -6,7 +6,7 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory.ExecutionType;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.filters.factory.ProcessInstanceFilterFactory;
 import pl.net.bluesoft.rnd.processtool.filters.factory.QueuesNameUtil;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
+import pl.net.bluesoft.rnd.processtool.web.view.ProcessInstanceFilter;
 import pl.net.bluesoft.rnd.processtool.model.QueueType;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
@@ -109,7 +109,7 @@ public class UserProcessQueuesSizeProvider
 		
 		for(ProcessInstanceFilter queueFilter: queuesFilters)
 		{
-			int filteredQueueSize = bpmSession.getTasksCount(queueFilter.getFilterOwnerLogin(), queueFilter.getQueueTypes());
+			int filteredQueueSize = bpmSession.getTasksCount(queueFilter);
 			
 			String queueId = QueuesNameUtil.getQueueTaskId(queueFilter.getName());
 			String queueDesc = messageSource.getMessage(queueFilter.getName());

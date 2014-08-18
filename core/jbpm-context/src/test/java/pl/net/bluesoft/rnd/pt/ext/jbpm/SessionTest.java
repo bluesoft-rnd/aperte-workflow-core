@@ -26,6 +26,7 @@ import pl.net.bluesoft.rnd.processtool.token.ITokenService;
 import pl.net.bluesoft.rnd.processtool.token.TokenWrapper;
 import pl.net.bluesoft.rnd.processtool.usersource.IUserSource;
 import pl.net.bluesoft.rnd.processtool.usersource.exception.UserSourceException;
+import pl.net.bluesoft.rnd.processtool.web.view.ProcessInstanceFilter;
 import pl.net.bluesoft.util.lang.Lang;
 import pl.net.bluesoft.util.lang.cquery.func.F;
 import pl.net.bluesoft.util.lang.cquery.func.P;
@@ -362,9 +363,9 @@ public class SessionTest extends TestCase {
 
 			ProcessToolBpmSession session = createSession(user);
 
-			assertEquals(elems[0].length, session.getTasksCount(user, QueueType.MY_TASKS));
-			assertEquals(elems[1].length, session.getTasksCount(user, QueueType.OWN_IN_PROGRESS));
-			assertEquals(elems[2].length, session.getTasksCount(user, QueueType.OWN_FINISHED));
+//			assertEquals(elems[0].length, session.getTasksCount(user, QueueType.MY_TASKS));
+//			assertEquals(elems[1].length, session.getTasksCount(user, QueueType.OWN_IN_PROGRESS));
+//			assertEquals(elems[2].length, session.getTasksCount(user, QueueType.OWN_FINISHED));
 
 			assertEquals(elems[0].length, session.getFilteredTasksCount(createFilter(user, QueueType.MY_TASKS)));
 			assertEquals(elems[1].length, session.getFilteredTasksCount(createFilter(user, QueueType.OWN_IN_PROGRESS)));

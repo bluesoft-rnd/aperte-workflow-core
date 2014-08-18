@@ -1,6 +1,6 @@
 package pl.net.bluesoft.rnd.processtool.filters.factory;
 
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
+import pl.net.bluesoft.rnd.processtool.web.view.ProcessInstanceFilter;
 import pl.net.bluesoft.rnd.processtool.model.QueueType;
 
 import static pl.net.bluesoft.rnd.processtool.model.QueueType.*;

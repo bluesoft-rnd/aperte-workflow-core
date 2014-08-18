@@ -36,7 +36,10 @@ import pl.net.bluesoft.rnd.processtool.model.token.AccessToken;
 import pl.net.bluesoft.rnd.processtool.plugins.DataRegistry;
 import pl.net.bluesoft.rnd.processtool.token.IAccessTokenFactory;
 import pl.net.bluesoft.rnd.processtool.token.ITokenService;
-import pl.net.bluesoft.rnd.processtool.usersource.IUserSource;
+import pl.net.bluesoft.rnd.processtool.web.view.BpmTaskBeanFactory;
+import pl.net.bluesoft.rnd.processtool.web.view.ProcessInstanceFilter;
+import pl.net.bluesoft.rnd.processtool.web.view.ProcessInstanceFilterSortingColumn;
+import pl.net.bluesoft.rnd.processtool.web.view.TasksListViewBeanFactory;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.service.JbpmService;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.service.query.BpmTaskNotificationQuery;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.service.query.BpmTaskQuery;
@@ -101,36 +104,36 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		return new ProcessToolJbpmSession(userLogin, roleNames, this.userLogin);
 	}
 
-	@Override
-	public StartProcessResult startProcess(String processDefinitionId, String externalKey, String source) {
-		return startProcess(processDefinitionId, externalKey, source, null);
-	}
+    @Override
+    public StartProcessResult startProcess(String processDefinitionId, String externalKey, String source) {
+        return startProcess(processDefinitionId, externalKey, source, null);
+    }
 
-	@Override
-	public StartProcessResult startProcess(String processDefinitionId, String externalKey, String source, Map<String, Object> simpleAttributes) {
-		ProcessDefinitionConfig config = getContext().getProcessDefinitionDAO().getActiveConfigurationByKey(processDefinitionId);
+    @Override
+    public StartProcessResult startProcess(String processDefinitionId, String externalKey, String source, Map<String, Object> simpleAttributes) {
+        ProcessDefinitionConfig config = getContext().getProcessDefinitionDAO().getActiveConfigurationByKey(processDefinitionId);
 
-		if (!config.isEnabled()) {
-			throw new IllegalArgumentException("Process definition has been disabled!");
-		}
+        if (!config.isEnabled()) {
+            throw new IllegalArgumentException("Process definition has been disabled!");
+        }
 
-		Map<String, Object> initialParams = getInitialParams();
-		if(simpleAttributes != null){
-			initialParams.putAll(simpleAttributes);
-		}
+        Map<String, Object> initialParams = getInitialParams();
+        if(simpleAttributes != null){
+            initialParams.putAll(simpleAttributes);
+        }
 
-		startProcessParams = new StartProcessParams(config, externalKey, source, userLogin, initialParams);
+        startProcessParams = new StartProcessParams(config, externalKey, source, userLogin, initialParams);
 
-		try {
-			getJbpmService().startProcess(config.getBpmProcessId(), initialParams);
-			generateExternalKey(startProcessParams.newProcessInstance);
-			generateStepInfo(startProcessParams.createdTasks);
-			return new JbpmStartProcessResult(startProcessParams.newProcessInstance, startProcessParams.createdTasksForCurrentUser);
-		}
-		finally {
-			startProcessParams = null;
-		}
-	}
+        try {
+            getJbpmService().startProcess(config.getBpmProcessId(), initialParams);
+            generateExternalKey(startProcessParams.newProcessInstance);
+            generateStepInfo(startProcessParams.createdTasks);
+            return new JbpmStartProcessResult(startProcessParams.newProcessInstance, startProcessParams.createdTasksForCurrentUser);
+        }
+        finally {
+            startProcessParams = null;
+        }
+    }
 
 	private static class JbpmStartProcessResult implements StartProcessResult {
 		private final ProcessInstance processInstance;
@@ -369,13 +372,14 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	}
 
 	@Override
-	public int getTasksCount(String userLogin, QueueType... queueTypes) {
-		return getTasksCount(userLogin, Arrays.asList(queueTypes));
-	}
+	public int getTasksCount(ProcessInstanceFilter queueFilter)
+    {
 
-	@Override
-	public int getTasksCount(String userLogin, Collection<QueueType> queueTypes) {
-		return new BpmTaskQuery(dataRegistry.getHibernateDialect()).user(userLogin).virtualQueues(queueTypes).count();
+        return new BpmTaskQuery(dataRegistry.getHibernateDialect())
+                .user(queueFilter.getFilterOwnerLogin())
+                .virtualQueues(queueFilter.getQueueTypes())
+                .queryConditions(new BpmTaskBeanFactory().getBpmTaskQueryCondition())
+                .count();
 	}
 
 	@Override
@@ -496,6 +500,15 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 		BpmTaskQuery taskFilterQuery = new BpmTaskQuery(dataRegistry.getHibernateDialect());
 
+        if(filter.getViewName()==null || filter.getViewName().isEmpty())
+            taskFilterQuery.queryConditions(new BpmTaskBeanFactory().getBpmTaskQueryCondition());
+        else
+        {
+            TasksListViewBeanFactory taskViewBeanFactory = registry.getGuiRegistry().getTasksListView(filter.getViewName());
+            taskFilterQuery.queryConditions(taskViewBeanFactory.getBpmTaskQueryCondition());
+        }
+
+
    		/* Queues filter do not have owner */
 		if (filter.getFilterOwnerLogin() != null) {
 			taskFilterQuery.user(filter.getFilterOwnerLogin());
@@ -510,16 +523,6 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 			taskFilterQuery.taskNames(filter.getTaskNames());
 		}
 
-   		/* Add conidtion for created before date */
-		if (filter.getCreatedBefore() != null) {
-			taskFilterQuery.createdBefore(filter.getCreatedBefore());
-		}
-
-   		/* Add conidtion for created after date */
-		if (filter.getCreatedAfter() != null) {
-			taskFilterQuery.createdAfter(filter.getCreatedAfter());
-		}
-
 		if (!filter.getQueues().isEmpty()) {
 			taskFilterQuery.queues(filter.getQueues());
 		}
@@ -532,7 +535,8 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		taskFilterQuery.processBpmKey(filter.getProcessBpmKey());
 		taskFilterQuery.searchExpression(filter.getExpression(), filter.getLocale());
 
-		taskFilterQuery.orderBy(filter.getSortOrderCondition(), filter.getSortOrder());
+        for(ProcessInstanceFilterSortingColumn sortingColumn: filter.getSortingColumns())
+		    taskFilterQuery.orderBy(sortingColumn.getColumnName(), sortingColumn.getPriority(),sortingColumn.getOrder());
 
 		return taskFilterQuery;
 	}
@@ -638,6 +642,20 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		save(pi);
 		log.severe("User: " + userLogin + " has reassigned task " + toJbpmTaskId(bpmTask) + " for process: " + pi.getInternalId() + " to user: " + userLogin);
 	}
+
+    @Override
+    public void adminForwardProcessTask(String taskId, String userLogin, String targetUserLogin) {
+        BpmTask bpmTask = getTaskData(taskId);
+        ProcessInstance pi = bpmTask.getProcessInstance();
+
+        log.severe("User: " + userLogin + " attempting to forward task " + toJbpmTaskId(bpmTask) + " for process: " + pi.getInternalId() + " to user: " + userLogin);
+
+        getJbpmService().forwardTask(toJbpmTaskId(bpmTask), userLogin, targetUserLogin);
+
+        log.info("Process.running:" + pi.isProcessRunning());
+        save(pi);
+        log.severe("User: " + userLogin + " has reassigned task " + toJbpmTaskId(bpmTask) + " for process: " + pi.getInternalId() + " to user: " + userLogin);
+    }
 
 	@Override
 	public void adminCompleteTask(String taskId, String actionName) {
@@ -1202,16 +1220,16 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		public final String externalKey;
 		public final String source;
 		public final String creator;
-		private Map<String, Object> initialParams;
+        private Map<String, Object> initialParams;
 		public ProcessInstance newProcessInstance;
 
 		public StartProcessParams(ProcessDefinitionConfig config, String externalKey, String source, String creator,
-								  Map<String, Object> initialParams) {
+                                  Map<String, Object> initialParams) {
 			this.config = config;
 			this.externalKey = externalKey;
 			this.source = source;
 			this.creator = creator;
-			this.initialParams = initialParams;
+            this.initialParams = initialParams;
 		}
 
 		public ProcessInstance createFromParams(org.drools.runtime.process.ProcessInstance jbpmProcessInstance, ProcessInstance parentProcessInstance) {
@@ -1230,12 +1248,12 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 			newProcessInstance.setSimpleAttribute("creatorName", userSource.getUserByLogin(creator).getRealName());
 			newProcessInstance.setSimpleAttribute("source", source);
 
-			if (initialParams != null) {
-				for (Map.Entry<String, Object> entry : initialParams.entrySet()) {
-					String value = entry.getValue() != null ? String.valueOf(entry.getValue()) : null;
-					newProcessInstance.setSimpleAttribute(entry.getKey(), value);
-				}
-			}
+            if (initialParams != null) {
+                for (Map.Entry<String, Object> entry : initialParams.entrySet()) {
+                    String value = entry.getValue() != null ? String.valueOf(entry.getValue()) : null;
+                    newProcessInstance.setSimpleAttribute(entry.getKey(), value);
+                }
+            }
 
 			if (parentProcessInstance != null) {
 				newProcessInstance.setParent(parentProcessInstance);
@@ -1401,7 +1419,11 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 			return processInstance;
 		}
 
-		@Override
+        public String getExternalKey() {
+            return getProcessInstance().getExternalKey();
+        }
+
+        @Override
 		public String getInternalTaskId() {
 			return toAwfTaskId(task.getId());
 		}
@@ -1481,8 +1503,8 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 		public void setStepInfo(String stepInfo) {
 			this.stepInfo = stepInfo;
-        }
-    }
+		}
+	}
 
 	private static class LazyProcessQueue implements ProcessQueue, Serializable {
 		private final ProcessQueue queue;

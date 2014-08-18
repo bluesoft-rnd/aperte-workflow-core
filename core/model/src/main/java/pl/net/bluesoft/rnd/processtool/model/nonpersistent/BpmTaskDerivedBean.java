@@ -242,12 +242,12 @@ public class BpmTaskDerivedBean implements BpmTask {
 	@Override
 	public ProcessStateConfiguration getCurrentProcessStateConfiguration() {
 		if (!currentProcessConfigurationPresent) {
-			setCurrentProcessConfiguration(task.getCurrentProcessStateConfiguration());
+			setCurrentProcessStateConfiguration(task.getCurrentProcessStateConfiguration());
 		}
 		return currentProcessConfiguration;
 	}
 
-	public void setCurrentProcessConfiguration(ProcessStateConfiguration currentProcessConfiguration) {
+	public void setCurrentProcessStateConfiguration(ProcessStateConfiguration currentProcessConfiguration) {
 		this.currentProcessConfiguration = currentProcessConfiguration;
 		this.currentProcessConfigurationPresent = true;
 	}

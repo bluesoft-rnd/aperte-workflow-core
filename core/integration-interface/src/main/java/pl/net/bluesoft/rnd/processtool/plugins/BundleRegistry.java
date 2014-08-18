@@ -35,4 +35,8 @@ public interface BundleRegistry {
 	void setPluginManager(PluginManager pluginManager);
 
 	<T> T lookupService(String name);
+
+	void registerBundleExtensionHandler(BundleExtensionHandler handler);
+	void unregisterBundleExtensionHandler(BundleExtensionHandler handler);
+	List<BundleExtensionHandler> getBundleExtensionHandlers();
 }

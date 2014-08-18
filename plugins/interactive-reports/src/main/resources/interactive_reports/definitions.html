@@ -1,0 +1,94 @@
+<#function getDict dictName>
+	<#return dictionariesFacade.getAllDictionaryItems(dictName, messageSource.getLocale())>
+</#function>
+
+<#function getDictVal itemKey dictName>
+	<#return dictionaryDao.fetchDictionary(dictName).lookup(itemKey).getValueForCurrentDate().getValue(messageSource.getLocale())>
+</#function>
+
+<#macro paramText name description style="" class="">
+	<div class="control-group col-md-2">
+		<label for="param_${name}">${messageSource.getMessage(description)}</label>
+		<input id="param_${name}" type="text" placeholder="" class="form-control ${class}" <#if style!="">style="${style}"</#if> />
+	</div>
+	<script type="text/javascript">
+		interactiveReports.addParam('${name}', function(params) {
+			params.push({ name: '${name}', value: $('#param_${name}').val() });
+		});
+	</script>
+</#macro>
+
+<#macro paramDate name description style="" class="" initialValue = "" format="dd-MM-yyyy" jqueryFormat="dd-mm-yyyy">
+	<div class="control-group col-md-2">
+		<label for="param_${name}">${messageSource.getMessage(description)}</label>
+		<input id="param_${name}" type="text" placeholder=""
+			   class="form-control datepicker input-sm ${class}" <#if style!="">style="${style}"</#if>
+				<#if initialValue?is_string>
+					<#if initialValue != "">value="${initialValue}"</#if>
+				<#else>
+					value="${initialValue?string(format)}"
+				</#if>
+		/>
+	</div>
+	<script type="text/javascript">
+		interactiveReports.addParam('${name}', function(params) {
+			params.push({ name: '${name}', value: $('#param_${name}').val() });
+		});
+
+		$(document).ready(function() {
+			$('#param_${name}').datepicker({
+            	format: '${jqueryFormat}',
+				language: '${messageSource.getLocale().getLanguage()}',
+				autoclose: true
+        	});
+		});
+	</script>
+</#macro>
+
+<#macro paramDictSelect name dictName description selectText="ir.selectTemplate" style="" class="">
+	<#assign dictItems = getDict(dictName)/>
+
+	<div class="control-group col-md-4">
+		<label for="param_${name}">${messageSource.getMessage(description)}</label>
+		<select id="param_${name}" class="aperte-select report-param ${class}" <#if style!="">style="${style}"</#if>>
+			<#if selectText != "">
+			<option value="">${messageSource.getMessage(selectText)}</option>
+			</#if>
+			<#list dictItems as dictionaryItem>
+				<option value="${dictionaryItem.getKey()?html}">${dictionaryItem.getValue()?html}</option>
+			</#list>
+		</select>
+	</div>
+	<script type="text/javascript">
+		interactiveReports.addParam('${name}', function(params) {
+			params.push({ name: '${name}', value: $('#param_${name}').val() });
+		});
+
+		$(document).ready(function() {
+			$('#param_${name}').select2();
+		});
+	</script>
+</#macro>
+
+<#macro generateReportButton style="">
+	<div class="control-group col-md-2">
+		<button id="generate_report" type="button" class="btn btn-default"
+				<#if style != "">style="${style}"</#if>
+				onclick="interactiveReports.generateReport();">${messageSource.getMessage("ir.generateReport")}</button>
+	</div>
+</#macro>
+
+<#macro exportReportButton buttonText desiredFormat style="">
+	<div class="control-group col-md-2">
+		<button id="export_report" type="button" class="btn btn-default"
+		<#if style != "">style="${style}"</#if>
+		onclick="interactiveReports.exportReport(event, '${desiredFormat}');">${messageSource.getMessage(buttonText)}</button>
+	</div>
+</#macro>
+
+
+<#macro caseLink caseId description>
+	<#assign casePortletUrl = settingsProvider.getSetting("case.portlet.url")!""/>
+	<#assign caseUrl = casePortletUrl + "?caseId=" + caseId?c/>
+	<a target="_blank" href="${caseUrl}">${description?html}</a>
+</#macro>

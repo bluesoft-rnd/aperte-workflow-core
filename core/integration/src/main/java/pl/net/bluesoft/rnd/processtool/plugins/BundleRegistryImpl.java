@@ -29,6 +29,7 @@ public class BundleRegistryImpl implements BundleRegistry {
 	private final Map<String, List<String>> resources = new HashMap<String, List<String>>();
 	private final Map<String, I18NProvider> i18NProviders = new HashMap<String, I18NProvider>();
 	private final List<ProcessToolServiceBridge> serviceBridges = new ArrayList<ProcessToolServiceBridge>();
+	private final List<BundleExtensionHandler> bundleExtensionHandlers = new ArrayList<BundleExtensionHandler>();
 
 	private PluginManager pluginManager;
 	private BundleContext bundleContext;
@@ -198,5 +199,20 @@ public class BundleRegistryImpl implements BundleRegistry {
 			return null;
 		}
 		return (T) bundleContext.getService(serviceReference);
+	}
+
+	@Override
+	public void registerBundleExtensionHandler(BundleExtensionHandler handler) {
+		bundleExtensionHandlers.add(handler);
+	}
+
+	@Override
+	public void unregisterBundleExtensionHandler(BundleExtensionHandler handler) {
+		bundleExtensionHandlers.remove(handler);
+	}
+
+	@Override
+	public List<BundleExtensionHandler> getBundleExtensionHandlers() {
+		return Collections.unmodifiableList(bundleExtensionHandlers);
 	}
 }

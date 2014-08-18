@@ -21,6 +21,24 @@
             <short-title>Dictionary Editor</short-title>
         </portlet-info>
     </portlet>
+
+	<portlet>
+		<portlet-name>AperteWorkflow Interactive Reports</portlet-name>
+		<display-name>AperteWorkflow Interactive Reports</display-name>
+		<portlet-class>org.springframework.web.portlet.DispatcherPortlet</portlet-class>
+		<init-param>
+			<name>contextConfigLocation</name>
+			<value>/WEB-INF/spring/aperte-interactive-reports-portlet.xml</value>
+		</init-param>
+		<supports>
+			<mime-type>text/html</mime-type>
+		</supports>
+		<portlet-info>
+			<title>AperteWorkflow Interactive Reports</title>
+			<short-title>Interactive Reports</short-title>
+		</portlet-info>
+	</portlet>
+
     <portlet>
         <portlet-name>Aperte Workflow Substitution Manager</portlet-name>
         <display-name>Aperte Workflow Substitution Manager</display-name>
@@ -41,7 +59,7 @@
             <short-title>AperteSubstitution</short-title>
         </portlet-info>
     </portlet>
-	
+
 	<portlet>
 		<portlet-name>AperteWorkflow Activities Portlet</portlet-name>
 		<display-name>Aperte Workflow Activities Simple</display-name>

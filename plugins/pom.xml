@@ -29,6 +29,7 @@
         <module>scripting</module>
         <module>scheduler-integration</module>
         <module>global-dictionaries</module>
+		<module>interactive-reports</module>
 		<!--<module>external-plugins</module>-->
 
 		<!-- Plugins for Aperte Reports, uncomment if you are using it. -->

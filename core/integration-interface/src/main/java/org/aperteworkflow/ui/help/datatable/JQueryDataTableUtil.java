@@ -85,6 +85,7 @@ public class JQueryDataTableUtil
             JQueryDataTableColumn column = jQueryDataTable.getColumnAt(sortingColumnIndex);
             column.setSorted(true);
             column.setSortedAsc(sortingColumnOrderString.equals("asc") ? true : false);
+            column.setPriority(index);
 
             jQueryDataTable.getSortingColumnOrder().add(column);
 

@@ -93,7 +93,8 @@
                         <thead>
                             <th style="font-size: 11px!important; width:110px"><@spring.message "dictionary.editor.dictionaryItems.table.key"/></th>
                             <th style="font-size: 11px!important;width:50px"><@spring.message "dictionary.editor.dictionaryItems.table.description"/></th>
-                            <th style="font-size: 11px!important;width:210px"><@spring.message "dictionary.editor.dictionaryItems.table.actions"/></th>
+                            <th style="font-size: 11px!important;width:105px"><@spring.message "dictionary.editor.dictionaryItems.table.actions"/></th>
+                            <th style="font-size: 11px!important;width:105px"><@spring.message "dictionary.editor.dictionaryItems.table.value"/></th>
                         </thead>
                         <tbody style="font-size: 12px!important;vertical-align:middle;">
 
@@ -399,6 +400,8 @@
                  { "sName":"description", "bSortable": false ,"mData": function(o) { return generateDescriptionColumn(o); }
                  },
                  { "sName":"actions", "bSortable": false , "mData": function(o) { return ""; }, "fnCreatedCell": function(nTd, sData, oData, iRow, iCol) { return generateActionsColumn(nTd, sData, oData, iRow, iCol) }
+                 },
+                 { "sName":"value", "bSortable":false , "mData": function(o){ return getValueForTheRow(o); }
                  }
             ],
             [[ 0, "asc" ]]
@@ -411,6 +414,14 @@
             }
             return '';
         }
+
+        function getValueForTheRow(o){
+            if(o.values){
+                return o.values[0].value;
+            }
+            return '';
+        }
+
 
         function generateActionsColumn(nTd, sData, oData, iRow, iCol) {
             var editButton = $('<button type="button" class="btn btn-primary btn-xs"><@spring.message "dictionary.editor.dictionaryItems.button.edit"/></button>');

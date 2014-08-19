@@ -160,12 +160,13 @@
 	function saveAction(taskId)
 	{
 		clearAlerts();
+		windowManager.showSavingScreen();
 		
 		var errors = [];
 		<!-- Validate html widgets -->
 		$.each(widgets, function() 
 		{
-			var errorMessages = this.validateDataCorrectness();
+			var errorMessages = this.validate();
 			if(!errorMessages)
 			{
 
@@ -183,6 +184,7 @@
 		if(errors.length > 0)
 		{
 			enableButtons();
+			windowManager.hideSavingScreen();
 			return;
 		}
 		
@@ -208,13 +210,23 @@
 			{
 				addAlerts(data.errors);
 			}
+			if (data.data) {
+			    clearAlerts();
+                windowManager.showProcessDataImmediate();
+                $('#process-data-view').empty();
+                $("#process-data-view").append(data.data);
+                checkIfViewIsLoaded();
+			}
+			windowManager.hideSavingScreen();
 		})
 		.always(function() 
 		{ 
 			enableButtons();
+			windowManager.hideSavingScreen();
 		})
 		.fail(function(data) 
-		{ 
+		{
+		    windowManager.hideSavingScreen();
 			addAlerts(data.errors);
 		});
 		
@@ -265,41 +277,6 @@
 	<!-- Check for comment required field -->
 	function performAction(button, actionName, skipSaving, commentNeeded, changeOwner, changeOwnerAttributeKey, taskId)
 	{
-		if(skipSaving != true)
-		{
-			clearAlerts();
-			
-			var errors = [];
-			<!-- Validate html widgets -->
-			$.each(widgets, function() 
-			{
-				<!-- Validate technical correctness -->
-                var errorMessages = this.validateDataCorrectness();
-				if(errorMessages)
-				{
-					$.each(errorMessages, function() {
-						errors.push(this);
-						addAlert(this);
-					});
-				}
-
-                <!-- Validate business correctness -->
-				errorMessages = this.validate();
-				if(errorMessages)
-				{
-					$.each(errorMessages, function() {
-						errors.push(this);
-						addAlert(this);
-					});
-				}
-			});
-			
-			if(errors.length > 0)
-			{
-				enableButtons();
-				return;
-			}
-		}
 		if(commentNeeded == true)
 		{
 
@@ -311,6 +288,7 @@
 			
 			
 			$('#action-comment-textarea').val('');
+			$('#action-comment-button').prop("disabled", true);
 			$('#commentModal').appendTo("body").modal({
 			  keyboard: false
 			});
@@ -363,7 +341,7 @@
 						  $.each(data.data, function(index, item){
 							results.push({
 							  id: item.login,
-							  text: getReceivingPersonCaption(item)
+							  text: item.firstName +" "+ item.lastName+" ["+item.login+"]"
 							});
 						  });
 						  return {
@@ -388,54 +366,112 @@
 	
 	function performActionWithoutComment(button, actionName, skipSaving, taskId, commentNeeded, comment, changeOwner, changeOwnerAttributeKey, changeOwnerAttributeValue)
 	{
-		var JsonWidgetData = "[{}]";
+		var widgetData = [];
 
 		if(skipSaving != true)
-		{			
-			var widgetData = [];
+		{
+			clearAlerts();
+			
+			var errors = [];
+			<!-- Validate html widgets -->
+			$.each(widgets, function() 
+			{
+				var errorMessages = this.validate(actionName);
+				$.each(errorMessages, function() {
+					errors.push(this);
+					addAlert(this);
+				});
+			});
+			
+			if(errors.length > 0)
+			{
+				enableButtons();
+				return;
+			}
 			
 			$.each(widgets, function() 
 			{
 				var widgetDataBean = new WidgetDataBean(this.widgetId, this.name, this.getData());
 				widgetData.push(widgetDataBean);
 			});
-			
-			JsonWidgetData = JSON.stringify(widgetData, null, 2);
 		}
-		
+
+		var performActionArgs =
+		{
+			button: button,
+			actionName: actionName,
+			skipSaving: skipSaving,
+			taskId: taskId,
+			commentNeeded: commentNeeded,
+			comment: comment,
+			changeOwner: changeOwner,
+			changeOwnerAttributeKey: changeOwnerAttributeKey,
+			changeOwnerAttributeValue: changeOwnerAttributeValue,
+			widgetData: widgetData
+		};
+
+        for (var i = 0; i < widgets.length; ++i)
+        {
+        	var widget = widgets[i];
+
+        	if (widget.beforePerformAction)
+        	{
+        		var handled = widget.beforePerformAction(performActionRequest, performActionArgs);
+
+        		if (handled)
+        		{
+        			return;
+        		}
+        	}
+        }
+
+        // no widget intercepted the action -> default handling
+
+		performActionRequest(performActionArgs);
+	}
+
+	function performActionRequest(args)
+	{
+		var JsonWidgetData = "[{}]";
+
+		if (args.widgetData.length > 0)
+		{
+			JsonWidgetData = JSON.stringify(args.widgetData, null, 2);
+		}
+
 		var newBpmTask = $.post('<portlet:resourceURL id="performAction"/>',
 		{
-			"taskId": taskId,
-			"actionName": actionName,
-			"skipSaving": skipSaving,
-			"commentNeeded": commentNeeded,
-			"comment": comment,
-			"changeOwner": changeOwner,
-			"changeOwnerAttributeKey": changeOwnerAttributeKey,
-			"changeOwnerAttributeValue": changeOwnerAttributeValue,
+			"taskId": args.taskId,
+			"actionName": args.actionName,
+			"skipSaving": args.skipSaving,
+			"commentNeeded": args.commentNeeded,
+			"comment": args.comment,
+			"changeOwner": args.changeOwner,
+			"changeOwnerAttributeKey": args.changeOwnerAttributeKey,
+			"changeOwnerAttributeValue": args.changeOwnerAttributeValue,
 			"widgetData": JsonWidgetData
 		})
 		.done(function(data)
 		{
 			<!-- Errors handling -->
 			windowManager.clearErrors();
-			
+
 			var errors = [];
 			$.each(data.errors, function() {
 				errors.push(this);
 				addAlert(this.message);
 			});
-			
+
 			if(errors.length > 0) { return; }
-			
+
 			reloadQueues();
-			
+
 			if(!data)
 			{
-			    closeProcessView();
+				closeProcessView();
 				queueViewManager.reloadCurrentQueue();
 				windowManager.showProcessList();
-				
+
 				return;
 			}
 			else if(data.errors.length > 0)
@@ -448,7 +484,7 @@
 				closeProcessView();
 				queueViewManager.reloadCurrentQueue();
 				windowManager.showProcessList();
-				
+
 				return;
 			}
 
@@ -465,8 +501,8 @@
 			}
 		})
 		.fail(function() { addAlerts(data.errors); })
-		.always(function(data) 
-		{ 
+		.always(function(data)
+		{
 			if(data != null)
 			{
 				enableButtons();
@@ -495,6 +531,12 @@
 		windowManager.showProcessList();
 	}
 
-
+    function removeAllButOne(selector)
+    {
+    	while ($(selector).size() > 1)
+    	{
+    		$(selector).last().remove();
+    	}
+    }
 //]]>
 </script>

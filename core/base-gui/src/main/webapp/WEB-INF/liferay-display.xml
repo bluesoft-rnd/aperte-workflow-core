@@ -6,10 +6,10 @@
 
 		<portlet id="AperteWorkflow Interactive Reports"/>
         <portlet id="AperteWorkflow Dictionary Editor Portlet"/>
+        <portlet id="Aperte Workflow Substitution Manager"/>
 	</category>
     <category name="category.hidden">
         <portlet id="AperteWorkflow User Substitutions"/>
         <portlet id="Aperte Workflow Process Instance Manager"/>
-        <portlet id="Aperte Workflow Substitution Manager"/>
     </category>
 </display>

@@ -176,7 +176,7 @@
         <portlet-name>Aperte Workflow Process Instance Manager</portlet-name>
         <instanceable>false</instanceable>
         <ajaxable>false</ajaxable>
-        <control-panel-entry-category>portal</control-panel-entry-category>
+        <control-panel-entry-category>configuration</control-panel-entry-category>
         <control-panel-entry-weight>0.7</control-panel-entry-weight>
         <header-portlet-javascript>/sa/js/jquery-1.10.2.min.js</header-portlet-javascript>
         <header-portlet-javascript>/sa/js/jqModal.js</header-portlet-javascript>

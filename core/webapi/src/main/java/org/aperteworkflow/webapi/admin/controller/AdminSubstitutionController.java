@@ -3,6 +3,7 @@ package org.aperteworkflow.webapi.admin.controller;
 
 import org.aperteworkflow.webapi.PortletUtil;
 import org.aperteworkflow.webapi.main.DispatcherController;
+import org.aperteworkflow.webapi.tools.WebApiConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,6 +13,7 @@ import org.springframework.web.portlet.ModelAndView;
 import org.springframework.web.portlet.bind.annotation.RenderMapping;
 import org.springframework.web.portlet.bind.annotation.ResourceMapping;
 import pl.net.bluesoft.rnd.processtool.ISettingsProvider;
+import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.usersource.IPortalUserSource;
 
 import javax.portlet.*;
@@ -48,6 +50,7 @@ public class AdminSubstitutionController {
     {
         logger.info("AdminSubstitutionController.handleMainRenderRequest... ");
         PortletConfig config = ((PortletConfig) request.getAttribute("javax.portlet.config"));
+        final UserData user = portalUserSource.getUserByRequest(request);
 
         if(config == null)
             throw new RuntimeException("No portlet config!");
@@ -58,6 +61,7 @@ public class AdminSubstitutionController {
 
 
         ModelAndView modelView = new ModelAndView();
+        modelView.addObject(WebApiConstants.USER_PARAMETER_NAME, user);
         modelView.setView(viewName);
 
         return modelView;

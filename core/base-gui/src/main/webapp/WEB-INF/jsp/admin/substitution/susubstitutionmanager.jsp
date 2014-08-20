@@ -11,7 +11,7 @@
 <%@include file="../../actionsList.jsp"%>
 
 <c:set var="isPermitted" scope="session"
-     	value="${aperteUser.hasRole('Administrator')}" />
+	value="${aperteUser.hasRole('Administrator')}" />
 
 <!-- Modal -->
 <div class="modal fade" id="NewSubstitutionModal" tabindex="-1"
@@ -97,17 +97,15 @@
 </div>
 <!-- /.modal -->
 
-<div class="process-queue-name apw_highlight">
-	Aperte Workflow Substitution Manager
-	<div class="btn-group  pull-right">
+<div class="btn-group  pull-right" style="margin-top:20px;">
 		<button class="btn btn-info" id="substitution-add-button"
 			data-toggle="modal" data-target="#NewSubstitutionModal"
 			data-original-title="" title="">
 			<span class="glyphicon glyphicon-plus"></span>
 			<spring:message code="admin.substitution.action.add" />
 		</button>
-	</div>
 </div>
+
 
 <div class="process-tasks-view" id="task-view-processes">
 	<table id="substitutionTable" class="process-table table table-striped"
@@ -143,7 +141,7 @@
 	function onSubmitNewSubstitution(e)
 	{
 		e.preventDefault();
-
+		
 		$("#SubstitutionForm").submit();
 	}
 	
@@ -163,7 +161,7 @@
 
 	function validateSubstitution() {
 		clearAlerts();
-
+		
 		isValid=true;
 
 		if ($("#SubstitutingDateFrom").val() == "") {
@@ -285,7 +283,16 @@
              }
          }
 	}
-	
+
+	Date.prototype.stdTimezoneOffset = function(){
+         var jan = new Date(this.getFullYear(), 0, 1);
+         var jul = new Date(this.getFullYear(), 6, 1);
+         return Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
+	}
+
+	Date.prototype.dst = function() {
+        return this.getTimezoneOffset() < this.stdTimezoneOffset();
+    }
 
 	$(document)
 			.ready(
@@ -329,6 +336,11 @@
 											"sName" : "dateTo",
 											"bSortable" : true,
 											"mData" : function(object) {
+											var varDateToBasic = new Date(object.dateTo);
+                                            if(varDateToBasic.dst()){
+                                                object.dateTo -= 3600000;
+                                            }
+                                            var varDateChanged = new Date(object.dateTo);
 												return $.format.date(
 														object.dateTo,
 														'yyyy-MM-dd');

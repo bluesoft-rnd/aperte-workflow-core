@@ -36,10 +36,13 @@ private List<GenericPortletViewRenderer> getPermittedRenderers(String portletKey
 	IViewRegistry viewRegistry = registry.getRegisteredService(IViewRegistry.class);
 	List<GenericPortletViewRenderer> permittedViews = new ArrayList<GenericPortletViewRenderer>();
 
-	for (GenericPortletViewRenderer renderer : viewRegistry.getGenericPortletViews(portletKey)) {
-		if (isPermitted(renderer)) {
+	for (GenericPortletViewRenderer renderer : viewRegistry.getGenericPortletViews(portletKey))
+	{
+	  if(renderer != null){
+		 if (isPermitted(renderer)) {
 			permittedViews.add(renderer);
-		}
+		 }
+	  }
 	}
 
 	permittedViews = arrangeViews(permittedViews);

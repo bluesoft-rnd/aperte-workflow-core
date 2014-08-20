@@ -54,7 +54,7 @@ public class SubstitutionController implements IOsgiWebController {
 
 		List<UserSubstitution> substitutionList;
 
-		if (user.hasRole("Administrator"))
+    		if (user.hasRole("Administrator"))
 			substitutionList = (List<UserSubstitution>) ctx
 					.getHibernateSession()
 					.createCriteria(UserSubstitution.class)

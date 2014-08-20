@@ -22,7 +22,7 @@
 </div>
 
 <div class="process-tasks-view" id="foundProcessInstances" style="z-index: 1">
-    <table id="processInstanceTable" class="process-table table table-striped" border="1">
+    <table id="processInstanceTable" class="process-table table table-striped" border="1" style="overflow:visible;">
         <thead>
                 <th style="width:7%;"><spring:message code="processinstances.console.processInternalId.title"/></th>
                 <th style="width:18%;"><spring:message code="processinstances.console.definitionsColumn.title"/></th>
@@ -98,7 +98,6 @@
         }
 
         function formatDefinitionName(object) {
-
             return object.definitionDescription + " (Def Id: " +  object.definitionId + ") " + object.bpmDefinitionKey;
         }
 
@@ -265,7 +264,6 @@
 
       	$(document).ready(function()
     	{
-
             $('#search_field').on('input',function() {
                 var el = this;
                 if (timeout) clearTimeout(timeout);

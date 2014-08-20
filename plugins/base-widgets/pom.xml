@@ -163,7 +163,8 @@
                         </ProcessTool-Step-Enhancement>
                         <ProcessTool-Controller>
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.controller.UserController,
-                            org.aperteworkflow.admin.controller.SubstitutionController
+                            org.aperteworkflow.admin.controller.SubstitutionController,
+                            org.aperteworkflow.admin.controller.ProcessInstanceController
                         </ProcessTool-Controller>
                       <!--  <ProcessTool-Widget-Script>
                         requests-scripts.js;provider:=file

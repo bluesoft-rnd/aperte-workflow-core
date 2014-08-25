@@ -56,31 +56,7 @@ public class SchedulersActivator
         
         service.scheduleJob(jobDetail, trigger);
     }
-    
-    public void scheduleNotificationsSend(GroupedNotification groupedNotif) 
-    {
-        ProcessToolSchedulerService service = getSchedulerService();
-        
-        JobDataMap dataMap = new JobDataMap();
-        dataMap.put("groupedNotification", groupedNotif);
 
-        String identity = "grouped_notification";
-
-        JobDetail jobDetail = JobBuilder.newJob(HandleGroupedNotification.class)
-                .withIdentity(identity, HandleGroupedNotification.class.getName())
-                .usingJobData(dataMap)
-                .build();
-
-        Trigger trigger = TriggerBuilder.newTrigger()
-                .withIdentity(identity, HandleGroupedNotification.class.getName())
-                .withSchedule(simpleSchedule().withIntervalInSeconds(300).repeatForever())
-                .forJob(jobDetail)
-                .build();
-
-        logger.info("Scheduling notifications job handler");
-        
-        service.scheduleJob(jobDetail, trigger);
-    }
     
     private ProcessToolSchedulerService getSchedulerService() {
         return registry.getRegisteredService(ProcessToolSchedulerService.class);

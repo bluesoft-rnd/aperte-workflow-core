@@ -12,7 +12,6 @@ import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent;
 import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent.Type;
 import pl.net.bluesoft.rnd.processtool.di.ClassDependencyManager;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
-import pl.net.bluesoft.rnd.processtool.usersource.IUserSource;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.NotificationsConstants.ProviderType;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.addons.INotificationsAddonsManager;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.addons.mock.impl.NotificationAddonsMockManager;
@@ -34,6 +33,8 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static pl.net.bluesoft.rnd.processtool.plugins.osgi.OSGiBundleHelper.getBundleResourceString;
+
 /**
  * @author tlipski@bluesoft.net.pl
  */
@@ -46,12 +47,12 @@ public class Activator implements BundleActivator, EventListener<BpmEvent>
     private Logger logger = Logger.getLogger(Activator.class.getName());
 
     private BpmNotificationEngine engine;
-    private GroupedNotification groupedNotification;
+
 	MailEventListener mailEventListener;
 	private SchedulersActivator schedulerActivator;
 	
 	@Override
-	public void start(BundleContext context) throws Exception 
+	public void start(final BundleContext context) throws Exception
 	{
         SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
 
@@ -63,28 +64,31 @@ public class Activator implements BundleActivator, EventListener<BpmEvent>
 				injectImplementation();
 				
 				/* Init the bpm notification engine */
-				engine = new BpmNotificationEngine(processToolRegistry);
-				groupedNotification = new GroupedNotification(processToolRegistry);
-			}
-        });
-		
-		schedulerActivator = new SchedulersActivator(processToolRegistry);
-		
-		processToolRegistry.getBundleRegistry().registerService(IBpmNotificationService.class, groupedNotification, new Properties());
-        processToolRegistry.getBundleRegistry().registerService(IBpmNotificationService.class, engine, new Properties());
-        
-        processToolRegistry.getEventBusManager().subscribe(BpmEvent.class, this);
-		
-		mailEventListener = new MailEventListener(engine);
-        processToolRegistry.getEventBusManager().subscribe(MailEvent.class, mailEventListener);
-		
-		/* Register scheduler for notifications sending */
-		schedulerActivator.scheduleNotificationsSend(engine);
-		schedulerActivator.scheduleNotificationsSend(groupedNotification);
+				engine = new BpmNotificationEngine();
 
-		getViewRegistry(processToolRegistry).registerGenericPortletViewRenderer("admin", BpmAdminPortletRender.INSTANCE);
-		getViewRegistry(processToolRegistry).registerGenericPortletViewRenderer("user", BpmAdminPortletRender.INSTANCE);
-		
+                schedulerActivator = new SchedulersActivator(processToolRegistry);
+
+                processToolRegistry.getBundleRegistry().registerService(IBpmNotificationService.class, engine, new Properties());
+
+                processToolRegistry.getEventBusManager().subscribe(BpmEvent.class, Activator.this);
+
+                mailEventListener = new MailEventListener(engine);
+                processToolRegistry.getEventBusManager().subscribe(MailEvent.class, mailEventListener);
+
+		        /* Register scheduler for notifications sending */
+                schedulerActivator.scheduleNotificationsSend(engine);
+
+                String path = "/pl/net/bluesoft/rnd/pt/ext/bpmnotifications/html/file.html";
+                String html = getBundleResourceString(context.getBundle(), path);
+
+                BpmAdminPortletRender.init(html);
+
+                getViewRegistry(processToolRegistry).registerGenericPortletViewRenderer("admin", BpmAdminPortletRender.INSTANCE);
+                getViewRegistry(processToolRegistry).registerGenericPortletViewRenderer("user", BpmAdminPortletRender.INSTANCE);
+			}
+   		     });
+
+
 	}
 	
 	/** Denpendency Injection */
@@ -122,19 +126,14 @@ public class Activator implements BundleActivator, EventListener<BpmEvent>
 
 	@Override
 	public void stop(BundleContext context) throws Exception {
-		ProcessToolRegistry registry = getRegistry(context);
-        registry.getBundleRegistry().removeRegisteredService(IBpmNotificationService.class);
-		registry.getEventBusManager().unsubscribe(BpmEvent.class, this);
-		registry.getEventBusManager().unsubscribe(MailEvent.class, mailEventListener);
+
+        processToolRegistry.getBundleRegistry().removeRegisteredService(IBpmNotificationService.class);
+        processToolRegistry.getEventBusManager().unsubscribe(BpmEvent.class, this);
+        processToolRegistry.getEventBusManager().unsubscribe(MailEvent.class, mailEventListener);
 		mailEventListener = null;
 
-		getViewRegistry(registry).unregisterGenericPortletViewRenderer("admin", BpmAdminPortletRender.INSTANCE);
-		getViewRegistry(registry).unregisterGenericPortletViewRenderer("user", BpmAdminPortletRender.INSTANCE);
-	}
-
-	private ProcessToolRegistry getRegistry(BundleContext context) {
-		ServiceReference ref = context.getServiceReference(ProcessToolRegistry.class.getName());
-		return (ProcessToolRegistry) context.getService(ref);
+		getViewRegistry(processToolRegistry).unregisterGenericPortletViewRenderer("admin", BpmAdminPortletRender.INSTANCE);
+		getViewRegistry(processToolRegistry).unregisterGenericPortletViewRenderer("user", BpmAdminPortletRender.INSTANCE);
 	}
 
 

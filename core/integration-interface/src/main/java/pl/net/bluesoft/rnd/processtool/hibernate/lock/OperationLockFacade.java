@@ -1,16 +1,27 @@
 package pl.net.bluesoft.rnd.processtool.hibernate.lock;
 
+import org.hibernate.CacheMode;
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
+import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.dao.OperationLockDAO;
+import pl.net.bluesoft.rnd.processtool.dao.OperationLockDAOImpl;
 import pl.net.bluesoft.rnd.processtool.hibernate.lock.exception.AquireOperationLockException;
 import pl.net.bluesoft.rnd.processtool.model.OperationLock;
 import pl.net.bluesoft.rnd.processtool.model.OperationLockMode;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.processtool.plugins.DataRegistry;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 
 import javax.persistence.UniqueConstraint;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -25,51 +36,83 @@ public class OperationLockFacade implements ILockFacade
 {
     private static final Logger logger = Logger.getLogger(OperationLockFacade.class.getName());
 
-    private OperationLockDAO lockDAO;
+    @Autowired
+    private DataRegistry dataRegistry;
 
-    public OperationLockFacade(OperationLockDAO lockDAO)
+    public OperationLockFacade()
     {
-        this.lockDAO = lockDAO;
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+
+
     }
 
     @Override
-    public <T> T performWithLock(ProcessToolContext ctx, OperationWithLock<T> operation, OperationOptions options)
+    public <T> T performWithLock(final OperationWithLock<T> operation, OperationOptions options)
     {
         OperationLock lock = null;
 
-        Session session =  lockDAO.getSession();
-
         try
         {
-            Transaction transaction = session.beginTransaction();
-            lock =  acquireLock(options);
-            transaction.commit();
+            TransactionAwareDataSourceProxy dataSourceProxy =  dataRegistry.getDataSourceProxy();
+            Connection connection = dataSourceProxy.getConnection();
+            connection.setAutoCommit(false);
 
-            return operation.action(ctx);
+            try {
+                OperationLockDAO lockDAO = new OperationLockDAOImpl(connection);
 
-        }
-        catch(AquireOperationLockException ex)
-        {
-            return null;
+                lock = acquireLock(options, lockDAO);
+                connection.commit();
+
+
+            }
+            catch(Throwable ex)
+            {
+                connection.rollback();
+                throw new RuntimeException("Problem during lock obtaining", ex);
+            }
+            finally {
+                connection.close();
+            }
+
+            return operation.action();
+
         }
         catch(Exception ex)
         {
-            logger.log(Level.SEVERE, "Problem during acquring lock for Teta Sync", ex);
+            logger.log(Level.SEVERE, "Problem during acquring lock", ex);
             return null;
         }
         finally
         {
             if(lock != null)
             {
-                Transaction transaction = session.beginTransaction();
-                releaseLock(lock);
-                transaction.commit();
+                try {
+                    TransactionAwareDataSourceProxy dataSourceProxy =  dataRegistry.getDataSourceProxy();
+                    Connection connection = dataSourceProxy.getConnection();
+                    connection.setAutoCommit(false);
+
+                    try {
+                        OperationLockDAO lockDAO = new OperationLockDAOImpl(connection);
+                        lockDAO.removeLock(lock);
+                        connection.commit();
+                    }
+                    catch(Throwable ex)
+                    {
+                        connection.rollback();
+                    }
+                    finally {
+                        connection.close();
+                    }
+                } catch (SQLException e) {
+                    logger.log(Level.SEVERE, "Problem during acquring lock", e);
+                    return null;
+                }
+
             }
         }
     }
 
-    @Override
-    public OperationLock acquireLock(OperationOptions options) throws AquireOperationLockException
+    private OperationLock acquireLock(OperationOptions options, OperationLockDAO lockDAO) throws AquireOperationLockException
     {
 
         logger.info("Acquiring operation lock: "+options.getLockName()+"...");
@@ -104,9 +147,15 @@ public class OperationLockFacade implements ILockFacade
 
             return operationLock;
         }
-        catch(RuntimeException ex)
+        catch(AquireOperationLockException ex)
         {
             logger.info("Skipping action, operation lock ["+options.getLockName()+"] still valid...");
+
+            throw new AquireOperationLockException(ex);
+        }
+        catch(Throwable ex)
+        {
+            logger.log(Level.SEVERE, "Problem with locks", ex);
 
             throw new AquireOperationLockException(ex);
         }
@@ -121,15 +170,5 @@ public class OperationLockFacade implements ILockFacade
             return false;
     }
 
-    @Override
-    public void releaseLock(OperationLock operationLock)
-    {
-        lockDAO.removeLock(operationLock);
-    }
 
-    @Override
-    public OperationLock checkLock(String operationName)
-    {
-        return lockDAO.getLock(operationName);
-    }
 }

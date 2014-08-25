@@ -127,14 +127,11 @@ public class ProcessToolRegistryImpl implements ProcessToolRegistry {
                                    final OperationLockMode mode,
                                    final  Integer expireAfterMinutes)
     {
-        return dataRegistry.getProcessToolContextFactory().withProcessToolContextManualTransaction(new ReturningProcessToolContextCallback<T>() {
-            @Override
-            public T processWithContext(ProcessToolContext ctx) {
-                ILockFacade lockFacade = new OperationLockFacade(ctx.getOperationLockDAO());
-                OperationOptions options = new OperationOptions(lockName, mode, expireAfterMinutes);
-                return lockFacade.performWithLock(ctx, operation, options);
-            }
-        });
+
+        ILockFacade lockFacade = new OperationLockFacade();
+        OperationOptions options = new OperationOptions(lockName, mode, expireAfterMinutes);
+        return lockFacade.performWithLock(operation, options);
+
     }
 
 	@Override

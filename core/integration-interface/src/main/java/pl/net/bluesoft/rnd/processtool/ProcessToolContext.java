@@ -22,8 +22,6 @@ public interface ProcessToolContext
 
 	ProcessInstanceDAO getProcessInstanceDAO();
 
-    ProcessInstanceFilterDAO getProcessInstanceFilterDAO();
-    OperationLockDAO getOperationLockDAO();
     ProcessDictionaryDAO getProcessDictionaryDAO();
 
 	Session getHibernateSession();

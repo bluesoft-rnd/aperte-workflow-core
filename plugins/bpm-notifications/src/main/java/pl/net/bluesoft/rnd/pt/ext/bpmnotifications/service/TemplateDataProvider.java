@@ -1,21 +1,10 @@
 package pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service;
 
-import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
-import static pl.net.bluesoft.rnd.util.TaskUtil.getTaskLink;
-import static pl.net.bluesoft.util.lang.Strings.hasText;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
@@ -23,6 +12,12 @@ import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.addons.INotificationsAddonsMa
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotificationConfig;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
+
+import java.util.*;
+
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+import static pl.net.bluesoft.rnd.util.TaskUtil.getTaskLink;
+import static pl.net.bluesoft.util.lang.Strings.hasText;
 
 
 /** 
@@ -33,7 +28,8 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
  */
 public class TemplateDataProvider implements ITemplateDataProvider
 {
-	private final Set<TemplateArgumentProvider> argumentProviders = new HashSet<TemplateArgumentProvider>();
+	// must be static because there are many instances of this class!
+	private static final Set<TemplateArgumentProvider> argumentProviders = new HashSet<TemplateArgumentProvider>();
 	
 	/** Creates new empty template data object */
 	@Override
@@ -83,13 +79,14 @@ public class TemplateDataProvider implements ITemplateDataProvider
 	}
 	
 	@Override
-	public TemplateDataProvider addProcessData(TemplateData templateData, ProcessInstance pi)
-	{		
-		templateData.addEntry(_PROCESS_VISIBLE_ID, hasText(pi.getExternalKey()) ? pi.getExternalKey() : pi.getInternalId());
-		templateData.addEntry(_PROCESS_ID, hasText(pi.getExternalKey()) ? pi.getExternalKey() : pi.getInternalId());
-		templateData.addEntry(_PROCESS, pi);
-		templateData.addEntry(_CREATOR, getRegistry().getUserSource().getUserByLogin(pi.getCreatorLogin()));
-		
+	public TemplateDataProvider addProcessData(TemplateData templateData, IAttributesProvider provider) {
+        if (provider != null && provider instanceof ProcessInstance) {
+            ProcessInstance pi = (ProcessInstance) provider;
+            templateData.addEntry(_PROCESS_VISIBLE_ID, hasText(pi.getExternalKey()) ? pi.getExternalKey() : pi.getInternalId());
+            templateData.addEntry(_PROCESS_ID, hasText(pi.getExternalKey()) ? pi.getExternalKey() : pi.getInternalId());
+            templateData.addEntry(_PROCESS, pi);
+            templateData.addEntry(_CREATOR, getRegistry().getUserSource().getUserByLogin(pi.getCreatorLogin()));
+        }
 		return this;
 	}
 	
@@ -115,14 +112,16 @@ public class TemplateDataProvider implements ITemplateDataProvider
 	}
 	
 	@Override
-	public TemplateDataProvider addArgumentProvidersData(TemplateData templateData, BpmNotificationConfig cfg, ProcessInstance pi)
+	public TemplateDataProvider addArgumentProvidersData(TemplateData templateData, String templateArgumentProvider, IAttributesProvider provider)
 	{
-		if (hasText(cfg.getTemplateArgumentProvider())) 
+		if (hasText(templateArgumentProvider))
 		{
 			for (TemplateArgumentProvider argumentProvider : argumentProviders) {
-				if (cfg.getTemplateArgumentProvider().equalsIgnoreCase(argumentProvider.getName())) {
+				if (templateArgumentProvider.equalsIgnoreCase(argumentProvider.getName())) {
 					TemplateArgumentProviderParams params = new TemplateArgumentProviderParams();
-					params.setProcessInstance(pi);
+                    if (provider instanceof ProcessInstance)
+					    params.setProcessInstance((ProcessInstance) provider);
+                    params.setAttributesProvider(provider);
 					argumentProvider.addData(templateData, params);
 					break;
 				}
@@ -131,7 +130,17 @@ public class TemplateDataProvider implements ITemplateDataProvider
 		
 		return this;
 	}
-    
+
+	@Override
+	public ITemplateDataProvider addAttributes(TemplateData templateData, Map<String, Object> attributes) {
+		if (attributes != null) {
+			for (Map.Entry<String, Object> entry : attributes.entrySet()) {
+				templateData.addEntry(entry.getKey(), entry.getValue());
+			}
+		}
+		return this;
+	}
+
 	@Override
 	public void registerTemplateArgumentProvider(TemplateArgumentProvider provider) {
 		argumentProviders.add(provider);
@@ -139,7 +148,7 @@ public class TemplateDataProvider implements ITemplateDataProvider
 
 	@Override
 	public void unregisterTemplateArgumentProvider(TemplateArgumentProvider provider) {
-		argumentProviders.add(provider);
+		argumentProviders.remove(provider);
 	}
 
 	@Override

@@ -24,6 +24,7 @@
     <context:component-scan base-package="org.aperteworkflow.webapi.registry" />
 
     <bean class="org.aperteworkflow.webapi.admin.controller.AdminSubstitutionController" />
+	<bean class="org.aperteworkflow.webapi.admin.controller.AdminPortletController" />
 
     <bean id="customTemplateLoader" class="org.aperteworkflow.webapi.FreemarkerOsgiTemplateLoader">
         <property name="path" value="/org/aperteworkflow/templates/" />

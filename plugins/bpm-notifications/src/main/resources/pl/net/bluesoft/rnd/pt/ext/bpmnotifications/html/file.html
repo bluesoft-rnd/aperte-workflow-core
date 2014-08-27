@@ -1,0 +1,844 @@
+<ul id="TabsContainer" class="nav nav-tabs">
+	<li class="active"><a href="#ProfilesPanel">${messageSource.getMessage("bpmnot.tab.account.settings")}</a></li>
+	<li><a href="#TemplatesPanel">${messageSource.getMessage("bpmnot.tab.templates")}</a></li>
+	<li><a href="#NotificationsPanel">${messageSource.getMessage("bpmnot.tab.notifications")}</a></li>
+	<li><a href="#SentNotificationsPanel">${messageSource.getMessage("bpmnot.tab.sent.notifications")}</a></li>
+	<li><a href="#OthersPanel">${messageSource.getMessage("bpmnot.tab.others")}</a></li>
+</ul>
+<div class="tab-content">
+	<div class="tab-pane active" id="ProfilesPanel">
+		<div class="btn-group" id="ProfileSelection">
+			<button type="button" class="btn btn-default dropdown-toggle"
+				data-toggle="dropdown">
+				Select profile<span class="caret"></span>
+			</button>
+			<ul class="dropdown-menu">
+				<li><a href="#">${messageSource.getMessage("bpmnot.button.new")}</a></li>
+			</ul>
+		</div>
+
+		<form id="NewProfile" class="simple_form form-horizontal"
+			novalidate="novalidate" method="post" accept-charset="UTF-8">
+			<fieldset>
+				<input type="hidden" name="ProfileId" id="ProfileId">
+
+				<div class="control-group string required profile_name">
+					<label for="profile_name" class="string required control-label">
+						<abbr title="required">*</abbr>
+						${messageSource.getMessage("bpmnot.profile")}
+					</label>
+					<div class="controls">
+						<div id="dupaaa"></div>
+						<input type="text" name="ProfileName" id="ProfileName"
+							class="string required span6">
+					</div>
+				</div>
+
+				<div class="control-group string optional profile_smtp_host">
+					<label for="profile_smtp_host"
+						class="string optional control-label">
+						${messageSource.getMessage("SMTP Host")} </label>
+					<div class="controls">
+						<input type="text" name="ProfileSMTPHost" id="ProfileSMTPHost"
+							class="string optional span6">
+					</div>
+				</div>
+
+				<div class="control-group string optional profile_smtp_port">
+					<label for="profile_smtp_port"
+						class="string optional control-label">
+						${messageSource.getMessage("SMTP Port")} </label>
+					<div class="controls">
+						<input type="text" name="ProfileSMTPPort" id="ProfileSMTPPort"
+							class="string optional span6">
+					</div>
+				</div>
+
+				<div class="control-group string optional profile_smtp_user">
+					<label for="profile_smtp_user"
+						class="string optional control-label">
+						${messageSource.getMessage("SMTP User")} </label>
+					<div class="controls">
+						<input type="text" name="ProfileSMTPUser" id="ProfileSMTPUser"
+							class="string optional span6">
+					</div>
+				</div>
+
+				<div class="control-group string optional profile_smtp_password">
+					<label for="profile_smtp_password"
+						class="string optional control-label">
+						${messageSource.getMessage("SMTP Password")} </label>
+					<div class="controls">
+						<input type="text" name="ProfileSMTPPassword"
+							id="ProfileSMTPPassword" class="string optional span6">
+					</div>
+				</div>
+
+				<div class="control-group boolean optional profile_smtp_auth">
+					<label for="profile_smtp_auth"
+						class="boolean optional control-label">
+						${messageSource.getMessage("SMTP Auth")} </label>
+					<div class="controls">
+						<input type="checkbox" value="1" id="ProfileSMTPAuth"
+							name="ProfileSMTPAuth" class="boolean optional">
+
+					</div>
+				</div>
+
+				<div class="control-group string optional profile_smtp_factory_port">
+					<label for="profile_smtp_factory_port"
+						class="string optional control-label">
+						${messageSource.getMessage("SMTP Socket Factory Port")} </label>
+					<div class="controls">
+						<input type="text" name="ProfileSmtpFactoryPort"
+							id="ProfileSmtpFactoryPort" class="string optional span6">
+					</div>
+				</div>
+
+				<div
+					class="control-group string optional profile_smtp_factory_class">
+					<label for="profile_smtp_factory_class"
+						class="string optional control-label">
+						${messageSource.getMessage("SMTP Socket Factory Class")} </label>
+					<div class="controls">
+						<input type="text" name="ProfileSmtpFactoryClass"
+							id="ProfileSmtpFactoryClass" class="string optional span6">
+					</div>
+				</div>
+
+				<div class="control-group string optional profile_ssl_factory_class">
+					<label for="profile_ssl_factory_class"
+						class="string optional control-label">
+						${messageSource.getMessage("SSL Socket Factory Class")} </label>
+					<div class="controls">
+						<input type="text" name="ProfileSslFactoryClass"
+							id="ProfileSslFactoryClass" class="string optional span6">
+					</div>
+				</div>
+
+				<div
+					class="control-group boolean optional profile_disable_plain_auth">
+					<label for="profile_disable_plain_auth"
+						class="boolean optional control-label">
+						${messageSource.getMessage("Disable Plain Auth")} </label>
+					<div class="controls">
+						<input type="checkbox" value="1" name="ProfileDisablePlainAuth"
+							id="ProfileDisablePlainAuth" class="boolean optional">
+					</div>
+				</div>
+
+				<div
+					class="control-group string optional profile_transport_protocol">
+					<label for="profile_transport_protocol"
+						class="string optional control-label">
+						${messageSource.getMessage("Transport Protocol")} </label>
+					<div class="controls">
+						<input type="text" name="ProfileTransportProtocol"
+							id="ProfileTransportProtocol" class="string optional span6">
+					</div>
+				</div>
+
+				<div class="control-group boolean optional profile_start_tls">
+					<label for="profile_start_tls"
+						class="boolean optional control-label">
+						${messageSource.getMessage("Start TLS")} </label>
+					<div class="controls">
+						<input type="checkbox" value="1" name="ProfileStartTls"
+							id="ProfileStartTls" class="boolean optional">
+
+					</div>
+				</div>
+
+				<div class="control-group boolean optional profile_debug">
+					<label for="profile_debug" class="boolean optional control-label">
+						${messageSource.getMessage("Debug")} </label>
+					<div class="controls">
+						<input type="checkbox" value="1" name="ProfileDebug"
+							id="ProfileDebug" class="boolean optional">
+					</div>
+				</div>
+
+				<div class="form-group">
+					<div class="col-md-12 text-right">
+						<button class="btn btn-primary btn-lg" type="submit">
+							${messageSource.getMessage("bpmnot.button.save")}</button>
+					</div>
+				</div>
+			</fieldset>
+		</form>
+	</div>
+
+	<div class="tab-pane" id="TemplatesPanel">
+		<div class="btn-group" id="TemplateSelection">
+			<button type="button" class="btn btn-default dropdown-toggle"
+				data-toggle="dropdown">
+				Select template <span class="caret"></span>
+			</button>
+			<ul class="dropdown-menu">
+				<li><a href="#">${messageSource.getMessage("bpmnot.button.new")}</a></li>
+			</ul>
+		</div>
+
+		<form id="NewTemplate" class="simple_form form-horizontal"
+			novalidate="novalidate" method="post" accept-charset="UTF-8">
+			<fieldset>
+				<input type="hidden" name="TemplateId" id="TemplateId">
+
+				<div class="control-group string required template_name">
+					<label for="template_name" class="string required control-label">
+						<abbr title="required">*</abbr>
+						${messageSource.getMessage("bpmnot.template.name")}
+					</label>
+					<div class="controls">
+						<input type="text" name="TemplateName" id="TemplateName"
+							class="string required span6">
+					</div>
+				</div>
+
+				<div class="control-group string optional template_sender">
+					<label for="template_sender" class="string optional control-label">
+						${messageSource.getMessage("bpmnot.sender")} </label>
+					<div class="controls">
+						<input type="text" name="TemplateSender" id="TemplateSender"
+							class="string optional span6">
+					</div>
+				</div>
+
+				<div class="control-group string optional template_subject">
+					<label for="template_subject" class="string optional control-label">
+						${messageSource.getMessage("bpmnot.subject")} </label>
+					<div class="controls">
+						<input type="text" name="TemplateSubject" id="TemplateSubject"
+							class="string optional span6">
+					</div>
+				</div>
+
+				<div class="control-group string optional template_body">
+					<label for="template_body" class="string optional control-label">
+						${messageSource.getMessage("bpmnot.body")} </label>
+					<div class="controls">
+						<textarea type="text" name="TemplateBody" id="TemplateBody"
+							class="text optional span6"></textarea>
+					</div>
+				</div>
+
+				<p class="help-block">${templateInfo}</p>
+
+				<div class="form-group">
+					<div class="col-md-12 text-right">
+						<button class="btn btn-primary btn-lg" type="submit">
+							${messageSource.getMessage("bpmnot.button.save")}</button>
+					</div>
+				</div>
+			</fieldset>
+		</form>
+	</div>
+
+	<div class="tab-pane" id="NotificationsPanel">
+		<div class="btn-group" id="NotificationSelection">
+			<button type="button" class="btn btn-default dropdown-toggle"
+				data-toggle="dropdown">
+				Select notification <span class="caret"></span>
+			</button>
+			<ul class="dropdown-menu">
+				<li><a href="#">${messageSource.getMessage("bpmnot.button.new")}</a></li>
+			</ul>
+		</div>
+
+		<form id="NewNotification" class="simple_form form-horizontal"
+			novalidate="novalidate" method="post" accept-charset="UTF-8">
+			<fieldset>
+				<input type="hidden" name="NotificationId" id="NotificationId">
+
+				<div class="control-group select optional notification_profile">
+					<label for="notification_profile"
+						class="select optional control-label">
+						${messageSource.getMessage("bpmnot.profile")} </label>
+					<div class="controls">
+						<input type="hidden" class="col-sm-10" name="NotificationProfile"
+							id="NotificationProfile">
+					</div>
+				</div>
+
+				<div class="control-group select optional notification_template">
+					<label for="notification_template"
+						class="select optional control-label">
+						${messageSource.getMessage("bpmnot.template")} </label>
+					<div class="controls">
+						<input type="hidden" class="col-sm-10" name="NotificationTemplate"
+							id="NotificationTemplate">
+					</div>
+				</div>
+
+				<div
+					class="control-group select optional notification_param_provider">
+					<label for="notification_param_provider"
+						class="select optional control-label">
+						${messageSource.getMessage("bpmnot.param.provider")} </label>
+					<div class="controls">
+						<input type="hidden" class="col-sm-10"
+							name="NotificationParamProvider" id="NotificationParamProvider">
+					</div>
+				</div>
+
+				<div class="control-group boolean optional notification_active">
+					<label for="notification_active"
+						class="boolean optional control-label">
+						${messageSource.getMessage("bpmnot.active")} </label>
+					<div class="controls">
+						<input type="checkbox" value="1" name="NotificationActive"
+							id="NotificationActive" class="boolean optional">
+					</div>
+				</div>
+
+				<div
+					class="control-group boolean optional notification_send_as_html">
+					<label for="notification_send_as_html"
+						class="boolean optional control-label">
+						${messageSource.getMessage("bpmnot.send.as.html")} </label>
+					<div class="controls">
+						<input type="checkbox" value="1" name="NotificationSendAsHtml"
+							id="NotificationSendAsHtml" class="boolean optional">
+					</div>
+				</div>
+
+				<div class="control-group string optional notification_locale">
+					<label for="notification_locale"
+						class="string optional control-label">
+						${messageSource.getMessage("bpmnot.locale")} </label>
+					<div class="controls">
+						<input type="text" name="NotificationLocale"
+							id="NotificationLocale" class="string optional span6">
+					</div>
+				</div>
+
+				<div class="control-group string optional notification_process">
+					<label for="notification_process"
+						class="string optional control-label">
+						${messageSource.getMessage("bpmnot.process")} </label>
+					<div class="controls">
+						<input type="text" name="NotificationProcess"
+							id="NotificationProcess" class="string optional span6">
+					</div>
+				</div>
+
+				<div class="control-group string optional notification_state">
+					<label for="notification_state"
+						class="string optional control-label">
+						${messageSource.getMessage("bpmnot.state")} </label>
+					<div class="controls">
+						<input type="text" name="NotificationState" id="NotificationState"
+							class="string optional span6">
+					</div>
+				</div>
+
+				<div class="control-group string optional notification_last_action">
+					<label for="notification_last_action"
+						class="string optional control-label">
+						${messageSource.getMessage("bpmnot.last.action")} </label>
+					<div class="controls">
+						<input type="text" name="NotificationLastAction"
+							id="NotificationLastAction" class="string optional span6">
+					</div>
+				</div>
+
+				<div
+					class="control-group boolean optional notification_send_on_process_start">
+					<label for="notification_send_on_process_start"
+						class="boolean optional control-label">
+						${messageSource.getMessage("bpmnot.send.on.process.start")} </label>
+					<div class="controls">
+						<input type="checkbox" value="1"
+							name="NotificationSendOnProcessStart"
+							id="NotificationSendOnProcessStart" class="boolean optional">
+					</div>
+				</div>
+
+				<div
+					class="control-group boolean optional notification_send_on_process_end">
+					<label for="notification_send_on_process_end"
+						class="boolean optional control-label">
+						${messageSource.getMessage("bpmnot.send.on.process.end")} </label>
+					<div class="controls">
+						<input type="hidden" value="0"
+							name="notification[send_on_process_end]"> <label
+							class="checkbox"> <input type="checkbox" value="1"
+							name="NotificationSendOnProcessEnd"
+							id="NotificationSendOnProcessEnd" class="boolean optional">
+						</label>
+					</div>
+				</div>
+
+				<div
+					class="control-group boolean optional notification_send_on_entering_step">
+					<label for="notification_send_on_entering_step"
+						class="boolean optional control-label">
+						${messageSource.getMessage("bpmnot.send.on.entering.step")} </label>
+					<div class="controls">
+						<input type="hidden" value="0"
+							name="notification[send_on_entering_step]"> <label
+							class="checkbox"> <input type="checkbox" value="1"
+							name="NotificationSendOnEnteringStep"
+							id="NotificationSendOnEnteringStep" class="boolean optional">
+						</label>
+					</div>
+				</div>
+
+				<div
+					class="control-group boolean optional notification_skip_when_triggered_by_assignee">
+					<label for="notification_skip_when_triggered_by_assignee"
+						class="boolean optional control-label">
+						${messageSource.getMessage("bpmnot.skip.when.triggered.by.assignee")}
+					</label>
+					<div class="controls">
+						<input type="hidden" value="0"
+							name="notification[skip_when_triggered_by_assignee]"> <label
+							class="checkbox"> <input type="checkbox" value="1"
+							name="NotificationSkipWhenTriggeredByAssignee"
+							id="NotificationSkipWhenTriggeredByAssignee"
+							class="boolean optional">
+						</label>
+					</div>
+				</div>
+
+				<div
+					class="control-group boolean optional notification_notify_assignee">
+					<label for="notification_notify_assignee"
+						class="boolean optional control-label">
+						${messageSource.getMessage("bpmnot.notify.assignee")} </label>
+					<div class="controls">
+						<input type="hidden" value="0"
+							name="notification[notify_assignee]"> <label
+							class="checkbox"> <input type="checkbox" value="1"
+							name="NotificationNotifyAssignee" id="NotificationNotifyAssignee"
+							class="boolean optional">
+						</label>
+					</div>
+				</div>
+
+				<div
+					class="control-group string optional notification_notify_emails">
+					<label for="notification_notify_emails"
+						class="string optional control-label">
+						${messageSource.getMessage("bpmnot.notify.emails")} </label>
+					<div class="controls">
+						<input type="text" name="NotificationNotifyEmails"
+							id="NotificationNotifyEmails" class="string optional span6">
+					</div>
+				</div>
+
+				<div class="control-group string optional notification_notify_users">
+					<label for="notification_notify_users"
+						class="string optional control-label">
+						${messageSource.getMessage("bpmnot.notify.users")} </label>
+					<div class="controls">
+						<input type="text" name="NotificationNotifyUsers"
+							id="NotificationNotifyUsers" class="string optional span6">
+					</div>
+
+					<p class="help-block">${messageSource.getMessage("bpmnot.attribute.explanation")}</p>
+				</div>
+
+				<div class="form-group">
+					<div class="col-md-12 text-right">
+						<button class="btn btn-primary btn-lg" type="submit">
+							${messageSource.getMessage("bpmnot.button.save")}</button>
+					</div>
+				</div>
+			</fieldset>
+		</form>
+	</div>
+
+	<div class="tab-pane" id="SentNotificationsPanel">
+		<table id="NotificationHistory" class="table">
+			<thead>
+				<tr>
+					<th>${messageSource.getMessage("bpmnot.receiver")}</th>
+					<th>${messageSource.getMessage("bpmnot.subject")}</th>
+					<th>${messageSource.getMessage("bpmnot.acquired")}</th>
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
+		</table>
+	</div>
+
+	<div class="tab-pane" id="OthersPanel">
+		<form id="BpmRefreshCachesForm" class="simple_form form-horizontal"
+			novalidate="novalidate" method="post" accept-charset="UTF-8">
+			<fieldset>
+				<div class="form-group">
+					<div class="col-md-12 text-right">
+						<button class="btn btn-primary btn-lg" type="submit">
+							${messageSource.getMessage("bpmnot.refresh.config.cache")}</button>
+					</div>
+				</div>
+			</fieldset>
+		</form>
+
+		<form id="BpmSendTestEmailForm" class="simple_form form-horizontal"
+			novalidate="novalidate" method="post" accept-charset="UTF-8">
+			<fieldset>
+				<div class="control-group string optional test_email_sender">
+					<label for="test_email_sender"
+						class="string optional control-label">
+						${messageSource.getMessage("bpmnot.send.test.mail.sender")} </label>
+					<div class="controls">
+						<input type="text" name="testEmailSender" id="testEmailSender"
+							class="string optional span6">
+					</div>
+				</div>
+
+				<div class="control-group string optional test_email_subject">
+					<label for="test_email_subject"
+						class="string optional control-label">
+						${messageSource.getMessage("bpmnot.send.test.mail.recipient")} </label>
+					<div class="controls">
+						<input type="text" name="testEmailRecipient"
+							id="testEmailRecipient" class="string optional span6">
+					</div>
+				</div>
+
+				<div class="control-group string optional test_email_body">
+					<label for="test_email_body" class="string optional control-label">
+						${messageSource.getMessage("bpmnot.send.test.mail.send.button")} </label>
+					<div class="controls">
+						<textarea type="text" name="testEmailBody" id="testEmailBody"
+							class="text optional span6"></textarea>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<div class="col-md-12 text-right">
+						<button class="btn btn-primary btn-lg" type="submit">
+							${messageSource.getMessage("bpmnot.send.test.mail.send.button")}</button>
+					</div>
+				</div>
+			</fieldset>
+		</form>
+	</div>
+</div>
+
+<script>
+	$('#TabsContainer a').click(function(e) {
+		e.preventDefault()
+		$(this).tab('show')
+	});
+	
+	$('#TabsContainer a[href="#SentNotificationsPanel"]').on('shown.bs.tab', function (e) {
+		$.ajax({
+			url : dispatcherPortlet,
+			type : "POST",
+			data : {
+				controller : 'bpmnotificationscontroller',
+				action : 'getNotificationHistory'
+			}
+		}).done(function(resp){
+			loadNotificationHistory(resp)
+			});
+		})
+
+	$("#ProfileSelection button").click(function(e) {
+		$.ajax({
+			url : dispatcherPortlet,
+			type : "POST",
+			data : {
+				controller : 'bpmnotificationscontroller',
+				action : 'getProfiles'
+			}
+		}).done(function(resp){
+			getObjectsRequestDone(resp, "Profile", "profileName");
+		});
+	});
+	
+	$("#TemplateSelection button").click(function(e) {
+		$.ajax({
+			url : dispatcherPortlet,
+			type : "POST",
+			data : {
+				controller : 'bpmnotificationscontroller',
+				action : 'getTemplates'
+			}
+		}).done(function(resp){
+			getObjectsRequestDone(resp, "Template", "templateName");
+			});
+	});
+	
+	$("#NotificationSelection button").click(function(e) {
+		$.ajax({
+			url : dispatcherPortlet,
+			type : "POST",
+			data : {
+				controller : 'bpmnotificationscontroller',
+				action : 'getNotifications'
+			}
+		}).done(function(resp){
+			getObjectsRequestDone(resp, "Notification", "id");
+			});
+	});
+	
+	$("#NotificationProfile").select2({
+	    placeholder: "Select Profile",
+	    ajax: { 
+	        url: dispatcherPortlet,
+	        data: function (term, page) {
+	            return {
+	            	controller : 'bpmnotificationscontroller',
+					action : 'getProfiles'
+	            };
+	        },
+	        results: function (data, page)
+            {
+                var results = [];
+                  data.data.forEach(function(entry) {
+                        results.push({
+                          id: entry.profileName,
+                          text: entry.profileName
+                        });
+                  });
+                  return {
+                      results: results
+                  };
+            }
+	    },
+	    initSelection: function(element, callback)
+        {
+            var v=$(element).val();
+            callback({id: v, text: v});
+        }
+	});
+	
+	$("#NotificationTemplate").select2({
+	    placeholder: "Select Template",
+	    ajax: { 
+	        url: dispatcherPortlet,
+	        data: function (term, page) {
+	            return {
+	            	controller : 'bpmnotificationscontroller',
+					action : 'getTemplates'
+	            };
+	        },
+	        results: function (data, page)
+            {
+                var results = [];
+                  data.data.forEach(function(entry) {
+                        results.push({
+                          id: entry.templateName,
+                          text: entry.templateName
+                        });
+                  });
+                  return {
+                      results: results
+                  };
+            }
+	    },
+	    initSelection: function(element, callback)
+        {
+            var v=$(element).val();
+            callback({id: v, text: v});
+        }
+	});
+	
+	$("#NotificationParamProvider").select2({
+	    placeholder: "Select Argument Provider",
+	    ajax: { 
+	        url: dispatcherPortlet,
+	        data: function (term, page) {
+	            return {
+	            	controller : 'bpmnotificationscontroller',
+					action : 'getArgumentProviders'
+	            };
+	        },
+	        results: function (data, page)
+            {
+                var results = [];
+                  data.data.forEach(function(entry) {
+                        results.push({
+                          id: entry.name,
+                          text: entry.name
+                        });
+                  });
+                  return {
+                      results: results
+                  };
+            }
+	    },
+	    initSelection: function(element, callback)
+        {
+            var v=$(element).val();
+            callback({id: v, text: v});
+        }
+	});
+	
+	
+
+	$("#NewProfile").submit(function(e) {
+		e.preventDefault(); 
+		var postData = $(this).serializeObject();
+		postData.controller = 'bpmnotificationscontroller'
+		postData.action = 'addProfile'
+		var formUrl = dispatcherPortlet
+		$.ajax({
+			url : dispatcherPortlet,
+			type : "POST",
+			data : postData,
+			success:function(data, textStatus, jqXHR) 
+	        {
+				$("#ProfileId").val(data.data.id);
+	        }
+		});
+	});
+	
+	$("#NewTemplate").submit(function(e) {
+		e.preventDefault(); 
+		var postData = $(this).serializeObject();
+		postData.controller = 'bpmnotificationscontroller'
+		postData.action = 'addTemplate'
+		var formUrl = dispatcherPortlet
+		$.ajax({
+			url : dispatcherPortlet,
+			type : "POST",
+			data : postData,
+			success:function(data, textStatus, jqXHR) 
+	        {
+				$("#TemplateId").val(data.data.id);
+	        }
+		});
+	});
+	
+	$("#NewNotification").submit(function(e) {
+		e.preventDefault(); 
+		var postData = $(this).serializeObject();
+		postData.controller = 'bpmnotificationscontroller'
+		postData.action = 'addNotification'
+		var formUrl = dispatcherPortlet
+		$.ajax({
+			url : dispatcherPortlet,
+			type : "POST",
+			data : postData,
+			success:function(data, textStatus, jqXHR) 
+	        {
+				$("#NotificationId").val(data.data.id);
+	        }
+		});
+	});
+	
+	$("#BpmSendTestEmailForm").submit(function(e) {
+		e.preventDefault(); 
+		var postData = $(this).serializeObject();
+		postData.controller = 'bpmnotificationscontroller'
+		postData.action = 'testSendEmail'
+		var formUrl = dispatcherPortlet
+		$.ajax({
+			url : dispatcherPortlet,
+			type : "POST",
+			data : postData,
+			success:function(data, textStatus, jqXHR) 
+	        {
+	        }
+		});
+	});
+	
+	$("#BpmRefreshCachesForm").submit(function(e) {
+		e.preventDefault(); 
+		var postData = $(this).serializeObject();
+		postData.controller = 'bpmnotificationscontroller'
+		postData.action = 'invalidateCache'
+		var formUrl = dispatcherPortlet
+		$.ajax({
+			url : dispatcherPortlet,
+			type : "POST",
+			data : postData,
+			success:function(data, textStatus, jqXHR) 
+	        {
+	        }
+		});
+	});
+
+
+
+	function loadObject(obj, target) {
+		if(target == "Profile")
+		{
+			$("#ProfileId").val(obj.id);
+			$("#ProfileName").val(obj.profileName);
+			$("#ProfileSMTPHost").val(obj.smtpHost);
+			$("#ProfileSMTPPort").val(obj.smtpPort);
+			$("#ProfileSMTPUser").val(obj.smtpUser);
+			$("#ProfileSMTPPassword").val(obj.smtpPassword);
+			$("#ProfileSMTPAuth")[0].checked = obj.smtpAuth;
+			$("#ProfileSmtpFactoryPort").val(obj.smtpSocketFactoryPort);
+			$("#ProfileSmtpFactoryClass").val(obj.smtpSocketFactoryClass);
+			$("#ProfileSslFactoryClass").val(obj.sslSocketFactoryClass);
+			$("#ProfileDisablePlainAuth")[0].checked = obj.disablePlainAuth;
+			$("#ProfileTransportProtocol").val(obj.transportProtocol);
+			$("#ProfileStartTls")[0].checked = obj.starttls;
+			$("#ProfileDebug")[0].checked = obj.debug;
+		}
+		else if(target == "Template")
+		{
+			$("#TemplateId").val(obj.id);
+			$("#TemplateName").val(obj.templateName);
+			$("#TemplateSender").val(obj.sender);
+			$("#TemplateSubject").val(obj.subjectTemplate);
+			$("#TemplateBody").val(obj.templateBody);
+		}
+		else if(target == "Notification")
+		{
+			$("#NotificationId").val(obj.id);
+			$("#NotificationProfile").select2("val", obj.profileName);
+			$("#NotificationTemplate").select2("val", obj.templateName);
+			$("#NotificationParamProvider").select2("val", obj.templateArgumentProvider);
+			$("#NotificationActive").val(obj.active);
+			$("#NotificationSendAsHtml").val(obj.sendHtml);
+			$("#NotificationLocale").val(obj.locale);
+			$("#NotificationProcess").val(obj.processTypeRegex);
+			$("#NotificationState").val(obj.stateRegex);
+			$("#NotificationLastAction").val(obj.lastActionRegex);
+			$("#NotificationSendOnProcessStart").val(obj.notifyOnProcessStart);
+			$("#NotificationSendOnProcessEnd").val(obj.notifyOnProcessEnd);
+			$("#NotificationSendOnEnteringStep").val(obj.onEnteringStep);
+			$("#NotificationSkipWhenTriggeredByAssignee").val(obj.skipNotificationWhenTriggeredByAssignee);
+			$("#NotificationNotifyAssignee").val(obj.notifyTaskAssignee);
+			$("#NotificationNotifyEmails").val(obj.notifyEmailAddresses);
+			$("#NotificationNotifyUsers").val(obj.notifyUserAttributes);
+		}
+	}
+
+	function objectSelectionClick(e, selection, objects, target, parm) {
+		e.preventDefault();
+
+		if(selection.innerHTML == "${messageSource.getMessage("bpmnot.button.new")}")
+		{
+			$("#New"+target)[0].reset();
+			$("#"+target+"Id").val(null);
+			selectedObject=null;
+		}
+		else
+		{
+		selectedObject = objects.filter(function(obj) {
+			return obj[parm] == selection.innerHTML;
+		})[0];
+
+		loadObject(selectedObject, target);
+		}
+	};
+
+	function getObjectsRequestDone(resp, target, parm) {
+		$("#"+target+"Selection ul li:gt(0)").remove();
+		resp.data.forEach(function(entry) {
+			$("#"+target+"Selection ul").append(
+					"<li><a href=\"#\">" + entry[parm] + "</a></li>");
+		});
+		$("#"+target+"Selection a").click(function(e) {objectSelectionClick(e, this, resp.data, target, parm)});
+	}
+	
+	function loadNotificationHistory(resp)
+	{
+		$("#NotificationHistory tbody tr:gt(0)").remove();
+		resp.data.forEach(function(entry) {
+			$("#NotificationHistory tbody").append(
+					"<tr><td>"+entry.recipient+"</td><td>"+entry.subject+"</td><td>"+entry.enqueueDate+"</td></tr>");
+		});
+	}
+</script>

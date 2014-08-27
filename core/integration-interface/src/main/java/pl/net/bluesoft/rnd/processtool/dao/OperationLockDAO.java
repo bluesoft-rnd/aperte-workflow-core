@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * User: mpawlak@bluesoft.net.pl
  */
-public interface OperationLockDAO extends HibernateBean<OperationLock>
+public interface OperationLockDAO
 {
     void createLock(OperationLock lock);
     OperationLock getLock(String operationName);

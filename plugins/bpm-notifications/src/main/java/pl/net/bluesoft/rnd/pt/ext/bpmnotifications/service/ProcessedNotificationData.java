@@ -1,8 +1,5 @@
 package pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 /**
  * Notification data with template processed data, ready to be send
  * 
@@ -15,12 +12,10 @@ public class ProcessedNotificationData extends NotificationData
 	private String subject;
 	private String sender;
 	private boolean sendAsHtml;
-	private Collection<String> attachments;
 	
 	public ProcessedNotificationData()
 	{
 		this.sendAsHtml = true;
-		this.attachments = new ArrayList<String>();
 	}
 	
 	public ProcessedNotificationData(NotificationData notificationData) 
@@ -30,6 +25,9 @@ public class ProcessedNotificationData extends NotificationData
 		setTemplateData(notificationData.getTemplateData());
 		setRecipient(notificationData.getRecipient());
 		setProfileName(notificationData.getProfileName());
+		setAttachments(notificationData.getAttachments());
+		setSource(notificationData.getSource());
+		setDefaultSender(notificationData.getDefaultSender());
 	}
 
 	public String getBody() {
@@ -73,16 +71,4 @@ public class ProcessedNotificationData extends NotificationData
 		
 		return this;
 	}
-
-	public Collection<String> getAttachments() {
-		return attachments;
-	}
-
-	public ProcessedNotificationData addAttachment(String attachment) {
-		this.attachments.add(attachment);
-		
-		return this;
-	}
-
-	
 }

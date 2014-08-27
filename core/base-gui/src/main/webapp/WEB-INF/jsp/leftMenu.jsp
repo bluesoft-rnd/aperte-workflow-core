@@ -175,6 +175,8 @@
 							{
 								queueViewManager.reloadCurrentQueue();
 								oldProcessCount = this.queueSize;
+							}else{
+							    queueViewManager.highlightChosenQueue();
 							}
 						}
 					});

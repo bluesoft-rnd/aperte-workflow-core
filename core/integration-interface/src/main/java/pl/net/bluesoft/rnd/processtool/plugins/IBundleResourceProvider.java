@@ -9,4 +9,5 @@ import java.io.InputStream;
 public interface IBundleResourceProvider
 {
     InputStream getBundleResourceStream(String resourcePath) throws IOException;
+	String getBundleResourceString(String resourcePath) throws IOException;
 }

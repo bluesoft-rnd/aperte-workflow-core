@@ -10,6 +10,7 @@ public class JQueryDataTableColumn
     private Boolean isSortable;
     private Boolean isSorted;
     private Boolean isSortedAsc;
+    private Integer priority;
 
     public String getPropertyName() {
         return propertyName;
@@ -49,5 +50,13 @@ public class JQueryDataTableColumn
 
     public void setIndex(Integer index) {
         this.index = index;
+    }
+
+    public Integer getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Integer priority) {
+        this.priority = priority;
     }
 }

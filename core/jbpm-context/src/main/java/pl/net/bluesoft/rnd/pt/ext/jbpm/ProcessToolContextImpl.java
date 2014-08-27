@@ -85,8 +85,6 @@ public class ProcessToolContextImpl implements ProcessToolContext {
                 dao = (T) processToolRegistry.getDataRegistry().getProcessDictionaryDAO(hibernateSession);
             } else if (ProcessInstanceDAO.class.equals(daoClass)) {
                 dao = (T) processToolRegistry.getDataRegistry().getProcessInstanceDAO(hibernateSession);
-            } else if (ProcessInstanceFilterDAO.class.equals(daoClass)) {
-                dao = (T) processToolRegistry.getDataRegistry().getProcessInstanceFilterDAO(hibernateSession);
             } else if (ProcessDefinitionDAO.class.equals(daoClass)) {
                 dao = (T) processToolRegistry.getDataRegistry().getProcessDefinitionDAO(hibernateSession);
             } else if (UserSubstitutionDAO.class.equals(daoClass)) {
@@ -94,9 +92,7 @@ public class ProcessToolContextImpl implements ProcessToolContext {
             }else if (ProcessInstanceSimpleAttributeDAO.class.equals(daoClass)) {
                 dao = (T) processToolRegistry.getDataRegistry().getProcessInstanceSimpleAttributeDAO(hibernateSession);
             }
-            else if (OperationLockDAO.class.equals(daoClass)) {
-                dao = (T) processToolRegistry.getDataRegistry().getOperationLockDAO(hibernateSession);
-            }
+
             if (dao != null) {
                 daoCache.put(daoClass, dao);
             }
@@ -113,15 +109,7 @@ public class ProcessToolContextImpl implements ProcessToolContext {
         return getHibernateDAO(ProcessInstanceDAO.class);
     }
 
-    @Override
-    public ProcessInstanceFilterDAO getProcessInstanceFilterDAO() {
-        return getHibernateDAO(ProcessInstanceFilterDAO.class);
-    }
 
-    @Override
-    public OperationLockDAO getOperationLockDAO() {
-        return getHibernateDAO(OperationLockDAO.class);
-    }
 
     @Override
     public ProcessDefinitionDAO getProcessDefinitionDAO() {
@@ -156,9 +144,15 @@ public class ProcessToolContextImpl implements ProcessToolContext {
 
     @Override
     public String getSetting(IProcessToolSettings key) {
+        return getSetting(key.toString());
+    }
+
+    @Override
+    public String getSetting(String key)
+    {
         verifyContextOpen();
         ProcessToolSetting setting = (ProcessToolSetting) hibernateSession.createCriteria(ProcessToolSetting.class)
-                .add(Restrictions.eq("key", key.toString())).uniqueResult();
+                .add(Restrictions.eq("key", key)).uniqueResult();
         return setting != null ? setting.getValue() : null;
     }
 

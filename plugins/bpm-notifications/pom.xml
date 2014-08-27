@@ -47,6 +47,18 @@
             <version>${vaadin.version}</version>
             <scope>provided</scope>
         </dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-asl</artifactId>
+			<version>${jackson.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.aperteworkflow</groupId>
+			<artifactId>files-repository</artifactId>
+			<version>3.0-beta2-SNAPSHOT</version>
+			<scope>provided</scope>
+		</dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>gui-commons</artifactId>
@@ -75,11 +87,14 @@
                         <Export-Package>
                         	pl.net.bluesoft.rnd.pt.ext.bpmnotifications,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service,
+                       <!--     pl.net.bluesoft.rnd.pt.ext.bpmnotifications.utils, -->
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.templates,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.sessions,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.addons,
-                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.facade
+                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.facade,
+                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.config,
+                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.controller
                         </Export-Package>
                         <Import-Package>
                             org.aperteworkflow.bpmnotifications.addons.impl;resolution:=optional,
@@ -95,17 +110,27 @@
                             pl.net.bluesoft.rnd.processtool.di,
                             pl.net.bluesoft.rnd.processtool.plugins,
                             pl.net.bluesoft.rnd.processtool.plugins.osgi,
+                            pl.net.bluesoft.rnd.processtool.hibernate,
+                            pl.net.bluesoft.rnd.processtool.hibernate.lock,
+                            pl.net.bluesoft.rnd.processtool.hibernate.lock.exception,
+                            pl.net.bluesoft.rnd.processtool.hibernate.transform,
+                            pl.net.bluesoft.rnd.processtool.hibernate.types,
                             org.aperteworkflow.util.vaadin,
                             org.aperteworkflow.util.vaadin.ui,
                             org.aperteworkflow.util.vaadin.ui.table,
                             org.quartz,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service,
+                         <!--   pl.net.bluesoft.rnd.pt.ext.bpmnotifications.utils, -->
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.templates,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.sessions,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.addons,
-                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.facade
+                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.facade,
+							org.codehaus.jackson;version="1.9.13",
+							org.codehaus.jackson.map;version="1.9.13",
+							org.codehaus.jackson.type;version="1.9.13",
+							org.codehaus.jackson.map.type;version="1.9.13"
                         </Import-Package>
                         <Private-Package>
                         	pl.net.bluesoft.rnd.pt.ext.bpmnotifications,
@@ -131,6 +156,12 @@
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotificationMailProperties
                         </ProcessTool-Model-Enhancement>
                         <ProcessTool-I18N-Property>messages</ProcessTool-I18N-Property>
+						<ProcessTool-Controller>
+                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.controller.BpmNotificationsController
+                        </ProcessTool-Controller>
+                        <ProcessTool-Spring-Beans>
+                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.BpmNotificationEngine
+                        </ProcessTool-Spring-Beans>
                     </instructions>
                 </configuration>
             </plugin>

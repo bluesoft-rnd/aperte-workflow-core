@@ -17,7 +17,7 @@ public class UserDataBean implements UserData {
 	private String email;
 	private String jobTitle;
 	private Long companyId;
-    private Map<String, Object> attributes;
+    private Map<String, Object> attributes = new HashMap<String, Object>();
 
 	private Set<String> roles = new HashSet<String>();
 
@@ -137,7 +137,10 @@ public class UserDataBean implements UserData {
 
     @Override
     public Object getAttribute(String key) {
-        return attributes.get(key);
+        if (attributes != null)
+            return attributes.get(key);
+        else
+            return null;
     }
 
     @Override

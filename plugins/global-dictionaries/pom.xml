@@ -44,8 +44,10 @@
                     <instructions>
                         <!--<Implementation-Build>${buildNumber}</Implementation-Build>-->
                         <Export-Package>
+                            pl.net.bluesoft.rnd.pt.dict.global.controller,
                             pl.net.bluesoft.rnd.pt.dict.global.i18n,
 							pl.net.bluesoft.rnd.pt.dict.global.xml,
+                            pl.net.bluesoft.rnd.pt.dict.global.ui,
                             pl.net.bluesoft.rnd.pt.dict.global
                         </Export-Package>
                         <Import-Package>
@@ -53,7 +55,13 @@
                             pl.net.bluesoft.rnd.util.i18n,
 							pl.net.bluesoft.rnd.processtool.dict,
                             pl.net.bluesoft.rnd.processtool.dict.exception,
-							pl.net.bluesoft.rnd.processtool.dict.xml
+							pl.net.bluesoft.rnd.processtool.dict.xml,
+                            org.codehaus.jackson;version="1.9.13",
+                            org.codehaus.jackson.map;version="1.9.13",
+                            org.codehaus.jackson.type;version="1.9.13",
+                            org.codehaus.jackson.map.type;version="1.9.13",
+                            javassist.util.proxy,
+                            org.hibernate.proxy
                         </Import-Package>
                         <Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>
                         <Bundle-Activator>pl.net.bluesoft.rnd.pt.dict.global.GlobalDictionariesActivator</Bundle-Activator>
@@ -65,8 +73,13 @@
                         <Embed-Transitive>true</Embed-Transitive>
                         <ProcessTool-Global-Dictionary>pl.net.bluesoft.rnd.pt.dict.global</ProcessTool-Global-Dictionary>
                         <ProcessTool-Controller>
-                            pl.net.bluesoft.rnd.pt.dict.global.DictionaryService
+                            pl.net.bluesoft.rnd.pt.dict.global.DictionaryService,
+                            pl.net.bluesoft.rnd.pt.dict.global.controller.DictionaryEditorController
                         </ProcessTool-Controller>
+                        <ProcessTool-Spring-Beans>
+                            pl.net.bluesoft.rnd.pt.dict.global.facade.GlobalDictionaryFacade
+                        </ProcessTool-Spring-Beans>
+                        <ProcessTool-I18N-Property>globaldictionaries-messages</ProcessTool-I18N-Property>
                     </instructions>
                 </configuration>
             </plugin>

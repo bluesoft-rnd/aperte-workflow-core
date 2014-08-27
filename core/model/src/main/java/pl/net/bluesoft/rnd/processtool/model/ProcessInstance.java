@@ -29,7 +29,7 @@ import static pl.net.bluesoft.util.lang.cquery.CQuery.from;
                         columnNames = {"id"}
                 )
         })
-public class ProcessInstance extends AbstractPersistentEntity
+public class ProcessInstance extends AbstractPersistentEntity implements IAttributesProvider, IAttributesConsumer
 {
 	public static final String _EXTERNAL_KEY = "externalKey";
 	public static final String _INTERNAL_ID = "internalId";
@@ -116,7 +116,7 @@ public class ProcessInstance extends AbstractPersistentEntity
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name="parent_id")
 	private ProcessInstance parent;
-	
+
 	/** Owners of the process. Owner is diffrent then process creator. Process can have many owners */
 	@ElementCollection(fetch = FetchType.LAZY)
 	@CollectionTable(name = "pt_process_instance_owners", joinColumns = @JoinColumn(name = "process_id"))
@@ -166,7 +166,7 @@ public class ProcessInstance extends AbstractPersistentEntity
 		}
 	}
 
-	public void setExternalKey(String externalKey) {	
+	public void setExternalKey(String externalKey) {
 		this.externalKey = externalKey;
 	}
 
@@ -560,7 +560,7 @@ public class ProcessInstance extends AbstractPersistentEntity
 	public void setParent(ProcessInstance parent) {
 		this.parent = parent;
 	}
-	
+
 	/** Method checks if the process is in running or new state */
 	public boolean isProcessRunning() {
 		return status == ProcessStatus.NEW || status == ProcessStatus.RUNNING;
@@ -613,6 +613,7 @@ public class ProcessInstance extends AbstractPersistentEntity
 	public Collection<AbstractProcessInstanceAttribute> getAllProcessAttributes() {
 		List<AbstractProcessInstanceAttribute> result = new ArrayList<AbstractProcessInstanceAttribute>();
 		result.addAll(getProcessSimpleAttributes());
+		result.addAll(getProcessSimpleLargeAttributes());
 		result.addAll(getProcessAttributes());
 		return result;
 	}
@@ -631,5 +632,34 @@ public class ProcessInstance extends AbstractPersistentEntity
         log.setLogValue(infoBody);
         log.setAdditionalInfo(StringUtils.join(parameters, ","));
         getRootProcessInstance().addProcessLog(log);
+    }
+
+    @Override
+    public ProcessInstance getProcessInstance() {
+        return this;
+    }
+
+    @Override
+    public Object getAttribute(String key) {
+        return getProcessAttribute(key);
+    }
+
+    @Override
+    public Object getProvider() {
+        return this;
+    }
+
+    @Override
+    public void addAttribute(Object attribute) {
+        addAttribute((ProcessInstanceAttribute) attribute);
+    }
+
+    @Override
+    public void setAttribute(String key, Object attribute) {
+        ProcessInstanceAttribute attr = findAttributeByKey(key);
+        if (attr != null) {
+            getProcessAttributes().remove(attr);
+        }
+        addAttribute(attribute);
     }
 }

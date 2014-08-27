@@ -1,7 +1,7 @@
 package org.aperteworkflow.webapi.main.processes.action.domain;
 
 import pl.net.bluesoft.rnd.processtool.web.domain.AbstractResultBean;
-import org.aperteworkflow.webapi.main.processes.BpmTaskBean;
+import pl.net.bluesoft.rnd.processtool.web.view.TasksListViewBean;
 
 /**
  * Result of perform action 
@@ -13,12 +13,12 @@ public class PerformActionResultBean extends AbstractResultBean
 {
 	private static final long serialVersionUID = 4831982682204632002L;
 	
-	private BpmTaskBean nextTask;
+	private TasksListViewBean nextTask;
 	
-	public BpmTaskBean getNextTask() {
+	public TasksListViewBean getNextTask() {
 		return nextTask;
 	}
-	public void setNextTask(BpmTaskBean nextTask) {
+	public void setNextTask(TasksListViewBean nextTask) {
 		this.nextTask = nextTask;
 	}
 	

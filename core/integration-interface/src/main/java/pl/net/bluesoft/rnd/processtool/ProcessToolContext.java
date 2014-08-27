@@ -22,8 +22,6 @@ public interface ProcessToolContext
 
 	ProcessInstanceDAO getProcessInstanceDAO();
 
-    ProcessInstanceFilterDAO getProcessInstanceFilterDAO();
-    OperationLockDAO getOperationLockDAO();
     ProcessDictionaryDAO getProcessDictionaryDAO();
 
 	Session getHibernateSession();
@@ -34,6 +32,7 @@ public interface ProcessToolContext
 	ProcessDefinitionDAO getProcessDefinitionDAO();
 	EventBusManager getEventBusManager();
 	String getSetting(IProcessToolSettings key);
+    String getSetting(String key);
 
     void setSetting(IProcessToolSettings key, String value);
 

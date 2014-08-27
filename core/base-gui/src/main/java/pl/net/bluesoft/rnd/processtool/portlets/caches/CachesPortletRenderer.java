@@ -18,8 +18,8 @@ public class CachesPortletRenderer implements GenericPortletViewRenderer {
 	}
 
 	@Override
-	public String getName(I18NSource i18NSource) {
-		return i18NSource.getMessage("AWF Caches");
+	public String getName() {
+		return "AWF Caches";
 	}
 
 	@Override
@@ -35,5 +35,10 @@ public class CachesPortletRenderer implements GenericPortletViewRenderer {
 	@Override
 	public Object render(RenderParams params) {
 		return new CachesPanel(params.getI18NSource());
+	}
+
+	@Override
+	public String render() {
+		return "CachesPortlet";
 	}
 }

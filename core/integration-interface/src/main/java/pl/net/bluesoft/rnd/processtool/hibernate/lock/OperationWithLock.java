@@ -7,5 +7,5 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
  */
 public interface OperationWithLock<T>
 {
-    T action(ProcessToolContext ctx);
+    T action();
 }

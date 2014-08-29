@@ -67,7 +67,7 @@
                 "aaSorting": sortingOrder,
                 "bSort": true,
                 "iDisplayLength": 10,
-                "sDom": sDom,
+                "sDom": 'Rlfrtip',
                 "sAjaxSource": this.requestUrl,
                 "fnServerData": function ( sSource, aoData, fnCallback ) {
 

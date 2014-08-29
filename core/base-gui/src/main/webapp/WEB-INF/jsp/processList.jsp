@@ -6,7 +6,7 @@
 <%@ taglib uri="http://liferay.com/tld/portlet" prefix="liferay-portlet" %>
 
 <div class="process-tasks-view" id="task-view-processes" hidden="true">
-	<table id="processesTable" class="process-table table table-striped" border="1">
+	<table id="processesTable" class="process-table table table-striped" border="1" style="table-layout:auto !important">
 		<thead>
 				<th style="width:10%;"><spring:message code="processes.list.table.process.name" /></th>
 				<th style="width:10%;"><spring:message code="processes.list.table.process.step" /></th>

@@ -30,9 +30,9 @@
         <label class="checkbox">
 			<input id="button-processesTable-creationDate" type="checkbox" value="creationDate" name="process" onClick="toggleColumn(this, 'process','creationDate');" />  <spring:message code="processes.button.hide.creationdate" />
         </label>
-        <label class="checkbox">
+        <!--<label class="checkbox">
 			<input id="button-processesTable-deadline" type="checkbox" value="deadline" name="process"  onClick="toggleColumn(this, 'process','deadline');" /><spring:message code="processes.button.hide.deadline" />
-        </label>
+        </label>-->
         <label class="checkbox">
 			<input id="button-processesTable-stepInfo" type="checkbox" value="stepInfo" name="process"  onClick="toggleColumn(this, 'process','stepInfo');" /><spring:message code="processes.button.hide.stepInfo" />
 		</label>
@@ -60,9 +60,9 @@
         <label class="checkbox">
 			<input id="button-customQueueTable-creationDate" type="checkbox" value="creationDate" name="queue" onClick="toggleColumn(this, 'queue','creationDate');" />  <spring:message code="processes.button.hide.creationdate" />
         </label>
-        <label class="checkbox">
+        <!--<label class="checkbox">
 			<input id="button-customQueueTable-deadline" type="checkbox" value="deadline" name="queue"  onClick="toggleColumn(this, 'queue','deadline');" /><spring:message code="processes.button.hide.deadline" />
-        </label>
+        </label>-->
         <label class="checkbox">
 			<input id="button-customQueueTable-stepInfo" type="checkbox" value="stepInfo" name="queue"  onClick="toggleColumn(this, 'queue','stepInfo');" /><spring:message code="processes.button.hide.stepInfo" />
 		</label>

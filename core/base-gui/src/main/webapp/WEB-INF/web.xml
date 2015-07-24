@@ -26,6 +26,7 @@
 		<param-name>contextConfigLocation</param-name>
 		<param-value>/WEB-INF/spring/rootContext.xml</param-value>
 	</context-param>
+	<!-- konieczne dla poprawnego działania ETL-Callback
 	<security-constraint>
 		<display-name>excluded</display-name>
 		<web-resource-collection>
@@ -35,7 +36,7 @@
 		<auth-constraint>
 			<role-name>AWF_API</role-name>
 		</auth-constraint>
-	</security-constraint>
+	</security-constraint>-->
 	<login-config>
 		<auth-method>BASIC</auth-method>
 		<realm-name>default</realm-name>

@@ -85,6 +85,7 @@
 </div>
 
 <div class="apw main-view">
+<div hidden id="saving-screen" class="loader-2 saver"></div>
     <div class="process-tasks-view" id="case-list-view" hidden>
         <table id="caseManagementTable" class="process-table table table-striped" border="1">
             <thead>
@@ -230,7 +231,7 @@
     caseManagement.loadCaseView = function(caseId)
     {
         caseManagement.changeUrl('?caseId=' + caseId);
-        //windowManager.showLoadingScreen();
+        windowManager.showLoadingScreen();
 
         var widgetJson = $.getJSON(dispatcherPortlet, {
                 "controller": "casemanagementcontroller",
@@ -240,7 +241,6 @@
             .done(function(data) {
                 // if (window.console) console.log(data);
                 caseManagement.clearAlerts();
-                // windowManager.showProcessData();
                 caseManagement.hideCaseList();
                 caseManagement.showCaseData();
                 $('#case-data-view').empty();
@@ -674,12 +674,11 @@
 			var errors = [];
 			$.each(data.errors, function() {
 				errors.push(this);
-				addAlert(this.message);
+				caseManagement.addAlerts(this.message);
 			});
 
 			if(errors.length > 0) { return; }
 
-			// reloadQueues();
 
 			if(!data)
 			{
@@ -690,7 +689,7 @@
 			}
 			else if(data.errors.length > 0)
 			{
-				addAlerts(data.errors);
+				caseManagement.addAlerts(data.errors);
 				return;
 			}
 			else if(!data.nextTask)
@@ -829,6 +828,82 @@
     		performActionWithoutComment(tempButton, tempActionName, tempSkipSaving, tempTaskId, false, '',  true, tempChangeOwnerAttrKey, newOwnerLogin);
     	}
 
+    function saveAction(taskId)
+         {
+             clearAlerts();
+             windowManager.showSavingScreen();
+
+             var errors = [];
+             <!-- Validate html widgets -->
+
+             $.each(widgets, function()
+             {
+                 var errorMessages = this.validateDataCorrectness();
+                 if(!errorMessages)
+                 {
+
+                 }
+                 else
+                 {
+                     $.each(errorMessages, function() {
+                         errors.push(this);
+                         addAlert(this);
+                     });
+                 }
+             });
+
+             if(errors.length > 0)
+             {
+                 enableButtons();
+                 windowManager.hideSavingScreen();
+                 return;
+             }
+
+             var widgetData = [];
+             $.each(widgets, function()
+             {
+                 var widgetDataBean = new WidgetDataBean(this.widgetId, this.name, this.getData());
+                 widgetData.push(widgetDataBean);
+             });
+
+             var JsonWidgetData = JSON.stringify(widgetData, null, 2);
+             var state = 'OK';
+             var newBpmTask = $.getJSON(dispatcherPortlet,
+             {
+                 "controller": "casemanagementcontroller",
+                 "action": "saveProcessAction",
+                 "taskId": taskId,
+                 "widgetData": JsonWidgetData
+             }, null, 'json')
+             .done(function(data)
+             {
+                 if(data.errors != null)
+                 {
+                     caseManagement.addAlerts(data.errors);
+                 }
+                 if (data.data) {
+                     clearAlerts();
+                     windowManager.showProcessDataImmediate();
+                     $('#process-data-view').empty();
+                     $("#process-data-view").append(data.data);
+                     checkIfViewIsLoaded();
+                 }
+                 windowManager.hideSavingScreen();
+             })
+             .always(function()
+             {
+                 enableButtons();
+                 windowManager.hideSavingScreen();
+             })
+             .fail(function(data)
+             {
+                 windowManager.hideSavingScreen();
+                 caseManagement.addAlerts(data.errors);
+             });
+
+             return state;
+         }
+
     function closeProcessView()
     {
 
@@ -838,6 +913,19 @@
         caseManagement.caseListDT.reloadTable(dispatcherPortlet);
         caseManagement.hideCaseData();
         caseManagement.showCaseList();
+    }
+
+    function onSaveButton(taskId)
+    {
+        disableButtons();
+        saveAction(taskId);
+    }
+
+    function onCancelButton()
+    {
+        disableButtons();
+        closeProcessView();
+        $(window).scrollTop(0);
     }
 
 

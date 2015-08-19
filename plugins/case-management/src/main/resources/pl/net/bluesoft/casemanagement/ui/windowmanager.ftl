@@ -156,9 +156,23 @@
 			$('#actions-list').fadeIn(600);
 		}
 
+		this.showProcessDataImmediate = function()
+		{
+			this.showView(this.allViews['process-data-view'], true);
+			$('#actions-list').show();
+		}
+
 		this.hasPreviousView = function()
 		{
 			return this.viewHistory.length > 0;
+		}
+
+		this.showSavingScreen = function() {
+			$('#saving-screen').show();
+		}
+
+		this.hideSavingScreen = function() {
+			$('#saving-screen').hide();
 		}
 
 		this.addError = function(errorMessage)
@@ -239,7 +253,6 @@
 			vaadinWidgetsLoadedCount = 0;
 		}
 	}
-
 
 	function XOR(a,b) {
 	  return ( a || b ) && !( a && b );

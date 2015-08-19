@@ -19,15 +19,11 @@
         <c:choose>
             <c:when test= "${applicationSent}">
                 <div class="alert alert-success" role="alert">
-                    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
-                    <span class="sr-only">Info:</span>
                     <b>Thank you for filling out our form. Your application has been sent</b>
                 </div>
             </c:when>
             <c:otherwise>
                 <div class ="alert alert-danger" role="alert">
-                    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-                    <span class="sr-only">Error:</span>
                     <b>An error occured while processing your request. Please try later.</b>
                 </div>
             </c:otherwise>

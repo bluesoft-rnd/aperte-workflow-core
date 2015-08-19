@@ -6,11 +6,16 @@ import org.aperteworkflow.ui.help.datatable.JQueryDataTableColumn;
 import org.aperteworkflow.ui.help.datatable.JQueryDataTableUtil;
 import org.aperteworkflow.webapi.main.processes.action.domain.SaveResultBean;
 import org.aperteworkflow.webapi.main.processes.action.domain.ValidateResultBean;
+import org.aperteworkflow.webapi.main.processes.controller.TaskViewController;
 import org.aperteworkflow.webapi.main.processes.domain.HtmlWidget;
 import org.aperteworkflow.webapi.main.processes.domain.NewProcessInstanceBean;
+import org.aperteworkflow.webapi.main.processes.processor.TaskProcessor;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.JavaType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import pl.net.bluesoft.casemanagement.ICaseManagementFacade;
 import pl.net.bluesoft.casemanagement.controller.bean.CaseDTO;
 import pl.net.bluesoft.casemanagement.model.Case;
@@ -20,17 +25,17 @@ import pl.net.bluesoft.casemanagement.processor.CaseProcessor;
 import pl.net.bluesoft.casemanagement.ui.CaseViewBuilder;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.bpm.StartProcessResult;
+import pl.net.bluesoft.rnd.processtool.exceptions.BusinessException;
+import pl.net.bluesoft.rnd.processtool.exceptions.ExceptionsUtils;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.web.controller.ControllerMethod;
 import pl.net.bluesoft.rnd.processtool.web.controller.IOsgiWebController;
 import pl.net.bluesoft.rnd.processtool.web.controller.OsgiController;
 import pl.net.bluesoft.rnd.processtool.web.controller.OsgiWebRequest;
-import pl.net.bluesoft.rnd.processtool.web.domain.AbstractResultBean;
-import pl.net.bluesoft.rnd.processtool.web.domain.DataPagingBean;
-import pl.net.bluesoft.rnd.processtool.web.domain.GenericResultBean;
-import pl.net.bluesoft.rnd.processtool.web.domain.IProcessToolRequestContext;
+import pl.net.bluesoft.rnd.processtool.web.domain.*;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import javax.servlet.http.HttpServletRequest;
@@ -56,6 +61,7 @@ public class CaseManagementController implements IOsgiWebController {
     protected static final String SEARCH_QUERY_REQ_PARAM_NAME = "query";
     protected static final String BPM_DEFINITION_KEY_REQ_PARAM_NAME = "bpmDefinitionKey";
 
+    private static Logger performanceLogger = Logger.getLogger("PRF");
     @Autowired
     protected ICaseManagementFacade facade;
     @Autowired
@@ -245,5 +251,139 @@ public class CaseManagementController implements IOsgiWebController {
         if (caseInstance == null)
             throw new RuntimeException(String.format("Case with id=%d not found!", caseId));
         return caseInstance;
+    }
+
+    @ControllerMethod(action = "saveProcessAction")
+    public GenericResultBean saveProcessAction(final OsgiWebRequest invocation)
+    {
+        logger.finest("saveProcessAction ...");
+        long t0 = System.currentTimeMillis();
+        HttpServletRequest request = invocation.getRequest();
+        final GenericResultBean resultBean = new GenericResultBean();
+
+		/* Initilize request context */
+        final IProcessToolRequestContext context = invocation.getProcessToolRequestContext();
+
+        if(!context.isUserAuthorized())
+        {
+            resultBean.addError(SYSTEM_SOURCE, context.getMessageSource().getMessage("request.handle.error.nouser"));
+            return resultBean;
+        }
+
+        final String taskId = request.getParameter("taskId");
+        final String widgetDataJson = request.getParameter("widgetData");
+        final Collection<HtmlWidget> widgetData;
+
+        if(isNull(taskId))
+        {
+            resultBean.addError(SYSTEM_SOURCE, context.getMessageSource().getMessage("request.performaction.error.notaskid"));
+            return resultBean;
+        }
+
+        try
+        {
+            ObjectMapper mapper = new ObjectMapper();
+            JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, HtmlWidget.class);
+            widgetData = mapper.readValue(widgetDataJson, type);
+        }
+        catch (Throwable e)
+        {
+            resultBean.addError(SYSTEM_SOURCE, context.getMessageSource().getMessage("request.handle.error.jsonparseerror"));
+            return resultBean;
+        }
+
+        long t1 = System.currentTimeMillis();
+
+        try
+        {
+            processToolRegistry.withProcessToolContext(new ProcessToolContextCallback() {
+
+                @Override
+                public void withContext(ProcessToolContext ctx) {
+                    try {
+                        long t0 = System.currentTimeMillis();
+
+                        BpmTask task = context.getBpmSession().getTaskData(taskId);
+
+                        long t1 = System.currentTimeMillis();
+
+                        TaskProcessor taskSaveProcessor = new TaskProcessor(task, context.getMessageSource(), widgetData);
+
+                        long t2 = System.currentTimeMillis();
+
+                        /* Validate widgets */
+                        ValidateResultBean widgetsValidationResult = taskSaveProcessor.validateWidgets();
+
+                        long t3 = System.currentTimeMillis();
+
+                        if (widgetsValidationResult.hasErrors()) {
+                            /* Copy all errors from event */
+                            for (ErrorResultBean errorBean : widgetsValidationResult.getErrors())
+                                resultBean.addError(errorBean);
+                        }
+                    /* No validation errors, save widgets */
+                        else {
+                            SaveResultBean widgetsSaveResult = taskSaveProcessor.saveWidgets();
+
+                            if (widgetsSaveResult.hasErrors()) {
+                                /* Copy all errors from event */
+                                for (ErrorResultBean errorBean : widgetsSaveResult.getErrors())
+                                    resultBean.addError(errorBean);
+                            } else {
+                                // rebuild the task view
+                                final String view = TaskViewController.buildTaskView(processToolRegistry, context, taskId);
+                                if (!isNull(view))
+                                    resultBean.setData(view);
+                            }
+
+                        }
+
+                        long t4 = System.currentTimeMillis();
+
+                        performanceLogger.log(Level.FINEST, "saveAction.withContext total: " + (t4 - t0) + "ms, " +
+                                        "[1]: " + (t1 - t0) + "ms, " +
+                                        "[2]: " + (t2 - t1) + "ms, " +
+                                        "[3]: " + (t3 - t2) + "ms, " +
+                                        "[4]: " + (t4 - t3) + "ms "
+                        );
+                    } catch (Throwable e) {
+                        logger.log(Level.SEVERE, "Problem during data saving", e);
+                        resultBean.addError(SYSTEM_SOURCE, e.getLocalizedMessage());
+                    }
+                }
+            }, ProcessToolContextFactory.ExecutionType.TRANSACTION);
+
+        }
+        catch(BusinessException e)
+        {
+            logger.log(Level.WARNING, "Business error", e);
+            resultBean.addError(SYSTEM_SOURCE, e.getMessage());
+        }
+        catch(Throwable e)
+        {
+            if(ExceptionsUtils.isExceptionOfClassExistis(e, BusinessException.class))
+            {
+                BusinessException businessException = ExceptionsUtils.getExceptionByClassFromStack(e, BusinessException.class);
+                logger.log(Level.WARNING, "Business error", businessException);
+                resultBean.addError(SYSTEM_SOURCE, businessException.getMessage());
+            }
+            else {
+                logger.log(Level.SEVERE, "Problem during data saving", e);
+                resultBean.addError(SYSTEM_SOURCE, context.getMessageSource().getMessage(
+                        "request.handle.error.saveerror",
+                        e.getLocalizedMessage()));
+            }
+        }
+
+
+
+        long t2 = System.currentTimeMillis();
+
+        performanceLogger.log(Level.FINEST, "saveAction total: " + (t2-t0) + "ms, " +
+                        "[1]: " + (t1-t0) + "ms, " +
+                        "[2]: " + (t2-t1) + "ms "
+        );
+
+        return resultBean;
     }
 }

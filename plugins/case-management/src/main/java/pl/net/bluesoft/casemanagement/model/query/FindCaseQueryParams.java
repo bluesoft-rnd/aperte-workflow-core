@@ -1,7 +1,7 @@
 package pl.net.bluesoft.casemanagement.model.query;
 
 /**
- * Created by Dominik Dêbowczyk on 2015-08-18.
+ * Created by Dominik DÄ™bowczyk on 2015-08-18.
  */
 public class FindCaseQueryParams {
 

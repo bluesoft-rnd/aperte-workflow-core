@@ -9,7 +9,7 @@ import java.util.Map;
 import static pl.net.bluesoft.casemanagement.model.query.FindCaseQueryParams.*;
 
 /**
- * Created by Dominik Dêbowczyk on 2015-08-18.
+ * Created by Dominik DÄ™bowczyk on 2015-08-18.
  */
 public class FindCaseQueryBuilder {
     private static final String VIEW_ROLE_NAME = "SHOW_COMPLAINT_";

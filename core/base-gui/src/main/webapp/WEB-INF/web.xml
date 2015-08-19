@@ -41,6 +41,16 @@
 		<realm-name>default</realm-name>
 	</login-config>
 
+    <!--<security-constraint>-->
+        <!--<web-resource-collection>-->
+            <!--<web-resource-name>AuthServer</web-resource-name>-->
+            <!--<url-pattern>/osgi_services/*</url-pattern>-->
+        <!--</web-resource-collection>-->
+        <!--<user-data-constraint>-->
+            <!--<transport-guarantee>CONFIDENTIAL</transport-guarantee>-->
+        <!--</user-data-constraint>-->
+    <!--</security-constraint>-->
+
 	<filter>
 		<filter-name>Cache Filter - Resource</filter-name>
 		<filter-class>com.liferay.portal.kernel.servlet.PortalClassLoaderFilter
@@ -376,30 +386,9 @@
 		<servlet-name>VaadinWidgetServlet</servlet-name>
 		<url-pattern>/widget/*</url-pattern>
 	 </servlet-mapping>
-	 
-	 <servlet>
-		<servlet-name>VaadinApplicationServlet</servlet-name>
-		<servlet-class>
-			pl.net.bluesoft.rnd.processtool.application.activity.ResponsiveUIApplicationServlet
-		</servlet-class>
-		<init-param>
-		  <param-name>application</param-name>
-		  <param-value>pl.net.bluesoft.rnd.processtool.application.activity.ActivityStandAloneApplication</param-value>
-		</init-param>
-		<init-param>
-            <description>Application widgetset</description>
-            <param-name>widgetset</param-name>
-            <param-value>pl.net.bluesoft.rnd.widgetset.PortalDefaultWidgetSet</param-value>
-        </init-param>
-		<load-on-startup>1</load-on-startup>
-	  </servlet>
-	  
-	 <servlet-mapping>
-		<servlet-name>VaadinApplicationServlet</servlet-name>
-		<url-pattern>/standalone/*</url-pattern>
-	 </servlet-mapping>
-	 <servlet-mapping>
-        <servlet-name>VaadinApplicationServlet</servlet-name>
+
+    <servlet-mapping>
+        <servlet-name>VaadinWidgetServlet</servlet-name>
         <url-pattern>/VAADIN/*</url-pattern>
     </servlet-mapping>
 
@@ -528,6 +517,14 @@
 		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
+    <servlet>
+        <servlet-name>CXFOsgiWrapperServler</servlet-name>
+        <display-name>CXF OsgiDispachServlet</display-name>
+        <servlet-class>
+            org.aperteworkflow.service.CXFOsgiWrapperServler <!-- no spring, please! -->
+        </servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
 
 	<servlet>
 		<servlet-name>NotificationServlet</servlet-name>
@@ -538,6 +535,11 @@
 		<servlet-name>CXFServlet</servlet-name>
 		<url-pattern>/services/*</url-pattern>
 	</servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>CXFOsgiWrapperServler</servlet-name>
+        <url-pattern>/osgi_services/*</url-pattern>
+    </servlet-mapping>
 
 	<servlet-mapping>
 		<servlet-name>GenerateTokenServlet</servlet-name>

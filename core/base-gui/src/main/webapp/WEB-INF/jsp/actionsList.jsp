@@ -111,11 +111,12 @@
 	function cancelChangerOwnerModal()
 	{
 		$('#changeOwnerModal').modal('hide');
+		tempChangeOwner = null;
 	}
 	
 	function performCommentModal()
 	{
-		var comment = $('#action-comment-textarea').val();
+		var comment = $.trim($('#action-comment-textarea').val());
 		$('#commentModal').modal('hide');
 		if(!comment)
 		{
@@ -152,7 +153,7 @@
 	
 	function checkActionCommentValue(event)
     {
-        var comment = $('#action-comment-textarea').val();
+        var comment = $.trim($('#action-comment-textarea').val());
 
          $('#action-comment-button').attr("disabled", comment == '');
     }
@@ -160,17 +161,17 @@
 	function saveAction(taskId)
 	{
 		clearAlerts();
-		windowManager.showSavingScreen();
-		
+        windowManager.showSavingScreen();
+
 		var errors = [];
 		<!-- Validate html widgets -->
+
 		$.each(widgets, function() 
 		{
-			var errorMessages = this.validate();
+			var errorMessages = this.validateDataCorrectness();
 			if(!errorMessages)
 			{
 
-				
 			}
 			else
 			{
@@ -180,53 +181,51 @@
 				});
 			}
 	    });
-		
+
 		if(errors.length > 0)
 		{
 			enableButtons();
-			windowManager.hideSavingScreen();
+            windowManager.hideSavingScreen();
 			return;
 		}
 		
 		var widgetData = [];
-		
-		$.each(widgets, function() 
+		$.each(widgets, function()
 		{
 			var widgetDataBean = new WidgetDataBean(this.widgetId, this.name, this.getData());
 			widgetData.push(widgetDataBean);
 	    });
-		
+
 		var JsonWidgetData = JSON.stringify(widgetData, null, 2);
-		
 		var state = 'OK';
 		var newBpmTask = $.post('<portlet:resourceURL id="saveAction"/>',
 		{
 			"taskId": taskId,
 			"widgetData": JsonWidgetData
-		})
+		}, null, 'json')
 		.done(function(data)
 		{
 			if(data.errors != null)
 			{
 				addAlerts(data.errors);
 			}
-			if (data.data) {
-			    clearAlerts();
+            if (data.data) {
+                clearAlerts();
                 windowManager.showProcessDataImmediate();
                 $('#process-data-view').empty();
                 $("#process-data-view").append(data.data);
                 checkIfViewIsLoaded();
-			}
-			windowManager.hideSavingScreen();
+            }
+            windowManager.hideSavingScreen();
 		})
 		.always(function() 
-		{ 
-			enableButtons();
-			windowManager.hideSavingScreen();
+		{
+            enableButtons();
+            windowManager.hideSavingScreen();
 		})
 		.fail(function(data) 
 		{
-		    windowManager.hideSavingScreen();
+            windowManager.hideSavingScreen();
 			addAlerts(data.errors);
 		});
 		
@@ -273,10 +272,47 @@
 	{
 		$('#alerts-list').empty();
 	}
-	
+
+
+
 	<!-- Check for comment required field -->
 	function performAction(button, actionName, skipSaving, commentNeeded, changeOwner, changeOwnerAttributeKey, taskId)
 	{
+		if(skipSaving != true)
+		{
+			clearAlerts();
+			
+			var errors = [];
+			<!-- Validate html widgets -->
+			$.each(widgets, function()
+			{
+				<!-- Validate technical correctness -->
+                var errorMessages = this.validateDataCorrectness();
+				if(errorMessages)
+				{
+					$.each(errorMessages, function() {
+						errors.push(this);
+						addAlert(this);
+					});
+				}
+
+                <!-- Validate business correctness -->
+				errorMessages = this.validate();
+				if(errorMessages)
+				{
+					$.each(errorMessages, function() {
+						errors.push(this);
+						addAlert(this);
+					});
+				}
+			});
+			
+			if(errors.length > 0)
+			{
+				enableButtons();
+				return;
+			}
+		}
 		if(commentNeeded == true)
 		{
 
@@ -288,7 +324,7 @@
 			
 			
 			$('#action-comment-textarea').val('');
-			$('#action-comment-button').prop("disabled", true);
+			$('#action-comment-button').prop('disabled', true);
 			$('#commentModal').appendTo("body").modal({
 			  keyboard: false
 			});
@@ -366,89 +402,31 @@
 	
 	function performActionWithoutComment(button, actionName, skipSaving, taskId, commentNeeded, comment, changeOwner, changeOwnerAttributeKey, changeOwnerAttributeValue)
 	{
-		var widgetData = [];
+		var JsonWidgetData = "[{}]";
 
 		if(skipSaving != true)
 		{
-			clearAlerts();
-			
-			var errors = [];
-			<!-- Validate html widgets -->
-			$.each(widgets, function() 
-			{
-				var errorMessages = this.validate(actionName);
-				$.each(errorMessages, function() {
-					errors.push(this);
-					addAlert(this);
-				});
-			});
-			
-			if(errors.length > 0)
-			{
-				enableButtons();
-				return;
-			}
-			
-			$.each(widgets, function() 
+			var widgetData = [];
+
+			$.each(widgets, function()
 			{
 				var widgetDataBean = new WidgetDataBean(this.widgetId, this.name, this.getData());
 				widgetData.push(widgetDataBean);
 			});
-		}
 
-		var performActionArgs =
-		{
-			button: button,
-			actionName: actionName,
-			skipSaving: skipSaving,
-			taskId: taskId,
-			commentNeeded: commentNeeded,
-			comment: comment,
-			changeOwner: changeOwner,
-			changeOwnerAttributeKey: changeOwnerAttributeKey,
-			changeOwnerAttributeValue: changeOwnerAttributeValue,
-			widgetData: widgetData
-		};
-
-        for (var i = 0; i < widgets.length; ++i)
-        {
-        	var widget = widgets[i];
-
-        	if (widget.beforePerformAction)
-        	{
-        		var handled = widget.beforePerformAction(performActionRequest, performActionArgs);
-
-        		if (handled)
-        		{
-        			return;
-        		}
-        	}
-        }
-
-        // no widget intercepted the action -> default handling
-
-		performActionRequest(performActionArgs);
-	}
-
-	function performActionRequest(args)
-	{
-		var JsonWidgetData = "[{}]";
-
-		if (args.widgetData.length > 0)
-		{
-			JsonWidgetData = JSON.stringify(args.widgetData, null, 2);
+			JsonWidgetData = JSON.stringify(widgetData, null, 2);
 		}
 
 		var newBpmTask = $.post('<portlet:resourceURL id="performAction"/>',
 		{
-			"taskId": args.taskId,
-			"actionName": args.actionName,
-			"skipSaving": args.skipSaving,
-			"commentNeeded": args.commentNeeded,
-			"comment": args.comment,
-			"changeOwner": args.changeOwner,
-			"changeOwnerAttributeKey": args.changeOwnerAttributeKey,
-			"changeOwnerAttributeValue": args.changeOwnerAttributeValue,
+			"taskId": taskId,
+			"actionName": actionName,
+			"skipSaving": skipSaving,
+			"commentNeeded": commentNeeded,
+			"comment": comment,
+			"changeOwner": changeOwner,
+			"changeOwnerAttributeKey": changeOwnerAttributeKey,
+			"changeOwnerAttributeValue": changeOwnerAttributeValue,
 			"widgetData": JsonWidgetData
 		})
 		.done(function(data)
@@ -469,8 +447,7 @@
 			if(!data)
 			{
 				closeProcessView();
-				queueViewManager.reloadCurrentQueue();
-				windowManager.showProcessList();
+				queueViewManager.loadCurrentQueue();
 
 				return;
 			}
@@ -482,8 +459,7 @@
 			else if(!data.nextTask)
 			{
 				closeProcessView();
-				queueViewManager.reloadCurrentQueue();
-				windowManager.showProcessList();
+				queueViewManager.loadCurrentQueue();
 
 				return;
 			}
@@ -496,8 +472,7 @@
 			else
 			{
 				closeProcessView();
-				queueViewManager.reloadCurrentQueue();
-				windowManager.showProcessList();
+				queueViewManager.loadCurrentQueue();
 			}
 		})
 		.fail(function() { addAlerts(data.errors); })
@@ -507,6 +482,9 @@
 			{
 				enableButtons();
 			}
+			tempChangeOwner = null;
+            tempChangeOwnerAttrKey = null;
+            tempCommentNeeded = null;
 		});
 	}
 	
@@ -518,9 +496,11 @@
 	
 	function onCancelButton()
 	{
-		reloadQueues();
-		disableButtons(); 
-		windowManager.previousView();
+		disableButtons();
+		closeProcessView();
+		queueViewManager.loadCurrentQueue();
+		
+		$(window).scrollTop(0);
 	}
 	
 	function closeProcessView()
@@ -529,14 +509,10 @@
 		$('#actions-list').empty();
 		
 		windowManager.showProcessList();
+		
+		$(window).scrollTop(0);
 	}
 
-    function removeAllButOne(selector)
-    {
-    	while ($(selector).size() > 1)
-    	{
-    		$(selector).last().remove();
-    	}
-    }
+
 //]]>
 </script>

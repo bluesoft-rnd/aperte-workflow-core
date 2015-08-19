@@ -39,7 +39,8 @@ public class InteractiveReportsController implements IOsgiWebController {
 	@Autowired
 	private InteractiveReportService reportService;
 
-	@ControllerMethod(action = "getAvailableReports") public GenericResultBean getAvailableReports(OsgiWebRequest invocation) {
+	@ControllerMethod(action = "getAvailableReports")
+	public GenericResultBean getAvailableReports(OsgiWebRequest invocation) {
 		UserData user = invocation.getProcessToolRequestContext().getUser();
 		Map<String, InteractiveReportTemplate> availableReportTemplates = reportService.getAvailableReportTemplates(user);
 
@@ -86,7 +87,7 @@ public class InteractiveReportsController implements IOsgiWebController {
 			result.setData(reportTemplate.renderReportParams(getRenderParams(invocation, null)));
 		}
 		catch (Exception e) {
-			logger.log(Level.SEVERE, "[INTERACTIVE_REPORTS] Cannot render report params", e);
+			logger.log(Level.SEVERE, "[INTERACTIVE_REPORTS] Cannot render report params: " +  e.getMessage(), e);
 			result.addError("Cannot render report params", e.getMessage());
 		}
 		return result;
@@ -97,8 +98,9 @@ public class InteractiveReportsController implements IOsgiWebController {
 		String reportTemplateKey = invocation.getRequest().getParameter("reportTemplate");
 		String reportParamsStr = invocation.getRequest().getParameter("reportParams");
 
-		InteractiveReportTemplate reportTemplate = reportService.getReportTemplate(reportTemplateKey);
+		long start = System.currentTimeMillis();
 
+		InteractiveReportTemplate reportTemplate = reportService.getReportTemplate(reportTemplateKey);
 		GenericResultBean result = new GenericResultBean();
 
 		try {
@@ -106,9 +108,12 @@ public class InteractiveReportsController implements IOsgiWebController {
 			result.setData(reportTemplate.renderReport(getRenderParams(invocation, reportParams)));
 		}
 		catch (Exception e) {
-			logger.log(Level.SEVERE, "[INTERACTIVE_REPORTS] Cannot render report", e);
+			logger.log(Level.SEVERE, "[INTERACTIVE_REPORTS] Cannot render report: " +  e.getMessage(), e);
 			result.addError("Cannot render report", e.getMessage());
 		}
+
+		logger.info("Render " + reportTemplateKey + " time = " + (System.currentTimeMillis() - start));
+
 		return result;
 	}
 

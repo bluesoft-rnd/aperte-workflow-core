@@ -15,4 +15,5 @@ import java.lang.annotation.Target;
 public @interface Mapper {
     Class<? extends IAttributesProvider> forProviderClass();
     String[] forDefinitionNames();
+	int priority() default 0;
 }

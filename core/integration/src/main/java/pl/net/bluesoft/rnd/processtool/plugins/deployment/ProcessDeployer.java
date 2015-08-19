@@ -124,7 +124,7 @@ public class ProcessDeployer
 		return processToolRegistry.getProcessToolSessionFactory().createSession("admin", Collections.singletonList("ADMIN"));
 	}
 
-	public void deployOrUpdateProcessDefinition(
+	public String deployOrUpdateProcessDefinition(
 			InputStream jpdlStream,
 			InputStream processToolConfigStream, 
 			InputStream queueConfigStream,
@@ -152,6 +152,9 @@ public class ProcessDeployer
 		deployOrUpdateProcessDefinition(jpdlStream, config,
 				qConfigs.toArray(new ProcessQueueConfig[qConfigs.size()]),
 				imageStream);
+
+		return config.getBpmDefinitionKey();
+
 	}
 
 	private void checkRequiredFiles(InputStream jpdlStream, InputStream processToolConfigStream, InputStream queueConfigStream) {

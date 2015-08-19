@@ -4,7 +4,7 @@
     <parent>
         <artifactId>core</artifactId>
         <groupId>org.aperteworkflow</groupId>
-        <version>3.0-beta2-SNAPSHOT</version>
+        <version>3.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>base-gui</artifactId>
@@ -16,11 +16,6 @@
     </properties>
 
     <dependencies>
-		<dependency>
-			<groupId>commons-codec</groupId>
-			<artifactId>commons-codec</artifactId>
-			<version>1.6</version>
-		</dependency>
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
@@ -29,12 +24,12 @@
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>gui-commons</artifactId>
-            <version>3.0-beta2-SNAPSHOT</version>
+            <version>3.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>webapi</artifactId>
-            <version>3.0-beta2-SNAPSHOT</version>
+            <version>3.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.vaadin</groupId>
@@ -63,7 +58,7 @@
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>integration</artifactId>
-            <version>3.0-beta2-SNAPSHOT</version>
+            <version>3.2-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>jboss</groupId>
@@ -138,6 +133,17 @@
                     <artifactId>spring-web</artifactId>
                 </exclusion>
 
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-ws-security</artifactId>
+            <version>${cxf.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>

@@ -15,6 +15,10 @@ public class ProcessInstanceFilter  {
     private String processBpmKey;
     private String viewName;
 
+	private Map<String, Object> additionalParameters = new HashMap<String, Object>();
+
+	private IBpmTaskQueryCondition bpmTaskQueryCondition;
+
     private Set<ProcessInstanceFilterSortingColumn> sortingColumns = new HashSet<ProcessInstanceFilterSortingColumn>();
 
     private String expression;
@@ -120,16 +124,16 @@ public class ProcessInstanceFilter  {
 	public void setName(String name) {
 		this.name = name;
 	}
-	
+
 	public Set<QueueType> getQueueTypes() {
 		return queueTypes;
 	}
-	
+
 	public QueueType getFirstQueueType()
 	{
 		for(QueueType queueType: queueTypes)
 			return queueType;
-		
+
 		return null;
 	}
 
@@ -137,14 +141,30 @@ public class ProcessInstanceFilter  {
 		this.queueTypes = queueTypes;
 	}
 
-	public void addQueueType(QueueType queueType) 
+	public void addQueueType(QueueType queueType)
 	{
 		this.queueTypes.add(queueType);
-		
+
 	}
 
+	public Map<String, Object> getAdditionalParameters() {
+		return additionalParameters;
+	}
 
-    public String getProcessBpmKey() {
+	public void addAdditionalParamter(String key, Object object)
+	{
+		this.additionalParameters.put(key, object);
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getProcessBpmKey() {
         return processBpmKey;
     }
 
@@ -169,4 +189,12 @@ public class ProcessInstanceFilter  {
     {
         return sortingColumns;
     }
+
+	public IBpmTaskQueryCondition getBpmTaskQueryCondition() {
+		return bpmTaskQueryCondition;
+	}
+
+	public void setBpmTaskQueryCondition(IBpmTaskQueryCondition bpmTaskQueryCondition) {
+		this.bpmTaskQueryCondition = bpmTaskQueryCondition;
+	}
 }

@@ -64,6 +64,7 @@
         <mapping class="pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemValue"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemExtension"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryPermission"/>
+		<mapping class="pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryDefaultItemExtension"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstanceDictionaryAttribute"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstanceDictionaryItem"/>
 	</session-factory>

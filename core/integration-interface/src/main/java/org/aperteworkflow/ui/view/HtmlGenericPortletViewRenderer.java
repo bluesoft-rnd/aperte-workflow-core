@@ -50,7 +50,7 @@ public abstract class HtmlGenericPortletViewRenderer implements GenericPortletVi
 	}
 
 	@Override
-	public String render() {
+	public String getCode() {
 		Map<String, Object> templateData = getTemplateData();
 		return templateLoader.processTemplate(TEMPLATE_NAME, templateData);
 	}

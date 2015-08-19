@@ -1,7 +1,9 @@
 package pl.net.bluesoft.rnd.processtool;
 
+import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessToolSetting;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.util.lang.ExpiringCache;
 
@@ -14,7 +16,7 @@ import pl.net.bluesoft.util.lang.ExpiringCache;
 @Component
 public class AperteSettingsProvider implements ISettingsProvider
 {
-    private static final ExpiringCache<String, String> settings = new ExpiringCache<String, String>(60 * 1000);
+    private final ExpiringCache<String, String> settings = new ExpiringCache<String, String>(60 * 1000);
 
     @Autowired
     private ProcessToolRegistry processToolRegistry;
@@ -33,16 +35,23 @@ public class AperteSettingsProvider implements ISettingsProvider
             {
                 ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
                 if(ctx != null)
-                    return ctx.getSetting(setting);
+                    return getSettingWithContext(ctx, setting);
                 else
                     return processToolRegistry.withProcessToolContext(new ReturningProcessToolContextCallback<String>() {
                         @Override
                         public String processWithContext(ProcessToolContext ctx) {
-                            return ctx.getSetting(setting);
+                            return getSettingWithContext(ctx, setting);
                         }
-                    });
+                    }, ProcessToolContextFactory.ExecutionType.NO_TRANSACTION);
             }
         });
+    }
+
+    private String getSettingWithContext(ProcessToolContext ctx, String key)
+    {
+        ProcessToolSetting setting = (ProcessToolSetting) ctx.getHibernateSession().createCriteria(ProcessToolSetting.class)
+                .add(Restrictions.eq("key", key)).uniqueResult();
+        return setting != null ? setting.getValue() : null;
     }
 
     @Override
@@ -52,14 +61,33 @@ public class AperteSettingsProvider implements ISettingsProvider
 
         ProcessToolContext ctx = ProcessToolContext.Util.getThreadProcessToolContext();
         if(ctx != null)
-            ctx.setSetting(settingKey, value);
+            setSettingWithContext(ctx, settingKey.toString(), value);
         else
             processToolRegistry.withProcessToolContext(new ProcessToolContextCallback() {
                 @Override
                 public void withContext(ProcessToolContext ctx) {
-                    ctx.setSetting(settingKey, value);
+                    setSettingWithContext(ctx, settingKey.toString(), value);
                 }
             });
+    }
+
+    @Override
+    public void invalidateCache() {
+        settings.clear();
+    }
+
+    private void setSettingWithContext(ProcessToolContext ctx, String key, String newValue)
+    {
+        ProcessToolSetting setting = (ProcessToolSetting) ctx.getHibernateSession().createCriteria(ProcessToolSetting.class)
+                .add(Restrictions.eq("key", key)).uniqueResult();
+
+        if(setting == null)
+        {
+            setting = new ProcessToolSetting();
+            setting.setKey(key.toString());
+        }
+        setting.setValue(newValue);
+        ctx.getHibernateSession().saveOrUpdate(setting);
     }
 
 }

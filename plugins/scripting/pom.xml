@@ -3,7 +3,7 @@
     <parent>
         <artifactId>plugins</artifactId>
         <groupId>org.aperteworkflow</groupId>
-        <version>3.0-beta2-SNAPSHOT</version>
+        <version>3.2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -15,7 +15,7 @@
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>integration-interface</artifactId>
-            <version>3.0-beta2-SNAPSHOT</version>
+            <version>3.2-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

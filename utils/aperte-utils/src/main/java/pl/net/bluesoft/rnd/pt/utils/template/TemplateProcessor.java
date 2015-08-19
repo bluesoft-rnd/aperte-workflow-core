@@ -22,7 +22,7 @@ import java.util.logging.Logger;
 
 public class TemplateProcessor {
     public static final String DEFAULT_SUBJECT_SUFFIX = "___subject";
-    public static final long DEFAULT_CONFIG_CACHE_REFRESH_INTERVAL = 60 * 1000;
+    public static final long DEFAULT_CONFIG_CACHE_REFRESH_INTERVAL = 120 * 1000;
     private static final Logger logger = Logger.getLogger(TemplateProcessor.class.getName());
 
     private String subjectSuffix = DEFAULT_SUBJECT_SUFFIX;

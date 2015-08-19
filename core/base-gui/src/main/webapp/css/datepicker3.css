@@ -11,10 +11,20 @@
   padding: 4px;
   border-radius: 4px;
   direction: ltr;
-  /*.dow {
-		border-top: 1px solid #ddd !important;
-	}*/
 }
+.dow{
+  background-color: #DDDDDD;
+  border-radius: 0px !important;
+}
+
+.datepicker td:last-child.day{
+  color: #ff0000 !important;
+}
+
+.datepicker td:nth-last-child(2).day{
+  color: #ff0000 !important;
+}
+
 .datepicker-inline {
   width: 220px;
 }
@@ -115,7 +125,7 @@
 }
 .datepicker table tr td.old,
 .datepicker table tr td.new {
-  color: #999999;
+  color: #999999 !important;
 }
 .datepicker table tr td.disabled,
 .datepicker table tr td.disabled:hover {

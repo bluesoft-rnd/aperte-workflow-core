@@ -102,11 +102,11 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
         return result;
     }
 
-	protected List<ProcessQueue> getUserQueuesFromConfig() {
-		return getQueuesFromConfig(getRoleNames());
+	public List<ProcessQueue> getUserQueuesFromConfig() {
+		return getQueuesFromConfig(getRoleNames(), "admin".equals(userLogin));
     }
 
-	public static List<ProcessQueue> getQueuesFromConfig(final Collection<String> roleNames) {
+	public static List<ProcessQueue> getQueuesFromConfig(final Collection<String> roleNames, final boolean adminUser) {
 		Collection<ProcessQueueConfig> queueConfigs = getContext().getProcessDefinitionDAO().getQueueConfigs();
 		return new Mapcar<ProcessQueueConfig, ProcessQueue>(queueConfigs) {
             @Override
@@ -122,7 +122,7 @@ public abstract class AbstractProcessToolSession implements ProcessToolBpmSessio
                         continue;
                     }
 
-                    if (hasMatchingRole(rn, roleNames)) {
+                    if (hasMatchingRole(rn, roleNames) || adminUser) {
                         found = true;
                         browsable = browsable || r.isBrowseAllowed();
                     }

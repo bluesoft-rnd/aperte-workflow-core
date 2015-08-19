@@ -5,14 +5,15 @@ import org.hibernate.dialect.Dialect;
 import org.hibernate.type.StandardBasicTypes;
 import org.jbpm.task.Status;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
-import pl.net.bluesoft.rnd.processtool.model.*;
+import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
+import pl.net.bluesoft.rnd.processtool.model.QueueOrder;
+import pl.net.bluesoft.rnd.processtool.model.QueueType;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.BpmTaskBean;
 import pl.net.bluesoft.rnd.processtool.web.view.IBpmTaskQueryCondition;
-import pl.net.bluesoft.rnd.processtool.web.view.ProcessInstanceFilterSortingColumn;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 import pl.net.bluesoft.util.lang.cquery.func.F;
-import sun.util.logging.resources.logging;
 
 import java.sql.Types;
 import java.util.*;
@@ -201,6 +202,8 @@ public class BpmTaskQuery {
         List<Object[]> queryResults = query.list();
 
         List<BpmTask> result = new ArrayList<BpmTask>();
+		Map<Integer, BpmTask> tasksById = new HashMap<Integer, BpmTask>();
+		List<Integer> taskIdsWithoutAssignee = new ArrayList<Integer>();
 
         ProcessDefinitionDAO processDefinitionDAO = getThreadProcessToolContext().getProcessDefinitionDAO();
 
@@ -208,7 +211,7 @@ public class BpmTaskQuery {
             ProcessInstance processInstance = (ProcessInstance)resultRow[0];
             int taskId = (Integer)resultRow[1];
             String assignee = (String)resultRow[2];
-            String groupId = (String)resultRow[3];
+            //String groupId = (String)resultRow[3];
             String taskName = (String)resultRow[4];
             Date createDate = (Date)resultRow[5];
             Date finishDate = (Date)resultRow[6];
@@ -217,27 +220,36 @@ public class BpmTaskQuery {
             Date taskDeadline = (Date)resultRow[9];
             String stepInfo = (String)resultRow[10];
 
-            BpmTaskBean bpmTask = new BpmTaskBean();
+			if (tasksById.get(taskId) == null) {
+				BpmTaskBean bpmTask = new BpmTaskBean();
 
-            bpmTask.setProcessInstance(processInstance);
-            bpmTask.setExecutionId(processInstance.getInternalId());
-            bpmTask.setInternalTaskId(String.valueOf(taskId));
-            bpmTask.setAssignee(assignee);
-            bpmTask.setGroupId(groupId);
-            bpmTask.setTaskName(taskName);
-            bpmTask.setCreateDate(createDate);
-            bpmTask.setFinishDate(finishDate);
-            bpmTask.setFinished(Status.valueOf(status) == Status.Completed);
-            bpmTask.setProcessDefinition(processDefinitionDAO.getCachedDefinitionById(definitionId));
-            bpmTask.setDeadlineDate(taskDeadline);
-            bpmTask.setStepInfo(stepInfo);
+				bpmTask.setProcessInstance(processInstance);
+				bpmTask.setExecutionId(processInstance.getInternalId());
+				bpmTask.setInternalTaskId(String.valueOf(taskId));
+				bpmTask.setAssignee(assignee);
+				bpmTask.setTaskName(taskName);
+				bpmTask.setCreateDate(createDate);
+				bpmTask.setFinishDate(finishDate);
+				bpmTask.setFinished(Status.valueOf(status) == Status.Completed);
+				bpmTask.setProcessDefinition(processDefinitionDAO.getCachedDefinitionById(definitionId));
+				bpmTask.setDeadlineDate(taskDeadline);
+				bpmTask.setStepInfo(stepInfo);
 
-            result.add(bpmTask);
+				result.add(bpmTask);
+				tasksById.put(taskId, bpmTask);
+
+				if (assignee == null) {
+					taskIdsWithoutAssignee.add(taskId);
+				}
+			}
         }
+
+		fillPotentialOwners(taskIdsWithoutAssignee, tasksById);
+
         return result;
     }
 
-    private SQLQuery getQuery(QueryType queryType) {
+	private SQLQuery getQuery(QueryType queryType) {
         List<QueryParameter> queryParameters = new ArrayList<QueryParameter>();
         String queryString = getQueryString(queryType, queryParameters);
         SQLQuery query = getThreadProcessToolContext().getHibernateSession().createSQLQuery(queryString);
@@ -284,7 +296,7 @@ public class BpmTaskQuery {
         }
         else {
             sb.append("process.*, task_.id as taskId, task_.actualowner_id as assignee, ");
-            sb.append("CASE WHEN task_.actualowner_id IS NULL THEN potowners.entity_id END as groupId, ");
+            sb.append("NULL as groupId, ");
             sb.append("i18ntext_.shortText as taskName, task_.createdOn as createdOn, task_.completedOn as completedOn, ");
             sb.append("task_.status as taskStatus, process.definition_id as definitionId, ");
             sb.append(DEADLINE_SUBQUERY);
@@ -292,34 +304,11 @@ public class BpmTaskQuery {
         }
 
         String castTypeName = hibernateDialect.getCastTypeName(Types.VARCHAR);
-        sb.append(" FROM pt_process_instance process JOIN Task task_ ON CAST(task_.processinstanceid AS "+castTypeName+" ) = process.internalId");
+        sb.append(" FROM pt_process_instance process JOIN Task task_ ON CAST(task_.processinstanceid AS "+castTypeName+" ) = process.internalId ");
+        sb.append(" LEFT JOIN PeopleAssignments_PotOwners potowners on potowners.task_id = task_.id AND potowners.entity_id = :user ");
+        sb.append(" LEFT JOIN pt_process_instance_owners powner on powner.process_id = process.id AND powner.owners = :user ");
 
-        /* Queue or all user tasks */
-        if (queues != null || queryType == QueryType.LIST || (virtualQueues != null && virtualQueues.contains(QueueType.ALL_TASKS)))
-        {
-        	if (hasText(searchExpression)) {
-        		sb.append(" JOIN PeopleAssignments_PotOwners potowners ON (potowners.task_id = task_.id AND ");
-        	}
-        	else{
-        		sb.append(" LEFT JOIN PeopleAssignments_PotOwners potowners ON (potowners.task_id = task_.id AND ");
-        	}
-            if(virtualQueues != null && virtualQueues.contains(QueueType.OWN_IN_PROGRESS))
-            {
-                sb.append(" potowners.entity_id <> :user)");
-                queryParameters.add(new QueryParameter("user", user));
-            }
-            else if(queues != null)
-            {
-                sb.append(" potowners.entity_id IN (:queues))");
-            }
-            else
-            {
-                sb.append(" potowners.entity_id = :user)");
-                queryParameters.add(new QueryParameter("user", user));
-            }
-
-        }
-
+        queryParameters.add(new QueryParameter("user", user));
 
         if (taskNames != null || queryType == QueryType.LIST || hasText(searchExpression)) {
             sb.append(" JOIN I18NText i18ntext_ ON i18ntext_.task_names_id = task_.id");
@@ -335,23 +324,27 @@ public class BpmTaskQuery {
 
         /* Add additional join conditions */
         for(SortingOrder sortingOrder: columnSorting)
-            sb.append(queryConditions.getJoinCondition(sortingOrder.getColumnName()));
+            sb.append(queryConditions.getSortJoinCondition(sortingOrder.getColumnName()));
+
+        sb.append(queryConditions.getJoin());
 
         sb.append(" WHERE 1=1");
 
+        if (queues != null)
+        {
+            sb.append(" AND potowners.entity_id IN (:queues) ");
+			sb.append(" AND task_.actualowner_id IS NULL");
+			sb.append(" AND task_.status NOT IN ('Completed')");
+            queryParameters.add(new QueryParameter("queues", queues));
+        }
+
         if (owners != null) {
-            sb.append(" AND EXISTS(SELECT 1 FROM pt_process_instance_owners powner WHERE powner.process_id = process.id AND owners IN (:owners))");
+            sb.append(" AND owners IN (:owners)");
             queryParameters.add(new QueryParameter("owners", owners));
         }
 
         if (virtualQueues != null && user != null) {
             sb.append(from(virtualQueues).select(GET_VIRTUAL_QUEUES).toString(" OR ", " AND (", ")"));
-            queryParameters.add(new QueryParameter("user", user));
-        }
-
-        if (queues != null) {
-            sb.append(" AND task_.actualowner_id IS NULL AND potowners.entity_id IN (:queues)");
-            queryParameters.add(new QueryParameter("queues", queues));
         }
 
         if (taskNames != null) {
@@ -374,18 +367,21 @@ public class BpmTaskQuery {
             queryParameters.add(new QueryParameter("processBpmKey", processBpmKey));
         }
 
+        sb.append(queryConditions.getWhereCondition());
+
         if (hasText(searchExpression)) {
             sb.append(" AND (");
             sb.append("task_.actualowner_id LIKE '%' || :expression || '%'");
-            sb.append(" OR process.creatorLogin LIKE '%' || :expression || '%'");
-            sb.append(" OR (CASE WHEN process.externalKey IS NOT NULL THEN process.externalKey ELSE process.internalId END) LIKE '%' || :expression || '%'");
-            sb.append(" OR to_char(task_.createdOn, 'YYYY-MM-DD HH24:MI:SS') LIKE :expression || '%'");
-            sb.append(" OR EXISTS(SELECT 1 FROM pt_process_instance_s_attr attr");
-            sb.append("	WHERE attr.process_instance_id = process.id AND attr.value_ LIKE '%' || :expression || '%')");
-            sb.append(" OR to_char(");
-            sb.append(DEADLINE_SUBQUERY);
-            sb.append(", 'YYYY-MM-DD HH24:MI:SS') LIKE :expression || '%'");
-
+//            sb.append(" OR process.creatorLogin LIKE '%' || :expression || '%'");
+//            sb.append(" OR (CASE WHEN process.externalKey IS NOT NULL THEN process.externalKey ELSE process.internalId END) LIKE '%' || :expression || '%'");
+//            sb.append(" OR to_char(task_.createdOn, 'YYYY-MM-DD HH24:MI:SS') LIKE :expression || '%'");
+//            sb.append(" OR EXISTS(SELECT 1 FROM pt_process_instance_s_attr attr");
+//            sb.append("	WHERE attr.process_instance_id = process.id AND attr.value_ LIKE '%' || :expression || '%')");
+//            sb.append(" OR to_char(");
+//            sb.append(DEADLINE_SUBQUERY);
+//            sb.append(", 'YYYY-MM-DD HH24:MI:SS') LIKE :expression || '%'");
+            sb.append(" OR " + queryConditions.getSearchCondition());
+//
             queryParameters.add(new QueryParameter("expression", searchExpression.trim()));
 
             List<Long> definitionDescrKeys = getSearchKeywordMatchingIds(getThreadProcessToolContext()
@@ -426,7 +422,7 @@ public class BpmTaskQuery {
             sb.append(getOrderCondition());
         }
         String txt = sb.toString();
-        log.info(txt);
+//        log.info(txt);
         return txt;
     }
 
@@ -438,6 +434,8 @@ public class BpmTaskQuery {
             String orderString = " ORDER BY ";
             int moreConditions = columnSorting.size();
             Collections.sort(columnSorting);
+
+            boolean sortCodnitionAdded = false;
 
             for(SortingOrder sortingOrder: columnSorting)
             {
@@ -452,9 +450,13 @@ public class BpmTaskQuery {
                 if(moreConditions > 0)
                     conditionSql += ", ";
 
+                sortCodnitionAdded = true;
+
                 orderString += conditionSql;
             }
-            return  orderString;
+
+            if(sortCodnitionAdded)
+                return  orderString;
         }
 
 
@@ -478,9 +480,9 @@ public class BpmTaskQuery {
             case ALL_TASKS:
                 return "(((potowners.entity_id = :user AND task_.status NOT IN ('Reserved')) OR task_.actualowner_id = :user) AND task_.status NOT IN ('Completed'))";
             case MY_TASKS:
-                return "(task_.actualowner_id = :user AND task_.status NOT IN ('Completed'))";
+                return "(((potowners.entity_id = :user AND task_.status NOT IN ('Reserved')) OR task_.actualowner_id = :user) AND task_.status NOT IN ('Completed'))";
             case OWN_IN_PROGRESS:
-                return "(process.creatorLogin = :user AND task_.status NOT IN ('Completed'))";
+                return "((process.creatorLogin = :user OR (owners IN (:user))) AND task_.status NOT IN ('Completed') AND (task_.actualowner_id != :user OR task_.actualowner_id is null))";
             case OWN_FINISHED:
                 return "(process.creatorLogin = :user AND task_.actualowner_id = :user AND task_.status IN ('Completed'))";
             default:
@@ -507,6 +509,42 @@ public class BpmTaskQuery {
         }
         return result;
     }
+
+	private static final String GET_POTENTIAL_OWNERS =
+			"SELECT po.task_id AS taskId, oe.dtype AS entityType, po.entity_id AS entityName \n" +
+			"FROM PeopleAssignments_PotOwners po JOIN OrganizationalEntity oe ON oe.id = po.entity_id \n" +
+			"WHERE po.task_id IN (:taskIds)";
+
+	private void fillPotentialOwners(List<Integer> taskIdsWithoutAssignee, Map<Integer, BpmTask> tasksById) {
+		if (taskIdsWithoutAssignee.isEmpty()) {
+			return;
+		}
+
+		SQLQuery query = getThreadProcessToolContext().getHibernateSession().createSQLQuery(GET_POTENTIAL_OWNERS);
+
+		query.addScalar("taskId", StandardBasicTypes.INTEGER)
+				.addScalar("entityType", StandardBasicTypes.STRING)
+				.addScalar("entityName", StandardBasicTypes.STRING)
+				.setParameterList("taskIds", taskIdsWithoutAssignee);
+
+		List<Object[]> list = query.list();
+
+		for (Object[] row : list) {
+			Integer taskId = (Integer)row[0];
+			String entityType = (String)row[1];
+			String entityName = (String)row[2];
+
+			BpmTask task = tasksById.get(taskId);
+
+			if ("User".equals(entityType)) {
+				task.getPotentialOwners().add(entityName);
+			}
+			else if ("Group".equals(entityType)) {
+				task.getQueues().add(entityName);
+				((BpmTaskBean)task).setGroupId(entityName);
+			}
+		}
+	}
 
     @Override
     public String toString() {

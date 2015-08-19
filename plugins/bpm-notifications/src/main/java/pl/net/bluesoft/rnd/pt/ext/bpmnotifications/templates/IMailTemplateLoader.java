@@ -25,4 +25,6 @@ public interface IMailTemplateLoader extends TemplateLoader
 	/** Find tempalte by name */
 	String findTemplate(String templateName);
 
+	String getTemplateSentFolderName(String templateName);
+
 }

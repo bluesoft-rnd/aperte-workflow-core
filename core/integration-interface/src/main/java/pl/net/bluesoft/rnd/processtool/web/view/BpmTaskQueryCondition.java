@@ -1,6 +1,12 @@
 package pl.net.bluesoft.rnd.processtool.web.view;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
+import org.apache.commons.lang3.StringUtils;
 import pl.net.bluesoft.rnd.processtool.web.view.IBpmTaskQueryCondition;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
  * @author: mpawlak
@@ -17,7 +23,12 @@ public class BpmTaskQueryCondition implements IBpmTaskQueryCondition
     private static final String TASK_CREATION_DATE = "assignDate";
 
     @Override
-    public String getJoinCondition(String sortColumnName) {
+    public String getSortJoinCondition(String sortColumnName) {
+        return "";
+    }
+
+    @Override
+    public String getJoin() {
         return "";
     }
 
@@ -42,5 +53,30 @@ public class BpmTaskQueryCondition implements IBpmTaskQueryCondition
                 return "process.business_status";
         else
             return "";
+    }
+
+    @Override
+    public String getSearchCondition()
+    {
+        return "";
+    }
+
+    @Override
+    public String getWhereCondition() {
+        return "";
+    }
+
+    protected String getSAttrsSearchCondition(List<String> searchSAttrs)
+    {
+        Collection<String> enclosedSAttrs = Collections2.transform(searchSAttrs, new Function<String, String>() {
+            @Override
+            public String apply(String s) {
+                return "'" + s + "'";
+            }
+        });
+
+        String joinedSAttrs = StringUtils.join(enclosedSAttrs, ", ");
+
+        return "(select count(ppisa.key_) from pt_process_instance_s_attr ppisa where ppisa.process_instance_id=process.id and ppisa.key_ in("+joinedSAttrs+") and lower(ppisa.value_) like '%' || lower(:expression) || '%') > 0";
     }
 }

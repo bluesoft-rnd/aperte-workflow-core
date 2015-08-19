@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD//EN"
+        "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+    <session-factory>
+
+        <!-- this values are provided by ProcessToolRegistryImpl class -->
+        <property name="hibernate.connection.driver_class">org.postgresql.Driver</property>
+        <property name="hibernate.connection.url">jdbc:postgresql://127.0.0.1:5432/aperte-jbpm-6.2</property>
+        <property name="hibernate.connection.username">dpd</property>
+        <property name="hibernate.connection.password">dpd</property>
+        <!-- <property name="hibernate.connection.datasource">java:comp/env/jdbc/aperte-workflow-ds</property> -->
+
+        <!--<property name="connection.release_mode">after_statement</property>-->
+        <property name="hibernate.hbm2ddl.auto">update</property>
+        <!--<property name="hibernate.format_sql">true</property>-->
+        <property name="hibernate.use_outer_join">true</property>
+        <property name="hibernate.bytecode.use_reflection_optimizer">true</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</property>
+
+		<!--<property name="hibernate.connection.datasource">java:comp/env/jdbc/aperte-workflow-ds</property>-->
+
+        <!--
+         validator brakes deploy on jboss 5.1 as it reaches Validator provided with JBoss AS
+        -->
+        <property name="hibernate.validator.apply_to_ddl">false</property>
+        <property name="hibernate.validator.autoregister_listeners">false</property>
+        <property name="hibernate.search.autoregister_listeners">false</property>
+
+        <property name="hibernate.connection.autocommit">false</property>
+        <property name="hibernate.show_sql">true</property>
+
+        <!--<property name="hibernate.transaction.manager_lookup_class">org.hibernate.transaction.JBossTransactionManagerLookup</property>-->
+
+        <!-- moved these settings to ProcessToolRegistryImpl.java -->
+        <!--<property name="hibernate.transaction.manager_lookup_class">org.hibernate.transaction.BTMTransactionManagerLookup</property>
+        <property name="hibernate.transaction.factory_class">org.hibernate.transaction.JTATransactionFactory</property>
+        <property name="current_session_context_class">jta</property>-->
+		<property name="hibernate.transaction.flush_before_completion">true</property>
+        <mapping class="pl.net.bluesoft.casemanagement.model.Case"/>
+        <mapping class="pl.net.bluesoft.casemanagement.model.CaseDefinition"/>
+        <mapping class="pl.net.bluesoft.casemanagement.model.CaseAttribute"/>
+        <mapping class="pl.net.bluesoft.casemanagement.model.CaseStage"/>
+        <mapping class="pl.net.bluesoft.casemanagement.model.CaseStageSimpleAttribute"/>
+		<mapping class="pl.net.bluesoft.casemanagement.model.CaseStageSimpleLargeAttribute"/>
+        <mapping class="pl.net.bluesoft.casemanagement.model.CaseSimpleAttribute"/>
+        <mapping class="pl.net.bluesoft.casemanagement.model.CaseSimpleLargeAttribute"/>
+        <mapping class="pl.net.bluesoft.casemanagement.model.CaseStateDefinition"/>
+        <mapping class="pl.net.bluesoft.casemanagement.model.CaseStateWidget"/>
+        <mapping class="pl.net.bluesoft.casemanagement.model.CaseStateWidgetAttribute"/>
+        <mapping class="pl.net.bluesoft.casemanagement.model.CaseStateWidgetPermission"/>
+        <mapping class="pl.net.bluesoft.casemanagement.model.CaseStateRole"/>
+        <mapping class="pl.net.bluesoft.casemanagement.model.CaseStateProcess"/>
+        <mapping class="pl.net.bluesoft.casemanagement.model.CaseComment"/>
+        <mapping class="pl.net.bluesoft.casemanagement.model.CaseCommentsAttribute"/>
+        <mapping class="pl.net.bluesoft.casemanagement.model.FilesRepositoryCaseAttribute"/>
+
+        <mapping class="org.aperteworkflow.files.model.FilesRepositoryItem"/>
+
+        <mapping class="pl.net.bluesoft.rnd.processtool.web.view.ProcessInstanceFilter"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstance"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceAttachmentAttribute"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceAttribute"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceSimpleAttribute"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceSimpleLargeAttribute"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.StepInfo"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.UserAttribute"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.UserSubstitution"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.UserAttributePredicates"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionPermission"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueRight"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessStatePermission"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidgetAttribute"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessStateActionAttribute"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidgetPermission"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessStateActionPermission"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessToolSetting"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessToolSequence"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComment"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.processdata.ProcessDeadline"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionary"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItem"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemValue"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemExtension"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryPermission"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryI18N"/>
+		<mapping class="pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryDefaultItemExtension"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceDictionaryAttribute"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceDictionaryItem"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.token.AccessToken"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.report.Report"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.OperationLock"/>
+
+    </session-factory>
+</hibernate-configuration>

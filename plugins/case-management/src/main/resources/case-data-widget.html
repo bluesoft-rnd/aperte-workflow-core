@@ -1,0 +1,62 @@
+<#assign titleCaption = messageSource.getMessage("widget.case.management.data.title") />
+<#assign idCaption = messageSource.getMessage("widget.case.management.data.id") />
+<#assign nameCaption = messageSource.getMessage("widget.case.management.data.caseName") />
+<#assign numberCaption = messageSource.getMessage("widget.case.management.data.number") />
+<#assign stageCaption = messageSource.getMessage("widget.case.management.data.stage") />
+<#assign definitionCaption = messageSource.getMessage("widget.case.management.data.definition") />
+<#assign createDateCaption = messageSource.getMessage("widget.case.management.data.createDate") />
+<#assign modificationDateCaption = messageSource.getMessage("widget.case.management.data.modificationDate") />
+
+<#assign id = case.getId() />
+<#assign name = case.getName() />
+<#assign number = case.getNumber() />
+<#assign definition = case.getDefinition().getName() />
+<#assign stage = case.getCurrentStage().getName()! />
+<#assign createDate = case.getCreateDate() />
+<#assign modificationDate = case.getModificationDate()! />
+
+
+<div>
+    <div class="panel panel-default">
+        <div class="panel-heading">${titleCaption}</div>
+        <div class="panel-body">
+            <div class="form-horizontal">
+                <div class="form-group input-group-sm">
+                    <label name="tooltip" title="${numberCaption}"
+                           class="col-sm-2 control-label">${numberCaption}</label>
+                    <h4 class="col-sm-8">${number}</h4>
+                </div>
+                <div class="form-group input-group-sm">
+                    <label name="tooltip" title="${nameCaption}" class="col-sm-2 control-label">${nameCaption}</label>
+
+                    <div class="col-sm-10">${name}</div>
+                </div>
+                <div class="form-group input-group-sm">
+                    <label name="tooltip" title="${definitionCaption}" class="col-sm-2 control-label">${definitionCaption}</label>
+
+                    <div class="col-sm-10">${definition}</div>
+                </div>
+                <div class="form-group input-group-sm">
+                    <label name="tooltip" title="${stageCaption}" class="col-sm-2 control-label">${stageCaption}</label>
+
+                    <div class="col-sm-10">${stage}</div>
+                </div>
+                <div class="form-group input-group-sm">
+                    <label name="tooltip" title="${idCaption}" class="col-sm-2 control-label">${idCaption}</label>
+
+                    <div class="col-sm-10">${id}</div>
+                </div>
+                <div class="form-group input-group-sm">
+                    <label name="tooltip" title="${createDateCaption}" class="col-sm-2 control-label">${createDateCaption}</label>
+
+                    <div class="col-sm-10">${createDate}</div>
+                </div>
+                <div class="form-group input-group-sm">
+                    <label name="tooltip" title="${modificationDateCaption}" class="col-sm-2 control-label">${modificationDateCaption}</label>
+
+                    <div class="col-sm-10">${modificationDate}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -4,7 +4,7 @@
     <parent>
         <artifactId>aperteworkflow-core</artifactId>
         <groupId>org.aperteworkflow</groupId>
-        <version>3.0-beta2-SNAPSHOT</version>
+        <version>3.2-SNAPSHOT</version>
     </parent>
 
     <name>Aperte Workflow Samples</name>
@@ -18,7 +18,13 @@
         <module>sample-mule-step</module>
         <module>mule-flightsearch-sample</module>
         <module>mule-attachment-sample</module>
-<!--		<module>incident-process</module>-->
+        <module>application-webapp</module>
+        <module>application-ws-schema</module>
+        <module>application-ws</module>
+        <module>application-widgets</module>
+        <module>application-case</module>
+
+        <!--		<module>incident-process</module>-->
     </modules>
 
     <dependencies>

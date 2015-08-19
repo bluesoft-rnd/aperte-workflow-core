@@ -9,5 +9,8 @@
 rebel.xml
 rebel-remote.xml
 *.orig
+*.bak
 target
 ${liferay.dir}
+/samples/application-widgets/*.iml
+/samples/application-webapp/*.iml

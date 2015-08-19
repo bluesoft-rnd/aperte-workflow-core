@@ -88,23 +88,7 @@ public class LiferayAuthorizationService implements IAuthorizationService
 			/* Why? Becouse you can be logged out and still have cookies in browser */
 			if(liferayUser == null)
             {
-                Long companyId = (Long)servletRequest.getAttribute("COMPANY_ID");
-
-                if(companyId == null)
-                    return null;
-
-                String userLogin = (String)session.getAttribute(SESSION_LOGIN_ATTRIBUTE);
-                try
-                {
-                    liferayUser = UserLocalServiceUtil.getUserByScreenName(companyId, userLogin);
-                }
-                catch(NoSuchUserException ex)
-                {
-                    return null;
-                }
-
-                if(liferayUser == null)
-				    return null;
+                return null;
             }
 			
 			/* No cookies, use liferay user */

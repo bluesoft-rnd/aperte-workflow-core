@@ -100,14 +100,14 @@ public class BundleRegistryImpl implements BundleRegistry {
 	public synchronized void registerI18NProvider(I18NProvider i18Provider, String providerId) {
 		i18NProviders.put(providerId, i18Provider);
 		I18NSourceFactory.invalidateCache();
-		logger.warning("Registered I18NProvider: " + providerId);
+		logger.finest("Registered I18NProvider: " + providerId);
 	}
 
 	@Override
 	public synchronized void unregisterI18NProvider(String providerId) {
 		i18NProviders.remove(providerId);
 		I18NSourceFactory.invalidateCache();
-		logger.warning("Unregistered I18NProvider: " + providerId);
+		logger.finest("Unregistered I18NProvider: " + providerId);
 	}
 
 	@Override
@@ -124,7 +124,7 @@ public class BundleRegistryImpl implements BundleRegistry {
 	public synchronized void addServiceLoader(ProcessToolServiceBridge serviceBridge) {
 		if (serviceBridge != null) {
 			serviceBridges.add(serviceBridge);
-			logger.warning("Registered service bridge: " + serviceBridge.getClass().getName());
+			logger.finest("Registered service bridge: " + serviceBridge.getClass().getName());
 		}
 	}
 
@@ -132,7 +132,7 @@ public class BundleRegistryImpl implements BundleRegistry {
 	public synchronized void removeServiceLoader(ProcessToolServiceBridge serviceBridge) {
 		if (serviceBridge != null) {
 			serviceBridges.remove(serviceBridge);
-			logger.warning("Removed service bridge: " + serviceBridge.getClass().getName());
+			logger.finest("Removed service bridge: " + serviceBridge.getClass().getName());
 		}
 	}
 
@@ -149,7 +149,7 @@ public class BundleRegistryImpl implements BundleRegistry {
 				break;
 			}
 		}
-		logger.warning((result ? "Succeeded to" : "Failed to") + " remove registered service: " + serviceClass.getName());
+		logger.finest((result ? "Succeeded to" : "Failed to") + " remove registered service: " + serviceClass.getName());
 	}
 
 	@Override
@@ -160,7 +160,7 @@ public class BundleRegistryImpl implements BundleRegistry {
 				break;
 			}
 		}
-		logger.warning((result ? "Succeeded to" : "Failed to") + " register service: " + serviceClass.getName());
+		logger.finest((result ? "Succeeded to" : "Failed to") + " register service: " + serviceClass.getName());
 	}
 
 	@Override

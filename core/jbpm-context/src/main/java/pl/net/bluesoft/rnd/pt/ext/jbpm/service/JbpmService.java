@@ -25,11 +25,11 @@ import org.jbpm.task.event.TaskEventListener;
 import org.jbpm.task.event.entity.TaskUserEvent;
 import org.jbpm.task.identity.UserGroupCallbackManager;
 import org.jbpm.task.service.ContentData;
+import org.jbpm.task.service.TaskServiceSession;
+import org.jbpm.task.service.local.LocalHumanTaskService;
 import org.jbpm.task.service.local.LocalTaskService;
 import org.jbpm.task.utils.OnErrorAction;
-import org.springframework.beans.factory.annotation.Autowired;
 import pl.net.bluesoft.rnd.processtool.IProcessToolSettings;
-import pl.net.bluesoft.rnd.processtool.ISettingsProvider;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.JbpmStepAction;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.ProcessResourceNames;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.service.query.TaskQuery;
@@ -41,6 +41,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
 import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadProcessToolContext;
@@ -65,14 +66,12 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
     };
 
     private EntityManagerFactory emf;
-    private Environment env;
-    private org.jbpm.task.service.TaskService taskService;
-    private org.jbpm.task.TaskService client;
-    private StatefulKnowledgeSession ksession;
     private JbpmRepository repository;
     private KnowledgeBase knowledgeBase;
 
     private static JbpmService instance;
+
+    ThreadLocal<JbpmContext> sessionThreadLocal = new ThreadLocal<JbpmContext>();
 
     public static JbpmService getInstance() {
         if (instance == null) {
@@ -87,71 +86,79 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
 
     public void init() {
         initEntityManager();
-        initEnvironment();
-        initClient();
     }
 
     public void destroy() {
-        if (ksession != null) {
-            ksession.dispose();
+        if (sessionThreadLocal.get() != null) {
+            sessionThreadLocal.get().getStatefulKnowledgeSession().dispose();
+            sessionThreadLocal.get().getService().dispose();
+            sessionThreadLocal.remove();
         }
     }
 
     private void initEntityManager() {
         emf = Persistence.createEntityManagerFactory("org.jbpm.persistence.jpa");
+
+        UserGroupCallbackManager.getInstance().setCallback(new AwfUserCallback());
     }
 
-    private void initEnvironment() {
-        env = EnvironmentFactory.newEnvironment();
+    private Environment initEnvironment() {
+        Environment env = EnvironmentFactory.newEnvironment();
         env.set(EnvironmentName.ENTITY_MANAGER_FACTORY, emf);
         env.set(EnvironmentName.TRANSACTION_MANAGER, TransactionManagerServices.getTransactionManager());
+        return env;
     }
 
-    private void initClient() {
-        taskService = new org.jbpm.task.service.TaskService(emf, SystemEventListenerFactory.getSystemEventListener());
-        UserGroupCallbackManager.getInstance().setCallback(new AwfUserCallback());
+
+    private LocalTaskService initClient(Environment env) {
+
+        org.jbpm.task.service.TaskService taskService = new org.jbpm.task.service.TaskService(emf, SystemEventListenerFactory.getSystemEventListener());
 
         LocalTaskService localTaskService = new LocalTaskService(taskService);
         localTaskService.setEnvironment(env);
         localTaskService.addEventListener(this);
-        client = localTaskService;
+        return localTaskService;
     }
 
-    public synchronized String addProcessDefinition(InputStream definitionStream) {
-        String result = null;
-        byte[] bytes;
+    public String addProcessDefinition(InputStream definitionStream)
+    {
+        synchronized (getInstance()) {
+            String result = null;
+            byte[] bytes;
 
-        try {
-            bytes = IOUtils.toByteArray(definitionStream);
-            definitionStream = new ByteArrayInputStream(bytes);
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        if (isValidResource(bytes)) {
-            // add to jbpm repository
-            if (getRepository() != null) {
-                result = getRepository().addResource(ProcessResourceNames.DEFINITION, definitionStream);
+            try {
+                bytes = IOUtils.toByteArray(definitionStream);
+                definitionStream = new ByteArrayInputStream(bytes);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
 
-            // update session
-            if (ksession != null) {
-                KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
-                kbuilder.add(ResourceFactory.newByteArrayResource(bytes), ResourceType.BPMN2);
-                Collection<KnowledgePackage> packages = kbuilder.getKnowledgePackages();
-                KnowledgeBase knowledgeBaseSession =  ksession.getKnowledgeBase();
-                knowledgeBaseSession.addKnowledgePackages(packages);
-                if (knowledgeBase!=null) knowledgeBase.addKnowledgePackages(packages);
-            }
-        }
+            if (isValidResource(bytes)) {
+                // add to jbpm repository
+                if (getRepository() != null) {
+                    result = getRepository().addResource(ProcessResourceNames.DEFINITION, definitionStream);
+                }
 
-        return result;
+                JbpmContext jbpmContext = getJbpmContext();
+
+                // update session
+                if (jbpmContext != null) {
+                    KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+                    kbuilder.add(ResourceFactory.newByteArrayResource(bytes), ResourceType.BPMN2);
+                    Collection<KnowledgePackage> packages = kbuilder.getKnowledgePackages();
+                    KnowledgeBase knowledgeBaseSession = jbpmContext.getStatefulKnowledgeSession().getKnowledgeBase();
+                    knowledgeBaseSession.addKnowledgePackages(packages);
+                    if (knowledgeBase != null) knowledgeBase.addKnowledgePackages(packages);
+                }
+            }
+
+            return result;
+        }
     }
 
     private KnowledgeBase getKnowledgeBase() {
         if (knowledgeBase==null) {
-            synchronized(JbpmService.class) {
+            synchronized(getInstance()) {
                 if (knowledgeBase==null) {
                     KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
 
@@ -195,123 +202,114 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
         return isOK;
     }
 
-    private void loadSession(int sessionId) {
+    private JbpmContext getJbpmContext()
+    {
+        JbpmContext jbpmContext = sessionThreadLocal.get();
+        if(jbpmContext == null)
+        {
+            jbpmContext = newSession();
+            sessionThreadLocal.set(jbpmContext);
+        }
+
+        return jbpmContext;
+    }
+
+    private JbpmContext newSession() {
         KnowledgeBase kbase = getKnowledgeBase();
 
-        if (sessionId == -1) {
-            ksession = JPAKnowledgeService.newStatefulKnowledgeSession(kbase, null, env);
-        } else {
-            ksession = JPAKnowledgeService.loadStatefulKnowledgeSession(sessionId, kbase, null, env);
-            //ksession.signalEvent("Trigger", null); // may be necessary for pushing processes after server restart
-        }
+        Environment env = initEnvironment();
+        LocalTaskService client = initClient(env);
+
+        StatefulKnowledgeSession ksession = JPAKnowledgeService.newStatefulKnowledgeSession(kbase, null, env);
 
         LocalHTWorkItemHandler handler = new LocalHTWorkItemHandler(client, ksession, OnErrorAction.LOG);
         handler.connect();
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
         new JPAWorkingMemoryDbLogger(ksession);
         ksession.addEventListener(this);
-    }
 
-    private StatefulKnowledgeSession getSession() {
-        if (ksession == null) {
-            synchronized(JbpmService.class) {
-                if (ksession == null) {
-                    String ksessionIdStr = getThreadProcessToolContext().getSetting(KSESSION_ID);
-                    int ksessionId = hasText(ksessionIdStr) ? Integer.parseInt(ksessionIdStr) : -1;
+        JbpmContext jbpmContext = new JbpmContext();
+        jbpmContext.setEnvironment(env);
+        jbpmContext.setService(client);
+        jbpmContext.setStatefulKnowledgeSession(ksession);
 
-                    loadSession(ksessionId);
-
-                    if (ksessionId <= 0) {
-                        getThreadProcessToolContext().setSetting(KSESSION_ID, String.valueOf(ksession.getId()));
-                    }
-                }
-            }
-        }
-        return ksession;
-    }
-
-    public void reloadSession()
-    {
-        synchronized(JbpmService.class) {
-            ksession = null;
-            getSession();
-        }
-
-    }
-
-    private org.jbpm.task.TaskService getSessionTaskService() {
-        getSession(); // ensure session is created before task service
-        return client;
-    }
-
-    private org.jbpm.task.TaskService getLocalTaskService() {
-        LocalTaskService localTaskService = new LocalTaskService(taskService);
-        localTaskService.setEnvironment(env);
-        localTaskService.addEventListener(this);
-        return localTaskService;
+        return jbpmContext;
     }
 
     // process operations
 
-    public Task getTask(long taskId) {
-        log.info("JBPMService getTask: " + taskId);
-        return getSessionTaskService().getTask(taskId);
+    public Task getTask(long taskId)
+    {
+        JbpmContext jbpmContext = getJbpmContext();
+
+        log.finest("JBPMService getTask: " + taskId);
+        return jbpmContext.getService().getTask(taskId);
     }
 
     public void claimTask(long taskId, String userLogin) {
-        log.info("JBPMService claimTask: " +  taskId + ", userLogin: " + userLogin);
-
-        getSessionTaskService().claim(taskId, userLogin);
+        log.finest("JBPMService claimTask: " + taskId + ", userLogin: " + userLogin);
+        JbpmContext jbpmContext = getJbpmContext();
+        jbpmContext.getService().claim(taskId, userLogin);
     }
 
     public void forwardTask(long taskId, String userLogin, String targetUserLogin) {
-        log.info("JBPMService forwardTask: " +  taskId + ", userLogin: " + userLogin);
-
-        getSessionTaskService().forward(taskId, userLogin, targetUserLogin);
+        log.finest("JBPMService forwardTask: " + taskId + ", userLogin: " + userLogin);
+        JbpmContext jbpmContext = getJbpmContext();
+        jbpmContext.getService().forward(taskId, userLogin, targetUserLogin);
     }
 
     public void endTask(long taskId, String userLogin, ContentData outputData, boolean startNeeded) {
-        log.info("JBPMService endTask: " + taskId + ", userLogin: " + userLogin);
+        log.finest("JBPMService endTask: " + taskId + ", userLogin: " + userLogin);
+        JbpmContext jbpmContext = getJbpmContext();
         if (startNeeded) {
-            getSessionTaskService().start(taskId, userLogin);
+            jbpmContext.getService().start(taskId, userLogin);
         }
-        getSessionTaskService().complete(taskId, userLogin, outputData);
+
+        jbpmContext.getService().complete(taskId, userLogin, outputData);
     }
 
     public ProcessInstance getProcessInstance(long processId) {
-        log.info("JBPMService getProcessInstance: " + processId);
-        return getSession().getProcessInstance(processId);
+        log.finest("JBPMService getProcessInstance: " + processId);
+        JbpmContext jbpmContext = getJbpmContext();
+        return jbpmContext.getStatefulKnowledgeSession().getProcessInstance(processId);
     }
 
     public void startProcess(String processId, Map<String,Object> parameters) {
+        log.finest("Aquiare lock... " + Thread.currentThread().getId());
         log.info("JBPMService startProcess: " + processId);
-        getSession().startProcess(processId, parameters);
+        JbpmContext jbpmContext = getJbpmContext();
+        jbpmContext.getStatefulKnowledgeSession().startProcess(processId, parameters);
     }
 
     public void abortProcessInstance(long processId) {
-        log.info("JBPMService abortProcessInstance: " + processId);
-        getSession().abortProcessInstance(processId);
+        log.finest("JBPMService abortProcessInstance: " + processId);
+        JbpmContext jbpmContext = getJbpmContext();
+        jbpmContext.getStatefulKnowledgeSession().abortProcessInstance(processId);
     }
 
     // queries
 
     public void refreshDataForNativeQuery() {
         // this call forces JBPM to flush awaiting task data
-        getLocalTaskService().query("SELECT task.id FROM Task task ORDER BY task.id DESC", 1, 0);
+        JbpmContext jbpmContext = getJbpmContext();
+        jbpmContext.getService().query("SELECT task.id FROM Task task ORDER BY task.id DESC", 1, 0);
     }
 
     public List<NodeInstanceLog> getProcessLog(long processId) {
         String hql = "SELECT nil FROM org.jbpm.process.audit.NodeInstanceLog nil WHERE nil.processInstanceId = " +
                 processId + " ORDER BY nil.date";
-        return (List)getLocalTaskService().query(hql, 10000, 0);
+        JbpmContext jbpmContext = getJbpmContext();
+        return (List)jbpmContext.getService().query(hql, 10000, 0);
     }
 
     private TaskQuery<Task> createTaskQuery() {
-        return new TaskQuery<Task>(getLocalTaskService());
+        JbpmContext jbpmContext = getJbpmContext();
+        return new TaskQuery<Task>(jbpmContext.getService());
     }
 
     private UserQuery<User> createUserQuery() {
-        return new UserQuery<User>(getLocalTaskService());
+        JbpmContext jbpmContext = getJbpmContext();
+        return new UserQuery<User>(jbpmContext.getService());
     }
 
     public Task getTaskForAssign(String queueName, long taskId) {
@@ -353,7 +351,7 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
         return createTaskQuery()
                 .processInstanceId(processId)
                 .activityName(taskName)
-                .orderByCompleteDate()
+                .orderByCompleteDateDesc()
                 .first();
     }
 
@@ -600,12 +598,45 @@ public class JbpmService implements ProcessEventListener, TaskEventListener {
         return eventListener != null ? eventListener : NULL_TASK_LISTENER;
     }
 
-    public synchronized JbpmRepository getRepository() {
-        if (repository == null) {
-            String jbpmRepositoryDir = getThreadProcessToolContext().getSetting(JBPM_REPOSITORY_DIR);
-            repository = new DefaultJbpmRepository(hasText(jbpmRepositoryDir) ? jbpmRepositoryDir : null);
+    public  JbpmRepository getRepository() {
+        synchronized (getInstance()) {
+            if (repository == null) {
+                String jbpmRepositoryDir = getThreadProcessToolContext().getSetting(JBPM_REPOSITORY_DIR);
+                repository = new DefaultJbpmRepository(hasText(jbpmRepositoryDir) ? jbpmRepositoryDir : null);
+            }
+            return repository;
         }
-        return repository;
+    }
+
+    private class JbpmContext
+    {
+        private StatefulKnowledgeSession statefulKnowledgeSession;
+        private LocalTaskService service;
+        private Environment environment;
+
+        public StatefulKnowledgeSession getStatefulKnowledgeSession() {
+            return statefulKnowledgeSession;
+        }
+
+        public void setStatefulKnowledgeSession(StatefulKnowledgeSession statefulKnowledgeSession) {
+            this.statefulKnowledgeSession = statefulKnowledgeSession;
+        }
+
+        public LocalTaskService getService() {
+            return service;
+        }
+
+        public void setService(LocalTaskService service) {
+            this.service = service;
+        }
+
+        public Environment getEnvironment() {
+            return environment;
+        }
+
+        public void setEnvironment(Environment environment) {
+            this.environment = environment;
+        }
     }
 
 

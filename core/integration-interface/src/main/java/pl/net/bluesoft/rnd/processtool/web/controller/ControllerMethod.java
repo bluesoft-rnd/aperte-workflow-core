@@ -17,4 +17,7 @@ public @interface ControllerMethod
 {
     /** Controller action name */
     String action();
+
+    /** Is transaction enabled */
+    boolean transactionEnabled() default true;
 }

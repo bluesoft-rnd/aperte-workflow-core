@@ -48,6 +48,7 @@ public class NotificationHistory {
 		entry.setSubject(notification.getSubject());
 		entry.setBody(notification.getBody());
 		entry.setAsHtml(notification.getSendAsHtml());
+		entry.setSentFolderName(notification.getSentFolderName());
 		entries.add(entry);
 		entriesByNotificationId.put(notification.getId(), entry);
 		if (maxEntries > 0 && entries.size() > maxEntries) {

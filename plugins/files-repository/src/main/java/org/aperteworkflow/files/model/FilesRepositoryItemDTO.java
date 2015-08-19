@@ -13,12 +13,13 @@ public class FilesRepositoryItemDTO {
     private String description;
     private String createDate;
     private String creatorLogin;
+    private Boolean sendWithMail;
 
-    public FilesRepositoryItemDTO(FilesRepositoryItem frItem) {
+    public FilesRepositoryItemDTO(IFilesRepositoryItem frItem) {
         setId(frItem.getId());
-        setProcessInstanceId(frItem.getProcessInstance().getId());
         setName(frItem.getName());
         setDescription(frItem.getDescription());
+        setSendWithMail(frItem.getSendWithMail());
 
         setCreateDate(Formats.formatFullDate(frItem.getCreateDate()));
         setCreatorLogin(frItem.getCreatorLogin());
@@ -67,4 +68,12 @@ public class FilesRepositoryItemDTO {
     public String getCreatorLogin() { return creatorLogin; }
 
     public void setCreatorLogin(String creatorLogin) { this.creatorLogin = creatorLogin; }
+
+    public Boolean getSendWithMail() {
+        return sendWithMail;
+    }
+
+    public void setSendWithMail(Boolean sendWithMail) {
+        this.sendWithMail = sendWithMail;
+    }
 }

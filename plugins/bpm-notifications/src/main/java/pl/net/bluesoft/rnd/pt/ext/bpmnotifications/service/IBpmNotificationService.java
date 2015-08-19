@@ -1,10 +1,11 @@
 package pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service;
 
+import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
+import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
-
-import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 /**
  * Bpm notification service 
@@ -40,4 +41,10 @@ public interface IBpmNotificationService
 	List<NotificationHistoryEntry> getNotificationHistoryEntries();
 
 	void invalidateCache();
+
+	void addNotificationSentListener(NotificationSentListener listener);
+	void removeNotificationSentListener(NotificationSentListener listener);
+
+	String processSubjectTemplate(String template, IAttributesProvider attributesProvider, String recipient,
+						   String templateArgumentProvider, String profileName);
 }

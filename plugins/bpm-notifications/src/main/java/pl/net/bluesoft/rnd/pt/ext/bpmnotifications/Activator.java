@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
+import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent;
 import pl.net.bluesoft.rnd.processtool.bpm.BpmEvent.Type;
 import pl.net.bluesoft.rnd.processtool.di.ClassDependencyManager;
@@ -83,10 +84,10 @@ public class Activator implements BundleActivator, EventListener<BpmEvent>
 
                 BpmAdminPortletRender.init(html);
 
-                getViewRegistry(processToolRegistry).registerGenericPortletViewRenderer("admin", BpmAdminPortletRender.INSTANCE);
-                getViewRegistry(processToolRegistry).registerGenericPortletViewRenderer("user", BpmAdminPortletRender.INSTANCE);
+                processToolRegistry.getGuiRegistry().registerGenericPortletViewRenderer("admin", BpmAdminPortletRender.INSTANCE);
+                processToolRegistry.getGuiRegistry().registerGenericPortletViewRenderer("user", BpmAdminPortletRender.INSTANCE);
 			}
-   		     });
+   		     }, ProcessToolContextFactory.ExecutionType.NO_TRANSACTION);
 
 
 	}
@@ -132,8 +133,10 @@ public class Activator implements BundleActivator, EventListener<BpmEvent>
         processToolRegistry.getEventBusManager().unsubscribe(MailEvent.class, mailEventListener);
 		mailEventListener = null;
 
-		getViewRegistry(processToolRegistry).unregisterGenericPortletViewRenderer("admin", BpmAdminPortletRender.INSTANCE);
-		getViewRegistry(processToolRegistry).unregisterGenericPortletViewRenderer("user", BpmAdminPortletRender.INSTANCE);
+		schedulerActivator.cancelJob();
+
+        processToolRegistry.getGuiRegistry().unregisterGenericPortletViewRenderer("admin", BpmAdminPortletRender.INSTANCE);
+        processToolRegistry.getGuiRegistry().unregisterGenericPortletViewRenderer("user", BpmAdminPortletRender.INSTANCE);
 	}
 
 
@@ -141,9 +144,9 @@ public class Activator implements BundleActivator, EventListener<BpmEvent>
 	public void onEvent(BpmEvent e)
 	{
 		if(Type.NEW_PROCESS == e.getEventType() || Type.END_PROCESS == e.getEventType())
-			logger.log(Level.INFO, "Received event " + e.getEventType() + " for process " + e.getProcessInstance().getId());
+			logger.log(Level.FINEST, "Received event " + e.getEventType() + " for process " + e.getProcessInstance().getId());
 		else if(Type.ASSIGN_TASK == e.getEventType() || Type.SIGNAL_PROCESS == e.getEventType())
-			logger.log(Level.INFO, "Received event " + e.getEventType() + " for task " + e.getProcessInstance().getExternalKey() + "/" + e.getTask().getTaskName());
+			logger.log(Level.FINEST, "Received event " + e.getEventType() + " for task " + e.getProcessInstance().getExternalKey() + "/" + e.getTask().getTaskName());
 		
         if (Type.ASSIGN_TASK == e.getEventType() || Type.NEW_PROCESS == e.getEventType() ||
 			Type.SIGNAL_PROCESS == e.getEventType() || Type.END_PROCESS == e.getEventType())
@@ -155,8 +158,5 @@ public class Activator implements BundleActivator, EventListener<BpmEvent>
                     e.getUserLogin(), processStarted, processEnded, enteringStep);
         }
 	}
-	
-	private IViewRegistry getViewRegistry(ProcessToolRegistry registry) {
-		return registry.getRegisteredService(IViewRegistry.class);
-	}
+
 }

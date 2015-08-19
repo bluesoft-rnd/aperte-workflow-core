@@ -42,23 +42,21 @@ public class UserController  implements IOsgiWebController
         if(rolesString != null && !rolesString.isEmpty())
             roles = Arrays.asList(StringUtils.split(rolesString, ","));
 
-        Collection<UserData> users =  portalUserSource.getAllUsers();
 
-        if((queryTerm == null || queryTerm.isEmpty()) && roles.isEmpty())
+        if(StringUtils.isEmpty(queryTerm) && roles.isEmpty())
         {
+            Collection<UserData> users =  portalUserSource.getAllUsers();
+
             result.setData(users);
 
             return result;
         }
 
 
-        Collection<UserData> filtered = new LinkedList<UserData>();
-        for(UserData user: users)
-        {
-            if(!user.getRealName().toLowerCase().contains(queryTerm.toLowerCase()) &&
-                    !user.getLogin().toLowerCase().contains(queryTerm.toLowerCase()))
-                continue;
+        Collection<UserData> filtered = portalUserSource.findUsers(queryTerm);
 
+        for(UserData user: filtered)
+        {
             if(!roles.isEmpty() && !isUserHavingOneOfRoles(roles, user))
                 continue;
 

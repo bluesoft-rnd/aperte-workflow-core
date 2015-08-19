@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 
@@ -97,5 +98,10 @@ public class AperteUserSource implements IPortalUserSource {
     public HttpServletResponse getHttpServletResponse(PortletResponse response) {
         return null;
     }
+
+	@Override
+	public Locale getUserLocale(String login) {
+		return null;
+	}
 
 }

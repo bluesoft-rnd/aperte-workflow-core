@@ -315,4 +315,39 @@ public class BpmTaskDerivedBean implements BpmTask {
 		}
 		return result;
 	}
+
+    @Override
+    public String getSimpleAttributeValue(String key) {
+        return getProcessInstance().getSimpleAttributeValue(key);
+    }
+
+	@Override
+	public String getSimpleLargeAttributeValue(String key) {
+		return getProcessInstance().getSimpleAttributeValue(key);
+	}
+
+    @Override
+    public String getExternalKey() {
+        return getProcessInstance().getExternalKey();
+    }
+
+    @Override
+    public String getDefinitionName() {
+        return getProcessDefinition().getProcessName();
+    }
+
+    @Override
+    public Object getAttribute(String key) {
+        return getProcessInstance().getProcessAttribute(key);
+    }
+
+    @Override
+    public Object getProvider() {
+        return this;
+    }
+
+    @Override
+    public Long getId() {
+        return this.task.getId();
+    }
 }

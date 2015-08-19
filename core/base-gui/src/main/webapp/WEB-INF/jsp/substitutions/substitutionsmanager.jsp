@@ -8,7 +8,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
 <%@include file="../utils/globals.jsp"%>
-<%@include file="../utils/apertedatatable.jsp"%>
 <%@include file="../actionsList.jsp"%>
 
 <c:set var="isPermitted" value="false" />
@@ -22,9 +21,9 @@
 <div class="modal fade" id="NewSubstitutionModal" tabindex="-1"
 	role="dialog" aria-labelledby="categoryModalLabel" aria-hidden="true">
 	<div class="modal-dialog">
-		<div class="modal-content">
+		<div class="modal-content apw">
 			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal"
+				<button type="button" id="CloseSubstitutionForm" class="close" data-dismiss="modal"
 					aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="categoryModalLabel">
 					<spring:message code="substitution.modal.title" />
@@ -64,12 +63,14 @@
 							title="<spring:message code='substituting.date.from.tooltip' />"
 							for="SubstitutingDateFrom" class="col-sm-2 control-label"><spring:message
 								code="substituting.date.from.label" /></label>
-						<div class="controls input-append date"
+						<div class="input-group date"
 							id="SubstitutingDateFromPicker" data-date-format="yyyy-mm-dd">
-							<input style="width: 100%" name="SubstitutingDateFrom"
-								id="SubstitutingDateFrom" class="span2 form-control required"
-								size="16" type="text"> <span class="add-on"><i
-								class="icon-th"></i></span>
+							<input name="SubstitutingDateFrom"
+								id="SubstitutingDateFrom" class="form-control required"
+								size="16" type="text">
+								<span class="input-group-addon">
+								    <i class="glyphicon glyphicon-calendar"></i>
+								</span>
 						</div>
 					</div>
 					<br />
@@ -78,12 +79,14 @@
 							title="<spring:message code='substituting.date.to.tooltip' />"
 							for="SubstitutingDateTo" class="col-sm-2 control-label"><spring:message
 								code="substituting.date.to.label" /></label>
-						<div class="controls input-append date"
+						<div class="input-group date"
 							id="SubstitutingDateToPicker" data-date-format="yyyy-mm-dd">
-							<input style="width: 100%" name="SubstitutingDateTo"
-								id="SubstitutingDateTo" class="span2 form-control required"
-								size="16" type="text"> <span class="add-on"><i
-								class="icon-th"></i></span>
+							<input name="SubstitutingDateTo"
+								id="SubstitutingDateTo" class="form-control required"
+								size="16" type="text">
+								<span class="input-group-addon">
+								    <i class="glyphicon glyphicon-calendar"></i>
+								</span>
 						</div>
 					</div>
 				</form>
@@ -104,57 +107,63 @@
 	<!-- /.modal-dialog -->
 </div>
 <!-- /.modal -->
+<div class="apw" />
+	<div class="process-queue-name apw_highlight">
+		<div class="row" style="margin:0px;">
+			<spring:message code="substitution.manager.title" />
+			<div class="btn-group  pull-right">
+				<c:if test="${isPermitted}">
+				<button class="btn btn-info" id="substitution-add-button"
+					data-toggle="modal" data-target="#NewSubstitutionModal"
+					data-original-title="" title="">
+					<span class="glyphicon glyphicon-plus"></span>
+					<spring:message code="substitution.action.add" />
+					</c:if>
+				</button>
+			</div>
+		</div>
+	</div>
 
-<div class="process-queue-name apw_highlight">
-	Aperte Workflow Substitution Manager
-	<div class="btn-group  pull-right">
-        <c:if test="${isPermitted}">
-		<button class="btn btn-info" id="substitution-add-button"
-			data-toggle="modal" data-target="#NewSubstitutionModal"
-			data-original-title="" title="">
-			<span class="glyphicon glyphicon-plus"></span>
-			<spring:message code="substitution.action.add" />
-			</c:if>
-		</button>
+	<div class="process-tasks-view" id="task-view-processes">
+		<table id="substitutionTable" class="process-table table table-striped"
+			border="1">
+			<thead>
+				<th style="width: 20%;"><spring:message
+						code="substitution.table.substituted" /></th>
+				<th style="width: 20%;"><spring:message
+						code="substitution.table.substituting" /></th>
+				<th style="width: 20%;"><spring:message
+						code="substitution.table.dateFrom" /></th>
+				<th style="width: 20%;"><spring:message
+						code="substitution.table.dateTo" /></th>
+				<th style="width: 20%;"><spring:message
+						code="substitution.table.action" /></th>
+			</thead>
+			<tbody></tbody>
+		</table>
 	</div>
 </div>
 
-<div class="process-tasks-view" id="task-view-processes">
-	<table id="substitutionTable" class="process-table table table-striped"
-		border="1">
-		<thead>
-			<th style="width: 20%;"><spring:message
-					code="substitution.table.substituted" /></th>
-			<th style="width: 20%;"><spring:message
-					code="substitution.table.substituting" /></th>
-			<th style="width: 20%;"><spring:message
-					code="substitution.table.dateFrom" /></th>
-			<th style="width: 20%;"><spring:message
-					code="substitution.table.dateTo" /></th>
-            <th style="width: 20%;"><spring:message
-                    code="substitution.table.action" /></th>
-		</thead>
-		<tbody></tbody>
-	</table>
-</div>
-
-
 <script type="text/javascript">
-	function editSubstitution(id, dateFrom, dateTo, userLogin, userSubstituteLogin) {
+	function editSubstitution(id, dateFrom, dateTo, userLogin, userSubstituteLogin)
+	{
+		var dateFromString = moment(dateFrom).format("YYYY-MM-DD");
+		var dateToString = moment(dateTo).format("YYYY-MM-DD");
+
 		$("#UserLogin").select2('val', userLogin);
 		$("#UserSubstituteLogin").select2('val', userSubstituteLogin);
-		$("#SubstitutingDateFromPicker").datepicker("setDate", new Date(new Date($.format.date(dateFrom,'yyyy-MM-dd')).setHours(0)));
-		$("#SubstitutingDateToPicker").datepicker("setDate", new Date(new Date($.format.date(dateTo,'yyyy-MM-dd')).setHours(0)));
+		$("#SubstitutingDateFromPicker").datepicker("update", dateFromString);
+		$("#SubstitutingDateToPicker").datepicker("update", dateToString);
 		$("#SubstitutionId").val(id);
 	}
-	
+
 	function onSubmitNewSubstitution(e)
 	{
 		e.preventDefault();
-		
+
 		$("#SubstitutionForm").submit();
 	}
-	
+
 	function removeSubstitution(id) {
 		$.ajax({
 			url : dispatcherPortlet,
@@ -165,51 +174,69 @@
 				substitutionId : id
 			}
 		}).done(function(resp) {
+
 			dataTable.reloadTable(dispatcherPortlet);
 		});
 	}
 
 	function validateSubstitution() {
 		clearAlerts();
-		
+
 		isValid=true;
 
-		if ($("#SubstitutingDateFrom").val() == "") {
+		var substitutingDateFrom = $('#SubstitutingDateFrom').val();
+		var substitutingDateTo = $('#SubstitutingDateTo').val();
+
+
+		if (substitutingDateFrom == "") {
 			addAlert('<spring:message code="substitution.alert.required.dateFrom" />');
 			isValid=false;
 		}
-		
-		if ($("#SubstitutingDateTo").val() == "") {
+
+		if (substitutingDateTo == "") {
 			addAlert('<spring:message code="substitution.alert.required.dateTo" />');
 			isValid=false;
 		}
-		
+
+		var dateFrom = typeof substitutingDateFrom == 'string' ? moment(substitutingDateFrom, "YYYY-MM-DD") : null;
+		var dateTo = typeof substitutingDateFrom == 'string' ? moment(substitutingDateTo, "YYYY-MM-DD") : null;
+
+		if ((dateFrom.isValid()) && (dateFrom.isAfter(dateTo))){
+			 isValid=false;
+			 addAlert('<spring:message code="substitution.alert.invalid.date" />');
+		 }
+
 		if ($("#UserLogin").val() == "") {
 			addAlert('<spring:message code="substitution.alert.required.UserLogin" />');
 			isValid=false;
 		}
-		
+
 		if ($("#UserSubstituteLogin").val() == "") {
 			addAlert('<spring:message code="substitution.alert.required.UserSubstituteLogin" />');
 			isValid=false;
 		}
 
-		if (new Date($("#SubstitutingDateFrom").val()) > new Date($(
-				"#SubstitutingDateTo").val())) {
-			addAlert('<spring:message code="substitution.alert.invalid.date" />');
-			isValid=false;
-		}
+        if($("#UserLogin").val() != "" && $("#UserLogin").val() == $("#UserSubstituteLogin").val()){ //fix DPDW-720
+            addAlert('<spring:message code="substitution.alert.required.sameUsersLogins" />');
+            isValid=false;
+        }
+
+        if(moment(dateFrom).format("YYYY-MM-DD") < moment("1980-11-18").format("YYYY-MM-DD")){ //fix DPDW-718
+            addAlert('<spring:message code="substitution.alert.required.tooAgoDateFrom" />');
+            isValid=false;
+        }
+
 
 		return isValid;
 	}
-	
+
 	function onCancel(e)
 	{
 		e.preventDefault();
-		
+
 		resetSubstitutionForm();
 	}
-	
+
 	function resetSubstitutionForm()
 	{
 		$("#SubstitutionForm")[0].reset();
@@ -239,7 +266,7 @@
 			dataTable.reloadTable(dispatcherPortlet)
 		});
 	}
-	
+
 	var usersSelector =
 	{
 		 ajax: {
@@ -290,23 +317,13 @@
              }
          }
 	}
-	
+
 
 	$(document)
 			.ready(
 					function() {
-						$("#SubstitutingDateFromPicker").datepicker().on(
-								'changeDate',
-								function(ev) {
-									$("#SubstitutingDateFromPicker")
-											.datepicker("hide")
-								});
-						$("#SubstitutingDateToPicker").datepicker().on(
-								'changeDate',
-								function(ev) {
-									$("#SubstitutingDateToPicker").datepicker(
-											"hide")
-								});
+						$("#SubstitutingDateFromPicker").datepicker({format: "yyyy-mm-dd", language: "pl", todayHighlight : true, autoclose:true});
+						$("#SubstitutingDateToPicker").datepicker({format: "yyyy-mm-dd", language: "pl", todayHighlight : true, autoclose:true});
 
 						dataTable = new AperteDataTable(
 								"substitutionTable",
@@ -325,18 +342,14 @@
 											"sName" : "dateFrom",
 											"bSortable" : true,
 											"mData" : function(object) {
-												return $.format.date(
-														object.dateFrom,
-														'yyyy-MM-dd');
+												return moment(object.dateFrom).format('YYYY-MM-DD');
 											}
 										},
 										{
 											"sName" : "dateTo",
 											"bSortable" : true,
 											"mData" : function(object) {
-												return $.format.date(
-														object.dateTo,
-														'yyyy-MM-dd');
+												return moment(object.dateTo).format('YYYY-MM-DD');
 											}
 										},
 										{
@@ -344,14 +357,19 @@
 											"bSortable" : true,
 											"mData" : function(o) {
 											    out='';
-                                                <c:if test="${isPermitted}">
+
+												if('${isPermitted}' == 'true')
+													{
 												out += '<button class="btn btn-mini" onclick="editSubstitution('+o.id+','+o.dateFrom+','+o.dateTo+',\''+o.userLogin+'\',\''+o.userSubstituteLogin+'\')" data-toggle="modal" data-target="#NewSubstitutionModal">';
 												out += '<i class="glyphicon glyphicon-edit"></i></button>';
-                                                </c:if>
-                                                if('${aperteUser.login}'==o.userLogin || '${aperteUser.login}'==o.userSubstituteLogin){
+													}
+
+
+                                                if('${aperteUser.login}'==o.userLogin || '${aperteUser.login}'==o.userSubstituteLogin || '${isPermitted}' == 'true'){
                                                     out += '<button class="btn btn-danger btn-mini" onclick="removeSubstitution('+o.id+')">';
                                                     out += '<i class="glyphicon glyphicon-trash"></i></button>';
 												}
+
 												return out;
 											}
 										} ], [ [ 3, "desc" ] ]);
@@ -363,6 +381,7 @@
 
 						$("#SubstitutionForm").submit(onNewSubstitution);
 						$("#CancelSubstitutionForm").click(onCancel);
+						$('#CloseSubstitutionForm').click(onCancel);
 						$("#UserLogin").select2(usersSelector);
 						$("#UserSubstituteLogin").select2(usersSelector);
 						

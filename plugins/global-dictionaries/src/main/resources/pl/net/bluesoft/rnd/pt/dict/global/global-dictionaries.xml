@@ -6,4 +6,18 @@
     <dict id="global#queues" name="User Queues">
 		<i18n-name lang="pl" value="Kolejki użytkownika"/>
     </dict>
+
+
+    <dict id="currencies" name="Currencies" description="Currencies">
+        <i18n-name lang="default" value="Waluty"/>
+        <entry key="PLN" valueType="String" defaultDescription="PLN">
+            <i18n-description lang="default" value="PLN" />
+            <val value="PLN"/>
+        </entry>
+        <entry key="EUR" valueType="String" defaultDescription="EUR">
+            <i18n-description lang="default" value="EUR" />
+            <val value="EUR"/>
+        </entry>
+    </dict>
+
 </process-dictionaries>

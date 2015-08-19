@@ -6,6 +6,10 @@
 	<#return dictionaryDao.fetchDictionary(dictName).lookup(itemKey).getValueForCurrentDate().getValue(messageSource.getLocale())>
 </#function>
 
+<#function getDictValByDate itemKey dictName date>
+	<#return dictionaryDao.fetchDictionary(dictName).lookup(itemKey).getValueForDate(date).getValue(messageSource.getLocale())>
+</#function>
+
 <#macro paramText name description style="" class="">
 	<div class="control-group col-md-2">
 		<label for="param_${name}">${messageSource.getMessage(description)}</label>
@@ -39,8 +43,15 @@
 			$('#param_${name}').datepicker({
             	format: '${jqueryFormat}',
 				language: '${messageSource.getLocale().getLanguage()}',
-				autoclose: true
+				autoclose: true,
+				todayHighlight: true,
+				todayBtn: 'linked',
+				startDate: "01-01-2000",
+				orientation: 'top'
+
         	});
+
+
 		});
 	</script>
 </#macro>
@@ -48,11 +59,11 @@
 <#macro paramDictSelect name dictName description selectText="ir.selectTemplate" style="" class="">
 	<#assign dictItems = getDict(dictName)/>
 
-	<div class="control-group col-md-4">
-		<label for="param_${name}">${messageSource.getMessage(description)}</label>
-		<select id="param_${name}" class="aperte-select report-param ${class}" <#if style!="">style="${style}"</#if>>
+	<div class="control-group col-md-3">
+		<label for="param_${name}">${messageSource.getMessage(description)}</label><br/>
+		<select id="param_${name}" class="report-param ${class}" <#if style!="">style="${style}"</#if>>
 			<#if selectText != "">
-			<option value="">${messageSource.getMessage(selectText)}</option>
+				<option value="">${messageSource.getMessage(selectText)}</option>
 			</#if>
 			<#list dictItems as dictionaryItem>
 				<option value="${dictionaryItem.getKey()?html}">${dictionaryItem.getValue()?html}</option>
@@ -92,3 +103,90 @@
 	<#assign caseUrl = casePortletUrl + "?caseId=" + caseId?c/>
 	<a target="_blank" href="${caseUrl}">${description?html}</a>
 </#macro>
+
+<#macro fileLink fileId>
+        <button id="download-file-${fileId}" file-id="${fileId}" type="button" class="btn btn-link"
+            onclick="interactiveReports.downloadFile('${fileId}')">Link</button>
+</#macro>
+
+<style type="text/css">
+	.report-header {
+		border: black solid 1px;
+	}
+
+    .div.apw .btn-link
+    {
+        padding: 0px;
+        margin: 0px;
+    }
+
+	.report-header-param-name {
+		text-align:right;
+		padding-left: 5px;
+	}
+
+	.report-header-param-value {
+		font-weight: bold;
+		padding-left: 10px;
+		padding-right: 5px;
+	}
+
+	.report-table td, .report-table th {
+		border: 1px solid lightgray;
+	}
+
+	.b0, tr.b0, td.b0, .report-table .b0, .report-table tr.b0, .report-table td.b0 {
+		border-width: 0px;
+	}
+
+	.bl0, td.bl0, th.bl0, .report-table .bl0, .report-table td.bl0, .report-table th.bl0 {
+		border-left-width:0px;
+	}
+
+	.br0, td.br0, td.br0, .report-table .br0, .report-table td.br0, .report-table td.br0 {
+		border-right-width:0px;
+	}
+
+	.bt0, td.bt0, th.bt0, .report-table .bt0, .report-table td.bt0, .report-table th.bt0 {
+		border-top-width:0px;
+	}
+
+	.bb0, td.bb0, th.bb0, .report-table .bb0, .report-table td.bb0, .report-table th.bb0 {
+		border-bottom-width:0px;
+	}
+
+	.blr0, td.blr0, th.blr0, .report-table .blr0, .report-table td.blr0, .report-table th.blr0 {
+		border-left-width:0px; border-right-width:0px;
+	}
+
+	.p0, td.p0, tr.p0, .report-table .p0, .report-table td.p0, .report-table tr.p0 {
+		padding: 0px;
+	}
+
+	.plr3, .report-table .plr3, td.plr3, .report-table td.plr3, th.plr3, .report-table th.plr3 {
+		padding-left: 3px; padding-right: 3px;
+	}
+
+	.al, .report-table .al, .report-table td.al, .report-table th.al { text-align: left; }
+	.ac, .report-table .ac, .report-table td.ac, .report-table th.ac { text-align: center; }
+	.ar, .report-table .ar, .report-table td.ar, .report-table th.ar { text-align: right; }
+	.at, .report-table .at, .report-table td.at, .report-table th.at { vertical-align:top; }
+
+	.bold {
+		font-weight: bold;
+	}
+
+	.gradient {
+		background-image: url("/aperteworkflow/images/gradient-blue.png");
+		background-repeat: no-repeat;
+	}
+
+	.report-table { }
+
+	div hr.report-underscore {
+		margin-top:2px;
+		margin-bottom:5px;
+		border-width:1px 0 0;
+		border-color: black;
+	}
+</style>

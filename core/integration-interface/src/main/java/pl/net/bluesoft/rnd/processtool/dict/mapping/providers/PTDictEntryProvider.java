@@ -1,23 +1,6 @@
 package pl.net.bluesoft.rnd.processtool.dict.mapping.providers;
 
-import static java.lang.String.valueOf;
-import static pl.net.bluesoft.util.lang.Classes.getProperty;
-import static pl.net.bluesoft.util.lang.Classes.newInstance;
-import static pl.net.bluesoft.util.lang.Classes.setProperty;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.beanutils.ConvertUtilsBean;
-
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.dict.ProcessDictionaryRegistry;
 import pl.net.bluesoft.rnd.processtool.dict.exception.DictItemHasNoValueException;
@@ -27,9 +10,14 @@ import pl.net.bluesoft.rnd.processtool.dict.mapping.metadata.entry.EntryInfo;
 import pl.net.bluesoft.rnd.processtool.dict.mapping.metadata.entry.ExtInfo;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionary;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItem;
-import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItemExtension;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItemValue;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+
+import java.math.BigDecimal;
+import java.util.*;
+
+import static java.lang.String.valueOf;
+import static pl.net.bluesoft.util.lang.Classes.*;
 
 /**
  * User: POlszewski
@@ -145,8 +133,9 @@ public abstract class PTDictEntryProvider implements DictEntryProvider {
 		Object entry = entries.get(key);
 		
 		/* There is no entry value for dictionry item, throw exception */
-		if(entry == null)
+		if(entry == null) {
 			throw new DictItemHasNoValueException(i18NSource.getMessage("dictionary.novaluefor", "item", key, entriesDate));
+		}
 
 		if(entryInfo.getDescriptionProperty() != null)
 			return getProperty(entry, entryInfo.getDescriptionProperty());
@@ -228,11 +217,7 @@ public abstract class PTDictEntryProvider implements DictEntryProvider {
 		if (value == null) {
 			return null;
 		}
-		for(ProcessDictionaryItemExtension ext: value.getItemExtensions())
-			if(name.equals(ext.getName()))
-				return ext.getValue();
-			
-		return null;
+		return value.getExtValue(name);
 	}
 
 	private Object convert(Object value, Class<?> type, String defaultValue) {

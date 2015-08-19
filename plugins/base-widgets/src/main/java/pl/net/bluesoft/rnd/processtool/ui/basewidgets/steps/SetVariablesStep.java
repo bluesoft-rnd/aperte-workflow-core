@@ -6,6 +6,7 @@ import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
+import pl.net.bluesoft.rnd.util.StepUtil;
 
 import java.util.Map;
 import java.util.logging.Logger;
@@ -24,38 +25,22 @@ public class SetVariablesStep implements ProcessToolProcessStep {
     @Override
     public String invoke(BpmStep step, Map<String, String> params) throws Exception
     {
+		if(query == null) {
+			return STATUS_ERROR;
+		}
 
     	ProcessInstance pi = step.getProcessInstance();
 
-    	if("true".equals(applyToRoot))
-    		pi = pi.getRootProcessInstance();
+    	if("true".equals(applyToRoot)) {
+			pi = pi.getRootProcessInstance();
+		}
 
-    	if(query == null)
-    		return STATUS_ERROR;
+		Map<String, String> map = StepUtil.evaluateQuery(query, pi);
 
-    	String[] parts = query.split("[,;]");
-    	for(String part : parts){
-    		String[] assignment = part.split("[:=]");
-    		if(assignment.length != 2)
-    			continue;
-    		
-    		if(assignment[1].startsWith("\"") && assignment[1].endsWith("\""))
-    			assignment[1] = assignment[1].substring(1, assignment[1].length() - 1);
+		for (Map.Entry<String, String> entry : map.entrySet()) {
+			pi.setSimpleAttribute(entry.getKey(), entry.getValue());
+		}
 
-            String key = assignment[0];
-            String value = assignment[1];
-            pi.setSimpleAttribute(key, value);
-
-    	}
     	return STATUS_OK;
     }
-
-	public String getQuery() {
-		return query;
-	}
-
-	public void setQuery(String query) {
-		this.query = query;
-	}
-
 }

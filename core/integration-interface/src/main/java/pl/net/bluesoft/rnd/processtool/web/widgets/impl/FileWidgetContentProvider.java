@@ -1,11 +1,10 @@
 package pl.net.bluesoft.rnd.processtool.web.widgets.impl;
 
+import pl.net.bluesoft.rnd.processtool.plugins.IBundleResourceProvider;
+import pl.net.bluesoft.rnd.processtool.web.domain.IContentProvider;
+
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
-
-import pl.net.bluesoft.rnd.processtool.plugins.IBundleResourceProvider;
-import pl.net.bluesoft.rnd.processtool.web.domain.IWidgetContentProvider;
 
 /**
  * Widget content provider based on file 
@@ -13,7 +12,7 @@ import pl.net.bluesoft.rnd.processtool.web.domain.IWidgetContentProvider;
  * @author mpawlak@bluesoft.net.pl
  *
  */
-public class FileWidgetContentProvider implements IWidgetContentProvider {
+public class FileWidgetContentProvider implements IContentProvider {
 
 	private String fileName;
 	private IBundleResourceProvider bundleResourceProvider;

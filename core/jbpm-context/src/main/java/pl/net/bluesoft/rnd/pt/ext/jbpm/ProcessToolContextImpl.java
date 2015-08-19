@@ -2,11 +2,14 @@ package pl.net.bluesoft.rnd.pt.ext.jbpm;
 
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
+import org.hibernate.StatelessSession;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import pl.net.bluesoft.rnd.processtool.IProcessToolSettings;
+import pl.net.bluesoft.rnd.processtool.ISettingsProvider;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolSessionFactory;
 import pl.net.bluesoft.rnd.processtool.bpm.exception.ProcessToolException;
@@ -20,6 +23,7 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessToolSetting;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.util.eventbus.EventBusManager;
 
+import java.sql.Connection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +40,9 @@ public class ProcessToolContextImpl implements ProcessToolContext {
 
     @Autowired
     private ProcessToolRegistry processToolRegistry;
+
+    @Autowired
+    private ISettingsProvider settingsProvider;
 
     private Map<Class<? extends HibernateBean>, HibernateBean> daoCache = new HashMap<Class<? extends HibernateBean>, HibernateBean>();
 
@@ -150,25 +157,48 @@ public class ProcessToolContextImpl implements ProcessToolContext {
     @Override
     public String getSetting(String key)
     {
-        verifyContextOpen();
-        ProcessToolSetting setting = (ProcessToolSetting) hibernateSession.createCriteria(ProcessToolSetting.class)
-                .add(Restrictions.eq("key", key)).uniqueResult();
-        return setting != null ? setting.getValue() : null;
+        return settingsProvider.getSetting(key);
     }
 
     @Override
     public void setSetting(IProcessToolSettings key, String value) {
+        settingsProvider.setSetting(key, value);
+    }
+
+    @Override
+    public long getCurrentValue(String sequenceName)
+    {
+        /* Create new session to handle atomic operations with for update lock. There is no
+    	 * possibility to create new transaction inside another in the same session
+    	 *
+    	 * If one creates for update query in current hibernateSession there is
+    	 * possibility to make deadlock
+    	 */
+
+        StatelessSession newValueSession = hibernateSession.getSessionFactory().openStatelessSession();
+
         verifyContextOpen();
-        List list = hibernateSession.createCriteria(ProcessToolSetting.class).add(Restrictions.eq("key", key.toString())).list();
-        ProcessToolSetting setting;
-        if (list.isEmpty()) {
-            setting = new ProcessToolSetting();
-            setting.setKey(key.toString());
-        } else {
-            setting = (ProcessToolSetting) list.get(0);
+
+        String queryString =
+                "select seq.* from pt_sequence seq where seq.name = :sequenceName";
+
+        SQLQuery query =
+                newValueSession.createSQLQuery(queryString);
+
+        query.setString("sequenceName", sequenceName);
+        query.addEntity("seq", ProcessToolSequence.class);
+
+        ProcessToolSequence seq = (ProcessToolSequence)query.uniqueResult();
+
+        long value = 0;
+
+        if(seq != null)
+        {
+            value = seq.getValue();
         }
-        setting.setValue(value);
-        hibernateSession.saveOrUpdate(setting);
+
+        newValueSession.close();
+        return value;
     }
 
     @Override
@@ -185,21 +215,21 @@ public class ProcessToolContextImpl implements ProcessToolContext {
 
     	verifyContextOpen();
     	
-    	String queryString = 
+    	String queryString =
     			"select seq.* from pt_sequence seq where seq.name = :sequenceName " +
     			(processDefinitionName != null ? "and seq.processdefinitionname = :processDefinitionName " : "")+
     			"for update";
-    	
+
     	SQLQuery query =
     			newValueSession.createSQLQuery(queryString);
-    	
+
     	query.setParameter("sequenceName", (String)sequenceName);
-    	
+
     	if(processDefinitionName != null)
     		query.setParameter("processDefinitionName", (String)processDefinitionName);
-    	
+
     	query.addEntity("seq", ProcessToolSequence.class);
-    	
+
     	ProcessToolSequence seq = (ProcessToolSequence)query.uniqueResult();
     	
     	if(seq == null)
@@ -229,7 +259,9 @@ public class ProcessToolContextImpl implements ProcessToolContext {
         return getNextValue((String) null, sequenceName);
     }
 
-	@Override
+
+
+    @Override
 	public void close() {
 		this.closed = true;
 	}

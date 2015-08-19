@@ -5,7 +5,6 @@ import org.apache.cxf.BusFactory;
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 
 import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
 import javax.xml.ws.Endpoint;
 
 /**
@@ -18,9 +17,9 @@ public class CXFWrapperServlet extends CXFNonSpringServlet {
 
         // You could add the endpoint publish codes here
         Bus bus = getBus();
-        BusFactory.setDefaultBus(bus);
+        BusFactory.setThreadDefaultBus(bus);
         Endpoint.publish("/data", new AperteWorkflowDataServiceImpl());
-        Endpoint.publish("/process", new AperteWorkflowProcessServiceImpl()); 
+        Endpoint.publish("/process", new AperteWorkflowProcessServiceImpl());
 
         // You can also use the simple frontend API to do this
 //        ServerFactoryBean factory = new ServerFactoryBean();

@@ -11,52 +11,52 @@ import java.util.List;
  */
 public class DataPagingBean<T> extends GenericResultBean {
 
-	Collection<T> aaData;
+	Collection<T> listData;
 
-    int	iTotalRecords;
+    int	recordsTotal;
 
-    int	iTotalDisplayRecords;
+    int	recordsFiltered;
 
-    String	sEcho;
+    int	draw;
 
-    public DataPagingBean(Collection<T> dataList, int pageLimit, String echo)
+    public DataPagingBean(Collection<T> dataList, int pageLimit, int draw)
     {
-        this.aaData = dataList;
-        this.iTotalDisplayRecords = pageLimit;
-        this.iTotalRecords = dataList.size();
-        this.sEcho = echo;
+        this.listData = dataList;
+        this.recordsFiltered = pageLimit;
+        this.recordsTotal = dataList.size();
+        this.draw = draw;
 
     }
 
-    public Collection<T> getAaData() {
-        return aaData;
+    public Collection<T> getListData() {
+        return listData;
     }
 
-    public void setAaData(Collection<T> aaData) {
-        this.aaData = aaData;
+    public void setListData(Collection<T> listData) {
+        this.listData = listData;
     }
 
-    public int getiTotalRecords() {
-        return iTotalRecords;
+    public int getRecordsTotal() {
+        return recordsTotal;
     }
 
-    public void setiTotalRecords(int iTotalRecords) {
-        this.iTotalRecords = iTotalRecords;
+    public void setRecordsTotal(int recordsTotal) {
+        this.recordsTotal = recordsTotal;
     }
 
-    public int getiTotalDisplayRecords() {
-        return iTotalDisplayRecords;
+    public int getRecordsFiltered() {
+        return recordsFiltered;
     }
 
-    public void setiTotalDisplayRecords(int iTotalDisplayRecords) {
-        this.iTotalDisplayRecords = iTotalDisplayRecords;
+    public void setRecordsFiltered(int recordsFiltered) {
+        this.recordsFiltered = recordsFiltered;
     }
 
-    public String getsEcho() {
-        return sEcho;
+    public int getDraw() {
+        return draw;
     }
 
-    public void setsEcho(String sEcho) {
-        this.sEcho = sEcho;
+    public void setDraw(int draw) {
+        this.draw = draw;
     }
 }

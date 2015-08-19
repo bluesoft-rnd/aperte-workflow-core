@@ -82,6 +82,9 @@ public class ProcessDBDictionaryI18N extends AbstractPersistentEntity {
 	}
 
 	public static String getLocalizedText(List<ProcessDBDictionaryI18N> i18Ns, String languageCode, String defaultText) {
+		if(defaultText == null)
+			defaultText = "";
+
 		if (languageCode == null) {
 			return defaultText;
 		}

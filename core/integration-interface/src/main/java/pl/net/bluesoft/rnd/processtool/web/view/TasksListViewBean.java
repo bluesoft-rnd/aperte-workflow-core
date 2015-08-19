@@ -10,7 +10,7 @@ import java.util.Date;
 public abstract class TasksListViewBean extends AbstractResultBean {
 
     private String queueName;
-    private Date taskAssigneDate;
+    private Date taskAssignDate;
     private Boolean userCanClaim = false;
     private String taskId;
     private Date creationDate;
@@ -32,12 +32,12 @@ public abstract class TasksListViewBean extends AbstractResultBean {
         this.userCanClaim = userCanClaim;
     }
 
-    public Date getTaskAssigneDate() {
-        return taskAssigneDate;
+    public Date getTaskAssignDate() {
+        return taskAssignDate;
     }
 
-    public void setTaskAssigneDate(Date taskAssigneDate) {
-        this.taskAssigneDate = taskAssigneDate;
+    public void setTaskAssignDate(Date taskAssignDate) {
+        this.taskAssignDate = taskAssignDate;
     }
 
     public String getTaskId() {

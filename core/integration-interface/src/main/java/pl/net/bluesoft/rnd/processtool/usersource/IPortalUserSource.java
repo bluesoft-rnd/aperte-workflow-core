@@ -8,6 +8,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 
+import java.util.Locale;
+
 
 /**
  * User source api witch extends {@link IUserSource} inteferace
@@ -25,4 +27,6 @@ public interface IPortalUserSource extends IUserSource
     HttpServletRequest getOriginalHttpServletRequest(HttpServletRequest request);
 
     HttpServletResponse getHttpServletResponse(PortletResponse response);
+
+    Locale getUserLocale(String login);
 }

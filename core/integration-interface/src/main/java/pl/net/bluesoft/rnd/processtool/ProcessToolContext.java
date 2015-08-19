@@ -6,6 +6,7 @@ import pl.net.bluesoft.rnd.processtool.dao.*;
 import pl.net.bluesoft.rnd.processtool.dict.ProcessDictionaryRegistry;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.processtool.model.config.ProcessToolSequence;
 import pl.net.bluesoft.util.eventbus.EventBusManager;
 
 import static pl.net.bluesoft.util.lang.FormatUtil.nvl;
@@ -39,6 +40,7 @@ public interface ProcessToolContext
     long getNextValue(String processDefinitionName, String sequenceName);
     long getNextValue(ProcessInstance processInstance, String sequenceName);
     long getNextValue(String sequenceName);
+    long getCurrentValue(String sequenceName);
 
     /** Close hibernate session and process engine */
 	void close();

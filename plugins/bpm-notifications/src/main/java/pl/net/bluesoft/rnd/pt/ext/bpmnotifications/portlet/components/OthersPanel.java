@@ -15,6 +15,9 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * User: POlszewski
  * Date: 2012-10-12
@@ -92,7 +95,11 @@ public class OthersPanel extends VerticalLayout implements Button.ClickListener 
 					return;
 				}
 
+                Map<String, Object> attributes = new HashMap<String, Object>();
+                attributes.put("aperte-delay-emails", false);
+
 				UserDataBean recipientUser = new UserDataBean();
+                recipientUser.setAttributes(attributes);
 				recipientUser.setEmail(recipient);
 				
 				ProcessedNotificationData notificationData = new ProcessedNotificationData();

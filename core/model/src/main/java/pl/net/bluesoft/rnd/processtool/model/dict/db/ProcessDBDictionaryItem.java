@@ -193,6 +193,11 @@ public class ProcessDBDictionaryItem extends AbstractPersistentEntity implements
         }
 
         @Override
+        public boolean isEmptyValue() {
+            return true;
+        }
+
+        @Override
         public String getDefaultValue() {
             return getValue("default");
         }

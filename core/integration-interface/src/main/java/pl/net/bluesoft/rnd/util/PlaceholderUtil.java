@@ -20,22 +20,37 @@ public class PlaceholderUtil {
 	}
 
 	public static String expand(String pattern, ReplacementCallback callback) {
+		if (pattern == null) {
+			return null;
+		}
+
 		StringBuffer result = new StringBuffer(pattern.length());
 		Matcher matcher = PATTERN.matcher(pattern);
+		boolean nullSubstituted = false;
 
 		while (matcher.find()) {
 			if (matcher.group(2) != null) {
 				String placeholderName = matcher.group(2);
-				String replacement = String.valueOf(callback.getReplacement(placeholderName));
+				String replacement = callback.getReplacement(placeholderName);
 
-				matcher.appendReplacement(result, replacement);
+				if (replacement == null) {
+					nullSubstituted = true;
+				}
+				matcher.appendReplacement(result, Matcher.quoteReplacement(String.valueOf(replacement)));
 			}
 			else {
-				matcher.appendReplacement(result, matcher.group(1));
+				matcher.appendReplacement(result, Matcher.quoteReplacement(matcher.group(1)));
 			}
 		}
+
 		matcher.appendTail(result);
-		return result.toString();
+
+		String resultStr = result.toString();
+
+		if (nullSubstituted && "null".equals(resultStr)) {
+			return null;
+		}
+		return resultStr;
 	}
 
 	public static Set<String> getUsedPlaceholderNames(String pattern) {

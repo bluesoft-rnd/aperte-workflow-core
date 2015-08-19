@@ -1,14 +1,5 @@
 package pl.net.bluesoft.rnd.processtool.plugins;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.logging.Logger;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
@@ -22,6 +13,14 @@ import pl.net.bluesoft.rnd.processtool.token.ITokenService;
 import pl.net.bluesoft.rnd.processtool.token.TokenWrapper;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.logging.Logger;
 
 import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 
@@ -106,7 +105,7 @@ public abstract class TokenAuthenticationServlet extends HttpServlet
 				AccessToken accessToken = accessTokenFacade.getTokenByTokenId(tokenId);
 
 				if (accessToken == null) {
-					textDecorator.addText(i18NSource.getMessage("token.servlet.notokenfound", "", tokenId));
+					textDecorator.addText(i18NSource.getMessage("token.servlet.notokenfound", tokenId));
 					
 					/* Write to user output page */
 					out.write(textDecorator.getOutput());

@@ -11,5 +11,5 @@ public interface GenericPortletViewRenderer {
 	int getPosition();
 	String[] getRequiredRoles();
 	Object render(RenderParams params);
-	String render();
+	String getCode();
 }

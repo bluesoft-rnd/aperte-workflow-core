@@ -14,6 +14,7 @@ import org.springframework.web.portlet.ModelAndView;
 import org.springframework.web.portlet.bind.annotation.RenderMapping;
 import org.springframework.web.portlet.bind.annotation.ResourceMapping;
 import org.springframework.web.servlet.LocaleResolver;
+import pl.net.bluesoft.rnd.processtool.ISettingsProvider;
 
 import javax.portlet.*;
 import javax.servlet.ServletException;
@@ -36,6 +37,8 @@ public class PortletViewController extends AbstractMainController<ModelAndView>
 {
     private static final String PORTLET_JSON_RESULT_ROOT_NAME = "result";
     private static final String PORTLET_PARAMTER_TASK_ID = "taskId";
+    private static final String PORTLET_PARAMTER_QUEUE_ID = "queueId";
+    private static final String CASE_PORTLET_URL = "casePortletUrl";
 
     private static Logger logger = Logger.getLogger(PortletViewController.class.getName());
     private Map<String, Object> viewData = new HashMap<String, Object>();
@@ -57,6 +60,10 @@ public class PortletViewController extends AbstractMainController<ModelAndView>
     private LocaleResolver localeResolver;
 
 
+    @Autowired(required = false)
+    private ISettingsProvider settingsProvider;
+
+
     @RenderMapping()
     public ModelAndView handleMainRenderRequest(RenderRequest request, RenderResponse response, Model model) {
         System.out.println("PortletViewController.handleMainRenderRequest... ");
@@ -71,10 +78,17 @@ public class PortletViewController extends AbstractMainController<ModelAndView>
 
         /* Start from task view */
         String showTaskId = originalHttpServletRequest.getParameter(PORTLET_PARAMTER_TASK_ID);
+        String queueId = originalHttpServletRequest.getParameter(PORTLET_PARAMTER_QUEUE_ID);
         if (showTaskId != null) {
             Long taskId = Long.parseLong(showTaskId);
             modelView.addObject(EXTERNAL_TASK_ID, taskId);
         }
+        else if(queueId != null)
+        {
+            modelView.addObject(EXTERNAL_QUEUE_ID, queueId);
+        }
+
+        modelView.addObject(CASE_PORTLET_URL, settingsProvider.getSetting("case.portlet.url"));
 
         processRequest(modelView, httpServletRequest);
 
@@ -109,7 +123,7 @@ public class PortletViewController extends AbstractMainController<ModelAndView>
         } else {
             HttpServletResponse httpServletResponse = getHttpServletResponse(response);
             return PortletUtil.translate(PORTLET_JSON_RESULT_ROOT_NAME,
-                    mainDispatcher.invokeExternalController(controller, action, originalHttpServletRequest, httpServletResponse));
+                    mainDispatcher.invokeExternalController(controller, action, originalHttpServletRequest, httpServletResponse), controller, action);
         }
     }
 
@@ -172,6 +186,13 @@ public class PortletViewController extends AbstractMainController<ModelAndView>
         HttpServletRequest originalHttpServletRequest = PortletUtil.getOriginalHttpServletRequest(portalUserSource, request);
         HttpServletResponse httpServletResponse = portalUserSource.getHttpServletResponse(response);
         taskViewController.loadTask(originalHttpServletRequest, httpServletResponse);
+    }
+
+    @ResourceMapping("loadQueue")
+    public void loadQueue(ResourceRequest request, ResourceResponse response) throws IOException, ServletException {
+        HttpServletRequest originalHttpServletRequest = PortletUtil.getOriginalHttpServletRequest(portalUserSource, request);
+        HttpServletResponse httpServletResponse = portalUserSource.getHttpServletResponse(response);
+        processesListController.loadQueue(originalHttpServletRequest, httpServletResponse);
     }
 
     @ResourceMapping("performAction")

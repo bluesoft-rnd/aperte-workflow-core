@@ -8,6 +8,8 @@ import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
+import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceSimpleAttribute;
+import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceSimpleLargeAttribute;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.addons.INotificationsAddonsManager;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotificationConfig;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
@@ -86,8 +88,25 @@ public class TemplateDataProvider implements ITemplateDataProvider
             templateData.addEntry(_PROCESS_ID, hasText(pi.getExternalKey()) ? pi.getExternalKey() : pi.getInternalId());
             templateData.addEntry(_PROCESS, pi);
             templateData.addEntry(_CREATOR, getRegistry().getUserSource().getUserByLogin(pi.getCreatorLogin()));
+
+			for (ProcessInstanceSimpleAttribute attribute : pi.getProcessSimpleAttributes())
+				if(isAttributeAllowed(attribute.getKey()))
+					templateData.addEntry(attribute.getKey(), attribute.getValue());
+
+			for (ProcessInstanceSimpleLargeAttribute attribute : pi.getProcessSimpleLargeAttributes())
+				if(isAttributeAllowed(attribute.getKey()))
+					templateData.addEntry(attribute.getKey(), attribute.getValue());
         }
 		return this;
+	}
+
+	private boolean isAttributeAllowed(String attributeKey)
+	{
+		if(_ASSIGNEE.equals(attributeKey) || _CREATOR.equals(attributeKey) || _TASK.equals(attributeKey)
+				|| _SESSION.equals(attributeKey) || _PROCESS.equals(attributeKey) || _USER.equals(attributeKey))
+			return false;
+
+		return true;
 	}
 	
 	

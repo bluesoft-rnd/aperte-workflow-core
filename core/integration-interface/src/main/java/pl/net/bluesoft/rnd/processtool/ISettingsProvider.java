@@ -13,4 +13,6 @@ public interface ISettingsProvider
 
     void setSetting(IProcessToolSettings settingKey, String value);
 
+    void invalidateCache();
+
 }

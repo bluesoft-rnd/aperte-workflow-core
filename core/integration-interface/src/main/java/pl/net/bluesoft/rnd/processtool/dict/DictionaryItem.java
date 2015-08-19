@@ -1,6 +1,7 @@
 package pl.net.bluesoft.rnd.processtool.dict;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.LinkedList;
 
 /**
@@ -12,6 +13,8 @@ public class DictionaryItem
     private String value;
     private String description;
     private boolean isValid;
+	private Date validFrom;
+	private Date validTo;
     private Collection<DictionaryItemExt> extensions = new LinkedList<DictionaryItemExt>();
 
     public boolean getisValid() {
@@ -50,7 +53,23 @@ public class DictionaryItem
         this.description = description;
     }
 
-    public Collection<DictionaryItemExt> getExtensions() {
+	public Date getValidFrom() {
+		return validFrom;
+	}
+
+	public void setValidFrom(Date validFrom) {
+		this.validFrom = validFrom;
+	}
+
+	public Date getValidTo() {
+		return validTo;
+	}
+
+	public void setValidTo(Date validTo) {
+		this.validTo = validTo;
+	}
+
+	public Collection<DictionaryItemExt> getExtensions() {
         return extensions;
     }
 

@@ -11,6 +11,7 @@ import pl.net.bluesoft.rnd.processtool.expressions.ExpressionEvaluators;
 import pl.net.bluesoft.rnd.processtool.model.IAttribute;
 import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
 import java.sql.Connection;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -57,7 +58,7 @@ public interface DataRegistry {
 
 	void addAuditLogHandler(AuditLogHandler handler);
 	void removeAuditLogHandler(AuditLogHandler handler);
-	List<AuditLogHandler> getAuditLogHandlers();
+    Collection<AuditLogHandler> getAuditLogHandlers();
 
 	ExpressionEvaluators getExpressionEvaluators();
 

@@ -12,7 +12,7 @@ public interface ProcessToolBpmConstants {
 
     String PATTERN_MATCH_ALL = ".*";
 
-    String REQUEST_PARAMETER_TASK_ID = "bpmTaskId";
+    String REQUEST_PARAMETER_TASK_ID = "taskId";
     
     /** Token ID for external access */
     String REQUEST_PARAMETER_TOKEN_ID = "tokenId";
@@ -26,10 +26,10 @@ public interface ProcessToolBpmConstants {
 	String TEXT_MODE = "textMode";
 
 	/** Default interval for queue refresh */
-	Integer DEFAULT_QUEUE_INTERVAL = 30000;
+	Integer DEFAULT_QUEUE_INTERVAL = 60000;
 
 	UserData SYSTEM_USER = new UserDataBean("system");
-	UserData ADMIN_USER = new UserDataBean("admin");
+	UserData ADMIN_USER = new UserDataBean("admin", "System", "");
 	
 	/** Text modes enumeration type */
 	enum TextModes

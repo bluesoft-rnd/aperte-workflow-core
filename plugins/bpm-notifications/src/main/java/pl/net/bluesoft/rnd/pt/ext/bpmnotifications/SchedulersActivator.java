@@ -57,6 +57,11 @@ public class SchedulersActivator
         service.scheduleJob(jobDetail, trigger);
     }
 
+    public void cancelJob()
+    {
+        getSchedulerService().cancelScheduledJobGroup(HandleEmailsJob.class.getName());
+    }
+
     
     private ProcessToolSchedulerService getSchedulerService() {
         return registry.getRegisteredService(ProcessToolSchedulerService.class);

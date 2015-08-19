@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config.CaseDefinition name="ApplicationCase" initialStateName="OPEN">
+    <possibleStates>
+        <config.CaseStateDefinition name="OPEN">
+            <widgets>
+                <config.CaseStateWidget className="HorizontalLayout" priority="1">
+                    <children>
+                        <config.CaseStateWidget className="VerticalLayout" priority="1">
+                            <children>
+                                <config.CaseStateWidget className="CaseApplicationHistory" priority="1">
+                                </config.CaseStateWidget>
+                                <config.CaseStateWidget className="FileRepositoryWidget" priority="2">
+                                </config.CaseStateWidget>
+                            </children>
+                        </config.CaseStateWidget>
+                        <config.CaseStateWidget className="VerticalLayout" priority="2">
+                            <children>
+                                <config.CaseStateWidget className="ProcessComments" priority="3">
+                                </config.CaseStateWidget>
+                                <config.CaseStateWidget className="CaseApplicationInfo" priority="4">
+                                </config.CaseStateWidget>
+                            </children>
+                        </config.CaseStateWidget>
+                    </children>
+                </config.CaseStateWidget>
+
+            </widgets>
+            <roles>
+                <config.CaseStateRole roleName=".*" privilegeName="EDIT"/>
+            </roles>
+            <processes>
+                <config.CaseStateProcess bpmDefinitionKey="application_close_case" processPriority="1" processIcon="ok" processActionType="primary" processLabel="Close case"/>
+            </processes>
+        </config.CaseStateDefinition>
+        <config.CaseStateDefinition name="CLOSED">
+            <widgets>
+                <config.CaseStateWidget className="HorizontalLayout" priority="1">
+                    <children>
+                        <config.CaseStateWidget className="VerticalLayout" priority="1">
+                            <children>
+                                <config.CaseStateWidget className="CaseApplicationHistory" priority="1">
+                                </config.CaseStateWidget>
+                                <config.CaseStateWidget className="FileRepositoryWidget" priority="2">
+                                </config.CaseStateWidget>
+                            </children>
+                        </config.CaseStateWidget>
+                        <config.CaseStateWidget className="VerticalLayout" priority="2">
+                            <children>
+                                <config.CaseStateWidget className="ProcessComments" priority="3">
+                                </config.CaseStateWidget>
+                                <config.CaseStateWidget className="CaseApplicationInfo" priority="4">
+                                </config.CaseStateWidget>
+                            </children>
+                        </config.CaseStateWidget>
+                    </children>
+                </config.CaseStateWidget>
+            </widgets>
+            <roles>
+                <config.CaseStateRole roleName=".*" privilegeName="EDIT"/>
+            </roles>
+            <processes>
+                <config.CaseStateProcess bpmDefinitionKey="application_open_case" processPriority="1" processIcon="refresh" processActionType="danger" processLabel="Open case"/>
+            </processes>
+        </config.CaseStateDefinition>
+    </possibleStates>
+
+</config.CaseDefinition>

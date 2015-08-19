@@ -80,32 +80,34 @@ for (Map.Entry<String, List<ProcessDefinitionConfig>> group : groups.entrySet())
 			});
 			jsonAttributes = JSON.stringify(processData, null, 2);
 		}
-		
-		var widgetJson = $.post('<portlet:resourceURL id="startNewProcess"/>',
-		{
-			"bpmDefinitionId": bpmDefinitionKey,
-			"processSimpleAttributes": jsonAttributes
-		})
-		.done(function(data)
-		{
-			<!-- Errors handling -->
-			windowManager.clearErrors();
-			
-			var errors = [];
-			$.each(data.errors, function() {
-				errors.push(this);
-				windowManager.addError(this.message);
-			});
-			
-			if(errors.length > 0) { return; }
-			
-			if (data.taskId!=null) {
-				loadProcessView(data.taskId);
-			} else {
-				windowManager.showNewProcessPanel();
-			}
-			reloadQueues();
 
-		});
+
+        var jqxhr = $.getJSON('<portlet:resourceURL id="startNewProcess"/>',
+        {
+			"bpmDefinitionId": bpmDefinitionKey,
+			"processSimpleAttributes": jsonAttributes,
+            "nocache": new Date().getTime()
+        }).done(function(data)
+        {
+            <!-- Errors handling -->
+            windowManager.clearErrors();
+
+            var errors = [];
+            $.each(data.errors, function() {
+                errors.push(this);
+                windowManager.addError(this.message);
+            });
+
+            if(errors.length > 0) { return; }
+
+            if (data.taskId!=null) {
+                loadProcessView(data.taskId);
+            } else {
+                windowManager.showNewProcessPanel();
+            }
+            reloadQueues();
+
+        });
+
     }
 </script>

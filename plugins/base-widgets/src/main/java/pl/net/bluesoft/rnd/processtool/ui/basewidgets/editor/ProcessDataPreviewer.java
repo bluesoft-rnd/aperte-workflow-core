@@ -2,16 +2,22 @@ package pl.net.bluesoft.rnd.processtool.ui.basewidgets.editor;
 
 import com.vaadin.Application;
 import com.vaadin.data.Property;
-import com.vaadin.ui.*;
-import pl.net.bluesoft.rnd.processtool.model.nonpersistent.BpmTaskBean;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
+import pl.net.bluesoft.rnd.processtool.model.nonpersistent.BpmTaskBean;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDataBlockWidget;
 import pl.net.bluesoft.rnd.processtool.ui.basewidgets.xml.jaxb.WidgetsDefinitionElement;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -53,27 +59,12 @@ public class ProcessDataPreviewer extends ProcessDataBlockWidget {
             }
 
             @Override
-            public String getMessage(String key, String defaultValue) {
-                return key;
-            }
-
-            @Override
             public Locale getLocale() {
                 return Locale.getDefault();
             }
 
             @Override
-            public void setLocale(Locale locale) {
-                //nothing
-            }
-
-            @Override
             public String getMessage(String key, Object... params) {
-                return key;
-            }
-
-            @Override
-            public String getMessage(String key, String defaultValue, Object... params) {
                 return key;
             }
         };

@@ -68,12 +68,14 @@
 
     <bean id="localeResolver"
           class="org.springframework.web.servlet.i18n.SessionLocaleResolver">
-        <property name="defaultLocale" value="en" />
+        <property name="defaultLocale" value="pl" />
     </bean>
 
     <bean id="localeChangeInterceptor"
           class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
         <property name="paramName" value="language" />
     </bean>
+
+    <bean id="OsgiServiceDispatcher" class="org.aperteworkflow.osgi.OsgiServiceDispatcherImpl"/>
 
 </beans>

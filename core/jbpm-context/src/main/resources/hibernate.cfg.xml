@@ -39,8 +39,6 @@
         <property name="current_session_context_class">jta</property>-->
 		<property name="hibernate.transaction.flush_before_completion">true</property>
 
-
-        <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstance"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceAttachmentAttribute"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceAttribute"/>
@@ -73,6 +71,7 @@
         <mapping class="pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemExtension"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryPermission"/>
 		<mapping class="pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryI18N"/>
+		<mapping class="pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryDefaultItemExtension"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceDictionaryAttribute"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceDictionaryItem"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.token.AccessToken"/>

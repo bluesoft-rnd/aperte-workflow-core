@@ -4,7 +4,7 @@
     <parent>
         <artifactId>aperteworkflow-core</artifactId>
         <groupId>org.aperteworkflow</groupId>
-        <version>3.0-beta2-SNAPSHOT</version>
+        <version>3.2-SNAPSHOT</version>
     </parent>
 
     <name>Aperte Workflow OSGi Plugins</name>
@@ -15,22 +15,23 @@
     <modules>
         <module>base-widgets</module>
         <module>bpm-notifications</module>
-        <!--<module>cmis-widget</module>-->
-        <!--<module>doclist-widget</module>-->
-        <!--<module>drools-step</module>-->
-        <!--<module>context-help-provider</module>-->
-        <!--<module>email-capture</module>-->
+        <module>cmis-widget</module>
+        <module>doclist-widget</module>
+        <module>drools-step</module>
+        <module>context-help-provider</module>
+        <module>email-capture</module>
         <module>files-repository</module>
-        <!--<module>files-capture</module> -->
-        <!--<module>mule-esb-plugin</module>-->
+        <module>files-capture</module>
+        <module>mule-esb-plugin</module>
         <module>process-deadlines</module>
         <module>userdata-widget</module>
         <module>userdata-service</module>
         <module>scripting</module>
         <module>scheduler-integration</module>
         <module>global-dictionaries</module>
-		<module>interactive-reports</module>
-		<!--<module>external-plugins</module>-->
+        <module>external-plugins</module>
+        <module>case-management</module>
+        <module>interactive-reports</module>
 
 		<!-- Plugins for Aperte Reports, uncomment if you are using it. -->
 		<!-- <module>report-step</module> -->

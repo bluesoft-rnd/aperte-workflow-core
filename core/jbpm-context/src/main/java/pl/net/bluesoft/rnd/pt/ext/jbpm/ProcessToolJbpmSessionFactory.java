@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmConstants;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolSessionFactory;
+import pl.net.bluesoft.rnd.processtool.bpm.TimeTracingBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 
 import java.util.Collection;
@@ -49,7 +50,7 @@ public class ProcessToolJbpmSessionFactory implements ProcessToolSessionFactory
 
 	@Override
 	public ProcessToolBpmSession createSession(String userLogin, Collection<String> roles) {
-		return new ProcessToolJbpmSession(userLogin, roles, null);
+		return wrap(new ProcessToolJbpmSession(userLogin, roles, null));
 	}
 
 	@Override
@@ -63,6 +64,10 @@ public class ProcessToolJbpmSessionFactory implements ProcessToolSessionFactory
 	}
 
 	private ProcessToolBpmSession createAutoSessionHelper(Collection<String> roles) {
-		return new ProcessToolJbpmSession(ProcessToolBpmConstants.ADMIN_USER.getLogin(), roles, null);
+		return wrap(new ProcessToolJbpmSession(ProcessToolBpmConstants.ADMIN_USER.getLogin(), roles, null));
+	}
+
+	private ProcessToolBpmSession wrap(ProcessToolJbpmSession session) {
+		return session;
 	}
 }

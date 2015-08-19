@@ -13,21 +13,30 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.PropertyAutoWiring
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
 
 public class JbpmStepAction {
+	private static final Logger LOGGER = Logger.getLogger(JbpmStepAction.class.getName());
+
 	public String invoke(String processInstanceId, String stepName) throws Exception {
 		return invoke(processInstanceId, stepName, new HashMap<String, String>());
 	}
 	
 	public String invoke(final String processInstanceId, final String stepName, final Map<String, String> params) throws Exception {
+		long start = System.currentTimeMillis();
+		try {
         return getRegistry().withProcessToolContext(new ReturningProcessToolContextCallback<String>() {
             @Override
             public String processWithContext(ProcessToolContext ctx) {
                 return doInvoke(processInstanceId, stepName, params != null ? params : Collections.<String, String>emptyMap(), ctx);
             }
-        }, ExecutionType.TRANSACTION_SYNCH);
+        }, ExecutionType.TRANSACTION);
+		}
+		finally {
+			LOGGER.finest("[invoke] stepName=" + stepName + " t=" + (System.currentTimeMillis() - start));
+		}
 	}
 
     private String doInvoke(String processInstanceId, String stepName, Map<String, String> params, ProcessToolContext ctx) {
@@ -41,12 +50,11 @@ public class JbpmStepAction {
             throw new IllegalArgumentException("No step defined by name: " + stepName);
         }
 
-        String res;
-
-        PropertyAutoWiring.autowire(stepInstance, params);
+		PropertyAutoWiring.autowire(stepInstance, params, pi);
         BpmStep step = prepareStep(pi);
+		String res;
 
-        try {
+		try {
             res = stepInstance.invoke(step, params);
         }
         catch (Exception e) {

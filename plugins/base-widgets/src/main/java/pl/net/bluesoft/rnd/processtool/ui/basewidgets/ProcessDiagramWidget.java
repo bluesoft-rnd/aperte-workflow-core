@@ -6,6 +6,7 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.WidgetGroup;
+import pl.net.bluesoft.rnd.processtool.ui.widgets.impl.SimpleWidgetDataHandler;
 import pl.net.bluesoft.rnd.processtool.web.widgets.impl.FileWidgetContentProvider;
 
 
@@ -35,6 +36,7 @@ public class ProcessDiagramWidget extends ProcessHtmlWidget {
     protected String visitedColor;
 
 	public ProcessDiagramWidget(IBundleResourceProvider bundleResourceProvider) {
+        addDataHandler(new SimpleWidgetDataHandler());
         setContentProvider(new FileWidgetContentProvider("process-diagram.html", bundleResourceProvider));		
     }
 }

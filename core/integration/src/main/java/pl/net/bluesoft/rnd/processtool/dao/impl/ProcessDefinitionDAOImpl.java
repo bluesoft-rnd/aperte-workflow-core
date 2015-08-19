@@ -10,8 +10,8 @@ import pl.net.bluesoft.rnd.processtool.dao.ProcessDefinitionDAO;
 import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.config.*;
+import pl.net.bluesoft.rnd.util.CollectionComparer;
 import pl.net.bluesoft.util.lang.ExpiringCache;
-import pl.net.bluesoft.util.lang.Lang;
 
 import java.util.*;
 
@@ -26,6 +26,9 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 
 	private static final ExpiringCache<Long, ProcessDefinitionConfig> DEFINITION_BY_ID =
 			new ExpiringCache<Long, ProcessDefinitionConfig>(Long.MAX_VALUE);
+
+	private static final ExpiringCache<String, ProcessDefinitionConfig> DEFINITION_BY_BPMKEY =
+			new ExpiringCache<String, ProcessDefinitionConfig>(Long.MAX_VALUE);
 
 	private static final ExpiringCache<Long, ProcessStateConfiguration> STATE_BY_ID =
 			new ExpiringCache<Long, ProcessStateConfiguration>(Long.MAX_VALUE);
@@ -103,6 +106,29 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 		});
 	}
 
+	@Override
+	public ProcessDefinitionConfig getCachedDefinitionByBpmKey(String key) {
+		return DEFINITION_BY_BPMKEY.get(key, new ExpiringCache.NewValueCallback<String, ProcessDefinitionConfig>() {
+			@Override
+			public ProcessDefinitionConfig getNewValue(String key) {
+				ProcessDefinitionConfig config = (ProcessDefinitionConfig)getSession().createCriteria(ProcessDefinitionConfig.class)
+						.add(Restrictions.eq(_BPM_DEFINITION_KEY, key))
+						.add(Restrictions.eq(_LATEST, Boolean.TRUE))
+						.add(Restrictions.eq(_ENABLED, Boolean.TRUE))
+						.setFetchMode(_STATES, FetchMode.EAGER)
+						.setFetchMode(_PERMISSIONS, FetchMode.EAGER)
+						.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+						.uniqueResult();
+
+				if (config != null) {
+					fillCaches(config);
+				}
+
+				return config;
+			}
+		});
+	}
+
 	private void fillCaches(ProcessDefinitionConfig config) {
 		for (ProcessStateConfiguration state : config.getStates()) {
 			STATE_BY_ID.put(state.getId(), state);
@@ -122,8 +148,7 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 
 	@Override
 	public ProcessDefinitionConfig getCachedDefinitionById(ProcessInstance processInstance) {
-		Long definitionId = (Long)getSession().getIdentifier(processInstance.getDefinition());
-		return getCachedDefinitionById(definitionId);
+		return getCachedDefinitionById(processInstance.getDefinition().getId());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -157,6 +182,8 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 
 		ALL_DEFINITION_DESCRIPTIONS.clear();
 		ALL_STATES_DESCRIPTIONS.clear();
+		DEFINITION_BY_BPMKEY.clear();
+		DEFINITION_BY_ID.clear();
 	}
 
 
@@ -302,46 +329,6 @@ public class ProcessDefinitionDAOImpl extends SimpleHibernateBean<ProcessDefinit
 			return true;
 		}
 	};
-
-	private abstract static class CollectionComparer<T> {
-		public boolean compare(Collection<? extends T> items1, Collection<? extends T> items2) {
-			if (Lang.equals(items1, items2)) {
-				return true;
-			}
-			if (items1 == null || items2 == null || items1.size() != items2.size()) {
-				return false;
-			}
-
-			Map<String, T> oldMap = new HashMap<String,T>();
-			Map<String, T> newMap = new HashMap<String, T>();
-
-			for (T item : items1) {
-				oldMap.put(getKey(item), item);
-			}
-
-			for (T item : items2) {
-				String key = getKey(item);
-
-				if (!oldMap.containsKey(key)){
-					return false;
-				}
-				newMap.put(key, item);
-			}
-			for (Map.Entry<String, T> entry : oldMap.entrySet()) {
-				String key = entry.getKey();
-				if (!newMap.containsKey(key)) {
-					return false;
-				}
-				if (!compareItems(entry.getValue(), newMap.get(key))) {
-					return false;
-				}
-			}
-			return true;
-		}
-
-		protected abstract String getKey(T item);
-		protected abstract boolean compareItems(T item1, T item2);
-	}
 
 	private boolean isEqual(String s1, String s2) {
 		return nvl(s1).equals(nvl(s2));

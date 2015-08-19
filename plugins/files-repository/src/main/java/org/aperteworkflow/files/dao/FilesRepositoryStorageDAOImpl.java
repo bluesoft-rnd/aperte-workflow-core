@@ -2,7 +2,6 @@ package org.aperteworkflow.files.dao;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.aperteworkflow.files.dao.config.FilesRepositoryStorageConfig;
 import org.aperteworkflow.files.model.FileItemContent;
 
 import java.io.*;
@@ -12,10 +11,10 @@ import java.io.*;
  */
 public class FilesRepositoryStorageDAOImpl implements FilesRepositoryStorageDAO {
 
-    private FilesRepositoryStorageConfig config;
+    private String rootPath;
 
-    public FilesRepositoryStorageDAOImpl(FilesRepositoryStorageConfig config) {
-        this.config = config;
+    public FilesRepositoryStorageDAOImpl(String rootPath) {
+        this.rootPath = rootPath;
     }
 
     @Override
@@ -36,7 +35,7 @@ public class FilesRepositoryStorageDAOImpl implements FilesRepositoryStorageDAO 
 
     @Override
     public void deleteFileFromStorage(File relativeFilePath) throws IOException {
-        String filePath = config.getStorageRootDirPath() + File.separator + relativeFilePath;
+        String filePath = rootPath + File.separator + relativeFilePath;
         FileUtils.forceDelete(new File(filePath));
     }
 
@@ -53,13 +52,12 @@ public class FilesRepositoryStorageDAOImpl implements FilesRepositoryStorageDAO 
     }
 
     private String prepareStoragePath(String relativeFilePath) {
-        return config.getStorageRootDirPath() + File.separator + relativeFilePath;
+        return rootPath + File.separator + relativeFilePath;
     }
 
     @Override
     public String getRelativeFilePath(File file) {
-            String storageRootPath = config.getStorageRootDirPath();
-            return file.getAbsolutePath().replace(storageRootPath, "");
+            return file.getAbsolutePath().replace(rootPath, "");
     }
 
 }

@@ -4,24 +4,24 @@
 		<activeProfile>liferay-6.2</activeProfile>
 	</activeProfiles>
 	<profiles>
-	    <profile> 
+		<profile>
 			<id>jbpm5</id>
 			<properties>
-				<liferay.dir>E:\Liferay\liferay-portal-6.2.0</liferay.dir>
+				<liferay.dir>C:\home\aperte\liferay-portal-6.2-ce-ga3</liferay.dir>
 				<lib.ext.dir>${liferay.dir}\tomcat-7.0.42\lib\ext</lib.ext.dir>
 			</properties>
-		</profile>	
-		
-		<profile> 
+		</profile>
+
+		<profile>
 			<id>aperte-workflow-core</id>
 
 			<properties>
 				<!-- Properties for automatic plugins and war deployment, use with 'dev' profile -->
-				<osgi.dir>${liferay.dir}\osgi-plugins</osgi.dir>     
+				<osgi.dir>${liferay.dir}\osgi-plugins</osgi.dir>
 				<tomcat7.dir>E:\Liferay\apache-tomcat-7.0.42</tomcat7.dir>
 			</properties>
 			<activation>
-				<activeByDefault>true</activeByDefault>    
+				<activeByDefault>true</activeByDefault>
 			</activation>
 			<repositories>
 				<repository>
@@ -33,10 +33,15 @@
 					<name>Liferay's Maven repository</name>
 					<url>http://oss.sonatype.org/content/groups/public</url>
 				</repository>
-
 				<repository>
-				  <id>codelds</id>
-				  <url>https://code.lds.org/nexus/content/groups/main-repo</url>
+					<id>codehaus-mule-repo</id>
+					<name>codehaus-mule-repo</name>
+					<url>https://repository-master.mulesoft.org/nexus/content/groups/public/</url>
+					<layout>default</layout>
+				</repository>
+				<repository>
+					<id>codelds</id>
+					<url>https://code.lds.org/nexus/content/groups/main-repo</url>
 				</repository>
 
 				<repository>
@@ -81,6 +86,4 @@
 		</profile>
 
 	</profiles>
-
-
-</settings>
+</settings> 

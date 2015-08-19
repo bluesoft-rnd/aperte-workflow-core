@@ -60,6 +60,7 @@ public class BpmNotificationsController implements IOsgiWebController {
 		profile.setSmtpHost(request.getParameter("ProfileSMTPHost"));
 		profile.setSmtpPort(request.getParameter("ProfileSMTPPort"));
 		profile.setSmtpUser(request.getParameter("ProfileSMTPUser"));
+        profile.setDefaultSender(request.getParameter("DefaultSender"));
 		profile.setSmtpPassword(request.getParameter("ProfileSMTPPassword"));
 		profile.setSmtpAuth("1".equals(request.getParameter("ProfileSMTPAuth")));
 		profile.setSmtpSocketFactoryPort(request.getParameter("ProfileSmtpFactoryPort"));
@@ -70,8 +71,11 @@ public class BpmNotificationsController implements IOsgiWebController {
 		profile.setStarttls("1".equals(request.getParameter("ProfileStartTls")));
 		profile.setDebug("1".equals(request.getParameter("ProfileDebug")));
 
+
 		BpmNotificationMailPropertiesDAO bpmNotificationMailPropertiesDAO = new BpmNotificationMailPropertiesDAO();
 		bpmNotificationMailPropertiesDAO.saveOrUpdate(profile);
+
+        invalidateCache(invocation);
 
 		result.setData(profile);
 		return result;
@@ -100,9 +104,13 @@ public class BpmNotificationsController implements IOsgiWebController {
 		template.setSender(request.getParameter("TemplateSender"));
 		template.setSubjectTemplate(request.getParameter("TemplateSubject"));
 		template.setTemplateBody(request.getParameter("TemplateBody"));
+		template.setFooterTemplate(request.getParameter("TemplateFooter"));
+		template.setSentFolderName(request.getParameter("TemplateSentFolder"));
 
 		BpmNotificationTemplateDAO bpmNotificationTemplateDAO = new BpmNotificationTemplateDAO();
 		bpmNotificationTemplateDAO.saveOrUpdate(template);
+
+        invalidateCache(invocation);
 
 		result.setData(template);
 		return result;
@@ -218,7 +226,7 @@ public class BpmNotificationsController implements IOsgiWebController {
 
 		return result;
 	}
-	
+
 	@ControllerMethod(action = "invalidateCache")
 	public GenericResultBean invalidateCache(final OsgiWebRequest invocation) {
 		GenericResultBean result = new GenericResultBean();

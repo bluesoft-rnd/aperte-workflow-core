@@ -8,6 +8,9 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -54,6 +57,30 @@ public class ExcelBuilder {
 	private ExcelBuilder(Workbook workbook) {
 		this.workbook = workbook;
 		this.dateFormat = workbook.createDataFormat();
+	}
+
+	public void createSheet() {
+		String name = new String();
+		if (sheet != null) {
+			autoSizeColumns();
+			maxX = -1;
+		}
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		Date today = Calendar.getInstance().getTime();
+		name = "raport_"  + dateFormat.format(today);
+		this.sheet = workbook.createSheet(name);
+
+	}
+
+	public void autoSizeColumn(int columnIndex, boolean autosize)
+	{
+		this.sheet.autoSizeColumn(columnIndex, autosize);
+	}
+
+	public void setColumnWidth(int columnIndex, int width)
+	{
+		this.sheet.autoSizeColumn(columnIndex, false);
+		this.sheet.setColumnWidth(columnIndex, width);
 	}
 
 	public void createSheet(String name) {
@@ -162,6 +189,7 @@ public class ExcelBuilder {
             if (excelStyle.getBorderBottom() != null){
                 style.setBorderBottom(excelStyle.getBorderBottom().getIndex());
             }
+			style.setWrapText(excelStyle.getWrapText()); //boolean, not Boolean
 
 			styles.put(excelStyle, style);
 		}
@@ -258,6 +286,14 @@ public class ExcelBuilder {
 		return nextCol();
 	}
 
+	public ExcelBuilder setValue(double value, int numCols, int numRows, ExcelCellStyle style) {
+		return merge(numCols, numRows, style).setValue(value);
+	}
+
+	public ExcelBuilder setValue(double value, int numCols, int numRows, String format) {
+		return merge(numCols, numRows, new ExcelCellStyle().setFormat(format)).setValue(value);
+	}
+
 	public ExcelBuilder setValue(String value) {
 		return setValue(value, null);
 	}
@@ -294,7 +330,7 @@ public class ExcelBuilder {
 		return nextCol();
 	}
 
-	private ExcelBuilder merge(int numCols, int numRows, ExcelCellStyle style) {
+	public ExcelBuilder merge(int numCols, int numRows, ExcelCellStyle style) {
 		if (numCols > 1 || numRows > 1) {
 			CellRangeAddress region = new CellRangeAddress(y, y + numRows - 1, x, x + numCols - 1);
 

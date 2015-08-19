@@ -9,7 +9,11 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AperteDoc;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
 import pl.net.bluesoft.rnd.util.StepUtil;
+import pl.net.bluesoft.util.lang.exception.UtilityInvocationException;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -57,13 +61,23 @@ public class HandleSubstitutionAcceptance implements ProcessToolProcessStep
         UserSubstitution userSubstitution = new UserSubstitution();
 
         userSubstitution.setUserLogin(userLoginKey);
-        userSubstitution.setDateFrom(beginOfDay(parseShortDate(dateFromKey)));
-        userSubstitution.setDateTo(endOfDay(parseShortDate(dateToKey)));
+        userSubstitution.setDateFrom(beginOfDay(parseDate(dateFromKey)));
+        userSubstitution.setDateTo(endOfDay(parseDate(dateToKey)));
         userSubstitution.setUserSubstituteLogin(userSubstituteLoginKey);
 
         getThreadProcessToolContext().getUserSubstitutionDAO().saveOrUpdate(userSubstitution);
         logger.warning("Added substitution for user " + userSubstitution.getUserLogin());
         return STATUS_OK;
 
+    }
+
+    private Date parseDate(String val) {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+
+        try {
+            return sdf.parse(val);
+        } catch (ParseException var3) {
+            throw new UtilityInvocationException(var3);
+        }
     }
 }

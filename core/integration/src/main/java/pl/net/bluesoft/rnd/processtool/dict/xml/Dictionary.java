@@ -24,6 +24,9 @@ public class Dictionary {
     @XStreamImplicit
     private List<DictionaryPermission> permissions;
 
+	@XStreamImplicit
+	private List<DictionaryDefaultEntryExtension> defaultExtensions;
+
     public String getId() {
         return id;
     }
@@ -71,4 +74,12 @@ public class Dictionary {
     public void setPermissions(List<DictionaryPermission> permissions) {
         this.permissions = permissions;
     }
+
+	public List<DictionaryDefaultEntryExtension> getDefaultExtensions() {
+		return defaultExtensions;
+	}
+
+	public void setDefaultExtensions(List<DictionaryDefaultEntryExtension> defaultExtensions) {
+		this.defaultExtensions = defaultExtensions;
+	}
 }

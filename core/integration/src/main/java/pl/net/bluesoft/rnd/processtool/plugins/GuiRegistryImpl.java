@@ -1,23 +1,40 @@
 package pl.net.bluesoft.rnd.processtool.plugins;
 
 import com.google.common.io.CharStreams;
+import org.aperteworkflow.ui.view.GenericPortletViewRenderer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolActionButton;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
+import pl.net.bluesoft.rnd.processtool.usersource.IUserSource;
 import pl.net.bluesoft.rnd.processtool.web.controller.IOsgiWebController;
 import pl.net.bluesoft.rnd.processtool.web.domain.IHtmlTemplateProvider;
 import pl.net.bluesoft.rnd.processtool.web.domain.IWidgetScriptProvider;
-import pl.net.bluesoft.rnd.processtool.web.view.TasksListViewBeanFactory;
+import pl.net.bluesoft.rnd.processtool.web.view.AbstractTaskListView;
 import pl.net.bluesoft.util.lang.Classes;
 
-import java.io.*;
-import java.util.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
@@ -42,14 +59,23 @@ public class GuiRegistryImpl implements GuiRegistry {
 	private final Map<String, ProcessHtmlWidget> htmlWidgets = new HashMap<String, ProcessHtmlWidget>();
 	private final Map<String, IWidgetScriptProvider> widgetScriptProviders = new HashMap<String, IWidgetScriptProvider>();
 	private final Map<String, IOsgiWebController> webControllers = new HashMap<String, IOsgiWebController>();
-    private final Map<String, TasksListViewBeanFactory> tasksListViews = new HashMap<String, TasksListViewBeanFactory>();
+    private final Map<String, AbstractTaskListView> tasksListViews = new HashMap<String, AbstractTaskListView>();
 
 	private final Set<ButtonGenerator> buttonGenerators = new LinkedHashSet<ButtonGenerator>();
+
+	private final List<TaskPermissionChecker> taskPermissionCheckers = new ArrayList<TaskPermissionChecker>();
+	private final List<ActionPermissionChecker> actionPermissionCheckers = new ArrayList<ActionPermissionChecker>();
+
+
+    private final Map<String, Set<GenericPortletViewRenderer>> genericPortletViewRenderers = new HashMap<String, Set<GenericPortletViewRenderer>>();
 
 	private String javaScriptContent = "";
 
 	@Autowired
 	private IHtmlTemplateProvider templateProvider;
+
+    @Autowired
+    private IUserSource userSource;
 
     @Autowired
     private DefaultListableBeanFactory beanFactory;
@@ -58,14 +84,14 @@ public class GuiRegistryImpl implements GuiRegistry {
 	public synchronized void registerWidget(Class<? extends ProcessToolWidget> clazz) {
 		String aliasName = getAliasName(clazz);
 		widgets.put(aliasName, clazz);
-		logger.info("Registered widget alias: " + aliasName + " -> " + clazz.getName());
+		logger.fine("Registered widget alias: " + aliasName + " -> " + clazz.getName());
 	}
 
 	@Override
 	public synchronized void unregisterWidget(Class<? extends ProcessToolWidget> clazz) {
 		String aliasName = getAliasName(clazz);
 		widgets.remove(aliasName);
-		logger.info("Unregistered widget alias: " + aliasName + " -> " + clazz.getName());
+		logger.fine("Unregistered widget alias: " + aliasName + " -> " + clazz.getName());
 	}
 
 	@Override
@@ -84,14 +110,14 @@ public class GuiRegistryImpl implements GuiRegistry {
 	public synchronized void registerButton(Class<? extends ProcessToolActionButton> clazz) {
 		String aliasName = getAliasName(clazz);
 		buttons.put(aliasName, clazz);
-		logger.info("Registered button alias: " + aliasName + " -> " + clazz.getName());
+		logger.finest("Registered button alias: " + aliasName + " -> " + clazz.getName());
 	}
 
 	@Override
 	public synchronized void unregisterButton(Class<? extends ProcessToolActionButton> clazz) {
 		String aliasName = getAliasName(clazz);
 		buttons.remove(aliasName);
-		logger.info("Unregistered button alias: " + aliasName + " -> " + clazz.getName());
+		logger.finest("Unregistered button alias: " + aliasName + " -> " + clazz.getName());
 	}
 
 	@Override
@@ -110,14 +136,14 @@ public class GuiRegistryImpl implements GuiRegistry {
 	public synchronized void registerStep(Class<? extends ProcessToolProcessStep> clazz) {
 		String aliasName = getAliasName(clazz);
 		steps.put(aliasName, clazz);
-		logger.info("Registered step extension: " + aliasName);
+		logger.finest("Registered step extension: " + aliasName);
 	}
 
 	@Override
 	public synchronized void unregisterStep(Class<? extends ProcessToolProcessStep> clazz) {
 		String aliasName = getAliasName(clazz);
 		steps.remove(aliasName);
-		logger.info("Unregistered step extension: " + aliasName);
+		logger.finest("Unregistered step extension: " + aliasName);
 	}
 
 	@Override
@@ -229,20 +255,109 @@ public class GuiRegistryImpl implements GuiRegistry {
 		return buttonGenerators;
 	}
 
-	@Override
-    public TasksListViewBeanFactory getTasksListView(String viewName) {
-        return tasksListViews.get(viewName);
+
+    @Override
+    public AbstractTaskListView getTasksListView(String viewName)
+    {
+       return tasksListViews.get(viewName);
     }
 
     @Override
-    public void registerTasksListView(String viewName, TasksListViewBeanFactory beanFactory) {
-        tasksListViews.put(viewName, beanFactory);
+    public List<AbstractTaskListView> getTasksListViews(String currentUserLogin)
+    {
+        List<AbstractTaskListView> userViews = new LinkedList<AbstractTaskListView>();
+
+        UserData user = userSource.getUserByLogin(currentUserLogin);
+
+        if(user == null)
+            throw new RuntimeException("No user with given login="+currentUserLogin);
+
+
+        for(AbstractTaskListView taskListView: tasksListViews.values())
+        {
+            boolean userHasPrivilegesToSeeView = false;
+            /* No role is reuqired */
+            if(taskListView.getRoleNames().isEmpty())
+            {
+                userHasPrivilegesToSeeView = true;
+            }
+            /* Has user any of required roles to see view? */
+            else
+            {
+                Set<String> rolesIntercestion = new HashSet<String>(taskListView.getRoleNames());
+                rolesIntercestion.retainAll(user.getRoles());
+                if(!rolesIntercestion.isEmpty())
+                    userHasPrivilegesToSeeView = true;
+            }
+
+            /* User is not privileged to see view, go to the next */
+            if(!userHasPrivilegesToSeeView)
+                continue;
+
+            userViews.add(taskListView);
+        }
+
+        /* Sort by proprity */
+        Collections.sort(userViews);
+
+        return userViews;
+    }
+
+	@Override
+	public void registerTaskPermissionChecker(TaskPermissionChecker permissionChecker) {
+		taskPermissionCheckers.add(permissionChecker);
+	}
+
+	@Override
+	public void unregisterTaskPermissionChecker(TaskPermissionChecker permissionChecker) {
+		taskPermissionCheckers.remove(permissionChecker);
+	}
+
+	@Override
+	public List<TaskPermissionChecker> getTaskPermissionCheckers() {
+		return Collections.unmodifiableList(taskPermissionCheckers);
+	}
+
+	@Override
+	public void registerActionPermissionChecker(ActionPermissionChecker permissionChecker) {
+		actionPermissionCheckers.add(permissionChecker);
+	}
+
+	@Override
+	public void unregisterActionPermissionChecker(ActionPermissionChecker permissionChecker) {
+		actionPermissionCheckers.remove(permissionChecker);
+	}
+
+	@Override
+	public List<ActionPermissionChecker> getActionPermissionCheckers() {
+		return Collections.unmodifiableList(actionPermissionCheckers);
+	}
+
+	@Override
+    public void registerTasksListView(String viewName, AbstractTaskListView taskListView) {
+        tasksListViews.put(viewName, taskListView);
+
+        try
+        {
+            InputStream htmlFileStream = taskListView.getContentProvider().getHtmlContent();
+            String htmlBody = CharStreams.toString(new InputStreamReader(htmlFileStream, "UTF-8"));
+
+            templateProvider.addTemplate(viewName, htmlBody);
+        }
+        catch(Exception ex)
+        {
+            throw new RuntimeException("Problem during adding new html template", ex);
+        }
+
         logger.info("Registered tasks list view: " + viewName);
     }
 
     @Override
     public void unregisterTasksListView(String viewName) {
         tasksListViews.remove(viewName);
+
+        templateProvider.removeTemplate(viewName);
+
         logger.info("Unregistered tasks list view: " + viewName);
     }
 
@@ -269,23 +384,6 @@ public class GuiRegistryImpl implements GuiRegistry {
 			throw new RuntimeException("Problem during javascript compressing", ex);
 		}
 	}
-
-//	private static String compress(String string)
-//	{
-//		try
-//		{
-//			ByteArrayOutputStream os = new ByteArrayOutputStream(string.length());
-//			GZIPOutputStream gos = new GZIPOutputStream(os);
-//			gos.write(string.getBytes());
-//			gos.close();
-//			os.close();
-//			return os.toString();
-//		}
-//		catch(IOException ex)
-//		{
-//			throw new RuntimeException("Problem during javascript compressing", ex);
-//		}
-//	}
 
 	private static String decompress(String stringToCompress)
 	{
@@ -315,4 +413,26 @@ public class GuiRegistryImpl implements GuiRegistry {
 			throw new RuntimeException("No class nicknamed by: " + name);
 		}
 	}
+
+    @Override
+    public synchronized Collection<GenericPortletViewRenderer> getGenericPortletViews(String portletKey) {
+        return genericPortletViewRenderers.containsKey(portletKey)
+                ? genericPortletViewRenderers.get(portletKey)
+                : Collections.<GenericPortletViewRenderer>emptyList();
+    }
+
+    @Override
+    public synchronized void registerGenericPortletViewRenderer(String portletKey, GenericPortletViewRenderer renderer) {
+        if (!genericPortletViewRenderers.containsKey(portletKey)) {
+            genericPortletViewRenderers.put(portletKey, new HashSet<GenericPortletViewRenderer>());
+        }
+        genericPortletViewRenderers.get(portletKey).add(renderer);
+    }
+
+    @Override
+    public synchronized void unregisterGenericPortletViewRenderer(String portletKey, GenericPortletViewRenderer renderer) {
+        if (genericPortletViewRenderers.containsKey(portletKey)) {
+            genericPortletViewRenderers.get(portletKey).remove(renderer);
+        }
+    }
 }

@@ -4,7 +4,7 @@
     <parent>
         <artifactId>plugins</artifactId>
         <groupId>org.aperteworkflow</groupId>
-        <version>3.0-beta2-SNAPSHOT</version>
+        <version>3.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>base-widgets</artifactId>
@@ -15,24 +15,24 @@
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>integration-interface</artifactId>
-            <version>3.0-beta2-SNAPSHOT</version>
+            <version>3.2-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>gui-commons</artifactId>
-            <version>3.0-beta2-SNAPSHOT</version>
+            <version>3.2-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>xml-utils</artifactId>
-            <version>3.0-beta2-SNAPSHOT</version>
+            <version>3.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>scripting</artifactId>
-            <version>3.0-beta2-SNAPSHOT</version>
+            <version>3.2-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 		<dependency>
@@ -73,6 +73,9 @@
                     <instructions>
                         <Export-Package>
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets,
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.view,
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.datahandler,
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.dataprovider,
                             pl.net.bluesoft.rnd.processtool.ui.buttons, 
                             pl.net.bluesoft.rnd.processtool.ui.buttons.dialog,
                             !com.ctc.wstx.stax,
@@ -95,7 +98,9 @@
                             org.vaadin.addon.customfield,
                             org.aperteworkflow.util.vaadin,
                             org.aperteworkflow.util.vaadin.ui,
+							pl.net.bluesoft.rnd.util,
                             pl.net.bluesoft.rnd.util.i18n,
+							pl.net.bluesoft.rnd.processtool.web.domain,
                             javassist.util.proxy,
                             org.hibernate.proxy,org.osgi.framework,
                             pl.net.bluesoft.rnd.processtool.plugins.osgi,
@@ -125,7 +130,8 @@
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.TabSheetWidget,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.VerticalLayoutWidget,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.SwitchWidget,
-							pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDataBlockWidget
+							pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDataBlockWidget,
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.HorizontalLayoutWidget
                         </ProcessTool-Widget-Enhancement>
 						<!-- pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessDataBlockWidget, -->
                         <ProcessTool-Button-Enhancement>
@@ -146,7 +152,8 @@
 							pl.net.bluesoft.rnd.processtool.ui.basewidgets.UserSubstitutionComment,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.ProcessHistoryWidget,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.ShadowStateWidget,
-                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.UserSubstitutionRequestWidget
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.UserSubstitutionRequestWidget,
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.SectionTitle
                         </ProcessTool-Widget-View>
                         <ProcessTool-Step-Enhancement>
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.ChooseUserWithRoleStep,
@@ -155,18 +162,24 @@
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.SetProcessStateConfigurationId,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.SetVariablesStep,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.CopyVariablesStep,
-                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.PopFromList,
-                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.IncrementIntegerVariableStep,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.LogStep,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.GetAssignedToStep,
-                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.SetProcessBusinessStatus
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.SetProcessBusinessStatus,
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.AddNewCommentStep,
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.GetStepDate,
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.steps.GetUsersWithRoleStep
                         </ProcessTool-Step-Enhancement>
                         <ProcessTool-Controller>
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.controller.UserController,
                             pl.net.bluesoft.rnd.processtool.ui.basewidgets.controller.SubstitutionsController,
-                            
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.controller.CommentsController,
+							org.aperteworkflow.admin.controller.ProcessDefinitionsController,
 							org.aperteworkflow.admin.controller.ProcessInstanceController
                         </ProcessTool-Controller>
+                        <ProcessTool-TaskList-View>
+                            pl.net.bluesoft.rnd.processtool.ui.basewidgets.view.BpmQueueView,
+                            pl.net.bluesoft.rnd.processtool.web.view.BpmTaskListView
+                        </ProcessTool-TaskList-View>
                       <!--  <ProcessTool-Widget-Script>
                         requests-scripts.js;provider:=file
                         </ProcessTool-Widget-Script>-->

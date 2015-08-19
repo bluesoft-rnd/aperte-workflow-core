@@ -1,14 +1,16 @@
 package pl.net.bluesoft.rnd.processtool.plugins;
 
+import org.aperteworkflow.ui.view.GenericPortletViewRenderer;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolActionButton;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.web.controller.IOsgiWebController;
 import pl.net.bluesoft.rnd.processtool.web.domain.IWidgetScriptProvider;
-import pl.net.bluesoft.rnd.processtool.web.view.TasksListViewBeanFactory;
+import pl.net.bluesoft.rnd.processtool.web.view.AbstractTaskListView;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -17,6 +19,8 @@ import java.util.Map;
  * Time: 15:56
  */
 public interface GuiRegistry {
+    public static final String STANDARD_PROCESS_QUEUE_ID = "standard-queue-view";
+
 	void registerWidget(Class<? extends ProcessToolWidget> clazz);
 	void unregisterWidget(Class<? extends ProcessToolWidget> clazz);
 	Map<String, Class<? extends ProcessToolWidget>> getAvailableWidgets();
@@ -31,6 +35,10 @@ public interface GuiRegistry {
 	void unregisterStep(Class<? extends ProcessToolProcessStep> clazz);
 	Map<String, Class<? extends ProcessToolProcessStep>> getAvailableSteps();
 	ProcessToolProcessStep createStep(String stepName);
+
+    Collection<GenericPortletViewRenderer> getGenericPortletViews(String portletKey);
+    void registerGenericPortletViewRenderer(String portletKey, GenericPortletViewRenderer renderer);
+    void unregisterGenericPortletViewRenderer(String portletKey, GenericPortletViewRenderer renderer);
 
 	/** Register new javaScript file for html widgets */
 	void registerJavaScript(String fileName, IWidgetScriptProvider scriptProvider);
@@ -59,10 +67,10 @@ public interface GuiRegistry {
 	void unregisterWebController(String controllerName);
 
     /** Get plugin task view */
-    TasksListViewBeanFactory getTasksListView(String viewName);
+    AbstractTaskListView getTasksListView(String viewName);
 
     /** register new task view */
-    void registerTasksListView(String viewName, TasksListViewBeanFactory view);
+    void registerTasksListView(String viewName, AbstractTaskListView taskListView);
 
     /** Unregister plugin task view */
     void unregisterTasksListView(String viewName);
@@ -73,4 +81,15 @@ public interface GuiRegistry {
 	void registerButtonGenerator(ButtonGenerator buttonGenerator);
 	void unregisterButtonGenerator(ButtonGenerator buttonGenerator);
 	Collection<ButtonGenerator> getButtonGenerators();
+
+    /* Get all queues avaiable to user with given login */
+    List<AbstractTaskListView> getTasksListViews(String currentUserLogin);
+
+	void registerTaskPermissionChecker(TaskPermissionChecker permissionChecker);
+	void unregisterTaskPermissionChecker(TaskPermissionChecker permissionChecker);
+	List<TaskPermissionChecker> getTaskPermissionCheckers();
+
+	void registerActionPermissionChecker(ActionPermissionChecker permissionChecker);
+	void unregisterActionPermissionChecker(ActionPermissionChecker permissionChecker);
+	List<ActionPermissionChecker> getActionPermissionCheckers();
 }

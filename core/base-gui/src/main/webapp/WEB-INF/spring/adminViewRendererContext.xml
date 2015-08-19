@@ -17,14 +17,13 @@
     <mvc:resources location="/images/" mapping="/images/**"/>
 
     <context:annotation-config />
-	
-	<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter"/>
-    <bean class="org.springframework.web.portlet.mvc.annotation.DefaultAnnotationHandlerMapping" />
-	
-    <context:component-scan base-package="org.aperteworkflow.webapi.registry" />
 
-    <bean class="org.aperteworkflow.webapi.admin.controller.AdminSubstitutionController" />
-	<bean class="org.aperteworkflow.webapi.admin.controller.AdminPortletController" />
+    <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter"/>
+    <bean class="org.springframework.web.portlet.mvc.annotation.DefaultAnnotationHandlerMapping" />
+
+    <context:component-scan base-package="org.aperteworkflow.webapi.admin.controller" />
+
+    <bean class="org.aperteworkflow.webapi.admin.controller.AdminPortletController" />
 
     <bean id="customTemplateLoader" class="org.aperteworkflow.webapi.FreemarkerOsgiTemplateLoader">
         <property name="path" value="/org/aperteworkflow/templates/" />
@@ -57,7 +56,6 @@
         <property name="suffix" value=".ftl"/>
         <property name="order" value="1"></property>
     </bean>
-
 
 
 

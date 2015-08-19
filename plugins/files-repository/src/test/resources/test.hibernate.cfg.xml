@@ -7,9 +7,9 @@
 
         <!-- this values are provided by ProcessToolRegistryImpl class -->
         <property name="hibernate.connection.driver_class">org.postgresql.Driver</property>
-        <property name="hibernate.connection.url">jdbc:postgresql://127.0.0.1:5432/jbpm</property>
-        <property name="hibernate.connection.username">jbpm</property>
-        <property name="hibernate.connection.password">jbpm</property>
+        <property name="hibernate.connection.url">jdbc:postgresql://127.0.0.1:5432/aperte-jbpm-6.2</property>
+        <property name="hibernate.connection.username">dpd</property>
+        <property name="hibernate.connection.password">dpd</property>
         <!-- <property name="hibernate.connection.datasource">java:comp/env/jdbc/aperte-workflow-ds</property> -->
 
         <!--<property name="connection.release_mode">after_statement</property>-->
@@ -39,22 +39,47 @@
         <property name="current_session_context_class">jta</property>-->
 		<property name="hibernate.transaction.flush_before_completion">true</property>
         <mapping class="org.aperteworkflow.files.model.FilesRepositoryItem"/>
+        <mapping class="org.aperteworkflow.files.model.FilesRepositoryProcessAttribute" />
+
+        <mapping class="pl.net.bluesoft.rnd.processtool.web.view.ProcessInstanceFilter"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstance"/>
-        <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig"/>
-        <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget"/>
-        <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction"/>
-        <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessStatePermission"/>
-        <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration"/>
-        <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidgetPermission"/>
-        <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidgetAttribute"/>
-        <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessStateActionPermission"/>
-        <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessStateActionAttribute"/>
-        <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionPermission"/>
-        <mapping class="pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceSimpleAttribute"/>
-        <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceAttachmentAttribute"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceAttribute"/>
-        <mapping class="pl.net.bluesoft.rnd.processtool.model.processdata.ProcessDeadline"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceSimpleAttribute"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceSimpleLargeAttribute"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.StepInfo"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.UserAttribute"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.UserSubstitution"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.UserAttributePredicates"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionConfig"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessDefinitionPermission"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueConfig"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessQueueRight"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessStatePermission"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidgetAttribute"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessStateActionAttribute"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidgetPermission"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessStateActionPermission"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessToolSetting"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.config.ProcessToolSequence"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComment"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.processdata.ProcessDeadline"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionary"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItem"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemValue"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemExtension"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryPermission"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryI18N"/>
+		<mapping class="pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryDefaultItemExtension"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceDictionaryAttribute"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceDictionaryItem"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.token.AccessToken"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.report.Report"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.model.OperationLock"/>
 
     </session-factory>
 </hibernate-configuration>

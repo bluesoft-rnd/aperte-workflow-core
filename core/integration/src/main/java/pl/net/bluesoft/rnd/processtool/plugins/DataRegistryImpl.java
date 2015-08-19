@@ -24,7 +24,6 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 import javax.transaction.UserTransaction;
 import java.io.ByteArrayInputStream;
-import java.sql.Connection;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -44,10 +43,10 @@ public class DataRegistryImpl implements DataRegistry {
     private final Map<String, Class> annotatedClasses = new HashMap<String, Class>();
     private final Map<String, byte[]> hibernateResources = new HashMap<String, byte[]>();
     private final Map<String, ClassLoader> classLoaders = new HashMap<String, ClassLoader>();
-    private final Map<String, Class<? extends IAttributesMapper>> attributesMappersClasses = new HashMap<String, Class<? extends IAttributesMapper>>();
-    private final Map<String, Class<? extends IMapper>> mappersClasses = new HashMap<String, Class<? extends IMapper>>();
+    private final Map<String, Class<? extends IAttributesMapper>> attributesMappersClasses = new LinkedHashMap<String, Class<? extends IAttributesMapper>>();
+    private final Map<String, Class<? extends IMapper>> mappersClasses = new LinkedHashMap<String, Class<? extends IMapper>>();
 
-	private final List<AuditLogHandler> auditLogHandlers = new ArrayList<AuditLogHandler>();
+    private final List<AuditLogHandler> auditLogHandlers = new ArrayList<AuditLogHandler>();
 	private final ExpressionEvaluators expressionEvaluators = new ExpressionEvaluators();
 
     private SessionFactory sessionFactory;
@@ -106,13 +105,13 @@ public class DataRegistryImpl implements DataRegistry {
 
     @Override
     public synchronized boolean registerModelExtension(Class<?>... cls) {
-        logger.warning("Registered model extensions: " + FormatUtil.joinClassNames(cls));
+        logger.finest("Registered model extensions: " + FormatUtil.joinClassNames(cls));
         return addAnnotatedClass(cls);
     }
 
     @Override
     public synchronized boolean unregisterModelExtension(Class<?>... cls) {
-        logger.warning("Unregistered model extensions: " + FormatUtil.joinClassNames(cls));
+        logger.finest("Unregistered model extensions: " + FormatUtil.joinClassNames(cls));
         return removeAnnotatedClass(cls);
     }
 
@@ -440,23 +439,33 @@ public class DataRegistryImpl implements DataRegistry {
                 }
             }
         }
+		Collections.sort(mappers, BY_PRIORITY);
         return mappers;
     }
 
-	@Override
-	public void addAuditLogHandler(AuditLogHandler handler) {
-		auditLogHandlers.add(handler);
-	}
+	private static final Comparator<IMapper> BY_PRIORITY = new Comparator<IMapper>() {
+		@Override
+		public int compare(IMapper m1, IMapper m2) {
+			int p1 = m1.getClass().getAnnotation(Mapper.class).priority();
+			int p2 = m2.getClass().getAnnotation(Mapper.class).priority();
+			return p1 < p2 ? -1 : p1 > p2 ? 1 : 0;
+		}
+	};
 
-	@Override
-	public void removeAuditLogHandler(AuditLogHandler handler) {
-		auditLogHandlers.remove(handler);
-	}
+    @Override
+    public void addAuditLogHandler(AuditLogHandler handler) {
+        auditLogHandlers.add(handler);
+    }
 
-	@Override
-	public List<AuditLogHandler> getAuditLogHandlers() {
-		return Collections.unmodifiableList(auditLogHandlers);
-	}
+    @Override
+    public void removeAuditLogHandler(AuditLogHandler handler) {
+        auditLogHandlers.remove(handler);
+    }
+
+    @Override
+    public List<AuditLogHandler> getAuditLogHandlers() {
+        return Collections.unmodifiableList(auditLogHandlers);
+    }
 
 	@Override
 	public ExpressionEvaluators getExpressionEvaluators() {

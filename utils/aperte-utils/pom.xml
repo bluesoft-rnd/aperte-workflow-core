@@ -4,7 +4,7 @@
     <parent>
         <artifactId>utils</artifactId>
         <groupId>org.aperteworkflow</groupId>
-        <version>3.0-beta2-SNAPSHOT</version>
+        <version>3.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>aperte-utils</artifactId>
@@ -14,7 +14,7 @@
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>integration-interface</artifactId>
-            <version>3.0-beta2-SNAPSHOT</version>
+            <version>3.2-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -25,7 +25,7 @@
         <dependency>
             <groupId>javax.mail</groupId>
             <artifactId>mail</artifactId>
-            <version>1.4.3</version>
+            <version>${javax.mail.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

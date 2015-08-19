@@ -1,0 +1,63 @@
+<#assign null = "null"/>
+
+
+<#assign provider = attributesProvider.getProvider()>
+<#assign canEdit = provider.getSimpleAttributeValue("canEdit")!"true">
+<#assign name = provider.getSimpleAttributeValue("name")!"">
+<#assign surname = provider.getSimpleAttributeValue("surname")!"">
+<#assign description = provider.getSimpleAttributeValue("description")!"">
+<div class="form-group input-group-sm ">
+    <label name="tooltip" title="Application Process" class="col-sm 2 control-label required">
+        Application Process
+    </label>
+
+    <div class="col-sm-9">
+        <div class="form-group">
+            <label for="name-${widgetId}">Name</label>
+            <input type="text" id="name-${widgetId}" maxlength="30" class="form-control" <#if canEdit!="true">disabled</#if> value="${name}" required/>
+        </div>
+        <div class="form-group">
+            <label for="surname-${widgetId}">Surname</label>
+            <input type="text" id="surname-${widgetId}" maxlength="30" class="form-control" <#if canEdit!="true">disabled</#if> value="${surname}" required/>
+        </div>
+        <div class="form-group">
+            <label for="description-${widgetId}">description</label>
+            <input id="description-${widgetId}" maxlength="500" class="form-control" rows="4" <#if canEdit!="true">disabled</#if> value="${description}" required/>
+        </div>
+
+
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function()
+    {
+        var widget = new Widget('${widgetName}', '${widgetId}', '${task.internalTaskId}');
+
+        widget.getData = function() {
+            var data = [
+                {"key" : "name", "value" : $("#name-${widgetId}").val(), "type" : "simple" },
+                {"key" : "surname", "value" : $("#surname-${widgetId}").val(), "type" : "simple" },
+                {"key" : "description", "value" : $("#description-${widgetId}").val(), "type" : "simple" }
+            ];
+            return data;
+        };
+
+        widget.validate = function() {
+            var errors = [];
+
+            var name = $("#name-${widgetId}").val();
+            if(!name) {
+                $('#warning').show();
+            }
+
+            return errors;
+        };
+
+        widgets.push(widget);
+
+    });
+
+
+
+
+</script>

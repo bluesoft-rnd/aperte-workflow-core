@@ -2,6 +2,7 @@ package pl.net.bluesoft.rnd.processtool.model.processdata;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Index;
+import pl.net.bluesoft.rnd.processtool.model.IAttribute;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlSeeAlso;

@@ -11,13 +11,13 @@
                             <#break>
                         <#case "INFO">
                             <li class="list-group-item">
-                                <h4 class="list-group-item-heading">
+                                <h4 class="list-group-item-heading" style="font-size: 16px;">
                                     <strong>
-                                        ${log.getEntryDate()?string("dd-MM-yyyy HH:mm:ss")} :
+                                        ${log.getFormattedDate("dd-MM-yy HH:mm:ss")} :
                                     </strong>
                                     ${messageSource.getMessage(log.getEventI18NKey())}
                                 </h4>
-                                <p class="list-group-item-text">
+                                <p class="list-group-item-text" style="font-size: 15px;">
                                     <#assign messageParameters = log.getAdditionalInfo()?split(",")/>
                                     ${messageSource.getMessage(log.getLogValue(), "", messageParameters)}
                                 </p>
@@ -27,9 +27,9 @@
                             <li class="list-group-item">
                                 <#assign actionUser = userSource.getUserByLogin(log.getUserLogin())!""/>
                                 <#assign substitutionUserLogin = log.getUserSubstituteLogin()!""/>
-                                <h4 class="list-group-item-heading">
+                                <h4 class="list-group-item-heading" style="font-size: 16px;">
                                     <strong>
-                                        ${log.getEntryDate()?string("dd-MM-yyyy HH:mm:ss")} :
+                                        ${log.getFormattedDate("dd-MM-yy HH:mm:ss")} :
                                     </strong>
                                     ${messageSource.getMessage(log.getEventI18NKey())}
                                     <#assign entryDescription = log.getAdditionalInfo()!log.getLogValue()!""/>
@@ -37,7 +37,7 @@
                                         -  ${messageSource.getMessage(entryDescription)}
                                     </#if>
                                 </h4>
-                                <p class="list-group-item-text">
+                                <p class="list-group-item-text" style="font-size: 15px;">
                                     <strong>${messageSource.getMessage("process.history.action.by")}: </strong>
 
                                     ${actionUser.getRealName()} ( ${log.getUserLogin()} )

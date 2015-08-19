@@ -27,8 +27,8 @@ final class TreeDeleteHandler implements DropHandler {
 		DataBoundTransferable t = (DataBoundTransferable) dropEvent.getTransferable();
 		
 		Object sourceItemId = t.getItemId();
-
-		stepEditorWindow.deleteTreeItem(sourceItemId);
+		throw new RuntimeException("This shit is never used");
+		//stepEditorWindow.deleteTreeItem(sourceItemId);
 	}
 
 	public AcceptCriterion getAcceptCriterion() {

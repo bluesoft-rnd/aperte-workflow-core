@@ -10,6 +10,8 @@ import javax.persistence.UniqueConstraint;
 @Table(name = "pt_ext_bpm_notify_mail_props",
         uniqueConstraints = @UniqueConstraint(columnNames = "profileName"))
 public class BpmNotificationMailProperties extends PersistentEntity {
+	public static final String _PROFILE_NAME = "profileName";
+
     private String profileName;
     private String smtpHost;
     private String smtpSocketFactoryPort;
@@ -23,6 +25,7 @@ public class BpmNotificationMailProperties extends PersistentEntity {
     private String transportProtocol;
     private boolean starttls;
     private boolean debug;
+	private String defaultSender;
 
     public String getProfileName() {
         return profileName;
@@ -126,5 +129,13 @@ public class BpmNotificationMailProperties extends PersistentEntity {
 
 	public void setTransportProtocol(String transportProtocol) {
 		this.transportProtocol = transportProtocol;
+	}
+
+	public String getDefaultSender() {
+		return defaultSender;
+	}
+
+	public void setDefaultSender(String defaultSender) {
+		this.defaultSender = defaultSender;
 	}
 }

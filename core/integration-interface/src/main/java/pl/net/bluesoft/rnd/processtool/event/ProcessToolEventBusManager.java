@@ -50,7 +50,7 @@ public class ProcessToolEventBusManager extends ConcurrentEventBusManager {
 
 	@Override
 	public void publish(Object event) {
-		logger.info("Publishing event: " + event.getClass());
+		logger.finest("Publishing event: " + event.getClass());
 		Map<Class, Set<WeakReference<EventListener>>> map = getListenerMap();
 		Class cls = event.getClass();
 		while (cls != null) {
@@ -61,7 +61,7 @@ public class ProcessToolEventBusManager extends ConcurrentEventBusManager {
 					if (ref != null) {
 						EventListener listener = ref.get();
 						if (listener != null) {
-							logger.info("Receiving event by listener: " + listener.getClass().getName());
+							logger.finest("Receiving event by listener: " + listener.getClass().getName());
 							try {
 								listener.onEvent(event);
 							}

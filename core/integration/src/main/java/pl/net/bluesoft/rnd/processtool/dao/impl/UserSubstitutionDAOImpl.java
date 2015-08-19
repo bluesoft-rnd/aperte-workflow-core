@@ -28,9 +28,9 @@ public class UserSubstitutionDAOImpl extends SimpleHibernateBean<UserSubstitutio
 		return currentSubstitutedUserLogins.get(userLogin, new ExpiringCache.NewValueCallback<String, List<String>>() {
 			@Override
 			public List<String> getNewValue(String key) {
-				String query = "select distinct us.userSubstituteLogin from UserSubstitution us where us.userLogin = :userLogin and :date between us.dateFrom and us.dateTo";
+				String query = "select distinct us.userLogin from UserSubstitution us where us.userSubstituteLogin = :userSubstituteLogin and :date between us.dateFrom and us.dateTo";
 				return getSession().createQuery(query)
-						.setParameter("userLogin", userLogin)
+						.setParameter("userSubstituteLogin", userLogin)
 						.setParameter("date", new Date())
 						.list();
 			}

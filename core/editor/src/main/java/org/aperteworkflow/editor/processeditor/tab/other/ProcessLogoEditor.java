@@ -103,9 +103,9 @@ public class ProcessLogoEditor extends GridLayout implements ProcessLogoHandler,
         logoUploader.setProcessLogoHandler(this);
 
         logoDescriptionLabel = new Label(messages.getMessage(
-                "process.logo.description",
-                new Object[] { humanReadableByteCount(ModelConstants.PROCESS_LOGO_FILE_SIZE, false) }
-        ));
+				"process.logo.description",
+				new Object[]{ humanReadableByteCount(ModelConstants.PROCESS_LOGO_FILE_SIZE, false) }
+		));
 
         logoResetButton = new Button(messages.getMessage("process.logo.reset"));
         logoResetButton.addListener(new Button.ClickListener() {

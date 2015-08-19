@@ -133,7 +133,7 @@ public class DeadlineEngine {
                     .forJob(jobDetail)
                     .build();
 
-            logger.info("Scheduling deadline job handler at: " + dueDate + " for process instance: " + processInternalId
+            logger.finest("Scheduling deadline job handler at: " + dueDate + " for process instance: " + processInternalId
                     + " and task name: " + taskName);
             service.scheduleJob(jobDetail, trigger);
         }
@@ -142,12 +142,12 @@ public class DeadlineEngine {
     public void onProcessStateChange(final BpmTask task, ProcessInstance pi, boolean processInitiated)
     {
         if (pi == null || pi.getId() == null || task == null) {
-            logger.info("Event contained no persistent process instance and task. Omitting.");
+            logger.finest("Event contained no persistent process instance and task. Omitting.");
             return;
         }
 
         String internalId = pi.getInternalId();
-        logger.info("Processing deadlines for process: " + internalId);
+        logger.finest("Processing deadlines for process: " + internalId);
         ProcessToolContext ctx = getThreadProcessToolContext();
         pi = ctx.getProcessInstanceDAO().getProcessInstance(pi.getId());
         if (pi == null) {
@@ -172,7 +172,7 @@ public class DeadlineEngine {
                     logger.log(Level.SEVERE, "Exception while sending deadline notification", e);
                 }
             }
-        }, ProcessToolContextFactory.ExecutionType.TRANSACTION_SYNCH);
+        }, ProcessToolContextFactory.ExecutionType.TRANSACTION);
     }
 
     private void signalDeadline(String processInstanceId, ProcessDeadline processDeadline) throws Exception {
@@ -208,7 +208,7 @@ public class DeadlineEngine {
                     	.setRecipient(user)
                     	.setTemplateData(templateData);
 
-					logger.info("Signaling deadline for task: " + task.getTaskName() + " owned by: " + assigneeLogin + ", mailed to: " + user.getLogin());
+					logger.finest("Signaling deadline for task: " + task.getTaskName() + " owned by: " + assigneeLogin + ", mailed to: " + user.getLogin());
 
 					EmailSender.sendEmail(getBpmNotifications(), notificationData);
                 }

@@ -1,0 +1,77 @@
+.aui.aui.aui.aui.aui.aui.aui body [id=case-list-view] label:not([class*=glyphicon]),
+.aui.aui.aui.aui.aui.aui.aui body [id=case-list-view] input:not([class*=glyphicon]),
+.aui.aui.aui.aui.aui.aui.aui body [id=case-list-view] span:not([class*=glyphicon]),
+.aui.aui.aui.aui.aui.aui.aui body [id=case-list-view] td:not([class*=glyphicon]),
+.aui.aui.aui.aui.aui.aui.aui body [id=case-list-view] button:not([class*=glyphicon]),
+.aui.aui.aui.aui.aui.aui.aui body [id=case-list-view] th:not([class*=glyphicon]),
+.aui.aui.aui.aui.aui.aui.aui body [id=case-list-view] a:not([class*=glyphicon]),
+.aui.aui.aui.aui.aui.aui.aui body [id=case-list-view] div:not([class*=glyphicon]),
+
+.aui.aui.aui.aui.aui.aui.aui body [id=process-tasks-view] label:not([class*=glyphicon]),
+.aui.aui.aui.aui.aui.aui.aui body [id=process-tasks-view] input:not([class*=glyphicon]),
+.aui.aui.aui.aui.aui.aui.aui body [id=process-tasks-view] span:not([class*=glyphicon]),
+.aui.aui.aui.aui.aui.aui.aui body [id=process-tasks-view] td:not([class*=glyphicon]),
+.aui.aui.aui.aui.aui.aui.aui body [id=process-tasks-view] button:not([class*=glyphicon]),
+.aui.aui.aui.aui.aui.aui.aui body [id=process-tasks-view] th:not([class*=glyphicon]),
+.aui.aui.aui.aui.aui.aui.aui body [id=process-tasks-view] a:not([class*=glyphicon]),
+.aui.aui.aui.aui.aui.aui.aui body [id=process-tasks-view] div:not([class*=glyphicon]),
+
+.aui.aui.aui.aui.aui.aui.aui body [id=case-data-view] label:not([class*=glyphicon]),
+.aui.aui.aui.aui.aui.aui.aui body [id=case-data-view] input:not([class*=glyphicon]),
+.aui.aui.aui.aui.aui.aui.aui body [id=case-data-view] span:not([class*=glyphicon]),
+.aui.aui.aui.aui.aui.aui.aui body [id=case-data-view] td:not([class*=glyphicon]),
+.aui.aui.aui.aui.aui.aui.aui body [id=case-data-view] button:not([class*=glyphicon]),
+.aui.aui.aui.aui.aui.aui.aui body [id=case-data-view] th:not([class*=glyphicon]),
+.aui.aui.aui.aui.aui.aui.aui body [id=case-data-view] a:not([class*=glyphicon]),
+.aui.aui.aui.aui.aui.aui.aui body [id=case-data-view] div:not([class*=glyphicon]),
+
+.aui.aui.aui.aui.aui.aui.aui body [id=process-data-view] label:not([class*=glyphicon]),
+.aui.aui.aui.aui.aui.aui.aui body [id=process-data-view] input:not([class*=glyphicon]),
+.aui.aui.aui.aui.aui.aui.aui body [id=process-data-view] span:not([class*=glyphicon]),
+.aui.aui.aui.aui.aui.aui.aui body [id=process-data-view] td:not([class*=glyphicon]),
+.aui.aui.aui.aui.aui.aui.aui body [id=process-data-view] button:not([class*=glyphicon]),
+.aui.aui.aui.aui.aui.aui.aui body [id=process-data-view] th:not([class*=glyphicon]),
+.aui.aui.aui.aui.aui.aui.aui body [id=process-data-view] a:not([class*=glyphicon]),
+.aui.aui.aui.aui.aui.aui.aui body [id=process-data-view] div:not([class*=glyphicon])
+
+{
+	font-family: verdana;
+	font-size: 12px;
+}
+
+.no-margin-bottom.no-margin-bottom.no-margin-bottom.no-margin-bottom.no-margin-bottom.no-margin-bottom.no-margin-bottom
+{
+	margin-bottom: 0;
+}
+
+.ie8-display-fix.ie8-display-fix.ie8-display-fix.ie8-display-fix.ie8-display-fix{
+	display: block;
+}
+
+.recompensation-trash {vertical-align: middle;}
+[id*=payout-] .control-group {margin: 0px; padding: 0px 3px;}
+[id*=payout-] input[type="text"] {padding: 0px; height: 26px;}
+[id*=payout-] .validationError {border: 1px solid rgb(210, 50, 45)}
+[id*=payout-] .select2-container {padding: 0px}
+[id*=payout-] .validationErrorDiv{display:none;}
+[id*=payout-] .showError{display: block !important;}
+
+label.error {
+	margin-left: 2px;
+	width: auto;
+	display: inline;
+	color: #d86363 !important;
+	font-weight: normal !important;
+	font-size: 12px !important;
+	}
+
+<!--[if IE]>
+#assignedPersonInactiveCheckbox
+{
+    padding-top: 3px !important;
+}
+<![endif]-->
+
+[aria-hidden*=true] {
+	z-index: -9999 !important;
+}

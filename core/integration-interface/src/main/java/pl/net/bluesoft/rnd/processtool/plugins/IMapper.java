@@ -7,5 +7,5 @@ import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
  * Created by pkuciapski on 2014-05-08.
  */
 public interface IMapper<T extends IAttributesProvider> {
-    void map(IAttributesConsumer consumer, T provider);
+    void map(IAttributesConsumer consumer, T provider, MapperContext context);
 }

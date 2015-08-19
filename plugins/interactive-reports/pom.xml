@@ -4,7 +4,7 @@
     <parent>
         <artifactId>plugins</artifactId>
         <groupId>org.aperteworkflow</groupId>
-        <version>3.0-beta2-SNAPSHOT</version>
+        <version>3.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>interactive-reports</artifactId>
@@ -15,26 +15,26 @@
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>integration-interface</artifactId>
-            <version>3.0-beta2-SNAPSHOT</version>
+            <version>3.2-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>gui-commons</artifactId>
-            <version>3.0-beta2-SNAPSHOT</version>
+            <version>3.2-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
 		<dependency>
 			<artifactId>bpm-notifications</artifactId>
 			<groupId>org.aperteworkflow</groupId>
-			<version>3.0-beta2-SNAPSHOT</version>
+			<version>3.2-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
         <dependency>
             <artifactId>files-repository</artifactId>
             <groupId>org.aperteworkflow</groupId>
-            <version>3.0-beta2-SNAPSHOT</version>
+            <version>3.2-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <!-- Jackson -->
@@ -120,16 +120,17 @@
                             pl.net.bluesoft.rnd.processtool.model.processdata,
                             pl.net.bluesoft.rnd.processtool.process.externalkey,
 							pl.net.bluesoft.rnd.processtool.plugins,
-                         <!-- zakomentowane package powodowaly bledy przy instalacji bundle'a, ich brak może powodować apokalipsę -->
-                         <!--   org.aperteworkflow.files, -->
-                         <!--   org.aperteworkflow.files.dao, -->
+                            freemarker.cache;version="2.3.22",
+                            freemarker.template;version="2.3.22",
+                            org.aperteworkflow.files,
+                            org.aperteworkflow.files.dao,
                             org.codehaus.jackson;version="1.9.13",
                             org.codehaus.jackson.map;version="1.9.13",
                             org.codehaus.jackson.type;version="1.9.13",
                             org.codehaus.jackson.map.type;version="1.9.13",
-                          <!--  org.codehaus.jackson.map.ser;version="1.9.13", -->
-                          <!--  org.codehaus.jackson.map.ser.impl;version="1.9.13", -->
-                          <!--  org.codehaus.jackson.map.annotate;version="1.9.13", -->
+                            org.codehaus.jackson.map.ser;version="1.9.13",
+                            org.codehaus.jackson.map.ser.impl;version="1.9.13",
+                            org.codehaus.jackson.map.annotate;version="1.9.13",
 							org.apache.commons.lang;version="2.6",
 							javassist.util.proxy,
 							org.hibernate.proxy,
@@ -143,11 +144,8 @@
                         <Bundle-Version>0.1</Bundle-Version>
                         <Embed-Directory>lib</Embed-Directory>
                         <Embed-Transitive>true</Embed-Transitive>
-                        <ProcessTool-Global-Dictionary>dictionary</ProcessTool-Global-Dictionary>
                         <Bundle-Activator>pl.net.bluesoft.interactivereports.Activator</Bundle-Activator>
                         <ProcessTool-I18N-Property>messages</ProcessTool-I18N-Property>
-                        <ProcessTool-Model-Enhancement>
-                        </ProcessTool-Model-Enhancement>
                         <ProcessTool-Spring-Beans>
 							pl.net.bluesoft.interactivereports.service.InteractiveReportServiceImpl
 						</ProcessTool-Spring-Beans>
@@ -165,7 +163,7 @@
             </plugin>
         </plugins>
     </build>
-
+	
 	    <!-- Profil dev do automatycznego kopiowania jarow do osgi -->
     <profiles>
     

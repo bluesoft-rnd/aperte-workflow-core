@@ -11,6 +11,13 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface TaskListView {
-    String name();
-    String file();
+    String queueId();
+    String queueDisplayedName();
+    String queueDisplayedDescription();
+    String fileName();
+    AbstractTaskListView.QueueTypes queueType();
+    int priority() default 1;
+
+    Class<? extends ITasksListViewBeanFactory> mainFactory();
+    TaskListViewProcessFactory[] processFactories();
 }

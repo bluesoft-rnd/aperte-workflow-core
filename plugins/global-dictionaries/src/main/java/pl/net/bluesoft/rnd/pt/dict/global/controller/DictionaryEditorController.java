@@ -7,7 +7,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessDictionaryDAO;
-import pl.net.bluesoft.rnd.processtool.dict.DictionaryItem;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionary;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItem;
@@ -27,11 +26,13 @@ import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import java.net.URLDecoder;
 import java.util.*;
 
+import static pl.net.bluesoft.util.lang.Formats.nvl;
+
 /**
  * Created by pkuciapski on 2014-05-30.
  */
 @OsgiController(name = "dictionaryeditorcontroller")
-public class DictionaryEditorController implements IOsgiWebController {
+public class DictionaryEditorController implements IOsgiWebController {//
     @Autowired
     ProcessToolRegistry registry;
 
@@ -54,7 +55,7 @@ public class DictionaryEditorController implements IOsgiWebController {
             count = dao.getDictionaryItemsCount(dictId);
         }
         DataPagingBean<DictionaryItemDTO> dataPagingBean =
-                new DataPagingBean<DictionaryItemDTO>(dtos, count.intValue(), dataTable.getEcho());
+                new DataPagingBean<DictionaryItemDTO>(dtos, count.intValue(), dataTable.getDraw());
         return dataPagingBean;
 
     }
@@ -148,8 +149,6 @@ public class DictionaryEditorController implements IOsgiWebController {
 
     @ControllerMethod(action = "getItemValues")
     public GenericResultBean getItemValues(final OsgiWebRequest invocation) throws Exception {
-        // JQueryDataTable dataTable = JQueryDataTableUtil.analyzeRequest(invocation.getRequest().getParameterMap());
-        // JQueryDataTableColumn sortColumn = dataTable.getFirstSortingColumn();
         String dictId = invocation.getRequest().getParameter("dictId");
         String itemId = invocation.getRequest().getParameter("itemId");
         Collection<DictionaryItemValueDTO> dtos = Collections.emptyList();
@@ -170,8 +169,6 @@ public class DictionaryEditorController implements IOsgiWebController {
             }
         }
         result.setData(dtos);
-        //DataPagingBean<DictionaryItemValueDTO> dataPagingBean =
-        //        new DataPagingBean<DictionaryItemValueDTO>(dtos, dtos.size(), dataTable.getEcho());
 
         return result;
     }
@@ -201,6 +198,35 @@ public class DictionaryEditorController implements IOsgiWebController {
         return null;
     }
 
+	@ControllerMethod(action = "getNewItemValuePrototype")
+	public GenericResultBean getNewItemValuePrototype(final OsgiWebRequest invocation) throws Exception {
+		GenericResultBean result = new GenericResultBean();
+		String dictId = invocation.getRequest().getParameter("dictId");
+		ProcessDictionaryDAO dao = registry.getDataRegistry().getProcessDictionaryDAO(invocation.getProcessToolContext().getHibernateSession());
+
+		try {
+			ProcessDBDictionary dictionary = getDictionary(dictId, invocation.getProcessToolContext());
+			ProcessDBDictionaryItemValue value = new ProcessDBDictionaryItemValue();
+			value.addLocalizedValue("default", "");
+			dictionary.initValueExtensions(value);
+
+			DictionaryItemValueDTO valueDTO = DictionaryItemValueDTO.createFrom(value,
+					invocation.getProcessToolRequestContext().getMessageSource());
+
+			valueDTO.setDateFrom("");
+			valueDTO.setDateTo("");
+			valueDTO.setValue(nvl(valueDTO.getValue()));
+
+			result.setData(valueDTO);
+		}
+		catch (Exception e) {
+			result.addError("getNewItemValuePrototype", e.getMessage());
+			if (dao.getSession().isDirty()) {
+				dao.getSession().clear();
+			}
+		}
+		return result;
+	}
 
     @ControllerMethod(action = "saveDictionaryItem")
     public GenericResultBean saveDictionaryItem(final OsgiWebRequest invocation) throws Exception {
@@ -216,7 +242,7 @@ public class DictionaryEditorController implements IOsgiWebController {
             dictionary = dao.refresh(dictionary);
             try {
                 if (dto.getId() == null) {
-                    itemToValidate = dto.toProcessDBDictionaryItem(messageSource.getLocale().getLanguage());
+                    itemToValidate = dto.toProcessDBDictionaryItem(dictionary, messageSource.getLocale().getLanguage());
                     dictionary.addItem(itemToValidate);
                 } else {
                     ProcessDBDictionaryItem dbItem = getItemById(dictionary.getItems(), String.valueOf(dto.getId()));
@@ -240,7 +266,7 @@ public class DictionaryEditorController implements IOsgiWebController {
     private ProcessDBDictionaryItem updateItem(ProcessDBDictionary dictionary, ProcessDBDictionaryItem item, DictionaryItemDTO dto, I18NSource messageSource) {
         if (item.getId() != null && item.getId().equals(dto.getId())) {
             dictionary.removeItem(item.getKey());
-            dto.updateItem(item, messageSource.getLocale().getLanguage());
+            dto.updateItem(dictionary, item, messageSource.getLocale().getLanguage());
             dictionary.addItem(item);
             return item;
         }

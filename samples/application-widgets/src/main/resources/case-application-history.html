@@ -1,0 +1,179 @@
+<#assign null = "null">
+<#assign provider = attributesProvider.getProvider()>
+<#assign case = case!null>
+<#assign isCase = (case != null)>
+<#if !isCase>
+    <#assign caseId = provider.getSimpleAttributeValue("caseId")?number!0>
+    <#assign case = caseManagementFacade.getCaseById(caseId)!null>
+</#if>
+<#assign name = case.getSimpleAttributeValue("name")!"">
+<#assign surname = case.getSimpleAttributeValue("surname")!"">
+<#assign description = case.getSimpleAttributeValue("description")!"">
+<#assign currentStage = case.getCurrentStage().getName()!"">
+<#assign stages= provider.stages![]>
+<div class="panel panel-default">
+
+<table id="stages-${widgetId}" class="table" style=" margin: 0 auto;">
+    <thead>
+        <tr>
+            <th>No. </th>
+            <th>Stage name</th>
+            <th>Start date</th>
+            <th>End date</th>
+            <th>Files</th>
+            <th>Comments</th>
+        </tr>
+    </thead>
+    <tbody>
+        <#assign historyIteration = 0/>
+        <#list stageDTOs as stage>
+            <#assign historyIteration = historyIteration + 1/>
+            <tr>
+                <td>${historyIteration}</td>
+                <td>${stage.name}</td>
+                <td>${stage.getStartDate()!"-"}</td>
+                <td>${stage.getEndDate()!"-"}</td>
+                <td>${stage.files!""}</td>
+                <td>
+                    <ul class="list-group aperte-list-group">
+                    <#list stage.comments as comment>
+                        <li class="list-group-item">
+                            <p class="list-group-item-text">
+                                <b>${comment.authorFullName} (${comment.authorLogin}) [${comment.getFormattedDate("dd-MM-yy HH:mm")}]</b>
+                            </p>
+                            <p class="list-group-item-text">
+                                <#assign commentType = comment.commentType!""/>
+                                <#if commentType != "">
+                                    ${commentType}
+                                    <br>
+                                </#if>
+                                ${comment.body}
+                            </p>
+                    </#list>
+                    </ul>
+                </td>
+            </tr>
+        </#list>
+    </tbody>
+</table>
+
+</div>
+
+    <script type="text/javascript">
+
+    $(document).ready(function()
+    {
+        var idx_no = 0;
+        var idx_name = 1;
+        var idx_startDate = 2;
+        var idx_endDate = 3;
+        var idx_files = 4;
+        var idx_comments = 5;
+        var stagesTable;
+        var urlDownloadFile = getNoReplyDispatcherPortletFor('casefilescontroller', 'downloadFile');
+        var widget = new Widget('${widgetName}', '${widgetId}', '<#if (task.internalTaskId)??>${task.internalTaskId}<#else>${provider.id}</#if>');
+
+        function getNoReplyDispatcherPortletFor(controller, action) {
+            var noReplyDispatcherPortlet = dispatcherPortlet.replace('=dispatcher&','=noReplyDispatcher&');
+            var url = noReplyDispatcherPortlet + '&controller=' + controller + '&action=' + action + '&processInstanceId=${attributesProvider.getId()?c}'
+            return url;
+        }
+
+        widget.getData = function() {
+            var data = [
+                {"key" : "name", "value" : "${name}", "type" : "simple" },
+                {"key" : "surname", "value" : "${surname}", "type" : "simple" },
+                {"key" : "description", "value" : "${description}", "type" : "simple" }
+            ];
+            return data;
+        };
+
+        widget.validate = function() {
+            var errors = [];
+
+            var name = $("#name-${widgetId}").val();
+            if(!name) {
+                $('#warning').show();
+            }
+
+            return errors;
+        };
+
+        widgets.push(widget);
+
+        stagesTable = $('#stages-${widgetId}').dataTable({
+            "bPaginate": false,
+                "bLengthChange": false,
+                "bFilter": false,
+                "bSort": false,
+                "bInfo": false,
+                "bAutoWidth": false,
+                "oLanguage": {
+                    "sEmptyTable": " "
+                },
+
+                "aoColumnDefs": [
+                    {
+                        "aTargets": [ idx_no ],
+                        "mRender": function ( data, type, full ) {
+                        return data;
+                        }
+                    },
+                    {
+                        "aTargets": [ idx_name ],
+                        "mRender": function ( data, type, full ) {
+                        return data;
+                        }
+                    },
+                    {
+                        "aTargets": [ idx_startDate ],
+                        "mRender": function ( data, type, full ) {
+                        return data;
+                        }
+                    },
+                    {
+                        "aTargets": [ idx_endDate ],
+                        "mRender": function ( data, type, full ) {
+                        return data;
+                        }
+                    },
+                    {
+                        "aTargets": [ idx_files ],
+                        "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+                            $(nTd).empty();
+                            var filesList = JSON.parse(sData);
+                            if(filesList != null) {
+                                var html = '';
+                                $.each(filesList, function(index, item) {
+                                    var url = urlDownloadFile + '&filesRepositoryItemId=' + item.id;
+                                    html += '<div>';
+                                    html += '<a href="' + url + '" class="">'
+                                    + getFileIconHtml(item.name) + ' '
+                                    + item.name + '</a>';
+                                    if (item.description && item.description.length > 0) {
+                                        html += ' (' + item.description + ')';
+                                    }
+                                    html += '</div>';
+                                });
+
+                                $(nTd).prepend($(html));
+                            }
+                        }
+                    },
+                    {
+                        "aTargets": [ idx_comments ],
+                        "mRender": function ( data, type, full ) {
+                        return data;
+                        }
+                    }
+
+                ],
+                "fnInitComplete": function(oSettings, json) {
+                }
+        });
+    });
+
+
+
+
+</script>

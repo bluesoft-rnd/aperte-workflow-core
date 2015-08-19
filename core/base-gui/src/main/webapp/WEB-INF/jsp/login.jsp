@@ -4,7 +4,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
 <div class="please-log-in-label">
-	<div class="process-queue-name">
+	<div class="process-queue-name" style="font-family: Arial,sans-serif;">
 		<spring:message code="authorization.please.log.in" />
 	</div>
 	 <c:if test="${isStandAlone==true}">

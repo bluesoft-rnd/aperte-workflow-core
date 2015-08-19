@@ -48,7 +48,7 @@ public class AdminSubstitutionController {
      */
     public ModelAndView handleMainRenderRequest(RenderRequest request, RenderResponse response, Model model)
     {
-        logger.info("AdminSubstitutionController.handleMainRenderRequest... ");
+        logger.fine("AdminSubstitutionController.handleMainRenderRequest... ");
         PortletConfig config = ((PortletConfig) request.getAttribute("javax.portlet.config"));
         final UserData user = portalUserSource.getUserByRequest(request);
 
@@ -76,7 +76,7 @@ public class AdminSubstitutionController {
         String controller = originalHttpServletRequest.getParameter("controller");
         String action = originalHttpServletRequest.getParameter("action");
 
-        logger.log(Level.INFO, "controllerName: " + controller + ", action: " + action);
+        logger.log(Level.FINEST, "controllerName: " + controller + ", action: " + action);
 
         if (controller == null || controller.isEmpty()) {
             logger.log(Level.SEVERE, "[ERROR] No controller paramter in dispatcher invocation!");

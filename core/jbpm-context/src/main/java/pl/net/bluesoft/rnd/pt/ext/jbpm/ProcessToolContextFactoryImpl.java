@@ -1,23 +1,21 @@
 package pl.net.bluesoft.rnd.pt.ext.jbpm;
 
-import org.hibernate.FlushMode;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
+import org.hibernate.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
 import pl.net.bluesoft.rnd.processtool.ReturningProcessToolContextCallback;
+import pl.net.bluesoft.rnd.processtool.exceptions.ExceptionsUtils;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.service.JbpmService;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.transaction.Status;
-import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
+import java.util.concurrent.locks.LockSupport;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -66,6 +64,8 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory
         T result = null;
 
         Session session = registry.getDataRegistry().getSessionFactory().openSession();
+        session.setFlushMode(FlushMode.COMMIT);
+        session.setCacheMode(CacheMode.IGNORE);
         try {
 
             try {
@@ -81,7 +81,6 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory
             }
 
         } finally {
-            session.clear();
             session.close();
         }
         return result;
@@ -89,7 +88,8 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory
 
     @Override
     public <T> T withProcessToolContext(ReturningProcessToolContextCallback<T> callback, ExecutionType type) {
-        logger.info(">>>>>>>>> withProcessToolContext, executionType: " + type.toString() + ", threadId: " +  Thread.currentThread().getId());
+        //logger.info(">>>>>>>>> withProcessToolContext, executionType: " + type.toString() + ", threadId: " + Thread.currentThread().getId());
+        long start = System.currentTimeMillis();
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(ProcessToolRegistry.Util.getAwfClassLoader());
 
@@ -98,6 +98,8 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory
         } catch (ClassNotFoundException e) {
             logger.warning("JbpmStepAction.class was not found");
         }
+
+        ContextStats stats = null;
 
         try {
             ProcessToolContext ctx = getThreadProcessToolContext();
@@ -112,175 +114,120 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory
                 ProcessToolContext.Util.removeThreadProcessToolContext();
             }
 
+            stats = new ContextStats();
+
             if (ExecutionType.NO_TRANSACTION.equals(type)) {
-                return executeWithProcessToolContext(callback);
+                return executeWithProcessToolContext(callback, stats);
             } else if (ExecutionType.NO_TRANSACTION_SYNCH.equals(type)) {
-                return executeWithProcessToolContextSynch(callback);
+                return executeWithProcessToolContextSynch(callback, stats);
             } else if (ExecutionType.TRANSACTION_SYNCH.equals(type)) {
                 //jbpm doesn't support external user transactions
                 //if (registry.isJta()) {
                 //	return executeWithProcessToolContextJtaSynch(callback);
                 //} else {
-                return executeWithProcessToolContextNonJtaSynch(callback);
+                return executeWithProcessToolContextNonJtaSynch(callback, stats);
                 //}
             } else {
                 //jbpm doesn't support external user transactions
                 //if (registry.isJta()) {
                 //	return executeWithProcessToolContextJta(callback);
                 //} else {
-                return executeWithProcessToolContextNonJta(callback);
+                return executeWithProcessToolContextNonJta(callback, stats);
                 //}
             }
 
         }
         finally {
-            logger.info("<<<<<<<<< withProcessToolContext: " +  Thread.currentThread().getId());
+            //logger.info("<<<<<<<<< withProcessToolContext: " +  Thread.currentThread().getId() + " time: " + (System.currentTimeMillis() - start) + (stats != null ? " stats:\n" + stats.toString() : ""));
             Thread.currentThread().setContextClassLoader(contextClassLoader);
         }
     }
 
-    private synchronized <T> T executeWithProcessToolContextNonJtaSynch(ReturningProcessToolContextCallback<T> callback) {
-        return executeWithProcessToolContextNonJta(callback);
+    private synchronized <T> T executeWithProcessToolContextNonJtaSynch(ReturningProcessToolContextCallback<T> callback, ContextStats stats) {
+        return executeWithProcessToolContextNonJta(callback, stats);
     }
 
-    private <T> T executeWithProcessToolContextNonJta(ReturningProcessToolContextCallback<T> callback) {
-        return executeWithProcessToolContextNonJta(callback, true);
+    private <T> T executeWithProcessToolContextNonJta(ReturningProcessToolContextCallback<T> callback, ContextStats stats) {
+        return executeWithProcessToolContextNonJta(callback, true, stats);
     }
 
-    private <T> T executeWithProcessToolContextNonJta(ReturningProcessToolContextCallback<T> callback, boolean reload)
+    private <T> T executeWithProcessToolContextNonJta(ReturningProcessToolContextCallback<T> callback, boolean reload, ContextStats stats)
     {
         T result = null;
 
+        stats.beforeOpenSession();
         Session session = registry.getDataRegistry().getSessionFactory().openSession();
-        try
+        stats.afterOpenSession();
+
+        ProcessToolContext ctx = new ProcessToolContextImpl(session);
+        ProcessToolContext.Util.setThreadProcessToolContext(ctx);
+
+        UserTransaction ut = null;
+        try {
+            stats.beforeBeginTransaction();
+            ut = (UserTransaction) new InitialContext().lookup( "java:comp/UserTransaction" );
+            ut.begin();
+            stats.afterBeginTransaction();
+
+            result = callback.processWithContext(ctx);
+
+            if(ut.getStatus() != Status.STATUS_COMMITTED) {
+                stats.beforeCommit();
+                ut.commit();
+                stats.afterCommit();
+            }
+        }
+        catch (Throwable ex)
         {
-            Transaction tx = session.beginTransaction();
-            ProcessToolContext ctx = new ProcessToolContextImpl(session);
-            ProcessToolContext.Util.setThreadProcessToolContext(ctx);
-            try
-            {
-                result = callback.processWithContext(ctx);
+            logger.log(Level.SEVERE, "Problem during context executing", ex);
+            try {
+                if(ut.getStatus() != Status.STATUS_ROLLEDBACK) {
+                    stats.beforeRollback();
+                    ut.rollback();
+                    stats.afterRollback();
+                }
 
-                try {
-                    //throw new RuntimeException();
-                    tx.commit();
-                } catch (Exception ex) {
-                    /* Hardcore fix //TODO change */
-                    logger.severe("Ksession problem, retry: "+reload);
-                    if (reload) {
-                        reloadJbpm();
-                        executeWithProcessToolContextNonJta(callback,false);
-                    }
-                }
             }
-            catch (RuntimeException e)
-            {
-                logger.log(Level.SEVERE, e.getMessage(), e);
-                try {
-                    tx.rollback();
-                }
-                catch (Exception e1) {
-                    logger.log(Level.WARNING, e1.getMessage(), e1);
-                }
-                throw e;
-            }
-            finally
-            {
-                ctx.close();
-                ProcessToolContext.Util.removeThreadProcessToolContext();
+            catch (Exception e1) {
+                logger.log(Level.WARNING, e1.getMessage(), e1);
             }
 
+            throw new RuntimeException(ex);
         }
         finally
         {
-            if (session.isOpen()) session.close();
+            LockSupport.unpark(Thread.currentThread());
+
+            JbpmService.getInstance().destroy();
+            if (session.isOpen()) {
+                stats.beforeOpenSession();
+                session.close();
+                stats.afterOpenSession();
+            }
+
+            ctx.close();
+            ProcessToolContext.Util.removeThreadProcessToolContext();
         }
+
         return result;
     }
 
-    private <T> T executeWithProcessToolContextJta(final ReturningProcessToolContextCallback<T> callback, boolean reload) {
-        T result = null;
-        UserTransaction ut = null;
-        try {
-            ut = getUserTransaction();
-            logger.fine("ut.getStatus() = " + ut.getStatus());
 
-            if (ut.getStatus() == Status.STATUS_MARKED_ROLLBACK) {
-                ut.rollback();
-            }
-            if (ut.getStatus() != Status.STATUS_ACTIVE) {
-                ut.begin();
-            }
 
-            Session session = registry.getDataRegistry().getSessionFactory().getCurrentSession();
 
-            try {
-                ProcessToolContext ctx = new ProcessToolContextImpl(session);
-                ProcessToolContext.Util.setThreadProcessToolContext(ctx);
-                try
-                {
-                    result = callback.processWithContext(ctx);
-
-                    try {
-                        //throw new RuntimeException();
-                        ut.commit();
-                    } catch (Exception ex) {
-                    /* Hardcore fix //TODO change */
-                        logger.fine("Ksession problem, retry: "+reload);
-                        if (reload) {
-                            reloadJbpm();
-                            executeWithProcessToolContextNonJta(callback,false);
-                        }
-                    }
-                }
-                catch (Exception e) {
-                    logger.log(Level.SEVERE, e.getMessage(), e);
-                    try
-                    {
-                        ut.rollback();
-                    }
-                    catch (Exception e1) {
-                        logger.log(Level.WARNING, e1.getMessage(), e1);
-                    }
-                    throw e;
-                }
-                finally
-                {
-                    ctx.close();
-                    ProcessToolContext.Util.removeThreadProcessToolContext();
-                }
-            } finally {
-                if (session.isOpen()) session.flush();
-            }
-            //if (ut.getStatus() == Status.STATUS_ACTIVE) 
-            ut.commit();
-        } catch (Exception e) {
-            if (ut!=null) {
-                try {
-                    ut.rollback();
-                } catch (IllegalStateException e1) {
-                    e1.printStackTrace();
-                } catch (SecurityException e1) {
-                    e1.printStackTrace();
-                } catch (SystemException e1) {
-                    e1.printStackTrace();
-                }
-            }
-            throw new RuntimeException(e);
-        }
-        return result;
+    private synchronized <T> T executeWithProcessToolContextSynch(ReturningProcessToolContextCallback<T> callback, ContextStats stats) {
+        return executeWithProcessToolContext(callback, stats);
     }
 
-    private synchronized <T> T executeWithProcessToolContextSynch(ReturningProcessToolContextCallback<T> callback) {
-        return executeWithProcessToolContext(callback);
-    }
-
-    private <T> T executeWithProcessToolContext(ReturningProcessToolContextCallback<T> callback) {
+    private <T> T executeWithProcessToolContext(ReturningProcessToolContextCallback<T> callback, ContextStats stats) {
         T result = null;
 
+        stats.beforeOpenSession();
         Session session = registry.getDataRegistry().getSessionFactory().openSession();
         session.setDefaultReadOnly(true);
         session.setFlushMode(FlushMode.MANUAL);
+        stats.afterOpenSession();
+
         try
         {
             ProcessToolContext ctx = new ProcessToolContextImpl(session);
@@ -294,9 +241,134 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory
                 ProcessToolContext.Util.removeThreadProcessToolContext();
             }
         } finally  {
-            if (session.isOpen()) session.close();
+            if (session.isOpen()) {
+                stats.beforeCloseSession();
+                session.close();
+                stats.afterCloseSession();
+            }
         }
         return result;
+    }
+
+    private static class ContextStats {
+        private static class Stat {
+            private final String name;
+            private long start;
+            private int count;
+            private long min = Long.MAX_VALUE, max = Long.MIN_VALUE, total;
+
+            private Stat(String name) {
+                this.name = name;
+            }
+
+            public void start() {
+                start = System.currentTimeMillis();
+            }
+
+            public void end() {
+                long t = System.currentTimeMillis() - start;
+                ++count;
+                min = Math.min(min, t);
+                max = Math.max(max, t);
+                total += t;
+            }
+
+            @Override
+            public String toString() {
+                return count > 0 ? name + " = {" +
+                        "count=" + count +
+                        ", min=" + min +
+                        ", max=" + max +
+                        ", avg=" + total/count +
+                        '}' : "";
+            }
+        }
+
+        private Stat openSession = new Stat("openSession");
+        private Stat closeSession = new Stat("closeSession");
+        private Stat beginTransaction = new Stat("beginTransaction");
+        private Stat commit = new Stat("commit");
+        private Stat rollback = new Stat("rollback");
+        private Stat reloadJbpm = new Stat("reloadJbpm");
+
+        public void beforeOpenSession() {
+            openSession.start();
+        }
+
+        public void afterOpenSession() {
+            openSession.end();
+        }
+
+        public void beforeBeginTransaction() {
+            beginTransaction.start();
+        }
+
+        public void afterBeginTransaction() {
+            beginTransaction.end();
+        }
+
+        public void beforeCommit() {
+            commit.start();
+        }
+
+        public void afterCommit() {
+            commit.end();
+        }
+
+        public void beforeRollback() {
+            rollback.start();
+        }
+
+        public void afterRollback() {
+            rollback.end();
+        }
+
+        public void beforeCloseSession() {
+            closeSession.start();
+        }
+
+        public void afterCloseSession() {
+            closeSession.end();
+        }
+
+        public void beforeReloadJbpm() {
+            reloadJbpm.start();
+        }
+
+        public void afterReloadJbpm() {
+            reloadJbpm.end();
+        }
+
+        @Override
+        public String toString() {
+            String s1 = openSession.toString();
+            String s2 = closeSession.toString();
+            String s3 = beginTransaction.toString();
+            String s4 = commit.toString();
+            String s5 = rollback.toString();
+            String s6 = reloadJbpm.toString();
+
+            StringBuilder sb = new StringBuilder(128);
+            if (!s1.isEmpty()) {
+                sb.append(s1).append('\n');
+            }
+            if (!s2.isEmpty()) {
+                sb.append(s2).append('\n');
+            }
+            if (!s3.isEmpty()) {
+                sb.append(s3).append('\n');
+            }
+            if (!s4.isEmpty()) {
+                sb.append(s4).append('\n');
+            }
+            if (!s5.isEmpty()) {
+                sb.append(s5).append('\n');
+            }
+            if (!s6.isEmpty()) {
+                sb.append(s6).append('\n');
+            }
+            return sb.toString();
+        }
     }
 
     private UserTransaction getUserTransaction() throws NamingException {
@@ -325,6 +397,6 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory
         JbpmService.getInstance().init();
     }
     private void reloadJbpm() {
-        JbpmService.getInstance().reloadSession();
+        JbpmService.getInstance().destroy();
     }
 }

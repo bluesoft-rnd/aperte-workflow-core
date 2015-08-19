@@ -1,7 +1,9 @@
 package org.aperteworkflow.webapi.main.processes.controller;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.aperteworkflow.webapi.main.AbstractProcessToolServletController;
 import org.aperteworkflow.webapi.main.processes.ActionPseudoTaskBean;
+import org.aperteworkflow.webapi.main.processes.TasksListViewBeanFactoryWrapper;
 import pl.net.bluesoft.rnd.processtool.web.view.BpmTaskBean;
 import org.aperteworkflow.webapi.main.ui.TaskViewBuilder;
 import org.springframework.stereotype.Controller;
@@ -20,6 +22,7 @@ import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.web.domain.IProcessToolRequestContext;
+import pl.net.bluesoft.rnd.processtool.web.view.TasksListViewBean;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import javax.servlet.ServletException;
@@ -39,10 +42,12 @@ import static pl.net.bluesoft.rnd.processtool.ProcessToolContext.Util.getThreadP
 public class TaskViewController extends AbstractProcessToolServletController
 {
 	private static Logger logger = Logger.getLogger(TaskViewController.class.getName());
+
+    private static final String TASKS_LIST_VIEW_NAME_PARAM = "taskListViewName";
 	
 	@RequestMapping(method = RequestMethod.POST, value = "/task/claimTaskFromQueue")
 	@ResponseBody
-	public BpmTaskBean claimTaskFromQueue(final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException
+	public TasksListViewBean claimTaskFromQueue(final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException
 	{
 		logger.info("claimTaskFromQueue ...");
 		long t0 = System.currentTimeMillis();
@@ -55,8 +60,9 @@ public class TaskViewController extends AbstractProcessToolServletController
 		final String queueName = request.getParameter("queueName");
 		final String taskId = request.getParameter("taskId");
 		final String userId = request.getParameter("userId");
+        final String viewName = request.getParameter(TASKS_LIST_VIEW_NAME_PARAM);
 
-        BpmTaskBean taskBean = new BpmTaskBean();
+        TasksListViewBean taskBean = new BpmTaskBean();
 
         if(isNull(taskId))
 		{
@@ -79,9 +85,9 @@ public class TaskViewController extends AbstractProcessToolServletController
 		
 		long t1 = System.currentTimeMillis();
 
-		taskBean = getProcessToolRegistry().withProcessToolContext(new ReturningProcessToolContextCallback<BpmTaskBean>() {
+		taskBean = getProcessToolRegistry().withProcessToolContext(new ReturningProcessToolContextCallback<TasksListViewBean>() {
 			@Override
-			public BpmTaskBean processWithContext(ProcessToolContext ctx) {
+			public TasksListViewBean processWithContext(ProcessToolContext ctx) {
                 BpmTask newTask;
                 /* Task assigned from virtual queue */
                 if(isNull(queueName))
@@ -90,7 +96,7 @@ public class TaskViewController extends AbstractProcessToolServletController
                     newTask = getBpmSession(context, userId).assignTaskFromQueue(queueName, taskId);
 
 				if (newTask != null) {
-					return BpmTaskBean.createFrom(newTask, messageSource);
+					return new TasksListViewBeanFactoryWrapper().createFrom(newTask, messageSource, viewName);
 				}
 
 				try {
@@ -222,9 +228,10 @@ public class TaskViewController extends AbstractProcessToolServletController
                 long t5 = System.currentTimeMillis();
 
                 try {
-                    builder.append(taskViewBuilder.processView());
+                    builder.append(taskViewBuilder.build());
 
                 } catch (Exception ex) {
+                    builder.append(ExceptionUtils.getStackTrace(ex));
                     logger.log(Level.SEVERE, "Problem during task view generation. TaskId=" + taskId, ex);
                 }
                 long t6 = System.currentTimeMillis();

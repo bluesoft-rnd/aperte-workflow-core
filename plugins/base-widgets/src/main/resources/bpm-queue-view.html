@@ -1,0 +1,84 @@
+<div class="process-tasks-view" id="task-view-processes">
+    <table id="default-queue-view-table" class="process-table table table-striped" border="1">
+        <thead>
+        <th style="width:10%;">${messageSource.getMessage("processes.list.table.process.name")}</th>
+        <th style="width:10%;">${messageSource.getMessage("processes.list.table.process.businessStatus")}</th>
+
+        <th style="width:10%;">${messageSource.getMessage("processes.list.table.process.creationdate")}</th>
+        <th style="width:10%;">${messageSource.getMessage("processes.list.table.process.deadline")}</th>
+        <th style="width:10%;">${messageSource.getMessage("processes.list.table.process.actions")}</th>
+        <th style="width:10%;">${messageSource.getMessage("processes.list.table.process.creator")}</th>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+
+<script type="text/javascript">
+
+  	$(document).ready(function()
+	{
+		var loadedCustom = loadCookies("queue");
+		var parsedCustom = parseCookie(loadedCustom);
+
+		var dataTable = new AperteDataTable("default-queue-view-table",
+			[
+				 { "sName":"name", "bSortable": true,"bVisible":parsedCustom.name,"mData": function(object){return generateNameColumn(object);}},
+				 { "sName":"businessStatus", "bSortable": true ,"bVisible":parsedCustom.businessStatus, "mData": function(object){return generateStatusColumn(object);}},
+				 { "sName":"creationDate", "bSortable": true,"bVisible":parsedCustom.creationDate,"mData": function(object){return generateCreationDate(object);}},
+				 { "sName":"deadline", "bSortable": true,"bVisible":parsedCustom.deadline,"mData": function(object){return object.deadline == null ? "${messageSource.getMessage('processes.list.table.nodeadline')}" : moment(object.deadline).format('DD-MM-YYYY, HH:mm');}},
+				 { "sName":"actions", "bSortable": false,"bVisible":parsedCustom.actions,"mData": function(object){return generateButtons(object)}},
+				 { "sName":"creator", "bSortable": true,"bVisible":parsedCustom.creator,"mData": "creator" }
+			 ],
+			 [[ 2, "desc" ]]
+			);
+
+		dataTable.addParameter('taskListViewName','${queueId}');
+		dataTable.addParameter('queueType','queue');
+		dataTable.addParameter('ownerLogin','${ownerLogin}');
+
+		queueViewManager.addTableView('${queueId}', dataTable, 'taskListViewName');
+
+        dataTable.reloadTable(processListPortlet);
+	});
+
+	function generateCreationDate(task)
+	{
+	    if(task.creationDate == null)
+	    {
+	     return "${messageSource.getMessage('demand.filledDate.empty')}";
+	    }
+	    return moment(task.creationDate).format('DD-MM-YYYY');
+	}
+
+	function generateStatusColumn(task)
+	{
+		if(!task.businessStatus)
+		{
+			return "";
+		}
+		else
+		{
+
+		    if(task.highlight)
+		    {
+		        return '<font color="red">'+task.businessStatus+'<span class="glyphicon glyphicon-exclamation-sign" /></font>';
+		    }
+
+			return task.businessStatus;
+		}
+	}
+
+	function generateButtons(task)
+	{
+		var linkBody = '';
+		if(task.queueName || (!task.assignee && task.userCanClaim))
+		{
+			linkBody += '<button id="link-'+task.queueName+'" class="btn btn-default btn-sm" type="button" data-toggle="tooltip" title="${messageSource.getMessage('activity.tasks.task.claim.details')}" onclick="claimTaskFromQueue(this, \''+task.queueName+'\','+task.processStateConfigurationId+','+task.taskId+'); ">${messageSource.getMessage('activity.tasks.task.claim')}</a>';
+		}
+
+		return linkBody;
+	}
+
+//]]>
+</script>

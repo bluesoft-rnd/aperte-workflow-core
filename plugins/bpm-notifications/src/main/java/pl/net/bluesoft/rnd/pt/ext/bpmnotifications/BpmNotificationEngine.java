@@ -1,10 +1,12 @@
 package pl.net.bluesoft.rnd.pt.ext.bpmnotifications;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+import pl.net.bluesoft.rnd.processtool.ISettingsProvider;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextCallback;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
@@ -13,10 +15,7 @@ import pl.net.bluesoft.rnd.processtool.dao.impl.UserSubstitutionDAOImpl;
 import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
 import pl.net.bluesoft.rnd.processtool.di.annotations.AutoInject;
 import pl.net.bluesoft.rnd.processtool.hibernate.lock.OperationWithLock;
-import pl.net.bluesoft.rnd.processtool.model.BpmTask;
-import pl.net.bluesoft.rnd.processtool.model.OperationLockMode;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.processtool.model.*;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.template.ProcessToolTemplateErrorException;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.facade.NotificationsFacade;
@@ -25,18 +24,19 @@ import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmAttachment;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotification;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotificationConfig;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.*;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.sessions.IMAPPropertiesSessionProvider;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.sessions.IMailSessionProvider;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.settings.NotificationsSettingsProvider;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.templates.IMailTemplateLoader;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.utils.EmailUtils;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
 
 import javax.activation.DataHandler;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Transport;
+import javax.mail.*;
 import javax.mail.internet.*;
 import javax.mail.util.ByteArrayDataSource;
+import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -88,7 +88,13 @@ public class BpmNotificationEngine implements IBpmNotificationService
     private ITemplateDataProvider templateDataProvider;
 
     @Autowired
+    private IMAPPropertiesSessionProvider imapPropertiesSessionProvider;
+
+    @Autowired
     private ProcessToolRegistry registry;
+
+    @Autowired
+    private ISettingsProvider settingsProvider;
     
 
     /** Provider for mail main session and mail connection properties */
@@ -123,7 +129,8 @@ public class BpmNotificationEngine implements IBpmNotificationService
     		
     	else
     	{
-	        registry.withProcessToolContext(new ProcessToolContextCallback() 
+	        registry.withProcessToolContext(
+                    new ProcessToolContextCallback()
 	        {
 				@Override
 				public void withContext(ProcessToolContext ctx)
@@ -151,25 +158,33 @@ public class BpmNotificationEngine implements IBpmNotificationService
     /** The method check if there are any new notifications in database to be sent */
     public void handleNotifications()
     {
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
         try {
+            String mailScannerDisabled = settingsProvider.getSetting("notifications.disabled");
+            if(StringUtils.isNotEmpty(mailScannerDisabled) && mailScannerDisabled.equals("true")) {
+                logger.log(Level.INFO, "[NOTIFICATIONS] NOTIFICATIONS DISABLED!");
+                return;
+            }
+
             if (lock.tryLock()) {
-                registry.withOperationLock(new OperationWithLock<Object>() {
-                    @Override
-                    public Object action()
-                    {
-                        handleNotificationsWithContext();
-                        return null;
-                    }
-                }, NOTIFICATION_LOCK_NAME, OperationLockMode.IGNORE, 1);
+				try {
+					registry.withOperationLock(new OperationWithLock<Object>() {
+						@Override
+						public Object action() {
+							handleNotificationsWithContext();
+							return null;
+						}
+					}, NOTIFICATION_LOCK_NAME, OperationLockMode.IGNORE, 1);
+				}
+				finally {
+					lock.unlock();
+				}
             } else {
                 logger.info("Previous execution did not finish. Skipping.");
             }
         } catch (Exception ex) {
-            logger.log(Level.SEVERE,"Error while performing job: " + ex.getMessage(),ex);
-        } finally {
-            lock.unlock();
-        }
-
+			logger.log(Level.SEVERE, "Error while performing job: " + ex.getMessage(), ex);
+		}
     }
     
     /** The method check if there are any new notifications in database to be sent */
@@ -269,8 +284,6 @@ public class BpmNotificationEngine implements IBpmNotificationService
                 logger.log(Level.SEVERE, "[NOTIFICATIONS JOB] Problem during notification sending", ex);
 
                 history.errorWhileSendingNotification(notification, ex);
-
-                throw new RuntimeException("Problem during notification sending...", ex);
             }
         }
     }
@@ -297,10 +310,14 @@ public class BpmNotificationEngine implements IBpmNotificationService
 				if (cfg.isNotifyOnProcessEnd() && task.getProcessInstance().getParent() != null) 
 					continue;
 				
-                if (hasText(cfg.getProcessTypeRegex()) && !pi.getDefinitionName().toLowerCase().matches(cfg.getProcessTypeRegex().toLowerCase())) 
+                if (hasText(cfg.getProcessTypeRegex()) && !pi.getDefinitionName().toLowerCase().matches(cfg.getProcessTypeRegex().toLowerCase()))
                     continue;
-               
-                if (!(!hasText(cfg.getStateRegex()) || task != null && task.getTaskName().toLowerCase().matches(cfg.getStateRegex().toLowerCase()))) {
+
+
+                String state = task != null && task.getSimpleAttributeValue("state") != null ? task.getSimpleAttributeValue("state").toLowerCase() : null;
+                String taskName = task != null ? task.getTaskName().toLowerCase() : null;
+                String cfgState = cfg.getStateRegex().toLowerCase();
+                if (!(!hasText(cfg.getStateRegex()) || taskName!=null && taskName.matches(cfgState) || state != null && state.matches(cfgState))) {
                     continue;
                 }
                 if (hasText(cfg.getLastActionRegex())) {
@@ -335,7 +352,7 @@ public class BpmNotificationEngine implements IBpmNotificationService
                 }
 				if (hasText(cfg.getNotifyUserAttributes())) 
 				{
-					recipients.addAll(extractUsers(cfg.getNotifyUserAttributes(), ctx, pi));
+					recipients.addAll(EmailUtils.extractUsers(cfg.getNotifyUserAttributes(), pi));
 				}
                 if (recipients.isEmpty()) {
                     logger.info("Despite matched rules, no emails qualify to notify for cfg #" + cfg.getId());
@@ -357,7 +374,7 @@ public class BpmNotificationEngine implements IBpmNotificationService
 	                
 	                NotificationData notificationData = new NotificationData();
 	                notificationData
-	                	.setProfileName(DEFAULT_PROFILE_NAME)
+	                	.setProfileName(cfg.getProfileName().equals("") ? DEFAULT_PROFILE_NAME : cfg.getProfileName())
 	                	.setTemplateData(templateData)
 	                	.setRecipient(recipient);
 	                                
@@ -385,26 +402,7 @@ public class BpmNotificationEngine implements IBpmNotificationService
     	}
     }
 
-	private Collection<UserData> extractUsers(String notifyUserAttributes, ProcessToolContext ctx, ProcessInstance pi) {
-		pi = ctx.getProcessInstanceDAO().refresh(pi);
 
-		Collection<UserData> users = new HashSet<UserData>();
-		for (String attribute : notifyUserAttributes.split(",")) {
-			attribute = attribute.trim();
-			if(attribute.matches("#\\{.*\\}")){
-	        	String loginKey = attribute.replaceAll("#\\{(.*)\\}", "$1");
-	        	attribute = pi.getInheritedSimpleAttributeValue(loginKey);
-				if(attribute != null && attribute.matches("#\\{.*\\}")) {
-					continue;
-				}
-	        }
-			if (hasText(attribute)) {
-				UserData user = getRegistry().getUserSource().getUserByLogin(attribute);
-				users.add(user);
-			}
-		}
-		return users;
-	}
 
 
 	@Override
@@ -437,6 +435,7 @@ public class BpmNotificationEngine implements IBpmNotificationService
 	@Override
 	public synchronized void invalidateCache() {
 		cacheUpdateTime = 0;
+        refreshConfigIfNecessary();
 	}
 
     @SuppressWarnings("unchecked")
@@ -504,6 +503,7 @@ public class BpmNotificationEngine implements IBpmNotificationService
         notification.setRecipient(processedNotificationData.getRecipient().getEmail());
         notification.setSendAsHtml(processedNotificationData.isSendAsHtml());
         notification.setProfileName(processedNotificationData.getProfileName());
+        notification.setSentFolderName(processedNotificationData.getSentFolderName());
         Boolean isGroup = null;
 
 
@@ -534,15 +534,21 @@ public class BpmNotificationEngine implements IBpmNotificationService
 
         notification.encodeAttachments(processedNotificationData.getAttachments());
 		notification.setSource(processedNotificationData.getSource());
+		if (processedNotificationData.getTag() != null) {
+			notification.setTag(processedNotificationData.getTag());
+		}
+		notification.setTemplateName(processedNotificationData.getTemplateData().getTemplateName());
         
         NotificationsFacade.addNotificationToBeSent(notification);
 
 		history.notificationEnqueued(notification);
 		
-    	logger.info("EmailSender email sent: sender=" + processedNotificationData.getSender() 
-    			+ "\n recipientEmail=" + processedNotificationData.getRecipient().getEmail()  
-    			+ "\n subject=" + processedNotificationData.getSubject() 
-    			+ "\n body=" + processedNotificationData.getBody());
+    	logger.info(new StringBuilder(2 * 1024)
+				.append("EmailSender email sent: sender=").append(processedNotificationData.getSender())
+				.append("\n recipientEmail=").append(processedNotificationData.getRecipient().getEmail())
+				.append("\n subject=").append(processedNotificationData.getSubject())
+				.append("\n body=").append(processedNotificationData.getBody().substring(0, Math.min(512, processedNotificationData.getBody().length())))
+				.toString());
     }
     
     private void sendNotification(Connection connection, BpmNotification notification) throws Exception
@@ -554,10 +560,12 @@ public class BpmNotificationEngine implements IBpmNotificationService
         
         try 
         {
+            Properties emailPrtoperties = mailSession.getProperties();
+            String sentFolderName = notification.getSentFolderName();
+
 	    	/* If smtps is required, force diffrent transport properties */
 	    	if(isSmtpsRequired(mailSession))
 	    	{
-	    		Properties emailPrtoperties = mailSession.getProperties();
 	    		
 	    		String secureHost = emailPrtoperties.getProperty("mail.smtp.host");
 	    		String securePort = emailPrtoperties.getProperty("mail.smtp.port");
@@ -577,6 +585,9 @@ public class BpmNotificationEngine implements IBpmNotificationService
 
 			fireNotificationSent(notification, message);
 
+            if(StringUtils.isNotEmpty(sentFolderName))
+                saveEmailInSentFolder(notification.getProfileName(), sentFolderName, message);
+
 			history.notificationSent(notification);
 
 	    	logger.info("Emails sent");
@@ -590,12 +601,42 @@ public class BpmNotificationEngine implements IBpmNotificationService
             throw new RuntimeException("Problem during notification sending...", e);
         }
     }
+
+    /** Save message in sent folder */
+    private void saveEmailInSentFolder(String profileName, String folderName, Message message) throws Exception
+    {
+		try {
+			Store store = imapPropertiesSessionProvider.connect(profileName);
+            logger.log(Level.INFO, "Saving mail in sent folder: "+folderName);
+			Folder dfolder = getFolder(store, folderName);
+			Message[] messages = new Message[1];
+			messages[0] = message;
+			dfolder.appendMessages(messages);
+
+			store.close();
+		}
+		catch (Exception e) {
+			// Jak sie tego wyjatku nie obsluzy to wywyla ten sam mail w nieskonczonosc!
+			logger.log(Level.SEVERE, "Problem during daving email in Sent Folder " + e.getMessage(), e);
+		}
+    }
+
+    private Folder getFolder(Store store, String folderName) throws MessagingException {
+        Folder folder = store.getDefaultFolder().getFolder(folderName);
+        if (!folder.exists()) {
+            folder.create(Folder.HOLDS_MESSAGES);
+            logger.info("Created folder " + folderName);
+        }
+        return folder;
+    }
     
     public static Message createMessageFromNotification(Connection connection, BpmNotification notification, javax.mail.Session mailSession) throws Exception
     {
         Message message = new MimeMessage(mailSession);
         message.setFrom(new InternetAddress(notification.getSender()));
-        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(notification.getRecipient()));
+        String recipients = notification.getRecipient().replace(':', ',').replace(';', ',').replaceAll("\\s","");
+
+        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipients));
 
 		String recipientSubstiteEmails = getRecipientSubstiteEmails(connection, notification);
 
@@ -624,6 +665,8 @@ public class BpmNotificationEngine implements IBpmNotificationService
 		if(notification.hasAttachments()) {
 			List<BpmAttachment> attachments = notification.decodeAttachments();
 
+            String attachmentsHeaderValue = "";
+            Integer attachmentIndex = 0;
 	        for (BpmAttachment attachment : attachments) {
 				MimeBodyPart attachmentPart = createAttachmentPart(attachment);
 
@@ -632,7 +675,9 @@ public class BpmNotificationEngine implements IBpmNotificationService
 				if (logger.isLoggable(Level.INFO)) {
 					logger.info("Added attachment " + attachment.getName());
 				}
-	        }       
+	        }
+
+          //  message.addHeader("Content-Disposition", "attachment; " +attachmentsHeaderValue);
         }
 
 		for (int i = 0; i < extractedImages.size(); ++i) {
@@ -663,12 +708,17 @@ public class BpmNotificationEngine implements IBpmNotificationService
 		return bodyPart;
 	}
 
-	private static MimeBodyPart createAttachmentPart(BpmAttachment attachment) throws MessagingException {
+	private static MimeBodyPart createAttachmentPart(BpmAttachment attachment) throws MessagingException, UnsupportedEncodingException {
+
+
 		MimeBodyPart attachmentPart = new MimeBodyPart();
 		ByteArrayDataSource ds = new ByteArrayDataSource(attachment.getBody(), attachment.getContentType());
-
+//        attachmentPart.addHeader("Content-Type", attachment.getContentType());
+//        attachmentPart.addHeader("Content-Transfer-Encoding", "base64");
+//        attachmentPart.addHeader("Content-Disposition", "attachment; " +
+//                "filename=\"" + MimeUtility.encodeWord(attachment.getName(), "utf-8", "Q") + "\"");
 		attachmentPart.setDataHandler(new DataHandler(ds));
-		attachmentPart.setFileName(attachment.getName());
+		attachmentPart.setFileName(MimeUtility.encodeWord(attachment.getName(), "utf-8", "Q"));
 		return attachmentPart;
 	}
 
@@ -730,6 +780,7 @@ public class BpmNotificationEngine implements IBpmNotificationService
 
 		matcher.appendTail(sb);
 
+		notification.setOriginalBody(notification.getBody());
 		notification.setBody(sb.toString());
 
 		return result;
@@ -831,23 +882,34 @@ public class BpmNotificationEngine implements IBpmNotificationService
 	@Override
 	public ProcessedNotificationData processNotificationData(NotificationData notificationData) throws Exception 
 	{
+
     	String body = processTemplate(notificationData.getTemplateData().getTemplateName(), notificationData.getTemplateData());
     	String topic = processTemplate(notificationData.getTemplateData().getTemplateName() + SUBJECT_TEMPLATE_SUFFIX, notificationData.getTemplateData());
     	String sender = findTemplate(notificationData.getTemplateData().getTemplateName() + SENDER_TEMPLATE_SUFFIX);
+        String sentFolderName = templateProvider.getTemplateSentFolderName(notificationData.getTemplateData().getTemplateName());
 
-		if (sender == null) {
+        if(StringUtils.isNotEmpty(topic) && topic.length() > 254)
+        {
+            topic = StringUtils.abbreviate(topic, 254);
+        }
+
+		if (hasText(notificationData.getSubjectOverride())) {
+			topic = notificationData.getSubjectOverride();
+		}
+
+		if (StringUtils.isEmpty(sender)) {
 			sender = notificationData.getDefaultSender();
 		}
 
         if (body == null || topic == null || sender == null) {
-        	throw new Exception("Error sending email. Cannot find valid template configuration");
+        	throw new Exception("Error sending email. Cannot find valid template configuration, teplateName="+notificationData.getTemplateData().getTemplateName());
         }
         
-        ProcessedNotificationData processedNotificationData = new ProcessedNotificationData(notificationData);
-        processedNotificationData
-        	.setBody(body)
-        	.setSubject(topic)
-        	.setSender(sender);
+        ProcessedNotificationData processedNotificationData = new ProcessedNotificationData(notificationData)
+        	    .setBody(body)
+        	    .setSubject(topic)
+                .setSender(sender)
+                .setSentFolderName(sentFolderName);
 
 		return processedNotificationData;
 	}
@@ -863,6 +925,28 @@ public class BpmNotificationEngine implements IBpmNotificationService
 
 	public void removeNotificationSentListener(NotificationSentListener listener) {
 		notificationSentListeners.remove(listener);
+	}
+
+	@Override
+	public String processSubjectTemplate(String template, IAttributesProvider attributesProvider, String recipient,
+										 String templateArgumentProvider, String profileName) {
+		TemplateData templateData =	createTemplateData(template, Locale.getDefault());
+
+		UserData user = EmailUtils.getRecipient(recipient);
+
+		getTemplateDataProvider()
+				.addProcessData(templateData, attributesProvider)
+				.addUserToNotifyData(templateData, user)
+				.addArgumentProvidersData(templateData, templateArgumentProvider, attributesProvider);
+
+		NotificationData notificationData = new NotificationData()
+				.setProfileName(profileName)
+				.setRecipient(user)
+				.setTemplateData(templateData);
+
+		String topic = processTemplate(notificationData.getTemplateData().getTemplateName() + SUBJECT_TEMPLATE_SUFFIX, notificationData.getTemplateData());
+
+		return topic;
 	}
 
 	private void fireNotificationSent(BpmNotification notification, Message message) {

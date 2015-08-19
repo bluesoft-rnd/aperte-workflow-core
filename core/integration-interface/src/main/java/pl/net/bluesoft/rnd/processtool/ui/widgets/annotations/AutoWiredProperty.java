@@ -9,7 +9,8 @@ import java.lang.annotation.*;
 @Target(ElementType.FIELD)
 @Inherited
 public @interface AutoWiredProperty {
-	public static final String DEFAULT = "!";
+	String DEFAULT = "!";
     String name() default DEFAULT;
     boolean required() default false;
+	boolean substitute() default false;
 }

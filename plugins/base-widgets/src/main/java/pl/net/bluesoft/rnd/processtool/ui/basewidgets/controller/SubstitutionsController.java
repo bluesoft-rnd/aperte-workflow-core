@@ -42,7 +42,7 @@ import static pl.net.bluesoft.util.lang.Formats.parseShortDate;
  * 
  * @author: mpawlak@bluesoft.net.pl
  */
-@OsgiController(name = "substitutionController")
+@OsgiController(name = "substitutionsController")
 public class SubstitutionsController implements IOsgiWebController {
 	@Autowired
 	protected IPortalUserSource portalUserSource;
@@ -84,7 +84,7 @@ public class SubstitutionsController implements IOsgiWebController {
 					.list();
 
 		DataPagingBean<UserSubstitution> dataPagingBean = new DataPagingBean<UserSubstitution>(substitutionList, substitutionList.size(),
-				dataTable.getEcho());
+				dataTable.getDraw());
 
 		return dataPagingBean;
 	}

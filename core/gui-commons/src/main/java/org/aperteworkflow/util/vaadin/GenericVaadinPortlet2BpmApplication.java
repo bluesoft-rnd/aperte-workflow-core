@@ -7,7 +7,6 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Window;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
-
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
@@ -148,22 +147,12 @@ public abstract class GenericVaadinPortlet2BpmApplication extends Application im
 
     @Override
     public String getMessage(String key) {
-        return i18NSource.getMessage(key, key);
-    }
-
-    @Override
-    public String getMessage(String key, String defaultValue) {
-        return i18NSource.getMessage(key, defaultValue);
+        return i18NSource.getMessage(key);
     }
 
     @Override
     public String getMessage(String key, Object... params) {
         return i18NSource.getMessage(key, params);
-    }
-
-    @Override
-    public String getMessage(String key, String defaultValue, Object... params) {
-        return i18NSource.getMessage(key, defaultValue, params);
     }
 
 	@Override

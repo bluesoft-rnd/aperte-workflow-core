@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config.ProcessDefinitionConfig processName="user_substitution" description="user_substitution.text.1" bpmDefinitionKey="user_substitution" comment="user_substitution.text.2">
+	<states>
+		<config.ProcessStateConfiguration name="REQUEST_SUBSTITUTE" description="user_substitution.REQUEST_SUBSTITUTE.descr" commentary="user_substitution.REQUEST_SUBSTITUTE.comment">
+			<widgets>
+				<config.ProcessStateWidget className="VerticalLayout" priority="20">
+					<children>
+						<config.ProcessStateWidget className="LatestComments" priority="1">
+							<permissions>
+								<config.ProcessStateWidgetPermission roleName=".*" privilegeName="VIEW" />
+							</permissions>
+							<attributes>
+								<config.ProcessStateWidgetAttribute name="caption" value="user_substitution.REFILL_TRIP.text.2" />
+								<config.ProcessStateWidgetAttribute name="displayedComments" value="2" />
+								<config.ProcessStateWidgetAttribute name="mode" value="SMART" />
+							</attributes>
+						</config.ProcessStateWidget>
+						<config.ProcessStateWidget className="TabSheet" priority="10">
+							<children>
+								<config.ProcessStateWidget className="VerticalLayout" priority="1">
+									<children>
+										<config.ProcessStateWidget className="UserSubstitutionRequest" priority="1">
+											<permissions>
+												<config.ProcessStateWidgetPermission roleName=".*" privilegeName="EDIT" />
+											</permissions>
+											<attributes>
+												<config.ProcessStateWidgetAttribute name="requestMode" value="true" />
+											</attributes>
+										</config.ProcessStateWidget>
+									</children>
+									<attributes>
+										<config.ProcessStateWidgetAttribute name="caption" value="user_substitution.REQUEST_SUBSTITUTE.text.1" />
+									</attributes>
+								</config.ProcessStateWidget>
+								<config.ProcessStateWidget className="VerticalLayout" priority="20">
+									<children>
+										<config.ProcessStateWidget className="ProcessHistory" priority="10">
+											<permissions>
+												<config.ProcessStateWidgetPermission roleName=".*" privilegeName="VIEW" />
+											</permissions>
+											<attributes>
+												<config.ProcessStateWidgetAttribute name="caption" value="user_substitution.process.history.caption" />
+												<config.ProcessStateWidgetAttribute name="comment" value="user_substitution.process.history.comment" />
+											</attributes>
+										</config.ProcessStateWidget>
+										<config.ProcessStateWidget className="ProcessComments" priority="20">
+											<permissions>
+												<config.ProcessStateWidgetPermission roleName=".*" privilegeName="ADD" />
+											</permissions>
+											<attributes>
+												<config.ProcessStateWidgetAttribute name="caption" value="user_substitution.process.comments.caption" />
+												<config.ProcessStateWidgetAttribute name="comment" value="user_substitution.process.comments.comment" />
+												<config.ProcessStateWidgetAttribute name="mustAddComment" value="false" />
+											</attributes>
+										</config.ProcessStateWidget>
+									</children>
+									<attributes>
+										<config.ProcessStateWidgetAttribute name="caption" value="user_substitution.process.data.caption" />
+									</attributes>
+								</config.ProcessStateWidget>
+							</children>
+						</config.ProcessStateWidget>
+					</children>
+				</config.ProcessStateWidget>
+			</widgets>
+			<actions>
+				<config.ProcessStateAction actionType="secondary" bpmName="CANCEL" label="user_substitution.Cancel" description="user_substitution.Cancel.descr" buttonName="CancelTaskButton" skipSaving="true" autohide="true" markProcessImportant="false" priority="1" />
+				<config.ProcessStateAction bpmName="TO_ACCEPT_REQUEST" label="user_substitution.Send" description="user_substitution.Send.descr" buttonName="Default" skipSaving="false" autohide="true" markProcessImportant="false" priority="2" />
+			</actions>
+		</config.ProcessStateConfiguration>
+		<config.ProcessStateConfiguration name="ACCEPT_REQUEST" description="user_substitution.ACCEPT_REQUEST.descr" commentary="user_substitution.ACCEPT_REQUEST.comment">
+			<widgets>
+				<config.ProcessStateWidget className="TabSheet" priority="10">
+					<children>
+						<config.ProcessStateWidget className="VerticalLayout" priority="1">
+							<children>
+								<config.ProcessStateWidget className="UserSubstitutionRequest" priority="1">
+									<permissions>
+										<config.ProcessStateWidgetPermission roleName=".*" privilegeName="VIEW" />
+									</permissions>
+									<attributes>
+										<config.ProcessStateWidgetAttribute name="requestMode" value="false" />
+									</attributes>
+								</config.ProcessStateWidget>
+							</children>
+							<attributes>
+								<config.ProcessStateWidgetAttribute name="caption" value="user_substitution.ACCEPT_REQUEST.text.1" />
+							</attributes>
+						</config.ProcessStateWidget>
+						<config.ProcessStateWidget className="VerticalLayout" priority="20">
+							<children>
+								<config.ProcessStateWidget className="ProcessHistory" priority="10">
+									<permissions>
+										<config.ProcessStateWidgetPermission roleName=".*" privilegeName="VIEW" />
+									</permissions>
+									<attributes>
+										<config.ProcessStateWidgetAttribute name="caption" value="user_substitution.process.history.caption" />
+										<config.ProcessStateWidgetAttribute name="comment" value="user_substitution.process.history.comment" />
+									</attributes>
+								</config.ProcessStateWidget>
+								<config.ProcessStateWidget className="ProcessComments" priority="20">
+									<permissions>
+										<config.ProcessStateWidgetPermission roleName=".*" privilegeName="ADD" />
+									</permissions>
+									<attributes>
+										<config.ProcessStateWidgetAttribute name="caption" value="user_substitution.process.comments.caption" />
+										<config.ProcessStateWidgetAttribute name="comment" value="user_substitution.process.comments.comment" />
+										<config.ProcessStateWidgetAttribute name="mustAddComment" value="false" />
+									</attributes>
+								</config.ProcessStateWidget>
+							</children>
+							<attributes>
+								<config.ProcessStateWidgetAttribute name="caption" value="user_substitution.process.data.caption" />
+							</attributes>
+						</config.ProcessStateWidget>
+					</children>
+				</config.ProcessStateWidget>
+			</widgets>
+			<actions>
+				<config.ProcessStateAction actionType="secondary" bpmName="REJECT" label="user_substitution.Reject" description="user_substitution.ACCEPT_REQUEST.REJECT.text.1" buttonName="CommentButton" skipSaving="true" autohide="true" markProcessImportant="true" priority="1" />
+				<config.ProcessStateAction bpmName="TO_HANDLE_ACCEPTANCE" label="user_substitution.Accept" description="user_substitution.ACCEPT_REQUEST.TO_HANDLE_ACCEPTANCE.text.1" buttonName="Default" skipSaving="false" autohide="true" markProcessImportant="false" priority="2" />
+			</actions>
+		</config.ProcessStateConfiguration>
+	</states>
+</config.ProcessDefinitionConfig>

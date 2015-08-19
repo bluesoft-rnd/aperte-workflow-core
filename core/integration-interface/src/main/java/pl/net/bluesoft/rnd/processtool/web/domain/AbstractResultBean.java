@@ -4,7 +4,9 @@ import pl.net.bluesoft.rnd.processtool.event.beans.ErrorBean;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Abstract result bean 
@@ -17,9 +19,9 @@ public class AbstractResultBean implements Serializable
 	private static final long serialVersionUID = 6474043311954264702L;
 	
 	/** Errors which occur during request processing */
-	private List<ErrorResultBean> errors = new ArrayList<ErrorResultBean>();
+	private Set<ErrorResultBean> errors = new HashSet<ErrorResultBean>();
 	
-	public List<ErrorResultBean> getErrors() {
+	public Set<ErrorResultBean> getErrors() {
 		return errors;
 	}
 	

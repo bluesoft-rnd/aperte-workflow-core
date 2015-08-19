@@ -4,7 +4,7 @@
     <parent>
         <artifactId>plugins</artifactId>
         <groupId>org.aperteworkflow</groupId>
-        <version>3.0-beta2-SNAPSHOT</version>
+        <version>3.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>bpm-notifications</artifactId>
@@ -15,13 +15,13 @@
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>scheduler-integration</artifactId>
-            <version>3.0-beta2-SNAPSHOT</version>
+            <version>3.2-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>integration-interface</artifactId>
-            <version>3.0-beta2-SNAPSHOT</version>
+            <version>3.2-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -33,13 +33,20 @@
         <dependency>
             <groupId>javax.mail</groupId>
             <artifactId>mail</artifactId>
-            <version>1.4.3</version>
+            <version>${javax.mail.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.freemarker</groupId>
             <artifactId>freemarker</artifactId>
-            <version>2.3.19</version>
+            <version>${freemarker.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.aperteworkflow</groupId>
+            <artifactId>integration</artifactId>
+            <version>3.2-SNAPSHOT</version>
+            <scope>provided</scope>
         </dependency>
 		<dependency>
             <groupId>com.vaadin</groupId>
@@ -56,14 +63,13 @@
 		<dependency>
 			<groupId>org.aperteworkflow</groupId>
 			<artifactId>files-repository</artifactId>
-			<version>3.0-beta2-SNAPSHOT</version>
+			<version>3.2-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
         <dependency>
-            <groupId>org.aperteworkflow</groupId>
-            <artifactId>gui-commons</artifactId>
-            <version>3.0-beta2-SNAPSHOT</version>
-            <scope>provided</scope>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>14.0.1</version>
         </dependency>
     </dependencies>
 
@@ -87,7 +93,7 @@
                         <Export-Package>
                         	pl.net.bluesoft.rnd.pt.ext.bpmnotifications,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service,
-                       <!--     pl.net.bluesoft.rnd.pt.ext.bpmnotifications.utils, -->
+                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.utils,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.templates,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.sessions,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model,
@@ -99,11 +105,16 @@
                         <Import-Package>
                             org.aperteworkflow.bpmnotifications.addons.impl;resolution:=optional,
                             javax.mail;version=!,
-                            pl.net.bluesoft.rnd.util.i18n.impl,
+							javax.mail.internet;version=!,
+							javax.mail.util;version=!,
+							pl.net.bluesoft.rnd.util.i18n.impl,
                             javassist.util.proxy,org.hibernate.proxy,
                             org.osgi.framework,
+                            freemarker.cache;version="2.3.22",
+                            freemarker.template;version="2.3.22",
+                            org.springframework.jdbc,
+                            org.springframework.jdbc.datasource,
                             org.hibernate.exception,
-                            javax.mail.internet;version=!,
                             *;resolution:=optional,
                             pl.net.bluesoft.util.eventbus,
                             pl.net.bluesoft.rnd.pt.ext.sched.service,
@@ -121,7 +132,7 @@
                             org.quartz,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service,
-                         <!--   pl.net.bluesoft.rnd.pt.ext.bpmnotifications.utils, -->
+                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.utils,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.templates,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.sessions,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model,
@@ -150,17 +161,20 @@
                         <Embed-Transitive>true</Embed-Transitive>
                         <ProcessTool-Step-Enhancement>pl.net.bluesoft.rnd.pt.ext.bpmnotifications.step.SendMailStep</ProcessTool-Step-Enhancement>
                         <ProcessTool-Model-Enhancement>
-                        	pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotificationTemplate,
+                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotificationTemplate,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotification,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotificationConfig,
-                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotificationMailProperties
+                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotificationMailProperties,
+                            pl.net.bluesoft.rnd.processtool.model.config.ProcessToolSetting
                         </ProcessTool-Model-Enhancement>
                         <ProcessTool-I18N-Property>messages</ProcessTool-I18N-Property>
-						<ProcessTool-Controller>
+                        <ProcessTool-Controller>
+                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.controller.SettingsController,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.controller.BpmNotificationsController
                         </ProcessTool-Controller>
                         <ProcessTool-Spring-Beans>
-                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.BpmNotificationEngine
+                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.BpmNotificationEngine,
+                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.sessions.IMAPPropertiesSessionProvider
                         </ProcessTool-Spring-Beans>
                     </instructions>
                 </configuration>

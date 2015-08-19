@@ -115,7 +115,7 @@ public class OperationLockFacade implements ILockFacade
     private OperationLock acquireLock(OperationOptions options, OperationLockDAO lockDAO) throws AquireOperationLockException
     {
 
-        logger.info("Acquiring operation lock: "+options.getLockName()+"...");
+        logger.finest("Acquiring operation lock: "+options.getLockName()+"...");
         try
         {
             OperationLock existingLock = lockDAO.getLock(options.getLockName());
@@ -143,7 +143,7 @@ public class OperationLockFacade implements ILockFacade
 
             lockDAO.createLock(operationLock);
 
-            logger.info("Lock "+options.getLockName()+" acquired");
+            logger.finest("Lock "+options.getLockName()+" acquired");
 
             return operationLock;
         }

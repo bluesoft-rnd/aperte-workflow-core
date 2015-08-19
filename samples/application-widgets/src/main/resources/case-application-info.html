@@ -1,0 +1,75 @@
+<#assign null = "null">
+<#assign provider = attributesProvider.getProvider()>
+<#assign case = case!null>
+<#assign isCase = (case != null)>
+<#if !isCase>
+    <#assign caseId = provider.getSimpleAttributeValue("caseId")?number!0>
+    <#assign case = caseManagementFacade.getCaseById(caseId)!null>
+
+</#if>
+<#assign name = case.getSimpleAttributeValue("name")!"">
+<#assign surname = case.getSimpleAttributeValue("surname")!"">
+<#assign description = case.getSimpleAttributeValue("description")!"">
+<#assign stage = case.getCurrentStage().getName()!"">
+<div class="panel panel-default">
+    <div class="panel-body">
+        <div class="form-group">
+            <label name="tooltip" title="Application Process" class="col-sm 2 control-label required">
+                Application Case
+            </label>
+
+            <div class="col-sm-9">
+                <div class="form-group">
+                    <label>Name: </label>
+                    ${name}
+                </div>
+                <div class="form-group">
+                    <label>Surname: </label>
+                    ${surname}
+                </div>
+                <div class="form-group">
+                    <label>Description: </label>
+                    ${description}
+                </div>
+                <div class="form-group">
+                    <label>Current stage: </label>
+                    ${stage}
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function()
+    {
+        var widget = new Widget('${widgetName}', '${widgetId}', '<#if (task.internalTaskId)??>${task.internalTaskId}<#else>${provider.id}</#if>');
+
+        widget.getData = function() {
+            var data = [
+                {"key" : "name", "value" : "${name}", "type" : "simple" },
+                {"key" : "surname", "value" : "${surname}", "type" : "simple" },
+                {"key" : "description", "value" : "${description}", "type" : "simple" }
+            ];
+            return data;
+        };
+
+        widget.validate = function() {
+            var errors = [];
+
+            var name = $("#name-${widgetId}").val();
+            if(!name) {
+                $('#warning').show();
+            }
+
+            return errors;
+        };
+
+        widgets.push(widget);
+
+    });
+
+
+
+
+</script>

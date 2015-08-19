@@ -6,9 +6,7 @@ import org.hibernate.annotations.Type;
 import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.HandleEmailsJob;
 
-import javax.persistence.Entity;
-import javax.persistence.Lob;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
@@ -63,14 +61,25 @@ public class BpmNotification extends PersistentEntity
     @Type(type = "org.hibernate.type.StringClobType")
 	private String body;
 
+	@Transient
+	private String originalBody;
+
 	private String source;
 	private String tag;
-	
+	@Column(name = "template_name")
+	private String templateName;
+	@Column(name = "sent_folder_name", length = 100)
+	private String sentFolderName;
+
+	public String getSentFolderName() {
+		return sentFolderName;
+	}
+
+	public void setSentFolderName(String sentFolderName) {
+		this.sentFolderName = sentFolderName;
+	}
+
 	public BpmNotification(){
-		/*Calendar cal = Calendar.getInstance();
-		cal.setTime( new Date());
-		int time = cal.get(Calendar.HOUR_OF_DAY) * 3600 + cal.get(Calendar.MINUTE) * 60 + cal.get(Calendar.SECOND);
-		*/
         notificationCreated = new Date();
 	}
 	
@@ -95,6 +104,14 @@ public class BpmNotification extends PersistentEntity
 
 	public void setBody(String body) {
 		this.body = body;
+	}
+
+	public String getOriginalBody() {
+		return originalBody != null ? originalBody : body;
+	}
+
+	public void setOriginalBody(String originalBody) {
+		this.originalBody = originalBody;
 	}
 
 	public String getSender() {
@@ -195,6 +212,14 @@ public class BpmNotification extends PersistentEntity
 
 	public void setTag(String tag) {
 		this.tag = tag;
+	}
+
+	public String getTemplateName() {
+		return templateName;
+	}
+
+	public void setTemplateName(String templateName) {
+		this.templateName = templateName;
 	}
 
 	public boolean hasAttachments() {

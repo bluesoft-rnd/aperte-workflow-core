@@ -58,9 +58,16 @@ public class DictionaryLoader extends OXHelper {
 			dbDict.addPermission(createDbPermission(permission));
 		}
 
-		for (DictionaryEntry entry : dict.getEntries()) {
-			dbDict.addItem(createDbItem(entry));
+		if (dict.getDefaultExtensions() != null) {
+			for (DictionaryDefaultEntryExtension defaultExt : dict.getDefaultExtensions()) {
+				dbDict.addDefaultExtension(createDbDefaultExt(defaultExt));
+			}
 		}
+
+		for (DictionaryEntry entry : dict.getEntries()) {
+			dbDict.addItem(createDbItem(dbDict, entry));
+		}
+
 		return dbDict;
 	}
 
@@ -68,7 +75,7 @@ public class DictionaryLoader extends OXHelper {
 		return dict.getPermissions().isEmpty() ? processDictionaries.getPermissions() : dict.getPermissions();
 	}
 
-	private static ProcessDBDictionaryItem createDbItem(DictionaryEntry entry) {
+	private static ProcessDBDictionaryItem createDbItem(ProcessDBDictionary dbDict, DictionaryEntry entry) {
 		ProcessDBDictionaryItem dbItem = new ProcessDBDictionaryItem();
 
 		dbItem.setDefaultDescription(entry.getDescription());
@@ -81,12 +88,12 @@ public class DictionaryLoader extends OXHelper {
 		dbItem.setValueType(entry.getValueType());
 
 		for (DictionaryEntryValue val : entry.getValues()) {
-			dbItem.addValue(createDbValue(val));
+			dbItem.addValue(createDbValue(dbDict, val));
 		}
 		return dbItem;
 	}
 
-	private static ProcessDBDictionaryItemValue createDbValue(DictionaryEntryValue val) {
+	private static ProcessDBDictionaryItemValue createDbValue(ProcessDBDictionary dbDict, DictionaryEntryValue val) {
 		ProcessDBDictionaryItemValue dbValue = new ProcessDBDictionaryItemValue();
 
 		dbValue.setDefaultValue(val.getValue());
@@ -102,8 +109,10 @@ public class DictionaryLoader extends OXHelper {
 			dbValue.setValidityDates(val.getValidFrom(), val.getValidTo());
 		}
 
+		dbDict.initValueExtensions(dbValue);
+
 		for (DictionaryEntryExtension ext : val.getExtensions()) {
-			dbValue.addExtension(createDbExt(ext));
+			dbValue.addOrUpdateExtension(createDbExt(ext));
 		}
 		return dbValue;
 	}
@@ -117,6 +126,15 @@ public class DictionaryLoader extends OXHelper {
 
 	private static ProcessDBDictionaryItemExtension createDbExt(DictionaryEntryExtension ext) {
 		ProcessDBDictionaryItemExtension dbItemExt = new ProcessDBDictionaryItemExtension();
+		dbItemExt.setName(ext.getName());
+		dbItemExt.setValue(ext.getValue());
+		dbItemExt.setValueType(ext.getValueType());
+		dbItemExt.setDescription(ext.getDescription());
+		return dbItemExt;
+	}
+
+	private static ProcessDBDictionaryDefaultItemExtension createDbDefaultExt(DictionaryDefaultEntryExtension ext) {
+		ProcessDBDictionaryDefaultItemExtension dbItemExt = new ProcessDBDictionaryDefaultItemExtension();
 		dbItemExt.setName(ext.getName());
 		dbItemExt.setValue(ext.getValue());
 		dbItemExt.setValueType(ext.getValueType());

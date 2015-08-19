@@ -16,12 +16,14 @@ public class NotificationHistoryEntry {
 	public static final String _ENQUEUE_DATE = "enqueueDate";
 	public static final String _SEND_DATE = "sendDate";
 	public static final String _SENDING_EXCEPTION = "sendingException";
+	public static final String _SENT_FOLDER_NAME = "sentFolderName";
 
 	private long bpmNotificationId;
 	private String sender;
 	private String recipient;
 	private String subject;
 	private String body;
+	private String sentFolderName;
 	private boolean asHtml;
 	private Date enqueueDate;
 	private Date sendDate;
@@ -97,5 +99,13 @@ public class NotificationHistoryEntry {
 
 	public void setSendingException(Exception e) {
 		this.sendingException = e;
+	}
+
+	public String getSentFolderName() {
+		return sentFolderName;
+	}
+
+	public void setSentFolderName(String sentFolderName) {
+		this.sentFolderName = sentFolderName;
 	}
 }

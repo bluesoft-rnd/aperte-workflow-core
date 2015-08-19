@@ -5,6 +5,7 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <%@ taglib uri="http://liferay.com/tld/portlet" prefix="liferay-portlet" %>
 
+
 <div class="navbar left-menu" >
 	<nav id="mobile-collapse" class="navbar navbar-default left-menu" role="navigation">
 
@@ -46,18 +47,55 @@
  <script type="text/javascript">
 
 	var userLogin = '${aperteUser.login}';
-	var queueInterval = '${queueInterval}';
+	var queueInterval = '${queueInterval}'; 
 	var reloadQueuesLoopTimer;
 
 	$(document).ready(function()
-	{	
+	{
+	    $.ajaxSetup({ cache: false });
 		windowManager.addView("outer-queues");
 		reloadQueuesLoopTimer = $.timer(function()
         	{
                reloadQueues();
             });
 		reloadQueuesLoopTimer.set({ time : queueInterval, autostart : true });
+		
+		$(window).on('popstate', function(e) {
+            var allHref = location.href;
+            if (allHref){
+                var arguments = allHref.split("?");
+                if (arguments.length > 1 && arguments[1] !== 'strip=0' && arguments[1] !== ''){
+				     $(arguments).each(function(indx){
+                        var argument = this;
+                        if (argument.indexOf("#") > -1){
+                            return;
+                        }
+                        var keyval = argument.split("=");
+                        if (keyval.length > 1){
+                            var varName = keyval[0];
+                            var varValue = keyval[1];
+                            if (varName === "taskId"){
+								loadProcessView(varValue);
+                            }
+                        }
+                    });
+                }
+                else
+                {
+					closeProcessView();
+					queueViewManager.loadCurrentQueue();
+
+                }
+            }
+        });
 	});
+
+	function showNoEditRoleError()
+	{
+		windowManager.hideCurrentView();
+		windowManager.clearErrors();
+		windowManager.addError('<spring:message code="processes.no.edit.roles" />');
+	}
 
 	function moveQueueList()
 	{
@@ -120,15 +158,16 @@
 		reloadQueuesLoopTimer.pause();
 		try
 		{
-			var queuesJson = $.post('<portlet:resourceURL id="getUserQueues"/>', function(queues)
+			var queuesJson = $.post('<portlet:resourceURL id="getUserQueues"/>',  function(queues)
 			{ 
 				$('#queue-view-block').empty();
+			
 				
-				$.each( queues, function( ) 
+				$.each(queues, function(index, queue ) 
 				{
-					var currentUserLogin = this.userLogin;
+					var currentUserLogin = queue.userLogin;
 					var userQueueHeaderId = 'accordion-header-'+currentUserLogin;
-					var userQueuesCount = this.activeTasks;
+					var userQueuesCount = queue.activeTasks;
 				
 					
 					var queueName = '<spring:message code="queues.user.queueName" />';
@@ -137,7 +176,7 @@
 						queueName = currentUserLogin;
 					}
 					
-					queueName += " ["+userQueuesCount+"]";
+					//queueName += " ["+userQueuesCount+"]";
 					
 					var accordionID = 'accordion-list-'+currentUserLogin;
 					
@@ -161,36 +200,30 @@
 					.appendTo( '#'+accordionID+"-panel" );
 					
 					
-					$.each( this.processesList, function( ) 
-					{
-						addProcessRow(this, accordionID, currentUserLogin);
+					$.each( queue.queuesList, function( ) 
+					{	
 						
+						addProcessRow(this, accordionID, currentUserLogin);
 						<!-- Test current queue for reload only if changed queue is shown and user is viewing process list -->
-						if(queueViewManager.currentQueue == this.queueName 
-							&& windowManager.currentView == 'process-panel-view'
+						if(queueViewManager.currentQueue == this.queueId 
+							&& windowManager.isQueueShown() == true
 							&& queueViewManager.currentOwnerLogin == currentUserLogin)
 						{
-
 							if(oldProcessCount != this.queueSize)
 							{
 								queueViewManager.reloadCurrentQueue();
 								oldProcessCount = this.queueSize;
-							}else{
-							    queueViewManager.highlightChosenQueue();
 							}
 						}
 					});
 					
-					$.each( this.queuesList, function( ) 
-					{
-						addQueueRow(this, accordionID, currentUserLogin);
-					});
+					queueViewManager.makeQueueSelected();
 					
-
+					
 				
 
 				});
-			});
+			}, null, 'json');
 		}
 		catch(err)
 		{
@@ -203,55 +236,41 @@
 	{
 		var layoutId = 'queue-view-' + processRow.queueId+'-'+userLogin;
 		var innerDivId = processRow.queueId+'-'+userLogin;
+		var tip = processRow.queueDesc;
 
-		$( "<li>", { id : layoutId, "class": "list-group-item list-group-item-left-menu", "data-queue-name": processRow.queueName, "data-user-login" : userLogin, "data-queue-type" : "process", "data-queue-desc" : processRow.queueDesc} )
+		$( "<li>", { id : layoutId, "class": "list-group-item list-group-item-left-menu", "data-queue-id": processRow.queueId, "data-user-login" : userLogin, "data-queue-type" : "process", "data-queue-desc" : processRow.queueDesc} )
 		.appendTo( '#'+accordionID );
 		
 		$(document).ready(function () {
+			$('[name="tooltip"]').tooltip();
 			$("#"+layoutId).on("click", function () {
-				showQueue( 
-						$(this).attr('data-queue-name'),
-						$(this).attr('data-queue-type'),
-						$(this).attr('data-user-login'),
-						$(this).attr('data-queue-desc'));
+				queueViewManager.loadQueue(
+						$(this).attr('data-queue-id'),
+						$(this).attr('data-user-login'));
+				reloadQueues();
+				 $(window).scrollTop(0);
+
 			});
 		});
 		
-		
-		
-		$( "<span>", { "class": "badge badge-queue-link", text: processRow.queueSize} )
+		$( "<span>", { "class": "badge badge-queue-link", id: "queue-counter-"+processRow.queueId+'-'+userLogin, text: processRow.queueSize} )
 		.appendTo( '#'+layoutId  );
-		$( "<div>", { id : 'link-'+processRow.queueId+'-'+accordionID, "class": "queue-list-link", text: processRow.queueDesc } )
+		
+		
+		$( "<div>", { id : 'link-'+processRow.queueId+'-'+accordionID, "name": "tooltip", "title": tip, "class": "queue-list-link", text: processRow.queueName } )
 		.appendTo( '#'+layoutId );
+		$('[name="tooltip"]').tooltip();
 		
-
-	}
-
-	function addQueueRow(queueRow, accordionID, userLogin)
-	{
-		var layoutId = 'queue-view-' + queueRow.queueId+'-'+userLogin;
-		var innerDivId = queueRow.queueId+'-'+userLogin;
-
-		$( "<li>", { id : layoutId, "class": "list-group-item list-group-item-left-menu", "data-queue-name": queueRow.queueName, "data-user-login" : userLogin, "data-queue-type" : "queue", "data-queue-desc" : queueRow.queueDesc} )
-		.appendTo( '#'+accordionID );
-		
-		$(document).ready(function () {
-			$("#"+layoutId).on("click", function () {
-				showQueue( 
-						$(this).attr('data-queue-name'),
-						$(this).attr('data-queue-type'),
-						$(this).attr('data-user-login'),
-						$(this).attr('data-queue-desc'));
-			});
-		});
-		
-		$( "<div>", { "class": "badge badge-queue-link", text: queueRow.queueSize} )
-		.appendTo( '#'+layoutId );
-		
-		
-		$( "<div>", { id : 'link-'+queueRow.queueId, "class": "queue-list-link", text: queueRow.queueDesc } )
-		.appendTo( '#'+layoutId );
-		
+		// Check if there is any defauly queueId
+		if(queueViewManager.defaultQueueId == '')
+		{
+			queueViewManager.defaultQueueId = processRow.queueId;
+			queueViewManager.defaultOwnerLogin = userLogin;
+			if(windowManager.isQueueShown() == true)
+			{
+				queueViewManager.loadQueue(processRow.queueId, userLogin);
+			}
+		}
 
 	}
 	
@@ -263,12 +282,36 @@
 		$('#'+id).attr('class','alert alert-info queue-list-row-process');
 	}
 	
-	function showQueue(newQueueName, queueType, ownerLogin, queueDesc)
+	function showQueue(queueId, queueType, ownerLogin, queueDesc)
 	{
 		reloadQueuesLoopTimer.stop();
 		reloadQueuesLoopTimer.play(true);
 		reloadQueues();
-		queueViewManager.loadQueue(newQueueName, queueType, ownerLogin, queueDesc);
+		$(window).scrollTop(0);
+	}
+	
+
+	
+	function loadProcessView(taskId)
+	{
+		queueViewManager.removeCurrentQueue();
+		windowManager.changeUrl('?taskId='+taskId);
+		windowManager.showLoadingScreen();
+		
+		
+
+		var jqxhr = $.getJSON('<portlet:resourceURL id="loadTask"/>',
+		{
+			"taskId": taskId,
+			"nocache": new Date().getTime()
+		});
+
+		jqxhr.complete(function(data, textStatus, jqXHR)
+        		{
+        			clearAlerts();
+        			windowManager.showProcessData(data.responseText);
+        			checkIfViewIsLoaded();
+        		});
 	}
  
  </script>

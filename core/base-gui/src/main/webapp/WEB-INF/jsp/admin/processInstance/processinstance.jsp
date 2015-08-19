@@ -22,7 +22,7 @@
 </div>
 
 <div class="process-tasks-view" id="foundProcessInstances" style="z-index: 1">
-    <table id="processInstanceTable" class="process-table table table-striped" border="1" style="overflow:visible;">
+    <table id="processInstanceTable" class="process-table table table-striped" border="1">
         <thead>
                 <th style="width:7%;"><spring:message code="processinstances.console.processInternalId.title"/></th>
                 <th style="width:18%;"><spring:message code="processinstances.console.definitionsColumn.title"/></th>
@@ -83,7 +83,7 @@
                 { "sName":"definitionName", "bSortable": true , "mData": function(object) {return formatDefinitionName(object);}},
                 { "sName":"externalKey", "bSortable": true , "mData": "externalKey" },
                 { "sName":"creatorLogin", "bSortable": true , "mData": "creatorLogin"},
-                { "sName":"creationDate", "bSortable": true ,"mData": function(object){return $.format.date(object.creationDate, 'dd-MM-yyyy, HH:mm:ss');}},
+                { "sName":"creationDate", "bSortable": true ,"mData": function(object){return moment(object.creationDate).format('DD-MM-YYYY, HH:mm:ss');}},
                 { "sName":"taskName", "bSortable": true , "mData": "taskName" },
                 { "sName":"assignedTo", "bSortable": true , "mData": function(object){return generateAssignedUserDropdown(object);}},
                 { "sName":"status", "bSortable": true , "mData": function(object){return taskState(object);}},

@@ -40,51 +40,84 @@ public class JQueryDataTableUtil
        };
     }
 
+    private static String getStringValue(Map<String, String[]> paramters, String valueName)
+    {
+        String[] array = paramters.get(valueName);
+        if(array == null)
+            return null;
+
+        return array[0];
+    }
+
+    private static Boolean getBooleanValue(Map<String, String[]> paramters, String valueName)
+    {
+        String[] array = paramters.get(valueName);
+        if(array == null)
+            return null;
+
+        return Boolean.parseBoolean(array[0]);
+    }
+
+    private static Integer getIntegerValue(Map<String, String[]> paramters, String valueName)
+    {
+        String[] array = paramters.get(valueName);
+        if(array == null)
+            return null;
+
+        return Integer.parseInt(array[0]);
+    }
+
     public static JQueryDataTable analyzeRequest(Map<String, String[]> paramters)
     {
         JQueryDataTable jQueryDataTable = new JQueryDataTable();
 
-        String echo = paramters.get("sEcho")[0];
-        jQueryDataTable.setEcho(echo);
+        Integer draw = getIntegerValue(paramters, "draw");
 
-        String displayStartString = paramters.get("iDisplayStart")[0];
-        String displayLengthString = paramters.get("iDisplayLength")[0];
+        jQueryDataTable.setDraw(draw);
 
-        Integer displayStart = Integer.parseInt(displayStartString);
-        Integer displayLength = Integer.parseInt(displayLengthString);
+        Integer displayStart = getIntegerValue(paramters, "start");
+        Integer displayLength = getIntegerValue(paramters, "length");
+
         jQueryDataTable.setPageOffset(displayStart);
         jQueryDataTable.setPageLength(displayLength);
 
-        String sColumns = paramters.get("sColumns")[0];
-        String iSortingColumns = paramters.get("iSortingCols")[0];
+        int columnsTotal = 0;
 
-        String[] columnNames = sColumns.split(",");
-
-        Integer sortingColumnsCount = Integer.parseInt(iSortingColumns);
-
-        for(int index=0; index<columnNames.length; index++)
+        for(int index=0;index<20;index++)
         {
-            JQueryDataTableColumn column = new JQueryDataTableColumn();
-            column.setPropertyName(columnNames[index]);
-            column.setIndex(index);
+            String columnName = getStringValue(paramters, "columns["+index+"][name]");
 
-            String isSortableString = paramters.get("bSortable_"+index)[0];
-            column.setSortable(Boolean.parseBoolean(isSortableString));
+            /** No more columns */
+            if(columnName == null)
+                break;
+
+            columnsTotal++;
+
+            JQueryDataTableColumn column = new JQueryDataTableColumn();
+            column.setPropertyName(columnName);
+
+            Boolean columnSortale = getBooleanValue(paramters, "columns["+index+"][orderable]");
+            column.setSortable(columnSortale);
+
+            column.setIndex(index);
 
             jQueryDataTable.getColumns().add(column);
         }
 
 
-        for(int index=0; index<sortingColumnsCount; index++)
+        for(int index=0; index<columnsTotal; index++)
         {
-            String sortingColumnIndexString = paramters.get("iSortCol_"+index)[0];
-            String sortingColumnOrderString = paramters.get("sSortDir_"+index)[0];
+            Integer orderColumn = getIntegerValue(paramters, "order["+index+"][column]");
+            /** No more order */
+            if(orderColumn == null)
+                break;
 
-            Integer sortingColumnIndex = Integer.parseInt(sortingColumnIndexString);
 
-            JQueryDataTableColumn column = jQueryDataTable.getColumnAt(sortingColumnIndex);
+            String orderDir = getStringValue(paramters, "order["+index+"][dir]");
+
+            JQueryDataTableColumn column = jQueryDataTable.getColumnAt(orderColumn);
             column.setSorted(true);
-            column.setSortedAsc(sortingColumnOrderString.equals("asc") ? true : false);
+            column.setSortedAsc(orderDir.equals("asc") ? true : false);
             column.setPriority(index);
 
             jQueryDataTable.getSortingColumnOrder().add(column);

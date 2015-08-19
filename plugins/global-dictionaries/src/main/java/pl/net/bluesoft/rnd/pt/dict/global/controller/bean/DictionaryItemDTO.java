@@ -1,6 +1,7 @@
 package pl.net.bluesoft.rnd.pt.dict.global.controller.bean;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionary;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryI18N;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItem;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemValue;
@@ -65,15 +66,15 @@ public class DictionaryItemDTO {
         this.selectedLanguage = selectedLanguage;
     }
 
-    public ProcessDBDictionaryItem toProcessDBDictionaryItem(final String languageCode) {
+    public ProcessDBDictionaryItem toProcessDBDictionaryItem(ProcessDBDictionary dictionary, final String languageCode) {
         ProcessDBDictionaryItem item = new ProcessDBDictionaryItem();
         if (this.getId() != null)
             item.setId(this.getId());
-        updateItem(item, languageCode);
+        updateItem(dictionary, item, languageCode);
         return item;
     }
 
-    public void updateItem(ProcessDBDictionaryItem item, String languageCode) {
+    public void updateItem(ProcessDBDictionary dictionary, ProcessDBDictionaryItem item, String languageCode) {
         item.setKey(this.getKey());
         final DictionaryI18NDTO defaultI18N = DictionaryI18NDTO.getDefaultI18N(this.getLocalizedDescriptions());
         if (defaultI18N != null && defaultI18N.getText() != null)
@@ -94,11 +95,11 @@ public class DictionaryItemDTO {
             if (valueDTO.getId() != null)
                 value = getValueById(item, valueDTO.getId());
             if (value == null)
-                item.addValue(valueDTO.toProcessDBDictionaryItemValue(languageCode));
+                item.addValue(valueDTO.toProcessDBDictionaryItemValue(dictionary, languageCode));
             else if (valueDTO.getToDelete())
                 item.removeValue(value);
             else
-                valueDTO.updateValue(value, languageCode);
+                valueDTO.updateValue(dictionary, value, languageCode);
         }
     }
 

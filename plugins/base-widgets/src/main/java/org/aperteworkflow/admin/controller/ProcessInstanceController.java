@@ -48,7 +48,7 @@ public class ProcessInstanceController implements IOsgiWebController {
                 .searchProcesses(searchCriteria, dataTable.getPageOffset(), dataTable.getPageLength(), isOnlyActive, null, null));
 
         final List<ProcessInstanceBean> processInstanceBeans = createProcessInstanceBeansList(processInstances, messageSource, bpmSession);
-        DataPagingBean<ProcessInstanceBean> dataPagingBean = new DataPagingBean<ProcessInstanceBean>(processInstanceBeans, processInstanceBeans.size(), dataTable.getEcho());
+        DataPagingBean<ProcessInstanceBean> dataPagingBean = new DataPagingBean<ProcessInstanceBean>(processInstanceBeans, processInstanceBeans.size(), dataTable.getDraw());
         return dataPagingBean;
     }
 

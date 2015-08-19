@@ -67,11 +67,13 @@ public class AwfUserCallback implements UserGroupCallback {
 			public Set<String> getNewValue(String key) {
 				UserData user = getRegistry().getUserSource().getUserByLogin(userId);
 
-				if (user == null) {
+				boolean adminUser = "admin".equals(userId);
+
+				if (user == null && !adminUser) {
 					return Collections.emptySet();
 				}
 
-				List<ProcessQueue> queues = getQueuesFromConfig(user.getRoles());
+				List<ProcessQueue> queues = getQueuesFromConfig(user != null ? user.getRoles() : Collections.<String>emptySet(), adminUser);
 
 				return from(queues).select(GET_NAME).toSet();
 			}

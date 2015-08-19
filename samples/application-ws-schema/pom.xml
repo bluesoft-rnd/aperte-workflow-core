@@ -1,0 +1,87 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <artifactId>samples</artifactId>
+    <groupId>org.aperteworkflow</groupId>
+    <version>3.2-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.aperteworkflow</groupId>
+  <artifactId>application-ws-schema</artifactId>
+  <packaging>jar</packaging>
+  <properties>
+    <cxf.version>2.4.4</cxf.version>
+  </properties>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.6</source>
+          <target>1.6</target>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+
+    <profile>
+      <id>genWs</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-codegen-plugin</artifactId>
+            <version>${cxf.version}</version>
+            <executions>
+              <execution>
+                <id>generate-sources</id>
+                <phase>generate-sources</phase>
+                <configuration>
+                  <sourceRoot>src/main/java/</sourceRoot>
+                  <wsdlOptions>
+                    <wsdlOption>
+                      <!--Przed generacja nalezy wgrac zaktaulizowany model-->
+                      <wsdl>${basedir}/src/main/resources/org/aperteworkflow/samples/service/RegisterApplication.wsdl</wsdl>
+                      <extraargs>
+                        <extraarg>-xjc-Xbg</extraarg>
+                        <extraarg>-client</extraarg>
+                        <extraarg>-verbose</extraarg>
+                        <extraarg>-p</extraarg>
+                        <extraarg>http://aperteworkflow.org/services/=org.aperteworkflow.samples.application.service</extraarg>
+                      </extraargs>
+                    </wsdlOption>
+                  </wsdlOptions>
+                </configuration>
+                <goals>
+                  <goal>wsdl2java</goal>
+                </goals>
+              </execution>
+            </executions>
+            <dependencies>
+              <dependency>
+                <groupId>org.apache.cxf.xjcplugins</groupId>
+                <artifactId>cxf-xjc-boolean</artifactId>
+                <version>2.4.0</version>
+              </dependency>
+            </dependencies>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+              <source>1.6</source>
+              <target>1.6</target>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>

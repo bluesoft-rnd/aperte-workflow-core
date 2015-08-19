@@ -7,7 +7,9 @@ import pl.net.bluesoft.rnd.processtool.model.AbstractPersistentEntity;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 
 import javax.persistence.*;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
  *
@@ -46,6 +48,9 @@ public class ProcessComment extends AbstractPersistentEntity {
 
     @Column(name = "author_login")
 	private String authorLogin;
+
+    @Column(name = "comment_type")
+    private String commentType;
 
     @Column(name = "author_full_name")
     private String authorFullName;
@@ -97,6 +102,14 @@ public class ProcessComment extends AbstractPersistentEntity {
         this.substituteLogin = substituteLogin;
     }
 
+    public String getCommentType() {
+        return commentType;
+    }
+
+    public void setCommentType(String commentType) {
+        this.commentType = commentType;
+    }
+
     public String getComment() {
 		return comment;
 	}
@@ -143,5 +156,13 @@ public class ProcessComment extends AbstractPersistentEntity {
 
     public void setSubstituteFullName(String substituteFullName) {
         this.substituteFullName = substituteFullName;
+    }
+
+    public String getFormattedDate(String format)
+    {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format);
+        //TODO user timezone
+        simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Europe/Warsaw"));
+        return simpleDateFormat.format(getCreateTime());
     }
 }

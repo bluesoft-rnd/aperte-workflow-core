@@ -3,6 +3,9 @@ package pl.net.bluesoft.rnd.processtool.filters.factory;
 import pl.net.bluesoft.rnd.processtool.web.view.ProcessInstanceFilter;
 import pl.net.bluesoft.rnd.processtool.model.QueueType;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import static pl.net.bluesoft.rnd.processtool.model.QueueType.*;
 
 /**
@@ -64,11 +67,11 @@ public class ProcessInstanceFilterFactory
 	{
 		ProcessInstanceFilter pif = new ProcessInstanceFilter();
 		pif.setFilterOwnerLogin(userLogin);
+
+        for(QueueType queueType: types) {
+            pif.addQueueType(queueType);
+        }
 		pif.setName(name);
-		
-		for(QueueType queueType: types) {
-			pif.addQueueType(queueType);
-		}
 		return pif;
 	}
 }

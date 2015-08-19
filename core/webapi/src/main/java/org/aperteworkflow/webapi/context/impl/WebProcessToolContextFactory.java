@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import org.springframework.web.servlet.LocaleResolver;
+import pl.net.bluesoft.rnd.processtool.usersource.IPortalUserSource;
 import pl.net.bluesoft.rnd.processtool.web.domain.IProcessToolRequestContext;
 
 import pl.net.bluesoft.rnd.processtool.authorization.IAuthorizationService;
@@ -34,6 +35,10 @@ public class WebProcessToolContextFactory implements IWebProcessToolContextFacto
     @Autowired
     private IAuthorizationService authorizationService;
 
+
+	@Autowired
+	private IPortalUserSource portalUserSource;
+
     @Autowired
     private I18NSourceFactory i18NSourceFactory;
 
@@ -54,10 +59,20 @@ public class WebProcessToolContextFactory implements IWebProcessToolContextFacto
 
 
 			final UserData user = authorizationService.getUserByRequest(request);
-			
+			Locale locale = null;
+			if(user != null)
+			{
+				processToolContext.setUser(user);
+				/** Get locale from portal */
+				locale = portalUserSource.getUserLocale(user.getLogin());
+			}
+			else
+			{
+				locale = localeResolver.resolveLocale(request);
+			}
 			processToolContext.setUser(user);
 
-            Locale locale = localeResolver.resolveLocale(request);
+
 
 			I18NSource messageSource = i18NSourceFactory.createI18NSource(locale);
 			processToolContext.setMessageSource(messageSource);

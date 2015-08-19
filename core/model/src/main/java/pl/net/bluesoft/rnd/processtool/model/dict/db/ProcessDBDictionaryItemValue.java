@@ -1,18 +1,16 @@
 package pl.net.bluesoft.rnd.processtool.model.dict.db;
 
-import java.util.*;
-
-import javax.persistence.*;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-
 import org.apache.commons.lang3.time.DateUtils;
-import org.hibernate.annotations.*;
-
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Index;
+import org.hibernate.annotations.Type;
 import pl.net.bluesoft.rnd.processtool.model.AbstractPersistentEntity;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItemExtension;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItemValue;
+
+import javax.persistence.*;
+import java.util.*;
 
 @Entity
 @Table(name = "pt_dictionary_item_value")
@@ -51,11 +49,12 @@ public class ProcessDBDictionaryItemValue extends AbstractPersistentEntity imple
 	@OneToMany(fetch = FetchType.EAGER, orphanRemoval = true)
 	@Cascade(value = org.hibernate.annotations.CascadeType.ALL)
 	@JoinColumn(name = "dictionary_item_value_id", nullable = true)
-	private List<ProcessDBDictionaryI18N>    localizedValues = new ArrayList<ProcessDBDictionaryI18N>();
+	private List<ProcessDBDictionaryI18N> localizedValues = new ArrayList<ProcessDBDictionaryI18N>();
 
 	@OneToMany(mappedBy = "itemValue", fetch = FetchType.EAGER, orphanRemoval = true, cascade=javax.persistence.CascadeType.ALL)
     @Cascade(value = org.hibernate.annotations.CascadeType.ALL)
-    private Set<ProcessDBDictionaryItemExtension> extensions = new HashSet<ProcessDBDictionaryItemExtension>();
+	@OrderBy
+    private Set<ProcessDBDictionaryItemExtension> extensions = new LinkedHashSet<ProcessDBDictionaryItemExtension>();
 
 	public ProcessDBDictionaryItemValue() {
 	}
@@ -158,6 +157,36 @@ public class ProcessDBDictionaryItemValue extends AbstractPersistentEntity imple
 		extension.setItemValue(this);
 	}
 
+	public void addExtension(ProcessDBDictionaryDefaultItemExtension defaultExt) {
+		addExtension(defaultExt.getName(), defaultExt.getValue(), defaultExt.getDescription(), defaultExt.getValueType())
+				.setDefault_(true);
+	}
+
+	public ProcessDBDictionaryItemExtension addExtension(String name, String value, String description, String valueType) {
+		ProcessDBDictionaryItemExtension ext = getExt(name);
+		boolean toAdd = ext == null;
+
+		if (ext == null) {
+			ext = new ProcessDBDictionaryItemExtension();
+		}
+		ext.setName(name);
+		ext.setValue(value);
+		if (description != null) {
+			ext.setDescription(description);
+		}
+		if (valueType != null) {
+			ext.setValueType(valueType);
+		}
+		if (toAdd) {
+			addExtension(ext);
+		}
+		return ext;
+	}
+
+	public ProcessDBDictionaryItemExtension addOrUpdateExtension(ProcessDBDictionaryItemExtension ext) {
+		return addExtension(ext.getName(), ext.getValue(), ext.getDescription(), ext.getValueType());
+	}
+
 	@Override
 	public String getValue(String languageCode) {
 		return ProcessDBDictionaryI18N.getLocalizedText(localizedValues, languageCode, defaultValue);
@@ -181,7 +210,22 @@ public class ProcessDBDictionaryItemValue extends AbstractPersistentEntity imple
     	return Collections.unmodifiableCollection((Set)extensions);
 	}
 
-    public void setValidityDates(Date validStartDate, Date validEndDate) {
+	@Override
+	public String getExtValue(String name) {
+		ProcessDBDictionaryItemExtension ext = getExt(name);
+		return ext != null ? ext.getValue() : null;
+	}
+
+	private ProcessDBDictionaryItemExtension getExt(String name) {
+		for (ProcessDBDictionaryItemExtension ext : extensions) {
+			if(name.equals(ext.getName())) {
+				return ext;
+			}
+		}
+		return null;
+	}
+
+	public void setValidityDates(Date validStartDate, Date validEndDate) {
         this.validFrom = validStartDate;
         this.validTo = validEndDate;
     }
@@ -207,4 +251,13 @@ public class ProcessDBDictionaryItemValue extends AbstractPersistentEntity imple
         }
         return true;
     }
+
+	@Override
+	public boolean isEmptyValue() {
+		return false;
+	}
+
+	public void addLocalizedValue(String langCode, String value) {
+		localizedValues.add(new ProcessDBDictionaryI18N(langCode, value));
+	}
 }

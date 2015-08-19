@@ -3,7 +3,7 @@ package pl.net.bluesoft.rnd.processtool.model;
 /**
  * @author mpawlak
  */
-public enum QueueOrderCondition {
+public enum QueueOrderCondition implements IBpmTaskOrderColumnName {
     SORT_BY_DATE_ORDER,
     SORT_BY_CREATE_DATE_ORDER,
     SORT_BY_PROCESS_CODE_ORDER,

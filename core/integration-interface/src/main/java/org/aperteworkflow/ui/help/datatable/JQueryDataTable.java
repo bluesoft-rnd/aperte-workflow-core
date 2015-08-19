@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class JQueryDataTable
 {
-    private String echo;
+    private Integer draw;
     private Integer pageOffset;
     private Integer pageLength;
     private List<JQueryDataTableColumn> columns = new ArrayList<JQueryDataTableColumn>();
@@ -44,13 +44,6 @@ public class JQueryDataTable
         return this.columns.size();
     }
 
-    public String getEcho() {
-        return echo;
-    }
-
-    public void setEcho(String echo) {
-        this.echo = echo;
-    }
 
     public JQueryDataTableColumn getFirstSortingColumn()
     {
@@ -75,5 +68,13 @@ public class JQueryDataTable
 
     public void setPageLength(Integer pageLength) {
         this.pageLength = pageLength;
+    }
+
+    public Integer getDraw() {
+        return draw;
+    }
+
+    public void setDraw(Integer draw) {
+        this.draw = draw;
     }
 }

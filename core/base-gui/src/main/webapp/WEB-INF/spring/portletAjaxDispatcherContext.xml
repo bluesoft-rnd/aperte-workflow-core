@@ -28,7 +28,7 @@
     <bean class="org.aperteworkflow.webapi.main.PortletViewController"/>
     <bean id="localeResolver"
           class="org.springframework.web.servlet.i18n.SessionLocaleResolver">
-        <property name="defaultLocale" value="en" />
+        <property name="defaultLocale" value="pl" />
     </bean>
 
     <bean id="jspViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">

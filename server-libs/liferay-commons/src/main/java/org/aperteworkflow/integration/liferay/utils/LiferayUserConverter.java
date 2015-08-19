@@ -1,20 +1,19 @@
 package org.aperteworkflow.integration.liferay.utils;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import pl.net.bluesoft.rnd.processtool.model.UserData;
-import pl.net.bluesoft.rnd.processtool.model.UserDataBean;
-import pl.net.bluesoft.rnd.processtool.usersource.exception.UserSourceException;
-
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.model.Role;
 import com.liferay.portal.model.User;
 import com.liferay.portal.model.UserGroup;
 import com.liferay.portal.service.RoleLocalServiceUtil;
+import pl.net.bluesoft.rnd.processtool.model.UserData;
+import pl.net.bluesoft.rnd.processtool.model.UserDataBean;
+import pl.net.bluesoft.rnd.processtool.usersource.exception.UserSourceException;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Liferay {@link User} to {@link UserData} converter
@@ -44,7 +43,7 @@ public class LiferayUserConverter
         }
         setGroupRoles(ud, user);
 
-        Map<String, Serializable> customAttributes = user.getExpandoBridge().getAttributes();
+        Map<String, Serializable> customAttributes = user.getExpandoBridge().getAttributes(false);
         Map<String, Object> attributes = new HashMap<String, Object>();
 
         for(Map.Entry<String, Serializable> entry:  customAttributes.entrySet())

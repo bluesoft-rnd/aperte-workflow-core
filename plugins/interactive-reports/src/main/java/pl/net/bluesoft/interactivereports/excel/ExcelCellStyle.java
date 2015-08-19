@@ -10,6 +10,7 @@ public class ExcelCellStyle {
 	private String format;
 	private ExcelColor bgColor;
 	private ExcelFont font;
+	private boolean wrapText = true;
 
 	public enum Alignment {
 		LEFT(CellStyle.ALIGN_LEFT),
@@ -98,6 +99,14 @@ public class ExcelCellStyle {
 			font = font.copy();
 		}
 		return this;
+	}
+
+	public boolean getWrapText() {
+		return wrapText;
+	}
+
+	public void setWrapText(boolean wrapText) {
+		this.wrapText = wrapText;
 	}
 
 	public String getFormat() {

@@ -126,7 +126,7 @@ public class QuartzSchedulerService implements ProcessToolSchedulerService, Even
         }};
         logger.info("Scheduling job on: " + sb + " of type: " + jobDetail.getJobClass().getName());
         try {
-            scheduler.scheduleJobs(jobMap, true);
+            scheduler.scheduleJobs(jobMap, false);
         }
         catch (SchedulerException e) {
             logger.log(Level.SEVERE, "Error while scheduling job: " + e.getMessage(), e);
@@ -172,10 +172,19 @@ public class QuartzSchedulerService implements ProcessToolSchedulerService, Even
                     List<? extends Trigger> triggers = scheduler.getTriggersOfJob(jobKey);
                     for (Trigger trigger : triggers) {
                         cancelledTriggerKeys.add(trigger.getKey());
+                        try {
+                            scheduler.interrupt(trigger.getJobKey());
+                        }
+                        catch(Throwable ex)
+                        {
+                            logger.log(Level.SEVERE, "Problem during job interruption - " + trigger.getKey(), ex);
+                        }
+
                     }
                 }
             }
             logger.warning("Cancelling " + cancelledTriggerKeys.size() + " jobs for job group: " + jobGroupName);
+
             scheduler.unscheduleJobs(cancelledTriggerKeys);
         }
         catch (SchedulerException e) {

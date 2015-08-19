@@ -2,6 +2,7 @@ package org.aperteworkflow.webapi.main.processes;
 
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
+import pl.net.bluesoft.rnd.processtool.model.nonpersistent.BpmPseudoTask;
 import pl.net.bluesoft.rnd.processtool.model.nonpersistent.BpmTaskDerivedBean;
 import pl.net.bluesoft.rnd.processtool.web.view.TasksListViewBean;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
@@ -38,7 +39,7 @@ public class ActionPseudoTaskBean {
 		String actionPseudoStateName = getActionPseudoStateName(task.getTaskName(), extractActionName);
 		ProcessStateConfiguration actionPseudoState = task.getProcessDefinition().getProcessStateConfigurationByName(actionPseudoStateName);
 
-		BpmTaskDerivedBean result = new BpmTaskDerivedBean(task);
+        BpmPseudoTask result = new BpmPseudoTask(task);
 		result.setCurrentProcessStateConfiguration(actionPseudoState);
 		result.setInternalTaskId(taskId);
 		return result;

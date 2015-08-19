@@ -1,0 +1,177 @@
+<#if attributesProvider.processInstance??>
+    <#assign processComments = attributesProvider.processInstance.getCommentsOrderedByDate(false) />
+    <#assign internalId = task.internalTaskId />
+</#if>
+<#if !processComments??>
+    <#assign commentsAttribute = attributesProvider.getAttribute('comments')!"" />
+    <#if commentsAttribute?has_content>
+        <#assign processComments = commentsAttribute.getCommentsOrderedByDate(true)! />
+        <#else>
+            <#assign processComments = [] />
+    </#if>
+    <#assign internalId = attributesProvider.id />
+</#if>
+
+
+<style type="text/css" media="all">
+    .add-new-comment-input
+    {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    width: 100%;
+    min-height: 100px;
+    }
+
+    .add-comment-button
+    {
+    margin-top: 10px;
+    }
+
+
+</style>
+
+<div>
+    <div class="panel panel-default">
+        <div class="panel-body form-inline">
+            <ul class="list-group aperte-list-group" id="process_comments_list">
+                <#list processComments as processComment>
+                    <#assign substituteUser = processComment.substituteLogin!""/>
+                    <li class="list-group-item">
+                        <p class="list-group-item-heading">
+                            <b>${processComment.authorFullName} (${processComment.authorLogin}) [${processComment.getFormattedDate("dd-MM-yy HH:mm")}]</b>
+                            <#if substituteUser != "">
+                                <b>${messageSource.getMessage("process.history.subsituted.by")}</b>
+                                <b>${processComment.substituteFullName} (${processComment.substituteLogin})</b>
+                            </#if>
+                        </p>
+                        <p class="list-group-item-text">
+                            <#assign processCommentType = processComment.commentType!""/>
+                            <#if processCommentType != "">
+                                ${processCommentType}
+                                <br>
+                            </#if>
+                            ${processComment.body}
+                        </p>
+                    </li>
+                </#list>
+            </ul>
+            <#if privileges?seq_contains("EDIT")>
+                <button class="btn btn-info add-comment-button" style="margin:4px 14px;" id="process_comments_button_new" onclick="process_comments_button_new_click()">
+                    <span class="glyphicon glyphicon-comment" aria-hidden="true"></span>
+                    ${messageSource.getMessage("widget.process_comments.new")}
+                </button>
+                <div id="process_comments_add_form" style="display:none; margin:4px 14px;">
+                    <textarea id="process_comments_body" class="add-new-comment-input" style="display: block;"></textarea>
+                    <div style="margin:4px 0">
+                    <button class="btn btn-info" id="process_comments_button_add" onclick="process_comments_button_add_click()">
+                        <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                        ${messageSource.getMessage("widget.process_comments.add")}
+                    </button>
+                    <button class="btn btn-warning" id="process_comments_button_cancel" onclick="process_comments_button_cancel_click()">
+                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                        ${messageSource.getMessage("widget.process_comments.cancel")}
+                    </button>
+                    </div>
+                </div>
+            </#if>
+        </div>
+    </div>
+</div>
+
+
+
+<#if privileges?seq_contains("EDIT")>
+    <script type="text/javascript">
+    processCommentsAddedComments = [];
+
+    $(document).ready(function()
+    {
+        //$('#area-comment-warning').hide();
+
+        var widget = new Widget('${widgetName}', '${widgetId}', '${internalId}');
+        widget.getData = function() {return getProcessCommentsData();};
+        widget.validate = function() {return validateProcessComments();};
+
+        widgets.push(widget);
+    });
+
+    function getProcessCommentsData() {
+        var commentText = $('#process_comments_added_comments').val();
+        var data =
+        [
+           {"key" : "processCommentsAddedComments", "value": JSON.stringify(processCommentsAddedComments), "type" : "comment" }
+        ];
+        return data;
+    }
+
+    function validateProcessComments() {
+        var errors = [];
+        return errors;
+    }
+
+    function process_comments_button_new_click() {
+        document.getElementById("process_comments_button_new").style.display="none";
+        document.getElementById("process_comments_add_form").style.display="";
+        $('#process_comments_body').val("");
+    }
+
+
+    function format_2_digit(value) {
+        return ("0" + value).slice(-2);
+    }
+
+    function process_comments_button_add_click() {
+
+
+        var massActionResult = $.post(dispatcherPortlet,
+		{
+		    "controller": "commentsController",
+		    "action": "getCommentTime"
+		}, function(){}, 'json')
+		.done(function(data)
+		{
+			var errors = [];
+			$.each(data.errors, function() {
+				errors.push(this);
+				addAlert(this.message);
+			});
+
+            var body = $.trim($('#process_comments_body').val());
+            body = $("<div/>").text(body).html();
+            var author = '${user.login}';
+            var authorFullName = '${user.realName}';
+
+            if (!body || /^\s*$/.test(body)) {
+                return;
+            }
+
+            processCommentsAddedComments.unshift({
+                createDate: data.data.time,
+                body: body,
+                authorLogin: author,
+                authorFullName: authorFullName
+            });
+
+            var text = '<li class="list-group-item">' +
+                    '<h4 class="list-group-item-heading">'+
+                    authorFullName + ' (' + author + ')' +
+                    " [" + data.data.formattedTime + "] " +
+                    '</h4><p class="list-group-item-text">'+
+                                body+
+                            '</p></li>';
+
+            $("#process_comments_list").prepend(text);
+
+            process_comments_button_cancel_click();
+
+		});
+
+
+    }
+
+    function process_comments_button_cancel_click() {
+        document.getElementById("process_comments_add_form").style.display="none";
+        document.getElementById("process_comments_button_new").style.display="";
+    }
+</script>
+</#if>

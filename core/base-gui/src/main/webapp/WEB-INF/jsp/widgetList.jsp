@@ -11,11 +11,48 @@
 	<div id="actions-list" class="actions-view">
 	</div>
 </div>
+<div id="process-queue-view" class="process-data-view" hidden="true"></div>
 
 <script type="text/javascript">
-//<![CDATA[	
-	<!-- Create widgets -->
-	var widgets = [];
+
+    function sticky_relocate() {
+        var window_top = $(window).scrollTop() + 36;
+
+        var anchors =  $('[class*=fixed-element-anchor-]');
+        if(!anchors) { return; }
+        anchors.each(function(i, e)
+        {
+            var clses = e.className.split(/\s+/);
+            if(!clses) { return; }
+            var id = null
+            for(var i = 0;i<clses.length;i++)
+            {
+                if(clses[i].match(/^fixed-element-anchor-.*$/))
+                    {
+                        id = clses[i].substr("fixed-element-anchor-".length);
+                        break;
+                    }
+            }
+
+            var anchor = $(e)
+            var el = $('.fixed-element-' + id)
+
+            var div_top = anchor.offset().top;
+                        if (window_top > div_top) {
+                            el.addClass('sticky');
+                        } else {
+                            el.removeClass('sticky');
+                        }
+             el.css({width: anchor.width() + "px"});
+        })
+    }
+
+    $(function () {
+        $(window).scroll(sticky_relocate);
+        $(window).resize(sticky_relocate);
+        sticky_relocate();
+    });
+
 	
 	var vaadinWidgetsCount = 0;
 	var vaadinWidgetsLoadedCount = 0;
@@ -23,27 +60,8 @@
 	$(document).ready(function()
 	{
 		windowManager.addView("process-data-view");
+		windowManager.addView("process-queue-view");
 	});
-	
-	<!-- Widget class  -->
-	function Widget (name, widgetId, taskId)
-	{
-		this.name = name;
-		this.widgetId = widgetId;
-		this.taskId = taskId;
-		this.formId = 'test';
-		this.validate = function() {};
-		this.validateDataCorrectness = function() {};
-		this.getData = function() { return null; };
-		this.isEnabled = true;
-	}
-	
-	function WidgetDataBean(widgetId, widgetName, data)
-	{
-		this.widgetId = widgetId;
-		this.data = data;
-		this.widgetName = widgetName;
-	}
 
 	
 	
@@ -168,5 +186,20 @@
 		});
 	}
 
-//]]>
+    var delay = (function(){
+                var timer = 0;
+                return function(callback, ms){
+                    clearTimeout (timer);
+                    timer = setTimeout(callback, ms);
+                };
+            })();
+
+    $('#processInputTextField').keyup(function()
+    {
+
+        delay(function(){
+          $('#process-queue-view table').dataTable().fnFilter( $('#processInputTextField').val() );
+        }, 500 );
+    });
+
 </script>

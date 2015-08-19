@@ -3,7 +3,7 @@ package pl.net.bluesoft.rnd.processtool.dao;
 import pl.net.bluesoft.rnd.processtool.hibernate.HibernateBean;
 import pl.net.bluesoft.rnd.processtool.hibernate.ResultsPageWrapper;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter;
+import pl.net.bluesoft.rnd.processtool.web.view.ProcessInstanceFilter;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstanceLog;
 import pl.net.bluesoft.rnd.processtool.model.StepInfo;
 
@@ -41,9 +41,6 @@ public interface ProcessInstanceDAO extends HibernateBean<ProcessInstance> {
     Collection<ProcessInstance> getUserProcessesAfterDate(String userLogin, Date minDate);
 
     ResultsPageWrapper<ProcessInstance> getRecentProcesses(String userLogin, Date minDate, Integer offset, Integer limit);
-
-    ResultsPageWrapper<ProcessInstance> getProcessInstanceByInternalIdMapWithFilter(Collection<String> internalIds, ProcessInstanceFilter filter,
-                                                                                    Integer offset, Integer limit);
 
 	Collection<ProcessInstance> getUserProcessesBetweenDates(String userLogin, Date minDate, Date maxDate);
 

@@ -65,15 +65,13 @@ public class UserProcessQueuesServlet extends HttpServlet
 		
 		I18NSource messageSource = I18NSourceFactory.createI18NSource(req.getLocale());
 		
-		UserProcessQueuesSizeProvider userQueuesSizeProvider = new UserProcessQueuesSizeProvider(getRegistry(), userLogin, messageSource);
+		UserProcessQueuesSizeProvider userQueuesSizeProvider = new UserProcessQueuesSizeProvider(userLogin, messageSource);
 		Collection<UsersQueuesDTO> usersQueuesSize = userQueuesSizeProvider.getUserProcessQueueSize();
 		
 		Map<String, Map<String, Integer>> usersQueues = new HashMap<String, Map<String,Integer>>(usersQueuesSize.size());
 		for(UsersQueuesDTO userQuueueSize: usersQueuesSize)
 		{
 			Map<String, Integer> userQueueMap = new HashMap<String, Integer>();
-			for(UserQueueDTO userQueue: userQuueueSize.getProcessesList())
-				userQueueMap.put(userQueue.getQueueId(), userQueue.getQueueSize());
 			
 			for(UserQueueDTO userQueue: userQuueueSize.getQueuesList())
 				userQueueMap.put(userQueue.getQueueId(), userQueue.getQueueSize());

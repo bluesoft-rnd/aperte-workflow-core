@@ -3,6 +3,7 @@ package pl.net.bluesoft.rnd.pt.dict.global.controller.bean;
 import org.apache.commons.lang3.StringEscapeUtils;
 import pl.net.bluesoft.rnd.processtool.dict.DictionaryItem;
 import pl.net.bluesoft.rnd.processtool.model.dict.ProcessDictionaryItemExtension;
+import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionary;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryI18N;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemExtension;
 import pl.net.bluesoft.rnd.processtool.model.dict.db.ProcessDBDictionaryItemValue;
@@ -82,20 +83,29 @@ public class DictionaryItemValueDTO {
         return dto;
     }
 
-    public ProcessDBDictionaryItemValue toProcessDBDictionaryItemValue(String languageCode) {
+    public ProcessDBDictionaryItemValue toProcessDBDictionaryItemValue(ProcessDBDictionary dictionary, String languageCode) {
         final ProcessDBDictionaryItemValue value = new ProcessDBDictionaryItemValue();
         if (this.getId() != null && !"".equals(this.getId()))
             value.setId(Long.valueOf(this.getId()));
-        updateValue(value, languageCode);
+        updateValue(dictionary, value, languageCode);
         return value;
     }
 
-    public void updateValue(ProcessDBDictionaryItemValue value, String languageCode) {
+    public void updateValue(ProcessDBDictionary dictionary, ProcessDBDictionaryItemValue value, String languageCode) {
         value.setDefaultValue(StringEscapeUtils.unescapeHtml4(this.getValue()));
-        if (this.getDateFrom() != null && !"".equals(this.getDateFrom()))
+        if (this.getDateFrom() != null && !"".equals(this.getDateFrom())) {
             value.setValidFrom(FormatUtil.parseDate("yyyy-MM-dd", this.getDateFrom()));
+        }
+        else
+        {
+            value.setValidFrom(null);
+        }
         if (this.getDateTo() != null && !"".equals(this.getDateTo())) {
             value.setValidTo(FormatUtil.parseDate("yyyy-MM-dd", this.getDateTo()));
+        }
+        else
+        {
+            value.setValidTo(null);
         }
         for (DictionaryI18NDTO i18nDTO: this.getLocalizedValues().values()) {
             ProcessDBDictionaryI18N i18n = null;
@@ -111,12 +121,12 @@ public class DictionaryItemValueDTO {
             if (extDTO.getId() != null)
                 extension = getExtensionById(value, extDTO.getId());
             if (extension == null)
-                value.addExtension(extDTO.toProcessDBDictionaryItemExtension(languageCode));
+                value.addExtension(extDTO.toProcessDBDictionaryItemExtension(dictionary, languageCode));
             else if (extDTO.getToDelete()) {
                 value.getExtensions().remove(extension);
                 extension.setItemValue(null);
             } else
-                extDTO.updateExtension(extension, languageCode);
+                extDTO.updateExtension(dictionary, extension, languageCode);
         }
     }
 

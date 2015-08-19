@@ -1,82 +1,102 @@
 package org.aperteworkflow.files.dao;
 
+import org.aperteworkflow.files.model.FilesRepositoryAttributes;
 import org.aperteworkflow.files.model.FilesRepositoryItem;
+import org.aperteworkflow.files.model.IFilesRepositoryAttribute;
+import org.aperteworkflow.files.model.IFilesRepositoryItem;
 import org.hibernate.Session;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Restrictions;
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
-import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceDAO;
 import pl.net.bluesoft.rnd.processtool.hibernate.SimpleHibernateBean;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
+import pl.net.bluesoft.rnd.processtool.model.IAttributesConsumer;
+import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
 
 /**
  * @author pwysocki@bluesoft.net.pl
  */
-public class FilesRepositoryItemDAOImpl extends SimpleHibernateBean<FilesRepositoryItem> implements FilesRepositoryItemDAO {
-
-    private ProcessInstanceDAO processInstanceDAO;
-
-
-    public FilesRepositoryItemDAOImpl(Session session, ProcessInstanceDAO processInstanceDAO) {
-        super(session);
-        this.processInstanceDAO = processInstanceDAO;
-    }
+public class FilesRepositoryItemDAOImpl extends SimpleHibernateBean<IFilesRepositoryAttribute> implements FilesRepositoryItemDAO {
 
     public FilesRepositoryItemDAOImpl(Session session) {
-        this(session, ProcessToolContext.Util.getThreadProcessToolContext().getProcessInstanceDAO());
+        super(session);
     }
 
     @Override
-    public FilesRepositoryItem addItem(Long processInstanceId, String name, String description, String relativePath, String contentType, String creatorLogin) {
-        return addItem(processInstanceDAO.getProcessInstance(processInstanceId), name, description, relativePath, contentType, creatorLogin);
+    public FilesRepositoryItem addItem(IAttributesConsumer consumer, String name, String description, String relativePath,
+                                       String contentType, String creatorLogin, FilesRepositoryAttributeFactory factory) {
+        return addItem(consumer, name, description, relativePath, contentType, creatorLogin, false, null, factory);
     }
 
-    public FilesRepositoryItem addItem(ProcessInstance processInstance, String name, String description, String relativePath, String contentType, String creatorLogin) {
+    @Override
+    public FilesRepositoryItem addItem(IAttributesConsumer consumer, String name, String description, String relativePath,
+                                       String contentType, String creatorLogin, Boolean sendAsEmail, String groupId, FilesRepositoryAttributeFactory factory) {
         FilesRepositoryItem item = new FilesRepositoryItem();
-        item.setProcessInstance(processInstance);
         item.setName(name);
         item.setDescription(description);
         item.setRelativePath(relativePath);
         item.setContentType(contentType);
         item.setCreateDate(new Date());
         item.setCreatorLogin(creatorLogin);
-        saveOrUpdate(item);
+		if (sendAsEmail != null) {
+			item.setSendWithMail(sendAsEmail);
+		}
+        item.setGroupId(groupId);
+        IFilesRepositoryAttribute attribute = (IFilesRepositoryAttribute) consumer.getAttribute(FilesRepositoryAttributes.FILES.value());
+        if (attribute == null) {
+            attribute = factory.create();
+            attribute.setKey(FilesRepositoryAttributes.FILES.value());
+            consumer.setAttribute(FilesRepositoryAttributes.FILES.value(), attribute);
+        }
+        attribute.getFilesRepositoryItems().add(item);
+        getSession().saveOrUpdate(item);
         return item;
     }
 
     @Override
-    public Collection<FilesRepositoryItem> getItemsFor(Long processInstanceId) {
-        DetachedCriteria criteria = getDetachedCriteria();
-        criteria.createAlias("processInstance", "pi")
-                .add(Restrictions.eq("pi.id", processInstanceId));
-        return criteria.getExecutableCriteria(getSession()).list();
+    public Collection<FilesRepositoryItem> getItemsFor(IAttributesProvider provider) {
+        IFilesRepositoryAttribute filesAttribute = (IFilesRepositoryAttribute) provider.getAttribute(FilesRepositoryAttributes.FILES.value());
+        if (filesAttribute == null)
+            return new HashSet<FilesRepositoryItem>();
+        return filesAttribute.getFilesRepositoryItems();
     }
 
     @Override
-    public void deleteById(Long id) {
-        delete(getItemById(id));
+    public void deleteById(IAttributesProvider provider, Long itemId) {
+        FilesRepositoryItem item = getItemById(itemId);
+        IFilesRepositoryAttribute filesAttribute = (IFilesRepositoryAttribute) provider.getAttribute(FilesRepositoryAttributes.FILES.value());
+        filesAttribute.removeItem(item);
+        getSession().delete(item);
     }
 
     @Override
-    public void updateDescriptionById(Long id, String description) {
-        FilesRepositoryItem item = getItemById(id);
+    public void updateDescription(IFilesRepositoryItem item, String description) {
         item.setDescription(description);
-        saveOrUpdate(item);
+        getSession().saveOrUpdate(item);
     }
 
     @Override
     public FilesRepositoryItem getItemById(Long id) {
-        return loadById(id);
+        return (FilesRepositoryItem) getSession().get(FilesRepositoryItem.class, id);
     }
 
-    public ProcessInstanceDAO getProcessInstanceDAO() {
-        return processInstanceDAO;
+    @Override
+    public void updateSendWithMail(IFilesRepositoryItem item, Boolean sendWithMail) {
+        item.setSendWithMail(sendWithMail);
+        getSession().saveOrUpdate(item);
     }
 
-    public void setProcessInstanceDAO(ProcessInstanceDAO processInstanceDAO) {
-        this.processInstanceDAO = processInstanceDAO;
-    }
+	@Override
+	public boolean hasAnyFileWithName(String relativePath) {
+		List list = getSession().createSQLQuery(new StringBuilder()
+				.append("SELECT 1\n")
+				.append("FROM pt_files_repository_item\n")
+				.append("WHERE relative_path = :relativePath")
+				.toString())
+				.setParameter("relativePath", relativePath)
+				.setMaxResults(1)
+				.list();
+		return !list.isEmpty();
+	}
 }

@@ -2,7 +2,6 @@ package pl.net.bluesoft.rnd.processtool.model.processdata;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Index;
-import pl.net.bluesoft.rnd.processtool.model.BpmVariable;
 
 import javax.persistence.*;
 
@@ -18,10 +17,10 @@ import javax.persistence.*;
         appliesTo="pt_process_instance_s_attr",
         indexes = {
                 @Index(name = "idx_p_s_attribute_process_id_key",
-                        columnNames = {"process_instance_id", "value_"}
+                        columnNames = {"process_instance_id", "key_"}
                 )
         })
-public class ProcessInstanceSimpleAttribute extends AbstractProcessInstanceAttribute implements BpmVariable {
+public class ProcessInstanceSimpleAttribute extends AbstractProcessInstanceAttribute {
 	public static final String _VALUE = "value";
 
 	@Id
@@ -50,22 +49,14 @@ public class ProcessInstanceSimpleAttribute extends AbstractProcessInstanceAttri
 		this.value = value;
     }
 
+	@Override
 	public Long getId() {
 		return id;
 	}
 
+	@Override
 	public void setId(Long id) {
 		this.id = id;
-	}
-
-	@Override
-	public String getBpmVariableName() {
-		return getKey();
-	}
-
-	@Override
-	public Object getBpmVariableValue() {
-		return value;
 	}
 
 	public String getValue() {
@@ -76,8 +67,8 @@ public class ProcessInstanceSimpleAttribute extends AbstractProcessInstanceAttri
 		this.value = value;
 	}
 
-    @Override
-    public String toString() {
-        return value;
-    }
+	@Override
+	public String toString() {
+		return getKey() + '=' + value;
+	}
 }

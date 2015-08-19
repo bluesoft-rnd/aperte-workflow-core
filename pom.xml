@@ -9,7 +9,7 @@
 
     <groupId>org.aperteworkflow</groupId>
     <artifactId>aperteworkflow-core</artifactId>
-    <version>3.0-beta2-SNAPSHOT</version>
+    <version>3.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Aperte Workflow</name>
@@ -34,12 +34,6 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
-    <scm>
-        <connection>scm:git:https://github.com/bluesoft-rnd/aperte-workflow-core.git</connection>
-        <developerConnection>scm:git:https://github.com/bluesoft-rnd/aperte-workflow-core.git</developerConnection>
-        <url>https://github.com/bluesoft-rnd/aperte-workflow-core.git</url>
-      <tag>aperteworkflow-core-3.0-beta1</tag>
-  </scm>
 
 	<repositories>
 	
@@ -80,7 +74,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.compiler.source>1.6</project.build.compiler.source>
         <project.build.compiler.target>1.6</project.build.compiler.target>
-        <jbpm.version>5.4.0.Final</jbpm.version>
+        <jbpm.version>5.5.0.Final</jbpm.version>
         <spring.version>3.0.7.RELEASE</spring.version>
         <vaadin.version>6.8.10</vaadin.version>
 		<jackson.version>1.9.13</jackson.version>
@@ -89,6 +83,7 @@
         <junit.version>4.8.2</junit.version>
 		<gwt.version>2.5.0</gwt.version>
 		<gwt.plugin.version>2.5.0</gwt.plugin.version>
+        <freemarker.version>2.3.22</freemarker.version>
         <tomcat.version>7.0.42</tomcat.version>
         <servlet.api.version>3.0</servlet.api.version>
         <portlet.api.version>2.0</portlet.api.version>
@@ -98,7 +93,9 @@
 		<maven.dependency.version>2.7</maven.dependency.version>
 		<maven.release.version>2.4</maven.release.version>
 		<maven.bundle.plugin>2.3.7</maven.bundle.plugin>
-		<aperteworkflow.version>3.0-beta1</aperteworkflow.version>
+        <log4j.version>1.2.17</log4j.version>
+        <javax.mail.version>1.4.7</javax.mail.version>
+		<aperteworkflow.version>3.1</aperteworkflow.version>
     </properties>
 
     <!-- Active profile for server -->
@@ -119,7 +116,8 @@
 
 	<dependencyManagement>
 		<dependencies>
-			<dependency>
+
+            <dependency>
 				<groupId>asm</groupId>
 				<artifactId>asm</artifactId>
 				<version>3.1</version>
@@ -176,7 +174,13 @@
 			<artifactId>commons-collections</artifactId>
 			<version>3.2.1</version>
 		</dependency>
-		<dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>4.0</version>
+        </dependency>
+
+        <dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 			<version>2.4</version>

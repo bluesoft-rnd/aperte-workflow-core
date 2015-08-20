@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>org.sonatype.oss</groupId>
-        <artifactId>oss-parent</artifactId>
-        <version>7</version>
-    </parent>
 
     <groupId>org.aperteworkflow</groupId>
     <artifactId>aperteworkflow-core</artifactId>
@@ -17,7 +12,22 @@
         complete BPM solution developed by BlueSoft sp. z o.o. - Polish independent software vendor.
         Project home page is available at http://www.aperteworkflow.org/</description>
 
+    <scm>
+        <connection>scm:git:git@github.com:bluesoft-rnd/aperte-workflow-core.git</connection>
+        <developerConnection>scm:git:git@github.com:bluesoft-rnd/aperte-workflow-core.git</developerConnection>
+        <url>git@github.com:bluesoft-rnd/aperte-workflow-core.git/archetypes/custom-widget-component</url>
+    </scm>
 
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
 
     <modules>
         <module>core</module>

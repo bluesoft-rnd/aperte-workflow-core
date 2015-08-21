@@ -4,7 +4,7 @@
     <parent>
         <artifactId>plugins</artifactId>
         <groupId>org.aperteworkflow</groupId>
-        <version>3.2-SNAPSHOT</version>
+        <version>3.2-RC1</version>
     </parent>
 
     <artifactId>userdata-widget</artifactId>
@@ -49,7 +49,7 @@
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>integration-interface</artifactId>
-            <version>3.2-SNAPSHOT</version>
+            <version>3.2-RC1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

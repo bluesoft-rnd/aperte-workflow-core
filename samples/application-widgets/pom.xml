@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>samples</artifactId>
         <groupId>org.aperteworkflow</groupId>
-        <version>3.2-SNAPSHOT</version>
+        <version>3.2-RC1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -17,25 +15,25 @@
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>integration-interface</artifactId>
-            <version>3.2-SNAPSHOT</version>
+            <version>3.2-RC1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>webapi</artifactId>
-            <version>3.2-SNAPSHOT</version>
+            <version>3.2-RC1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>gui-commons</artifactId>
-            <version>3.2-SNAPSHOT</version>
+            <version>3.2-RC1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <artifactId>case-management</artifactId>
             <groupId>org.aperteworkflow</groupId>
-            <version>3.2-SNAPSHOT</version>
+            <version>3.2-RC1</version>
             <scope>provided</scope>
         </dependency>
 
@@ -43,19 +41,19 @@
         <dependency>
             <artifactId>interactive-reports</artifactId>
             <groupId>org.aperteworkflow</groupId>
-            <version>3.2-SNAPSHOT</version>
+            <version>3.2-RC1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <artifactId>bpm-notifications</artifactId>
             <groupId>org.aperteworkflow</groupId>
-            <version>3.2-SNAPSHOT</version>
+            <version>3.2-RC1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <artifactId>files-repository</artifactId>
             <groupId>org.aperteworkflow</groupId>
-            <version>3.2-SNAPSHOT</version>
+            <version>3.2-RC1</version>
             <scope>provided</scope>
         </dependency>
         <!-- Jackson -->

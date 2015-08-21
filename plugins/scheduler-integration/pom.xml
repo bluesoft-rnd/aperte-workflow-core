@@ -4,11 +4,11 @@
     <parent>
         <artifactId>plugins</artifactId>
         <groupId>org.aperteworkflow</groupId>
-        <version>3.2-SNAPSHOT</version>
+        <version>3.2-RC1</version>
     </parent>
 
     <artifactId>scheduler-integration</artifactId>
-    <version>3.2-SNAPSHOT</version>
+    <version>3.2-RC1</version>
     <name>scheduler-integration</name>
 
     <packaging>bundle</packaging>
@@ -17,19 +17,19 @@
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>integration-interface</artifactId>
-            <version>3.2-SNAPSHOT</version>
+            <version>3.2-RC1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>model</artifactId>
-            <version>3.2-SNAPSHOT</version>
+            <version>3.2-RC1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>aperte-utils</artifactId>
-            <version>3.2-SNAPSHOT</version>
+            <version>3.2-RC1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

@@ -4,7 +4,7 @@
     <parent>
         <artifactId>core</artifactId>
         <groupId>org.aperteworkflow</groupId>
-        <version>3.2-SNAPSHOT</version>
+        <version>3.2-RC1</version>
     </parent>
 
     <artifactId>jbpm-gui</artifactId>
@@ -58,7 +58,7 @@
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>jbpm-context</artifactId>
-            <version>3.2-SNAPSHOT</version>
+            <version>3.2-RC1</version>
             <exclusions>
                 <exclusion>
                     <groupId>jboss</groupId>
@@ -98,7 +98,7 @@
             <groupId>org.aperteworkflow</groupId>
             <artifactId>base-gui</artifactId>
             <type>war</type>
-            <version>3.2-SNAPSHOT</version>
+            <version>3.2-RC1</version>
 			<exclusions>
 				<exclusion>
 					<groupId>cglib</groupId>
@@ -109,7 +109,7 @@
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>editor</artifactId>
-            <version>3.2-SNAPSHOT</version>
+            <version>3.2-RC1</version>
 			<exclusions>
 				<exclusion>
 					<groupId>cglib</groupId>

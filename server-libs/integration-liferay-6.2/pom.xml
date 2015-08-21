@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.aperteworkflow</groupId>
     <artifactId>server-libs</artifactId>
-    <version>3.2-SNAPSHOT</version>
+    <version>3.2-RC1</version>
   </parent>
   
   <artifactId>integration-liferay</artifactId>
@@ -18,13 +18,13 @@
 	<dependency>
 	    <groupId>org.aperteworkflow</groupId>
 	    <artifactId>model</artifactId>
-	    <version>3.2-SNAPSHOT</version>
+	    <version>3.2-RC1</version>
 	    <scope>provided</scope>
 	</dependency>
 	<dependency>
 	    <groupId>org.aperteworkflow</groupId>
 	    <artifactId>integration-interface</artifactId>
-	    <version>3.2-SNAPSHOT</version>
+	    <version>3.2-RC1</version>
 	    <scope>provided</scope>
 	</dependency>
 	<dependency>
@@ -55,7 +55,7 @@
       <dependency>
           <groupId>org.aperteworkflow</groupId>
           <artifactId>liferay-commons</artifactId>
-          <version>3.2-SNAPSHOT</version>
+          <version>3.2-RC1</version>
           <scope>compile</scope>
       </dependency>
   </dependencies>

@@ -4,7 +4,7 @@
     <parent>
         <artifactId>plugins</artifactId>
         <groupId>org.aperteworkflow</groupId>
-        <version>3.2-SNAPSHOT</version>
+        <version>3.2-RC1</version>
     </parent>
 
     <artifactId>interactive-reports</artifactId>
@@ -15,26 +15,26 @@
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>integration-interface</artifactId>
-            <version>3.2-SNAPSHOT</version>
+            <version>3.2-RC1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>gui-commons</artifactId>
-            <version>3.2-SNAPSHOT</version>
+            <version>3.2-RC1</version>
             <scope>provided</scope>
         </dependency>
 
 		<dependency>
 			<artifactId>bpm-notifications</artifactId>
 			<groupId>org.aperteworkflow</groupId>
-			<version>3.2-SNAPSHOT</version>
+			<version>3.2-RC1</version>
 			<scope>provided</scope>
 		</dependency>
         <dependency>
             <artifactId>files-repository</artifactId>
             <groupId>org.aperteworkflow</groupId>
-            <version>3.2-SNAPSHOT</version>
+            <version>3.2-RC1</version>
             <scope>provided</scope>
         </dependency>
         <!-- Jackson -->

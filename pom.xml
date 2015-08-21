@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.aperteworkflow</groupId>
@@ -10,7 +11,8 @@
     <name>Aperte Workflow</name>
     <description>Aperte Workflow is a compilation of well-known, stable and mature frameworks into a
         complete BPM solution developed by BlueSoft sp. z o.o. - Polish independent software vendor.
-        Project home page is available at http://www.aperteworkflow.org/</description>
+        Project home page is available at http://www.aperteworkflow.org/
+    </description>
 
     <scm>
         <connection>scm:git:git@github.com:bluesoft-rnd/aperte-workflow-core.git</connection>
@@ -37,6 +39,77 @@
         <module>server-libs</module>
     </modules>
 
+    <url>http://nexus.sonatype.org/oss-repository-hosting.html/aperteworkflow-core</url>
+
+    <developers>
+        <developer>
+            <id>tlipski</id>
+            <name>Tomek Lipski</name>
+            <email>tlipski@bluesoft.net.pl</email>
+            <organization>BlueSoft</organization>
+            <roles>
+                <role>Developer</role>
+                <role>Designer</role>
+            </roles>
+            <timezone>+1</timezone>
+        </developer>
+        <developer>
+            <id>lbortlik</id>
+            <name>Łukasz Bortlik</name>
+            <email>lbortlik@bluesoft.net.pl</email>
+            <organization>BlueSoft</organization>
+            <roles>
+                <role>Developer</role>
+                <role>Designer</role>
+            </roles>
+            <timezone>+1</timezone>
+        </developer>
+        <developer>
+            <id>kdowbecki</id>
+            <name>Karol Dowbecki</name>
+            <email>kdowbecki@bluesoft.net.pl</email>
+            <organization>BlueSoft</organization>
+            <roles>
+                <role>Developer</role>
+                <role>Designer</role>
+            </roles>
+            <timezone>+1</timezone>
+        </developer>
+        <developer>
+            <id>zmalinowski</id>
+            <name>Zbigniew Malinowski</name>
+            <email>zmalinowski@bluesoft.net.pl</email>
+            <organization>BlueSoft</organization>
+            <roles>
+                <role>Developer</role>
+                <role>Designer</role>
+            </roles>
+            <timezone>+1</timezone>
+        </developer>
+        <developer>
+            <id>pstepaniak</id>
+            <name>Piotr Stepaniak</name>
+            <email>pstepaniak@bluesoft.net.pl</email>
+            <organization>BlueSoft</organization>
+            <roles>
+                <role>Developer</role>
+                <role>Designer</role>
+            </roles>
+            <timezone>+1</timezone>
+        </developer>
+        <developer>
+            <id>mpawlak</id>
+            <name>Maciej Pawlak</name>
+            <email>mpawlak@bluesoft.net.pl</email>
+            <organization>BlueSoft</organization>
+            <roles>
+                <role>Developer</role>
+                <role>Designer</role>
+            </roles>
+            <timezone>+1</timezone>
+        </developer>
+    </developers>
+
     <licenses>
         <license>
             <name>GNU Lesser General Public License, Version 2.1</name>
@@ -45,40 +118,38 @@
         </license>
     </licenses>
 
-	<repositories>
-	
-	
-		<repository>
-			<id>jboss-repo</id>
-			<url>http://repository.jboss.org/nexus/content/groups/public/</url>
-		</repository>
-		<repository>
-			<url>http://repo1.maven.org/maven2/</url>
-			<id>central</id>
-			<layout>default</layout>
-		</repository>
+    <repositories>
+        <repository>
+            <id>jboss-repo</id>
+            <url>http://repository.jboss.org/nexus/content/groups/public/</url>
+        </repository>
+        <repository>
+            <url>http://repo1.maven.org/maven2/</url>
+            <id>central</id>
+            <layout>default</layout>
+        </repository>
 
-		<repository>
-			<id>com.springsource.repository.bundles.release</id>
-			<url>http://repository.springsource.com/maven/bundles/release</url>
-		</repository>
-		<repository>
-			<id>com.springsource.repository.bundles.external</id>
-			<url>http://repository.springsource.com/maven/bundles/external</url>
-		</repository>
-		<repository>
-			<id>vaadin-snapshots</id>
-			<url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
-		</repository>
-		<repository>
-			<id>vaadin-addons</id>
-			<url>http://maven.vaadin.com/vaadin-addons</url>
-		</repository>
- 		<repository>
-			<id>sonat</id>
-			<url>https://oss.sonatype.org/content/groups/public/</url>
-		</repository>
-	</repositories>
+        <repository>
+            <id>com.springsource.repository.bundles.release</id>
+            <url>http://repository.springsource.com/maven/bundles/release</url>
+        </repository>
+        <repository>
+            <id>com.springsource.repository.bundles.external</id>
+            <url>http://repository.springsource.com/maven/bundles/external</url>
+        </repository>
+        <repository>
+            <id>vaadin-snapshots</id>
+            <url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
+        </repository>
+        <repository>
+            <id>vaadin-addons</id>
+            <url>http://maven.vaadin.com/vaadin-addons</url>
+        </repository>
+        <repository>
+            <id>sonat</id>
+            <url>https://oss.sonatype.org/content/groups/public/</url>
+        </repository>
+    </repositories>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -87,25 +158,25 @@
         <jbpm.version>5.5.0.Final</jbpm.version>
         <spring.version>3.0.7.RELEASE</spring.version>
         <vaadin.version>6.8.10</vaadin.version>
-		<jackson.version>1.9.13</jackson.version>
+        <jackson.version>1.9.13</jackson.version>
         <hibernate.version>3.6.10.Final</hibernate.version>
         <postgres.version>9.2-1002-jdbc4</postgres.version>
         <junit.version>4.8.2</junit.version>
-		<gwt.version>2.5.0</gwt.version>
-		<gwt.plugin.version>2.5.0</gwt.plugin.version>
+        <gwt.version>2.5.0</gwt.version>
+        <gwt.plugin.version>2.5.0</gwt.plugin.version>
         <freemarker.version>2.3.22</freemarker.version>
         <tomcat.version>7.0.42</tomcat.version>
         <servlet.api.version>3.0</servlet.api.version>
         <portlet.api.version>2.0</portlet.api.version>
-		<maven.compiler.version>3.0</maven.compiler.version>
+        <maven.compiler.version>3.0</maven.compiler.version>
         <maven.bundle.version>2.4.0</maven.bundle.version>
-		<maven.war.version>2.3</maven.war.version>
-		<maven.dependency.version>2.7</maven.dependency.version>
-		<maven.release.version>2.4</maven.release.version>
-		<maven.bundle.plugin>2.3.7</maven.bundle.plugin>
+        <maven.war.version>2.3</maven.war.version>
+        <maven.dependency.version>2.7</maven.dependency.version>
+        <maven.release.version>2.4</maven.release.version>
+        <maven.bundle.plugin>2.3.7</maven.bundle.plugin>
         <log4j.version>1.2.17</log4j.version>
         <javax.mail.version>1.4.7</javax.mail.version>
-		<aperteworkflow.version>3.1</aperteworkflow.version>
+        <aperteworkflow.version>3.1</aperteworkflow.version>
     </properties>
 
     <!-- Active profile for server -->
@@ -122,33 +193,60 @@
                 <liferay.version>6.0.6</liferay.version>
             </properties>
         </profile>
+        <profile>
+            <id>release-sign-artifacts</id>
+            <activation>
+                <property>
+                    <name>performRelease</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.5</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 
-	<dependencyManagement>
-		<dependencies>
+    <dependencyManagement>
+        <dependencies>
 
             <dependency>
-				<groupId>asm</groupId>
-				<artifactId>asm</artifactId>
-				<version>3.1</version>
-			</dependency>
-			<dependency>
-				<groupId>org.javassist</groupId>
-				<artifactId>javassist</artifactId>
-				<version>3.14.0-GA</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.neethi</groupId>
-				<artifactId>neethi</artifactId>
-				<version>3.0.2</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.ws.xmlschema</groupId>
-				<artifactId>xmlschema-core</artifactId>
-				<version>2.0.2</version>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
+                <groupId>asm</groupId>
+                <artifactId>asm</artifactId>
+                <version>3.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.javassist</groupId>
+                <artifactId>javassist</artifactId>
+                <version>3.14.0-GA</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.neethi</groupId>
+                <artifactId>neethi</artifactId>
+                <version>3.0.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.ws.xmlschema</groupId>
+                <artifactId>xmlschema-core</artifactId>
+                <version>2.0.2</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -179,11 +277,11 @@
             <scope>test</scope>
         </dependency>
 
-		<dependency>
-			<groupId>commons-collections</groupId>
-			<artifactId>commons-collections</artifactId>
-			<version>3.2.1</version>
-		</dependency>
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <version>3.2.1</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
@@ -191,22 +289,22 @@
         </dependency>
 
         <dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-			<version>2.4</version>
-		</dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.4</version>
+        </dependency>
     </dependencies>
 
     <build>
         <pluginManagement>
             <plugins>
-			 <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <configuration>
+                        <skip>true</skip>
+                    </configuration>
+                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>
@@ -226,7 +324,7 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-compiler-plugin</artifactId>
-					<version>${maven.compiler.version}</version>
+                    <version>${maven.compiler.version}</version>
                     <configuration>
                         <source>${project.build.compiler.source}</source>
                         <target>${project.build.compiler.target}</target>
@@ -242,24 +340,9 @@
                         <mavenExecutorId>forked-path</mavenExecutorId>
                     </configuration>
                 </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-gpg-plugin</artifactId>
-                    <executions>
-                        <execution>
-                            <id>sign-artifacts</id>
-                            <phase>verify</phase>
-                            <goals>
-                                <goal>sign</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
             </plugins>
         </pluginManagement>
     </build>
-	
-	
 
 
 </project>

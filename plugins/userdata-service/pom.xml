@@ -4,10 +4,10 @@
     <parent>
         <artifactId>plugins</artifactId>
         <groupId>org.aperteworkflow</groupId>
-        <version>3.2-RC1</version>
+        <version>3.2-RC2-SNAPSHOT</version>
     </parent>
 
-    <version>3.2-RC1</version>
+    <version>3.2-RC2-SNAPSHOT</version>
     <artifactId>userdata-service</artifactId>
     <name>userdata-service</name>
 
@@ -17,7 +17,7 @@
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>integration-interface</artifactId>
-            <version>3.2-RC1</version>
+            <version>3.2-RC2-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

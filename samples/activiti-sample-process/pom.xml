@@ -4,7 +4,7 @@
     <parent>
         <artifactId>samples</artifactId>
         <groupId>org.aperteworkflow</groupId>
-        <version>3.2-RC1</version>
+        <version>3.2-RC2-SNAPSHOT</version>
     </parent>
 
     <artifactId>activiti-sample-process</artifactId>
@@ -14,7 +14,7 @@
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>integration-interface</artifactId>
-            <version>3.2-RC1</version>
+            <version>3.2-RC2-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

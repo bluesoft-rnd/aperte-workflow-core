@@ -4,7 +4,7 @@
 
     <groupId>org.aperteworkflow</groupId>
     <artifactId>aperteworkflow-core</artifactId>
-    <version>3.2-RC1</version>
+    <version>3.2-RC2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Aperte Workflow</name>
@@ -17,7 +17,7 @@
         <connection>scm:git:git@github.com:bluesoft-rnd/aperte-workflow-core.git</connection>
         <developerConnection>scm:git:git@github.com:bluesoft-rnd/aperte-workflow-core.git</developerConnection>
         <url>git@github.com:bluesoft-rnd/aperte-workflow-core.git/archetypes/custom-widget-component</url>
-      <tag>aperteworkflow-core-3.2-RC1</tag>
+      <tag>HEAD</tag>
   </scm>
 
     <distributionManagement>

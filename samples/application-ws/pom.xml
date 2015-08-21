@@ -2,7 +2,7 @@
     <parent>
         <artifactId>samples</artifactId>
         <groupId>org.aperteworkflow</groupId>
-        <version>3.2-RC1</version>
+        <version>3.2-RC2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>application-ws</artifactId>
@@ -18,13 +18,13 @@
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>integration-interface</artifactId>
-            <version>3.2-RC1</version>
+            <version>3.2-RC2-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>gui-commons</artifactId>
-            <version>3.2-RC1</version>
+            <version>3.2-RC2-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -44,7 +44,7 @@
         <dependency>
             <artifactId>files-repository</artifactId>
             <groupId>org.aperteworkflow</groupId>
-            <version>3.2-RC1</version>
+            <version>3.2-RC2-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
@@ -66,21 +66,21 @@
         <dependency>
             <artifactId>case-management</artifactId>
             <groupId>org.aperteworkflow</groupId>
-            <version>3.2-RC1</version>
+            <version>3.2-RC2-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>application-ws-schema</artifactId>
-            <version>3.2-RC1</version>
+            <version>3.2-RC2-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>interactive-reports</artifactId>
-            <version>3.2-RC1</version>
+            <version>3.2-RC2-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 

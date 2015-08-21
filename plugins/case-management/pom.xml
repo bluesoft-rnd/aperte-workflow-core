@@ -3,7 +3,7 @@
     <parent>
         <artifactId>plugins</artifactId>
         <groupId>org.aperteworkflow</groupId>
-        <version>3.2-RC1</version>
+        <version>3.2-RC2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -20,13 +20,13 @@
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>webapi</artifactId>
-            <version>3.2-RC1</version>
+            <version>3.2-RC2-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>integration-interface</artifactId>
-            <version>3.2-RC1</version>
+            <version>3.2-RC2-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -56,13 +56,13 @@
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>integration</artifactId>
-            <version>3.2-RC1</version>
+            <version>3.2-RC2-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>webapi</artifactId>
-            <version>3.2-RC1</version>
+            <version>3.2-RC2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <!-- jsoup HTML parser library @ http://jsoup.org/ -->
@@ -91,13 +91,13 @@
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>files-repository</artifactId>
-            <version>3.2-RC1</version>
+            <version>3.2-RC2-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.aperteworkflow</groupId>
             <artifactId>base-widgets</artifactId>
-            <version>3.2-RC1</version>
+            <version>3.2-RC2-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
